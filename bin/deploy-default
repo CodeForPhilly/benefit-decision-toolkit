@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# This is for deploying to the "official" service that runs the API and frontend screeners.
+# In order to use it, you'll need to be granted access.
+
+# If you intend to run your own instance of the toolkit, then you'll need to setup your own
+# deployment pipeline in Google Cloud or elsewhere. (You won't be able to use this script)
+
+set -e
+
+gcloud run deploy idx-githubcom-1867804 --project=preston-cabe --region=us-east4 --source . --allow-unauthenticated
