@@ -3,18 +3,17 @@ body {
 }
 
 h1 {
-  position: relative;
-  top: 140px;
-  left: 40px;
   color: white;
   text-shadow: 0 0 6px black;
   margin: 0;
+  margin-left: 40px;
+  padding-top: 120px;
+  padding-bottom: 60px;
 }
 
 header {
   background: url("../images/philly-skyline.jpg") left center;
   background-size: cover;
-  height: 240px;
 }
 
 footer {
