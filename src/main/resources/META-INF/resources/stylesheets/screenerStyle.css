@@ -1,0 +1,22 @@
+body {
+  margin: 0;
+}
+
+h1 {
+  position: relative;
+  top: 140px;
+  left: 40px;
+  color: white;
+  text-shadow: 0 0 6px black;
+  margin: 0;
+}
+
+header {
+  background: url("../images/philly-skyline.jpg") left center;
+  background-size: cover;
+  height: 240px;
+}
+
+footer {
+  text-align: center;
+}
