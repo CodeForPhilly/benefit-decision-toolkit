@@ -34,4 +34,5 @@ footer {
   --letter-spacing-input: normal;
   --letter-spacing-label: normal;
   --color-text-light: black;
+  --form-field-height: 2.25rem;
 }
