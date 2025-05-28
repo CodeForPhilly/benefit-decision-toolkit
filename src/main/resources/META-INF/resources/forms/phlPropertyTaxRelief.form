@@ -425,7 +425,7 @@
               }
             },
             {
-              "text": "# LOOP: Ineligible\n\nYou appear to be either already enrolled or ineligible for this tax relief benefit based on the information provided. \n\nIf you feel this is an error you can complete a new screening, or apply for an official determination of eligibility with the Philadelphia Department of Revenue. Visit the <a href=\"https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/\" target=\"_blank\">Philadelphia Department of Revenue website</a> or call them at (215) 686-6442 for more information.",
+              "text": "## LOOP: Ineligible\n\nYou appear to be either already enrolled or ineligible for this tax relief benefit based on the information provided. \n\nIf you feel this is an error you can complete a new screening, or apply for an official determination of eligibility with the Philadelphia Department of Revenue. Visit the <a href=\"https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/\" target=\"_blank\">Philadelphia Department of Revenue website</a> or call them at (215) 686-6442 for more information.",
               "type": "text",
               "layout": {
                 "row": "Row_0xoszsh",
