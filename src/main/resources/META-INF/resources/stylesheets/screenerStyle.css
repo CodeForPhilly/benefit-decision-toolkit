@@ -1,5 +1,6 @@
 body {
   margin: 0;
+  font-family: sans-serif;
 }
 
 h1 {
@@ -18,4 +19,5 @@ header {
 
 footer {
   text-align: center;
+  margin-bottom: 60px;
 }
