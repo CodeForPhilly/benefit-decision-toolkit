@@ -4,12 +4,14 @@ body {
 }
 
 h1 {
+  font-size: 2.25rem;
   color: white;
-  text-shadow: 0 0 6px black;
+  text-shadow: 0 0 0.2em rgb(17, 34, 51);
   margin: 0;
-  margin-left: 40px;
-  padding-top: 120px;
-  padding-bottom: 60px;
+  margin-left: 2.5rem;
+  margin-right: 2.5rem;
+  padding-top: 3.3333em;
+  padding-bottom: 1.6666em;
 }
 
 header {
@@ -35,4 +37,19 @@ footer {
   --letter-spacing-label: normal;
   --color-text-light: black;
   --form-field-height: 2.25rem;
+}
+
+@media screen and (max-width: 671px) {
+  h1 {
+    padding-top: 2.2em;
+    padding-bottom: 1.1em;
+    margin-left: 1.875rem;
+    margin-right: 1.875rem;
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  h1 {
+    font-size: 3rem;
+  }
 }
