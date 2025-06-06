@@ -3,10 +3,10 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.prestoncabe</groupId>
-  <artifactId>dmn-benefit-toolbox</artifactId>
+  <artifactId>benefit-decision-toolkit</artifactId>
   <version>v0.0.1</version>
-  <name>DMN Benefit Toolbox</name>
-  
+  <name>Benefit Decision Toolkit</name>
+
   <properties>
     <compiler-plugin.version>3.11.0</compiler-plugin.version>
     <maven.compiler.release>17</maven.compiler.release>
