@@ -23,7 +23,7 @@
           "type": "datetime",
           "layout": {
             "row": "Row_07w1d4v",
-            "columns": null
+            "columns": 6
           },
           "id": "Field_1lcv9i4",
           "key": "inputs.dateOfBirth",
@@ -57,7 +57,7 @@
           "type": "datetime",
           "layout": {
             "row": "Row_0v1m8x0",
-            "columns": null
+            "columns": 6
           },
           "id": "Field_008t24c",
           "key": "inputs.spouseDateOfBirth",
@@ -103,7 +103,7 @@
           "type": "select",
           "layout": {
             "row": "Row_16i6v64",
-            "columns": null
+            "columns": 6
           },
           "id": "Field_0wwxhao",
           "key": "inputs.householdSize",
@@ -228,9 +228,33 @@
       "type": "group",
       "layout": {
         "row": "Row_0p8w8o9",
-        "columns": null
+        "columns": 8
       },
       "id": "Field_01zhsj8"
+    },
+    {
+      "label": "=if form.complete then\n  \"Results\"\nelse\n  \"Eligibility Details\"\n",
+      "components": [
+        {
+          "text": "{{#loop get entries(benefits)}}\n#### {{string join(for i in 1..string length(key) return if(i = 1) then upper case(substring(key, i, 1)) else if(substring(key, i, 1) >= \"A\" and substring(key, i, 1) <= \"Z\" and (substring(key, i-1, 1) < \"A\" or substring(key, i-1, 1) > \"Z\")) then \" \" + substring(key, i, 1) else substring(key, i, 1))}} {{if value.eligibility.result = true then \"✅\" else if value.eligibility.result = null then \"❔\" else \"❌\"}}\n{{#loop get entries(value.eligibility.checks)}}\n- {{string join(for i in 1..string length(key) return if(i = 1) then upper case(substring(key, i, 1)) else if(substring(key, i, 1) >= \"A\" and substring(key, i, 1) <= \"Z\" and (substring(key, i-1, 1) < \"A\" or substring(key, i-1, 1) > \"Z\")) then \" \" + substring(key, i, 1) else substring(key, i, 1))}} {{if value = true then \"🟢\" else if value = null then \"🟡\" else \"🔴\"}}\n{{/loop}}\n{{/loop}}",
+          "type": "text",
+          "layout": {
+            "row": "Row_0642o6u",
+            "columns": null
+          },
+          "id": "Field_0mpxfbw"
+        }
+      ],
+      "showOutline": true,
+      "type": "group",
+      "layout": {
+        "row": "Row_0p8w8o9",
+        "columns": 8
+      },
+      "id": "Field_0esgoap",
+      "conditional": {
+        "hide": "=form.empty"
+      }
     },
     {
       "computeOn": "change",
@@ -265,30 +289,6 @@
       "key": "benefits",
       "readonly": "true",
       "disabled": false
-    },
-    {
-      "label": "=if form.complete then\n  \"Results\"\nelse\n  \"Eligibility Details\"\n",
-      "components": [
-        {
-          "text": "{{#loop get entries(benefits)}}\n#### {{string join(for i in 1..string length(key) return if(i = 1) then upper case(substring(key, i, 1)) else if(substring(key, i, 1) >= \"A\" and substring(key, i, 1) <= \"Z\" and (substring(key, i-1, 1) < \"A\" or substring(key, i-1, 1) > \"Z\")) then \" \" + substring(key, i, 1) else substring(key, i, 1))}} {{if value.eligibility.result = true then \"✅\" else if value.eligibility.result = null then \"❔\" else \"❌\"}}\n{{#loop get entries(value.eligibility.checks)}}\n- {{string join(for i in 1..string length(key) return if(i = 1) then upper case(substring(key, i, 1)) else if(substring(key, i, 1) >= \"A\" and substring(key, i, 1) <= \"Z\" and (substring(key, i-1, 1) < \"A\" or substring(key, i-1, 1) > \"Z\")) then \" \" + substring(key, i, 1) else substring(key, i, 1))}} {{if value = true then \"🟢\" else if value = null then \"🟡\" else \"🔴\"}}\n{{/loop}}\n{{/loop}}",
-          "type": "text",
-          "layout": {
-            "row": "Row_0642o6u",
-            "columns": null
-          },
-          "id": "Field_0mpxfbw"
-        }
-      ],
-      "showOutline": true,
-      "type": "group",
-      "layout": {
-        "row": "Row_1njn9hs",
-        "columns": null
-      },
-      "id": "Field_0esgoap",
-      "conditional": {
-        "hide": "=form.empty"
-      }
     }
   ],
   "type": "default",
