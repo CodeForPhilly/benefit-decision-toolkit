@@ -3,13 +3,13 @@
     "name": "11 person Ineligible Income",
     "url": "benefits/paSeniorFoodBox",
     "method": "POST",
-    "sortNum": 22500,
+    "sortNum": 16250,
     "created": "2024-10-01T15:43:16.035Z",
-    "modified": "2025-02-27T16:39:51.600Z",
+    "modified": "2025-06-26T19:31:56.374Z",
     "headers": [],
     "body": {
         "type": "json",
-        "raw": "{\n  \"inputs\": {\n    \"householdSize\": 11,\n    \"currentMonthlyGrossHouseholdIncome\": 7462,\n    \"notEnrolledInPaSeniorFoodBox\": true,\n    \"livesInPa\": true\n  }\n}",
+        "raw": "{\n  \"inputs\": {\n    \"householdSize\": 11,\n    \"currentMonthlyGrossHouseholdIncome\": 8834,\n    \"notEnrolledInPaSeniorFoodBox\": true,\n    \"livesInPa\": true\n  }\n}",
         "form": []
     },
     "tests": [
