@@ -4,6 +4,64 @@
       "label": "",
       "components": [
         {
+          "text": "The City of Philadelphia has many <a href=\"https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/\" target=\"_blank\">property tax relief benefits</a> to help homeowners save money.  1 in 4 likely eligible homeowners are missing out on tax relief savings! \n\nThis questionaire helps you determine if you are eligible for one or more of the following benefits:\n\n- Homestead Exemption\n- LOOP (Longtime Owner Occupant Program)\n- Low-Income Tax Freeze\n- OOPA (Owner-Occupied Payment Agreement)\n- Senior Citizen Tax Freeze",
+          "type": "text",
+          "layout": {
+            "row": "Row_04l9q1o",
+            "columns": null
+          },
+          "id": "Field_1f8iffw"
+        },
+        {
+          "text": "## Terms of Service\n \nThis tool helps you figure out your potential eligibility for property tax relief benefits based on the information you provide. No data is stored or saved. It is a self-assessment and does not guarantee eligibility. All final eligibility decisions are made by the Philadelphia Department of Revenue upon review of a formal application. At the end of this screening you will be given details on how to apply. ",
+          "type": "text",
+          "layout": {
+            "row": "Row_1uxefce",
+            "columns": null
+          },
+          "id": "Field_00qmtk2"
+        },
+        {
+          "label": "Do you agree to the terms of service?",
+          "type": "radio",
+          "layout": {
+            "row": "Row_1st2lu1",
+            "columns": null
+          },
+          "id": "Field_0wwgkey",
+          "key": "termsOfService",
+          "valuesExpression": "=[\n  {label: \"Yes\", value: true},\n  {label: \"No\", value: false}\n]",
+          "validate": {
+            "required": true
+          },
+          "properties": {},
+          "readonly": "=termsOfService != null"
+        },
+        {
+          "text": "Please visit the Philadelphia Department of Revenue for more information on property tax relief benefits and how to apply:\n\n <a href=\"https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/\" target=\"_blank\">Philadelphia Department of Revenue</a>\n\nIf you would like to change your answer click \"Screen again\".",
+          "type": "text",
+          "layout": {
+            "row": "Row_1fn5ao7",
+            "columns": null
+          },
+          "id": "Field_1adj7ve",
+          "conditional": {
+            "hide": "=list contains([null, true], termsOfService)"
+          }
+        }
+      ],
+      "showOutline": true,
+      "type": "group",
+      "layout": {
+        "row": "Row_1wjaf0j",
+        "columns": null
+      },
+      "id": "Field_0at976o"
+    },
+    {
+      "label": "",
+      "components": [
+        {
           "text": "_Fill out the form below to see if you're eligible for one or more tax relief benefits._",
           "label": "Text view",
           "type": "text",
@@ -356,7 +414,10 @@
         "columns": 8
       },
       "id": "Field_15slsxg",
-      "verticalAlignment": "start"
+      "verticalAlignment": "start",
+      "conditional": {
+        "hide": "=list contains([null, false], termsOfService)"
+      }
     },
     {
       "label": "",
@@ -386,10 +447,36 @@
           "expression": "=every entry in (get entries(inputs)) satisfies (entry.value = null)"
         },
         {
+          "label": "=if form.complete then\n  \"Results\"\nelse\n  \"Eligibility Details\"",
+          "components": [
+            {
+              "text": "{{#loop get entries(benefits)}}\n#### {{string join(for i in 1..string length(key) return if(i = 1) then upper case(substring(key, i, 1)) else if(substring(key, i, 1) >= \"A\" and substring(key, i, 1) <= \"Z\" and (substring(key, i-1, 1) < \"A\" or substring(key, i-1, 1) > \"Z\")) then \" \" + substring(key, i, 1) else substring(key, i, 1))}} {{if value.eligibility.result = true then \"✅\" else if value.eligibility.result = null then \"❔\" else \"❌\"}}\n{{#loop get entries(value.eligibility.checks)}}\n- {{string join(for i in 1..string length(key) return if(i = 1) then upper case(substring(key, i, 1)) else if(substring(key, i, 1) >= \"A\" and substring(key, i, 1) <= \"Z\" and (substring(key, i-1, 1) < \"A\" or substring(key, i-1, 1) > \"Z\")) then \" \" + substring(key, i, 1) else substring(key, i, 1))}} {{if value = true then \"🟢\" else if value = null then \"🟡\" else \"🔴\"}}\n{{/loop}}\n{{/loop}}",
+              "label": "Text view",
+              "type": "text",
+              "layout": {
+                "row": "Row_1yx4wpl",
+                "columns": null
+              },
+              "id": "Field_01v1uwd"
+            }
+          ],
+          "showOutline": true,
+          "type": "group",
+          "layout": {
+            "row": "Row_1yx4wpl",
+            "columns": null
+          },
+          "id": "Field_results",
+          "verticalAlignment": "end",
+          "conditional": {
+            "hide": "=form.incomplete or list contains([null, false], termsOfService) "
+          }
+        },
+        {
           "label": "LOOP Results",
           "components": [
             {
-              "text": "# LOOP: likely eligible\n\nYou appear eligible for the Longtime Owner Occupants Program (LOOP), which is a Real Estate Tax relief program. LOOP works by:\n\n1. Limiting your home’s assessment increase to 50% (or 1.5 times the previous amount) or 75% (or 1.75 times the previous amount).\n2. Locking in that assessment for as long as you remain eligible.\n\n**Benefit Amount:** Visit <a href=\"https://property.phila.gov/\" target=\"_blank\">https://property.phila.gov/</a> and enter your address to see your estimated property tax bill savings under this benefit \n\n**Application forms:** <a href=\"https://www.phila.gov/documents/longtime-owner-occupants-program-loop-forms/\" target=\"_blank\">https://www.phila.gov/documents/longtime-owner-occupants-program-loop-forms/</a>\n\n**Apply online:** <a href=\"https://tax-services.phila.gov/_/\" target=\"_blank\">https://tax-services.phila.gov/_/</a>\n\n**Questions?** Call the Philadelphia Department of Revenue at 215-686-9200\n\n**NOTE:** You cannot also receive LOOP while receiving a homestead exemption. To see which program is better for you, compare your potential savings by visting <a href=\"https://property.phila.gov/\" target=\"_blank\">https://property.phila.gov/</a> or calling the phone number above for more information. See example pictures below of the different estimations for Homestead vs LOOP.\n \t",
+              "text": "## LOOP: likely eligible\n\nYou appear eligible for the Longtime Owner Occupants Program (LOOP), which is a Real Estate Tax relief program. LOOP works by:\n\n1. Limiting your home’s assessment increase to 50% (or 1.5 times the previous amount) or 75% (or 1.75 times the previous amount).\n2. Locking in that assessment for as long as you remain eligible.\n\n**Benefit Amount:** Visit <a href=\"https://property.phila.gov/\" target=\"_blank\">https://property.phila.gov/</a> and enter your address to see your estimated property tax bill savings under this benefit \n\n**Application forms:** <a href=\"https://www.phila.gov/documents/longtime-owner-occupants-program-loop-forms/\" target=\"_blank\">https://www.phila.gov/documents/longtime-owner-occupants-program-loop-forms/</a>\n\n**Apply online:** <a href=\"https://tax-services.phila.gov/_/\" target=\"_blank\">https://tax-services.phila.gov/_/</a>\n\n**Questions?** Call the Philadelphia Department of Revenue at 215-686-9200\n\n**NOTE:** You cannot also receive LOOP while receiving a homestead exemption. To see which program is better for you, compare your potential savings by visting <a href=\"https://property.phila.gov/\" target=\"_blank\">https://property.phila.gov/</a> or calling the phone number above for more information. See example pictures below of the different estimations for Homestead vs LOOP.\n \t",
               "type": "text",
               "layout": {
                 "row": "Row_0kgw1fp",
@@ -445,33 +532,7 @@
           },
           "id": "Field_1682hb3",
           "conditional": {
-            "hide": "=not(form.complete)"
-          }
-        },
-        {
-          "label": "=if form.complete then\n  \"Results\"\nelse\n  \"Eligibility Details\"",
-          "components": [
-            {
-              "text": "{{#loop get entries(benefits)}}\n#### {{string join(for i in 1..string length(key) return if(i = 1) then upper case(substring(key, i, 1)) else if(substring(key, i, 1) >= \"A\" and substring(key, i, 1) <= \"Z\" and (substring(key, i-1, 1) < \"A\" or substring(key, i-1, 1) > \"Z\")) then \" \" + substring(key, i, 1) else substring(key, i, 1))}} {{if value.eligibility.result = true then \"✅\" else if value.eligibility.result = null then \"❔\" else \"❌\"}}\n{{#loop get entries(value.eligibility.checks)}}\n- {{string join(for i in 1..string length(key) return if(i = 1) then upper case(substring(key, i, 1)) else if(substring(key, i, 1) >= \"A\" and substring(key, i, 1) <= \"Z\" and (substring(key, i-1, 1) < \"A\" or substring(key, i-1, 1) > \"Z\")) then \" \" + substring(key, i, 1) else substring(key, i, 1))}} {{if value = true then \"🟢\" else if value = null then \"🟡\" else \"🔴\"}}\n{{/loop}}\n{{/loop}}",
-              "label": "Text view",
-              "type": "text",
-              "layout": {
-                "row": "Row_1yx4wpl",
-                "columns": null
-              },
-              "id": "Field_01v1uwd"
-            }
-          ],
-          "showOutline": true,
-          "type": "group",
-          "layout": {
-            "row": "Row_1yx4wpl",
-            "columns": null
-          },
-          "id": "Field_results",
-          "verticalAlignment": "end",
-          "conditional": {
-            "hide": "=form.incomplete"
+            "hide": "=list contains([null, false], termsOfService) or not(form.complete)"
           }
         },
         {
@@ -518,7 +579,7 @@
   "versionTag": "0.0.1",
   "exporter": {
     "name": "Camunda Modeler",
-    "version": "5.34.0"
+    "version": "5.37.0"
   },
   "schemaVersion": 18
 }
