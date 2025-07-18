@@ -13,7 +13,7 @@
           "id": "Field_1f8iffw"
         },
         {
-          "text": "## Terms of Service\n \nThis tool helps you figure out your potential eligibility for property tax relief benefits based on the information you provide. No data is stored or saved. It is a self-assessment and does not guarantee eligibility. All final eligibility decisions are made by the Philadelphia Department of Revenue upon review of a formal application. At the end of this screening you will be given details on how to apply. ",
+          "text": "## Terms of Service\n \nThis screening tool helps you figure out your potential eligibility for property tax relief benefits based on the information you provide. No data is stored or saved. It is a self-assessment and does not guarantee eligibility. All final eligibility decisions are made by the Philadelphia Department of Revenue upon review of a formal application. At the end of this screening you will be given details on how to apply. ",
           "type": "text",
           "layout": {
             "row": "Row_1uxefce",
@@ -410,7 +410,7 @@
       "showOutline": false,
       "type": "group",
       "layout": {
-        "row": "Row_14395zo",
+        "row": "Row_1kn0fqq",
         "columns": 8
       },
       "id": "Field_15slsxg",
@@ -427,7 +427,7 @@
           "label": "Expression",
           "type": "expression",
           "layout": {
-            "row": "Row_1mppei6",
+            "row": "Row_0ozyjja",
             "columns": null
           },
           "id": "Field_0lib806",
@@ -439,7 +439,7 @@
           "label": "Expression",
           "type": "expression",
           "layout": {
-            "row": "Row_1mppei6",
+            "row": "Row_17e0jua",
             "columns": null
           },
           "id": "Field_1ufxr3s",
@@ -463,7 +463,7 @@
           "showOutline": true,
           "type": "group",
           "layout": {
-            "row": "Row_1yx4wpl",
+            "row": "Row_1l5ugg1",
             "columns": null
           },
           "id": "Field_results",
@@ -471,12 +471,24 @@
           "conditional": {
             "hide": "=form.incomplete or list contains([null, false], termsOfService) "
           }
-        },
+        }
+      ],
+      "showOutline": false,
+      "type": "group",
+      "layout": {
+        "row": "Row_1kn0fqq",
+        "columns": 8
+      },
+      "id": "Field_1kv6uw0"
+    },
+    {
+      "label": "",
+      "components": [
         {
-          "label": "LOOP Results",
+          "label": "Longtime Owner Occupants Program Results",
           "components": [
             {
-              "text": "## LOOP: likely eligible\n\nYou appear eligible for the Longtime Owner Occupants Program (LOOP), which is a Real Estate Tax relief program. LOOP works by:\n\n1. Limiting your home’s assessment increase to 50% (or 1.5 times the previous amount) or 75% (or 1.75 times the previous amount).\n2. Locking in that assessment for as long as you remain eligible.\n\n**Benefit Amount:** Visit <a href=\"https://property.phila.gov/\" target=\"_blank\">https://property.phila.gov/</a> and enter your address to see your estimated property tax bill savings under this benefit \n\n**Application forms:** <a href=\"https://www.phila.gov/documents/longtime-owner-occupants-program-loop-forms/\" target=\"_blank\">https://www.phila.gov/documents/longtime-owner-occupants-program-loop-forms/</a>\n\n**Apply online:** <a href=\"https://tax-services.phila.gov/_/\" target=\"_blank\">https://tax-services.phila.gov/_/</a>\n\n**Questions?** Call the Philadelphia Department of Revenue at 215-686-9200\n\n**NOTE:** You cannot also receive LOOP while receiving a homestead exemption. To see which program is better for you, compare your potential savings by visting <a href=\"https://property.phila.gov/\" target=\"_blank\">https://property.phila.gov/</a> or calling the phone number above for more information. See example pictures below of the different estimations for Homestead vs LOOP.\n \t",
+              "text": "## Likely Eligible\n\nYou appear eligible for the Longtime Owner Occupants Program (LOOP), which is a Real Estate Tax relief program. LOOP works by:\n\n1. Limiting your home’s assessment increase to 50% (or 1.5 times the previous amount) or 75% (or 1.75 times the previous amount).\n2. Locking in that assessment for as long as you remain eligible.\n\n**Benefit Amount:** Visit <a href=\"https://property.phila.gov/\" target=\"_blank\">https://property.phila.gov/</a> and enter your address to see your estimated property tax bill savings under this benefit \n\n**Application forms:** <a href=\"https://www.phila.gov/documents/longtime-owner-occupants-program-loop-forms/\" target=\"_blank\">https://www.phila.gov/documents/longtime-owner-occupants-program-loop-forms/</a>\n\n**Apply online:** <a href=\"https://tax-services.phila.gov/_/\" target=\"_blank\">https://tax-services.phila.gov/_/</a>\n\n**Deadline to apply**: September 30, 2025\n\n**Questions?** Call the Philadelphia Department of Revenue at 215-686-9200\n\n**NOTE:** You cannot also receive LOOP while receiving a homestead exemption. To see which program is better for you, compare your potential savings by visting <a href=\"https://property.phila.gov/\" target=\"_blank\">https://property.phila.gov/</a> or calling the phone number above for more information. If you are unsure if you qualify for LOOP based on tax percent increases check here as well.\n \t",
               "type": "text",
               "layout": {
                 "row": "Row_0kgw1fp",
@@ -494,25 +506,13 @@
                 "columns": null
               },
               "id": "Field_05qfili",
-              "source": "https://lh3.googleusercontent.com/pw/AP1GczO6sRQKSb8PQndU4mUt4tpUxH1PJO_b_RcfjBuF8Nghrp4vEj2-X3lGUAAEb1hbZ6rcCnoffL15gobdlOsu8TbT8nUpdDQkWvtGivmxWZZIW-ypC8xayiqfwlcqurqeo8TasH2csqJZJOlp4YvffQE=w912-h806-s-no-gm?",
+              "source": "https://lh3.googleusercontent.com/pw/AP1GczMCTHx28T-voLwLrILjjwdRmvIPjEAkwRud7BdK3tljfvsrqA-7_KWzEzK44kGEtABwFPSTu59_bT5q-Kq2fEo2yGs19n8Kn4y8HQfPuK3YpTDOsvQu8TzWqjS_NPNwwaL4Wxcv_ue45hNRKBkQ28Hm=w903-h182-s-no-gm?",
               "conditional": {
                 "hide": "=benefits.phlLoop.eligibility.result != true "
               }
             },
             {
-              "type": "image",
-              "layout": {
-                "row": "Row_0qney0k",
-                "columns": null
-              },
-              "id": "Field_0qqvagc",
-              "source": "https://lh3.googleusercontent.com/pw/AP1GczM9u7rFIRrVIz9CBxgJKbwpeZBIj9TnZQA6wwGhLW5DIiYt1LSHrRNo2cpslkxJ89x1wHVibNJ1GVelPp2Dx4WNspPTa-8xph-55_cm1onNI52Z3uyVMIAUV2azxDhfzzLz556Vp2XH9MG802dLbpc=w913-h778-s-no-gm?",
-              "conditional": {
-                "hide": "=benefits.phlLoop.eligibility.result != true "
-              }
-            },
-            {
-              "text": "## LOOP: Ineligible\n\nYou appear to be either already enrolled or ineligible for this tax relief benefit based on the information provided. \n\nIf you feel this is an error you can complete a new screening, or apply for an official determination of eligibility with the Philadelphia Department of Revenue. Visit the <a href=\"https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/\" target=\"_blank\">Philadelphia Department of Revenue website</a> or call them at (215) 686-6442 for more information.",
+              "text": "## Ineligible\n\nYou appear to be either already enrolled or ineligible for this property tax relief benefit based on the information provided. \n\nIf you feel this is an error you can complete a new screening, or apply for an official determination of eligibility with the Philadelphia Department of Revenue. Visit the <a href=\"https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/\" target=\"_blank\">Philadelphia Department of Revenue website</a> or call them at (215) 686-6442 for more information.",
               "type": "text",
               "layout": {
                 "row": "Row_0xoszsh",
@@ -528,9 +528,165 @@
           "type": "group",
           "layout": {
             "row": "Row_1j11cc3",
-            "columns": null
+            "columns": 16
           },
           "id": "Field_1682hb3",
+          "conditional": {
+            "hide": "=list contains([null, false], termsOfService) or not(form.complete)"
+          }
+        },
+        {
+          "label": "Homestead Exemption Results",
+          "components": [
+            {
+              "text": "## Likely Eligible\n\nYou may be eligible for the Homestead Exemption, which reduces the taxable portion of your property assessment by $100,000 in 2025. Once you apply you do not need to reapply every year. \n\n**Benefit Amount:** Visit <a href=\"https://property.phila.gov/\" target=\"_blank\">https://property.phila.gov/</a> and enter your address to see your estimated property tax bill savings under this benefit \n\n**Application forms:** <a href=\"https://www.phila.gov/documents/homestead-exemption-application/\" target=\"_blank\">https://www.phila.gov/documents/homestead-exemption-application/</a>\n\n**Apply online:** <a href=\"https://tax-services.phila.gov/_/\" target=\"_blank\">https://tax-services.phila.gov/_/</a>\n\n**Deadline to apply**: December 1, 2025\n\n**Questions?** Call the Philadelphia Department of Revenue at 215-686-9200\n\n**NOTE:** You cannot also receive LOOP while receiving a homestead exemption. If you appear eligible or are already enrolled in LOOP, compare your potential savings by visting https://property.phila.gov/ or call 215-686-9200 for more information. \n \t",
+              "type": "text",
+              "layout": {
+                "row": "Row_05z5mkl",
+                "columns": null
+              },
+              "id": "Field_02e43l3",
+              "conditional": {
+                "hide": "=benefits.phlHomesteadExemption.eligibility.result != true "
+              }
+            },
+            {
+              "text": "## Ineligible\n\nYou appear to be either already enrolled or ineligible for this property tax relief benefit based on the information provided. \n\nIf you feel this is an error you can complete a new screening, or apply for an official determination of eligibility with the Philadelphia Department of Revenue. Visit the <a href=\"https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/\" target=\"_blank\">Philadelphia Department of Revenue website</a> or call them at (215) 686-6442 for more information.",
+              "type": "text",
+              "layout": {
+                "row": "Row_1v73bk8",
+                "columns": null
+              },
+              "id": "Field_1u6nrhc",
+              "conditional": {
+                "hide": "=benefits.phlHomesteadExemption.eligibility.result = true or benefits.phlHomesteadExemption.eligibility.result = null "
+              }
+            }
+          ],
+          "showOutline": true,
+          "type": "group",
+          "layout": {
+            "row": "Row_1fk33te",
+            "columns": null
+          },
+          "id": "Field_057ffdn",
+          "conditional": {
+            "hide": "=list contains([null, false], termsOfService) or not(form.complete)"
+          }
+        },
+        {
+          "label": "Senior Citizen Tax Freeze Results",
+          "components": [
+            {
+              "text": "## Likely Eligible\n\nYou may be eligible for the Senior Citizen Tax Freeze, which will prevent your Real Estate Tax bill from increasing if you meet certain age and income requirements. If you meet the age, income, and residency qualifications in any year from 2018 to 2025 , your application will apply for the first year you were eligible.\n\nIncome limits for 2022 to Present:\n$33,500 (single)\n$41,500 (married)\n\nFor 2018 - 2021:\n$27,500 (single)\n$35,500 (married)\n\n**Benefit Amount:** Visit <a href=\"https://property.phila.gov/\" target=\"_blank\">https://property.phila.gov/</a> and enter your address to see your estimated property tax bill savings under this benefit \n\n**Application forms:** <a href=\"https://www.phila.gov/documents/application-for-senior-citizen-real-estate-tax-freeze/\" target=\"_blank\">https://www.phila.gov/documents/application-for-senior-citizen-real-estate-tax-freeze/</a>\n\n**Apply online:** <a href=\"https://tax-services.phila.gov/_/\" target=\"_blank\">https://tax-services.phila.gov/_/</a>\n\n**Deadline to apply**: September 30, 2025\n\n**Questions?** Call the Philadelphia Department of Revenue at 215-686-6442\n\n**NOTE:** You can have both the Senior Citizen Tax Freeze and Homestead Exemption at the same time.  \n \t",
+              "type": "text",
+              "layout": {
+                "row": "Row_0pfb0nk",
+                "columns": null
+              },
+              "id": "Field_1fiqebr",
+              "conditional": {
+                "hide": "=benefits.phlSeniorCitizenTaxFreeze.eligibility.result != true "
+              }
+            },
+            {
+              "text": "## Ineligible\n\nYou appear to be either already enrolled or ineligible for this property tax relief benefit based on the information provided. \n\nIf you feel this is an error you can complete a new screening, or apply for an official determination of eligibility with the Philadelphia Department of Revenue. Visit the <a href=\"https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/\" target=\"_blank\">Philadelphia Department of Revenue website</a> or call them at (215) 686-6442 for more information.",
+              "type": "text",
+              "layout": {
+                "row": "Row_1lcz04s",
+                "columns": null
+              },
+              "id": "Field_0do9i5s",
+              "conditional": {
+                "hide": "=benefits.phlSeniorCitizenTaxFreeze.eligibility.result = true or benefits.phlSeniorCitizenTaxFreeze.eligibility.result = null "
+              }
+            }
+          ],
+          "showOutline": true,
+          "type": "group",
+          "layout": {
+            "row": "Row_05e9vwu",
+            "columns": null
+          },
+          "id": "Field_14a9j20",
+          "conditional": {
+            "hide": "=list contains([null, false], termsOfService) or not(form.complete)"
+          }
+        },
+        {
+          "label": "Low-Income Tax Freeze Results",
+          "components": [
+            {
+              "text": "## Likely Eligible\n\nYou may be eligible for the Low-Income Real Estate Tax Freeze. If approved, the Department of Revenue will stop your Real Estate Tax bill from increasing. \n\n**Benefit Amount:** Visit <a href=\"https://property.phila.gov/\" target=\"_blank\">https://property.phila.gov/</a> and enter your address to see your estimated property tax bill savings under this benefit \n\n**Application forms:** <a href=\"https://www.phila.gov/documents/application-for-the-low-income-real-estate-tax-freeze/\" target=\"_blank\">https://www.phila.gov/documents/application-for-the-low-income-real-estate-tax-freeze/</a>\n\n**Apply online:** <a href=\"https://tax-services.phila.gov/_/\" target=\"_blank\">https://tax-services.phila.gov/_/</a>\n\n**Deadline to apply**: September 30, 2025\n\n**Questions?** Call the Philadelphia Department of Revenue at 215-686-6442\n\n**NOTE:** You can have the Low Income Tax Freeze (LITF) together with the Homestead Exemption.The Department of Revenue will also use the LITF application to enroll the household in the Homestead Exemption program if they do not already have it.",
+              "type": "text",
+              "layout": {
+                "row": "Row_1d4fxfd",
+                "columns": null
+              },
+              "id": "Field_1b9hlsm",
+              "conditional": {
+                "hide": "=benefits.phlLowIncomeTaxFreeze.eligibility.result != true "
+              }
+            },
+            {
+              "text": "## Ineligible\n\nYou appear to be either already enrolled or ineligible for this property tax relief benefit based on the information provided. \n\nIf you feel this is an error you can complete a new screening, or apply for an official determination of eligibility with the Philadelphia Department of Revenue. Visit the <a href=\"https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/\" target=\"_blank\">Philadelphia Department of Revenue website</a> or call them at (215) 686-6442 for more information.",
+              "type": "text",
+              "layout": {
+                "row": "Row_1lj5t4q",
+                "columns": null
+              },
+              "id": "Field_1ighkuw",
+              "conditional": {
+                "hide": "=benefits.phlLowIncomeTaxFreeze.eligibility.result = true or benefits.phlLowIncomeTaxFreeze.eligibility.result = null "
+              }
+            }
+          ],
+          "showOutline": true,
+          "type": "group",
+          "layout": {
+            "row": "Row_02154xy",
+            "columns": null
+          },
+          "id": "Field_1gfrkzg",
+          "conditional": {
+            "hide": "=list contains([null, false], termsOfService) or not(form.complete)"
+          }
+        },
+        {
+          "label": "Owner-Occupied Payment Agreement Results",
+          "components": [
+            {
+              "text": "## Likely Eligible\n\nYou may be eligible for the Owner-Occupied Payment Agreement (OOPA), a program which allows people who own and live in their home to make affordable monthly payments on property taxes that are past due. There is no down payment required and your monthly payments will be based on a percentage of your monthly income.  \n\n**Benefit Amount:** OOPA participants are arranged into one of five tiers. Tiers are based on monthly household income and family size. Depending on your tier, you will pay a percentage of your monthly income (up to 10%, depending on the tier) towards your Real Estate Tax bill each month\n\n**Application forms:** <a href=\"https://www.phila.gov/documents/owner-occupied-real-estate-tax-payment-agreement-forms/\" target=\"_blank\">https://www.phila.gov/documents/owner-occupied-real-estate-tax-payment-agreement-forms/</a>\n\n**Apply online:** <a href=\"https://tax-services.phila.gov/_/\" target=\"_blank\">https://tax-services.phila.gov/_/</a>\n\n**Deadline to apply**: N/A\n\n**Questions?** Call the Philadelphia Department of Revenue at 215-686-9200\n\n**NOTE:** You can be enrolled in OOPA at the same time as other property tax relief benefits such as LOOP, Homestead Exemption, Low-Income Tax Freeze, and Senior Citizen Tax Freeze.",
+              "type": "text",
+              "layout": {
+                "row": "Row_1nyylt5",
+                "columns": null
+              },
+              "id": "Field_07et08a",
+              "conditional": {
+                "hide": "=benefits.phlOopa.eligibility.result != true "
+              }
+            },
+            {
+              "text": "## Ineligible\n\nYou appear to be either already enrolled or ineligible for this property tax relief benefit based on the information provided. \n\nIf you feel this is an error you can complete a new screening, or apply for an official determination of eligibility with the Philadelphia Department of Revenue. Visit the <a href=\"https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/\" target=\"_blank\">Philadelphia Department of Revenue website</a> or call them at (215) 686-6442 for more information.",
+              "type": "text",
+              "layout": {
+                "row": "Row_1h35xuc",
+                "columns": null
+              },
+              "id": "Field_07lg70f",
+              "conditional": {
+                "hide": "=benefits.phlOopa.eligibility.result = true or benefits.phlOopa.eligibility.result = null "
+              }
+            }
+          ],
+          "showOutline": true,
+          "type": "group",
+          "layout": {
+            "row": "Row_18mkep5",
+            "columns": null
+          },
+          "id": "Field_060z6w1",
           "conditional": {
             "hide": "=list contains([null, false], termsOfService) or not(form.complete)"
           }
@@ -552,8 +708,8 @@
       "showOutline": false,
       "type": "group",
       "layout": {
-        "row": "Row_14395zo",
-        "columns": null
+        "row": "Row_05u21qo",
+        "columns": 16
       },
       "id": "Field_19ez5ji",
       "verticalAlignment": "start",
