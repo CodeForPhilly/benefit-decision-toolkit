@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/@bpmn-io/form-js@1.12.0/dist/assets/form-js.css">
+    <style>
+        /* Overall scaling of the form */
+
+
+        /* Allow labels to wrap */
+        .fjs-container .fjs-form-field-label {
+            white-space: normal !important; /* Allow labels to wrap */
+            overflow: visible !important;  /* Prevent clipping */
+            text-overflow: unset !important; /* No ellipsis */
+            width: auto !important; /* Use content's natural width */
+        }
+
+        /* Hide the BPMN.io watermark */
+        .fjs-powered-by {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+<div>
+
+<div id="form"></div>
+<button id="submitButton">Submit</button>
+<div id="resultsContainer">
+<h2>Results:</h2>
+    <p id="results"></p>
+</div>
+</div>
+<script src="https://unpkg.com/@bpmn-io/form-js@1.12.0/dist/form-viewer.umd.js"></script>
+
+<script>
+    let isUpdating = null;
+
+    const container = document.querySelector('#form');
+    const schema = {form.raw};
+    const formPromise = FormViewer.createForm({ container, schema});
+
+    function submitForm(data){
+        console.log(data);
+        data.screenerName = "{screenerName}";
+        fetch('/api/decision', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data),
+                    })
+                    .then(response => response.json())
+                    .then(responseData => {
+                        console.log('Response:', responseData);
+                        document.getElementById('results').textContent = JSON.stringify(responseData);
+
+                    })
+                    .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('results').textContent = 'Error getting decision result';
+                    });
+    }
+
+    function initializeForm(form){
+        form.on('submit', (event) => { submitForm(event.data)});
+        document.getElementById('submitButton').addEventListener('click', () => form.submit());
+    }
+
+    formPromise.then(form => initializeForm(form));
+
+
+
+</script>
+</body>
+
+</html>

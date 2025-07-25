@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+.fjs-powered-by {
+  display: none;
+}
+
+body {
+  font-family: "IBM Plex Sans", sans-serif;
+}
+
+h1 {
+  font-size: 2em;
+}

@@ -1,0 +1,18 @@
+{
+  "projects": {
+    "default": "benefits-decision-toolkit"
+  },
+  "targets": {
+    "benefits-decision-toolkit": {
+      "hosting": {
+        "screener-frontend": [
+          "benefits-decision-toolkit"
+        ],
+        "builder-frontend": [
+          "bdt-screener-builder"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
