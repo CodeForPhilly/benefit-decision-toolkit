@@ -1,0 +1,52 @@
+{
+  "components": [
+    {
+      "text": "TEST",
+      "type": "text",
+      "layout": {
+        "row": "Row_0duwi1b",
+        "columns": null
+      },
+      "id": "Field_1oplq09"
+    },
+    {
+      "label": "Checkbox group",
+      "values": [
+        {
+          "label": "Value",
+          "value": "value"
+        }
+      ],
+      "type": "checklist",
+      "layout": {
+        "row": "Row_1w144hj",
+        "columns": null
+      },
+      "id": "Field_1xe7ivy",
+      "key": "checklist_un5s7e"
+    },
+    {
+      "label": "Select",
+      "values": [
+        {
+          "label": "Value",
+          "value": "value"
+        }
+      ],
+      "type": "select",
+      "layout": {
+        "row": "Row_0p34xzv",
+        "columns": null
+      },
+      "id": "Field_04q9ave",
+      "key": "select_eerz64"
+    }
+  ],
+  "type": "default",
+  "id": "Form_0wc0jzr",
+  "exporter": {
+    "name": "form-js (https://demo.bpmn.io)",
+    "version": "1.15.0"
+  },
+  "schemaVersion": 18
+}
