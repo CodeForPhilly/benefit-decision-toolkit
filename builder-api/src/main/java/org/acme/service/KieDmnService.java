@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 
 @ApplicationScoped
-public class KieDmnEvaluationService implements DmnEvaluationService {
+public class KieDmnService implements DmnService {
 
     @Inject
     private StorageService storageService;
@@ -33,7 +33,7 @@ public class KieDmnEvaluationService implements DmnEvaluationService {
     @Inject
     private ScreenerRepository screenerRepository;
 
-    public Map<String, Object> evaluateDecision(Screener screener, Map<String, Object> inputs) throws IOException {
+    public Map<String, Object> evaluateDecision(Screener screener, Map<String, Object> inputs) throws IOException{
 
         String filePath = storageService.getWorkingCompiledDmnModelPath(screener.getId());
         Optional<byte[]> dmnDataOpt = storageService.getFileBytesFromStorage(filePath);
@@ -196,6 +196,7 @@ public class KieDmnEvaluationService implements DmnEvaluationService {
             kfs.write(resourcePath, entry.getValue());
             Log.info("Added imported DMN model to KieFileSystem: " + resourcePath);
         }
+
         kfs.generateAndWritePomXML(releaseId);
 
         KieBuilder kieBuilder = kieServices.newKieBuilder(kfs);

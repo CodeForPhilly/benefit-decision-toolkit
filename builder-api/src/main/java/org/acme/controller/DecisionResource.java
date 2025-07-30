@@ -8,7 +8,7 @@ import org.acme.model.domain.Screener;
 import org.acme.persistence.ScreenerRepository;
 import org.acme.persistence.StorageService;
 import org.acme.service.DmnParser;
-import org.acme.service.DmnEvaluationService;
+import org.acme.service.DmnService;
 
 import java.io.InputStream;
 import java.time.Instant;
@@ -24,7 +24,7 @@ public class DecisionResource {
     StorageService storageService;
 
     @Inject
-    DmnEvaluationService dmnEvaluationService;
+    DmnService dmnService;
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -55,12 +55,12 @@ public class DecisionResource {
         Screener screener = screenerOptional.get();
 
         try {
-            if (isLastScreenerCompileOutOfDate(screener)){
-                dmnEvaluationService.compileWorkingDmnModel(screener);
+            if (true || isLastScreenerCompileOutOfDate(screener)){
+                dmnService.compileWorkingDmnModel(screener);
                 updateScreenerLastCompileTime(screenerId, screener.getDmnModel());
             }
 
-            Map <String, Object> result = dmnEvaluationService.evaluateDecision(screener, inputData);
+            Map <String, Object> result = dmnService.evaluateDecision(screener, inputData);
 
             if (result.isEmpty()) return Response.ok().entity(Collections.emptyList()).build();
 

@@ -16,9 +16,9 @@ import org.acme.model.dto.SaveSchemaRequest;
 import org.acme.model.domain.Screener;
 import org.acme.persistence.ScreenerRepository;
 import org.acme.persistence.StorageService;
+import org.acme.service.DmnService;
 import org.acme.service.ScreenerDependencyService;
 import org.acme.service.DmnParser;
-import org.acme.service.DmnEvaluationService;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -36,7 +36,7 @@ public class ScreenerResource {
     StorageService storageService;
     
     @Inject
-    DmnEvaluationService dmnEvaluationService;
+    DmnService dmnService;
 
     @Inject
     ScreenerDependencyService screenerDependencyService;
@@ -214,7 +214,7 @@ public class ScreenerResource {
             Log.info("Updated Screener " + screenerId + " to published.");
 
             //update published dmn model
-            String dmnXml = dmnEvaluationService.compilePublishedDmnModel(screenerId);
+            String dmnXml = dmnService.compilePublishedDmnModel(screenerId);
 
             Screener updateScreener = new Screener();
             updateScreener.setId(screenerId);
