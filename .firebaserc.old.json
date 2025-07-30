@@ -1,15 +1,15 @@
 {
   "projects": {
-    "default": "benefit-decision-toolkit-play"
+    "default": "benefits-decision-toolkit"
   },
   "targets": {
     "benefits-decision-toolkit": {
       "hosting": {
         "screener-frontend": [
-          "bdt-screener"
+          "benefits-decision-toolkit"
         ],
         "builder-frontend": [
-          "bdt-builder"
+          "bdt-screener-builder"
         ]
       }
     }
