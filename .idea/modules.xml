@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Benefits-Decision-Toolkit.iml" filepath="$PROJECT_DIR$/.idea/Benefits-Decision-Toolkit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/model-library/model-library.iml" filepath="$PROJECT_DIR$/model-library/model-library.iml" />
     </modules>
   </component>
 </project>
