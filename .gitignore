@@ -67,3 +67,8 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+# IntelliJ
+.idea
+*.ipr
+*.iml
+*.iws
