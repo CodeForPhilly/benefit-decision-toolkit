@@ -3,7 +3,7 @@
     "default": "benefit-decision-toolkit-play"
   },
   "targets": {
-    "benefits-decision-toolkit": {
+    "benefit-decision-toolkit-play": {
       "hosting": {
         "screener-frontend": [
           "bdt-screener"

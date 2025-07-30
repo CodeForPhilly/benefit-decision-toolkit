@@ -1,5 +1,7 @@
 {
-  "firebase_hosting": {},
+  "firebase_hosting": {
+    "deploymentHostingUrl": "https://benefit-decision-toolkit-play.web.app"
+  },
   "cloud_run_deploy": {
     "region": "us-east4",
     "sourceFlag": "--source .",
