@@ -3,7 +3,8 @@
   "packages": [
     "maven@latest",
     "quarkus@latest",
-    "jdk17@latest"
+    "jdk21@latest",
+    "google-cloud-sdk@latest"
   ],
   "shell": {
     "init_hook": [
