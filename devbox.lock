@@ -4,39 +4,87 @@
     "github:NixOS/nixpkgs/nixpkgs-unstable": {
       "resolved": "github:NixOS/nixpkgs/3a05eebede89661660945da1f151959900903b6a?lastModified=1740547748&narHash=sha256-Ly2fBL1LscV%2BKyCqPRufUBuiw%2BzmWrlJzpWOWbahplg%3D"
     },
-    "jdk17@latest": {
-      "last_modified": "2025-01-19T08:16:51Z",
-      "resolved": "github:NixOS/nixpkgs/50165c4f7eb48ce82bd063e1fb8047a0f515f8ce#jdk17",
+    "google-cloud-sdk@latest": {
+      "last_modified": "2025-07-19T04:40:28Z",
+      "resolved": "github:NixOS/nixpkgs/6b4955211758ba47fac850c040a27f23b9b4008f#google-cloud-sdk",
       "source": "devbox-search",
-      "version": "17.0.13+11",
+      "version": "529.0.0",
       "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/2wx4x00sf5dzh1jbs8rr9v0rdr72k4x2-google-cloud-sdk-529.0.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/2wx4x00sf5dzh1jbs8rr9v0rdr72k4x2-google-cloud-sdk-529.0.0"
+        },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/791xnzdn9m059szs44mxx3gj99ks9wif-openjdk-17.0.13+11",
+              "path": "/nix/store/0qq1pdwdx9snfvx53s9j955gh05y25aa-google-cloud-sdk-529.0.0",
               "default": true
-            },
-            {
-              "name": "debug",
-              "path": "/nix/store/pcxw19bmmhival4gn0qgh3zcp6shc3cs-openjdk-17.0.13+11-debug"
             }
           ],
-          "store_path": "/nix/store/791xnzdn9m059szs44mxx3gj99ks9wif-openjdk-17.0.13+11"
+          "store_path": "/nix/store/0qq1pdwdx9snfvx53s9j955gh05y25aa-google-cloud-sdk-529.0.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/m4mzny7whg6fniyvp4kjygy0yiwnrcs0-google-cloud-sdk-529.0.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/m4mzny7whg6fniyvp4kjygy0yiwnrcs0-google-cloud-sdk-529.0.0"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/y2c3skvhv4l8h069ri1vkj0dwn7n6kcf-openjdk-17.0.13+11",
+              "path": "/nix/store/819h0q7d7972xh5gln4cmbba6bk84sbk-google-cloud-sdk-529.0.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/819h0q7d7972xh5gln4cmbba6bk84sbk-google-cloud-sdk-529.0.0"
+        }
+      }
+    },
+    "jdk21@latest": {
+      "last_modified": "2024-06-12T20:55:33Z",
+      "resolved": "github:NixOS/nixpkgs/a9858885e197f984d92d7fe64e9fff6b2e488d40#jdk",
+      "source": "devbox-search",
+      "version": "21+35",
+      "systems": {
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/f7risq9mlz4gywxr65v46h4mv1a4a0s3-openjdk-21+35",
               "default": true
             },
             {
               "name": "debug",
-              "path": "/nix/store/zq94asm29gzzglah8lqr7h3zmzj050gd-openjdk-17.0.13+11-debug"
+              "path": "/nix/store/lgljxsffciqlijp38iklrh1ki5vi0y4f-openjdk-21+35-debug"
             }
           ],
-          "store_path": "/nix/store/y2c3skvhv4l8h069ri1vkj0dwn7n6kcf-openjdk-17.0.13+11"
+          "store_path": "/nix/store/f7risq9mlz4gywxr65v46h4mv1a4a0s3-openjdk-21+35"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/bk3x3ia7gxqic1jgr3dz05gwi8zw671y-openjdk-21+35",
+              "default": true
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/2h6zm6qy04amw9mvir8n5fifn99dzg16-openjdk-21+35-debug"
+            }
+          ],
+          "store_path": "/nix/store/bk3x3ia7gxqic1jgr3dz05gwi8zw671y-openjdk-21+35"
         }
       }
     },
