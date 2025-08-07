@@ -3,7 +3,9 @@
   "packages": [
     "maven@latest",
     "quarkus@latest",
-    "jdk17@latest"
+    "jdk21@latest",
+    "google-cloud-sdk@latest",
+    "podman@latest"
   ],
   "shell": {
     "init_hook": [
