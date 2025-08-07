@@ -8,7 +8,6 @@ function FormRenderer({ schema, submitForm }) {
 
   onMount(() => {
     const form = new Form({ container });
-
     const debouncedSubmit = debounce((data) => {
       submitForm(data);
     }, 1000);

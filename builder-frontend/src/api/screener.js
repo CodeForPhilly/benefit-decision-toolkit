@@ -1,4 +1,5 @@
 import { authFetch } from "./auth";
+import { cloneDeep } from "lodash";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 export const fetchProjects = async () => {
@@ -156,8 +157,19 @@ export const saveDmnModel = async (screenerId, dmnModel) => {
   }
 };
 
-export const submitForm = async (screenerId, formData) => {
+export const submitForm = async (screenerId, data) => {
   const url = apiUrl + "/decision?screenerId=" + screenerId;
+  const formData = cloneDeep(data);
+
+  for (const key in formData) {
+    let value = formData[key];
+    if (value === "true") {
+      formData[key] = true;
+    } else if (value === "false") {
+      formData[key] = false;
+    }
+  }
+
   if (!formData || Object.keys(formData).length === 0) return {};
 
   try {

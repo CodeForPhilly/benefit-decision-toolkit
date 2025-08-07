@@ -135,6 +135,9 @@ public class KieDmnService implements DmnService {
 
         // Get Screener DMN Dependencies
         Map<String, String> dependencies = new HashMap<>();
+        if (screener.getDependencies() == null){
+            screener.setDependencies(new ArrayList<>());
+        }
         for (Dependency dep : screener.getDependencies()){
             String key = dep.groupId + ":" + dep.artifactId + ":" + dep.version;
             String xml = getDependencyXml(dep, key);

@@ -5,6 +5,7 @@ import Results from "./Results";
 import { fetchScreenerData, getDecisionResult } from "./api/api";
 import Loading from "./Loading";
 import ErrorPage from "./Error";
+import testData from "./testData";
 
 export default function Screener() {
   const params = useParams();
@@ -24,7 +25,7 @@ export default function Screener() {
 
   return (
     <>
-      <div>
+      <div class="mt-4">
         <ErrorBoundary
           fallback={(error, reset) => <ErrorPage error={error}></ErrorPage>}
         >

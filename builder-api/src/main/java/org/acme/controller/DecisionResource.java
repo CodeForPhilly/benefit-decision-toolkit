@@ -55,7 +55,7 @@ public class DecisionResource {
         Screener screener = screenerOptional.get();
 
         try {
-            if (true || isLastScreenerCompileOutOfDate(screener)){
+            if (isLastScreenerCompileOutOfDate(screener)){
                 dmnService.compileWorkingDmnModel(screener);
                 updateScreenerLastCompileTime(screenerId, screener.getDmnModel());
             }
