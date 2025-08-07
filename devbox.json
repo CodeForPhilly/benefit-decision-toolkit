@@ -4,7 +4,8 @@
     "maven@latest",
     "quarkus@latest",
     "jdk21@latest",
-    "google-cloud-sdk@latest"
+    "google-cloud-sdk@latest",
+    "podman@latest"
   ],
   "shell": {
     "init_hook": [
