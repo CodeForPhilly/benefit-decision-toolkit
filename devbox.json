@@ -5,7 +5,9 @@
     "quarkus@latest",
     "jdk21@latest",
     "google-cloud-sdk@latest",
-    "podman@latest"
+    "podman@latest",
+    "docker@latest",
+    "firebase-tools@latest"
   ],
   "shell": {
     "init_hook": [
