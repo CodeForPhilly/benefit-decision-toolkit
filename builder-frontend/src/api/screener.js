@@ -133,7 +133,6 @@ export const saveFormSchema = async (screenerId, schema) => {
 };
 
 export const saveDmnModel = async (screenerId, dmnModel) => {
-  console.log(dmnModel);
   const requestData = {};
   requestData.screenerId = screenerId;
   requestData.dmnModel = dmnModel;
@@ -160,7 +159,6 @@ export const saveDmnModel = async (screenerId, dmnModel) => {
 export const submitForm = async (screenerId, data) => {
   const url = apiUrl + "/decision?screenerId=" + screenerId;
   const formData = cloneDeep(data);
-
   for (const key in formData) {
     let value = formData[key];
     if (value === "true") {
@@ -219,7 +217,6 @@ export const publishScreener = async (screenerId) => {
 
 export const addDependency = async (screenerId, dependency) => {
   const url = apiUrl + "/dependency";
-  console.log({ screenerId });
   try {
     const response = await authFetch(url, {
       method: "POST",

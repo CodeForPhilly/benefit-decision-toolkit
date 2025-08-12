@@ -130,7 +130,12 @@ function Project({ clearUserState }) {
           {activeTab() == "Preview" && (
             <Preview formSchema={formSchema}></Preview>
           )}
-          {activeTab() == "Publish" && <Publish project={project}></Publish>}
+          {activeTab() == "Publish" && (
+            <Publish
+              project={project}
+              refetchProject={refetchProject}
+            ></Publish>
+          )}
         </>
       )}
     </div>

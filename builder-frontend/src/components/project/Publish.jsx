@@ -2,7 +2,7 @@ import { createSignal, onMount } from "solid-js";
 import { useParams } from "@solidjs/router";
 import { publishScreener, fetchProject } from "../../api/screener";
 const screenerBaseUrl = import.meta.env.VITE_SCREENER_BASE_URL;
-export default function Publish({ project }) {
+export default function Publish({ project, refetchProject }) {
   const [isLoading, setIsLoading] = createSignal(false);
   const [screenerName, setScreenerName] = createSignal();
   const [isPublished, setIsPublished] = createSignal();
@@ -26,8 +26,7 @@ export default function Publish({ project }) {
     try {
       setIsLoading(true);
       await publishScreener(projectId);
-      const screenerData = await fetchProject(projectId);
-      setScreenerState();
+      refetchProject();
       setIsLoading(false);
     } catch (e) {
       setIsLoading(false);

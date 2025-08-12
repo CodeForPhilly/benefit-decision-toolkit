@@ -1,6 +1,7 @@
 package org.acme.model.domain;
 import org.acme.model.dto.Dependency;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -146,7 +147,11 @@ public class Screener {
     }
 
     public List<Dependency> getDependencies() {
-        return dependencies;
+        if (dependencies == null){
+            return new ArrayList<>();
+        } else{
+            return dependencies;
+        }
     }
 
     public void setDependencies(List<Dependency> dependencies) {
