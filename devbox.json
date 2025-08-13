@@ -3,7 +3,11 @@
   "packages": [
     "maven@latest",
     "quarkus@latest",
-    "jdk17@latest"
+    "jdk21@latest",
+    "google-cloud-sdk@latest",
+    "podman@latest",
+    "docker@latest",
+    "firebase-tools@latest"
   ],
   "shell": {
     "init_hook": [

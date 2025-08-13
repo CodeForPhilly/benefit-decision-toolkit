@@ -1,0 +1,3 @@
+# DMN Library
+
+## Note: this directory was originally at the top level of the project and represented the entirety of the project. We've begun developing a web app for use as a development environment for screenings and their specific DMN rules. The future of this `dmn-library` directory is for it to morph into simply the place where "library" DMN is developed and tested. This means DMN that can be included/reused in a variety of screeners, not just particular to one screener. When we are able to fully deploy existing screeners using the new web app, then facilities for deploying screeners and the API from this library directory will be removed.
