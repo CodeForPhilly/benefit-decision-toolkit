@@ -9,8 +9,8 @@
 
 set -e
 
-gcloud auth activate-service-account cloud-run-developer@preston-cabe.iam.gserviceaccount.com --key-file=$HOME/preston-cabe-77683596068a.json
+gcloud auth activate-service-account cloud-run-developer@preston-cabe.iam.gserviceaccount.com --key-file=$HOME/preston-cabe-73cb4617ac42.json
 
-cd $HOME/dmn-benefit-toolbox
+cd $HOME/benefit-decision-toolkit
 
 gcloud run deploy idx-githubcom-1867804 --project=preston-cabe --region=us-east4 --source . --allow-unauthenticated
