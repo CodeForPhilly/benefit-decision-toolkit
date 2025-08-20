@@ -116,7 +116,7 @@
   </dmn:decisionService>
   <dmn:decisionService id="_FAF038AB-906E-4B85-AC1A-D6924E56CC6A" name="anyoneOnMedicare">
     <dmn:extensionElements/>
-    <dmn:variable id="_AAC1EC0F-3954-434D-A874-D6A4DF76B1DE" name="anyoneOnMedicare"/>
+    <dmn:variable id="_AAC1EC0F-3954-434D-A874-D6A4DF76B1DE" name="anyoneOnMedicare" typeRef="boolean"/>
     <dmn:outputDecision href="#_F1BB1AE0-81CE-4542-8027-77D3B96C134E"/>
     <dmn:inputData href="#_DD816E0A-B8FE-4AAB-B550-CC1EC7D5BB82"/>
   </dmn:decisionService>
