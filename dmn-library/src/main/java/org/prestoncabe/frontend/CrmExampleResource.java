@@ -9,15 +9,15 @@ import javax.inject.Inject;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 
-@Path("/viewer")
-public class ViewerResource {
+@Path("/crmexample")
+public class CrmExampleResource {
 
     @Inject
-    Template viewer; // Inject the Qute template
+    Template crmExample; // Inject the Qute template
 
     @GET
     @Produces(MediaType.TEXT_HTML)
     public TemplateInstance get() {
-        return viewer.instance(); // Render the template
+        return crmExample.instance(); // Render the template
     }
 }

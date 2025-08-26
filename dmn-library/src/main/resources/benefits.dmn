@@ -1157,7 +1157,7 @@ else
   </dmn:decisionService>
   <dmn:decisionService id="_735CAAFD-34C7-4FC6-9716-FF182E85C38A" name="paPaceApplicationCenter">
     <dmn:extensionElements/>
-    <dmn:variable id="_7E50481C-1383-47DF-B31E-C1CBAFE6DFE0" name="paPaceApplicationCenter"/>
+    <dmn:variable id="_7E50481C-1383-47DF-B31E-C1CBAFE6DFE0" name="paPaceApplicationCenter" typeRef="context"/>
     <dmn:outputDecision href="#_B6CCC42A-82B8-4031-A8E1-52C426E04840"/>
     <dmn:encapsulatedDecision href="#_B58015FD-93D2-4CC8-A388-524EF195AC6A"/>
     <dmn:inputData href="#_A969F9A3-8F3C-47F8-B2EA-86BF52923494"/>

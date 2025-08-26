@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PACE CRM - Public Benefit Application Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/@bpmn-io/form-js@1.12.0/dist/assets/form-js.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['DM Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#0891b2',
+                        secondary: '#60a5fa',
+                        accent: '#60a5fa',
+                        muted: '#f9fafb',
+                        border: '#e5e7eb',
+                        foreground: '#4b5563',
+                        background: '#ffffff',
+                        card: '#f9fafb',
+                        destructive: '#be123c',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tab-button.active {
+            background-color: #0891b2;
+            color: white;
+            border-bottom: 2px solid #0891b2;
+        }
+        .status-pending { background-color: #fef3c7; color: #92400e; }
+        .status-review { background-color: #dbeafe; color: #1e40af; }
+        .status-approved { background-color: #d1fae5; color: #065f46; }
+        .status-denied { background-color: #fee2e2; color: #991b1b; }
+
+        /* Overall scaling of the form
+        #form {
+            transform: scale(3);
+            transform-origin: top left;
+            width: calc(100% / 3);
+        }*/
+
+        /* Allow labels to wrap */
+        .fjs-container .fjs-form-field-label {
+            white-space: normal !important; /* Allow labels to wrap */
+            overflow: visible !important;  /* Prevent clipping */
+            text-overflow: unset !important; /* No ellipsis */
+            width: auto !important; /* Use content's natural width */
+        }
+
+        /* Eligibility results smaller than the screening questions */
+        .fjs-container .fjs-form-field-group[aria-labelledby*="Field_results"] {
+            transform: scale(0.4);
+            transform-origin: top left;
+            width: calc(100% / 0.4);
+            margin-bottom: 1rem;
+        }
+
+        /* Hide the dummy field used to store the eligibility results data */
+        [id*="Field_benefits-readonly"] {
+            display: none;
+        }
+
+        /* Hide the BPMN.io watermark */
+        .fjs-powered-by {
+            display: none;
+        }
+
+        h4 {
+            margin-top: 1rem !important;
+            font-weight: bold !important;
+            font-size: 16px !important;
+        }
+
+        .fjs-form-field-text li {
+            margin-left: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+    </style>
+</head>
+<body class="bg-background text-foreground font-sans">
+    <!-- Header -->
+    <header class="bg-primary text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                        <span class="text-primary font-bold text-xl">P</span>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold">PACE CRM</h1>
+                        <p class="text-sm opacity-90">Public Benefit Application Management</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm">Welcome, Admin</span>
+                    <button class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm transition-colors">
+                        Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="bg-white border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex space-x-8">
+                <button onclick="showTab('dashboard')" class="tab-button active py-4 px-2 border-b-2 border-transparent text-sm font-medium text-foreground hover:text-primary transition-colors">
+                    Dashboard
+                </button>
+                <button onclick="showTab('contacts')" class="tab-button py-4 px-2 border-b-2 border-transparent text-sm font-medium text-foreground hover:text-primary transition-colors">
+                    Contacts
+                </button>
+                <button onclick="showTab('applications')" class="tab-button py-4 px-2 border-b-2 border-transparent text-sm font-medium text-foreground hover:text-primary transition-colors">
+                    Applications
+                </button>
+                <button onclick="showTab('reports')" class="tab-button py-4 px-2 border-b-2 border-transparent text-sm font-medium text-foreground hover:text-primary transition-colors">
+                    Reports
+                </button>
+                <button onclick="showTab('custom')" class="tab-button py-4 px-2 border-b-2 border-transparent text-sm font-medium text-foreground hover:text-primary transition-colors">
+                    Screener
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-foreground mb-2">Dashboard Overview</h2>
+                <p class="text-muted-foreground">Track PACE benefit applications and successful outcomes</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-card rounded-lg p-6 shadow-sm border border-border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-muted-foreground">Total Applications</p>
+                            <p class="text-3xl font-bold text-foreground">1,247</p>
+                        </div>
+                        <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                            <span class="text-primary text-xl">📋</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-muted-foreground mt-2">+12% from last month</p>
+                </div>
+
+                <div class="bg-card rounded-lg p-6 shadow-sm border border-border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-muted-foreground">Successful Applications</p>
+                            <p class="text-3xl font-bold text-green-600">892</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <span class="text-green-600 text-xl">✅</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-muted-foreground mt-2">71.5% success rate</p>
+                </div>
+
+                <div class="bg-card rounded-lg p-6 shadow-sm border border-border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-muted-foreground">Pending Review</p>
+                            <p class="text-3xl font-bold text-yellow-600">156</p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <span class="text-yellow-600 text-xl">⏳</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-muted-foreground mt-2">Avg. 5 days processing</p>
+                </div>
+
+                <div class="bg-card rounded-lg p-6 shadow-sm border border-border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-muted-foreground">Active Contacts</p>
+                            <p class="text-3xl font-bold text-foreground">2,341</p>
+                        </div>
+                        <div class="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center">
+                            <span class="text-secondary text-xl">👥</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-muted-foreground mt-2">+8% new contacts</p>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-card rounded-lg p-6 shadow-sm border border-border">
+                    <h3 class="text-lg font-semibold text-foreground mb-4">Recent Applications</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-background rounded-lg">
+                            <div>
+                                <p class="font-medium text-foreground">Maria Rodriguez</p>
+                                <p class="text-sm text-muted-foreground">Application #APP-2024-001</p>
+                            </div>
+                            <span class="status-pending px-2 py-1 rounded-full text-xs font-medium">Pending</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-background rounded-lg">
+                            <div>
+                                <p class="font-medium text-foreground">James Wilson</p>
+                                <p class="text-sm text-muted-foreground">Application #APP-2024-002</p>
+                            </div>
+                            <span class="status-approved px-2 py-1 rounded-full text-xs font-medium">Approved</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-background rounded-lg">
+                            <div>
+                                <p class="font-medium text-foreground">Sarah Chen</p>
+                                <p class="text-sm text-muted-foreground">Application #APP-2024-003</p>
+                            </div>
+                            <span class="status-review px-2 py-1 rounded-full text-xs font-medium">In Review</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-card rounded-lg p-6 shadow-sm border border-border">
+                    <h3 class="text-lg font-semibold text-foreground mb-4">Application Status Distribution</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-foreground">Approved</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-24 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 71.5%"></div>
+                                </div>
+                                <span class="text-sm text-muted-foreground">71.5%</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-foreground">Pending</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-24 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 12.5%"></div>
+                                </div>
+                                <span class="text-sm text-muted-foreground">12.5%</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-foreground">In Review</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-24 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 10%"></div>
+                                </div>
+                                <span class="text-sm text-muted-foreground">10%</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-foreground">Denied</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-24 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-red-500 h-2 rounded-full" style="width: 6%"></div>
+                                </div>
+                                <span class="text-sm text-muted-foreground">6%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contacts Tab -->
+        <div id="contacts" class="tab-content">
+            <div class="mb-8 flex justify-between items-center">
+                <div>
+                    <h2 class="text-3xl font-bold text-foreground mb-2">Contacts</h2>
+                    <p class="text-muted-foreground">Manage people seeking PACE benefits</p>
+                </div>
+                <button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                    Add New Contact
+                </button>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="bg-card rounded-lg p-6 shadow-sm border border-border mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="text" placeholder="Search contacts..." class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <select class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option>All Statuses</option>
+                        <option>Active</option>
+                        <option>Inactive</option>
+                        <option>Pending</option>
+                    </select>
+                    <select class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option>All Categories</option>
+                        <option>New Applicant</option>
+                        <option>Returning Client</option>
+                        <option>Priority Case</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Contacts Table -->
+            <div class="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
+                <table class="min-w-full divide-y divide-border">
+                    <thead class="bg-muted">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">Contact Info</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">Applications</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">Last Contact</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-background divide-y divide-border">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                                        <span class="text-primary font-medium">MR</span>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-foreground">Maria Rodriguez</div>
+                                        <div class="text-sm text-muted-foreground">ID: PACE-2024-001</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-foreground">maria.rodriguez@email.com</div>
+                                <div class="text-sm text-muted-foreground">(555) 123-4567</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="status-pending px-2 py-1 rounded-full text-xs font-medium">Active</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-foreground">2 Applications</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">2 days ago</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-primary hover:text-primary/80 mr-3">View</button>
+                                <button class="text-secondary hover:text-secondary/80">Edit</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                                        <span class="text-primary font-medium">JW</span>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-foreground">James Wilson</div>
+                                        <div class="text-sm text-muted-foreground">ID: PACE-2024-002</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-foreground">james.wilson@email.com</div>
+                                <div class="text-sm text-muted-foreground">(555) 987-6543</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="status-approved px-2 py-1 rounded-full text-xs font-medium">Active</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-foreground">1 Application</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">1 week ago</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-primary hover:text-primary/80 mr-3">View</button>
+                                <button class="text-secondary hover:text-secondary/80">Edit</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Applications Tab -->
+        <div id="applications" class="tab-content">
+            <div class="mb-8 flex justify-between items-center">
+                <div>
+                    <h2 class="text-3xl font-bold text-foreground mb-2">Applications</h2>
+                    <p class="text-muted-foreground">Track PACE benefit applications and their progress</p>
+                </div>
+                <button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                    New Application
+                </button>
+            </div>
+
+            <!-- Application Filters -->
+            <div class="bg-card rounded-lg p-6 shadow-sm border border-border mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="text" placeholder="Search applications..." class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <select class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option>All Statuses</option>
+                        <option>Pending</option>
+                        <option>In Review</option>
+                        <option>Approved</option>
+                        <option>Denied</option>
+                    </select>
+                    <input type="date" class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <select class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option>All Types</option>
+                        <option>Initial Application</option>
+                        <option>Renewal</option>
+                        <option>Appeal</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Applications Table -->
+            <div class="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
+                <table class="min-w-full divide-y divide-border">
+                    <thead class="bg-muted">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">Application ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">Applicant</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">Submitted</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">Priority</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-background divide-y divide-border">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">APP-2024-001</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-foreground">Maria Rodriguez</div>
+                                <div class="text-sm text-muted-foreground">maria.rodriguez@email.com</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-foreground">Initial Application</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="status-pending px-2 py-1 rounded-full text-xs font-medium">Pending</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">Jan 15, 2024</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">Normal</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-primary hover:text-primary/80 mr-3">Review</button>
+                                <button class="text-secondary hover:text-secondary/80">Details</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">APP-2024-002</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-foreground">James Wilson</div>
+                                <div class="text-sm text-muted-foreground">james.wilson@email.com</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-foreground">Renewal</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="status-approved px-2 py-1 rounded-full text-xs font-medium">Approved</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">Jan 12, 2024</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">High</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-primary hover:text-primary/80 mr-3">View</button>
+                                <button class="text-secondary hover:text-secondary/80">Details</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-foreground mb-2">Reports & Analytics</h2>
+                <p class="text-muted-foreground">Track successful applications and program effectiveness</p>
+            </div>
+
+            <!-- Report Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div class="bg-card rounded-lg p-6 shadow-sm border border-border">
+                    <h3 class="text-lg font-semibold text-foreground mb-4">Monthly Success Rate</h3>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-green-600 mb-2">73.2%</div>
+                        <p class="text-sm text-muted-foreground">+2.1% from last month</p>
+                    </div>
+                </div>
+
+                <div class="bg-card rounded-lg p-6 shadow-sm border border-border">
+                    <h3 class="text-lg font-semibold text-foreground mb-4">Average Processing Time</h3>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-primary mb-2">4.8</div>
+                        <p class="text-sm text-muted-foreground">days average</p>
+                    </div>
+                </div>
+
+                <div class="bg-card rounded-lg p-6 shadow-sm border border-border">
+                    <h3 class="text-lg font-semibold text-foreground mb-4">Client Satisfaction</h3>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-secondary mb-2">4.6</div>
+                        <p class="text-sm text-muted-foreground">out of 5.0 rating</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Generation -->
+            <div class="bg-card rounded-lg p-6 shadow-sm border border-border">
+                <h3 class="text-lg font-semibold text-foreground mb-4">Generate Custom Report</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <select class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option>Report Type</option>
+                        <option>Application Success Rate</option>
+                        <option>Processing Time Analysis</option>
+                        <option>Client Demographics</option>
+                        <option>Program Effectiveness</option>
+                    </select>
+                    <input type="date" class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <input type="date" class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+                <button class="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                    Generate Report
+                </button>
+            </div>
+        </div>
+
+        <!-- Custom Content Tab -->
+        <div id="custom" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-foreground mb-2">Screener</h2>
+                <p class="text-muted-foreground">See if contact is eligible for one or more benefits</p>
+            </div>
+
+                <div id="form"></div>
+
+    <script src="https://unpkg.com/@bpmn-io/form-js@1.12.0/dist/form-viewer.umd.js"></script>
+
+    <script>
+        let isUpdating = null;
+
+        const container = document.querySelector('#form');
+
+        const schemaPromise = fetch('/forms/paceScreener.form')
+            .then(response => response.json())
+            .then(data => {
+                // console.log('Form json:', data);
+                return data;
+            })
+            .catch(error => {
+                console.error('Error loading form:', error);
+            });
+
+        const initialData = {};
+
+        const formPromise = schemaPromise.then(schema => {
+            // console.log('Form schema:', schema);
+            return FormViewer.createForm({ container, schema, data: initialData });
+        });
+
+        formPromise
+            .then(form => {
+                form.on('submit', (event) => {
+                    // will we even need/want the submit event?
+                    console.log(event.data, event.errors);
+                });
+
+                // Runs whenever the form is changed
+                // 500 is the priority of this listener... not sure how this works
+                form.on('changed', 500, (event) => {
+                    if (isUpdating) {
+                        console.log('Already updating...', event.data);
+                        return;
+                    }
+
+                    isUpdating = true;
+
+                    // Hack to remove actual enrollments if "None of the above" is checked
+                    if (event.data.inputs?.enrollments?.includes("none")) {
+                        const enrollmentsField = form
+                            .get('formFieldRegistry')
+                            .getAll()
+                            .find((formField) => formField.key === 'inputs.enrollments');
+
+                        form._update({
+                            fieldInstance: { id: enrollmentsField.id, valuePath: ['inputs', 'enrollments'] },
+                            value: event.data.inputs.enrollments.filter(item => item === "none"),
+                        });
+                    }
+
+                    const data = JSON.parse(JSON.stringify(event.data));
+
+                    // hack to not send empty enrollments array, since the API would
+                    // interpret this is as meaning there are no enrollments...
+                    // (form-js always outputs an empty checkbox set as empty array)
+                    if (data.inputs.enrollments?.length === 0) {
+                        data.inputs.enrollments = null;
+                    }
+
+                    // combine primary/spouse + other income into gross household income
+                    if (data.inputs.currentMonthlyPrimaryAndSpouseGrossIncome != null && data.inputs.currentMonthlyOtherGrossIncome != null) {
+                        data.inputs.currentMonthlyGrossHouseholdIncome = data.inputs.currentMonthlyPrimaryAndSpouseGrossIncome + data.inputs.currentMonthlyOtherGrossIncome;
+                    }
+
+                    // transform inputs related to SCTF age eligibility
+                    const people = []
+                    people.push({
+                        primary: true,
+                        dateOfBirth: data.inputs.dateOfBirth,
+                        married: data.inputs.married,
+                        lateSpouseWasAtLeastSixtyFive: data.inputs.lateSpouseWasAtLeastSixtyFive
+                    });
+
+                    if (data.inputs.married != null && data.inputs.married) {
+                        people.push({
+                            primary: false,
+                            married: true,
+                            spouseOfPrimary: true,
+                            dateOfBirth: data.inputs.spouseDateOfBirth
+                        });
+                    }
+
+                    data.inputs.people = people;
+
+                    console.log("data after pre-post transformations", data);
+
+
+                    // Post the JSON data to the URL and log the response
+                    fetch('/benefits/paPaceApplicationCenter', {
+                        method: 'POST', // Specify the HTTP method
+                        headers: {
+                            'Content-Type': 'application/json' // Ensure the content type is JSON
+                        },
+                        body: JSON.stringify(data) // Convert the data to JSON
+                    })
+                        .then(response => response.json()) // Parse the JSON response
+                        .then(responseData => {
+                            console.log('Response:', responseData);
+                            //form.setProperty("responseData", responseData); // FIXME: is this even doing anything?
+
+                            console.log("Got to the update step");
+                            const field = form
+                                .get('formFieldRegistry')
+                                .getAll()
+                                .find((formField) => formField.key === 'benefits');
+
+                            console.log("All fields: ", form.get('formFieldRegistry').getAll());
+                            console.log("Field to update: ", field);
+
+                            form._update({
+                                fieldInstance: { id: field.id, valuePath: ['benefits'] },
+                                value: responseData.benefits,
+                            });
+
+                            setTimeout(() => {
+                                isUpdating = false;
+                            }, 0.01);
+                            //console.log('Form after updating responseData property:', form);
+                            const updatedState = responseData;
+                            return updatedState;
+                        })
+                        .then(result => {
+                            console.log('Success:', result); // Log the result if successful
+                        })
+                        .catch(error => {
+                            console.error('Error:', error); // Log any errors if the request fails
+                            setTimeout(() => {
+                                isUpdating = false;
+                            }, 0.01);
+                        });
+                });
+            });
+    </script>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-muted border-t border-border mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-sm text-muted-foreground">© 2024 PACE Organization. All rights reserved.</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-sm text-muted-foreground hover:text-foreground">Privacy Policy</a>
+                    <a href="#" class="text-sm text-muted-foreground hover:text-foreground">Terms of Service</a>
+                    <a href="#" class="text-sm text-muted-foreground hover:text-foreground">Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all tab buttons
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked tab button
+            event.target.classList.add('active');
+        }
+
+        // Sample data and interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add any initialization code here
+            console.log('PACE CRM System Loaded');
+        });
+    </script>
+</body>
+</html>
