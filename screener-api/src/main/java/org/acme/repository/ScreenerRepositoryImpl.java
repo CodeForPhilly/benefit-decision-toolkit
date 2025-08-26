@@ -1,9 +1,7 @@
 package org.acme.repository;
-
-import io.quarkus.logging.Log;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.acme.constants.CollectionNames;
-import org.acme.mapper.ScreenerMapper;
 import org.acme.model.Screener;
 
 import org.acme.repository.utils.FirestoreUtils;
@@ -24,7 +22,9 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
         }
 
         Map<String, Object> data = dataOpt.get();
-        Screener screener = ScreenerMapper.fromMap(data);
+
+        ObjectMapper mapper = new ObjectMapper();
+        Screener screener = mapper.convertValue(data, Screener.class);
 
         String formPath = StorageUtils.getScreenerPublishedFormSchemaPath(screenerId);
         Map<String, Object>  formSchema = StorageUtils.getFormSchemaFromStorage(formPath);

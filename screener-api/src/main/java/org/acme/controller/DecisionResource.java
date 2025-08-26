@@ -4,12 +4,14 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.acme.model.ResultDetail;
 import org.acme.model.Screener;
 import org.acme.repository.ScreenerRepository;
 import org.acme.service.DmnService;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Path("/api/decision")
 public class DecisionResource {
@@ -49,17 +51,37 @@ public class DecisionResource {
             throw new NotFoundException(notFoundResponseMessage);
         }
 
-        Map<String, Object> result = dmnService.evaluateDecision(screener, inputData);
+        List<ResultDetail> results = dmnService.evaluateDecision(screener, inputData);
+        Map<String, ResultDetail> resultMap = results.stream()
+                .collect(Collectors.toMap(
+                        ResultDetail::getId,
+                        Function.identity(),
+                        (existing, duplicate) -> existing
+                ));
 
-        if (!result.isEmpty()){
-            return Response.ok(Collections.emptyList()).entity(result).build();
+        List<ResultDetail> resultsSchema = screener.getResultsSchema();
+
+        List<ResultDetail> publishedResults = new ArrayList<>();
+
+        for (ResultDetail resultDetail : resultsSchema){
+            addResultValuesToResultDetailObject(resultDetail, resultMap);
         }
 
-        else {
-            return Response.ok(Collections.emptyList()).build();
-        }}
+        return Response.ok().entity(resultsSchema).build();
+        }
         catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    private static void addResultValuesToResultDetailObject(ResultDetail resultDetail, Map<String, ResultDetail> resultMap) {
+        String decisionId = resultDetail.getId();
+        if(resultMap.containsKey(decisionId)){
+            resultDetail.setResult(resultMap.get(decisionId).getResult());
+        }
+        if (resultDetail.getChecks() == null) return;
+        for (ResultDetail check : resultDetail.getChecks()){
+            addResultValuesToResultDetailObject(check, resultMap);
         }
     }
 }

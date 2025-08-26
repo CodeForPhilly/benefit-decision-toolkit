@@ -1,7 +1,9 @@
 package org.acme.service;
 
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.NotFoundException;
+import org.acme.model.ResultDetail;
 import org.acme.model.Screener;
 import org.acme.repository.utils.StorageUtils;
 import org.kie.api.KieServices;
@@ -16,7 +18,7 @@ import java.util.*;
 
 @ApplicationScoped
 public class KieDmnService implements DmnService {
-    public Map<String, Object> evaluateDecision(Screener screener, Map<String, Object> inputs) throws IOException {
+    public List<ResultDetail> evaluateDecision(Screener screener, Map<String, Object> inputs) throws IOException {
 
         String filePath = StorageUtils.getPublishedCompiledDmnModelPath(screener.getId());
         Optional<byte[]> dmnDataOpt = StorageUtils.getFileBytesFromStorage(filePath);
@@ -40,27 +42,24 @@ public class KieDmnService implements DmnService {
             }
 
             DMNResult dmnResult = dmnRuntime.evaluateAll(dmnModel, context);
+            kieSession.dispose();
 
-            Map<String, Object> response = new LinkedHashMap<>();
-            response.put("inputs", inputs);
-
-
-            List<Map<String, Object>> decisions = new ArrayList<>();
+            List<ResultDetail> decisions = new ArrayList<>();
             for (DMNDecisionResult decisionResult :  dmnResult.getDecisionResults()) {
-                Map<String, Object> decisionDetail = new LinkedHashMap<>();
-                decisionDetail.put("decisionName", decisionResult.getDecisionName());
-                decisionDetail.put("result", decisionResult.getResult());
-                decisionDetail.put("status", decisionResult.getEvaluationStatus().toString());
+                ResultDetail decisionDetail = new ResultDetail();
+                decisionDetail.setId(decisionResult.getDecisionName());
+                if (decisionResult.getResult() instanceof Boolean){
+                    decisionDetail.setResult((Boolean) decisionResult.getResult());
+                } else {
+                    Log.debug("KieDmnService:evaluateDecision: Expecting boolean as decision result but got a different type");
+                }
+                decisionDetail.setStatus(decisionResult.getEvaluationStatus().toString());
                 decisions.add(decisionDetail);
             }
-
-            response.put("decisions", decisions);
-
-            kieSession.dispose();
-            return response;
+            return decisions;
         }
         catch (Exception e){
-            return new HashMap<>();
+            return Collections.emptyList();
         } finally{
             if (kieSession != null) {
                 kieSession.dispose();
