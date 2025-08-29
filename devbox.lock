@@ -2,8 +2,8 @@
   "lockfile_version": "1",
   "packages": {
     "docker@latest": {
-      "last_modified": "2025-08-05T11:35:34Z",
-      "resolved": "github:NixOS/nixpkgs/a683adc19ff5228af548c6539dbc3440509bfed3#docker",
+      "last_modified": "2025-08-08T08:05:48Z",
+      "resolved": "github:NixOS/nixpkgs/a3f3e3f2c983e957af6b07a1db98bafd1f87b7a1#docker",
       "source": "devbox-search",
       "version": "28.3.3",
       "systems": {
@@ -21,11 +21,11 @@
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/wglkv9vb1q033d9kvvicrypmarpv0b5m-docker-28.3.3",
+              "path": "/nix/store/8jb799sr948h68avj9k3xkvznv10f470-docker-28.3.3",
               "default": true
             }
           ],
-          "store_path": "/nix/store/wglkv9vb1q033d9kvvicrypmarpv0b5m-docker-28.3.3"
+          "store_path": "/nix/store/8jb799sr948h68avj9k3xkvznv10f470-docker-28.3.3"
         },
         "x86_64-darwin": {
           "outputs": [
@@ -41,65 +41,65 @@
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/7lr90z9f3m39fa98iy5g17l5cfraf733-docker-28.3.3",
+              "path": "/nix/store/r0vqz3dsdhw31gyk098qgrw61vwmc7a1-docker-28.3.3",
               "default": true
             }
           ],
-          "store_path": "/nix/store/7lr90z9f3m39fa98iy5g17l5cfraf733-docker-28.3.3"
+          "store_path": "/nix/store/r0vqz3dsdhw31gyk098qgrw61vwmc7a1-docker-28.3.3"
         }
       }
     },
     "firebase-tools@latest": {
-      "last_modified": "2025-07-28T17:09:23Z",
-      "resolved": "github:NixOS/nixpkgs/648f70160c03151bc2121d179291337ad6bc564b#firebase-tools",
+      "last_modified": "2025-08-08T08:05:48Z",
+      "resolved": "github:NixOS/nixpkgs/a3f3e3f2c983e957af6b07a1db98bafd1f87b7a1#firebase-tools",
       "source": "devbox-search",
-      "version": "14.11.1",
+      "version": "14.11.2",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/xi8dai4n5hq9n7v02csgc48d9x21j4z0-firebase-tools-14.11.1",
+              "path": "/nix/store/zf8q36g73lakbil2ri5w999p8l6y2hi4-firebase-tools-14.11.2",
               "default": true
             }
           ],
-          "store_path": "/nix/store/xi8dai4n5hq9n7v02csgc48d9x21j4z0-firebase-tools-14.11.1"
+          "store_path": "/nix/store/zf8q36g73lakbil2ri5w999p8l6y2hi4-firebase-tools-14.11.2"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/vv94zvz0m96zzwn3mq4lncwlbkab7nxj-firebase-tools-14.11.1",
+              "path": "/nix/store/s1nvrwwynvpl4xaxyvydhxkwnsyjk4hh-firebase-tools-14.11.2",
               "default": true
             }
           ],
-          "store_path": "/nix/store/vv94zvz0m96zzwn3mq4lncwlbkab7nxj-firebase-tools-14.11.1"
+          "store_path": "/nix/store/s1nvrwwynvpl4xaxyvydhxkwnsyjk4hh-firebase-tools-14.11.2"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/xprhm4dwy4bk5pz1az4dl3bbqy1wz4w8-firebase-tools-14.11.1",
+              "path": "/nix/store/p0azzz6gdpgq8r6xxajmlagpgvz2kgxy-firebase-tools-14.11.2",
               "default": true
             }
           ],
-          "store_path": "/nix/store/xprhm4dwy4bk5pz1az4dl3bbqy1wz4w8-firebase-tools-14.11.1"
+          "store_path": "/nix/store/p0azzz6gdpgq8r6xxajmlagpgvz2kgxy-firebase-tools-14.11.2"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/76w96qfhwhwk6p1ln4mg5pvn5pl305kb-firebase-tools-14.11.1",
+              "path": "/nix/store/s6sgsylhy32asrr2bpm7v3sv9pvdy40x-firebase-tools-14.11.2",
               "default": true
             }
           ],
-          "store_path": "/nix/store/76w96qfhwhwk6p1ln4mg5pvn5pl305kb-firebase-tools-14.11.1"
+          "store_path": "/nix/store/s6sgsylhy32asrr2bpm7v3sv9pvdy40x-firebase-tools-14.11.2"
         }
       }
     },
     "github:NixOS/nixpkgs/nixpkgs-unstable": {
-      "last_modified": "2025-08-05T11:35:34Z",
-      "resolved": "github:NixOS/nixpkgs/a683adc19ff5228af548c6539dbc3440509bfed3?lastModified=1754393734&narHash=sha256-fbnmAwTQkuXHKBlcL5Nq1sMAzd3GFqCOQgEQw6Hy0Ak%3D"
+      "last_modified": "2025-08-25T22:07:10Z",
+      "resolved": "github:NixOS/nixpkgs/84c256e42600cb0fdf25763b48d28df2f25a0c8b?lastModified=1756159630&narHash=sha256-ohMvsjtSVdT%2FbruXf5ClBh8ZYXRmD4krmjKrXhEvwMg%3D"
     },
     "google-cloud-sdk@latest": {
       "last_modified": "2025-07-28T17:09:23Z",
