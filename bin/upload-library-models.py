@@ -2,12 +2,11 @@ import os
 from google.cloud import storage
 
 # Configuration
-LOCAL_DIR = "./dmn/"
-BUCKET_NAME = "benefits-decision-toolkit.firebasestorage.app"
+LOCAL_DIR = "../library-api/src/resources/"
+BUCKET_NAME = "benefit-decision-toolkit-play.firebasestorage.app"
 
 # Map of local filenames to their corresponding GCS paths
 GCS_PATH_MAP = {
-    "compare.dmn": "model_repository/benefits-decision-toolkit/compare/1.0.0/compare.dmn",
     "utility.dmn": "model_repository/benefits-decision-toolkit/utility/1.0.0/utility.dmn",
     "age.dmn": "model_repository/benefits-decision-toolkit/age/1.0.0/age.dmn",
     "enrollments.dmn": "model_repository/benefits-decision-toolkit/enrollments/1.0.0/enrollments.dmn",
