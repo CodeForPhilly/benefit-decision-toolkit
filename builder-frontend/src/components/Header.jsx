@@ -14,7 +14,7 @@ export default function Header() {
     <header class="bg-gray-200  px-4 py-3 flex items-center justify-between">
       <div class="flex items-center space-x-6">
         <span class="text-lg font-bold text-gray-600">
-          Benefits Decision Toolkit
+          Benefit Decision Toolkit
         </span>
       </div>
       <div className="flex gap-4">
