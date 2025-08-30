@@ -10,20 +10,14 @@ import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Screener {
-    @JsonProperty("id")
     private String id;
     private Map<String, Object> formSchema;
-    @JsonProperty("is_published")
+    @JsonProperty("isPublished")
     private Boolean isPublished;
-    @JsonProperty("organization_name")
     private String organizationName;
-    @JsonProperty("screener_name")
     private String screenerName;
-    @JsonProperty("published_dmn_namespace")
     private String publishedDmnNameSpace;
-    @JsonProperty("published_dmn_name")
     private String publishedDmnName;
-    @JsonProperty("results_schema")
     private List<ResultDetail> resultsSchema;
 
     public Screener(Map<String, Object> model, boolean isPublished){

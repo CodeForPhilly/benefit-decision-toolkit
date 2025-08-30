@@ -6,7 +6,8 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResultDetail {
     private String id;
-    private String name;
+    private String decisionName;
+    private String displayName;
     private Boolean result;
     private List<ResultDetail> checks;
     private String status;
@@ -21,12 +22,12 @@ public class ResultDetail {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getDisplayName() {
+        return displayName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public Boolean getResult() {
@@ -67,5 +68,13 @@ public class ResultDetail {
 
     public void setAppLink(String appLink) {
         this.appLink = appLink;
+    }
+
+    public String getDecisionName() {
+        return decisionName;
+    }
+
+    public void setDecisionName(String decisionName) {
+        this.decisionName = decisionName;
     }
 }

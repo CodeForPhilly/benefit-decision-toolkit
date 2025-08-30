@@ -61,8 +61,6 @@ public class DecisionResource {
 
         List<ResultDetail> resultsSchema = screener.getResultsSchema();
 
-        List<ResultDetail> publishedResults = new ArrayList<>();
-
         for (ResultDetail resultDetail : resultsSchema){
             addResultValuesToResultDetailObject(resultDetail, resultMap);
         }
@@ -75,7 +73,7 @@ public class DecisionResource {
     }
 
     private static void addResultValuesToResultDetailObject(ResultDetail resultDetail, Map<String, ResultDetail> resultMap) {
-        String decisionId = resultDetail.getId();
+        String decisionId = resultDetail.getDecisionName();
         if(resultMap.containsKey(decisionId)){
             resultDetail.setResult(resultMap.get(decisionId).getResult());
         }

@@ -4,6 +4,7 @@ import questionIcon from "./assets/images/questionIcon.svg";
 import xIcon from "./assets/images/xIcon.svg";
 
 export default function EligibilityResults({ results }) {
+  console.log(results());
   return (
     <div class="my-2 mx-12">
       <h2 class="text-gray-600 font-bold">Eligibility Results</h2>
@@ -27,7 +28,7 @@ export default function EligibilityResults({ results }) {
                 </p>
               </Match>
             </Switch>
-            <h3 class="font-bold mb-2 text-lg">{benefit.name}</h3>
+            <h3 class="font-bold mb-2 text-lg">{benefit.displayName}</h3>
             <div class="my-2">
               <For each={benefit.checks ?? []}>
                 {(check) => (
@@ -47,7 +48,7 @@ export default function EligibilityResults({ results }) {
                         <img src={xIcon} alt="" class="inline w-4 mr-2" />
                       </Match>
                     </Switch>
-                    <span className="text-xs">{check.name}</span>
+                    <span className="text-xs">{check.displayName}</span>
                   </p>
                 )}
               </For>
