@@ -1,10 +1,11 @@
 package org.acme.persistence;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.acme.constants.CollectionNames;
 import org.acme.constants.FieldNames;
-import org.acme.mapper.ScreenerMapper;
 import org.acme.model.domain.DmnModel;
 import org.acme.model.domain.Screener;
 
@@ -27,7 +28,8 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
                 FieldNames.OWNER_ID,
                 userId);
 
-        List<Screener> screeners = screenersMaps.stream().map(ScreenerMapper::fromMap).toList();
+        ObjectMapper mapper = new ObjectMapper();
+        List<Screener> screeners = screenersMaps.stream().map(screenerMap ->  mapper.convertValue(screenerMap, Screener.class)).toList();
 
         return screeners;
     }
@@ -39,7 +41,10 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
             return Optional.empty();
         }
         Map<String, Object> data = dataOpt.get();
-        Screener screener = ScreenerMapper.fromMap(data);
+
+
+        ObjectMapper mapper = new ObjectMapper();
+        Screener screener = mapper.convertValue(data, Screener.class);
 
         String formPath = storageService.getScreenerWorkingFormSchemaPath(screenerId);
         Map<String, Object>  formSchema = storageService.getFormSchemaFromStorage(formPath);
@@ -59,26 +64,27 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
             return Optional.empty();
         }
         Map<String, Object> data = dataOpt.get();
-        Screener screener = ScreenerMapper.fromMap(data);
+        ObjectMapper mapper = new ObjectMapper();
+        Screener screener = mapper.convertValue(data, Screener.class);
 
         return Optional.of(screener);
     }
-
 
     private Boolean doesAttributeExistAndOfType(Map<String, Object> map, String key, Class<?> expectedClass){
         return map.containsKey(key) && expectedClass.isInstance(map.get(key));
     }
 
-
     @Override
     public String saveNewScreener(Screener screener) throws Exception{
-        Map<String, Object> data = ScreenerMapper.fromScreener(screener);
+        ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Map<String, Object> data = mapper.convertValue(screener, Map.class);
         return FirestoreUtils.persistDocument(CollectionNames.SCREENER_COLLECTION, data);
     }
 
     @Override
     public void updateScreener(Screener screener) throws Exception {
-        Map<String, Object> data = ScreenerMapper.fromScreener(screener);
+        ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Map<String, Object> data = mapper.convertValue(screener, Map.class);
         FirestoreUtils.updateDocument(CollectionNames.SCREENER_COLLECTION, data, screener.getId());
     }
 

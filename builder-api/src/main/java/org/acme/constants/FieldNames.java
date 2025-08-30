@@ -5,19 +5,19 @@ public class FieldNames {
     public static final String ID = "id";
 
     // Screener Database fields
-    public static final String WORKING_FORM_PATH = "working_form_path";
-    public static final String SCREENER_NAME = "screener_name";
-    public static final String IS_PUBLISHED = "is_published";
-    public static final String WORKING_DMN_PATH = "working_dmn_path";
-    public static final String OWNER_ID = "owner_id";
-    public static final String LAST_PUBLISHED_DATE = "last_published_date";
-    public static final String ORGANIZATION_NAME = "organization_name";
-    public static final String WORKING_DMN_NAME = "working_dmn_name";
-    public static final String PUBLISHED_DMN_NAME = "published_dmn_name";
-    public static final String WORKING_DMN_NAMESPACE = "working_dmn_namespace";
-    public static final String PUBLISHED_DMN_NAMESPACE = "published_dmn_namespace";
-    public static final String LAST_DMN_SAVE = "last_dmn_save";
-    public static final String LAST_DMN_COMPILE = "last_dmn_compile";
+    public static final String WORKING_FORM_PATH = "workingFormPath";
+    public static final String SCREENER_NAME = "screenerName";
+    public static final String IS_PUBLISHED = "isPublished";
+    public static final String WORKING_DMN_PATH = "workingDmnPath";
+    public static final String OWNER_ID = "ownerId";
+    public static final String LAST_PUBLISHED_DATE = "lastPublishedDate";
+    public static final String ORGANIZATION_NAME = "organizationName";
+    public static final String WORKING_DMN_NAME = "workingDmnName";
+    public static final String PUBLISHED_DMN_NAME = "publishedDmnName";
+    public static final String WORKING_DMN_NAMESPACE = "workingDmnNamespace";
+    public static final String PUBLISHED_DMN_NAMESPACE = "publishedDmnNamespace";
+    public static final String LAST_DMN_SAVE = "lastDmnSave";
+    public static final String LAST_DMN_COMPILE = "lastDmnCompile";
     public static final String DEPENDENCIES = "dependencies";
 
     // DmnModel Database fields
