@@ -134,7 +134,11 @@ function Project({ clearUserState }) {
             ></ImportModels>
           )}
           {activeTab() == "Preview" && (
-            <Preview formSchema={formSchema}></Preview>
+            <Preview
+              project={project}
+              formSchema={formSchema}
+              dmnModel={dmnModel}
+            ></Preview>
           )}
           {activeTab() == "Publish" && (
             <Publish

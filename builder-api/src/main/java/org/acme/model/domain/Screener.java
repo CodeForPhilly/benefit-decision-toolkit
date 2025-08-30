@@ -1,7 +1,4 @@
 package org.acme.model.domain;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import org.acme.model.dto.Dependency;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -29,6 +26,7 @@ public class Screener {
     private String lastDmnSave;
     private String lastDmnCompile;
     private List<Dependency> dependencies;
+    private List<ResultDetail> resultsSchema;
 
     public Screener(Map<String, Object> model, boolean isPublished){
         this.formSchema = model;
@@ -164,5 +162,13 @@ public class Screener {
 
     public void setDependencies(List<Dependency> dependencies) {
         this.dependencies = dependencies;
+    }
+
+    public List<ResultDetail> getResultsSchema() {
+        return resultsSchema;
+    }
+
+    public void setResultsSchema(List<ResultDetail> resultsSchema) {
+        this.resultsSchema = resultsSchema;
     }
 }

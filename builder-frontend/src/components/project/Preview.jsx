@@ -1,10 +1,11 @@
-import { createSignal } from "solid-js";
+import { createSignal, onMount } from "solid-js";
 import { useParams } from "@solidjs/router";
 import { submitForm } from "../../api/screener";
 import FormRenderer from "./FormRenderer";
 import Results from "./Results";
+import ResultsEditor from "./ResultsEditor";
 
-export default function Preview({ formSchema }) {
+export default function Preview({ project, formSchema, dmnModel }) {
   const [results, setResults] = createSignal();
   const params = useParams();
   let schema = formSchema();
@@ -32,6 +33,9 @@ export default function Preview({ formSchema }) {
         ></FormRenderer>
         <div className="pt-4">
           <Results results={results}></Results>
+        </div>
+        <div>
+          <ResultsEditor project={project} dmnModel={dmnModel}></ResultsEditor>
         </div>
       </div>
     </>

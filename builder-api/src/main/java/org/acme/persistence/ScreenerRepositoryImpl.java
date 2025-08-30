@@ -85,6 +85,13 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
     public void updateScreener(Screener screener) throws Exception {
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(screener, Map.class);
+
+        // Remove DMN model and form schema if included on the model.
+        // We don't want to save these artifacts as fields on the firestore document.
+        // These are saved separately on in cloud storage.
+        data.remove("dmnModel");
+        data.remove("formSchema");
+
         FirestoreUtils.updateDocument(CollectionNames.SCREENER_COLLECTION, data, screener.getId());
     }
 
