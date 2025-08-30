@@ -37,7 +37,6 @@ export function AuthProvider(props) {
   });
 
   const login = async (email, password) => {
-    console.log("Loging in");
     return signInWithEmailAndPassword(auth, email, password);
   };
 

@@ -20,7 +20,7 @@ export default function ImportModels({
         (dep) => `${dep.groupId}:${dep.artifactId}:${dep.version}`
       )
     );
-    console.log({ depKeys });
+
     if (!availableModels()) return [];
     return availableModels().filter((model) =>
       depKeys.has(`${model.groupId}:${model.artifactId}:${model.version}`)

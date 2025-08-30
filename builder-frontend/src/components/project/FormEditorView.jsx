@@ -49,7 +49,6 @@ function FormEditorView({ formSchema, setFormSchema }) {
   });
 
   const handleSave = async () => {
-    console.log("save");
     const projectId = params.projectId;
     const schema = formSchema();
     setIsUnsaved(false);

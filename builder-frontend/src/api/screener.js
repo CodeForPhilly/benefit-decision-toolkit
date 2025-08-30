@@ -69,8 +69,6 @@ export const createNewScreener = async (screenerData) => {
 
 export const updateScreener = async (screenerData) => {
   const url = apiUrl + "/screener";
-  console.log("in update screener");
-  console.log(screenerData);
   try {
     const response = await authFetch(url, {
       method: "PUT",

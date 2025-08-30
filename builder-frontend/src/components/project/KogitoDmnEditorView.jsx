@@ -25,7 +25,6 @@ export default function KogitoDmnEditorView({
   };
 
   function buildDmnResources() {
-    console.log(projectDependencies());
     return new Map(
       projectDependencies().map((dep) => [
         `${dep.groupId}:${dep.artifactId}:${dep.version}.dmn`,

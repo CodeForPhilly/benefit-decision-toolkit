@@ -31,8 +31,6 @@ export default function ResultsEditor({ project, dmnModel }) {
 
   onMount(async () => {
     const names = await getDecisionNames(dmnModel());
-    console.log("names ");
-    console.log(names);
     setDecisionOptions(names);
   });
 
@@ -98,9 +96,6 @@ export default function ResultsEditor({ project, dmnModel }) {
 
   // Update check field
   const updateCheck = (benefitId, checkId, field, value) => {
-    console.log("update checks");
-    console.log(field);
-
     setBenefits((prev) =>
       prev.map((b) =>
         b.id === benefitId
@@ -117,8 +112,6 @@ export default function ResultsEditor({ project, dmnModel }) {
 
   const handleSave = async (e) => {
     e.preventDefault(); // prevent page reload
-    console.log(project());
-    console.log("Form data to save:", benefits());
     const formData = benefits();
 
     const resultsSchema = formData.map((benefit) => ({
@@ -134,9 +127,7 @@ export default function ResultsEditor({ project, dmnModel }) {
 
     let projectData = project();
     projectData.resultsSchema = resultsSchema;
-    console.log(projectData);
     await updateScreener(projectData);
-    console.log("results schema saved");
   };
 
   return (
@@ -151,13 +142,11 @@ export default function ResultsEditor({ project, dmnModel }) {
 
       {decisionOptions().length === 0 ? (
         <div>
-          {decisionOptions().length + " "}DMN Model does not yet include
-          decisions. Once decisions are included they can be added to the
-          results section.
+          DMN Model does not yet include decisions. Once decisions are included
+          they can be added to the results section.
         </div>
       ) : (
         <>
-          <div>{decisionOptions().length}</div>
           <button
             type="button"
             onClick={addBenefit}
