@@ -21,9 +21,10 @@ function Project({ clearUserState }) {
   const [dmnModel, setDmnModel] = createSignal();
   const [formSchema, setFormSchema] = createSignal();
   const [projectDependencies, setProjectDependencies] = createSignal([]);
+  const [forceUpdate, setForceUpdate] = createSignal(0);
 
-  const fetchAndCacheProject = async (screenerId) => {
-    const projectData = await fetchProject(screenerId);
+  const fetchAndCacheProject = async (keys) => {
+    const projectData = await fetchProject(keys[0]);
     setDmnModel(projectData.dmnModel);
     setFormSchema(projectData.formSchema);
     fetchAndCacheProjectDependencies(projectData);
@@ -68,7 +69,12 @@ function Project({ clearUserState }) {
   };
 
   const [project, { refetchProject }] = createResource(
-    params.projectId,
+    // Using resrouce to more easily track states during refetch
+    // However resources only refetch when key has changed.
+    // In order to force refetch even thought he projectId hasn't change,
+    // including a dummy signal 'forceUpdate' that can be unique for
+    // each call to the refetch
+    () => [params.projectId, forceUpdate()],
     fetchAndCacheProject
   );
 
@@ -133,7 +139,7 @@ function Project({ clearUserState }) {
           {activeTab() == "Publish" && (
             <Publish
               project={project}
-              refetchProject={refetchProject}
+              refetchProject={() => setForceUpdate((prev) => prev + 1)}
             ></Publish>
           )}
         </>

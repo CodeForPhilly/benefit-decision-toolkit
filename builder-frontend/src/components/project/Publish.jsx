@@ -15,9 +15,10 @@ export default function Publish({ project, refetchProject }) {
   });
 
   const setScreenerState = () => {
+    console.log("resetting screener state");
     if (!project()) return;
     setScreenerName(project().name);
-    setIsPublished(project().published);
+    setIsPublished(project().isPublished);
     setLastPublishDate(project().lastPublishDate);
     setScreenerUrl(screenerBaseUrl + "screener/" + project().id);
   };

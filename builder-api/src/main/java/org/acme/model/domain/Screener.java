@@ -16,6 +16,7 @@ public class Screener {
     private String id;
     private Map<String, Object> formSchema;
     private String dmnModel;
+    @JsonProperty("isPublished")
     private Boolean isPublished;
     private String ownerId;
     private String screenerName;
