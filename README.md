@@ -1,6 +1,7 @@
 # Benefit Decision Toolkit
 
-# 🏗🏗️️ This README needs to be updated to account for our move to a custom cloud development environment 🏗️🏗️
+# 🏗🏗️️ This README needs to be updated to account for our move to a custom cloud development environment. 🏗️🏗️
+# ⚠️ The documentation below pertains to the code now found in `library-api/` ⚠️
 
 **Use [DMN](https://www.omg.org/dmn/) and [FEEL](https://docs.camunda.io/docs/components/modeler/feel/what-is-feel/) to create APIs and Screeners for public benefit rules.**
 
