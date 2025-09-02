@@ -1,138 +1,351 @@
 {
   "lockfile_version": "1",
   "packages": {
-    "github:NixOS/nixpkgs/nixpkgs-unstable": {
-      "resolved": "github:NixOS/nixpkgs/3a05eebede89661660945da1f151959900903b6a?lastModified=1740547748&narHash=sha256-Ly2fBL1LscV%2BKyCqPRufUBuiw%2BzmWrlJzpWOWbahplg%3D"
-    },
-    "jdk17@latest": {
-      "last_modified": "2025-01-19T08:16:51Z",
-      "resolved": "github:NixOS/nixpkgs/50165c4f7eb48ce82bd063e1fb8047a0f515f8ce#jdk17",
+    "docker@latest": {
+      "last_modified": "2025-08-08T08:05:48Z",
+      "resolved": "github:NixOS/nixpkgs/a3f3e3f2c983e957af6b07a1db98bafd1f87b7a1#docker",
       "source": "devbox-search",
-      "version": "17.0.13+11",
+      "version": "28.3.3",
       "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/6x679ch4cqa5aywjsrnplsasv5rp0mak-docker-28.3.3",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/6x679ch4cqa5aywjsrnplsasv5rp0mak-docker-28.3.3"
+        },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/791xnzdn9m059szs44mxx3gj99ks9wif-openjdk-17.0.13+11",
+              "path": "/nix/store/8jb799sr948h68avj9k3xkvznv10f470-docker-28.3.3",
               "default": true
-            },
-            {
-              "name": "debug",
-              "path": "/nix/store/pcxw19bmmhival4gn0qgh3zcp6shc3cs-openjdk-17.0.13+11-debug"
             }
           ],
-          "store_path": "/nix/store/791xnzdn9m059szs44mxx3gj99ks9wif-openjdk-17.0.13+11"
+          "store_path": "/nix/store/8jb799sr948h68avj9k3xkvznv10f470-docker-28.3.3"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/g3h7m6qsx5rkb908qcqi4a6kflvcriz5-docker-28.3.3",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/g3h7m6qsx5rkb908qcqi4a6kflvcriz5-docker-28.3.3"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/y2c3skvhv4l8h069ri1vkj0dwn7n6kcf-openjdk-17.0.13+11",
+              "path": "/nix/store/r0vqz3dsdhw31gyk098qgrw61vwmc7a1-docker-28.3.3",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/r0vqz3dsdhw31gyk098qgrw61vwmc7a1-docker-28.3.3"
+        }
+      }
+    },
+    "firebase-tools@latest": {
+      "last_modified": "2025-08-08T08:05:48Z",
+      "resolved": "github:NixOS/nixpkgs/a3f3e3f2c983e957af6b07a1db98bafd1f87b7a1#firebase-tools",
+      "source": "devbox-search",
+      "version": "14.11.2",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/zf8q36g73lakbil2ri5w999p8l6y2hi4-firebase-tools-14.11.2",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/zf8q36g73lakbil2ri5w999p8l6y2hi4-firebase-tools-14.11.2"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/s1nvrwwynvpl4xaxyvydhxkwnsyjk4hh-firebase-tools-14.11.2",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/s1nvrwwynvpl4xaxyvydhxkwnsyjk4hh-firebase-tools-14.11.2"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/p0azzz6gdpgq8r6xxajmlagpgvz2kgxy-firebase-tools-14.11.2",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/p0azzz6gdpgq8r6xxajmlagpgvz2kgxy-firebase-tools-14.11.2"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/s6sgsylhy32asrr2bpm7v3sv9pvdy40x-firebase-tools-14.11.2",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/s6sgsylhy32asrr2bpm7v3sv9pvdy40x-firebase-tools-14.11.2"
+        }
+      }
+    },
+    "github:NixOS/nixpkgs/nixpkgs-unstable": {
+      "last_modified": "2025-08-25T22:07:10Z",
+      "resolved": "github:NixOS/nixpkgs/84c256e42600cb0fdf25763b48d28df2f25a0c8b?lastModified=1756159630&narHash=sha256-ohMvsjtSVdT%2FbruXf5ClBh8ZYXRmD4krmjKrXhEvwMg%3D"
+    },
+    "google-cloud-sdk@latest": {
+      "last_modified": "2025-07-28T17:09:23Z",
+      "resolved": "github:NixOS/nixpkgs/648f70160c03151bc2121d179291337ad6bc564b#google-cloud-sdk",
+      "source": "devbox-search",
+      "version": "529.0.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/9v8y10z0y9lkhjsaf728nhhbc4jbp83q-google-cloud-sdk-529.0.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/9v8y10z0y9lkhjsaf728nhhbc4jbp83q-google-cloud-sdk-529.0.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/5kz4dghm4lc2rmjy85xz813irlpyglhl-google-cloud-sdk-529.0.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/5kz4dghm4lc2rmjy85xz813irlpyglhl-google-cloud-sdk-529.0.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/arw4kq8hig5v2n3gq3pzw521qb3rc736-google-cloud-sdk-529.0.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/arw4kq8hig5v2n3gq3pzw521qb3rc736-google-cloud-sdk-529.0.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/aw6lxd787x16w8d2ll2afnjjz3kqi0m4-google-cloud-sdk-529.0.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/aw6lxd787x16w8d2ll2afnjjz3kqi0m4-google-cloud-sdk-529.0.0"
+        }
+      }
+    },
+    "jdk21@latest": {
+      "last_modified": "2024-06-12T20:55:33Z",
+      "resolved": "github:NixOS/nixpkgs/a9858885e197f984d92d7fe64e9fff6b2e488d40#jdk",
+      "source": "devbox-search",
+      "version": "21+35",
+      "systems": {
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/f7risq9mlz4gywxr65v46h4mv1a4a0s3-openjdk-21+35",
               "default": true
             },
             {
               "name": "debug",
-              "path": "/nix/store/zq94asm29gzzglah8lqr7h3zmzj050gd-openjdk-17.0.13+11-debug"
+              "path": "/nix/store/lgljxsffciqlijp38iklrh1ki5vi0y4f-openjdk-21+35-debug"
             }
           ],
-          "store_path": "/nix/store/y2c3skvhv4l8h069ri1vkj0dwn7n6kcf-openjdk-17.0.13+11"
+          "store_path": "/nix/store/f7risq9mlz4gywxr65v46h4mv1a4a0s3-openjdk-21+35"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/bk3x3ia7gxqic1jgr3dz05gwi8zw671y-openjdk-21+35",
+              "default": true
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/2h6zm6qy04amw9mvir8n5fifn99dzg16-openjdk-21+35-debug"
+            }
+          ],
+          "store_path": "/nix/store/bk3x3ia7gxqic1jgr3dz05gwi8zw671y-openjdk-21+35"
         }
       }
     },
     "maven@latest": {
-      "last_modified": "2025-01-19T08:16:51Z",
-      "resolved": "github:NixOS/nixpkgs/50165c4f7eb48ce82bd063e1fb8047a0f515f8ce#maven",
+      "last_modified": "2025-07-28T17:09:23Z",
+      "resolved": "github:NixOS/nixpkgs/648f70160c03151bc2121d179291337ad6bc564b#maven",
       "source": "devbox-search",
-      "version": "3.9.9",
+      "version": "3.9.11",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/10lcy7avwkxg2zc43ql1l0l2anrd73cw-maven-3.9.9",
+              "path": "/nix/store/4l03gxm9lnkap9z4s219lk2lmznf6ksr-maven-3.9.11",
               "default": true
             }
           ],
-          "store_path": "/nix/store/10lcy7avwkxg2zc43ql1l0l2anrd73cw-maven-3.9.9"
+          "store_path": "/nix/store/4l03gxm9lnkap9z4s219lk2lmznf6ksr-maven-3.9.11"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/krm05c4zw3v3jqxzncx7q0r6l2q4x1j0-maven-3.9.9",
+              "path": "/nix/store/6663sm7x2b6lh3lcy40ysng365h0n41w-maven-3.9.11",
               "default": true
             }
           ],
-          "store_path": "/nix/store/krm05c4zw3v3jqxzncx7q0r6l2q4x1j0-maven-3.9.9"
+          "store_path": "/nix/store/6663sm7x2b6lh3lcy40ysng365h0n41w-maven-3.9.11"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/frdcg7rf1ps9wvd31591n5i2gja4r14p-maven-3.9.9",
+              "path": "/nix/store/i1fz4dsqcfy2ilz9yq0z84n973iw4k8z-maven-3.9.11",
               "default": true
             }
           ],
-          "store_path": "/nix/store/frdcg7rf1ps9wvd31591n5i2gja4r14p-maven-3.9.9"
+          "store_path": "/nix/store/i1fz4dsqcfy2ilz9yq0z84n973iw4k8z-maven-3.9.11"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/zidqb732mgnhfw1iw5diqrf8ka4spm28-maven-3.9.9",
+              "path": "/nix/store/f055dmaqf8japp7nqww78zp3g37j5qfs-maven-3.9.11",
               "default": true
             }
           ],
-          "store_path": "/nix/store/zidqb732mgnhfw1iw5diqrf8ka4spm28-maven-3.9.9"
+          "store_path": "/nix/store/f055dmaqf8japp7nqww78zp3g37j5qfs-maven-3.9.11"
+        }
+      }
+    },
+    "podman@latest": {
+      "last_modified": "2025-08-04T20:54:38Z",
+      "resolved": "github:NixOS/nixpkgs/cab778239e705082fe97bb4990e0d24c50924c04#podman",
+      "source": "devbox-search",
+      "version": "5.5.2",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/d4qsjh71z5imdjn4fkixfq040i0l56bz-podman-5.5.2",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/lzqbp5rjw8zldnwy7zzzp6z5lffilsmh-podman-5.5.2-man",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/d4qsjh71z5imdjn4fkixfq040i0l56bz-podman-5.5.2"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/rq6rlyb9ihran9jqsadq6rgv5vc5ri1h-podman-5.5.2",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/b81md27ig417wpqmgpj6a6lzb3vcd0b6-podman-5.5.2-man",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/rq6rlyb9ihran9jqsadq6rgv5vc5ri1h-podman-5.5.2"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/in7kybnm92wgpkz9vrdpwq6a4z2vzcqb-podman-5.5.2",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/gw2ia71qbhxnjf5xw2qa66kih03k0543-podman-5.5.2-man",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/in7kybnm92wgpkz9vrdpwq6a4z2vzcqb-podman-5.5.2"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/la6fdv93ng406rl4rkc372f0l7qbx51p-podman-5.5.2",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/3w7yy7xg9lzirnnk30dahcblfnxr4ldx-podman-5.5.2-man",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/la6fdv93ng406rl4rkc372f0l7qbx51p-podman-5.5.2"
         }
       }
     },
     "quarkus@latest": {
-      "last_modified": "2025-01-24T01:56:22Z",
-      "resolved": "github:NixOS/nixpkgs/4dfc61e9cd0c26b3bc3e6d6fac3ba10d18959fc4#quarkus",
+      "last_modified": "2025-07-28T17:09:23Z",
+      "resolved": "github:NixOS/nixpkgs/648f70160c03151bc2121d179291337ad6bc564b#quarkus",
       "source": "devbox-search",
-      "version": "3.17.7",
+      "version": "3.24.5",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/ldv64vkp9vld3inpxk487brzx3f3mnkh-quarkus-cli-3.17.7",
+              "path": "/nix/store/jjg2x9jzvqjs5nbjgg1gimghydgnmb2w-quarkus-cli-3.24.5",
               "default": true
             }
           ],
-          "store_path": "/nix/store/ldv64vkp9vld3inpxk487brzx3f3mnkh-quarkus-cli-3.17.7"
+          "store_path": "/nix/store/jjg2x9jzvqjs5nbjgg1gimghydgnmb2w-quarkus-cli-3.24.5"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/j559aann5k3ar315xwsw3vmamdzlpbq4-quarkus-cli-3.17.7",
+              "path": "/nix/store/729fg85hyhsf99lvii3w4g4bydbgx8w3-quarkus-cli-3.24.5",
               "default": true
             }
           ],
-          "store_path": "/nix/store/j559aann5k3ar315xwsw3vmamdzlpbq4-quarkus-cli-3.17.7"
+          "store_path": "/nix/store/729fg85hyhsf99lvii3w4g4bydbgx8w3-quarkus-cli-3.24.5"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/2isjms0pmg2byl8m3hx9xhsvr9p1lxcb-quarkus-cli-3.17.7",
+              "path": "/nix/store/qrinn9yr8h2z5nnlahwvxwb2l5szp704-quarkus-cli-3.24.5",
               "default": true
             }
           ],
-          "store_path": "/nix/store/2isjms0pmg2byl8m3hx9xhsvr9p1lxcb-quarkus-cli-3.17.7"
+          "store_path": "/nix/store/qrinn9yr8h2z5nnlahwvxwb2l5szp704-quarkus-cli-3.24.5"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/ys26s3n95a4yvayrsvj9nv48940z4fhy-quarkus-cli-3.17.7",
+              "path": "/nix/store/yr4hd7vjkn8kdq83c042cda4wka1izm4-quarkus-cli-3.24.5",
               "default": true
             }
           ],
-          "store_path": "/nix/store/ys26s3n95a4yvayrsvj9nv48940z4fhy-quarkus-cli-3.17.7"
+          "store_path": "/nix/store/yr4hd7vjkn8kdq83c042cda4wka1izm4-quarkus-cli-3.24.5"
         }
       }
     }

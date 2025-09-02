@@ -1,0 +1,108 @@
+{
+  "components": [
+    {
+      "text": "Test Form\n",
+      "type": "text",
+      "layout": {
+        "row": "Row_05roz8z",
+        "columns": null
+      },
+      "id": "Field_1bw4y77"
+    },
+    {
+      "label": "Checkbox group",
+      "values": [
+        {
+          "label": "Value",
+          "value": "value"
+        }
+      ],
+      "type": "checklist",
+      "layout": {
+        "row": "Row_0ie2vd0",
+        "columns": null
+      },
+      "id": "Field_19xod6n",
+      "key": "checklist_ai63f"
+    },
+    {
+      "type": "table",
+      "layout": {
+        "row": "Row_0xdlcvc",
+        "columns": null
+      },
+      "label": "Table",
+      "rowCount": 10,
+      "columns": [
+        {
+          "label": "ID",
+          "key": "id"
+        },
+        {
+          "label": "Name",
+          "key": "name"
+        },
+        {
+          "label": "Date",
+          "key": "date"
+        }
+      ],
+      "id": "Field_1e5xt2v",
+      "dataSource": "=Field_1e5xt2v"
+    },
+    {
+      "label": "Checkbox",
+      "type": "checkbox",
+      "layout": {
+        "row": "Row_1cvg8jt",
+        "columns": null
+      },
+      "id": "Field_1yhpnx2",
+      "key": "checkbox_ixztq"
+    },
+    {
+      "label": "Radio group",
+      "values": [
+        {
+          "label": "Value",
+          "value": "value"
+        }
+      ],
+      "type": "radio",
+      "layout": {
+        "row": "Row_0rf7mmj",
+        "columns": null
+      },
+      "id": "Field_0f84rcb",
+      "key": "radio_dlkf6l"
+    },
+    {
+      "subtype": "date",
+      "dateLabel": "Date",
+      "type": "datetime",
+      "layout": {
+        "row": "Row_1m0n00k",
+        "columns": null
+      },
+      "id": "Field_06l21hg",
+      "key": "datetime_qzw3q"
+    },
+    {
+      "label": "File picker",
+      "type": "filepicker",
+      "layout": {
+        "row": "Row_0zcc8zv",
+        "columns": null
+      },
+      "id": "Field_1j2mgn3",
+      "key": "filepicker_uf5oqr"
+    }
+  ],
+  "type": "default",
+  "id": "Form_0g042cw",
+  "exporter": {
+    "name": "form-js (https://demo.bpmn.io)",
+    "version": "1.15.0"
+  },
+  "schemaVersion": 18
+}

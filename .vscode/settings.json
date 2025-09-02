@@ -1,16 +1,4 @@
 {
-    // === Workspace Settings ===
-    // Put settings here that are required or otherwise not reasonably subject to individual opinion/taste.
-    // Note: opinionated settings should go in the the DMN Benefit Toolbox Code Profile
-    
-    "files.autoSave": "off", // this does not play nicely w/ the DMN Editor
-    "files.associations": {
-        "*.dmn": "xml", // for when viewing DMN files as text files instead of in the DMN Editor
-        "*.form": "json"
-    },
-    "java.configuration.updateBuildConfiguration": "interactive",
-    "java.compile.nullAnalysis.mode": "automatic",
-    "thunder-client.saveToWorkspace": true,
-    "IDX.aI.enableInlineCompletion": true,
-    "IDX.aI.enableCodebaseIndexing": true
+  "thunder-client.saveToWorkspace": true,
+  "thunder-client.workspaceRelativePath": "library-api"
 }
