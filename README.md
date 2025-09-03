@@ -1,4 +1,3 @@
-
 <img width="400" alt="bdt-logo-large-color-dark" src="https://github.com/user-attachments/assets/d26a8869-970a-43b2-89b0-b4266754ae21" />
 <br>
 <br>
@@ -38,3 +37,15 @@ If you are interested in getting involved with the project, check out [our page 
 [screener-api](/screener-api) and [screener-frontend](/screener-frontend) comprise the screener experience that the builder app deploys.
 
 [library-api](/library-api) contains a system for building eleigibility APIs using a preconfigured IDE.
+
+## Local Development Setup
+
+```bash
+git clone https://github.com/CodeForPhilly/benefit-decision-toolkit.git
+
+cd benefit-decision-toolkit
+```
+
+You can find instructions to work on each app within the project in their respective directories, which are linked above.
+
+Note that for the frontend apps, you will need an environment variable file from a teammate. Please do not commit this file to the repo.
