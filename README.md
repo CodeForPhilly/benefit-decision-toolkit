@@ -1,4 +1,7 @@
-# Benefit Decision Toolkit
+
+<img width="400" alt="bdt-logo-large-color-dark" src="https://github.com/user-attachments/assets/d26a8869-970a-43b2-89b0-b4266754ae21" />
+<br>
+<br>
 
 **Use [DMN](https://www.omg.org/dmn/) and [FEEL](https://docs.camunda.io/docs/components/modeler/feel/what-is-feel/) to create APIs and Screeners for public benefit rules.**
 
