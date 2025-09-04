@@ -1,0 +1,12 @@
+{
+  "name": "benefit-decision-toolkit",
+  "private": true,
+  "workspaces": [
+    "builder-frontend",
+    "screener-frontend"
+  ],
+  "scripts": {
+    "build:all": "npm run build --workspaces",
+    "deploy:all": "npm run build:all && firebase deploy --only hosting"
+  }
+}
