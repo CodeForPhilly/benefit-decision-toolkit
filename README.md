@@ -36,7 +36,7 @@ If you are interested in getting involved with the project, check out [our page 
 
 [screener-api](/screener-api) and [screener-frontend](/screener-frontend) comprise the screener experience that the builder app deploys.
 
-[library-api](/library-api) contains a system for building eleigibility APIs using a preconfigured IDE.
+[library-api](/library-api) contains a library of pre-built benefits and eligibility rules, suitable for including in custom screeners and for standing up a standalone eligibility API.
 
 ## Local Development Setup
 
