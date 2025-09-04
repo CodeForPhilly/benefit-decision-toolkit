@@ -7,6 +7,6 @@
   ],
   "scripts": {
     "build:all": "npm run build --workspaces",
-    "deploy:all": "npm run build:all && firebase deploy --only hosting"
+    "deploy:all": "firebase login && npm run build:all && firebase deploy --only hosting"
   }
 }
