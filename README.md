@@ -20,7 +20,7 @@ If you are interested in getting involved with the project, check out [our page 
 
 ## User-Facing Technologies
 
-[Decision Model and Notation (DMN)](https://camunda.com/dmn/) is used to define the logic of the screener forms.
+[Decision Model and Notation (DMN)](https://learn-dmn-in-15-minutes.com/) is used to define the logic of the screener forms.
 
 [Form JS](https://bpmn.io/toolkit/form-js) is used to define the user interface of the screener forms.
 
