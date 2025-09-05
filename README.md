@@ -1,4 +1,8 @@
-<img width="400" alt="bdt-logo-large-color-dark" src="https://github.com/user-attachments/assets/d26a8869-970a-43b2-89b0-b4266754ae21" />
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/d26a8869-970a-43b2-89b0-b4266754ae21">
+  <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/62871a49-324f-4b3b-9ab6-b2513fbee842">
+  <img alt="BDT logo, consists of three blue chevrons containing the letters BDT" src="https://github.com/user-attachments/assets/d26a8869-970a-43b2-89b0-b4266754ae21" width="400">
+</picture>
 <br>
 <br>
 
