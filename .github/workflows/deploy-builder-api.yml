@@ -75,9 +75,16 @@ jobs:
           password: '${{ steps.auth.outputs.auth_token }}'
           registry: '${{ env.REGION }}-docker.pkg.dev'
 
+
+      # Build the Quarkus app with Maven
+      - name: 'Build Quarkus App'
+        working-directory: builder-api
+        run: |
+          ./mvnw package -DskipTests
+
       - name: 'Build and Push Container'
+        working-directory: builder-api
         run: |-
-          cd "${{ env.API_NAME }}"
           DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.API_NAME }}:latest"
           docker build -f src/main/docker/Dockerfile.jvm --tag "${DOCKER_TAG}" .
           docker push "${DOCKER_TAG}"
