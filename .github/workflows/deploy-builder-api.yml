@@ -96,7 +96,7 @@ jobs:
       - name: 'Build and Push Container'
         working-directory: builder-api
         run: |-
-          DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.API_NAME }}:latest"
+          DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/cloud-run-source-deploy/${{ env.API_NAME }}:latest"
           docker build -f src/main/docker/Dockerfile.jvm --tag "${DOCKER_TAG}" .
           docker push "${DOCKER_TAG}"
 
@@ -110,7 +110,7 @@ jobs:
           region: '${{ env.REGION }}'
           # NOTE: If using a pre-built image, update the image name below:
 
-          image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.API_NAME }}:latest'
+          image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/cloud-run-source-deploy/${{ env.API_NAME }}:latest'
       # If required, use the Cloud Run URL output in later steps
       - name: 'Show output'
         run: |2-
