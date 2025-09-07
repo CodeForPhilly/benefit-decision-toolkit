@@ -64,13 +64,12 @@ jobs:
         uses: 'google-github-actions/auth@f112390a2df9932162083945e46d439060d66ec2' # google-github-actions/auth@v2
         with:
           workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
+          service_account: cicd-build-deploy-api@benefit-decision-toolkit-play.iam.gserviceaccount.com
+          project_id: ${{ env.PROJECT_ID }}
           
       - name: Who am I?
         run: gcloud auth list
       
-      - name: Check repos
-        run: gcloud artifacts repositories list --project $PROJECT_ID --location us-central1
-
       # BEGIN - Docker auth and build
       #
       # If you already have a container image, you can omit these steps.
