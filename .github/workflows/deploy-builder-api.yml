@@ -86,12 +86,6 @@ jobs:
       #     password: '${{ steps.auth.outputs.auth_token }}'
       #     registry: '${{ env.REGION }}-docker.pkg.dev'
 
-      # Verify repository access
-      - name: 'Verify Repository Access'
-        run: |
-          gcloud artifacts repositories list --location=${{ env.REGION }}
-          gcloud artifacts repositories describe ${{ env.REPOSITORY }} --location=${{ env.REGION }}
-
       # Configure Docker to use gcloud as a credential helper
       - name: 'Configure Docker'
         run: |
