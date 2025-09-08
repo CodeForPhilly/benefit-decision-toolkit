@@ -34,13 +34,13 @@ on:
     branches:
       - main
     paths:
-      - 'builder-api/**'
+      - 'screener-api/**'
 
 env:
   PROJECT_ID: 'benefit-decision-toolkit-play'
   REGION: 'us-central1'
   SERVICE: 'benefit-decision-toolkit-play'
-  API_NAME: 'builder-api'
+  API_NAME: 'screener-api'
   WORKLOAD_IDENTITY_PROVIDER: 'projects/1034049717668/locations/global/workloadIdentityPools/github-actions-google-cloud/providers/github'
 
 jobs:
@@ -54,8 +54,8 @@ jobs:
     steps:
       - name: 'Checkout'
         uses: 'actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332' # actions/checkout@v4
-    
-        
+
+
       # Configure Workload Identity Federation and generate an access token.
       #
       # See https://github.com/google-github-actions/auth for more options,
@@ -67,17 +67,17 @@ jobs:
           workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
           service_account: cicd-build-deploy-api@benefit-decision-toolkit-play.iam.gserviceaccount.com
           project_id: ${{ env.PROJECT_ID }}
-          
+
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v2'
-      
+
       # BEGIN - Docker auth and build
 
       # Configure Docker to use gcloud as a credential helper
       - name: 'Configure Docker'
         run: |
           gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
-          
+
       # Download Java version
       - name: Set up Java 21
         uses: actions/setup-java@v3
@@ -87,12 +87,12 @@ jobs:
 
       # Build the Quarkus app with Maven
       - name: 'Build Quarkus App'
-        working-directory: builder-api
+        working-directory: screener-api
         run: |
           ./mvnw package -DskipTests
 
       - name: 'Build and Push Container'
-        working-directory: builder-api
+        working-directory: screener-api
         run: |-
           DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.API_NAME }}:latest"
           docker build -f src/main/docker/Dockerfile.jvm --tag "${DOCKER_TAG}" .
@@ -109,7 +109,7 @@ jobs:
           # NOTE: If using a pre-built image, update the image name below:
 
           image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.API_NAME }}:latest'
-          service_account: 'builder-api-service-account@${{ env.PROJECT_ID }}.iam.gserviceaccount.com'
+          service_account: 'screener-api-service-account@${{ env.PROJECT_ID }}.iam.gserviceaccount.com'
           flags: '--allow-unauthenticated --max-instances=2'
 
       # If required, use the Cloud Run URL output in later steps
