@@ -33,8 +33,8 @@ on:
   push:
     branches:
       - main
-    # paths:
-    #   - 'builder-api/**'
+    paths:
+      - 'builder-api/**'
 
 env:
   PROJECT_ID: 'benefit-decision-toolkit-play'
@@ -70,21 +70,8 @@ jobs:
           
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v2'
-        
-      - name: 'Verify Authentication'
-        run: |
-          gcloud auth list
-          gcloud config list project
       
       # BEGIN - Docker auth and build
-      #
-      # If you already have a container image, you can omit these steps.
-      # - name: 'Docker Auth'
-      #   uses: 'docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567' # docker/login-action@v3
-      #   with:
-      #     username: 'oauth2accesstoken'
-      #     password: '${{ steps.auth.outputs.auth_token }}'
-      #     registry: '${{ env.REGION }}-docker.pkg.dev'
 
       # Configure Docker to use gcloud as a credential helper
       - name: 'Configure Docker'
