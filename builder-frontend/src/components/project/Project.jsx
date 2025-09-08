@@ -9,6 +9,7 @@ import Header from "../Header";
 import FormEditorView from "./FormEditorView";
 import Preview from "./Preview";
 import Publish from "./Publish";
+import TestsView from "./TestsView";
 import KogitoDmnEditorView from "./KogitoDmnEditorView";
 import ImportModels from "./ImportModels";
 import { fetchProject } from "../../api/screener";
@@ -100,6 +101,7 @@ function Project({ clearUserState }) {
               "Form Editor",
               "Preview",
               "Publish",
+              "Tests",
             ].map((tab) => (
               <button
                 class={`px-4 py-2 -mb-px text-sm font-medium border-b-2 transition-colors ${
@@ -145,6 +147,12 @@ function Project({ clearUserState }) {
               project={project}
               refetchProject={() => setForceUpdate((prev) => prev + 1)}
             ></Publish>
+          )}
+          {activeTab() == "Tests" && (
+            <TestsView
+              project={project}
+              refetchProject={() => setForceUpdate((prev) => prev + 1)}
+            ></TestsView>
           )}
         </>
       )}

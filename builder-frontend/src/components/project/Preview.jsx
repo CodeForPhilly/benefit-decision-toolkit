@@ -31,6 +31,9 @@ export default function Preview({ project, formSchema, dmnModel }) {
           schema={schema}
           submitForm={handleSubmitForm}
         ></FormRenderer>
+        <button className="border-1 border-green-500 bg-green-100 font-medium text-green-900 px-3 py-1">
+          Save Test
+        </button>
         <div className="pt-4">
           <Results results={results}></Results>
         </div>
