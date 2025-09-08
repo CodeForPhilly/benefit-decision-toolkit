@@ -54,7 +54,10 @@ jobs:
     steps:
       - name: 'Checkout'
         uses: 'actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332' # actions/checkout@v4
-
+      
+      - name: 'Set up Google Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+        
       # Configure Workload Identity Federation and generate an access token.
       #
       # See https://github.com/google-github-actions/auth for more options,
