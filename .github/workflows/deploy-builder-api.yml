@@ -79,13 +79,24 @@ jobs:
       # BEGIN - Docker auth and build
       #
       # If you already have a container image, you can omit these steps.
-      - name: 'Docker Auth'
-        uses: 'docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567' # docker/login-action@v3
-        with:
-          username: 'oauth2accesstoken'
-          password: '${{ steps.auth.outputs.auth_token }}'
-          registry: '${{ env.REGION }}-docker.pkg.dev'
+      # - name: 'Docker Auth'
+      #   uses: 'docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567' # docker/login-action@v3
+      #   with:
+      #     username: 'oauth2accesstoken'
+      #     password: '${{ steps.auth.outputs.auth_token }}'
+      #     registry: '${{ env.REGION }}-docker.pkg.dev'
 
+      # Verify repository access
+      - name: 'Verify Repository Access'
+        run: |
+          gcloud artifacts repositories list --location=${{ env.REGION }}
+          gcloud artifacts repositories describe ${{ env.REPOSITORY }} --location=${{ env.REGION }}
+
+      # Configure Docker to use gcloud as a credential helper
+      - name: 'Configure Docker'
+        run: |
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+          
       # Download Java version
       - name: Set up Java 21
         uses: actions/setup-java@v3
@@ -102,7 +113,7 @@ jobs:
       - name: 'Build and Push Container'
         working-directory: builder-api
         run: |-
-          DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/cloud-run-source-deploy/${{ env.API_NAME }}:latest"
+          DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.API_NAME }}:latest"
           docker build -f src/main/docker/Dockerfile.jvm --tag "${DOCKER_TAG}" .
           docker push "${DOCKER_TAG}"
 
@@ -116,7 +127,7 @@ jobs:
           region: '${{ env.REGION }}'
           # NOTE: If using a pre-built image, update the image name below:
 
-          image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/cloud-run-source-deploy/${{ env.API_NAME }}:latest'
+          image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.API_NAME }}:latest'
       # If required, use the Cloud Run URL output in later steps
       - name: 'Show output'
         run: |2-
