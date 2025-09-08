@@ -71,7 +71,7 @@ jobs:
           project_id: ${{ env.PROJECT_ID }}
           
       - name: Who am I?
-        run: gcloud auth list --credentials-file-override="${{ steps.auth.outputs.credentials_file_path }}"
+        run: gcloud auth list
       
       # BEGIN - Docker auth and build
       #
