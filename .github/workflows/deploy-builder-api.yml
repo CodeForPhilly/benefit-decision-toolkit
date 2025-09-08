@@ -54,9 +54,7 @@ jobs:
     steps:
       - name: 'Checkout'
         uses: 'actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332' # actions/checkout@v4
-      
-      - name: 'Set up Google Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v1'
+    
         
       # Configure Workload Identity Federation and generate an access token.
       #
@@ -64,14 +62,19 @@ jobs:
       # including authenticating via a JSON credentials file.
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v3'
+        uses: 'google-github-actions/auth@v2'
         with:
           workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
           service_account: cicd-build-deploy-api@benefit-decision-toolkit-play.iam.gserviceaccount.com
           project_id: ${{ env.PROJECT_ID }}
           
-      - name: Who am I?
-        run: gcloud auth list
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+        
+      - name: 'Verify Authentication'
+        run: |
+          gcloud auth list
+          gcloud config list project
       
       # BEGIN - Docker auth and build
       #
