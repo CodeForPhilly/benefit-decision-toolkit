@@ -82,6 +82,7 @@ fi
 
 print_success "System requirements check completed"
 
+# TODO: I think we can get rid of this because we already checked devbox json was here
 # Initialize devbox environment
 # print_status "📦 Setting up devbox environment..."
 # if [ -f "devbox.json" ]; then
@@ -91,7 +92,6 @@ print_success "System requirements check completed"
 #   exit 1
 # fi
 
-exit 0
 # Install Node.js dependencies for frontend apps
 print_status "📦 Installing frontend dependencies..."
 
@@ -119,6 +119,7 @@ else
 fi
 cd ..
 
+exit 0
 # Create environment variable templates
 print_status "🔧 Setting up environment variables..."
 
