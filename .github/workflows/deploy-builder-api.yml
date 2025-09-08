@@ -122,6 +122,7 @@ jobs:
           # NOTE: If using a pre-built image, update the image name below:
 
           image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.API_NAME }}:latest'
+          service_account: 'builder-api-service-account@${{ env.PROJECT_ID }}.iam.gserviceaccount.com'
       # If required, use the Cloud Run URL output in later steps
       - name: 'Show output'
         run: |2-
