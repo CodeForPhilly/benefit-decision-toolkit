@@ -7,7 +7,8 @@
     "google-cloud-sdk@latest",
     "podman@latest",
     "docker@latest",
-    "firebase-tools@latest"
+    "firebase-tools@latest",
+    "nodejs@20"
   ],
   "shell": {
     "init_hook": [
