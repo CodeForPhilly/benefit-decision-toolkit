@@ -35,11 +35,19 @@ jobs:
           project_id: ${{ env.PROJECT_ID }}
 
       - name: Setup Node.js
-        working-directory: builder-frontend
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: builder-frontend/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('builder-frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
           cache: 'npm'
+          cache-dependency-path: 'builder-frontend/package-lock.json'
 
       - name: Install dependencies
         working-directory: builder-frontend
