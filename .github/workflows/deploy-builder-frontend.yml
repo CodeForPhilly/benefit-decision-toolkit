@@ -3,7 +3,7 @@ name: Build and Deploy to Firebase Hosting
 on:
   push:
     branches:
-      - GH_actions_deploy_pipeline
+      - main
 
 env:
   PROJECT_ID: 'benefit-decision-toolkit-play'
