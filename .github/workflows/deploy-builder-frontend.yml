@@ -5,6 +5,10 @@ on:
     branches:
       - GH_actions_deploy_pipeline
 
+env:
+  PROJECT_ID: 'benefit-decision-toolkit-play'
+  WORKLOAD_IDENTITY_PROVIDER: 'projects/1034049717668/locations/global/workloadIdentityPools/github-actions-google-cloud/providers/github'
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
