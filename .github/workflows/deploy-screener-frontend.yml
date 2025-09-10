@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'screener-frontend/**'
 
 env:
   PROJECT_ID: 'benefit-decision-toolkit-play'
@@ -56,6 +58,8 @@ jobs:
       - name: Build application
         working-directory: screener-frontend
         run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_SCREENER_API_URL}}
 
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
