@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'screener-frontend/**'
 
 env:
   PROJECT_ID: 'benefit-decision-toolkit-play'
