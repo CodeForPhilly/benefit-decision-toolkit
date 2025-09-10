@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'builder-frontend/**'
 
 env:
   PROJECT_ID: 'benefit-decision-toolkit-play'
