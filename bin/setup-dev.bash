@@ -115,10 +115,10 @@ else
   print_error "package.json not found in screener-frontend"
   exit 1
 fi
-cd ..
-exit 0
+
 # Create environment variable templates
 print_status "🔧 Setting up environment variables..."
+# TODO: use a default that corresponds to local firebase emulator
 
 # Builder Frontend .env template
 if [ ! -f "builder-frontend/.env" ]; then
