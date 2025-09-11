@@ -1,5 +1,4 @@
-#!/bin/sh
-# TODO: some of the setup steps require bash, so should we just make the whole setup script require bash?
+#!/usr/bin/env bash
 
 # Benefit Decision Toolkit - One-Step Developer Setup Script
 # This script sets up the complete development environment for the Benefit Decision Toolkit
@@ -66,47 +65,48 @@ else
   print_status "devbox already installed."
 fi
 
+# TODO: Install and configure direnv as a separate/optional add-on to the setup script?
 # Check for direnv
-if ! command_exists direnv; then
-  print_warning "direnv not found. Installing direnv..."
-  if command_exists curl; then
-    curl -fsSL https://direnv.net/install.sh | bash
-    export PATH="$PATH:$HOME/.local/bin"
-  else
-    print_error "curl not found. Please install direnv manually: https://direnv.net/docs/installation.html"
-    exit 1
-  fi
-else
-  print_status "direnv already installed."
-fi
+# if ! command_exists direnv; then
+#   print_warning "direnv not found. Installing direnv..."
+#   if command_exists curl; then
+#     curl -fsSL https://direnv.net/install.sh | bash
+#     export PATH="$PATH:$HOME/.local/bin"
+#   else
+#     print_error "curl not found. Please install direnv manually: https://direnv.net/docs/installation.html"
+#     exit 1
+#   fi
+# else
+#   print_status "direnv already installed."
+# fi
+# TODO: for direnv setup to really work, we'd need to add the hook to bashrc (or equivalent)
 
 print_success "System requirements check completed"
 
-# TODO: I think we can get rid of this because we already checked devbox json was here
 # Initialize devbox environment
-# print_status "📦 Setting up devbox environment..."
-# if [ -f "devbox.json" ]; then
-#   print_success "Devbox environment initialized"
-# else
-#   print_error "devbox.json not found"
-#   exit 1
-# fi
+print_status "📦 Setting up devbox environment..."
+if [ -f "devbox.json" ]; then
+  devbox install
+  print_success "Devbox environment initialized"
+else
+  print_error "devbox.json not found"
+  exit 1
+fi
 
 # Install Node.js dependencies for frontend apps
 print_status "📦 Installing frontend dependencies..."
 
 # Builder Frontend
 print_status "Installing builder-frontend dependencies..."
-cd builder-frontend
 if [ -f "package.json" ]; then
-  npm install
+  devbox run install-builder-frontend
   print_success "Builder frontend dependencies installed"
 else
   print_error "package.json not found in builder-frontend"
   exit 1
 fi
 cd ..
-
+exit 0
 # Screener Frontend
 print_status "Installing screener-frontend dependencies..."
 cd screener-frontend
@@ -118,8 +118,6 @@ else
   exit 1
 fi
 cd ..
-
-exit 0
 # Create environment variable templates
 print_status "🔧 Setting up environment variables..."
 
