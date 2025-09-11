@@ -1,9 +1,12 @@
-import { Switch, Match, For } from "solid-js";
+import { Switch, Match, For, Accessor } from "solid-js";
+
+import type { ResultDetail } from "./api/types";
+
 import checkIcon from "./assets/images/checkIcon.svg";
 import questionIcon from "./assets/images/questionIcon.svg";
 import xIcon from "./assets/images/xIcon.svg";
 
-export default function EligibilityResults({ results }) {
+export default function EligibilityResults({ results }: { results: Accessor<ResultDetail[] | undefined> }) {
   console.log(results());
   return (
     <div class="my-2 mx-12">
@@ -28,8 +31,8 @@ export default function EligibilityResults({ results }) {
                 </p>
               </Match>
             </Switch>
-            <h3 class="font-bold mb-2 text-lg">{benefit.displayName}</h3>
-            <div class="my-2">
+            <div class="[&:has(+div)]:mb-2">
+              <h3 class="font-bold text-lg">{benefit.displayName}</h3>
               <For each={benefit.checks ?? []}>
                 {(check) => (
                   <p class="mb-1">
@@ -48,23 +51,25 @@ export default function EligibilityResults({ results }) {
                         <img src={xIcon} alt="" class="inline w-4 mr-2" />
                       </Match>
                     </Switch>
-                    <span className="text-xs">{check.displayName}</span>
+                    <span class="text-xs">{check.displayName}</span>
                   </p>
                 )}
               </For>
             </div>
             {benefit.info && (
-              <>
+              <div class="[&:has(+div)]:mb-4">
                 <h4 class="font-bold mb-1 text-sm">Overview</h4>
-                <p class="mb-4 text-xs">{benefit.info}</p>
-              </>
+                <p class="text-xs">{benefit.info}</p>
+              </div>
             )}
-            {benefit.appLink && (
-              <a href={benefit.appLink} target="_blank">
-                <p class="bg-green-600 px-5 py-2 rounded-lg font-bold text-white w-fit text-sm">
-                  Apply Now
-                </p>
-              </a>
+            {(benefit.appLink && benefit.result) && (
+              <div>
+                <a href={benefit.appLink} target="_blank">
+                  <p class="bg-green-600 px-5 py-2 rounded-lg font-bold text-white w-fit text-sm">
+                    Apply Now
+                  </p>
+                </a>
+              </div>
             )}
           </div>
         )}

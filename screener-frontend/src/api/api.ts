@@ -1,6 +1,17 @@
-const BASE_URL = import.meta.env.VITE_API_URL;
+import { Screener, ResultDetail } from "./types";
 
-export const fetchScreenerData = async (screenerId) => {
+import { detachedFetchScreener, detachedGetDecision } from "./detached_api";
+
+const BASE_URL = import.meta.env.VITE_API_URL;
+const DETACHED = import.meta.env.VITE_DETACHED;
+
+export const fetchScreenerData = async (screenerId: string): Promise<Screener> => {
+  console.log("Fetching screener data for ID:", screenerId);
+  console.log("DETACHED mode:", DETACHED);
+  if (DETACHED === "true") {
+    return detachedFetchScreener(screenerId);
+  }
+
   try {
     const response = await fetch(`${BASE_URL}screener/${screenerId}`);
     if (!response.ok) {
@@ -14,7 +25,11 @@ export const fetchScreenerData = async (screenerId) => {
   }
 };
 
-export const getDecisionResult = async (screenerId, data) => {
+export const getDecisionResult = async (screenerId: string, data: any): Promise<ResultDetail[]> => {
+  if (DETACHED === "true") {
+    return detachedGetDecision(screenerId, data);
+  }
+
   try {
     const response = await fetch(
       `${BASE_URL}decision?screenerId=${screenerId}`,
@@ -32,8 +47,9 @@ export const getDecisionResult = async (screenerId, data) => {
     }
     const result = await response.json();
     return result;
-  } catch (err) {
+  } catch (error) {
     console.log("Error submitting form");
-    console.log(err);
+    console.log(error);
+    throw error;
   }
 };

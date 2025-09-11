@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "detached": "vite --mode detached",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
@@ -21,6 +22,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^22.15.18",
     "vite": "^6.3.5",
     "vite-plugin-solid": "^2.11.6"
