@@ -98,26 +98,25 @@ print_status "📦 Installing frontend dependencies..."
 
 # Builder Frontend
 print_status "Installing builder-frontend dependencies..."
-if [ -f "package.json" ]; then
-  devbox run install-builder-frontend
+if [ -f "builder-frontend/package.json" ]; then
+  devbox run --quiet install-builder-frontend
   print_success "Builder frontend dependencies installed"
 else
   print_error "package.json not found in builder-frontend"
   exit 1
 fi
-cd ..
-exit 0
+
 # Screener Frontend
 print_status "Installing screener-frontend dependencies..."
-cd screener-frontend
-if [ -f "package.json" ]; then
-  npm install
+if [ -f "screener-frontend/package.json" ]; then
+  devbox run --quiet install-screener-frontend
   print_success "Screener frontend dependencies installed"
 else
   print_error "package.json not found in screener-frontend"
   exit 1
 fi
 cd ..
+exit 0
 # Create environment variable templates
 print_status "🔧 Setting up environment variables..."
 
