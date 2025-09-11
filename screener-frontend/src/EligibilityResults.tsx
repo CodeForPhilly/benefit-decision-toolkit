@@ -1,9 +1,12 @@
-import { Switch, Match, For } from "solid-js";
+import { Switch, Match, For, Accessor } from "solid-js";
+
+import type { ResultDetail } from "./api/types";
+
 import checkIcon from "./assets/images/checkIcon.svg";
 import questionIcon from "./assets/images/questionIcon.svg";
 import xIcon from "./assets/images/xIcon.svg";
 
-export default function EligibilityResults({ results }) {
+export default function EligibilityResults({ results }: { results: Accessor<ResultDetail[] | undefined> }) {
   console.log(results());
   return (
     <div class="my-2 mx-12">
@@ -48,7 +51,7 @@ export default function EligibilityResults({ results }) {
                         <img src={xIcon} alt="" class="inline w-4 mr-2" />
                       </Match>
                     </Switch>
-                    <span className="text-xs">{check.displayName}</span>
+                    <span class="text-xs">{check.displayName}</span>
                   </p>
                 )}
               </For>
