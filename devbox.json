@@ -12,6 +12,7 @@
   ],
   "shell": {
     "init_hook": [
+      "command -v mise >/dev/null && mise deactivate || true",
       "echo 'Welcome to devbox!'"
     ],
     "scripts": {
