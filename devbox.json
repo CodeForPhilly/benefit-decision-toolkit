@@ -12,11 +12,15 @@
   ],
   "shell": {
     "init_hook": [
-      "echo 'Welcome to devbox!' > /dev/null"
+      "echo 'Welcome to devbox!'"
     ],
     "scripts": {
       "test": [
         "echo \"Error: no test specified\" && exit 1"
+      ],
+      "install-builder-frontend": [
+        "cd builder-frontend",
+        "npm install"
       ]
     }
   }
