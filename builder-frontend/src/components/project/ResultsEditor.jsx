@@ -1,6 +1,5 @@
 import { createSignal, For, onMount } from "solid-js";
 import { updateScreener } from "../../api/screener";
-import { json } from "@solidjs/router";
 import { parseStringPromise } from "xml2js";
 
 async function getDecisionNames(dmnXmlString) {
@@ -26,8 +25,9 @@ async function getDecisionNames(dmnXmlString) {
 }
 
 export default function ResultsEditor({ project, dmnModel }) {
-  const [benefits, setBenefits] = createSignal(project().resultsSchema);
+  const [benefits, setBenefits] = createSignal(project().resultsSchema ?? []);
   const [decisionOptions, setDecisionOptions] = createSignal([]);
+  const [isSaving, setIsSaving] = createSignal(false);
 
   onMount(async () => {
     const names = await getDecisionNames(dmnModel());
@@ -112,6 +112,7 @@ export default function ResultsEditor({ project, dmnModel }) {
 
   const handleSave = async (e) => {
     e.preventDefault(); // prevent page reload
+    setIsSaving(true);
     const formData = benefits();
 
     const resultsSchema = formData.map((benefit) => ({
@@ -127,7 +128,13 @@ export default function ResultsEditor({ project, dmnModel }) {
 
     let projectData = project();
     projectData.resultsSchema = resultsSchema;
-    await updateScreener(projectData);
+    try {
+      await updateScreener(projectData);
+    } catch (error) {
+      console.debug("Error saving results schema: ", error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -268,8 +275,9 @@ export default function ResultsEditor({ project, dmnModel }) {
           </For>
           <button
             onClick={handleSave}
+            disabled={isSaving()}
             type="submit"
-            class="w-60 mt-4 border-1 border-emerald-500 text-emerald-500 px-4 py-2 rounded hover:bg-emerald-100"
+            class="w-60 mt-4 border-1 border-emerald-500 text-emerald-500 px-4 py-2 rounded hover:bg-emerald-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100"
           >
             Save Result Schema
           </button>
