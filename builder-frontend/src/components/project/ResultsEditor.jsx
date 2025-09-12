@@ -1,22 +1,31 @@
 import { createSignal, For, onMount } from "solid-js";
 import { updateScreener } from "../../api/screener";
-import { parseStringPromise } from "xml2js";
+import { XMLParser } from "fast-xml-parser";
 
 async function getDecisionNames(dmnXmlString) {
   try {
-    const result = await parseStringPromise(dmnXmlString, {
-      explicitArray: false,
-      tagNameProcessors: [(name) => name.replace(/^.*:/, "")], // remove namespace prefixes
+    const parser = new XMLParser({
+      ignoreAttributes: false,
+      attributeNamePrefix: "@_",
+      removeNamespace: true, // This removes namespace prefixes
     });
 
-    // Now 'definitions' and 'decision' keys are accessible without prefixes
-    const definitions = result.definitions;
+    const result = parser.parse(dmnXmlString);
+    console.log(result);
+    const definitions = result["dmn:definitions"];
     if (!definitions) return [];
 
-    let decisions = definitions.decision || [];
+    let decisions = definitions["dmn:decision"] || [];
     if (!Array.isArray(decisions)) decisions = [decisions];
 
-    const decisionNames = decisions.map((d) => d.$.name);
+    console.log("decisions");
+    console.log(decisions);
+
+    const decisionNames = decisions
+      .map((d) => d["@_name"])
+      .filter((name) => name); // Filter out undefined names
+    console.log("decision names");
+    console.log(decisionNames);
     return decisionNames;
   } catch (err) {
     console.error("Error parsing DMN XML:", err);

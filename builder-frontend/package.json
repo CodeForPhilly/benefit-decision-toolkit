@@ -15,11 +15,11 @@
     "@kogito-tooling/kie-editors-standalone": "^0.16.0",
     "@solidjs/router": "^0.15.3",
     "dmn-js": "^17.2.1",
+    "fast-xml-parser": "^5.2.5",
     "firebase": "^11.9.1",
     "lodash.debounce": "^4.0.8",
     "solid-bootstrap": "^1.0.21",
-    "solid-js": "^1.9.5",
-    "xml2js": "^0.6.2"
+    "solid-js": "^1.9.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.8",
