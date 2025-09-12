@@ -4,28 +4,16 @@
     "maven@latest",
     "quarkus@latest",
     "jdk21@latest",
-    "google-cloud-sdk@latest",
-    "podman@latest",
-    "docker@latest",
-    "firebase-tools@latest",
     "nodejs@20"
   ],
   "shell": {
     "init_hook": [
-      "command -v mise >/dev/null && mise deactivate || true",
-      "echo 'Welcome to devbox!'"
+      "echo 'Welcome to devbox!'",
+      "command -v mise >/dev/null && mise deactivate || true"
     ],
     "scripts": {
-      "test": [
-        "echo \"Error: no test specified\" && exit 1"
-      ],
-      "install-builder-frontend": [
-        "cd builder-frontend",
-        "npm install"
-      ],
-      "install-screener-frontend": [
-        "cd screener-frontend",
-        "npm install"
+      "setup": [
+        "bin/setup"
       ]
     }
   }

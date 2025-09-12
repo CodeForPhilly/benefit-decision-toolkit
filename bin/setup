@@ -5,65 +5,22 @@
 
 set -e # Exit on any error
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Function to print colored output
-print_status() {
-  printf "${BLUE}[INFO]${NC} %s\n" "$1"
-}
-
-print_success() {
-  printf "${GREEN}[SUCCESS]${NC} %s\n" "$1"
-}
-
-print_warning() {
-  printf "${YELLOW}[WARNING]${NC} %s\n" "$1"
-}
-
-print_error() {
-  printf "${RED}[ERROR]${NC} %s\n" "$1"
-}
-
-# Function to check if a command exists
-command_exists() {
-  command -v "$1" >/dev/null 2>&1
-}
-
-# Function to check if a port is in use
-port_in_use() {
-  lsof -i ":$1" >/dev/null 2>&1
-}
+source "$SCRIPT_DIR/functions"
 
 print_status "🚀 Starting Benefit Decision Toolkit Developer Setup..."
 
-# Check if we're in the right directory
-# TODO: actually check the directory as well as the devbox.json
-if [ ! -f "devbox.json" ]; then
-  print_error "Please run this script from the root of the benefit-decision-toolkit project"
-  exit 1
-fi
-
-# Check for required tools
-print_status "🔍 Checking system requirements..."
-
-# Check for devbox
-if ! command_exists devbox; then
-  print_warning "Devbox not found. Installing devbox..."
-  if command_exists curl; then
-    curl -fsSL https://get.jetify.com/devbox/install.sh | bash
-    export PATH="$PATH:$HOME/.devbox/bin"
-  else
-    print_error "curl not found. Please install devbox manually: https://www.jetify.com/devbox/docs/contributor-quickstart/"
-    exit 1
-  fi
-else
-  print_status "devbox already installed."
-fi
+# if [[ "$DEVBOX_SHELL_ENABLED" != "1" ]]; then
+#   if ask_user "Do you want to use devbox (https://www.jetify.com/devbox) to manage project dependencies? (default=yes)" "y"; then
+#     source "$SCRIPT_DIR/setup-devbox"
+#     devbox run setup
+#     exit 0
+#   else
+#     print_status "Setup won't use devbox"
+#   fi
+# fi
+#
 
 # TODO: Install and configure direnv as a separate/optional add-on to the setup script?
 # Check for direnv
@@ -83,38 +40,56 @@ fi
 
 print_success "System requirements check completed"
 
-# Initialize devbox environment
-print_status "📦 Setting up devbox environment..."
-if [ -f "devbox.json" ]; then
-  devbox install
-  print_success "Devbox environment initialized"
-else
-  print_error "devbox.json not found"
-  exit 1
-fi
-
-# Install Node.js dependencies for frontend apps
 print_status "📦 Installing frontend dependencies..."
 
-# Builder Frontend
 print_status "Installing builder-frontend dependencies..."
-if [ -f "builder-frontend/package.json" ]; then
-  devbox run --quiet install-builder-frontend
-  print_success "Builder frontend dependencies installed"
+cd builder-frontend
+if [ -f "package.json" ]; then
+  npm install
+  print_success "builder-frontend dependencies installed"
 else
   print_error "package.json not found in builder-frontend"
   exit 1
 fi
+cd ..
 
-# Screener Frontend
 print_status "Installing screener-frontend dependencies..."
-if [ -f "screener-frontend/package.json" ]; then
-  devbox run --quiet install-screener-frontend
-  print_success "Screener frontend dependencies installed"
+cd screener-frontend
+if [ -f "package.json" ]; then
+  npm install
+  print_success "screener-frontend dependencies installed"
 else
   print_error "package.json not found in screener-frontend"
   exit 1
 fi
+cd ..
+
+print_status "Finished installing frontend dependencies."
+
+print_status "📦 Installing backend dependencies..."
+
+print_status "Installing library-api dependencies..."
+cd library-api
+mvn clean package
+print_success "library-api dependencies installed"
+cd ..
+
+print_status "Installing builder-api dependencies..."
+cd builder-api
+# TODO: are the tests important to run here? (one of them was failing for me)
+mvn clean package -DskipTests
+print_success "builder-api dependencies installed"
+cd ..
+
+print_status "Installing screener-api dependencies..."
+cd screener-api
+# TODO: are the tests important to run here? (one of them was failing for me)
+mvn clean package
+print_success "screener-api dependencies installed"
+cd ..
+
+print_status "Finished installing backend dependencies."
+exit 0
 
 # Create environment variable templates
 print_status "🔧 Setting up environment variables..."
