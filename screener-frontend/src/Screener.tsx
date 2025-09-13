@@ -1,18 +1,22 @@
 import { createSignal, createResource, ErrorBoundary } from "solid-js";
 import { useParams } from "@solidjs/router";
+
 import FormRenderer from "./FormRenderer";
-import { fetchScreenerData, getDecisionResult } from "./api/api";
 import Loading from "./Loading";
 import ErrorPage from "./Error";
 import EligibilityResults from "./EligibilityResults";
 
+import { fetchScreenerData, getDecisionResult } from "./api/api";
+
+import type { ResultDetail, Screener } from "./api/types";
+
 export default function Screener() {
   const params = useParams();
 
-  const [data] = createResource(() => fetchScreenerData(params.screenerId));
-  const [results, setResults] = createSignal();
+  const [screener] = createResource<Screener>(() => fetchScreenerData(params.screenerId));
+  const [results, setResults] = createSignal<ResultDetail[]>();
 
-  const submitForm = async (data) => {
+  const submitForm = async (data: any) => {
     try {
       let results = await getDecisionResult(params.screenerId, data);
       setResults(results);
@@ -27,17 +31,17 @@ export default function Screener() {
         <ErrorBoundary
           fallback={(error, reset) => <ErrorPage error={error}></ErrorPage>}
         >
-          {data.loading && <Loading></Loading>}
-          {data() && (
-            <div className="flex flex-col lg:flex-row">
-              <div className="flex-1 overflow-y-auto p-4">
+          {screener.loading && <Loading></Loading>}
+          {screener() && (
+            <div class="flex flex-col lg:flex-row">
+              <div class="flex-1 overflow-y-auto p-4">
                 <FormRenderer
-                  schema={data().formSchema}
+                  schema={screener()?.formSchema || {}}
                   submitForm={submitForm}
                 ></FormRenderer>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4">
+              <div class="flex-1 overflow-y-auto p-4">
                 <EligibilityResults results={results}></EligibilityResults>
               </div>
             </div>
