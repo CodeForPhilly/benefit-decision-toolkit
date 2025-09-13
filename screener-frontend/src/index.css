@@ -1,13 +1,15 @@
 @import "tailwindcss";
 
-.fjs-powered-by {
-  display: none;
-}
-
 body {
   font-family: "IBM Plex Sans", sans-serif;
 }
 
-h1 {
+/* Hide Form.io branding */
+.fjs-powered-by {
+  display: none;
+}
+
+/* Increase size of h1 specifically in Form.io forms */
+.fjs-container h1 {
   font-size: 2em;
 }
