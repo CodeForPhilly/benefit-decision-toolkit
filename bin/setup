@@ -91,6 +91,8 @@ cd ..
 print_status "Finished installing backend dependencies."
 exit 0
 
+#TODO: Everything below is still under construction!
+
 # Create environment variable templates
 print_status "🔧 Setting up environment variables..."
 # TODO: use a default that corresponds to local firebase emulator
