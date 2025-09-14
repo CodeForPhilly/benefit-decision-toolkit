@@ -22,11 +22,6 @@ export default function EligibilityResults(
 }
 
 function BenefitResult({ benefit }: { benefit: ResultDetail }) {
-  const isApplicationLinkEnabled: boolean = benefit.result;
-  const applicationLinkCls: string = (
-    isApplicationLinkEnabled ? "" : "pointer-events-none opacity-50"
-  );
-
   return (
     <div class="border-gray-500 border p-5 my-4 rounded-lg shadow-md">
       <Switch>
@@ -79,7 +74,7 @@ function BenefitResult({ benefit }: { benefit: ResultDetail }) {
       )}
       {benefit.appLink && (
         <div class="[&:has(+div)]:mb-4">
-          <a href={benefit.appLink} target="_blank" class={applicationLinkCls}>
+          <a href={benefit.appLink} target="_blank">
             <p
               class="
                 px-5 py-2 rounded-lg select-none
