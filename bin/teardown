@@ -12,6 +12,10 @@ rm -rf ~/.cache/devbox
 rm -rf ~/.local/share/devbox
 echo "...done"
 
-echo -n "Removing Nix"
+echo -n "Removing nix"
 rm -rf /nix ~/.nix-channels ~/.nix-defexpr ~/.nix-profile
+echo "...done"
+
+echo -n "Removing firebase emulators"
+rm -rf ~/.cache/firebase/emulators
 echo "...done"
