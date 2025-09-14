@@ -42,7 +42,10 @@
       "enabled": true,
       "port": 4000
     },
-    "singleProjectMode": true
+    "singleProjectMode": true,
+    "auth": {
+      "port": 9099
+    }
   },
   "storage": {
     "rules": "storage.rules"
