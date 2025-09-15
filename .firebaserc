@@ -1,6 +1,6 @@
 {
   "projects": {
-    "default": "benefit-decision-toolkit-play"
+    "default": "demo-bdt-dev"
   },
   "targets": {
     "benefit-decision-toolkit-play": {
@@ -10,6 +10,16 @@
         ],
         "builder-frontend": [
           "bdt-builder"
+        ]
+      }
+    },
+    "demo-bdt-dev": {
+      "hosting": {
+        "screener-frontend": [
+          "screener-frontend-dev"
+        ],
+        "builder-frontend": [
+          "builder-frontend-dev"
         ]
       }
     }
