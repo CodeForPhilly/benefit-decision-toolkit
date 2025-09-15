@@ -1,4 +1,5 @@
 import { createSignal, Show, For } from "solid-js";
+import { helloAPI } from "../../api/screener";
 
 function TestsView() {
   const [expanded, setExpanded] = createSignal({});
@@ -55,11 +56,19 @@ function TestsView() {
     }));
   };
 
+  const handleRun = async () => {
+    const data = await helloAPI();
+    console.log(data);
+  };
+
   return (
     <div className="p-3">
       <div className="flex justify-between mb-3">
         <h1>All Tests</h1>
-        <button className="border-1 rounded-lg border-green-500 bg-green-100 font-medium text-green-900 px-3 py-1">
+        <button
+          className="border-1 rounded-lg border-green-500 bg-green-100 font-medium text-green-900 px-3 py-1"
+          onClick={() => handleRun()}
+        >
           Run All
         </button>
       </div>
