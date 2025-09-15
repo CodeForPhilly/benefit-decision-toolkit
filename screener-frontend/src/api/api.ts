@@ -1,6 +1,8 @@
+import { Screener, ResultDetail } from "./types";
+
 const BASE_URL = import.meta.env.VITE_API_URL;
 
-export const fetchScreenerData = async (screenerId) => {
+export const fetchScreenerData = async (screenerId: string): Promise<Screener> => {
   try {
     const response = await fetch(`${BASE_URL}screener/${screenerId}`);
     if (!response.ok) {
@@ -14,7 +16,7 @@ export const fetchScreenerData = async (screenerId) => {
   }
 };
 
-export const getDecisionResult = async (screenerId, data) => {
+export const getDecisionResult = async (screenerId: string, data: any): Promise<ResultDetail[]> => {
   try {
     const response = await fetch(
       `${BASE_URL}decision?screenerId=${screenerId}`,
@@ -32,8 +34,9 @@ export const getDecisionResult = async (screenerId, data) => {
     }
     const result = await response.json();
     return result;
-  } catch (err) {
+  } catch (error) {
     console.log("Error submitting form");
-    console.log(err);
+    console.log(error);
+    throw error;
   }
 };

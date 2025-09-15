@@ -1,23 +1,31 @@
 import { createSignal, For, onMount } from "solid-js";
 import { updateScreener } from "../../api/screener";
-import { json } from "@solidjs/router";
-import { parseStringPromise } from "xml2js";
+import { XMLParser } from "fast-xml-parser";
 
 async function getDecisionNames(dmnXmlString) {
   try {
-    const result = await parseStringPromise(dmnXmlString, {
-      explicitArray: false,
-      tagNameProcessors: [(name) => name.replace(/^.*:/, "")], // remove namespace prefixes
+    const parser = new XMLParser({
+      ignoreAttributes: false,
+      attributeNamePrefix: "@_",
+      removeNamespace: true, // This removes namespace prefixes
     });
 
-    // Now 'definitions' and 'decision' keys are accessible without prefixes
-    const definitions = result.definitions;
+    const result = parser.parse(dmnXmlString);
+    console.log(result);
+    const definitions = result["dmn:definitions"];
     if (!definitions) return [];
 
-    let decisions = definitions.decision || [];
+    let decisions = definitions["dmn:decision"] || [];
     if (!Array.isArray(decisions)) decisions = [decisions];
 
-    const decisionNames = decisions.map((d) => d.$.name);
+    console.log("decisions");
+    console.log(decisions);
+
+    const decisionNames = decisions
+      .map((d) => d["@_name"])
+      .filter((name) => name); // Filter out undefined names
+    console.log("decision names");
+    console.log(decisionNames);
     return decisionNames;
   } catch (err) {
     console.error("Error parsing DMN XML:", err);
@@ -26,8 +34,9 @@ async function getDecisionNames(dmnXmlString) {
 }
 
 export default function ResultsEditor({ project, dmnModel }) {
-  const [benefits, setBenefits] = createSignal(project().resultsSchema);
+  const [benefits, setBenefits] = createSignal(project().resultsSchema ?? []);
   const [decisionOptions, setDecisionOptions] = createSignal([]);
+  const [isSaving, setIsSaving] = createSignal(false);
 
   onMount(async () => {
     const names = await getDecisionNames(dmnModel());
@@ -112,6 +121,7 @@ export default function ResultsEditor({ project, dmnModel }) {
 
   const handleSave = async (e) => {
     e.preventDefault(); // prevent page reload
+    setIsSaving(true);
     const formData = benefits();
 
     const resultsSchema = formData.map((benefit) => ({
@@ -127,7 +137,13 @@ export default function ResultsEditor({ project, dmnModel }) {
 
     let projectData = project();
     projectData.resultsSchema = resultsSchema;
-    await updateScreener(projectData);
+    try {
+      await updateScreener(projectData);
+    } catch (error) {
+      console.debug("Error saving results schema: ", error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -268,8 +284,9 @@ export default function ResultsEditor({ project, dmnModel }) {
           </For>
           <button
             onClick={handleSave}
+            disabled={isSaving()}
             type="submit"
-            class="w-60 mt-4 border-1 border-emerald-500 text-emerald-500 px-4 py-2 rounded hover:bg-emerald-100"
+            class="w-60 mt-4 border-1 border-emerald-500 text-emerald-500 px-4 py-2 rounded hover:bg-emerald-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100"
           >
             Save Result Schema
           </button>

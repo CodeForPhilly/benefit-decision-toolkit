@@ -1,14 +1,20 @@
 import { onMount } from "solid-js";
-import { Form } from "@bpmn-io/form-js-viewer";
-import debounce from "lodash.debounce";
-import "@bpmn-io/form-js/dist/assets/form-js.css";
-import { useParams } from "@solidjs/router";
 
-function FormRenderer({ schema, submitForm }) {
-  let container;
+import debounce from "lodash.debounce";
+import { Form } from "@bpmn-io/form-js-viewer";
+import { State } from "@bpmn-io/form-js-viewer/dist/types/Form";
+
+import "@bpmn-io/form-js/dist/assets/form-js.css";
+
+
+function FormRenderer(
+  { schema, submitForm }:
+  { schema: { [key: string]: any; }, submitForm: (data: any) => void }
+) {
+  let container: Element | null = null;
 
   onMount(() => {
-    const form = new Form({ container });
+    const form: Form = new Form({ container });
 
     const debouncedSubmit = debounce((data) => {
       submitForm(data);
@@ -17,7 +23,7 @@ function FormRenderer({ schema, submitForm }) {
     form
       .importSchema(schema)
       .then(() => {
-        form.on("changed", (event) => {
+        form.on("changed", (event: State) => {
           debouncedSubmit(event.data);
         });
       })

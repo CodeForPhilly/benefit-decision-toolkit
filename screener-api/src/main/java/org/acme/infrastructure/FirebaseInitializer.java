@@ -24,8 +24,8 @@ public class FirebaseInitializer {
 
                 FirebaseOptions options = new FirebaseOptions.Builder()
                         .setCredentials(GoogleCredentials.getApplicationDefault())
-                        .setProjectId("benefits-decision-toolkit")
-                        .setStorageBucket("benefits-decision-toolkit.firebasestorage.app")
+                        .setProjectId("benefit-decision-toolkit-play")
+                        .setStorageBucket("benefit-decision-toolkit-play.firebasestorage.app")
                         .build();
 
                 FirebaseApp.initializeApp(options);
