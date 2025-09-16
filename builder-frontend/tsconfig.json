@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "outDir": "dist",
+    "target": "es5",
+    "module": "esnext",
+    "types": ["vite/client"],
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+  },
+  "include": [
+    "src"
+  ]
+}
