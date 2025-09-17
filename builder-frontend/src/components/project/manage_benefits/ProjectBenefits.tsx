@@ -1,20 +1,25 @@
-import { For, onMount } from "solid-js";
+import { For, createSignal, onMount } from "solid-js";
 import { createStore } from "solid-js/store"
 
 import { ProjectBenefits as ProjectBenefitsType } from "./types";
+import AddNewBenefitPopup from "./AddNewBenefit";
 
 const ProjectBenefits = ({ projectId }: { projectId: string }) => {
   const [projectBenefits, setProjectBenefits] = createStore<ProjectBenefitsType>({ benefits: [] });
+  const [addingNewBenefit, setAddingNewBenefit] = createSignal<boolean>(false);
 
   onMount(async () => {
-    addNewBenefit();
-    addNewBenefit();
-    addNewBenefit();
-    addNewBenefit();
-    addNewBenefit();
+    addStubBenefit();
+    addStubBenefit();
+    addStubBenefit();
+    addStubBenefit();
+    addStubBenefit();
+    addStubBenefit();
+    addStubBenefit();
+    addStubBenefit();
   });
 
-  const addNewBenefit = () => {
+  const addStubBenefit = () => {
     const newBenefit = {
       id: crypto.randomUUID(),
       name: "New Benefit",
@@ -54,11 +59,16 @@ const ProjectBenefits = ({ projectId }: { projectId: string }) => {
         class="
           inline-block px-3 py-2 bg-gray-200 hover:brightness-95 cursor-pointer select-none
           border-2 border-gray-300 rounded-lg hover:scale-[105%] active:scale-100"
-        onClick={addNewBenefit}
+        onClick={() => {setAddingNewBenefit(true)}}
       >
         Add new benefit
       </div>
+      {
+        addingNewBenefit() &&
+        <AddNewBenefitPopup setAddingNewBenefit={setAddingNewBenefit} setProjectBenefits={setProjectBenefits} />
+      }
     </div>
   );
 }
+
 export default ProjectBenefits;
