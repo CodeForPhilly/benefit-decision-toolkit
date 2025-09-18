@@ -53,6 +53,54 @@
       "last_modified": "2025-09-12T04:37:21Z",
       "resolved": "github:NixOS/nixpkgs/ad4e6dd68c30bc8bd1860a27bc6f0c485bd7f3b6?lastModified=1757651841&narHash=sha256-Lh9QoMzTjY%2FO4LqNwcm6s%2FWSYStDmCH6f3V%2FizwlkHc%3D"
     },
+    "google-cloud-sdk@latest": {
+      "last_modified": "2025-07-28T17:09:23Z",
+      "resolved": "github:NixOS/nixpkgs/648f70160c03151bc2121d179291337ad6bc564b#google-cloud-sdk",
+      "source": "devbox-search",
+      "version": "529.0.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/9v8y10z0y9lkhjsaf728nhhbc4jbp83q-google-cloud-sdk-529.0.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/9v8y10z0y9lkhjsaf728nhhbc4jbp83q-google-cloud-sdk-529.0.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/5kz4dghm4lc2rmjy85xz813irlpyglhl-google-cloud-sdk-529.0.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/5kz4dghm4lc2rmjy85xz813irlpyglhl-google-cloud-sdk-529.0.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/arw4kq8hig5v2n3gq3pzw521qb3rc736-google-cloud-sdk-529.0.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/arw4kq8hig5v2n3gq3pzw521qb3rc736-google-cloud-sdk-529.0.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/aw6lxd787x16w8d2ll2afnjjz3kqi0m4-google-cloud-sdk-529.0.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/aw6lxd787x16w8d2ll2afnjjz3kqi0m4-google-cloud-sdk-529.0.0"
+        }
+      }
+    },
     "jdk21@latest": {
       "last_modified": "2024-06-12T20:55:33Z",
       "resolved": "github:NixOS/nixpkgs/a9858885e197f984d92d7fe64e9fff6b2e488d40#jdk",

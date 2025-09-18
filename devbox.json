@@ -5,7 +5,8 @@
     "quarkus@latest",
     "jdk21@latest",
     "nodejs@20",
-    "firebase-tools@latest"
+    "firebase-tools@latest",
+    "google-cloud-sdk@latest"
   ],
   "shell": {
     "init_hook": [
