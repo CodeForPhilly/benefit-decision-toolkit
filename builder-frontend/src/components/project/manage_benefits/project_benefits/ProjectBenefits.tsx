@@ -1,33 +1,19 @@
-import { For, createSignal, onMount } from "solid-js";
-import { createStore } from "solid-js/store"
+import { createSignal, For, Setter } from "solid-js";
+import { SetStoreFunction } from "solid-js/store"
 
-import { ProjectBenefits as ProjectBenefitsType } from "./types";
-import AddNewBenefitPopup from "./AddNewBenefit";
+import { ProjectBenefits as ProjectBenefitsType } from "../types";
+import AddNewBenefitModal from "./AddNewBenefitModal";
 
-const ProjectBenefits = ({ projectId }: { projectId: string }) => {
-  const [projectBenefits, setProjectBenefits] = createStore<ProjectBenefitsType>({ benefits: [] });
-  const [addingNewBenefit, setAddingNewBenefit] = createSignal<boolean>(false);
 
-  onMount(async () => {
-    addStubBenefit();
-    addStubBenefit();
-    addStubBenefit();
-    addStubBenefit();
-    addStubBenefit();
-    addStubBenefit();
-    addStubBenefit();
-    addStubBenefit();
-  });
-
-  const addStubBenefit = () => {
-    const newBenefit = {
-      id: crypto.randomUUID(),
-      name: "New Benefit",
-      description: "Description of the new benefitfsafasdfasdfasdfasdfasdf asdasdfsafasdfasdfasfdas dfsadfasdfa sdfasdfasfasfdafdasfdasfd",
-      checks: [],
-    };
-    setProjectBenefits("benefits", (benefits) => [...benefits, newBenefit]);
+const ProjectBenefits = (
+  { projectBenefits, setProjectBenefits, setBenefitIdToConfigure }:
+  {
+    projectBenefits: ProjectBenefitsType
+    setProjectBenefits: SetStoreFunction<ProjectBenefitsType>;
+    setBenefitIdToConfigure: Setter<null | string>;
   }
+) => {
+  const [addingNewBenefit, setAddingNewBenefit] = createSignal<boolean>(false);
 
   return (
     <div class="p-5">
@@ -43,7 +29,7 @@ const ProjectBenefits = ({ projectId }: { projectId: string }) => {
             const subChecksClass = benefit.checks.length > 0 ? "" : "text-red-900";
 
             return (
-              <div class="w-full flex justify-center">
+              <div class="w-full flex justify-center" onClick={() => { setBenefitIdToConfigure(benefit.id); } }>
                 <div class="max-w-lg bg-gray-300 hover:brightness-95 p-4 m-2 rounded-lg flex-1">
                   <div class="text-2xl mb-3">{benefit.name}</div>
                   <div>Id: {benefit.id}</div>
@@ -65,10 +51,9 @@ const ProjectBenefits = ({ projectId }: { projectId: string }) => {
       </div>
       {
         addingNewBenefit() &&
-        <AddNewBenefitPopup setAddingNewBenefit={setAddingNewBenefit} setProjectBenefits={setProjectBenefits} />
+        <AddNewBenefitModal setAddingNewBenefit={setAddingNewBenefit} setProjectBenefits={setProjectBenefits} />
       }
     </div>
-  );
-}
-
+  )
+};
 export default ProjectBenefits;

@@ -1,6 +1,6 @@
 import { createStore, SetStoreFunction } from "solid-js/store"
 
-import { ProjectBenefits as ProjectBenefitsType } from "./types";
+import { ProjectBenefits as ProjectBenefitsType } from "../types";
 
 
 type NewBenefitValues = {
@@ -78,5 +78,4 @@ const AddNewBenefitPopup = (
     </div>
   );
 }
-
 export default AddNewBenefitPopup;
