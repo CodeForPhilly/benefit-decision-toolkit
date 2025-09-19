@@ -6,7 +6,7 @@
     @apply
       inline-block px-6 py-1
     border-gray-300 border-2
-      cursor-pointer select-none rounded-lg
+      cursor-pointer select-none rounded-md
   }
 }
 

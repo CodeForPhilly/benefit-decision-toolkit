@@ -26,7 +26,7 @@ const ProjectBenefits = (
 
   return (
     <div class="p-5">
-      <div class="text-3xl font-bold mb-2">
+      <div class="text-3xl font-bold mb-2 tracking-wide">
         Manage Benefits
       </div>
       <div class="text-lg mb-3">
@@ -52,16 +52,27 @@ const ProjectBenefits = (
               <div class="w-full flex">
                 <div
                   class="
-                    max-w-lg rounded-lg flex-1 flex flex-col
-                    border-2 border-gray-300"
+                    max-w-lg flex-1 flex flex-col
+                    border-1 border-gray-300 rounded-lg"
                 >
-                  <div class="p-4 border-bottom border-gray-300 flex-1">
-                    <div class="text-2xl mb-3 font-bold">{benefit.name}</div>
-                    <div>Id: {benefit.id}</div>
-                    <div>Description: {benefit.description}</div>
-                    <div class={subChecksClass}>Sub-Checks: {benefit.checks.length}</div>
+                  <div
+                    id={"benefit-card-details-" + benefit.id}
+                    class="p-4 border-bottom border-gray-300 flex-1"
+                  >
+                    <div class="text-2xl mb-2 font-bold tracking-wide">
+                      {benefit.name}
+                    </div>
+                    <div>
+                      <span class="font-bold">Description:</span> {benefit.description}
+                    </div>
+                    <div class={subChecksClass}>
+                      <span class="font-bold">Sub-Checks:</span> {benefit.checks.length}
+                    </div>
                   </div>
-                  <div class="p-4 flex justify-end space-x-2">
+                  <div
+                    id={"benefit-card-actions-" + benefit.id}
+                    class="p-4 flex justify-end space-x-2"
+                  >
                     <div
                       class="btn-default hover:bg-gray-200"
                       onClick={() => { setBenefitIdToConfigure(benefit.id); } }

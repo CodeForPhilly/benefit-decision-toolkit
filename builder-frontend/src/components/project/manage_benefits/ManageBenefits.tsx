@@ -30,8 +30,8 @@ const ManageBenefits = ({ projectId }: { projectId: string }) => {
   const addStubBenefit = () => {
     const newBenefit = {
       id: crypto.randomUUID(),
-      name: "New Benefit",
-      description: "Description of the new benefitfsafasdfasdfasdfasdfasdf asdasdfsafasdfasdfasfdas dfsadfasdfa sdfasdfasfasfdafdasfdasfd",
+      name: "Example Benefit",
+      description: "Description of the new benefit",
       checks: [],
     };
     setProjectBenefits("benefits", (benefits) => [...benefits, newBenefit]);
@@ -50,7 +50,11 @@ const ManageBenefits = ({ projectId }: { projectId: string }) => {
       }
       {
         benefitIdToConfigure() !== null &&
-        <ConfigureBenefit benefitToConfigure={benefitToConfigure} />
+        <ConfigureBenefit
+          benefitToConfigure={benefitToConfigure}
+          setBenefitIdToConfigure={setBenefitIdToConfigure}
+          setProjectBenefits={setProjectBenefits}
+        />
       }
     </div>
   );
