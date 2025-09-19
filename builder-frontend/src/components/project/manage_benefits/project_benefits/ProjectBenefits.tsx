@@ -3,6 +3,7 @@ import { SetStoreFunction } from "solid-js/store";
 
 import { ProjectBenefits as ProjectBenefitsType } from "../types";
 import AddNewBenefitModal from "./AddNewBenefitModal";
+import ConfirmationModal from "../../ConfirmationModal";
 
 
 const ProjectBenefits = (
@@ -14,6 +15,7 @@ const ProjectBenefits = (
   }
 ) => {
   const [addingNewBenefit, setAddingNewBenefit] = createSignal<boolean>(false);
+  const [benefitIdToRemove, setBenefitIdToRemove] = createSignal<null | string>(null);
 
   const removeBenefit = (benefitId: string) => {
     setProjectBenefits(
@@ -32,17 +34,13 @@ const ProjectBenefits = (
         Each benefit can have associated sub-checks.
       </div>
       <div
-        class="
-          inline-block px-3 py-2 mb-3
-          text-white bg-sky-600 hover:bg-sky-700
-          cursor-pointer select-none rounded-lg"
+        class="btn-default bg-sky-600 hover:bg-sky-700 text-white mb-3"
         onClick={() => {setAddingNewBenefit(true)}}
       >
         + Add New Benefit
       </div>
       <div
         class="
-          bg-gray-100
           grid gap-4 justify-items-center
           grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
       >
@@ -54,12 +52,10 @@ const ProjectBenefits = (
               <div class="w-full flex">
                 <div
                   class="
-                    max-w-lg rounded-lg flex-1
+                    max-w-lg rounded-lg flex-1 flex flex-col
                     border-2 border-gray-300"
                 >
-                  <div
-                    class="p-4 border-bottom border-gray-300"
-                  >
+                  <div class="p-4 border-bottom border-gray-300 flex-1">
                     <div class="text-2xl mb-3 font-bold">{benefit.name}</div>
                     <div>Id: {benefit.id}</div>
                     <div>Description: {benefit.description}</div>
@@ -67,21 +63,14 @@ const ProjectBenefits = (
                   </div>
                   <div class="p-4 flex justify-end space-x-2">
                     <div
-                      class="
-                      inline-block px-3 py-2 hover:bg-gray-200
-                      border-gray-300 border-2
-                      cursor-pointer select-none rounded-lg"
+                      class="btn-default hover:bg-gray-200"
                       onClick={() => { setBenefitIdToConfigure(benefit.id); } }
                     >
                       Edit
                     </div>
                     <div
-                      class="
-                      inline-block px-3 py-2 bg-red-700 hover:bg-red-800
-                      text-white
-                      border-gray-500 border-2
-                      cursor-pointer select-none rounded-lg"
-                      onClick={() => { removeBenefit(benefit.id); } }
+                      class="btn-default bg-red-800 hover:bg-red-900 text-white"
+                      onClick={() => { setBenefitIdToRemove(benefit.id); } }
                     >
                       Remove
                     </div>
@@ -95,6 +84,18 @@ const ProjectBenefits = (
       {
         addingNewBenefit() &&
         <AddNewBenefitModal setAddingNewBenefit={setAddingNewBenefit} setProjectBenefits={setProjectBenefits} />
+      }
+      {
+        benefitIdToRemove() &&
+        <ConfirmationModal
+          confirmationTitle="Remove Benefit"
+          confirmationText="Are you sure you want to remove this benefit? This action cannot be undone."
+          callback={() => {
+            console.log("Confirmed removal of benefit");
+            removeBenefit(benefitIdToRemove());
+          }}
+          closeModal={() => { setBenefitIdToRemove(null); }}
+        />
       }
     </div>
   )

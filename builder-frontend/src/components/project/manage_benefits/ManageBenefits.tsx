@@ -38,7 +38,7 @@ const ManageBenefits = ({ projectId }: { projectId: string }) => {
   }
 
   return (
-    <div class="p-5">
+    <div class="px-5 py-2">
       {
         benefitIdToConfigure() === null && (
           <ProjectBenefits

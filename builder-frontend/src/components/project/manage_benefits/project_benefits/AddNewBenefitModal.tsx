@@ -14,6 +14,15 @@ const AddNewBenefitPopup = (
 ) => {
   const [newBenefit, setNewBenefit] = createStore<NewBenefitValues>({ name: "", description: "" });
 
+  // Styling for the Add button based on whether fields are filled
+  const isAddDisabled = () => {
+    return newBenefit.name.trim() === "" || newBenefit.description.trim() === "";
+  }
+  const addButtonClasses = () => {
+    return isAddDisabled() ? "opacity-50 cursor-not-allowed" : "hover:bg-sky-700";
+  }
+
+  // Function to add the new benefit
   const addNewBenefit = () => {
     const benefitToAdd = {
       id: crypto.randomUUID(),
@@ -50,20 +59,19 @@ const AddNewBenefitPopup = (
             rows={4}
           />
         </div>
-        <div class="flex justify-end space-x-4">
-          <button
-            class="px-4 py-2 bg-gray-300 hover:brightness-95 rounded"
+        <div class="flex justify-end space-x-2">
+          <div
+            class="btn-default hover:bg-gray-200"
             onClick={() => {
               setAddingNewBenefit(false);
             }}
           >
             Cancel
-          </button>
-          <button
-            class="px-4 py-2 bg-blue-500 text-white hover:brightness-95 rounded"
-            disabled={newBenefit.name.trim() === "" || newBenefit.description.trim() === ""}
+          </div>
+          <div
+            class={"btn-default bg-sky-600 text-white " + addButtonClasses()}
             onClick={() => {
-              if (newBenefit.name.trim() === "" || newBenefit.description.trim() === "") {
+              if (isAddDisabled()) {
                 console.log("Please fill in all fields.");
                 return;
               }
@@ -72,7 +80,7 @@ const AddNewBenefitPopup = (
             }}
           >
             Add Benefit
-          </button>
+          </div>
         </div>
       </div>
     </div>
