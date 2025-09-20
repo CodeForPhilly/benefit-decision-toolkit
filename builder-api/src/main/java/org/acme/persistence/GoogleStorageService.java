@@ -4,10 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.storage.*;
+import com.google.firebase.cloud.StorageClient;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -18,19 +17,13 @@ import java.util.Optional;
 @ApplicationScoped
 public class GoogleStorageService implements StorageService {
 
-    @Inject
-    Storage storage;
-
-    @ConfigProperty(name = "gcs.bucket.name")
-    String bucketName;
-
     @Override
     public void writeStringToStorage(String filePath, String content, String contentType){
         try {
-            BlobId blobId = BlobId.of(bucketName, filePath);
-            BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(contentType).build();
-            storage.create(blobInfo, content.getBytes(StandardCharsets.UTF_8));
-            Log.info("Uploaded to GCS: " + filePath);
+            Bucket bucket = StorageClient.getInstance().bucket();
+            InputStream inputSteam = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
+            Blob blob = bucket.create(filePath, inputSteam, contentType);
+            Log.info("Uploaded to GCS: " + blob.getName());
         } catch (Exception e){
             Log.error("Error writing file to GCS: " + e.getMessage());
         }
@@ -39,10 +32,10 @@ public class GoogleStorageService implements StorageService {
     @Override
     public void writeBytesToStorage(String filePath, byte[] content, String contentType){
         try {
-            BlobId blobId = BlobId.of(bucketName, filePath);
-            BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(contentType).build();
-            storage.create(blobInfo, content);
-            Log.info("Uploaded to GCS: " + filePath);
+            Bucket bucket = StorageClient.getInstance().bucket();
+            InputStream inputSteam = new ByteArrayInputStream(content);
+            Blob blob = bucket.create(filePath, inputSteam, contentType);
+            Log.info("Uploaded to GCS: " + blob.getName());
         } catch (Exception e){
             Log.error("Error writing file to GCS: " + e.getMessage());
         }
@@ -51,11 +44,11 @@ public class GoogleStorageService implements StorageService {
     @Override
     public void writeJsonToStorage(String filePath, JsonNode json){
         try {
+            Bucket bucket = StorageClient.getInstance().bucket();
             ObjectMapper mapper = new ObjectMapper();
-            BlobId blobId = BlobId.of(bucketName, filePath);
-            BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("application/json").build();
-            storage.create(blobInfo, mapper.writeValueAsBytes(json));
-            Log.info("Uploaded to GCS: " + filePath);
+            InputStream inputSteam = new ByteArrayInputStream(mapper.writeValueAsBytes(json));
+            Blob blob = bucket.create(filePath, inputSteam, "application/json");
+            Log.info("Uploaded to GCS: " + blob.getName());
         } catch (Exception e){
             Log.error("Error writing file to GCS: " + e.getMessage());
         }
@@ -64,7 +57,8 @@ public class GoogleStorageService implements StorageService {
     @Override
     public Optional<InputStream> getFileInputStreamFromStorage(String filePath) {
         try {
-            Blob blob = storage.get(bucketName, filePath);
+            Bucket bucket = StorageClient.getInstance().bucket();
+            Blob blob = bucket.get(filePath);
 
             if (blob == null || !blob.exists()) {
                 return Optional.empty();
@@ -84,7 +78,8 @@ public class GoogleStorageService implements StorageService {
     @Override
     public Optional<String> getStringFromStorage(String filePath) {
         try {
-            Blob blob = storage.get(bucketName, filePath);
+            Bucket bucket = StorageClient.getInstance().bucket();
+            Blob blob = bucket.get(filePath);
 
             if (blob == null || !blob.exists()) {
                 return Optional.empty();
@@ -105,7 +100,8 @@ public class GoogleStorageService implements StorageService {
     @Override
     public Optional<byte[]> getFileBytesFromStorage(String filePath) {
         try {
-            Blob blob = storage.get(bucketName, filePath);
+            Bucket bucket = StorageClient.getInstance().bucket();
+            Blob blob = bucket.get(filePath);
 
             if (blob == null || !blob.exists()) {
                 return Optional.empty();
@@ -147,7 +143,8 @@ public class GoogleStorageService implements StorageService {
     @Override
     public Map<String, Object> getFormSchemaFromStorage(String filePath) {
         try {
-            Blob blob = storage.get(bucketName, filePath);
+            Bucket bucket = StorageClient.getInstance().bucket();
+            Blob blob = bucket.get(filePath);
 
             if (blob == null || !blob.exists()) {
                return null;
@@ -171,8 +168,9 @@ public class GoogleStorageService implements StorageService {
     @Override
     public void updatePublishedFormSchemaArtifact(String screenerId) throws Exception {
         try {
-            Blob workingFormBlob = storage.get(bucketName, getScreenerWorkingFormSchemaPath(screenerId));
-            CopyWriter formCopyWriter = workingFormBlob.copyTo(BlobId.of(bucketName, getScreenerPublishedFormSchemaPath(screenerId)));
+            Bucket bucket = StorageClient.getInstance().bucket();
+            Blob workingFormBlob = bucket.get(getScreenerWorkingFormSchemaPath(screenerId));
+            CopyWriter formCopyWriter = workingFormBlob.copyTo(BlobId.of(bucket.getName(), getScreenerPublishedFormSchemaPath(screenerId)));
             formCopyWriter.getResult();
             Log.info("Working form schema copied to published artifact path for screener: " + screenerId);
         } catch (Exception e){

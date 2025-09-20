@@ -4,7 +4,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.acme.constants.CollectionNames;
 import org.acme.mapper.DmnModelMapper;
 import org.acme.model.domain.DmnModel;
-import jakarta.inject.Inject;
 
 import java.util.List;
 import java.util.Map;
@@ -12,13 +11,9 @@ import java.util.Optional;
 
 @ApplicationScoped
 public class DmnModelRespositoryImpl implements DmnModelRepository{
-
-    @Inject
-    private FirestoreService firestoreService;
-
     @Override
     public List<DmnModel> getAllDmnModels() {
-        List<Map<String, Object>> dmnMaps = firestoreService.getAllDocsInCollection(
+        List<Map<String, Object>> dmnMaps = FirestoreUtils.getAllDocsInCollection(
                 CollectionNames.DMN_MODEL_COLLECTION);
 
         return dmnMaps.stream().map(DmnModelMapper::fromMap).toList();
@@ -33,7 +28,7 @@ public class DmnModelRespositoryImpl implements DmnModelRepository{
 
         String key = getDmnModelId(groupId, artifactId, version);
 
-        Optional<Map<String, Object>> modelOptional = firestoreService.getFirestoreDocById(CollectionNames.DMN_MODEL_COLLECTION, key);
+        Optional<Map<String, Object>> modelOptional = FirestoreUtils.getFirestoreDocById(CollectionNames.DMN_MODEL_COLLECTION, key);
 
         if (modelOptional.isPresent()){
             DmnModel model = DmnModelMapper.fromMap(modelOptional.get());

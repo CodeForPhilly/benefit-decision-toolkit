@@ -2,23 +2,21 @@ package org.acme.persistence;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.Bucket;
+import com.google.firebase.cloud.FirestoreClient;
+import com.google.firebase.cloud.StorageClient;
 import io.quarkus.logging.Log;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
-@ApplicationScoped
-public class FirestoreService {
+public class FirestoreUtils {
 
-    @Inject
-    Firestore db;
+    private static final Firestore db = FirestoreClient.getFirestore();
 
-    public List<Map<String, Object>> getAllDocsInCollection(String collection){
+    public static List<Map<String, Object>> getAllDocsInCollection(String collection){
         try {
             ApiFuture<QuerySnapshot> query = db.collection(collection)
                     .get();
@@ -39,7 +37,7 @@ public class FirestoreService {
         }
     }
 
-    public List<Map<String, Object>> getFirestoreDocsByField(String collection, String field, String value) {
+    public static List<Map<String, Object>> getFirestoreDocsByField(String collection, String field, String value) {
         try {
             ApiFuture<QuerySnapshot> query = db.collection(collection)
                     .whereEqualTo(field, value)
@@ -61,7 +59,7 @@ public class FirestoreService {
         }
     }
 
-    public Optional<Map<String, Object>> getFirestoreDocById(String collection, String id) {
+    public static Optional<Map<String, Object>> getFirestoreDocById(String collection, String id) {
         try {
 
             DocumentSnapshot doc = db.collection(collection)
@@ -85,7 +83,27 @@ public class FirestoreService {
         }
     }
 
-    public String persistDocument(String collectionName, Map<String, Object> data) throws Exception {
+    public static Optional<String> getFileAsStringFromStorage(String filePath) {
+        try {
+            Bucket bucket = StorageClient.getInstance().bucket();
+            Blob blob = bucket.get(filePath);
+
+            if (blob == null || !blob.exists()) {
+                return Optional.empty();
+            }
+
+            byte[] data = blob.getContent();
+            String content = new String(data, StandardCharsets.UTF_8);
+
+            return Optional.of(content);
+
+        } catch (Exception e){
+            Log.error("Error fetching file from firebase storage: ", e);
+            return Optional.empty();
+        }
+    }
+
+    public static String persistDocument(String collectionName, Map<String, Object> data) throws Exception {
         try {
             DocumentReference documentRef = db.collection(collectionName)
                     .add(data)
@@ -101,7 +119,7 @@ public class FirestoreService {
     }
 
 
-    public void updateDocument(String collectionName, Map<String, Object> data, String docId) throws Exception {
+    public static void updateDocument(String collectionName, Map<String, Object> data, String docId) throws Exception {
         try {
             WriteResult result = db.collection(collectionName)
                     .document(docId)
@@ -117,7 +135,7 @@ public class FirestoreService {
         }
     }
 
-    public void deleteDocument(String collectionName, String docId) throws Exception {
+    public static void deleteDocument(String collectionName, String docId) throws Exception {
         try{
             WriteResult result = db.collection(collectionName).document(docId).delete().get();
             Log.info("Document " + docId + " deleted at " + result.getUpdateTime());
@@ -128,7 +146,7 @@ public class FirestoreService {
 
     }
 
-    public void addObjectToListFieldOfDocument(String collection, String docId, String field, Object object) throws Exception{
+    public static void addObjectToListFieldOfDocument(String collection, String docId, String field, Object object) throws Exception{
         try{
             DocumentReference docRef = db.collection(collection).document(docId);
             docRef.update(field, FieldValue.arrayUnion(object));
@@ -138,7 +156,7 @@ public class FirestoreService {
         }
     }
 
-    public void removeObjectFromListFieldOfDocument(String collection, String docId, String field, Object object) throws Exception {
+    public static void removeObjectFromListFieldOfDocument(String collection, String docId, String field, Object object) throws Exception {
         try {
             DocumentReference docRef = db.collection(collection).document(docId);
             docRef.update(field, FieldValue.arrayRemove(object));
