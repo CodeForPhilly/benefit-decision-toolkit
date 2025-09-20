@@ -20,10 +20,13 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
     @Inject
     private StorageService storageService;
 
+    @Inject
+    private FirestoreService firestoreService;
+
     @Override
     public List<Screener> getScreeners(String userId) {
 
-        List<Map<String, Object>> screenersMaps = FirestoreUtils.getFirestoreDocsByField(
+        List<Map<String, Object>> screenersMaps = firestoreService.getFirestoreDocsByField(
                 CollectionNames.SCREENER_COLLECTION,
                 FieldNames.OWNER_ID,
                 userId);
@@ -36,7 +39,7 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
 
     @Override
     public Optional<Screener> getScreener(String screenerId){
-        Optional<Map<String, Object>> dataOpt = FirestoreUtils.getFirestoreDocById(CollectionNames.SCREENER_COLLECTION, screenerId);
+        Optional<Map<String, Object>> dataOpt = firestoreService.getFirestoreDocById(CollectionNames.SCREENER_COLLECTION, screenerId);
         if (dataOpt.isEmpty()){
             return Optional.empty();
         }
@@ -51,7 +54,7 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
         screener.setFormSchema(formSchema);
 
         String dmnPath = storageService.getScreenerWorkingDmnModelPath(screenerId);
-        Optional<String> dmnModel = FirestoreUtils.getFileAsStringFromStorage(dmnPath);
+        Optional<String> dmnModel = storageService.getStringFromStorage(dmnPath);
         dmnModel.ifPresent(screener::setDmnModel);
 
         return Optional.of(screener);
@@ -59,7 +62,7 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
 
     @Override
     public Optional<Screener> getScreenerMetaDataOnly(String screenerId){
-        Optional<Map<String, Object>> dataOpt = FirestoreUtils.getFirestoreDocById(CollectionNames.SCREENER_COLLECTION, screenerId);
+        Optional<Map<String, Object>> dataOpt = firestoreService.getFirestoreDocById(CollectionNames.SCREENER_COLLECTION, screenerId);
         if (dataOpt.isEmpty()){
             return Optional.empty();
         }
@@ -78,7 +81,7 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
     public String saveNewScreener(Screener screener) throws Exception{
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(screener, Map.class);
-        return FirestoreUtils.persistDocument(CollectionNames.SCREENER_COLLECTION, data);
+        return firestoreService.persistDocument(CollectionNames.SCREENER_COLLECTION, data);
     }
 
     @Override
@@ -92,12 +95,12 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
         data.remove("dmnModel");
         data.remove("formSchema");
 
-        FirestoreUtils.updateDocument(CollectionNames.SCREENER_COLLECTION, data, screener.getId());
+        firestoreService.updateDocument(CollectionNames.SCREENER_COLLECTION, data, screener.getId());
     }
 
     @Override
     public void deleteScreener(String screenerId) throws Exception {
-        FirestoreUtils.deleteDocument(CollectionNames.SCREENER_COLLECTION, screenerId);
+        firestoreService.deleteDocument(CollectionNames.SCREENER_COLLECTION, screenerId);
     }
 
     @Override
@@ -106,7 +109,7 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
         modelMap.put(FieldNames.GROUP_ID, dmnModel.getGroupId());
         modelMap.put(FieldNames.ARTIFACT_ID, dmnModel.getArtifactId());
         modelMap.put(FieldNames.VERSION, dmnModel.getVersion());
-        FirestoreUtils.addObjectToListFieldOfDocument(CollectionNames.SCREENER_COLLECTION, screenerId, FieldNames.DEPENDENCIES, modelMap);
+        firestoreService.addObjectToListFieldOfDocument(CollectionNames.SCREENER_COLLECTION, screenerId, FieldNames.DEPENDENCIES, modelMap);
     }
 
     @Override
@@ -115,7 +118,7 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
         modelMap.put(FieldNames.GROUP_ID, groupId);
         modelMap.put(FieldNames.ARTIFACT_ID, artifactId);
         modelMap.put(FieldNames.VERSION, version);
-        FirestoreUtils.removeObjectFromListFieldOfDocument(CollectionNames.SCREENER_COLLECTION, screenerId, FieldNames.DEPENDENCIES, modelMap);
+        firestoreService.removeObjectFromListFieldOfDocument(CollectionNames.SCREENER_COLLECTION, screenerId, FieldNames.DEPENDENCIES, modelMap);
     }
 }
 
