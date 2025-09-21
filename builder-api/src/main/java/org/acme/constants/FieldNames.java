@@ -30,4 +30,7 @@ public class FieldNames {
     public static final String MODEL_NAME = "name";
     public static final String MODEL_DESCRIPTION = "description";
     public static final String MODEL_SHORT_DESCRIPTION = "short_description";
+
+    // Benefit Fields
+    public static final String IS_PUBLIC = "isPublic";
 }

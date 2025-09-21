@@ -59,6 +59,28 @@ public class FirestoreUtils {
         }
     }
 
+    public static List<Map<String, Object>> getFirestoreDocsByField(String collection, String field, boolean value) {
+        try {
+            ApiFuture<QuerySnapshot> query = db.collection(collection)
+                    .whereEqualTo(field, value)
+                    .get();
+            List<QueryDocumentSnapshot> documents;
+            documents = query.get().getDocuments();
+
+            return documents.stream()
+                    .map(doc -> {
+                        Map<String, Object> data = doc.getData();
+                        data.put("id", doc.getId());
+                        return data;
+                    })
+                    .toList();
+
+        }catch(Exception e){
+            Log.error("Error fetching documents from firestore: ", e);
+            return new ArrayList<>();
+        }
+    }
+
     public static Optional<Map<String, Object>> getFirestoreDocById(String collection, String id) {
         try {
 

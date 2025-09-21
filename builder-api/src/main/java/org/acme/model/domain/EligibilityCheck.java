@@ -1,6 +1,7 @@
 package org.acme.model.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
@@ -14,6 +15,9 @@ public class EligibilityCheck {
     private boolean isActive;
     private List<InputDefinition> inputs;
     private List<ParameterDefinition> parameters;
+    private String ownerId;
+    @JsonProperty("isPublic")
+    private Boolean isPublic;
 
     public String getId() {
         return id;
@@ -77,5 +81,21 @@ public class EligibilityCheck {
 
     public void setParameters(List<ParameterDefinition> parameters) {
         this.parameters = parameters;
+    }
+
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public Boolean getPublic() {
+        return isPublic;
+    }
+
+    public void setPublic(Boolean aPublic) {
+        isPublic = aPublic;
     }
 }
