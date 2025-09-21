@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.acme.constants.CollectionNames;
 import org.acme.constants.FieldNames;
+import org.acme.model.domain.Benefit;
 import org.acme.model.domain.EligibilityCheck;
 
 import java.util.List;
@@ -36,5 +37,15 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
         } else {
             return Optional.of(checks.getFirst());
         }
+    }
+
+    public List<EligibilityCheck> getChecksInBenefit(Benefit benefit){
+
+        List<String> checkIds = benefit.getChecks().stream().map(checkConfig -> checkConfig.getCheckId()).toList();
+        List<Map<String, Object>> checkMaps = FirestoreUtils.getFirestoreDocsByIds(
+                CollectionNames.ELIGIBILITY_CHECK_COLLECTION, checkIds);
+
+        ObjectMapper mapper = new ObjectMapper();
+        return checkMaps.stream().map(checkMap ->  mapper.convertValue(checkMap, EligibilityCheck.class)).toList();
     }
 }

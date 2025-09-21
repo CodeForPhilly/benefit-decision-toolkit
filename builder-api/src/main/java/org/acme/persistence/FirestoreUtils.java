@@ -11,6 +11,7 @@ import io.quarkus.logging.Log;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class FirestoreUtils {
 
@@ -76,6 +77,44 @@ public class FirestoreUtils {
                     .toList();
 
         }catch(Exception e){
+            Log.error("Error fetching documents from firestore: ", e);
+            return new ArrayList<>();
+        }
+    }
+
+    public static List<Map<String, Object>> getFirestoreDocsByIds(String collection, List<String> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        try {
+            // Create document references for all IDs
+            List<DocumentReference> docRefs = ids.stream()
+                    .map(id -> db.collection(collection).document(id))
+                    .toList();
+
+            // Batch get all documents
+            List<DocumentSnapshot> snapshots = db.getAll(docRefs.toArray(new DocumentReference[0])).get();
+
+
+            // Might be an issue with the colon in the IDs
+            // Add after getting snapshots
+            for (int i = 0; i < snapshots.size(); i++) {
+                DocumentSnapshot doc = snapshots.get(i);
+                Log.info("Document ID: " + ids.get(i) + ", Exists: " + doc.exists() + ", Reference: " + doc.getReference().getPath());
+            }
+            // Process results, filtering out non-existent documents
+            List<Map<String, Object>> results = new ArrayList<>();
+            for (DocumentSnapshot doc : snapshots) {
+                if (doc.exists()) {
+                    Map<String, Object> data = doc.getData();
+                    data.put("id", doc.getId());
+                    results.add(data);
+                }
+            }
+
+            return results;
+        } catch (Exception e) {
             Log.error("Error fetching documents from firestore: ", e);
             return new ArrayList<>();
         }
