@@ -7,51 +7,86 @@ export interface Benefit {
   id: string;
   name: string;
   description: string;
-  checks: Check[];
+  checks: EligibilityCheck[];
 }
-export interface Check {
+export interface EligibilityCheck {
   id: string;
-  value: string;
-  inputs: CheckInput[];
-  parameters: CheckParameter[];
+  description: string;
+  category: string;
+  inputs: Input[];
+  parameters: Parameter[];
 }
 
 /* Check Input Types */
-type CheckInput = StringCheckInput | NumberCheckInput | BooleanCheckInput;
-interface BaseCheckInput {
-  id: string;
-  name: string;
-  description: string;
+type Input = (
+  StringInput |
+  StringSelectInput |
+  NumberInput |
+  BooleanInput
+);
+interface BaseInput {
+  key: string;
+  prompt: string;
 }
-interface StringCheckInput extends BaseCheckInput {
+interface StringInput extends BaseInput {
   type: "string";
-  value?: string;
+  validation: {
+    required: boolean;
+    min_length?: number;
+    max_length?: number;
+  };
 }
-interface NumberCheckInput extends BaseCheckInput {
+interface StringSelectInput extends BaseInput {
+  type: "string";
+  options?: string;
+  validation: {
+    required: boolean;
+  };
+}
+interface NumberInput extends BaseInput {
   type: "number";
-  value?: number;
+  validation: {
+    required: boolean;
+    min?: number;
+    max?: number;
+  };
 }
-interface BooleanCheckInput extends BaseCheckInput {
+interface BooleanInput extends BaseInput {
   type: "boolean";
-  value?: boolean;
+  // No additional validation needed for boolean
 }
 
-/* Check Parameter Types */
-type CheckParameter = StringCheckParameter | NumberCheckParameter | BooleanCheckParameter;
-interface BaseCheckParameter {
-  id: string;
-  name: string;
-  description: string;
+/* Parameter Types */
+type Parameter = (
+  StringParameter |
+  StringSelectParameter |
+  StringMultiInputParameter |
+  NumberParameter |
+  BooleanParameter
+);
+interface BaseParameter {
+  key: string;
+  label: string;
+  required: boolean;
 }
-interface StringCheckParameter extends BaseCheckParameter {
+interface StringSelectParameter extends BaseParameter {
+  type: "select_string";
+  options?: string;
+  value?: string;
+}
+interface StringMultiInputParameter extends BaseParameter {
+  type: "multi_input_string";
+  value?: string[];
+}
+interface StringParameter extends BaseParameter {
   type: "string";
   value?: string;
 }
-interface NumberCheckParameter extends BaseCheckParameter {
+interface NumberParameter extends BaseParameter {
   type: "number";
   value?: number;
 }
-interface BooleanCheckParameter extends BaseCheckParameter {
+interface BooleanParameter extends BaseParameter {
   type: "boolean";
   value?: boolean;
 }

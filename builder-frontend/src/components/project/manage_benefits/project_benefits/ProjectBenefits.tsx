@@ -7,20 +7,24 @@ import ConfirmationModal from "../../ConfirmationModal";
 
 
 const ProjectBenefits = (
-  { projectBenefits, setProjectBenefits, setBenefitIdToConfigure }:
+  { projectBenefits, setProjectBenefits, setBenefitIndexToConfigure }:
   {
     projectBenefits: ProjectBenefitsType
     setProjectBenefits: SetStoreFunction<ProjectBenefitsType>;
-    setBenefitIdToConfigure: Setter<null | string>;
+    setBenefitIndexToConfigure: Setter<null | number>;
   }
 ) => {
   const [addingNewBenefit, setAddingNewBenefit] = createSignal<boolean>(false);
-  const [benefitIdToRemove, setBenefitIdToRemove] = createSignal<null | string>(null);
+  const [benefitIndexToRemove, setBenefitIndexToRemove] = createSignal<null | number>(null);
 
-  const removeBenefit = (benefitId: string) => {
+  const removeBenefit = (benefitIndex: number) => {
     setProjectBenefits(
       "benefits",
-      (benefits) => benefits.filter(benefit => benefit.id !== benefitId)
+      (benefits) => {
+        const updatedList = [ ...benefits ];
+        updatedList.splice(benefitIndex, 1);
+        return [ ...updatedList ]
+      }
     );
   }
 
@@ -45,7 +49,7 @@ const ProjectBenefits = (
           grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
       >
         <For each={projectBenefits.benefits}>
-          {(benefit) => {
+          {(benefit, benefit_idx) => {
             const subChecksClass = benefit.checks.length > 0 ? "" : "text-red-900";
 
             return (
@@ -75,13 +79,13 @@ const ProjectBenefits = (
                   >
                     <div
                       class="btn-default hover:bg-gray-200"
-                      onClick={() => { setBenefitIdToConfigure(benefit.id); } }
+                      onClick={() => { setBenefitIndexToConfigure(benefit_idx); } }
                     >
                       Edit
                     </div>
                     <div
                       class="btn-default bg-red-800 hover:bg-red-900 text-white"
-                      onClick={() => { setBenefitIdToRemove(benefit.id); } }
+                      onClick={() => { setBenefitIndexToRemove(benefit_idx); } }
                     >
                       Remove
                     </div>
@@ -97,15 +101,15 @@ const ProjectBenefits = (
         <AddNewBenefitModal setAddingNewBenefit={setAddingNewBenefit} setProjectBenefits={setProjectBenefits} />
       }
       {
-        benefitIdToRemove() &&
+        benefitIndexToRemove() !== null &&
         <ConfirmationModal
           confirmationTitle="Remove Benefit"
           confirmationText="Are you sure you want to remove this benefit? This action cannot be undone."
           callback={() => {
             console.log("Confirmed removal of benefit");
-            removeBenefit(benefitIdToRemove());
+            removeBenefit(benefitIndexToRemove());
           }}
-          closeModal={() => { setBenefitIdToRemove(null); }}
+          closeModal={() => { setBenefitIndexToRemove(null); }}
         />
       }
     </div>

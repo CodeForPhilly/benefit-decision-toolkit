@@ -7,11 +7,11 @@ import ConfigureBenefit from "./configure_benefit/ConfigureBenefit";
 
 const ManageBenefits = ({ projectId }: { projectId: string }) => {
   const [projectBenefits, setProjectBenefits] = createStore<ProjectBenefitsType>({ benefits: [] });
-  
-  const [benefitIdToConfigure, setBenefitIdToConfigure] = createSignal<null | string>(null);
+
+  const [benefitIndexToConfigure, setBenefitIndexToConfigure] = createSignal<null | number>(null);
   const benefitToConfigure: Accessor<Benefit> = () => {
-    if (benefitIdToConfigure() !== null) {
-      return projectBenefits.benefits.find(b => b.id === benefitIdToConfigure());
+    if (benefitIndexToConfigure() !== null) {
+      return projectBenefits.benefits.at(benefitIndexToConfigure());
     }
     return null;
   };
@@ -40,19 +40,20 @@ const ManageBenefits = ({ projectId }: { projectId: string }) => {
   return (
     <div class="px-5 py-2">
       {
-        benefitIdToConfigure() === null && (
+        benefitIndexToConfigure() === null && (
           <ProjectBenefits
             projectBenefits={projectBenefits}
             setProjectBenefits={setProjectBenefits}
-            setBenefitIdToConfigure={setBenefitIdToConfigure}
+            setBenefitIndexToConfigure={setBenefitIndexToConfigure}
           />
         )
       }
       {
-        benefitIdToConfigure() !== null &&
+        benefitIndexToConfigure() !== null &&
         <ConfigureBenefit
           benefitToConfigure={benefitToConfigure}
-          setBenefitIdToConfigure={setBenefitIdToConfigure}
+          benefitIndexToConfigure={benefitIndexToConfigure}
+          setBenefitIndexToConfigure={setBenefitIndexToConfigure}
           setProjectBenefits={setProjectBenefits}
         />
       }
