@@ -25,6 +25,10 @@ const ManageBenefits = ({ projectId }: { projectId: string }) => {
     addStubBenefit();
     addStubBenefit();
     addStubBenefit();
+
+     // For dev purposes, open the first benefit for configuration
+     // TODO: remove this when we have a more robust UI
+    setBenefitIndexToConfigure(0);
   });
 
   const addStubBenefit = () => {

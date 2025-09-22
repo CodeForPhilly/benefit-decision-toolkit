@@ -24,7 +24,7 @@ export const getAllAvailableChecks = async (): Promise<EligibilityCheck[]> => {
       ],
       parameters: [
         {
-          key: "min_target_age",
+          key: "minimum_target_age",
           type: "number",
           label: "Age the benefit targets (minimum)",
           required: true,

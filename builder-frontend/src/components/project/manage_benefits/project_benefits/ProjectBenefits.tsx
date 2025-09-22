@@ -38,7 +38,7 @@ const ProjectBenefits = (
         Each benefit can have associated sub-checks.
       </div>
       <div
-        class="btn-default bg-sky-600 hover:bg-sky-700 text-white mb-3"
+        class="btn-default btn-blue mb-3"
         onClick={() => {setAddingNewBenefit(true)}}
       >
         + Add New Benefit
@@ -78,13 +78,13 @@ const ProjectBenefits = (
                     class="p-4 flex justify-end space-x-2"
                   >
                     <div
-                      class="btn-default hover:bg-gray-200"
+                      class="btn-default btn-gray"
                       onClick={() => { setBenefitIndexToConfigure(benefit_idx); } }
                     >
                       Edit
                     </div>
                     <div
-                      class="btn-default bg-red-800 hover:bg-red-900 text-white"
+                      class="btn-default btn-red"
                       onClick={() => { setBenefitIndexToRemove(benefit_idx); } }
                     >
                       Remove
