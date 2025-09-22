@@ -1,9 +1,12 @@
-import { createSignal, onMount, Accessor } from "solid-js";
+import { createSignal, onMount, Accessor, createEffect } from "solid-js";
 import { createStore } from "solid-js/store"
+import { trackDeep } from "@solid-primitives/deep";
 
 import { ProjectBenefits as ProjectBenefitsType, Benefit } from "./types";
 import ProjectBenefits from "./project_benefits/ProjectBenefits";
 import ConfigureBenefit from "./configure_benefit/ConfigureBenefit";
+
+import { BenefitConfigurationContext } from "./contexts";
 
 const ManageBenefits = ({ projectId }: { projectId: string }) => {
   const [projectBenefits, setProjectBenefits] = createStore<ProjectBenefitsType>({ benefits: [] });
@@ -15,6 +18,13 @@ const ManageBenefits = ({ projectId }: { projectId: string }) => {
     }
     return null;
   };
+
+  createEffect(() => {
+    trackDeep(projectBenefits);
+
+    // Call REST API to save project benefits here!!!
+    console.log("Project Benefits updated:", projectBenefits);
+  });
 
   onMount(async () => {
     addStubBenefit();
@@ -54,12 +64,16 @@ const ManageBenefits = ({ projectId }: { projectId: string }) => {
       }
       {
         benefitIndexToConfigure() !== null &&
-        <ConfigureBenefit
-          benefitToConfigure={benefitToConfigure}
-          benefitIndexToConfigure={benefitIndexToConfigure}
-          setBenefitIndexToConfigure={setBenefitIndexToConfigure}
-          setProjectBenefits={setProjectBenefits}
-        />
+        <BenefitConfigurationContext.Provider
+          value={{
+            benefit: benefitToConfigure,
+            benefitIndex: benefitIndexToConfigure,
+            setBenefitIndex: setBenefitIndexToConfigure,
+            setProjectBenefits: setProjectBenefits,
+          }}
+        >
+          <ConfigureBenefit/>
+        </BenefitConfigurationContext.Provider>
       }
     </div>
   );

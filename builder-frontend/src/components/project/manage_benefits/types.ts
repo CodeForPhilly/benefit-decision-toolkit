@@ -69,24 +69,24 @@ interface BaseParameter {
   label: string;
   required: boolean;
 }
-interface StringSelectParameter extends BaseParameter {
+export interface StringSelectParameter extends BaseParameter {
   type: "select_string";
   options?: string;
   value?: string;
 }
-interface StringMultiInputParameter extends BaseParameter {
+export interface StringMultiInputParameter extends BaseParameter {
   type: "multi_input_string";
   value?: string[];
 }
-interface StringParameter extends BaseParameter {
+export interface StringParameter extends BaseParameter {
   type: "string";
   value?: string;
 }
-interface NumberParameter extends BaseParameter {
+export interface NumberParameter extends BaseParameter {
   type: "number";
   value?: number;
 }
-interface BooleanParameter extends BaseParameter {
+export interface BooleanParameter extends BaseParameter {
   type: "boolean";
   value?: boolean;
 }
