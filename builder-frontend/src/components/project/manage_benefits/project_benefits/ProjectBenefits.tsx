@@ -1,9 +1,9 @@
 import { createSignal, For, Setter } from "solid-js";
 import { SetStoreFunction } from "solid-js/store";
 
-import { ProjectBenefits as ProjectBenefitsType } from "../types";
 import AddNewBenefitModal from "./AddNewBenefitModal";
 import ConfirmationModal from "../../ConfirmationModal";
+import type { ProjectBenefits as ProjectBenefitsType } from "../types";
 
 
 const ProjectBenefits = (

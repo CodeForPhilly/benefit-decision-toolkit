@@ -1,37 +1,16 @@
-import { createEffect, Accessor, Setter, useContext } from "solid-js";
-import { SetStoreFunction } from "solid-js/store"
+import { createResource, useContext, For } from "solid-js";
 
-import { ProjectBenefits as ProjectBenefitsType, Benefit } from "../types";
-import { createResource } from "solid-js";
 import { getAllAvailableChecks } from "./fake_check_endpoints";
-import type { EligibilityCheck } from "../types";
 import SelectedEligibilityCheck from "./SelectedEligibilityCheck";
 
+import type { Benefit, EligibilityCheck } from "../types";
 import { BenefitConfigurationContext, CheckConfigurationContext } from "../contexts";
-
-// Shamelessly stolen from:
-// https://stackoverflow.com/questions/64489395/converting-snake-case-string-to-title-case
-// Changed to be sentence case rather than title case
-const titleCase = (str: string) => {
-  return str.replace(
-    /^_*(.)|_+(.)/g,
-    (s, c, d) => c ? c.toUpperCase() : ' ' + d
-  );
-}
+import { titleCase } from "../../../../utils/title_case";
 
 
 const ConfigureBenefit = () => {
-  const {benefit, benefitIndex, setBenefitIndex, setProjectBenefits} = useContext(BenefitConfigurationContext);
-
   const [availableChecks] = createResource<EligibilityCheck[]>(getAllAvailableChecks);
-
-  createEffect(() => {
-    // For dev purposes, auto-add the first available check if none are selected
-    // TODO: remove this when we have a more robust UI
-    // if (benefitToConfigure().checks.length === 0) {
-    //   onSubcheckToggle(availableChecks()[0]);
-    // }
-  });
+  const {benefit, benefitIndex, setBenefitIndex, setProjectBenefits} = useContext(BenefitConfigurationContext);
 
   const onSubcheckToggle = (check: EligibilityCheck) => {
     const updatedBenefit: Benefit = { ...benefit() };
@@ -59,11 +38,7 @@ const ConfigureBenefit = () => {
           </div>
         </div>
       </div>
-      <div
-        class="
-          flex gap-4
-          flex-col 2xl:flex-row"
-      >
+      <div class="flex gap-4 flex-col 2xl:flex-row">
         <div class="flex-2 border-2 border-gray-200 rounded-lg">
           <div class="p-4">
             <div class="text-2xl font-bold mb-2">
@@ -83,13 +58,15 @@ const ConfigureBenefit = () => {
               </tr>
             </thead>
             <tbody>
-              {availableChecks() && availableChecks().map((check) => (
-                <EligibilityCheckRow
-                  check={check}
-                  selectedChecks={benefit().checks}
-                  onToggle={() => onSubcheckToggle(check)}
-                />
-              ))}
+              <For each={availableChecks()}>
+                {(check) => (
+                  <EligibilityCheckRow
+                    check={check}
+                    selectedChecks={benefit().checks}
+                    onToggle={() => onSubcheckToggle(check)}
+                  />
+                )}
+              </For>
             </tbody>
           </table>
         </div>
@@ -105,13 +82,13 @@ const ConfigureBenefit = () => {
               </div>
             )}
             {benefit().checks.length > 0 && (
-              <>
-                {benefit().checks.map((check, checkIndex) => (
+              <For each={benefit().checks}>
+                {(check, checkIndex) => (
                   <CheckConfigurationContext.Provider value={{check, checkIndex}}>
                     <SelectedEligibilityCheck/>
                   </CheckConfigurationContext.Provider>
-                ))}
-              </>
+                )}
+              </For>
             )}
           </div>
         </div>
@@ -119,7 +96,6 @@ const ConfigureBenefit = () => {
     </div>
   );
 }
-
 
 const EligibilityCheckRow = (
   { check, selectedChecks, onToggle }:
@@ -129,7 +105,7 @@ const EligibilityCheckRow = (
     onToggle: (check: EligibilityCheck) => void;
   }
 ) => {
-  const isChecked = () => selectedChecks.some((selected) => selected.id === check.id);
+  const isCheckSelected = () => selectedChecks.some((selected) => selected.id === check.id);
 
   return (
     <tr>
@@ -137,7 +113,7 @@ const EligibilityCheckRow = (
         <input
           class="rounded-sm border-2 border-gray-400"
           type="checkbox"
-          checked={isChecked()}
+          checked={isCheckSelected()}
           onChange={() => onToggle(check)}
         />
       </td>

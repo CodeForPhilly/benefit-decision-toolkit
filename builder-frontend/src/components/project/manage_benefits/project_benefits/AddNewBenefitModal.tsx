@@ -1,13 +1,11 @@
 import { createStore, SetStoreFunction } from "solid-js/store"
 
-import { ProjectBenefits as ProjectBenefitsType } from "../types";
-
+import type { ProjectBenefits as ProjectBenefitsType } from "../types";
 
 type NewBenefitValues = {
   name: string;
   description: string;
 }
-
 const AddNewBenefitPopup = (
   { setProjectBenefits, setAddingNewBenefit }:
   { setProjectBenefits: SetStoreFunction<ProjectBenefitsType>; setAddingNewBenefit: (value: boolean) => void }

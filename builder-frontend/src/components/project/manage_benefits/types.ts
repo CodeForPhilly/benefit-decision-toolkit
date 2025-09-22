@@ -57,7 +57,7 @@ interface BooleanInput extends BaseInput {
 }
 
 /* Parameter Types */
-type Parameter = (
+export type Parameter = (
   StringParameter |
   StringSelectParameter |
   StringMultiInputParameter |

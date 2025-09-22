@@ -13,5 +13,5 @@ export const BenefitConfigurationContext = createContext<{
 
 export const CheckConfigurationContext = createContext<{
   check: EligibilityCheck;
-  checkIndex: number;
+  checkIndex: Accessor<number>;
 }>(null);

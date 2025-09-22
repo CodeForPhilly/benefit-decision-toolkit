@@ -31,5 +31,50 @@ export const getAllAvailableChecks = async (): Promise<EligibilityCheck[]> => {
         },
       ],
     },
+    {
+      id: "home_ownership_status",
+      category: "housing",
+      description: "Does the user own a home",
+      inputs: [
+        {
+          key: "home_ownership",
+          prompt: "Do you own a home?",
+          type: "boolean",
+        },
+      ],
+      parameters: [
+        {
+          key: "home_ownership_to_qualify",
+          type: "boolean",
+          label: "Does this check target home owners? (select 'false' to target non-owners)",
+          required: true,
+        },
+      ],
+    },
+    {
+      id: "country_of_residence",
+      category: "location",
+      description: "Check if the user resides in a specific country",
+      inputs: [
+        {
+          key: "country",
+          prompt: "Enter your country of residence",
+          type: "string",
+          validation: {
+            required: true,
+            min_length: 2,
+            max_length: 56,
+          },
+        },
+      ],
+      parameters: [
+        {
+          key: "target_country",
+          type: "string",
+          label: "Country the benefit targets",
+          required: true,
+        },
+      ],
+    }
   ];
 };
