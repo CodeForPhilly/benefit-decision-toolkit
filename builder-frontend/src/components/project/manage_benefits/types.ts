@@ -88,5 +88,7 @@ export interface NumberParameter extends BaseParameter {
 }
 export interface BooleanParameter extends BaseParameter {
   type: "boolean";
+  truthLabel: string;
+  falseLabel: string;
   value?: boolean;
 }

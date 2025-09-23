@@ -45,14 +45,26 @@ const SelectedEligibilityCheck = () => {
           <div class="[&:has(+div)]:mb-2">
             <div class="text-lg font-bold pl-2">Parameters</div>
             <For each={check.parameters}>
-              {(param) => (
-              <div class="flex gap-2 pl-4">
-                <div class="">{titleCase(param.key)}:</div>
-                <div class="">
-                {param.value !== undefined ? param.value.toString() : <span class="text-yellow-700">Not configured</span>}
-                </div>
-              </div>
-              )}
+              {(param) => {
+                const getLabel = () => {
+                  let label = param.value !== undefined ? param.value.toString() : <span class="text-yellow-700">Not configured</span>;
+
+                  if (param.type === "boolean" && param.value !== undefined) {
+                    if (param.value === true) {
+                      label = (param as any).truthLabel;
+                    } else if (param.value === false) {
+                      label = (param as any).falseLabel;
+                    }
+                  }
+                  return label;
+                }
+                return (
+                  <div class="flex gap-2 pl-4">
+                    <div class="">{titleCase(param.key)}:</div>
+                    <div class="">{getLabel()}</div>
+                  </div>
+                );
+              }}
             </For>
           </div>
         )}

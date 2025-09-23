@@ -3,6 +3,7 @@ import { SetStoreFunction } from "solid-js/store";
 
 import AddNewBenefitModal from "./AddNewBenefitModal";
 import ConfirmationModal from "../../ConfirmationModal";
+
 import type { ProjectBenefits as ProjectBenefitsType } from "../types";
 
 

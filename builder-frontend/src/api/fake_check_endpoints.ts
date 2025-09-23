@@ -1,4 +1,4 @@
-import { EligibilityCheck } from "../types";
+import { EligibilityCheck } from "../components/project/manage_benefits/types";
 
 
 export const getAllAvailableChecks = async (): Promise<EligibilityCheck[]> => {
@@ -44,9 +44,11 @@ export const getAllAvailableChecks = async (): Promise<EligibilityCheck[]> => {
       ],
       parameters: [
         {
-          key: "home_ownership_to_qualify",
+          key: "home_ownership",
           type: "boolean",
           label: "Does this check target home owners? (select 'false' to target non-owners)",
+          truthLabel: "Benefit targets homeowners",
+          falseLabel: "Benefit targets non-homeowners",
           required: true,
         },
       ],

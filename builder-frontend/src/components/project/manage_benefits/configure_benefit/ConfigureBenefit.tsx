@@ -1,11 +1,12 @@
 import { createResource, useContext, For } from "solid-js";
 
-import { getAllAvailableChecks } from "./fake_check_endpoints";
 import SelectedEligibilityCheck from "./SelectedEligibilityCheck";
 
-import type { Benefit, EligibilityCheck } from "../types";
 import { BenefitConfigurationContext, CheckConfigurationContext } from "../contexts";
+import { getAllAvailableChecks } from "../../../../api/fake_check_endpoints";
 import { titleCase } from "../../../../utils/title_case";
+
+import type { Benefit, EligibilityCheck } from "../types";
 
 
 const ConfigureBenefit = () => {

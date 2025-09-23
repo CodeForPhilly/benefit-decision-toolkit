@@ -1,8 +1,9 @@
 import { Accessor, For, useContext } from "solid-js";
 
 import { BenefitConfigurationContext, CheckConfigurationContext } from "../contexts";
-import { BooleanParameter, NumberParameter, Parameter, StringParameter } from "../types";
 import { titleCase } from "../../../../utils/title_case";
+
+import type { BooleanParameter, NumberParameter, Parameter, StringParameter } from "../types";
 
 const ConfigureCheckModal = (
   { closeModal }: { closeModal: () => void }
