@@ -1,54 +1,6 @@
 {
   "lockfile_version": "1",
   "packages": {
-    "docker@latest": {
-      "last_modified": "2025-08-08T08:05:48Z",
-      "resolved": "github:NixOS/nixpkgs/a3f3e3f2c983e957af6b07a1db98bafd1f87b7a1#docker",
-      "source": "devbox-search",
-      "version": "28.3.3",
-      "systems": {
-        "aarch64-darwin": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/6x679ch4cqa5aywjsrnplsasv5rp0mak-docker-28.3.3",
-              "default": true
-            }
-          ],
-          "store_path": "/nix/store/6x679ch4cqa5aywjsrnplsasv5rp0mak-docker-28.3.3"
-        },
-        "aarch64-linux": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/8jb799sr948h68avj9k3xkvznv10f470-docker-28.3.3",
-              "default": true
-            }
-          ],
-          "store_path": "/nix/store/8jb799sr948h68avj9k3xkvznv10f470-docker-28.3.3"
-        },
-        "x86_64-darwin": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/g3h7m6qsx5rkb908qcqi4a6kflvcriz5-docker-28.3.3",
-              "default": true
-            }
-          ],
-          "store_path": "/nix/store/g3h7m6qsx5rkb908qcqi4a6kflvcriz5-docker-28.3.3"
-        },
-        "x86_64-linux": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/r0vqz3dsdhw31gyk098qgrw61vwmc7a1-docker-28.3.3",
-              "default": true
-            }
-          ],
-          "store_path": "/nix/store/r0vqz3dsdhw31gyk098qgrw61vwmc7a1-docker-28.3.3"
-        }
-      }
-    },
     "firebase-tools@latest": {
       "last_modified": "2025-08-08T08:05:48Z",
       "resolved": "github:NixOS/nixpkgs/a3f3e3f2c983e957af6b07a1db98bafd1f87b7a1#firebase-tools",
@@ -98,8 +50,8 @@
       }
     },
     "github:NixOS/nixpkgs/nixpkgs-unstable": {
-      "last_modified": "2025-08-25T22:07:10Z",
-      "resolved": "github:NixOS/nixpkgs/84c256e42600cb0fdf25763b48d28df2f25a0c8b?lastModified=1756159630&narHash=sha256-ohMvsjtSVdT%2FbruXf5ClBh8ZYXRmD4krmjKrXhEvwMg%3D"
+      "last_modified": "2025-09-12T04:37:21Z",
+      "resolved": "github:NixOS/nixpkgs/ad4e6dd68c30bc8bd1860a27bc6f0c485bd7f3b6?lastModified=1757651841&narHash=sha256-Lh9QoMzTjY%2FO4LqNwcm6s%2FWSYStDmCH6f3V%2FizwlkHc%3D"
     },
     "google-cloud-sdk@latest": {
       "last_modified": "2025-07-28T17:09:23Z",
@@ -233,77 +185,90 @@
         }
       }
     },
-    "podman@latest": {
-      "last_modified": "2025-08-04T20:54:38Z",
-      "resolved": "github:NixOS/nixpkgs/cab778239e705082fe97bb4990e0d24c50924c04#podman",
+    "nodejs@20": {
+      "last_modified": "2025-08-10T04:38:50Z",
+      "plugin_version": "0.0.2",
+      "resolved": "github:NixOS/nixpkgs/641d909c4a7538f1539da9240dedb1755c907e40#nodejs_20",
       "source": "devbox-search",
-      "version": "5.5.2",
+      "version": "20.19.4",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/d4qsjh71z5imdjn4fkixfq040i0l56bz-podman-5.5.2",
+              "path": "/nix/store/2xza7g9y47n717w43qdd1ikc0y10qh16-nodejs-20.19.4",
               "default": true
             },
             {
-              "name": "man",
-              "path": "/nix/store/lzqbp5rjw8zldnwy7zzzp6z5lffilsmh-podman-5.5.2-man",
-              "default": true
+              "name": "dev",
+              "path": "/nix/store/yvcblmgwq9md8f2mpw8ra2cf3b7jkm7b-nodejs-20.19.4-dev"
+            },
+            {
+              "name": "libv8",
+              "path": "/nix/store/x5b5wq2qjfq9di05qlja0wd7ypqcnxc8-nodejs-20.19.4-libv8"
             }
           ],
-          "store_path": "/nix/store/d4qsjh71z5imdjn4fkixfq040i0l56bz-podman-5.5.2"
+          "store_path": "/nix/store/2xza7g9y47n717w43qdd1ikc0y10qh16-nodejs-20.19.4"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/rq6rlyb9ihran9jqsadq6rgv5vc5ri1h-podman-5.5.2",
+              "path": "/nix/store/rpk03376gp4vrjrahx11ncr50ji6cvhw-nodejs-20.19.4",
               "default": true
             },
             {
-              "name": "man",
-              "path": "/nix/store/b81md27ig417wpqmgpj6a6lzb3vcd0b6-podman-5.5.2-man",
-              "default": true
+              "name": "dev",
+              "path": "/nix/store/qai8hc7vnmxil2b9ab86gv2wrg5yx67q-nodejs-20.19.4-dev"
+            },
+            {
+              "name": "libv8",
+              "path": "/nix/store/4d388d34pvahifbini4a28wm1wzi9c6l-nodejs-20.19.4-libv8"
             }
           ],
-          "store_path": "/nix/store/rq6rlyb9ihran9jqsadq6rgv5vc5ri1h-podman-5.5.2"
+          "store_path": "/nix/store/rpk03376gp4vrjrahx11ncr50ji6cvhw-nodejs-20.19.4"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/in7kybnm92wgpkz9vrdpwq6a4z2vzcqb-podman-5.5.2",
+              "path": "/nix/store/x7ail2dy0fi3742yridnnk3hdlp16cls-nodejs-20.19.4",
               "default": true
             },
             {
-              "name": "man",
-              "path": "/nix/store/gw2ia71qbhxnjf5xw2qa66kih03k0543-podman-5.5.2-man",
-              "default": true
+              "name": "dev",
+              "path": "/nix/store/pcjlzxxfrgvw9pp0ir5v58h7n1al9xrn-nodejs-20.19.4-dev"
+            },
+            {
+              "name": "libv8",
+              "path": "/nix/store/zjmxxl948wyf7vczhz56rh6nmmysm6bl-nodejs-20.19.4-libv8"
             }
           ],
-          "store_path": "/nix/store/in7kybnm92wgpkz9vrdpwq6a4z2vzcqb-podman-5.5.2"
+          "store_path": "/nix/store/x7ail2dy0fi3742yridnnk3hdlp16cls-nodejs-20.19.4"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/la6fdv93ng406rl4rkc372f0l7qbx51p-podman-5.5.2",
+              "path": "/nix/store/l62aza10kx0xp1f235q2lbrzzqj5lcs9-nodejs-20.19.4",
               "default": true
             },
             {
-              "name": "man",
-              "path": "/nix/store/3w7yy7xg9lzirnnk30dahcblfnxr4ldx-podman-5.5.2-man",
-              "default": true
+              "name": "dev",
+              "path": "/nix/store/a73v659hn20f543z519cmm3vplah8pns-nodejs-20.19.4-dev"
+            },
+            {
+              "name": "libv8",
+              "path": "/nix/store/5q0dhajwwv1pfwnkm79wphvgi19wi49c-nodejs-20.19.4-libv8"
             }
           ],
-          "store_path": "/nix/store/la6fdv93ng406rl4rkc372f0l7qbx51p-podman-5.5.2"
+          "store_path": "/nix/store/l62aza10kx0xp1f235q2lbrzzqj5lcs9-nodejs-20.19.4"
         }
       }
     },
     "quarkus@latest": {
-      "last_modified": "2025-07-28T17:09:23Z",
-      "resolved": "github:NixOS/nixpkgs/648f70160c03151bc2121d179291337ad6bc564b#quarkus",
+      "last_modified": "2025-08-11T16:06:55Z",
+      "resolved": "github:NixOS/nixpkgs/4e942f9ef5b35526597c354d1ded817d1c285ef1#quarkus",
       "source": "devbox-search",
       "version": "3.24.5",
       "systems": {
