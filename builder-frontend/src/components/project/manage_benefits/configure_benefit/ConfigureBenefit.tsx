@@ -43,7 +43,7 @@ const ConfigureBenefit = () => {
         <div class="flex-2 border-2 border-gray-200 rounded-lg">
           <div class="p-4">
             <div class="text-2xl font-bold mb-2">
-              Available Sub-Checks
+              Available eligibility checks
             </div>
             <div>
               Browse and select pre-built checks to add to your benefit.
@@ -73,13 +73,13 @@ const ConfigureBenefit = () => {
         </div>
         <div class="flex-1">
           <div class="px-4 pb-4 text-2xl font-bold">
-            Selected Sub-Checks for {benefit().name}
+            Selected eligibility checks for {benefit().name}
           </div>
 
           <div class="px-4">
             {benefit().checks.length === 0 && (
               <div class="text-gray-500">
-                No sub-checks selected. Use the checkboxes to add sub-checks to this benefit.
+                No eligibility checks selected. Use the checkboxes to add checks to this benefit.
               </div>
             )}
             {benefit().checks.length > 0 && (
@@ -123,5 +123,4 @@ const EligibilityCheckRow = (
     </tr>
   );
 };
-
 export default ConfigureBenefit;

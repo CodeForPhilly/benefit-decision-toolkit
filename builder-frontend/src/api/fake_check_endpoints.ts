@@ -7,9 +7,9 @@ export const getAllAvailableChecks = async (): Promise<EligibilityCheck[]> => {
 
   return [
     {
-      id: "age_greater_than_value",
+      id: "minimum_age_requirement",
       category: "demographic",
-      description: "Check if the user's age is greater than a specified value",
+      description: "Checks if the user's age is greater than a specified value",
       inputs: [
         {
           key: "age",
@@ -34,7 +34,7 @@ export const getAllAvailableChecks = async (): Promise<EligibilityCheck[]> => {
     {
       id: "home_ownership_status",
       category: "housing",
-      description: "Does the user own a home",
+      description: "Checks if the user owns a home",
       inputs: [
         {
           key: "home_ownership",
@@ -46,7 +46,7 @@ export const getAllAvailableChecks = async (): Promise<EligibilityCheck[]> => {
         {
           key: "home_ownership",
           type: "boolean",
-          label: "Does this check target home owners? (select 'false' to target non-owners)",
+          label: "Does this check target home owners?",
           truthLabel: "Benefit targets homeowners",
           falseLabel: "Benefit targets non-homeowners",
           required: true,
@@ -54,29 +54,48 @@ export const getAllAvailableChecks = async (): Promise<EligibilityCheck[]> => {
       ],
     },
     {
-      id: "country_of_residence",
-      category: "location",
-      description: "Check if the user resides in a specific country",
+      id: "veteran_status",
+      category: "demographic",
+      description: "Checks if the user is a veteran",
       inputs: [
         {
-          key: "country",
-          prompt: "Enter your country of residence",
-          type: "string",
-          validation: {
-            required: true,
-            min_length: 2,
-            max_length: 56,
-          },
+          key: "veteran_status",
+          prompt: "Are you a veteran?",
+          type: "boolean",
         },
       ],
       parameters: [
         {
-          key: "target_country",
-          type: "string",
-          label: "Country the benefit targets",
+          key: "veteran_status",
+          type: "boolean",
+          label: "Does this check target veterans?",
+          truthLabel: "Benefit targets veterans",
+          falseLabel: "Benefit targets non-veterans",
           required: true,
         },
       ],
-    }
+    },
+    {
+      id: "philadelphia_resident",
+      category: "location",
+      description: "Checks if the user lives in Philadelphia",
+      inputs: [
+        {
+          key: "philadelphia_resident",
+          prompt: "Are you currently a Philadelphia resident?",
+          type: "boolean",
+        },
+      ],
+      parameters: [
+        {
+          key: "philadelphia_resident",
+          type: "boolean",
+          label: "Does this check target Philadelphia residents?",
+          truthLabel: "Benefit targets Philadelphia residents",
+          falseLabel: "Benefit targets non-residents",
+          required: true,
+        },
+      ],
+    },
   ];
 };

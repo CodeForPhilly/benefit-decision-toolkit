@@ -9,7 +9,8 @@
       cursor-pointer select-none rounded-md
   }
   .btn-default.btn-gray {
-    @apply hover:bg-gray-200;
+    @apply bg-white hover:bg-gray-200;
+    /* @apply bg-white hover:bg-gray-200 hover:scale-500 transition-all duration-1000; */
   }
   .btn-default.btn-red {
     @apply bg-red-800 hover:bg-red-900 text-white;

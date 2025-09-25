@@ -1,7 +1,8 @@
 import { createSignal, Accessor } from "solid-js";
 import { createStore } from "solid-js/store"
+import { useParams } from "@solidjs/router";
 
-import ProjectBenefits from "./project_benefits/ProjectBenefits";
+import ProjectBenefits from "./benefit_list/BenefitList";
 import ConfigureBenefit from "./configure_benefit/ConfigureBenefit";
 
 import { BenefitConfigurationContext } from "./contexts";
@@ -10,13 +11,15 @@ import { handleScreenerApiUpdates } from "./handleScreenerApiUpdates";
 import type { ProjectBenefits as ProjectBenefitsType, Benefit } from "./types";
 
 
-const ManageBenefits = ({ screenerId }: { screenerId: string }) => {
+const ManageBenefits = () => {
+  const params = useParams();
+
   const [projectBenefits, setProjectBenefits] = createStore<ProjectBenefitsType>(
     {
       benefits: [{
         id: crypto.randomUUID(),
-        name: "Example Benefit",
-        description: "Description of the new benefit",
+        name: "Non-Profit Benefit",
+        description: "Awesome benefit that a Non-Profit wants to configure.",
         checks: [],
       }]
     }
@@ -31,7 +34,7 @@ const ManageBenefits = ({ screenerId }: { screenerId: string }) => {
   };
 
   // Handle API updates whenever projectBenefits changes
-  handleScreenerApiUpdates(screenerId, projectBenefits);
+  handleScreenerApiUpdates(params.projectId, projectBenefits);
 
   return (
     <div class="px-5 py-2">

@@ -1,8 +1,9 @@
 import { createSignal, For, useContext } from "solid-js";
 
+import SelectedCheckModal from "./ConfigureCheckModal";
+
 import { CheckConfigurationContext } from "../contexts";
 import { titleCase } from "../../../../utils/title_case";
-import SelectedCheckModal from "./ConfigureCheckModal";
 
 
 const SelectedEligibilityCheck = () => {

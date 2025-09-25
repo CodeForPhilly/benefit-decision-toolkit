@@ -6,9 +6,9 @@ type NewBenefitValues = {
   name: string;
   description: string;
 }
-const AddNewBenefitPopup = (
-  { setProjectBenefits, setAddingNewBenefit }:
-  { setProjectBenefits: SetStoreFunction<ProjectBenefitsType>; setAddingNewBenefit: (value: boolean) => void }
+const AddNewBenefitModal = (
+  { setProjectBenefits, closeModal }:
+  { setProjectBenefits: SetStoreFunction<ProjectBenefitsType>; closeModal: () => void }
 ) => {
   const [newBenefit, setNewBenefit] = createStore<NewBenefitValues>({ name: "", description: "" });
 
@@ -61,7 +61,7 @@ const AddNewBenefitPopup = (
           <div
             class="btn-default hover:bg-gray-200"
             onClick={() => {
-              setAddingNewBenefit(false);
+              closeModal();
             }}
           >
             Cancel
@@ -74,7 +74,7 @@ const AddNewBenefitPopup = (
                 return;
               }
               addNewBenefit();
-              setAddingNewBenefit(false);
+              closeModal();
             }}
           >
             Add Benefit
@@ -84,4 +84,4 @@ const AddNewBenefitPopup = (
     </div>
   );
 }
-export default AddNewBenefitPopup;
+export default AddNewBenefitModal;

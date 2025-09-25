@@ -1,7 +1,7 @@
 /* @refresh reload */
 import { render } from "solid-js/web";
 import "./index.css";
-import App from "./App.jsx";
+import App from "./App";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { Router } from "@solidjs/router";
 

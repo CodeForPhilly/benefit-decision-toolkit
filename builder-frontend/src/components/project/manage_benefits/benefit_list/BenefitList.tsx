@@ -3,11 +3,12 @@ import { SetStoreFunction } from "solid-js/store";
 
 import AddNewBenefitModal from "./AddNewBenefitModal";
 import ConfirmationModal from "../../ConfirmationModal";
+import SelectExistingBenefitModal from "./SelectExistingBenefitModal";
 
 import type { ProjectBenefits as ProjectBenefitsType } from "../types";
 
 
-const ProjectBenefits = (
+const BenefitList = (
   { projectBenefits, setProjectBenefits, setBenefitIndexToConfigure }:
   {
     projectBenefits: ProjectBenefitsType
@@ -16,6 +17,7 @@ const ProjectBenefits = (
   }
 ) => {
   const [addingNewBenefit, setAddingNewBenefit] = createSignal<boolean>(false);
+  const [selectExistingBenefitModal, setSelectExistingBenefitModal] = createSignal<boolean>(false);
   const [benefitIndexToRemove, setBenefitIndexToRemove] = createSignal<null | number>(null);
 
   const removeBenefit = (benefitIndex: number) => {
@@ -39,10 +41,16 @@ const ProjectBenefits = (
         Each benefit can have associated sub-checks.
       </div>
       <div
-        class="btn-default btn-blue mb-3"
+        class="btn-default btn-blue mb-3 mr-1"
         onClick={() => {setAddingNewBenefit(true)}}
       >
-        + Add New Benefit
+        Create new Benefit
+      </div>
+      <div
+        class="btn-default btn-blue mb-3"
+        onClick={() => {setSelectExistingBenefitModal(true)}}
+      >
+        Copy from existing Benefit
       </div>
       <div
         class="
@@ -64,7 +72,7 @@ const ProjectBenefits = (
                     id={"benefit-card-details-" + benefit.id}
                     class="p-4 border-bottom border-gray-300 flex-1"
                   >
-                    <div class="text-2xl mb-2 font-bold tracking-wide">
+                    <div class="text-2xl mb-2 font-bold">
                       {benefit.name}
                     </div>
                     <div>
@@ -99,7 +107,11 @@ const ProjectBenefits = (
       </div>
       {
         addingNewBenefit() &&
-        <AddNewBenefitModal setAddingNewBenefit={setAddingNewBenefit} setProjectBenefits={setProjectBenefits} />
+        <AddNewBenefitModal closeModal={() => setAddingNewBenefit(false)} setProjectBenefits={setProjectBenefits} />
+      }
+      {
+        selectExistingBenefitModal() &&
+        <SelectExistingBenefitModal closeModal={() => setSelectExistingBenefitModal(false)} setProjectBenefits={setProjectBenefits} />
       }
       {
         benefitIndexToRemove() !== null &&
@@ -116,4 +128,4 @@ const ProjectBenefits = (
     </div>
   )
 };
-export default ProjectBenefits;
+export default BenefitList;

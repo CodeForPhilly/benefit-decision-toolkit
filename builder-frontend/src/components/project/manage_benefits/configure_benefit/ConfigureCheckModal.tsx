@@ -8,7 +8,7 @@ import type { BooleanParameter, NumberParameter, Parameter, StringParameter } fr
 const ConfigureCheckModal = (
   { closeModal }: { closeModal: () => void }
 ) => {
-  const {check} = useContext(CheckConfigurationContext);
+  const { check } = useContext(CheckConfigurationContext);
   
   return (
     <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
