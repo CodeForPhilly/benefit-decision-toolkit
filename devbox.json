@@ -8,6 +8,13 @@
     "firebase-tools@latest",
     "google-cloud-sdk@latest"
   ],
+  "env": {
+        "QUARKUS_GOOGLE_CLOUD_PROJECT_ID": "demo-bdt-dev",
+        "QUARKUS_GOOGLE_CLOUD_FIREBASE_AUTH_EMULATOR_HOST": "localhost:9099",
+        "QUARKUS_GOOGLE_CLOUD_STORAGE_HOST_OVERRIDE": "http://127.0.0.1:9199",
+        "GCS_BUCKET_NAME": "demo-bdt-dev.appspot.com",
+        "FIRESTORE_EMULATOR_HOST": "127.0.0.1:8080"
+  },
   "shell": {
     "init_hook": [
       "echo 'Welcome to devbox!'",

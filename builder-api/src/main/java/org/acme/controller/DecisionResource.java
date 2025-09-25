@@ -10,7 +10,8 @@ import org.acme.persistence.StorageService;
 import org.acme.service.DmnParser;
 import org.acme.service.DmnService;
 
-import java.io.InputStream;
+import io.quarkus.logging.Log;
+
 import java.time.Instant;
 import java.util.*;
 
@@ -67,6 +68,7 @@ public class DecisionResource {
             return Response.ok().entity(result).build();
 
         } catch (Exception e){
+            Log.error("Error evaluating decision: ", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }

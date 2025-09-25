@@ -1,6 +1,8 @@
 package org.acme.repository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import org.acme.constants.CollectionNames;
 import org.acme.model.Screener;
 
@@ -12,6 +14,9 @@ import java.util.Optional;
 
 @ApplicationScoped
 public class ScreenerRepositoryImpl implements ScreenerRepository {
+
+    @Inject
+    StorageUtils storageUtils;
 
     @Override
     public Optional<Screener> getScreener(String screenerId) {
@@ -26,8 +31,8 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
         ObjectMapper mapper = new ObjectMapper();
         Screener screener = mapper.convertValue(data, Screener.class);
 
-        String formPath = StorageUtils.getScreenerPublishedFormSchemaPath(screenerId);
-        Map<String, Object>  formSchema = StorageUtils.getFormSchemaFromStorage(formPath);
+        String formPath = storageUtils.getScreenerPublishedFormSchemaPath(screenerId);
+        Map<String, Object>  formSchema = storageUtils.getFormSchemaFromStorage(formPath);
         screener.setFormSchema(formSchema);
 
         return Optional.of(screener);
