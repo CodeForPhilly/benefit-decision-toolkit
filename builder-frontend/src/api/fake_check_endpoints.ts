@@ -1,4 +1,4 @@
-import { EligibilityCheck } from "../components/project/manage_benefits/types";
+import { EligibilityCheck } from "../components/project/manageBenefits/types";
 
 
 export const getAllAvailableChecks = async (): Promise<EligibilityCheck[]> => {

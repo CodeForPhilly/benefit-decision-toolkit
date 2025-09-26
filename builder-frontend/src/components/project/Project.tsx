@@ -4,7 +4,7 @@ import { useParams } from "@solidjs/router";
 import FormEditorView from "./FormEditorView";
 import Header from "../Header";
 import Loading from "../Loading";
-import ManageBenefits from "./manage_benefits";
+import ManageBenefits from "./manageBenefits";
 import Preview from "./Preview";
 import Publish from "./Publish";
 

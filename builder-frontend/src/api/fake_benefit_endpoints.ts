@@ -1,4 +1,4 @@
-import { Benefit } from "../components/project/manage_benefits/types";
+import { Benefit } from "../components/project/manageBenefits/types";
 
 
 export const getAllAvailableBenefits = async (): Promise<Benefit[]> => {

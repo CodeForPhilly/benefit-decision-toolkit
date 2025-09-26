@@ -2,8 +2,8 @@ import { createSignal, Accessor } from "solid-js";
 import { createStore } from "solid-js/store"
 import { useParams } from "@solidjs/router";
 
-import ProjectBenefits from "./benefit_list/BenefitList";
-import ConfigureBenefit from "./configure_benefit/ConfigureBenefit";
+import ProjectBenefits from "./benefitList/BenefitList";
+import ConfigureBenefit from "./configureBenefit/ConfigureBenefit";
 
 import { BenefitConfigurationContext } from "./contexts";
 import { handleScreenerApiUpdates } from "./handleScreenerApiUpdates";
