@@ -2,6 +2,7 @@ import { createStore, SetStoreFunction } from "solid-js/store"
 
 import type { ProjectBenefits as ProjectBenefitsType } from "../types";
 
+
 type NewBenefitValues = {
   name: string;
   description: string;

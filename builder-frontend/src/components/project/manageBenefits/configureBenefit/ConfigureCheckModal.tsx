@@ -5,6 +5,7 @@ import { titleCase } from "../../../../utils/title_case";
 
 import type { BooleanParameter, NumberParameter, Parameter, StringParameter } from "../types";
 
+
 const ConfigureCheckModal = (
   { closeModal }: { closeModal: () => void }
 ) => {

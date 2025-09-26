@@ -5,8 +5,6 @@ import ProjectsList from "./components/projectsList/ProjectsList";
 import AuthForm from "./components/auth/AuthForm";
 import { useAuth } from "./context/AuthContext";
 
-import ManageBenefits from "./components/project/manageBenefits/ManageBenefits";
-
 import "./App.css";
 
 

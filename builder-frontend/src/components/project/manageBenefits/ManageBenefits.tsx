@@ -37,7 +37,7 @@ const ManageBenefits = () => {
   handleScreenerApiUpdates(params.projectId, projectBenefits);
 
   return (
-    <div class="px-5 py-2">
+    <div class="px-4">
       {
         benefitIndexToConfigure() === null && (
           <ProjectBenefits
