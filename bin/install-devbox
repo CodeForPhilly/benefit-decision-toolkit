@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+source "$SCRIPT_DIR/functions"
+
+# Check if we're in the right directory
+# TODO: actually check the directory as well as the devbox.json?
+if [ ! -f "devbox.json" ]; then
+  print_error "Please run this script from the root of the benefit-decision-toolkit project"
+  exit 1
+fi
+
+print_status "🔍 Checking for existing devbox installation..."
+
+if ! command_exists devbox; then
+  print_warning "Devbox not found. Installing devbox..."
+  if command_exists curl; then
+    curl -fsSL https://get.jetify.com/devbox/install.sh | bash
+    print_success "Devbox installed"
+  else
+    print_error "curl not found. Please install devbox manually: https://www.jetify.com/devbox/docs/contributor-quickstart/"
+    exit 1
+  fi
+else
+  print_status "devbox already installed."
+fi
+
+print_status "📦 Setting up devbox environment..."
+if [ -f "devbox.json" ]; then
+  devbox install
+  print_success "Devbox environment initialized"
+else
+  print_error "devbox.json not found"
+  exit 1
+fi

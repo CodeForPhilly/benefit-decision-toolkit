@@ -44,12 +44,38 @@ If you are interested in getting involved with the project, check out [our page 
 
 ## Local Development Setup
 
+Clone this repository:
 ```bash
 git clone https://github.com/CodeForPhilly/benefit-decision-toolkit.git
+```
 
+Go to the project's root directory:
+```bash
 cd benefit-decision-toolkit
 ```
 
-You can find instructions to work on each app within the project in their respective directories, which are linked above.
+To setup using the pre-defined [Devbox](https://www.jetify.com/docs/devbox/) configuration:
+*Note that this installs Devbox and Nix (if they aren't already installed).
+```bash
+bin/install-devbox && devbox run setup
+```
 
-Note that for the frontend apps, you will need an environment variable file from a teammate. Please do not commit this file to the repo.
+If you don't want to use devbox/nix, then you can install system dependencies (e.g. JDK, Node, Maven) manually (see devbox.json for the list) and run:
+```bash
+bin/setup
+```
+
+If using devbox, then run the shell to load dependencies:
+```bash
+devbox shell
+# Consider using direnv and/or the VS Code extensions (Devbox and Direnv) to automate this step.
+```
+
+Then start apps as needed, e.g.:
+```bash
+cd builder-frontend && npm run dev
+```
+
+You can find additional instructions to work on each app within the project in their respective directories, which are linked above.
+
+Note that for the frontend apps, you will need a .env file from a teammate. Please do not commit this file to the repo.
