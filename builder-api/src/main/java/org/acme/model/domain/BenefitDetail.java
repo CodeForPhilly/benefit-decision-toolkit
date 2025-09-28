@@ -1,6 +1,7 @@
 package org.acme.model.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /*
 This object contains the metadata required to display high level information about a Benefit. This is stored directly on
@@ -13,6 +14,8 @@ public class BenefitDetail {
     private String id;
     private String name;
     private String description;
+    @JsonProperty("isPublic")
+    private Boolean isPublic;
 
     public String getId() {
         return id;
@@ -36,5 +39,13 @@ public class BenefitDetail {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Boolean getPublic() {
+        return isPublic;
+    }
+
+    public void setPublic(Boolean aPublic) {
+        isPublic = aPublic;
     }
 }

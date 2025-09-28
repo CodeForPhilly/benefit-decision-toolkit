@@ -1,24 +1,21 @@
 package org.acme.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
 import jakarta.inject.Inject;
-import jakarta.inject.Named;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.acme.auth.AuthUtils;
-import org.acme.model.domain.Benefit;
-import org.acme.model.domain.BenefitDetail;
+import org.acme.model.domain.*;
 import org.acme.model.dto.DmnImportRequest;
 import org.acme.model.dto.PublishScreenerRequest;
 import org.acme.model.dto.SaveDmnRequest;
 import org.acme.model.dto.SaveSchemaRequest;
-import org.acme.model.domain.Screener;
 import org.acme.persistence.BenefitRepository;
+import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.ScreenerRepository;
 import org.acme.persistence.StorageService;
 import org.acme.service.DmnService;
@@ -39,6 +36,9 @@ public class ScreenerResource {
 
     @Inject
     BenefitRepository benefitRepository;
+
+    @Inject
+    EligibilityCheckRepository eligibilityCheckRepository;
 
     @Inject
     StorageService storageService;
@@ -80,7 +80,7 @@ public class ScreenerResource {
 
         Screener screener = screenerOptional.get();
 
-        if (!isUserAuthorizedToAccessScreener(userId, screener)) return Response.status(Response.Status.UNAUTHORIZED).build();
+        if (!isUserAuthorizedToAccessScreenerByScreener(userId, screener)) return Response.status(Response.Status.UNAUTHORIZED).build();
 
         return Response.ok(screener, MediaType.APPLICATION_JSON).build();
     }
@@ -113,7 +113,7 @@ public class ScreenerResource {
     @Path("/screener")
     public Response updateScreener(@Context ContainerRequestContext requestContext, Screener screener){
         String userId = AuthUtils.getUserId(requestContext);
-        if (!isUserAuthorizedToAccessScreener(userId, screener.getId())) return Response.status(Response.Status.UNAUTHORIZED).build();
+        if (!isUserAuthorizedToAccessScreenerByScreenerId(userId, screener.getId())) return Response.status(Response.Status.UNAUTHORIZED).build();
 
         //add user info to the update data
         screener.setOwnerId(userId);
@@ -143,7 +143,7 @@ public class ScreenerResource {
         }
 
         String userId = AuthUtils.getUserId(requestContext);
-        if (!isUserAuthorizedToAccessScreener(userId, saveSchemaRequest.screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
+        if (!isUserAuthorizedToAccessScreenerByScreenerId(userId, saveSchemaRequest.screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
 
         JsonNode schema = saveSchemaRequest.schema;
         if (schema == null){
@@ -176,7 +176,7 @@ public class ScreenerResource {
         }
 
         String userId = AuthUtils.getUserId(requestContext);
-        if (!isUserAuthorizedToAccessScreener(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
+        if (!isUserAuthorizedToAccessScreenerByScreenerId(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
 
         if (dmnModel == null){
             return Response.status(Response.Status.BAD_REQUEST)
@@ -214,7 +214,7 @@ public class ScreenerResource {
         }
 
         String userId = AuthUtils.getUserId(requestContext);
-        if (!isUserAuthorizedToAccessScreener(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
+        if (!isUserAuthorizedToAccessScreenerByScreenerId(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
 
         try {
             //update published form schema
@@ -259,7 +259,7 @@ public class ScreenerResource {
         }
 
         String userId = AuthUtils.getUserId(requestContext);
-        if (!isUserAuthorizedToAccessScreener(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
+        if (!isUserAuthorizedToAccessScreenerByScreenerId(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
 
         try {
             Screener updateScreener = new Screener();
@@ -285,7 +285,7 @@ public class ScreenerResource {
         }
 
         String userId = AuthUtils.getUserId(requestContext);
-        if (!isUserAuthorizedToAccessScreener(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
+        if (!isUserAuthorizedToAccessScreenerByScreenerId(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
 
         try {
             screenerRepository.deleteScreener(screenerId);
@@ -296,21 +296,16 @@ public class ScreenerResource {
         }
     }
 
-
-    private boolean isUserAuthorizedToAccessScreener(String userId, Screener screener) {
-        String ownerId = screener.getOwnerId();
-        if (userId.equals(ownerId)){
-            return true;
-        }
-        return false;
-    }
-
-    private boolean isUserAuthorizedToAccessScreener(String userId, String screenerId) {
+    private boolean isUserAuthorizedToAccessScreenerByScreenerId(String userId, String screenerId) {
         Optional<Screener> screenerOptional = screenerRepository.getScreenerMetaDataOnly(screenerId);
         if (screenerOptional.isEmpty()){
             return false;
         }
         Screener screener = screenerOptional.get();
+        return isUserAuthorizedToAccessScreenerByScreener(userId, screener);
+    }
+
+    private boolean isUserAuthorizedToAccessScreenerByScreener(String userId, Screener screener) {
         String ownerId = screener.getOwnerId();
         if (userId.equals(ownerId)){
             return true;
@@ -339,13 +334,73 @@ public class ScreenerResource {
         return screenerDependencyService.deleteDependency(request, userId);
     }
 
+    @GET
+    @Path("/screener/{screenerId}/benefit")
+    public Response getScreenerBenefits(@Context ContainerRequestContext requestContext,
+                                        @PathParam("screenerId") String screenerId){
+
+        String userId = AuthUtils.getUserId(requestContext);
+
+        Optional<Screener> screenerOpt = screenerRepository.getScreener(screenerId);
+        if (screenerOpt.isEmpty()){
+            throw new NotFoundException();
+        }
+        Screener screener = screenerOpt.get();
+
+        if (!isUserAuthorizedToAccessScreenerByScreener(userId, screener)){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        try{
+            List<Benefit> benefits = benefitRepository.getBenefitsInScreener(screener);
+            return Response.ok().entity(benefits).build();
+        } catch (Exception e){
+            Log.error(e);
+            return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Could not fetch benefits"))
+                    .build();
+        }
+    }
+
+    @GET
+    @Path("/screener/{screenerId}/benefit/{benefitId}/check")
+    public Response getScreenerCustomBenefitChecks(@Context ContainerRequestContext requestContext,
+                                                    @PathParam("screenerId") String screenerId,
+                                                    @PathParam("benefitId") String benefitId){
+        try{
+        String userId = AuthUtils.getUserId(requestContext);
+
+        Optional<Screener> screenerOpt = screenerRepository.getScreener(screenerId);
+        if (screenerOpt.isEmpty()){
+            throw new NotFoundException();
+        }
+        Screener screener = screenerOpt.get();
+
+        if (!isUserAuthorizedToAccessScreenerByScreener(userId, screener)){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        Optional<Benefit> benefitOpt = benefitRepository.getCustomBenefit(screenerId, benefitId);
+        if (benefitOpt.isEmpty()) {
+            throw new NotFoundException();
+        }
+
+        List<EligibilityCheck> checks = eligibilityCheckRepository.getChecksInBenefit(benefitOpt.get());
+        return Response.ok().entity(checks).build();
+        } catch (Exception e){
+            Log.error(e);
+            return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Could not fetch checks"))
+                    .build();
+        }
+    }
+
     @POST
-    @Path("/screener/{screenerId}/customBenefit")
+    @Path("/screener/{screenerId}/benefit")
     public Response addCustomBenefit(@Context ContainerRequestContext requestContext,
                                   @PathParam("screenerId") String screenerId,
                                   Benefit newBenefit) {
         String userId = AuthUtils.getUserId(requestContext);
-        if (!isUserAuthorizedToAccessScreener(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
 
         newBenefit.setOwnerId(userId);
 
@@ -353,7 +408,7 @@ public class ScreenerResource {
         benefitDetail.setId(newBenefit.getId());
         benefitDetail.setName(newBenefit.getName());
         benefitDetail.setDescription(newBenefit.getDescription());
-
+        benefitDetail.setPublic(newBenefit.getPublic());
         try {
             // Check to make sure not introducing duplicates
             Optional<Screener> screenerOpt = screenerRepository.getScreener(screenerId);
@@ -361,8 +416,13 @@ public class ScreenerResource {
                 Log.error("Screener not found. Screener ID:" + screenerId);
                 throw new NotFoundException();
             }
-            List<BenefitDetail> benefits = screenerOpt.get().getBenefits();
 
+            Screener screener = screenerOpt.get();
+
+            // Authorise action
+            if (userId != null && !isUserAuthorizedToAccessScreenerByScreener(userId, screener)) return Response.status(Response.Status.UNAUTHORIZED).build();
+
+            List<BenefitDetail> benefits = screenerOpt.get().getBenefits();
             Boolean benefitIdExists = !benefits.stream().filter(benefit -> benefit.getId().equals(benefitDetail.getId())).toList().isEmpty();
 
             if (benefitIdExists){
