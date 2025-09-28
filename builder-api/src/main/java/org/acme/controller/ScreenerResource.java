@@ -11,11 +11,14 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.acme.auth.AuthUtils;
+import org.acme.model.domain.Benefit;
+import org.acme.model.domain.BenefitDetail;
 import org.acme.model.dto.DmnImportRequest;
 import org.acme.model.dto.PublishScreenerRequest;
 import org.acme.model.dto.SaveDmnRequest;
 import org.acme.model.dto.SaveSchemaRequest;
 import org.acme.model.domain.Screener;
+import org.acme.persistence.BenefitRepository;
 import org.acme.persistence.ScreenerRepository;
 import org.acme.persistence.StorageService;
 import org.acme.service.DmnService;
@@ -33,6 +36,9 @@ public class ScreenerResource {
 
     @Inject
     ScreenerRepository screenerRepository;
+
+    @Inject
+    BenefitRepository benefitRepository;
 
     @Inject
     StorageService storageService;
@@ -331,5 +337,47 @@ public class ScreenerResource {
     public Response deleteDependency(@Context ContainerRequestContext requestContext, DmnImportRequest request){
         String userId = AuthUtils.getUserId(requestContext);
         return screenerDependencyService.deleteDependency(request, userId);
+    }
+
+    @POST
+    @Path("/screener/{screenerId}/customBenefit")
+    public Response addCustomBenefit(@Context ContainerRequestContext requestContext,
+                                  @PathParam("screenerId") String screenerId,
+                                  Benefit newBenefit) {
+        String userId = AuthUtils.getUserId(requestContext);
+        if (!isUserAuthorizedToAccessScreener(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
+
+        newBenefit.setOwnerId(userId);
+
+        BenefitDetail benefitDetail = new BenefitDetail();
+        benefitDetail.setId(newBenefit.getId());
+        benefitDetail.setName(newBenefit.getName());
+        benefitDetail.setDescription(newBenefit.getDescription());
+
+        try {
+            // Check to make sure not introducing duplicates
+            Optional<Screener> screenerOpt = screenerRepository.getScreener(screenerId);
+            if (screenerOpt.isEmpty()){
+                Log.error("Screener not found. Screener ID:" + screenerId);
+                throw new NotFoundException();
+            }
+            List<BenefitDetail> benefits = screenerOpt.get().getBenefits();
+
+            Boolean benefitIdExists = !benefits.stream().filter(benefit -> benefit.getId().equals(benefitDetail.getId())).toList().isEmpty();
+
+            if (benefitIdExists){
+                return  Response.status(Response.Status.CONFLICT.getStatusCode(), "Benefit with provided ID already exists on screener.").build();
+            }
+
+            String benefitId = benefitRepository.saveNewCustomBenefit(screenerId, newBenefit);
+            screenerRepository.addBenefitDetailToScreener(screenerId, benefitDetail);
+            newBenefit.setId(benefitId);
+            return Response.ok(newBenefit, MediaType.APPLICATION_JSON).build();
+        } catch (Exception e){
+            Log.error(e);
+            return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Could not save benefit"))
+                    .build();
+        }
     }
 }

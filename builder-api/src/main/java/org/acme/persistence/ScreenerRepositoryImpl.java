@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.acme.constants.CollectionNames;
 import org.acme.constants.FieldNames;
+import org.acme.model.domain.BenefitDetail;
 import org.acme.model.domain.DmnModel;
 import org.acme.model.domain.Screener;
 
@@ -93,6 +94,12 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
         data.remove("formSchema");
 
         FirestoreUtils.updateDocument(CollectionNames.SCREENER_COLLECTION, data, screener.getId());
+    }
+
+    public void addBenefitDetailToScreener(String screenerId, BenefitDetail benefitDetail) throws Exception {
+        ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Map<String, Object> data = mapper.convertValue(benefitDetail, Map.class);
+        FirestoreUtils.addObjectToArrayField(CollectionNames.SCREENER_COLLECTION, screenerId, FieldNames.BENEFITS, data);
     }
 
     @Override

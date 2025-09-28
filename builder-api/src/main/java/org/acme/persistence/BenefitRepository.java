@@ -10,4 +10,7 @@ public interface BenefitRepository {
 
     Optional<Benefit> getBenefit(String benefitId);
 
+    String saveNewBenefit(Benefit benefit) throws Exception;
+
+    String saveNewCustomBenefit(String ScreenerId, Benefit benefit) throws Exception;
 }

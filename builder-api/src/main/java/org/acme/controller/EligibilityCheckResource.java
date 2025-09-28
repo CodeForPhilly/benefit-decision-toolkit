@@ -4,6 +4,7 @@ package org.acme.controller;
 import io.quarkus.logging.Log;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.container.ContainerRequestContext;
@@ -15,6 +16,7 @@ import org.acme.model.domain.EligibilityCheck;
 import org.acme.persistence.EligibilityCheckRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Path("/api")
@@ -57,5 +59,27 @@ public class EligibilityCheckResource {
         }
         return Response.ok(check, MediaType.APPLICATION_JSON).build();
 
+    }
+
+
+    // Utility endpoint to create an Eligibility check
+    // In the future seperate endpoints will need to be created for publishing public checks and creating private checks
+    @POST
+    @Path("/check")
+    public Response createCheck(@Context ContainerRequestContext requestContext, EligibilityCheck newCheck) {
+          String userId = AuthUtils.getUserId(requestContext);
+
+        //TODO: Add validations for user provided data
+
+        newCheck.setOwnerId(userId);
+        try {
+            String checkId = eligibilityCheckRepository.saveNewCheck(newCheck);
+            newCheck.setId(checkId);
+            return Response.ok(newCheck, MediaType.APPLICATION_JSON).build();
+        } catch (Exception e){
+            return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Could not save Check"))
+                    .build();
+        }
     }
 }

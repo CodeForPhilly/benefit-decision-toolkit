@@ -13,4 +13,6 @@ public interface EligibilityCheckRepository {
     Optional<EligibilityCheck> getCheck(String checkId);
 
     List<EligibilityCheck> getChecksInBenefit(Benefit benefit);
+
+    String saveNewCheck(EligibilityCheck check) throws Exception;
 }

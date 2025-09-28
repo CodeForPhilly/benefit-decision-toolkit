@@ -9,7 +9,7 @@ import java.util.List;
 public class EligibilityCheck {
     private String id;
     private String name;
-    private String category;
+    private String module;
     private String description;
     private String version;
     private boolean isActive;
@@ -35,12 +35,12 @@ public class EligibilityCheck {
         this.name = name;
     }
 
-    public String getCategory() {
-        return category;
+    public String getModule() {
+        return module;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setModule(String module) {
+        this.module = module;
     }
 
     public String getDescription() {

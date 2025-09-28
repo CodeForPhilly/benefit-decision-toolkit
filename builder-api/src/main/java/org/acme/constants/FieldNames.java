@@ -19,6 +19,7 @@ public class FieldNames {
     public static final String LAST_DMN_SAVE = "lastDmnSave";
     public static final String LAST_DMN_COMPILE = "lastDmnCompile";
     public static final String DEPENDENCIES = "dependencies";
+    public static final String BENEFITS = "benefits";
 
     // DmnModel Database fields
     public static final String GROUP_ID = "group_id";

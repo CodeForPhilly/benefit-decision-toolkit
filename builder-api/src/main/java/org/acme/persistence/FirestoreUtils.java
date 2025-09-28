@@ -180,6 +180,23 @@ public class FirestoreUtils {
     }
 
 
+    public static String persistDocumentWithId(String collectionPath, String documentId, Map<String, Object> data) throws Exception {
+        try {
+            DocumentReference documentRef = db.collection(collectionPath).document(documentId);
+            documentRef.create(data).get();
+            return documentRef.getId();
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            Log.error(e);
+            throw new Exception("Thread interrupted while saving to Firestore", e);
+        } catch (ExecutionException e) {
+            Log.error(e);
+            throw new Exception("Failed to write document to Firestore", e);
+        }
+    }
+
+
     public static void updateDocument(String collectionName, Map<String, Object> data, String docId) throws Exception {
         try {
             WriteResult result = db.collection(collectionName)
@@ -193,6 +210,30 @@ public class FirestoreUtils {
             throw new Exception("Thread interrupted while saving to Firestore", e);
         } catch (ExecutionException e) {
             throw new Exception("Failed to write document to Firestore", e);
+        }
+    }
+
+    public static void addObjectToArrayField(String collectionName,
+                                             String docId,
+                                             String field,
+                                             Map<String, Object> data) throws Exception{
+        try {
+            DocumentReference projectRef = db.collection(collectionName).document(docId);
+
+            ApiFuture<WriteResult> future = projectRef.update(
+                    field, FieldValue.arrayUnion(data)
+            );
+
+            // Wait for the update to complete
+            future.get();
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            Log.error(e);
+            throw new Exception("Thread interrupted while updating array field", e);
+        } catch (Exception e) {
+            Log.error(e);
+            throw new Exception("Failed to update array field", e);
         }
     }
 
