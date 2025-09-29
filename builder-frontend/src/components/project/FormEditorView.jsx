@@ -1,9 +1,13 @@
 import { onMount, onCleanup, createSignal } from "solid-js";
-import { FormEditor } from "@bpmn-io/form-js-editor";
-import { saveFormSchema } from "../../api/screener";
 import { useParams } from "@solidjs/router";
+
+import { FormEditor } from "@bpmn-io/form-js-editor";
+
+import { saveFormSchema } from "../../api/screener";
+
 import "@bpmn-io/form-js/dist/assets/form-js.css";
 import "@bpmn-io/form-js-editor/dist/assets/form-js-editor.css";
+
 
 function FormEditorView({ formSchema, setFormSchema }) {
   const [isUnsaved, setIsUnsaved] = createSignal(false);
