@@ -59,7 +59,7 @@ const EligibilityCheckListView = (
   );
 
   return (
-    <div class="flex-2 border-2 border-gray-200 rounded-lg h-min">
+    <>
       <div class="p-4">
         <div class="flex items-center mb-2">
           <div class="text-2xl font-bold">
@@ -103,7 +103,7 @@ const EligibilityCheckListView = (
           </For>
         </tbody>
       </table>
-    </div>
+    </>
   );
 };
 

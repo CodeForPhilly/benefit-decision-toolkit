@@ -68,6 +68,59 @@ export const getAllAvailableBenefits = async (): Promise<Benefit[]> => {
           ],
         },
       ],
+    },
+    {
+      id: "benefit_3",
+      name: "Philadelphia Veteran Support",
+      description: "Offers specialized assistance and resources for veterans.",
+      checks: [
+        {
+          id: "veteran_status",
+          category: "demographic",
+          description: "Checks if the user is a veteran",
+          inputs: [
+            {
+              key: "veteran_status",
+              prompt: "Are you a veteran?",
+              type: "boolean",
+            },
+          ],
+          parameters: [
+            {
+              key: "veteran_status",
+              type: "boolean",
+              label: "Does this check target veterans?",
+              truthLabel: "Benefit targets veterans",
+              falseLabel: "Benefit targets non-veterans",
+              value: true,
+              required: true,
+            },
+          ],
+        },
+        {
+          id: "philadelphia_resident",
+          category: "location",
+          description: "Checks if the user lives in Philadelphia",
+          inputs: [
+            {
+              key: "philadelphia_resident",
+              prompt: "Are you currently a Philadelphia resident?",
+              type: "boolean",
+            },
+          ],
+          parameters: [
+            {
+              key: "philadelphia_resident",
+              type: "boolean",
+              label: "Does this check target Philadelphia residents?",
+              truthLabel: "Benefit targets Philadelphia residents",
+              falseLabel: "Benefit targets non-residents",
+              value: true,
+              required: true,
+            },
+          ],
+        },
+      ],
     }
   ];
 }

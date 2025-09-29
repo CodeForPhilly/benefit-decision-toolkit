@@ -35,8 +35,8 @@ const SelectedEligibilityCheck = () => {
             <For each={check.inputs}>
               {(input) => (
                 <div class="flex gap-2 pl-4">
-                  <div class="">{titleCase(input.key)}:</div>
-                  <div class="">"{input.prompt}"</div>
+                  <div>{titleCase(input.key)}:</div>
+                  <div>"{input.prompt}"</div>
                 </div>
               )}
             </For>
@@ -61,8 +61,8 @@ const SelectedEligibilityCheck = () => {
                 }
                 return (
                   <div class="flex gap-2 pl-4">
-                    <div class="">{titleCase(param.key)}:</div>
-                    <div class="">{getLabel()}</div>
+                    <div>{titleCase(param.key)}:</div>
+                    <div>{getLabel()}</div>
                   </div>
                 );
               }}

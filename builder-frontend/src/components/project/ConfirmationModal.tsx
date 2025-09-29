@@ -10,7 +10,7 @@ const ConfirmationModal = (
   return (
     <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div class="bg-white px-12 py-8 rounded-xl max-w-140 w-1/2 min-w-80">
-        <div class="text-2xl mb-4">
+        <div class="text-2xl font-bold mb-3">
           {confirmationTitle}
         </div>
         <div class="mb-4">

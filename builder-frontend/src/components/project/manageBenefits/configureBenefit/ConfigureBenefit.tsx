@@ -32,13 +32,15 @@ const ConfigureBenefit = () => {
         </div>
       </div>
       <div class="flex gap-4 flex-col 2xl:flex-row">
-        <EligibilityCheckListView
-          mode={checkListMode}
-          setMode={setCheckListMode}
-          publicChecks={publicChecks}
-          userDefinedChecks={userDefinedChecks}
-        />
-        <div class="flex-1">
+        <div class="flex-3 border-2 border-gray-200 rounded-lg h-min">
+          <EligibilityCheckListView
+            mode={checkListMode}
+            setMode={setCheckListMode}
+            publicChecks={publicChecks}
+            userDefinedChecks={userDefinedChecks}
+          />
+        </div>
+        <div class="flex-2">
           <div class="px-4 pb-4 text-2xl font-bold">
             Selected eligibility checks for {benefit().name}
           </div>

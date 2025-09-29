@@ -75,16 +75,6 @@ export const getPublicChecks = async (): Promise<EligibilityCheck[]> => {
         },
       ],
     },
-  ];
-};
-
-
-
-export const getUserDefinedChecks = async (): Promise<EligibilityCheck[]> => {
-  // Simulate an API call delay -- TODO: update to greater than 1ms delay
-  await new Promise((resolve) => setTimeout(resolve, 1));
-
-  return [
     {
       id: "philadelphia_resident",
       category: "location",
@@ -103,6 +93,38 @@ export const getUserDefinedChecks = async (): Promise<EligibilityCheck[]> => {
           label: "Does this check target Philadelphia residents?",
           truthLabel: "Benefit targets Philadelphia residents",
           falseLabel: "Benefit targets non-residents",
+          required: true,
+        },
+      ],
+    },
+  ];
+};
+
+
+
+export const getUserDefinedChecks = async (): Promise<EligibilityCheck[]> => {
+  // Simulate an API call delay -- TODO: update to greater than 1ms delay
+  await new Promise((resolve) => setTimeout(resolve, 1));
+
+  return [
+    {
+      id: "Center City Housing",
+      category: "location",
+      description: "Checks if the user lives in Center City of Philadelphia",
+      inputs: [
+        {
+          key: "center_city_resident",
+          prompt: "Are you currently living in Center City?",
+          type: "boolean",
+        },
+      ],
+      parameters: [
+        {
+          key: "center_city_resident",
+          type: "boolean",
+          label: "Does this check target Center City residents?",
+          truthLabel: "Benefit targets Center City residents",
+          falseLabel: "Benefit targets people not living in Center City",
           required: true,
         },
       ],

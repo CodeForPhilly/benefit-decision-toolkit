@@ -44,13 +44,13 @@ const BenefitList = (
         class="btn-default btn-blue mb-3 mr-1"
         onClick={() => {setAddingNewBenefit(true)}}
       >
-        Create new Benefit
+        Create New Benefit
       </div>
       <div
         class="btn-default btn-blue mb-3"
         onClick={() => {setSelectExistingBenefitModal(true)}}
       >
-        Copy from existing Benefit
+        Copy from Existing Benefit
       </div>
       <div
         class="
@@ -79,7 +79,7 @@ const BenefitList = (
                       <span class="font-bold">Description:</span> {benefit.description}
                     </div>
                     <div class={subChecksClass}>
-                      <span class="font-bold">Sub-Checks:</span> {benefit.checks.length}
+                      <span class="font-bold">Eligibility checks:</span> {benefit.checks.length}
                     </div>
                   </div>
                   <div

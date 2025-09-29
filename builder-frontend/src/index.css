@@ -26,6 +26,15 @@
     @apply px-4 py-3 border-gray-300;
   }
 }
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
 
 .fjs-powered-by {
   display: none;

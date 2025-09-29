@@ -16,8 +16,8 @@ const SelectExistingBenefitModal = (
     <div
       class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
     >
-      <div class="bg-white px-8 py-6 rounded-xl max-w-140 w-1/2 min-w-80">
-        <div class="text-2xl mb-4">Select Existing Benefit</div>
+      <div class="bg-white px-8 py-6 rounded-xl max-w-180 w-1/2 min-w-80">
+        <div class="text-2xl font-bold mb-4">Copy from Existing Benefit</div>
         <div class="mb-4">
           {availableBenefits.loading && (
             <div>Loading available benefits...</div>
@@ -29,9 +29,14 @@ const SelectExistingBenefitModal = (
             <div>No available benefits found.</div>
           )}
           {availableBenefits() && availableBenefits().length > 0 && (
-            <div class="space-y-4 max-h-96 overflow-y-auto border rounded-xl p-4">
+            <div
+              class="
+                max-h-96 space-y-5 py-3 bg-gray-50
+                border-2 border-gray-200 rounded-sm
+                overflow-y-auto no-scrollbar"
+            >
               {availableBenefits().map((benefit) => (
-                <div class="border p-4 rounded-lg">
+                <div class="border-t-2 border-b-2 border-gray-200 p-4 bg-white">
                   <div class="mb-2">
                     <div class="font-bold text-lg">{benefit.name}</div>
                     <div>{benefit.description}</div>
@@ -49,7 +54,7 @@ const SelectExistingBenefitModal = (
                         closeModal();
                       }}
                     >
-                      Add copy of this benefit
+                      Copy this benefit
                     </div>
                   </div>
                 </div>
