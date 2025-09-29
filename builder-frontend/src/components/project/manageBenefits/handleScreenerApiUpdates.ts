@@ -1,4 +1,4 @@
-import { createEffect } from "solid-js";
+import { createEffect, createSignal } from "solid-js";
 import { trackDeep } from "@solid-primitives/deep";
 
 import { updateScreenerBenefits } from "../../../api/fake_screener_update";
@@ -12,6 +12,8 @@ import type { ProjectBenefits as ProjectBenefitsType, Benefit } from "./types";
  * and sends it once the current call completes.
  */
 export const handleScreenerApiUpdates = (screenerId: string, projectBenefits: ProjectBenefitsType) => {
+  const [lastSavedTime, setLastSavedTime] = createSignal<null | number>();
+
   let blockDataUpdates: boolean = false;
   let latestData: Benefit[] = null;
 
@@ -20,6 +22,7 @@ export const handleScreenerApiUpdates = (screenerId: string, projectBenefits: Pr
     try {
       await updateScreenerBenefits(screenerId, benefits);
     } finally {
+      setLastSavedTime(Date.now());
       blockDataUpdates = false;
       if (latestData) {
         // call API with the most recent data that did not send
@@ -41,4 +44,6 @@ export const handleScreenerApiUpdates = (screenerId: string, projectBenefits: Pr
       sendApiUpdate(screenerId, projectBenefits.benefits);
     }
   });
+
+  return lastSavedTime;
 }

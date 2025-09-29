@@ -34,10 +34,16 @@ const ManageBenefits = () => {
   };
 
   // Handle API updates whenever projectBenefits changes
-  handleScreenerApiUpdates(params.projectId, projectBenefits);
+  const lastSavedTime = handleScreenerApiUpdates(params.projectId, projectBenefits);
 
+  // TODO: update to stop "Last Saved" from breaking container bounds
   return (
     <div class="px-4">
+      <div class="fixed z-50 top-21 right-4 flex ml-auto mr-8 gap-2 justify-center">
+        <span class="text-sm flex items-center text-gray-500">
+          Last saved: {lastSavedTime() ? new Date(lastSavedTime()).toLocaleTimeString() : "--"}
+        </span>
+      </div>
       {
         benefitIndexToConfigure() === null && (
           <ProjectBenefits

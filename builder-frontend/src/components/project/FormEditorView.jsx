@@ -68,7 +68,7 @@ function FormEditorView({ formSchema, setFormSchema }) {
         <div className="h-full" ref={(el) => (container = el)} />
       </div>
 
-      <div className="fixed z-50 top-16 right-4 flex ml-auto mr-8 gap-2 justify-center">
+      <div className="fixed z-50 top-19 right-4 flex ml-auto mr-8 gap-2 justify-center">
         {isUnsaved() && (
           <span className="underline text-sm flex items-center text-gray-500">
             unsaved changes
