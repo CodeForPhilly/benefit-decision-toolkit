@@ -14,8 +14,6 @@ import {
 import { fetchProject } from "../../api/screener";
 import { fetchModel } from "../../api/models";
 
-import "../../App.css";
-
 
 type TabOption = "Manage Benefits" | "Form Editor" | "Preview" | "Publish";
 

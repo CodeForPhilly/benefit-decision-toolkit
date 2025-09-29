@@ -5,12 +5,11 @@ import ProjectsList from "./components/projectsList/ProjectsList";
 import AuthForm from "./components/auth/AuthForm";
 import { useAuth } from "./context/AuthContext";
 
-import "./App.css";
-
 
 function App() {
   const { user } = useAuth();
 
+  // TODO: Loading state does not currently display because it is not within a <Route>
   return (
     <>
       {user() === "loading" ? (

@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/forms";
 
+
 @layer components {
   .btn-default {
     @apply
@@ -19,10 +20,10 @@
     @apply bg-sky-600 hover:bg-sky-700 text-white
   }
 
-  .subcheck-table-header {
+  .eligibility-check-table-header {
     @apply px-4 py-3 text-left text-gray-500 text-lg;
   }
-  .subcheck-table-cell {
+  .eligibility-check-table-cell {
     @apply px-4 py-3 border-gray-300;
   }
 }
@@ -39,7 +40,6 @@
 .fjs-powered-by {
   display: none;
 }
-
 .bjs-powered-by {
   display: none;
 }

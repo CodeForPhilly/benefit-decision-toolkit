@@ -12,23 +12,29 @@ interface CheckModeConfig {
   title: string;
   description: string;
   buttonTitle: string;
-  isPublic: boolean;
 }
 const PublicCheckConfig: CheckModeConfig = {
   mode: "public",
   title: "Public eligibility checks",
   description: "Browse and select pre-built checks to add to your benefit.",
   buttonTitle: "Public checks",
-  isPublic: true,
 };
 const UserDefinedCheckConfig: CheckModeConfig = {
   mode: "user-defined",
   title: "User defined eligibility checks",
   description: "Browse and select your own custom checks to add to your benefit.",
   buttonTitle: "Your checks",
-  isPublic: false,
 };
 
+/*
+  Renders a list of eligibility checks with checkboxes to select/deselect them for the current benefit.
+  Uses CheckModeConfig object to display a different title/description based on the current mode.
+  Props:
+    - mode: current mode ("user-defined" or "public")
+    - setMode: function to change the mode
+    - publicChecks: resource containing the list of public eligibility checks
+    - userDefinedChecks: resource containing the list of user-defined eligibility checks
+*/
 const EligibilityCheckListView = (
   { mode, setMode, publicChecks, userDefinedChecks }:
   {
@@ -54,8 +60,8 @@ const EligibilityCheckListView = (
   const activeCheckConfig: Accessor<CheckModeConfig> = (
     () => mode() === "public" ? PublicCheckConfig : UserDefinedCheckConfig
   );
-  const activeChecks: Accessor<EligibilityCheck[]> = (
-    () => mode() === "public" ? publicChecks() : userDefinedChecks()
+  const activeChecks: Accessor<Resource<EligibilityCheck[]>> = (
+    () => mode() === "public" ? publicChecks : userDefinedChecks
   );
 
   return (
@@ -86,13 +92,18 @@ const EligibilityCheckListView = (
       <table class="table-auto w-full mt-4 border-collapse">
         <thead>
           <tr>
-            <th class="subcheck-table-header">Select</th>
-            <th class="subcheck-table-header">Check Name</th>
-            <th class="subcheck-table-header">Description</th>
+            <th class="eligibility-check-table-header">Select</th>
+            <th class="eligibility-check-table-header">Check Name</th>
+            <th class="eligibility-check-table-header">Description</th>
           </tr>
         </thead>
         <tbody>
-          <For each={activeChecks()}>
+          {activeChecks().loading && (
+            <tr>
+              <td colSpan={3} class="p-4 font-bold text-center">Loading checks...</td>
+            </tr>
+          )}
+          <For each={activeChecks()()}>
             {(check) => (
               <EligibilityCheckRow
                 check={check}
@@ -119,7 +130,7 @@ const EligibilityCheckRow = (
 
   return (
     <tr>
-      <td class="subcheck-table-cell border-top">
+      <td class="eligibility-check-table-cell border-top">
         <input
           class="rounded-sm border-2 border-gray-400"
           type="checkbox"
@@ -127,8 +138,8 @@ const EligibilityCheckRow = (
           onChange={() => onToggle(check)}
         />
       </td>
-      <td class="subcheck-table-cell border-top">{titleCase(check.id)}</td>
-      <td class="subcheck-table-cell border-top">{check.description}</td>
+      <td class="eligibility-check-table-cell border-top">{titleCase(check.id)}</td>
+      <td class="eligibility-check-table-cell border-top">{check.description}</td>
     </tr>
   );
 };

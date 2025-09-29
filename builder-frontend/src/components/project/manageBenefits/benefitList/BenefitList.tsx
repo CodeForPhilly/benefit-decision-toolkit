@@ -2,7 +2,7 @@ import { createSignal, For, Setter } from "solid-js";
 import { SetStoreFunction } from "solid-js/store";
 
 import AddNewBenefitModal from "./AddNewBenefitModal";
-import ConfirmationModal from "../../ConfirmationModal";
+import ConfirmationModal from "../../../shared/ConfirmationModal";
 import SelectExistingBenefitModal from "./SelectExistingBenefitModal";
 
 import type { ProjectBenefits as ProjectBenefitsType } from "../types";
@@ -38,7 +38,7 @@ const BenefitList = (
       </div>
       <div class="text-lg mb-3">
         Define and organize the benefits available in your screener.
-        Each benefit can have associated sub-checks.
+        Each benefit can have associated eligibility checks.
       </div>
       <div
         class="btn-default btn-blue mb-3 mr-1"
@@ -59,7 +59,7 @@ const BenefitList = (
       >
         <For each={projectBenefits.benefits}>
           {(benefit, benefit_idx) => {
-            const subChecksClass = benefit.checks.length > 0 ? "" : "text-red-900";
+            const eligibilityChecksClass = benefit.checks.length > 0 ? "" : "text-red-900";
 
             return (
               <div class="w-full flex">
@@ -78,7 +78,7 @@ const BenefitList = (
                     <div>
                       <span class="font-bold">Description:</span> {benefit.description}
                     </div>
-                    <div class={subChecksClass}>
+                    <div class={eligibilityChecksClass}>
                       <span class="font-bold">Eligibility checks:</span> {benefit.checks.length}
                     </div>
                   </div>

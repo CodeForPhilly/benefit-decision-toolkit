@@ -8,4 +8,4 @@ export const updateScreenerBenefits = async (screenerId: string, benefits: Benef
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
   console.log(`API FINISHED for screener ${screenerId} updated:`, benefits);
-}
+};

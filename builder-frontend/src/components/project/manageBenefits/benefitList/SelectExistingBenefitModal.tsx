@@ -40,7 +40,7 @@ const SelectExistingBenefitModal = (
                   <div class="mb-2">
                     <div class="font-bold text-lg">{benefit.name}</div>
                     <div>{benefit.description}</div>
-                    <div class="text-sm text-gray-600">Sub-Checks: {benefit.checks.length}</div>
+                    <div class="text-sm text-gray-600">Eligibility Checks: {benefit.checks.length}</div>
                   </div>
                   <div>
                     <div
