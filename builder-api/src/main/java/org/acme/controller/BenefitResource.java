@@ -2,8 +2,10 @@ package org.acme.controller;
 
 import io.quarkus.logging.Log;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.container.ContainerRequestContext;
@@ -112,6 +114,22 @@ public class BenefitResource {
             return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(Map.of("error", "Could not save benefit"))
                     .build();
+        }
+    }
+
+    // Utility endpoint to update a benefit
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/benefit/")
+    public Response updateBenefit(@Context ContainerRequestContext requestContext, Benefit benefit) {
+        // String userId = AuthUtils.getUserId(requestContext);
+
+        // benefit.setOwnerId(userId);
+        try {
+            // benefitRepository.updateBenefit(benefit)
+            // return Response.ok().build();
+        } catch (Exception e) {
+            // return 
         }
     }
 }
