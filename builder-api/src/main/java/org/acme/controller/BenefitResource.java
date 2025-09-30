@@ -122,14 +122,16 @@ public class BenefitResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/benefit/")
     public Response updateBenefit(@Context ContainerRequestContext requestContext, Benefit benefit) {
-        // String userId = AuthUtils.getUserId(requestContext);
+        String userId = AuthUtils.getUserId(requestContext);
 
-        // benefit.setOwnerId(userId);
+        benefit.setOwnerId(userId);
         try {
-            // benefitRepository.updateBenefit(benefit)
-            // return Response.ok().build();
+            benefitRepository.updateBenefit(benefit);
+            return Response.ok().build();
         } catch (Exception e) {
-            // return 
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Could not update Benefit"))
+                    .build();
         }
     }
 }

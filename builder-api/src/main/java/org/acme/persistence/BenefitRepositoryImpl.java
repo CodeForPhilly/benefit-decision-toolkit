@@ -86,4 +86,9 @@ public class BenefitRepositoryImpl implements BenefitRepository {
         String benefitDocId = benefit.getId();
         return FirestoreUtils.persistDocumentWithId(CollectionNames.SCREENER_COLLECTION + "/" + screenerId + "/customBenefit", benefitDocId, data);
     }
+
+    @Override
+    public void updateBenefit(Benefit benefit) {
+        // TODO: Implement this method to update data in firestore
+    }
 }
