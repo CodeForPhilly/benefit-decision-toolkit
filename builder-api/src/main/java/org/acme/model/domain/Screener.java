@@ -27,6 +27,7 @@ public class Screener {
     private String lastDmnCompile;
     private List<Dependency> dependencies;
     private List<ResultDetail> resultsSchema;
+    private List<BenefitDetail> benefits ;
 
     public Screener(Map<String, Object> model, boolean isPublished){
         this.formSchema = model;
@@ -170,5 +171,13 @@ public class Screener {
 
     public void setResultsSchema(List<ResultDetail> resultsSchema) {
         this.resultsSchema = resultsSchema;
+    }
+
+    public List<BenefitDetail> getBenefits() {
+        return benefits;
+    }
+
+    public void setBenefits(List<BenefitDetail> benefits) {
+        this.benefits = benefits;
     }
 }
