@@ -1,5 +1,5 @@
 import { createSignal, Show, For } from "solid-js";
-import { helloAPI } from "../../api/screener";
+import { fetchScreenerTest } from "../../api/screenerTest";
 
 function TestsView() {
   const [expanded, setExpanded] = createSignal({});
@@ -57,7 +57,7 @@ function TestsView() {
   };
 
   const handleRun = async () => {
-    const data = await helloAPI();
+    const data = await fetchScreenerTest();
     console.log(data);
   };
 
