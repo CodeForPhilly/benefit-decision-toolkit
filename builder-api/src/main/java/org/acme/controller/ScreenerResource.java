@@ -44,19 +44,6 @@ public class ScreenerResource {
   ScreenerDependencyService screenerDependencyService;
 
   @GET
-  @Path("/helloapi")
-  public Response helloApi(@Context ContainerRequestContext requestContext) {
-    String userId = AuthUtils.getUserId(requestContext);
-    if (userId == null) {
-      return Response.status(Response.Status.UNAUTHORIZED).build();
-    }
-    Log.info("Hello user: " + userId);
-    List<Screener> screeners = screenerRepository.getScreeners(userId);
-
-    return Response.ok(screeners, MediaType.APPLICATION_JSON).build();
-  }
-
-  @GET
   @Path("/screeners")
   public Response getScreeners(@Context ContainerRequestContext requestContext) {
     String userId = AuthUtils.getUserId(requestContext);
