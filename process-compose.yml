@@ -1,0 +1,43 @@
+version: "0.5"
+
+processes:
+  firebase-emulators:
+    description: This process runs the local firebase emulators used in the project.
+    command: firebase emulators:start --project demo-bdt-dev --only auth,storage,firestore
+    ready_log_line: "All emulators ready!"
+  builder-api:
+    description: This process runs the builder-api in dev mode on port ${QUARKUS_HTTP_PORT}.
+    command: quarkus dev
+    working_dir: builder-api/
+    environment:
+      - "QUARKUS_HTTP_PORT=8081"
+      - "QUARKUS_CONSOLE_COLOR=true"
+    ready_log_line: "Listening on: http://localhost:8081"
+    depends_on:
+      firebase-emulators:
+        condition: process_log_ready
+  builder-frontend:
+    description: This process runs the builder-frontend in dev mode.
+    command: npm run dev -- --host
+    working_dir: builder-frontend/
+    depends_on:
+      builder-api:
+        condition: process_log_ready
+  screener-api:
+    description: This process runs the screener-api in dev mode on port ${QUARKUS_HTTP_PORT}.
+    command: quarkus dev
+    working_dir: screener-api/
+    environment:
+      - "QUARKUS_HTTP_PORT=8082"
+      - "QUARKUS_CONSOLE_COLOR=true"
+    ready_log_line: "Listening on: http://localhost:8082"
+    depends_on:
+      firebase-emulators:
+        condition: process_log_ready
+  screener-frontend:
+    description: This process runs the screener-frontend in dev mode.
+    command: npm run dev -- --host
+    working_dir: screener-frontend/
+    depends_on:
+      screener-api:
+        condition: process_log_ready
