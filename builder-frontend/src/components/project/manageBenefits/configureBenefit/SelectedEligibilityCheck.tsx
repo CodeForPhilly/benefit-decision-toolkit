@@ -4,10 +4,13 @@ import SelectedCheckModal from "./modals/ConfigureCheckModal";
 
 import { CheckConfigurationContext } from "../contexts";
 import { titleCase } from "../../../../utils/title_case";
+import { EligibilityCheck } from "../types";
 
 
-const SelectedEligibilityCheck = () => {
-  const {check} = useContext(CheckConfigurationContext);
+const SelectedEligibilityCheck = (
+  { check, checkIndex, updateCheck }:
+  { check: EligibilityCheck; checkIndex: number; updateCheck: (checkIndex: number, newCheckData: EligibilityCheck) => void }
+) => {
 
   const [configuringCheckModalOpen, setConfiguringCheckModalOpen] = createSignal(false);
 
@@ -69,6 +72,9 @@ const SelectedEligibilityCheck = () => {
       {
         configuringCheckModalOpen() &&
         <SelectedCheckModal
+          check={check}
+          checkIndex={checkIndex}
+          updateCheck={updateCheck}
           closeModal={() => { setConfiguringCheckModalOpen(false); }}
         />
       }

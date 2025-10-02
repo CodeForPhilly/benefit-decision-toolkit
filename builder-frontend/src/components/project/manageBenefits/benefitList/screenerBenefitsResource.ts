@@ -51,7 +51,7 @@ const createScreenerBenefits = (projectId: string): ScreenerBenefitsResource => 
 
   // Actions
   const addNewBenefit = (benefit: BenefitDetail) =>
-    updateScreenerBenefits([...screener.benefits, benefit]);
+    updateScreenerBenefits([...screener.benefits || [], benefit]);
 
   const removeBenefit = (indexToRemove: number) =>
     updateScreenerBenefits(

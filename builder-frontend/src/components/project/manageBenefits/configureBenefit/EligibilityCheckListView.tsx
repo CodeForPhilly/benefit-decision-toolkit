@@ -1,6 +1,5 @@
 import { useContext, For, Resource, Accessor, Setter } from "solid-js";
 
-import { BenefitConfigurationContext } from "../contexts";
 import { titleCase } from "../../../../utils/title_case";
 
 import type { Benefit, EligibilityCheck } from "../types";
@@ -36,25 +35,25 @@ const UserDefinedCheckConfig: CheckModeConfig = {
     - userDefinedChecks: resource containing the list of user-defined eligibility checks
 */
 const EligibilityCheckListView = (
-  { mode, setMode, publicChecks, userDefinedChecks }:
+  { benefit, addCheck, removeCheck, mode, setMode, publicChecks, userDefinedChecks }:
   {
+    benefit: Accessor<Benefit>;
+    addCheck: (newCheck: EligibilityCheck) => void;
+    removeCheck: (indexToRemove: number) => void;
     mode: Accessor<EligibilityCheckListMode>,
     setMode: Setter<EligibilityCheckListMode>,
     publicChecks: Resource<EligibilityCheck[]>,
     userDefinedChecks: Resource<EligibilityCheck[]>,
   }
 ) => {
-  const {benefit, benefitIndex, setProjectBenefits} = useContext(BenefitConfigurationContext);
-
   const onEligibilityCheckToggle = (check: EligibilityCheck) => {
-    const updatedBenefit: Benefit = { ...benefit() };
-    const isCheckSelected = updatedBenefit.checks.some((selected) => selected.id === check.id);
+    const isCheckSelected = benefit().checks.some((selected) => selected.id === check.id);
     if (isCheckSelected) {
-      updatedBenefit.checks = updatedBenefit.checks.filter((selected) => selected.id !== check.id);
+      const checkIndexToRemove = benefit().checks.findIndex((selected) => selected.id === check.id);
+      removeCheck(checkIndexToRemove);
     } else {
-      updatedBenefit.checks = [...updatedBenefit.checks, structuredClone(check)];
+      addCheck(structuredClone(check));
     }
-    setProjectBenefits("benefits", benefitIndex(), updatedBenefit);
   };
 
   const activeCheckConfig: Accessor<CheckModeConfig> = (

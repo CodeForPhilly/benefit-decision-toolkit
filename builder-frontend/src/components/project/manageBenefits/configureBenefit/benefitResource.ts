@@ -1,7 +1,7 @@
 import { createResource, createEffect, Accessor } from "solid-js";
 import { createStore } from "solid-js/store";
 
-import { getBenefit } from "../../../../api/fake_benefit_endpoints";
+import { getBenefit, updateBenefit as updateBenefitApi } from "../../../../api/fake_benefit_endpoints";
 
 import type { Benefit, EligibilityCheck, ParameterDefinition } from "../types";
 
@@ -11,11 +11,11 @@ interface ScreenerBenefitsResource {
   actions: {
     addCheck: (newCheck: EligibilityCheck) => void;
     removeCheck: (indexToRemove: number) => void;
-    updateCheckParameter: (indexToUpdate: number, parameterId: string, value: any) => void;
+    updateCheck: (indexToUpdate: number, newCheckData: EligibilityCheck) => void;
   };
   initialLoadStatus: {
-    loading: boolean;
-    error: unknown;
+    loading: Accessor<boolean>;
+    error: Accessor<unknown>;
   };
 }
 
@@ -28,6 +28,7 @@ const createScreenerBenefits = (benefitId: string): ScreenerBenefitsResource => 
   // When resource resolves, sync it into the store
   createEffect(() => {
     if (benefitResource()) {
+      console.log("Benefit resource loaded:", benefitResource());
       setBenefit(benefitResource()!);
     }
   });
@@ -39,7 +40,7 @@ const createScreenerBenefits = (benefitId: string): ScreenerBenefitsResource => 
     setBenefit({ ...newBenefit });
 
     try {
-      const updated = await updateBenefit({ ...newBenefit });
+      const updated = await updateBenefitApi({ ...newBenefit });
       // TODO: setBenefit({ ...updated });
     } catch (e) {
       console.error("Failed to update screener benefits, reverting state", e);
@@ -64,22 +65,16 @@ const createScreenerBenefits = (benefitId: string): ScreenerBenefitsResource => 
     const updatedBenefit: Benefit = { ...benefit, checks: updatedChecks };
     updateBenefit(updatedBenefit);
   }
-  const updateCheckParameter = (indexToUpdate: number, parameterKeyToUpdate: string, value: any) => {
+  const updateCheck = (indexToUpdate: number, newCheckData: EligibilityCheck) => {
     if (!benefit) return;
 
-    const checkMapFunction = (check: EligibilityCheck, checkIndex: number) => {
-      if (checkIndex === indexToUpdate) {
-        const updatedParameters = check.parameters.map((param) => paramMapFunction(param));
-        return { ...check, parameters: updatedParameters };
-      }
-      return check;
-    }
-    const paramMapFunction = (param: ParameterDefinition) => {
-      return param.key === parameterKeyToUpdate ? { ...param, value } : param;
-    }
-
     const updatedChecks: EligibilityCheck[] = benefit.checks.map(
-      (check, checkIndex) => checkMapFunction(check, checkIndex)
+      (check, checkIndex) => {
+        if (checkIndex === indexToUpdate) {
+          return { ...newCheckData };
+        }
+        return check;
+      }
     );
     const updatedBenefit: Benefit = { ...benefit, checks: updatedChecks };
     updateBenefit(updatedBenefit);
@@ -90,11 +85,11 @@ const createScreenerBenefits = (benefitId: string): ScreenerBenefitsResource => 
     actions: {
       addCheck,
       removeCheck,
-      updateCheckParameter
+      updateCheck
     },
     initialLoadStatus: {
-      loading: benefitResource.loading,
-      error: benefitResource.error,
+      loading: () => benefitResource.loading,
+      error: () => benefitResource.error,
     },
   };
 };

@@ -57,3 +57,10 @@ export const getBenefit = async (): Promise<Benefit> => {
     ],
   };
 }
+
+export const updateBenefit = async (newBenefit: Benefit): Promise<Benefit> => {
+  // Simulate an API call delay
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  console.log("Simulated backend update of benefit:", newBenefit);
+  return newBenefit;
+}

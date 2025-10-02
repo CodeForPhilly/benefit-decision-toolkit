@@ -15,7 +15,7 @@ const BenefitList = (
   { setBenefitIdToConfigure: Setter<null | string> }
 ) => {
   const params = useParams();
-  const { screenerBenefits, actions, status } = screenerBenefitResource(params.projectId);
+  const { screenerBenefits, actions, initialLoadStatus } = screenerBenefitResource(params.projectId);
 
   const [addingNewBenefit, setAddingNewBenefit] = createSignal<boolean>(false);
   const [selectExistingBenefitModal, setSelectExistingBenefitModal] = createSignal<boolean>(false);

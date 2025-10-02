@@ -16,7 +16,7 @@ const ManageBenefits = () => {
       }
       {
         benefitIdToConfigure() !== null && (
-          <ConfigureBenefit benefitId={benefitIdToConfigure()}/>
+          <ConfigureBenefit benefitId={benefitIdToConfigure()} setBenefitId={setBenefitIdToConfigure}/>
         )
       }
     </div>

@@ -3,14 +3,26 @@ import { Accessor, For, useContext } from "solid-js";
 import { CheckConfigurationContext } from "../../contexts";
 import { titleCase } from "../../../../../utils/title_case";
 
-import type { BooleanParameter, NumberParameter, ParameterDefinition, StringParameter } from "../../types";
+import type { BooleanParameter, EligibilityCheck, NumberParameter, ParameterDefinition, StringParameter } from "../../types";
+import { createStore, SetStoreFunction } from "solid-js/store";
 
 
 const ConfigureCheckModal = (
-  { closeModal }: { closeModal: () => void }
+  { check, checkIndex, updateCheck, closeModal }:
+  {
+    check: EligibilityCheck;
+    checkIndex: number
+    updateCheck: (checkIndex: number, newCheckData: EligibilityCheck) => void;
+    closeModal: () => void
+  }
 ) => {
-  const { check } = useContext(CheckConfigurationContext);
-  
+  const [tempCheck, setTempCheck] = createStore<EligibilityCheck>({ ...check, parameters: check.parameters.map(p => ({ ...p })) });
+
+  const confirmAndClose = () => {
+    updateCheck(checkIndex, { ...tempCheck });
+    closeModal();
+  }
+
   return (
     <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div class="bg-white px-12 py-8 rounded-xl max-w-140 w-1/2 min-w-80 min-h-96">
@@ -27,7 +39,13 @@ const ConfigureCheckModal = (
             <div class="flex flex-col gap-4">
               <For each={check.parameters}>
                 {(parameter, parameterIndex) => {
-                  return <ParameterInput parameter={parameter} parameterIndex={parameterIndex} />;
+                  return (
+                    <ParameterInput
+                      setTempCheck={setTempCheck}
+                      parameter={parameter}
+                      parameterIndex={parameterIndex}
+                    />
+                  );
                 }}
               </For>
             </div>
@@ -39,7 +57,13 @@ const ConfigureCheckModal = (
             class="btn-default hover:bg-gray-200"
             onClick={closeModal}
           >
-            Close
+            Cancel
+          </div>
+          <div
+            class="btn-default hover:bg-gray-200"
+            onClick={confirmAndClose}
+          >
+            Confirm
           </div>
         </div>
       </div>
@@ -48,33 +72,30 @@ const ConfigureCheckModal = (
 }
 
 const ParameterInput = (
-  { parameter, parameterIndex }:
-  { parameter: ParameterDefinition, parameterIndex: Accessor<number> }
+  { setTempCheck, parameter, parameterIndex }:
+  { setTempCheck: SetStoreFunction<EligibilityCheck>, parameter: ParameterDefinition, parameterIndex: Accessor<number> }
 ) => {
-  if (parameter.type === "number") {
-    return <ParameterNumberInput parameter={parameter} parameterIndex={parameterIndex} />;
-  } else if (parameter.type === "string") {
-    return <ParameterStringInput parameter={parameter} parameterIndex={parameterIndex} />;
-  } else if (parameter.type === "boolean") {
-    return <ParameterBooleanInput parameter={parameter} parameterIndex={parameterIndex} />;
-  }
-  return <div>Unsupported parameter type: {parameter.type}</div>;
-}
-
-const ParameterNumberInput = (
-  { parameter, parameterIndex }:
-  { parameter: NumberParameter, parameterIndex: Accessor<number> }
-) => {
-  const {checkIndex, setBenefit} = useContext(CheckConfigurationContext);
-
   const onParameterChange = (newValue: number) => {
-    setBenefit(
-      "checks", checkIndex(),
+    setTempCheck(
       "parameters", parameterIndex(),
       "value", newValue
     );
   }
 
+  if (parameter.type === "number") {
+    return <ParameterNumberInput onParameterChange={onParameterChange} parameter={parameter} />;
+  } else if (parameter.type === "string") {
+    return <ParameterStringInput onParameterChange={onParameterChange} parameter={parameter} />;
+  } else if (parameter.type === "boolean") {
+    return <ParameterBooleanInput onParameterChange={onParameterChange} parameter={parameter} />;
+  }
+  return <div>Unsupported parameter type: {parameter.type}</div>;
+}
+
+const ParameterNumberInput = (
+  { onParameterChange, parameter }:
+  { onParameterChange: (value: any) => void, parameter: NumberParameter }
+) => {
   return (
     <div class="pl-2">
       <div class="mb-2 font-bold">
@@ -93,19 +114,9 @@ const ParameterNumberInput = (
 }
 
 const ParameterStringInput = (
-  { parameter, parameterIndex }:
-  { parameter: StringParameter, parameterIndex: Accessor<number> }
+  { onParameterChange, parameter }:
+  { onParameterChange: (value: any) => void, parameter: StringParameter }
 ) => {
-  const {checkIndex, setBenefit} = useContext(CheckConfigurationContext);
-
-  const onParameterChange = (newValue: string) => {
-    setBenefit(
-      "checks", checkIndex(),
-      "parameters", parameterIndex(),
-      "value", newValue
-    );
-  };
-
   return (
     <div class="pl-2">
       <div class="mb-2 font-bold">
@@ -124,19 +135,9 @@ const ParameterStringInput = (
 }
 
 const ParameterBooleanInput = (
-  { parameter, parameterIndex }:
-  { parameter: BooleanParameter, parameterIndex: Accessor<number> }
+  { onParameterChange, parameter }:
+  { onParameterChange: (value: any) => void, parameter: BooleanParameter }
 ) => {
-  const {checkIndex, setBenefit} = useContext(CheckConfigurationContext);
-
-  const onParameterChange = (newValue: boolean) => {
-    setBenefit(
-      "checks", checkIndex(),
-      "parameters", parameterIndex(),
-      "value", newValue
-    );
-  };
-
   return (
     <div class="pl-2">
       <div class="mb-2 font-bold">
@@ -149,7 +150,7 @@ const ParameterBooleanInput = (
         <div class="flex items-center gap-2">
           <input
             type="radio"
-            name={`param-${parameter.key}-${parameterIndex()}`}
+            name={`param-${parameter.key}`}
             checked={parameter.value === true}
             onInput={() => onParameterChange(true)}
           />
@@ -158,7 +159,7 @@ const ParameterBooleanInput = (
         <div class="flex items-center gap-2">
           <input
             type="radio"
-            name={`param-${parameter.key}-${parameterIndex()}`}
+            name={`param-${parameter.key}`}
             checked={parameter.value === false}
             onInput={() => onParameterChange(false)}
           />
