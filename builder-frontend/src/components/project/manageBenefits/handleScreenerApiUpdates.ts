@@ -3,7 +3,7 @@ import { trackDeep } from "@solid-primitives/deep";
 
 import { updateScreenerBenefits } from "../../../api/fake_screener_update";
 
-import type { ProjectBenefits as ProjectBenefitsType, Benefit } from "./types";
+import type { ScreenerBenefits, Benefit } from "./types";
 
 
 /* 
@@ -11,39 +11,42 @@ import type { ProjectBenefits as ProjectBenefitsType, Benefit } from "./types";
  * If a change occurs while an API call is pending, it stores the latest change
  * and sends it once the current call completes.
  */
-export const handleScreenerApiUpdates = (screenerId: string, projectBenefits: ProjectBenefitsType) => {
-  const [lastSavedTime, setLastSavedTime] = createSignal<null | number>();
+export const handleScreenerApiUpdates = (screenerId: string, projectBenefits: ScreenerBenefits) => {
+  // const [lastSavedTime, setLastSavedTime] = createSignal<null | number>();
 
-  let blockDataUpdates: boolean = false;
-  let latestData: Benefit[] = null;
+  // let blockDataUpdates: boolean = false;
+  // let latestData: Benefit[] = null;
 
-  async function sendApiUpdate(screenerId: string, benefits: Benefit[]) {
-    blockDataUpdates = true;
-    try {
-      await updateScreenerBenefits(screenerId, benefits);
-    } finally {
-      setLastSavedTime(Date.now());
-      blockDataUpdates = false;
-      if (latestData) {
-        // call API with the most recent data that did not send
-        const benefitDataToSend = latestData;
-        latestData = null;
-        await updateScreenerBenefits(screenerId, benefitDataToSend);
-      }
-    }
-  }
+  // async function sendApiUpdate(screenerId: string, benefits: Benefit[]) {
+  //   blockDataUpdates = true;
+  //   try {
+  //     await updateScreenerBenefits(screenerId, benefits);
+  //   } finally {
+  //     setLastSavedTime(Date.now());
+  //     blockDataUpdates = false;
+  //     if (latestData) {
+  //       // call API with the most recent data that did not send
+  //       const benefitDataToSend = latestData;
+  //       latestData = null;
 
-  createEffect(() => {
-    trackDeep(projectBenefits);
+  //       // TODO: should this be recursive?
+  //       await sendApiUpdate(screenerId, benefitDataToSend);
+  //     }
+  //   }
+  // }
 
-    if (blockDataUpdates) {
-      // Change detected during pending API call, store latest change
-      latestData = projectBenefits.benefits; // remember latest benefit data
-    } else {
-      // Change detected without API being blocked, send API call
-      sendApiUpdate(screenerId, projectBenefits.benefits);
-    }
-  });
+  // // TODO: add debounce to avoid too many API calls in quick succession
+  // createEffect(() => {
+  //   trackDeep(projectBenefits);
 
-  return lastSavedTime;
+  //   if (blockDataUpdates) {
+  //     // Change detected during pending API call, store latest change
+  //     latestData = projectBenefits.benefits; // remember latest benefit data
+  //   } else {
+  //     // Change detected without API being blocked, send API call
+  //     sendApiUpdate(screenerId, projectBenefits.benefits);
+  //   }
+  // });
+
+  return 0;
 }

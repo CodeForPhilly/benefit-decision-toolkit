@@ -1,6 +1,6 @@
 import { createSignal, For, useContext } from "solid-js";
 
-import SelectedCheckModal from "./ConfigureCheckModal";
+import SelectedCheckModal from "./modals/ConfigureCheckModal";
 
 import { CheckConfigurationContext } from "../contexts";
 import { titleCase } from "../../../../utils/title_case";
@@ -48,16 +48,7 @@ const SelectedEligibilityCheck = () => {
             <For each={check.parameters}>
               {(param) => {
                 const getLabel = () => {
-                  let label = param.value !== undefined ? param.value.toString() : <span class="text-yellow-700">Not configured</span>;
-
-                  if (param.type === "boolean" && param.value !== undefined) {
-                    if (param.value === true) {
-                      label = (param as any).truthLabel;
-                    } else if (param.value === false) {
-                      label = (param as any).falseLabel;
-                    }
-                  }
-                  return label;
+                  return param.value !== undefined ? param.value.toString() : <span class="text-yellow-700">Not configured</span>;
                 }
                 return (
                   <div class="flex gap-2 pl-4">

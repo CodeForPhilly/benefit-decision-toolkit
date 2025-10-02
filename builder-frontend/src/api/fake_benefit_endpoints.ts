@@ -42,3 +42,18 @@ export const getAllAvailableBenefits = async (): Promise<Benefit[]> => {
     }
   ];
 }
+
+export const getBenefit = async (): Promise<Benefit> => {
+  // Simulate an API call delay
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  
+  return {
+    id: "benefit_1",
+    name: "Housing Assistance",
+    description: "Provides financial assistance for housing costs.",
+    checks: [
+      minimumAgeRequirementCheck(60),
+      homeOwnershipStatusCheck(false),
+    ],
+  };
+}

@@ -29,7 +29,7 @@ public class EligibilityCheckResource {
     @Path("/check")
     public Response getAllChecks(@Context ContainerRequestContext requestContext) {
         String userId = AuthUtils.getUserId(requestContext);
-        if (userId == null){
+        if (userId == null) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         Log.info("Fetching all eligibility checks. User:  " + userId);

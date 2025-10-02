@@ -1,9 +1,9 @@
 import { Accessor, For, useContext } from "solid-js";
 
-import { BenefitConfigurationContext, CheckConfigurationContext } from "../contexts";
-import { titleCase } from "../../../../utils/title_case";
+import { CheckConfigurationContext } from "../../contexts";
+import { titleCase } from "../../../../../utils/title_case";
 
-import type { BooleanParameter, NumberParameter, Parameter, StringParameter } from "../types";
+import type { BooleanParameter, NumberParameter, ParameterDefinition, StringParameter } from "../../types";
 
 
 const ConfigureCheckModal = (
@@ -49,7 +49,7 @@ const ConfigureCheckModal = (
 
 const ParameterInput = (
   { parameter, parameterIndex }:
-  { parameter: Parameter, parameterIndex: Accessor<number> }
+  { parameter: ParameterDefinition, parameterIndex: Accessor<number> }
 ) => {
   if (parameter.type === "number") {
     return <ParameterNumberInput parameter={parameter} parameterIndex={parameterIndex} />;
@@ -65,12 +65,10 @@ const ParameterNumberInput = (
   { parameter, parameterIndex }:
   { parameter: NumberParameter, parameterIndex: Accessor<number> }
 ) => {
-  const {benefitIndex, setProjectBenefits} = useContext(BenefitConfigurationContext);
-  const {checkIndex} = useContext(CheckConfigurationContext);
+  const {checkIndex, setBenefit} = useContext(CheckConfigurationContext);
 
   const onParameterChange = (newValue: number) => {
-    setProjectBenefits(
-      "benefits", benefitIndex(),
+    setBenefit(
       "checks", checkIndex(),
       "parameters", parameterIndex(),
       "value", newValue
@@ -98,12 +96,10 @@ const ParameterStringInput = (
   { parameter, parameterIndex }:
   { parameter: StringParameter, parameterIndex: Accessor<number> }
 ) => {
-  const { benefitIndex, setProjectBenefits } = useContext(BenefitConfigurationContext);
-  const { checkIndex } = useContext(CheckConfigurationContext);
+  const {checkIndex, setBenefit} = useContext(CheckConfigurationContext);
 
   const onParameterChange = (newValue: string) => {
-    setProjectBenefits(
-      "benefits", benefitIndex(),
+    setBenefit(
       "checks", checkIndex(),
       "parameters", parameterIndex(),
       "value", newValue
@@ -131,12 +127,10 @@ const ParameterBooleanInput = (
   { parameter, parameterIndex }:
   { parameter: BooleanParameter, parameterIndex: Accessor<number> }
 ) => {
-  const { benefitIndex, setProjectBenefits } = useContext(BenefitConfigurationContext);
-  const { checkIndex } = useContext(CheckConfigurationContext);
+  const {checkIndex, setBenefit} = useContext(CheckConfigurationContext);
 
   const onParameterChange = (newValue: boolean) => {
-    setProjectBenefits(
-      "benefits", benefitIndex(),
+    setBenefit(
       "checks", checkIndex(),
       "parameters", parameterIndex(),
       "value", newValue

@@ -1,8 +1,15 @@
 /* Types for managing benefits in a project */
 
-export interface ProjectBenefits {
-  benefits: Benefit[];
+export interface ScreenerBenefits {
+  benefits: BenefitDetail[];
 }
+export interface BenefitDetail {
+  id: string;
+  name: string;
+  description: string;
+  isPublic: boolean;
+}
+
 export interface Benefit {
   id: string;
   name: string;
@@ -11,14 +18,15 @@ export interface Benefit {
 }
 export interface EligibilityCheck {
   id: string;
+  name: string;
+  module: string;
   description: string;
-  category: string;
-  inputs: Input[];
-  parameters: Parameter[];
+  inputs: InputDefinition[];
+  parameters: ParameterDefinition[];
 }
 
 /* Check Input Types */
-type Input = (
+type InputDefinition = (
   StringInput |
   StringSelectInput |
   NumberInput |
@@ -37,7 +45,7 @@ interface StringInput extends BaseInput {
   };
 }
 interface StringSelectInput extends BaseInput {
-  type: "string";
+  type: "select";
   options?: string;
   validation: {
     required: boolean;
@@ -57,7 +65,7 @@ interface BooleanInput extends BaseInput {
 }
 
 /* Parameter Types */
-export type Parameter = (
+export type ParameterDefinition = (
   StringParameter |
   StringSelectParameter |
   StringMultiInputParameter |
@@ -70,7 +78,7 @@ interface BaseParameter {
   required: boolean;
 }
 export interface StringSelectParameter extends BaseParameter {
-  type: "select_string";
+  type: "select";
   options?: string;
   value?: string;
 }
@@ -88,7 +96,5 @@ export interface NumberParameter extends BaseParameter {
 }
 export interface BooleanParameter extends BaseParameter {
   type: "boolean";
-  truthLabel: string;
-  falseLabel: string;
   value?: boolean;
 }

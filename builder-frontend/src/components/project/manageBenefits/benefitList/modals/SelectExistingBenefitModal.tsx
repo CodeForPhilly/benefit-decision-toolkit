@@ -1,14 +1,13 @@
-import { createResource } from "solid-js";
-import { SetStoreFunction } from "solid-js/store"
+import { Accessor, createResource } from "solid-js";
 
-import { getAllAvailableBenefits } from "../../../../api/fake_benefit_endpoints";
+import { getAllAvailableBenefits } from "../../../../../api/fake_benefit_endpoints";
 
-import type { Benefit, ProjectBenefits as ProjectBenefitsType } from "../types";
+import type { Benefit, BenefitDetail } from "../../types";
 
 
 const SelectExistingBenefitModal = (
-  { setProjectBenefits, closeModal }:
-  { setProjectBenefits: SetStoreFunction<ProjectBenefitsType>; closeModal: () => void }
+  { addNewBenefit, closeModal }:
+  { addNewBenefit: (benefit: BenefitDetail) => void; closeModal: () => void }
 ) => {
   const [availableBenefits] = createResource<Benefit[]>(getAllAvailableBenefits);
   
@@ -45,12 +44,15 @@ const SelectExistingBenefitModal = (
                   <div>
                     <div
                       class="btn-default btn-gray"
-                      onClick={() => {
-                        const benefitToAdd = structuredClone(benefit);
-                        
+                      onClick={() => {                        
                         // Ensure the new benefit has a unique ID
-                        benefitToAdd.id = crypto.randomUUID();
-                        setProjectBenefits("benefits", (benefits) => [...benefits, benefitToAdd]);
+                        const benefitToAdd: BenefitDetail = {
+                          name: benefit.name,
+                          description: benefit.description,
+                          id: crypto.randomUUID(),
+                          isPublic: false
+                        }
+                        addNewBenefit(benefitToAdd);
                         closeModal();
                       }}
                     >

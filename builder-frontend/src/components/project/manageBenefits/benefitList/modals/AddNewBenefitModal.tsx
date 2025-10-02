@@ -1,6 +1,7 @@
-import { createStore, SetStoreFunction } from "solid-js/store"
+import { createStore } from "solid-js/store"
 
-import type { ProjectBenefits as ProjectBenefitsType } from "../types";
+import type { BenefitDetail } from "../../types";
+import { Accessor } from "solid-js";
 
 
 type NewBenefitValues = {
@@ -8,8 +9,8 @@ type NewBenefitValues = {
   description: string;
 }
 const AddNewBenefitModal = (
-  { setProjectBenefits, closeModal }:
-  { setProjectBenefits: SetStoreFunction<ProjectBenefitsType>; closeModal: () => void }
+  { addNewBenefit, closeModal }:
+  { addNewBenefit: (benefit: BenefitDetail) => void; closeModal: () => void }
 ) => {
   const [newBenefit, setNewBenefit] = createStore<NewBenefitValues>({ name: "", description: "" });
 
@@ -19,17 +20,6 @@ const AddNewBenefitModal = (
   }
   const addButtonClasses = () => {
     return isAddDisabled() ? "opacity-50 cursor-not-allowed" : "hover:bg-sky-700";
-  }
-
-  // Function to add the new benefit
-  const addNewBenefit = () => {
-    const benefitToAdd = {
-      id: crypto.randomUUID(),
-      name: newBenefit.name,
-      description: newBenefit.description,
-      checks: [],
-    };
-    setProjectBenefits("benefits", (benefits) => [...benefits, benefitToAdd]);
   }
 
   return (
@@ -72,7 +62,13 @@ const AddNewBenefitModal = (
                 console.log("Please fill in all fields.");
                 return;
               }
-              addNewBenefit();
+              const benefitToAdd = {
+                id: crypto.randomUUID(),
+                name: newBenefit.name,
+                description: newBenefit.description,
+                isPublic: false,
+              };
+              addNewBenefit(benefitToAdd);
               closeModal();
             }}
           >

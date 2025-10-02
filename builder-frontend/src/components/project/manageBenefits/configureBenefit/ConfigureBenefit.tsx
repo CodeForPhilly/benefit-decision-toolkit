@@ -3,17 +3,18 @@ import { createResource, useContext, For, createSignal } from "solid-js";
 import SelectedEligibilityCheck from "./SelectedEligibilityCheck";
 import EligibilityCheckListView from "./EligibilityCheckListView";
 
-import { BenefitConfigurationContext, CheckConfigurationContext } from "../contexts";
-import { getPublicChecks, getUserDefinedChecks } from "../../../../api/fake_check_endpoints";
+import { CheckConfigurationContext } from "../contexts";
+import { fetchPublicChecks, fetchUserDefinedChecks } from "../../../../api/check_endpoints";
 
 import type { EligibilityCheckListMode } from "./EligibilityCheckListView";
 import type { EligibilityCheck } from "../types";
 
 
-const ConfigureBenefit = () => {
+const ConfigureBenefit = ({ benefitId }: { benefitId: string }) => {
+  return <div/>;
   const [checkListMode, setCheckListMode] = createSignal<EligibilityCheckListMode>("user-defined");
-  const [publicChecks] = createResource<EligibilityCheck[]>(getPublicChecks);
-  const [userDefinedChecks] = createResource<EligibilityCheck[]>(getUserDefinedChecks);
+  const [publicChecks] = createResource<EligibilityCheck[]>(fetchPublicChecks);
+  const [userDefinedChecks] = createResource<EligibilityCheck[]>(fetchUserDefinedChecks);
   const {benefit, setBenefitIndex} = useContext(BenefitConfigurationContext);
 
   return (
