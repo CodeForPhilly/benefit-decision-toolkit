@@ -1,4 +1,4 @@
-import { Accessor, createResource } from "solid-js";
+import { createResource } from "solid-js";
 
 import { getAllAvailableBenefits } from "../../../../../api/fake_benefit_endpoints";
 
@@ -10,7 +10,7 @@ const SelectExistingBenefitModal = (
   { addNewBenefit: (benefit: BenefitDetail) => void; closeModal: () => void }
 ) => {
   const [availableBenefits] = createResource<Benefit[]>(getAllAvailableBenefits);
-  
+
   return (
     <div
       class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
@@ -22,7 +22,9 @@ const SelectExistingBenefitModal = (
             <div>Loading available benefits...</div>
           )}
           {availableBenefits.error && (
-            <div class="text-red-600">Error loading benefits: {availableBenefits.error.message}</div>
+            <div class="text-red-600">
+              Error loading benefits: {availableBenefits.error.message}
+            </div>
           )}
           {availableBenefits() && availableBenefits().length === 0 && (
             <div>No available benefits found.</div>

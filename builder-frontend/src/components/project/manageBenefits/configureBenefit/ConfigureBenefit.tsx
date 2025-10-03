@@ -1,9 +1,8 @@
-import { createResource, useContext, For, createSignal, Show } from "solid-js";
+import { createResource, For, createSignal, Show } from "solid-js";
 
 import SelectedEligibilityCheck from "./SelectedEligibilityCheck";
 import EligibilityCheckListView from "./EligibilityCheckListView";
 
-import { CheckConfigurationContext } from "../contexts";
 import { fetchPublicChecks, fetchUserDefinedChecks } from "../../../../api/check_endpoints";
 
 import type { EligibilityCheckListMode } from "./EligibilityCheckListView";

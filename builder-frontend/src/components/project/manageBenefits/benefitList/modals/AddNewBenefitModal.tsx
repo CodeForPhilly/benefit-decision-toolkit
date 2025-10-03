@@ -1,7 +1,6 @@
 import { createStore } from "solid-js/store"
 
 import type { BenefitDetail } from "../../types";
-import { Accessor } from "solid-js";
 
 
 type NewBenefitValues = {

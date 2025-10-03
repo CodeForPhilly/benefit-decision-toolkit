@@ -1,4 +1,4 @@
-import { useContext, For, Resource, Accessor, Setter } from "solid-js";
+import { Accessor, For, Resource, Setter } from "solid-js";
 
 import { titleCase } from "../../../../utils/title_case";
 
@@ -46,6 +46,12 @@ const EligibilityCheckListView = (
     userDefinedChecks: Resource<EligibilityCheck[]>,
   }
 ) => {
+  const activeCheckConfig: Accessor<CheckModeConfig> = (
+    () => mode() === "public" ? PublicCheckConfig : UserDefinedCheckConfig
+  );
+  const activeChecks: Accessor<Resource<EligibilityCheck[]>> = (
+    () => mode() === "public" ? publicChecks : userDefinedChecks
+  );
   const onEligibilityCheckToggle = (check: EligibilityCheck) => {
     const isCheckSelected = benefit().checks.some((selected) => selected.id === check.id);
     if (isCheckSelected) {
@@ -55,13 +61,6 @@ const EligibilityCheckListView = (
       addCheck(structuredClone(check));
     }
   };
-
-  const activeCheckConfig: Accessor<CheckModeConfig> = (
-    () => mode() === "public" ? PublicCheckConfig : UserDefinedCheckConfig
-  );
-  const activeChecks: Accessor<Resource<EligibilityCheck[]>> = (
-    () => mode() === "public" ? publicChecks : userDefinedChecks
-  );
 
   return (
     <>
@@ -85,7 +84,7 @@ const EligibilityCheckListView = (
           </div>
         </div>
         <div>
-          {activeCheckConfig().description}
+          { activeCheckConfig().description }
         </div>
       </div>
       <table class="table-auto w-full mt-4 border-collapse">
@@ -99,7 +98,9 @@ const EligibilityCheckListView = (
         <tbody>
           {activeChecks().loading && (
             <tr>
-              <td colSpan={3} class="p-4 font-bold text-center">Loading checks...</td>
+              <td colSpan={3} class="p-4 font-bold text-center">
+                Loading checks...
+              </td>
             </tr>
           )}
           <For each={activeChecks()()}>
@@ -137,8 +138,12 @@ const EligibilityCheckRow = (
           onChange={() => onToggle(check)}
         />
       </td>
-      <td class="eligibility-check-table-cell border-top">{titleCase(check.id)}</td>
-      <td class="eligibility-check-table-cell border-top">{check.description}</td>
+      <td class="eligibility-check-table-cell border-top">
+        { titleCase(check.id) }
+      </td>
+      <td class="eligibility-check-table-cell border-top">
+        { check.description }
+      </td>
     </tr>
   );
 };

@@ -1,6 +1,5 @@
-import { Accessor, For, useContext } from "solid-js";
+import { Accessor, For } from "solid-js";
 
-import { CheckConfigurationContext } from "../../contexts";
 import { titleCase } from "../../../../../utils/title_case";
 
 import type { BooleanParameter, EligibilityCheck, NumberParameter, ParameterDefinition, StringParameter } from "../../types";
@@ -53,16 +52,10 @@ const ConfigureCheckModal = (
         )}
 
         <div class="flex justify-end space-x-2">
-          <div
-            class="btn-default hover:bg-gray-200"
-            onClick={closeModal}
-          >
+          <div class="btn-default hover:bg-gray-200" onClick={closeModal}>
             Cancel
           </div>
-          <div
-            class="btn-default hover:bg-gray-200"
-            onClick={confirmAndClose}
-          >
+          <div class="btn-default hover:bg-gray-200" onClick={confirmAndClose}>
             Confirm
           </div>
         </div>
@@ -75,7 +68,7 @@ const ParameterInput = (
   { setTempCheck, parameter, parameterIndex }:
   { setTempCheck: SetStoreFunction<EligibilityCheck>, parameter: ParameterDefinition, parameterIndex: Accessor<number> }
 ) => {
-  const onParameterChange = (newValue: number) => {
+  const onParameterChange = (newValue: any) => {
     setTempCheck(
       "parameters", parameterIndex(),
       "value", newValue
