@@ -2,10 +2,7 @@ package org.acme.controller;
 
 import io.quarkus.logging.Log;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -13,6 +10,7 @@ import jakarta.ws.rs.core.Response;
 import org.acme.auth.AuthUtils;
 import org.acme.model.domain.Benefit;
 import org.acme.model.domain.EligibilityCheck;
+import org.acme.model.domain.Screener;
 import org.acme.persistence.BenefitRepository;
 import org.acme.persistence.EligibilityCheckRepository;
 
@@ -51,7 +49,7 @@ public class BenefitResource {
         if (userId == null){
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
-        Log.info("Fetching all eligibility checks. User:  " + userId);
+        Log.info("Fetching benefit:  " + benefitId + " for user: " + userId);
         Optional<Benefit> benefitOpt = benefitRepository.getBenefit(benefitId);
 
         if (benefitOpt.isEmpty()){
@@ -92,9 +90,38 @@ public class BenefitResource {
     }
 
 
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/benefit")
+    public Response updateBenefit(@Context ContainerRequestContext requestContext, Benefit newBenefit) {
+        String userId = AuthUtils.getUserId(requestContext);
+        //TODO: Add validations for user provided data
 
-    // Utility endpoint to create a Benefit
-    // In the future separate endpoints will need to be created for publishing public benefits and creating private benefits
+        newBenefit.setOwnerId(userId);
+        try {
+            Optional<Benefit> benefitOpt = benefitRepository.getBenefit(newBenefit.getId());
+            if (benefitOpt.isEmpty()){
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            Benefit existingBenefit = benefitOpt.get();
+
+            if (!isUserAuthorizedToUpdateBenefit(userId, existingBenefit)){
+                return Response.status(Response.Status.UNAUTHORIZED).build();
+            }
+
+
+            benefitRepository.updateBenefit(newBenefit);
+            return Response.ok(newBenefit, MediaType.APPLICATION_JSON).build();
+
+        } catch (Exception e){
+            Log.error(e);
+            return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Could not update benefit"))
+                    .build();
+        }
+    }
+
+    // Utility endpoint to create a public benefit
     @POST
     @Path("/benefit")
     public Response createBenefit(@Context ContainerRequestContext requestContext, Benefit newBenefit) {
@@ -113,5 +140,16 @@ public class BenefitResource {
                     .entity(Map.of("error", "Could not save benefit"))
                     .build();
         }
+    }
+
+    private boolean isUserAuthorizedToUpdateBenefit(String userId, Benefit benefit) {
+        String ownerId = benefit.getOwnerId();
+        if (ownerId == null){
+            return false;
+        }
+        if (userId.equals(ownerId)){
+            return true;
+        }
+        return false;
     }
 }
