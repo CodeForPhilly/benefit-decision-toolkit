@@ -362,6 +362,32 @@ public class ScreenerResource {
         }
     }
 
+
+    @GET
+    @Path("/screener/{screenerId}/benefit/{benefitId}")
+    public Response getScreenerBenefit(@Context ContainerRequestContext requestContext,
+                                        @PathParam("screenerId") String screenerId,
+                                       @PathParam("benefitId") String benefitId){
+
+        String userId = AuthUtils.getUserId(requestContext);
+        if (!isUserAuthorizedToAccessScreenerByScreenerId(userId, screenerId)){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        try{
+            Optional<Benefit> benefitOpt = benefitRepository.getCustomBenefit(screenerId, benefitId);
+            if (benefitOpt.isEmpty()){
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            return Response.ok().entity(benefitOpt.get()).build();
+        } catch (Exception e){
+            Log.error(e);
+            return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Could not fetch benefit"))
+                    .build();
+        }
+    }
+
     @GET
     @Path("/screener/{screenerId}/benefit/{benefitId}/check")
     public Response getScreenerCustomBenefitChecks(@Context ContainerRequestContext requestContext,
@@ -440,4 +466,37 @@ public class ScreenerResource {
                     .build();
         }
     }
+
+
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/screener/{screenerId}/benefit")
+    public Response updateCustomBenefit(@Context ContainerRequestContext requestContext,
+                                        @PathParam("screenerId") String screenerId,
+                                        Benefit updatedBenefit) {
+        String userId = AuthUtils.getUserId(requestContext);
+        //TODO: Add validations for user provided data
+
+        if (!isUserAuthorizedToAccessScreenerByScreenerId(userId, screenerId)){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        try {
+            Optional<Benefit> benefitOpt = benefitRepository.getCustomBenefit(screenerId, updatedBenefit.getId());
+            if (benefitOpt.isEmpty()){
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+
+            benefitRepository.updateCustomBenefit(screenerId, updatedBenefit);
+            return Response.ok(updatedBenefit, MediaType.APPLICATION_JSON).build();
+
+        } catch (Exception e){
+            Log.error(e);
+            return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Could not update custom benefit"))
+                    .build();
+        }
+    }
+
 }

@@ -17,6 +17,8 @@ public interface BenefitRepository {
 
     String saveNewCustomBenefit(String ScreenerId, Benefit benefit) throws Exception;
 
+    void updateCustomBenefit(String ScreenerId, Benefit benefit) throws Exception;
+
     List<Benefit> getBenefitsInScreener(Screener screener) throws Exception;
 
     void updateBenefit(Benefit benefit) throws Exception;
