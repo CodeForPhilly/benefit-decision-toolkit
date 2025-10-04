@@ -1,17 +1,17 @@
 import { createResource, createEffect, Accessor } from "solid-js";
 import { createStore } from "solid-js/store";
 
-import { getBenefit, updateBenefit as updateBenefitApi } from "../../../../api/fake_benefit_endpoints";
+import { fetchScreenerBenefit, updateScreenerBenefit } from "../../../../api/benefit";
 
-import type { Benefit, EligibilityCheck, ParameterDefinition } from "../types";
+import type { Benefit, CheckConfig, ParameterValues } from "../types";
 
 
 interface ScreenerBenefitsResource {
   benefit: Accessor<Benefit>;
   actions: {
-    addCheck: (newCheck: EligibilityCheck) => void;
+    addCheck: (newCheck: CheckConfig) => void;
     removeCheck: (indexToRemove: number) => void;
-    updateCheck: (indexToUpdate: number, newCheckData: EligibilityCheck) => void;
+    updateCheckConfigParams: (indexToUpdate: number, parameters: ParameterValues) => void;
   };
   initialLoadStatus: {
     loading: Accessor<boolean>;
@@ -19,8 +19,11 @@ interface ScreenerBenefitsResource {
   };
 }
 
-const createScreenerBenefits = (benefitId: string): ScreenerBenefitsResource => {
-  const [benefitResource] = createResource(() => benefitId, getBenefit);  // TODO: fix fetch
+const createScreenerBenefits = (screenerId: string, benefitId: string): ScreenerBenefitsResource => {
+  const [benefitResource] = createResource<Benefit, string[]>(
+    () => [screenerId, benefitId], // TODO: Replace "1" with actual screenerId when available
+    ([sId, bId]) => fetchScreenerBenefit(sId, bId)
+  );
 
   // Local fine-grained store
   const [benefit, setBenefit] = createStore<Benefit | null>(null);
@@ -40,8 +43,8 @@ const createScreenerBenefits = (benefitId: string): ScreenerBenefitsResource => 
     setBenefit({ ...newBenefit });
 
     try {
-      const updated = await updateBenefitApi({ ...newBenefit });
-      // TODO: setBenefit({ ...updated });
+      const updated = await updateScreenerBenefit(screenerId, { ...newBenefit });
+      setBenefit({ ...updated });
     } catch (e) {
       console.error("Failed to update screener benefits, reverting state", e);
       setBenefit({ ...before });
@@ -49,34 +52,35 @@ const createScreenerBenefits = (benefitId: string): ScreenerBenefitsResource => 
   };
 
   // Actions
-  const addCheck = (newCheck: EligibilityCheck) => {
+  const addCheck = (newCheck: CheckConfig) => {
+    console.log("Adding check:", newCheck);
     if (!benefit) return;
 
-    const updatedChecks: EligibilityCheck[] = [...benefit.checks, newCheck]
+    const updatedChecks: CheckConfig[] = [...benefit.checks, newCheck]
     const updatedBenefit: Benefit = { ...benefit, checks: updatedChecks };
     updateBenefit(updatedBenefit);
   }
   const removeCheck = (indexToRemove: number) => {
     if (!benefit) return;
 
-    const updatedChecks: EligibilityCheck[] = (
+    const updatedChecks: CheckConfig[] = (
       benefit.checks.filter((_, checkIndex) => checkIndex !== indexToRemove)
     );
     const updatedBenefit: Benefit = { ...benefit, checks: updatedChecks };
     updateBenefit(updatedBenefit);
   }
-  const updateCheck = (indexToUpdate: number, newCheckData: EligibilityCheck) => {
+  const updateCheckConfigParams = (indexToUpdate: number, parameters: ParameterValues) => {
     if (!benefit) return;
 
-    const updatedChecks: EligibilityCheck[] = benefit.checks.map(
+    const updatedCheckConfigs: CheckConfig[] = benefit.checks.map(
       (check, checkIndex) => {
         if (checkIndex === indexToUpdate) {
-          return { ...newCheckData };
+          return { ...check, parameters: parameters};
         }
         return check;
       }
     );
-    const updatedBenefit: Benefit = { ...benefit, checks: updatedChecks };
+    const updatedBenefit: Benefit = { ...benefit, checks: updatedCheckConfigs };
     updateBenefit(updatedBenefit);
   }
 
@@ -85,7 +89,7 @@ const createScreenerBenefits = (benefitId: string): ScreenerBenefitsResource => 
     actions: {
       addCheck,
       removeCheck,
-      updateCheck
+      updateCheckConfigParams
     },
     initialLoadStatus: {
       loading: () => benefitResource.loading,

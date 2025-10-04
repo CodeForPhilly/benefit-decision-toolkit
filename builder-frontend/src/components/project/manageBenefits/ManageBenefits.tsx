@@ -1,22 +1,26 @@
 import { createSignal } from "solid-js";
+import { useParams } from "@solidjs/router";
 
 import BenefitList from "./benefitList/BenefitList";
 import ConfigureBenefit from "./configureBenefit/ConfigureBenefit";
 
 
 const ManageBenefits = () => {
+  const params = useParams();
+
+
   const [benefitIdToConfigure, setBenefitIdToConfigure] = createSignal<null | string>(null);
 
   return (
     <div class="px-4">
       {
         benefitIdToConfigure() === null && (
-          <BenefitList setBenefitIdToConfigure={setBenefitIdToConfigure}/>
+          <BenefitList screenerId={params.projectId} setBenefitIdToConfigure={setBenefitIdToConfigure}/>
         )
       }
       {
         benefitIdToConfigure() !== null && (
-          <ConfigureBenefit benefitId={benefitIdToConfigure()} setBenefitId={setBenefitIdToConfigure}/>
+          <ConfigureBenefit screenerId={params.projectId} benefitId={benefitIdToConfigure()} setBenefitId={setBenefitIdToConfigure}/>
         )
       }
     </div>

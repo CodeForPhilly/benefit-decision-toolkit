@@ -3,19 +3,25 @@ import { createSignal, For } from "solid-js";
 import SelectedCheckModal from "./modals/ConfigureCheckModal";
 
 import { titleCase } from "../../../../utils/title_case";
-import { EligibilityCheck } from "../types";
+import { CheckConfig, EligibilityCheck, ParameterValues } from "../types";
 
 
 const SelectedEligibilityCheck = (
-  { check, checkIndex, updateCheck }:
-  { check: EligibilityCheck; checkIndex: number; updateCheck: (checkIndex: number, newCheckData: EligibilityCheck) => void }
+  { check, checkConfig, checkIndex, updateCheckConfigParams }:
+  {
+    check: EligibilityCheck;
+    checkConfig: CheckConfig;
+    checkIndex: number;
+    updateCheckConfigParams: (checkIndex: number, newCheckData: ParameterValues) => void
+  }
 ) => {
-
   const [configuringCheckModalOpen, setConfiguringCheckModalOpen] = createSignal(false);
 
-  const unfilledRequiredParameters = () => {return check.parameters.filter(
-    (param) => param.required && param.value === undefined
-  )};
+  
+  const unfilledRequiredParameters = () => {return []};
+  // const unfilledRequiredParameters = () => {return check.parameters.filter(
+  //   (param) => param.required && param.value === undefined
+  // )};
 
   return (
     <>
@@ -47,14 +53,14 @@ const SelectedEligibilityCheck = (
         {check.parameters.length > 0 && (
           <div class="[&:has(+div)]:mb-2">
             <div class="text-lg font-bold pl-2">Parameters</div>
-            <For each={check.parameters}>
-              {(param) => {
+            <For each={Object.entries(checkConfig.parameters)}>
+              {([paramKey, paramValue]) => {
                 const getLabel = () => {
-                  return param.value !== undefined ? param.value.toString() : <span class="text-yellow-700">Not configured</span>;
+                  return paramValue !== undefined ? paramValue.toString() : <span class="text-yellow-700">Not configured</span>;
                 }
                 return (
                   <div class="flex gap-2 pl-4">
-                    <div>{titleCase(param.key)}:</div>
+                    <div>{titleCase(paramKey)}:</div>
                     <div>{getLabel()}</div>
                   </div>
                 );
@@ -72,8 +78,9 @@ const SelectedEligibilityCheck = (
         configuringCheckModalOpen() &&
         <SelectedCheckModal
           check={check}
+          checkConfig={checkConfig}
           checkIndex={checkIndex}
-          updateCheck={updateCheck}
+          updateCheckConfigParams={updateCheckConfigParams}
           closeModal={() => { setConfiguringCheckModalOpen(false); }}
         />
       }

@@ -1,7 +1,7 @@
 import { createResource, createEffect } from "solid-js";
 import { createStore } from "solid-js/store";
 
-import { fetchProject, updateScreener } from "../../../../api/screener";
+import { addCustomBenefit, fetchProject, updateScreener } from "../../../../api/screener";
 
 import type { BenefitDetail, ScreenerBenefits } from "../types";
 
@@ -11,7 +11,7 @@ interface ScreenerBenefitsResource {
   actions: {
     addNewBenefit: (benefit: BenefitDetail) => void;
     removeBenefit: (indexToRemove: number) => void;
-    updateBenefit: (index: number, updated: Partial<BenefitDetail>) => void;
+    // updateBenefit: (index: number, updated: Partial<BenefitDetail>) => void;
   };
   initialLoadStatus: {
     loading: boolean;
@@ -50,27 +50,37 @@ const createScreenerBenefits = (projectId: string): ScreenerBenefitsResource => 
   };
 
   // Actions
-  const addNewBenefit = (benefit: BenefitDetail) =>
-    updateScreenerBenefits([...screener.benefits || [], benefit]);
+  const addNewBenefit = async (benefit: BenefitDetail) => {
+    const before = screener.benefits;
+    const newBenefits: BenefitDetail[] = [...screener.benefits, benefit];
+    setScreener("benefits", newBenefits);
+
+    try {
+      await addCustomBenefit(projectId, benefit);
+      // TODO: setScreener(updated);
+    } catch (e) {
+      console.error("Failed to add new benefit, reverting state", e);
+      setScreener("benefits", before);
+    }
+  }
 
   const removeBenefit = (indexToRemove: number) =>
     updateScreenerBenefits(
       screener.benefits.filter((_, idx) => idx !== indexToRemove)
     );
 
-  const updateBenefit = (index: number, updated: Partial<BenefitDetail>) => {
-    // fine-grained property update (deep reactive!)
-    setScreener("benefits", index, (prev) => ({ ...prev, ...updated }));
-    // persist to server
-    updateScreenerBenefits(screener.benefits);
-  };
+  // const updateBenefit = (index: number, updated: Partial<BenefitDetail>) => {
+  //   // fine-grained property update
+  //   setScreener("benefits", index, (prev) => ({ ...prev, ...updated }));
+  //   updateScreenerBenefits(screener.benefits);
+  // };
 
   return {
     screenerBenefits: () => screener.benefits,
     actions: {
       addNewBenefit,
       removeBenefit,
-      updateBenefit
+      // updateBenefit
     },
     initialLoadStatus: {
       loading: screenerResource.loading,

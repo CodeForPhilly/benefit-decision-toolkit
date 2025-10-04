@@ -2,7 +2,7 @@ import { Accessor, For, Resource, Setter } from "solid-js";
 
 import { titleCase } from "../../../../utils/title_case";
 
-import type { Benefit, EligibilityCheck } from "../types";
+import type { Benefit, CheckConfig, EligibilityCheck } from "../types";
 
 
 export type EligibilityCheckListMode = "user-defined" | "public";
@@ -38,7 +38,7 @@ const EligibilityCheckListView = (
   { benefit, addCheck, removeCheck, mode, setMode, publicChecks, userDefinedChecks }:
   {
     benefit: Accessor<Benefit>;
-    addCheck: (newCheck: EligibilityCheck) => void;
+    addCheck: (newCheck: CheckConfig) => void;
     removeCheck: (indexToRemove: number) => void;
     mode: Accessor<EligibilityCheckListMode>,
     setMode: Setter<EligibilityCheckListMode>,
@@ -53,12 +53,14 @@ const EligibilityCheckListView = (
     () => mode() === "public" ? publicChecks : userDefinedChecks
   );
   const onEligibilityCheckToggle = (check: EligibilityCheck) => {
-    const isCheckSelected = benefit().checks.some((selected) => selected.id === check.id);
+    console.log("Toggling check:", check);
+    const isCheckSelected = benefit().checks.some((selected) => selected.checkId === check.id);
     if (isCheckSelected) {
-      const checkIndexToRemove = benefit().checks.findIndex((selected) => selected.id === check.id);
+      const checkIndexToRemove = benefit().checks.findIndex((selected) => selected.checkId === check.id);
       removeCheck(checkIndexToRemove);
     } else {
-      addCheck(structuredClone(check));
+      const checkConfig: CheckConfig = { checkId: check.id, parameters: {} };
+      addCheck(checkConfig);
     }
   };
 
@@ -107,7 +109,7 @@ const EligibilityCheckListView = (
             {(check) => (
               <EligibilityCheckRow
                 check={check}
-                selectedChecks={benefit().checks}
+                selectedCheckConfigs={benefit().checks}
                 onToggle={() => onEligibilityCheckToggle(check)}
               />
             )}
@@ -119,14 +121,14 @@ const EligibilityCheckListView = (
 };
 
 const EligibilityCheckRow = (
-  { check, selectedChecks, onToggle }:
+  { check, selectedCheckConfigs, onToggle }:
   {
     check: EligibilityCheck;
-    selectedChecks: EligibilityCheck[];
+    selectedCheckConfigs: CheckConfig[];
     onToggle: (check: EligibilityCheck) => void;
   }
 ) => {
-  const isCheckSelected = () => selectedChecks.some((selected) => selected.id === check.id);
+  const isCheckSelected = () => selectedCheckConfigs.some((selected) => selected.checkId === check.id);
 
   return (
     <tr>

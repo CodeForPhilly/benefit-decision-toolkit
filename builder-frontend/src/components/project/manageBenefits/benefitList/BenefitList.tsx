@@ -1,5 +1,4 @@
 import { Accessor, createSignal, For, Setter } from "solid-js";
-import { useParams } from "@solidjs/router";
 
 import AddNewBenefitModal from "./modals/AddNewBenefitModal";
 import ConfirmationModal from "../../../shared/ConfirmationModal";
@@ -11,11 +10,10 @@ import type { BenefitDetail } from "../types";
 
 
 const BenefitList = (
-  { setBenefitIdToConfigure }:
-  { setBenefitIdToConfigure: Setter<null | string> }
+  { screenerId, setBenefitIdToConfigure }:
+  { screenerId: string; setBenefitIdToConfigure: Setter<null | string> }
 ) => {
-  const params = useParams();
-  const { screenerBenefits, actions, initialLoadStatus } = screenerBenefitResource(params.projectId);
+  const { screenerBenefits, actions, initialLoadStatus } = screenerBenefitResource(screenerId);
 
   const [addingNewBenefit, setAddingNewBenefit] = createSignal<boolean>(false);
   const [selectExistingBenefitModal, setSelectExistingBenefitModal] = createSignal<boolean>(false);

@@ -1,3 +1,4 @@
+import { BenefitDetail } from "../components/project/manageBenefits/types";
 import { authFetch } from "./auth";
 import { cloneDeep } from "lodash";
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -109,7 +110,7 @@ export const deleteScreener = async (screenerData) => {
 };
 
 export const saveFormSchema = async (screenerId, schema) => {
-  const requestData = {};
+  const requestData: any = {};
   requestData.screenerId = screenerId;
   requestData.schema = schema;
   const url = apiUrl + "/save-form-schema";
@@ -133,7 +134,7 @@ export const saveFormSchema = async (screenerId, schema) => {
 };
 
 export const saveDmnModel = async (screenerId, dmnModel) => {
-  const requestData = {};
+  const requestData: any = {};
   requestData.screenerId = screenerId;
   requestData.dmnModel = dmnModel;
   const url = apiUrl + "/save-dmn-model";
@@ -237,6 +238,27 @@ export const addDependency = async (screenerId, dependency) => {
     }
   } catch (error) {
     console.error("Error adding dependency:", error);
+    throw error;
+  }
+};
+
+export const addCustomBenefit = async (screenerId: string, benefit: BenefitDetail) => {
+  const url = apiUrl + "/screener/" + screenerId + "/benefit";
+  try {
+    const response = await authFetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(benefit),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Create benefit failed with status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error creating benefit:", error);
     throw error;
   }
 };

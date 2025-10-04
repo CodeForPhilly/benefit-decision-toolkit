@@ -12,14 +12,20 @@ import BenefitResource from "./benefitResource";
 
 
 const ConfigureBenefit = (
-  { benefitId, setBenefitId }:
-  { benefitId: string; setBenefitId: (benefitId: string | null) => void }
+  { screenerId, benefitId, setBenefitId }:
+  { screenerId: string; benefitId: string; setBenefitId: (benefitId: string | null) => void }
 ) => {
-  const { benefit, actions, initialLoadStatus } = BenefitResource(benefitId);
+  const { benefit, actions, initialLoadStatus } = BenefitResource(screenerId, benefitId);
 
   const [checkListMode, setCheckListMode] = createSignal<EligibilityCheckListMode>("user-defined");
   const [publicChecks] = createResource<EligibilityCheck[]>(fetchPublicChecks);
   const [userDefinedChecks] = createResource<EligibilityCheck[]>(fetchUserDefinedChecks);
+
+  const getSelectedCheck = (checkId: string) => {
+    const allChecks = [...publicChecks() || [], ...userDefinedChecks() || []];
+    console.log("All checks:", allChecks);
+    return allChecks.find((check) => check.id === checkId);
+  }
 
   return (
     <>
@@ -67,13 +73,16 @@ const ConfigureBenefit = (
                 )}
                 {benefit().checks.length > 0 && (
                   <For each={benefit().checks}>
-                    {(check, checkIndex) => (
-                      <SelectedEligibilityCheck
-                        check={check}
-                        checkIndex={checkIndex()}
-                        updateCheck={actions.updateCheck}
-                      />
-                    )}
+                    {(checkConfig, checkIndex) => {
+                      return (
+                        <SelectedEligibilityCheck
+                          check={getSelectedCheck(checkConfig.checkId)}
+                          checkConfig={checkConfig}
+                          checkIndex={checkIndex()}
+                          updateCheckConfigParams={actions.updateCheckConfigParams}
+                        />
+                      );
+                    }}
                   </For>
                 )}
               </div>

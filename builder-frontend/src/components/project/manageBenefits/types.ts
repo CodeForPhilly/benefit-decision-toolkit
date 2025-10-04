@@ -14,8 +14,16 @@ export interface Benefit {
   id: string;
   name: string;
   description: string;
-  checks: EligibilityCheck[];
+  checks: CheckConfig[];
 }
+export interface CheckConfig {
+  checkId: string;
+  parameters: ParameterValues;
+}
+export interface ParameterValues {
+  [key: string]: string | number | boolean | string[] | undefined;
+}
+
 export interface EligibilityCheck {
   id: string;
   name: string;
@@ -80,21 +88,16 @@ interface BaseParameter {
 export interface StringSelectParameter extends BaseParameter {
   type: "select";
   options?: string;
-  value?: string;
 }
 export interface StringMultiInputParameter extends BaseParameter {
   type: "multi_input_string";
-  value?: string[];
 }
 export interface StringParameter extends BaseParameter {
   type: "string";
-  value?: string;
 }
 export interface NumberParameter extends BaseParameter {
   type: "number";
-  value?: number;
 }
 export interface BooleanParameter extends BaseParameter {
   type: "boolean";
-  value?: boolean;
 }
