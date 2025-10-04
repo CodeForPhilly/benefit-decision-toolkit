@@ -79,6 +79,12 @@ public class BenefitRepositoryImpl implements BenefitRepository {
         return FirestoreUtils.persistDocumentWithId(CollectionNames.BENEFIT_COLLECTION, benefitDocId, data);
     }
 
+    public void updateCustomBenefit(String screenerId, Benefit benefit) throws Exception {
+        ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Map<String, Object> data = mapper.convertValue(benefit, Map.class);
+        String benefitDocId = benefit.getId();
+        FirestoreUtils.updateDocument(CollectionNames.SCREENER_COLLECTION + "/" + screenerId + "/customBenefit", data, benefitDocId);
+    }
 
     public String saveNewCustomBenefit(String screenerId, Benefit benefit) throws Exception{
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
