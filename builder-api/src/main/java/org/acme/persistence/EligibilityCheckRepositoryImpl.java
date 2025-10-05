@@ -7,7 +7,6 @@ import org.acme.constants.CollectionNames;
 import org.acme.constants.FieldNames;
 import org.acme.model.domain.Benefit;
 import org.acme.model.domain.EligibilityCheck;
-import org.acme.model.domain.Screener;
 
 import java.util.List;
 import java.util.Map;
@@ -56,5 +55,18 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
         Map<String, Object> data = mapper.convertValue(check, Map.class);
         String checkDocId = check.getModule() + "-" + check.getId();
         return FirestoreUtils.persistDocumentWithId(CollectionNames.ELIGIBILITY_CHECK_COLLECTION, checkDocId, data);
+    }
+
+    public void updateElegibilityCheck(EligibilityCheck check) throws Exception {
+        ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Map<String, Object> data = mapper.convertValue(check, Map.class);
+
+        // Remove DMN model and form schema if included on the model.
+        // We don't want to save these artifacts as fields on the firestore document.
+        // These are saved separately on in cloud storage.
+        data.remove("dmnModel");
+        data.remove("formSchema");
+
+        FirestoreUtils.updateDocument(CollectionNames.ELIGIBILITY_CHECK_COLLECTION, data, check.getId());
     }
 }

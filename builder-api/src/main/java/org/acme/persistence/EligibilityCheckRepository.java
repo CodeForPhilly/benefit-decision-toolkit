@@ -15,4 +15,6 @@ public interface EligibilityCheckRepository {
     List<EligibilityCheck> getChecksInBenefit(Benefit benefit);
 
     String saveNewCheck(EligibilityCheck check) throws Exception;
+
+    public void updateElegibilityCheck(EligibilityCheck check) throws Exception;
 }

@@ -3,8 +3,10 @@ package org.acme.controller;
 
 import io.quarkus.logging.Log;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.container.ContainerRequestContext;
@@ -81,5 +83,44 @@ public class EligibilityCheckResource {
                     .entity(Map.of("error", "Could not save Check"))
                     .build();
         }
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/elegiblitiy-check")
+    public Response updateElegibilityCheck(@Context ContainerRequestContext requestContext, EligibilityCheck check){
+        String userId = AuthUtils.getUserId(requestContext);
+        if (!isUserAuthorizedToAccessCheckByCheckId(userId, check.getId())) return Response.status(Response.Status.UNAUTHORIZED).build();
+
+        //add user info to the update data
+        check.setOwnerId(userId);
+
+        Log.info("isPublished: " + check.getPublic());
+        try {
+            eligibilityCheckRepository.updateElegibilityCheck(check);
+
+            return Response.ok().build();
+        } catch (Exception e){
+            return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Could not update Elegibility Check"))
+                    .build();
+        }
+    }
+
+    private boolean isUserAuthorizedToAccessCheckByCheckId(String userId, String checkId) {
+        Optional<EligibilityCheck> checkOptional = eligibilityCheckRepository.getCheck(checkId);
+        if (checkOptional.isEmpty()){
+            return false;
+        }
+        EligibilityCheck check = checkOptional.get();
+        return isUserAuthorizedToAccessCheckByCheck(userId, check);
+    }
+
+    private boolean isUserAuthorizedToAccessCheckByCheck(String userId, EligibilityCheck check) {
+        String ownerId = check.getOwnerId();
+        if (userId.equals(ownerId)){
+            return true;
+        }
+        return false;
     }
 }
