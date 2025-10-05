@@ -120,7 +120,7 @@ public class BenefitResource {
     // Utility endpoint to update a benefit
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/benefit/")
+    @Path("/benefit")
     public Response updateBenefit(@Context ContainerRequestContext requestContext, Benefit benefit) {
         String userId = AuthUtils.getUserId(requestContext);
         if (!isUserAuthorizedToAccessBenefitByBenefitId(userId, benefit.getId())) return Response.status(Response.Status.UNAUTHORIZED).build();
