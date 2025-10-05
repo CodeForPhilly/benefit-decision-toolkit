@@ -123,8 +123,11 @@ public class BenefitResource {
     @Path("/benefit/")
     public Response updateBenefit(@Context ContainerRequestContext requestContext, Benefit benefit) {
         String userId = AuthUtils.getUserId(requestContext);
+        if (!isUserAuthorizedToAccessBenefitByBenefitId(userId, benefit.getId())) return Response.status(Response.Status.UNAUTHORIZED).build();
 
         benefit.setOwnerId(userId);
+
+        Log.info("isPublic: " + benefit.getPublic());
         try {
             benefitRepository.updateBenefit(benefit);
             return Response.ok().build();
@@ -133,5 +136,22 @@ public class BenefitResource {
                     .entity(Map.of("error", "Could not update Benefit"))
                     .build();
         }
+    }
+
+    private boolean isUserAuthorizedToAccessBenefitByBenefitId(String userId, String benefitId) {
+        Optional<Benefit> benefitOptional = benefitRepository.getBenefit(benefitId);
+        if (benefitOptional.isEmpty()){
+            return false;
+        }
+        Benefit benefit = benefitOptional.get();
+        return isUserAuthorizedToAccessBenefitByBenefit(userId, benefit);
+    }
+
+    private boolean isUserAuthorizedToAccessBenefitByBenefit(String userId, Benefit benefit) {
+        String ownerId = benefit.getOwnerId();
+        if (userId.equals(ownerId)){
+            return true;
+        }
+        return false;
     }
 }

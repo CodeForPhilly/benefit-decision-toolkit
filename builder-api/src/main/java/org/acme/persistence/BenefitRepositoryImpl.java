@@ -88,7 +88,13 @@ public class BenefitRepositoryImpl implements BenefitRepository {
     }
 
     @Override
-    public void updateBenefit(Benefit benefit) {
-        // TODO: Implement this method to update data in firestore
+    public void updateBenefit(Benefit benefit) throws Exception {
+        ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Map<String, Object> data = mapper.convertValue(benefit, Map.class);
+
+        data.remove("dmnModel");
+        data.remove("formSchema");
+
+        FirestoreUtils.updateDocument(CollectionNames.BENEFIT_COLLECTION, data, benefit.getId());
     }
 }
