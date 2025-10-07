@@ -20,8 +20,8 @@ export interface ScreenerBenefitsResource {
   };
 }
 
-const createScreenerBenefits = (projectId: string): ScreenerBenefitsResource => {
-  const [screenerResource, { refetch }] = createResource(() => projectId, fetchProject);
+const createScreenerBenefits = (screenerId: Accessor<string>): ScreenerBenefitsResource => {
+  const [screenerResource, { refetch }] = createResource(() => screenerId(), fetchProject);
   const [actionInProgress, setActionInProgress] = createSignal<boolean>(false);
 
   // Local fine-grained store
@@ -55,7 +55,7 @@ const createScreenerBenefits = (projectId: string): ScreenerBenefitsResource => 
   const addNewBenefit = async (benefit: BenefitDetail) => {
     setActionInProgress(true);
     try {
-      await addCustomBenefit(projectId, benefit);
+      await addCustomBenefit(screenerId(), benefit);
       await refetch();
     } catch (e) {
       console.error("Failed to add new benefit, reverting state", e);
@@ -66,7 +66,7 @@ const createScreenerBenefits = (projectId: string): ScreenerBenefitsResource => 
   const copyPublicBenefit = async (benefitId: string) => {
     setActionInProgress(true);
     try {
-      await copyPublicBenefitApi(projectId, benefitId);
+      await copyPublicBenefitApi(screenerId(), benefitId);
       await refetch();
     } catch (e) {
       console.error("Failed to add new benefit, reverting state", e);
@@ -77,7 +77,7 @@ const createScreenerBenefits = (projectId: string): ScreenerBenefitsResource => 
   const removeBenefit = async (benefitIdToRemove: string) => {
     setActionInProgress(true);
     try {
-      await removeCustomBenefit(projectId, benefitIdToRemove);
+      await removeCustomBenefit(screenerId(), benefitIdToRemove);
       await refetch();
     } catch (e) {
       console.error("Failed to delete new benefit, reverting state", e);

@@ -19,9 +19,9 @@ interface ScreenerBenefitsResource {
   };
 }
 
-const createScreenerBenefits = (screenerId: string, benefitId: string): ScreenerBenefitsResource => {
+const createScreenerBenefits = (screenerId: Accessor<string>, benefitId: Accessor<string>): ScreenerBenefitsResource => {
   const [benefitResource] = createResource<Benefit, string[]>(
-    () => [screenerId, benefitId], // TODO: Replace "1" with actual screenerId when available
+    () => [screenerId(), benefitId()],
     ([sId, bId]) => fetchScreenerBenefit(sId, bId)
   );
 
@@ -43,7 +43,7 @@ const createScreenerBenefits = (screenerId: string, benefitId: string): Screener
     setBenefit({ ...newBenefit });
 
     try {
-      const updated = await updateScreenerBenefit(screenerId, { ...newBenefit });
+      const updated = await updateScreenerBenefit(screenerId(), { ...newBenefit });
       setBenefit({ ...updated });
     } catch (e) {
       console.error("Failed to update screener benefits, reverting state", e);

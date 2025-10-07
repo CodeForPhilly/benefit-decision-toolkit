@@ -1,4 +1,4 @@
-import { createResource, createSignal, For, Show } from "solid-js";
+import { Accessor, createResource, createSignal, For, Show } from "solid-js";
 
 import SelectedEligibilityCheck from "./SelectedEligibilityCheck";
 import EligibilityCheckListView from "./EligibilityCheckListView";
@@ -13,7 +13,7 @@ import BenefitResource from "./benefitResource";
 
 const ConfigureBenefit = (
   { screenerId, benefitId, setBenefitId }:
-  { screenerId: string; benefitId: string; setBenefitId: (benefitId: string | null) => void }
+  { screenerId: Accessor<string>; benefitId: Accessor<string>; setBenefitId: (benefitId: string | null) => void }
 ) => {
   const { benefit, actions, initialLoadStatus } = BenefitResource(screenerId, benefitId);
 
@@ -75,12 +75,14 @@ const ConfigureBenefit = (
                   <For each={benefit().checks}>
                     {(checkConfig, checkIndex) => {
                       return (
-                        <SelectedEligibilityCheck
-                          check={getSelectedCheck(checkConfig.checkId)}
-                          checkConfig={checkConfig}
-                          checkIndex={checkIndex()}
-                          updateCheckConfigParams={actions.updateCheckConfigParams}
-                        />
+                        <Show when={getSelectedCheck(checkConfig.checkId)}>
+                          <SelectedEligibilityCheck
+                            check={getSelectedCheck(checkConfig.checkId)}
+                            checkConfig={checkConfig}
+                            checkIndex={checkIndex()}
+                            updateCheckConfigParams={actions.updateCheckConfigParams}
+                          />
+                        </Show>
                       );
                     }}
                   </For>

@@ -13,12 +13,12 @@ const ManageBenefits = () => {
     <div class="px-4">
       {
         benefitIdToConfigure() === null && (
-          <BenefitList screenerId={params.projectId} setBenefitIdToConfigure={setBenefitIdToConfigure}/>
+          <BenefitList screenerId={() => params.projectId} setBenefitIdToConfigure={setBenefitIdToConfigure}/>
         )
       }
       {
         benefitIdToConfigure() !== null && (
-          <ConfigureBenefit screenerId={params.projectId} benefitId={benefitIdToConfigure()} setBenefitId={setBenefitIdToConfigure}/>
+          <ConfigureBenefit screenerId={() => params.projectId} benefitId={benefitIdToConfigure} setBenefitId={setBenefitIdToConfigure}/>
         )
       }
     </div>

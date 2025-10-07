@@ -12,7 +12,7 @@ import type { BenefitDetail } from "../types";
 
 const BenefitList = (
   { screenerId, setBenefitIdToConfigure }:
-  { screenerId: string; setBenefitIdToConfigure: Setter<null | string> }
+  { screenerId: Accessor<string>; setBenefitIdToConfigure: Setter<null | string> }
 ) => {
   const { screenerBenefits, actions, actionInProgress, initialLoadStatus } = screenerBenefitResource(screenerId);
 
