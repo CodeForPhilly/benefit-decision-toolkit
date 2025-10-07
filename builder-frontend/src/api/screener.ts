@@ -262,3 +262,43 @@ export const addCustomBenefit = async (screenerId: string, benefit: BenefitDetai
     throw error;
   }
 };
+
+export const removeCustomBenefit = async (screenerId: string, benefitId: string) => {
+  const url = apiUrl + "/screener/" + screenerId + "/benefit/" + benefitId;
+  try {
+    const response = await authFetch(url, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Delete of benefit failed with status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error deleting custom benefit:", error);
+    throw error;
+  }
+};
+
+export const copyPublicBenefit = async (screenerId: string, benefitId: string) => {
+  const url = apiUrl + "/screener/" + screenerId + "/copy_public_benefit?benefitId=" + benefitId;
+  try {
+    const response = await authFetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Copy benefit failed with status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error copying benefit:", error);
+    throw error;
+  }
+};

@@ -1,4 +1,4 @@
-import { Accessor, For } from "solid-js";
+import { For } from "solid-js";
 
 import { titleCase } from "../../../../../utils/title_case";
 

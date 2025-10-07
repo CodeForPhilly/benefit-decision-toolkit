@@ -1,7 +1,8 @@
 import { createStore } from "solid-js/store"
 
 import type { BenefitDetail } from "../../types";
-
+import { createSignal, Show } from "solid-js";
+import Loading from "../../../../Loading";
 
 type NewBenefitValues = {
   name: string;
@@ -9,7 +10,7 @@ type NewBenefitValues = {
 }
 const AddNewBenefitModal = (
   { addNewBenefit, closeModal }:
-  { addNewBenefit: (benefit: BenefitDetail) => void; closeModal: () => void }
+  { addNewBenefit: (benefit: BenefitDetail) => Promise<void>; closeModal: () => void }
 ) => {
   const [newBenefit, setNewBenefit] = createStore<NewBenefitValues>({ name: "", description: "" });
 
@@ -56,7 +57,7 @@ const AddNewBenefitModal = (
           </div>
           <div
             class={"btn-default bg-sky-600 text-white " + addButtonClasses()}
-            onClick={() => {
+            onClick={async () => {
               if (isAddDisabled()) {
                 console.log("Please fill in all fields.");
                 return;
@@ -67,7 +68,7 @@ const AddNewBenefitModal = (
                 description: newBenefit.description,
                 isPublic: false,
               };
-              addNewBenefit(benefitToAdd);
+              await addNewBenefit(benefitToAdd);
               closeModal();
             }}
           >

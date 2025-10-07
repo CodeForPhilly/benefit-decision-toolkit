@@ -72,7 +72,7 @@ const EligibilityCheckListView = (
             {activeCheckConfig().title}
           </div>
           <div class="ml-auto flex gap-2">
-            <For each={[UserDefinedCheckConfig, PublicCheckConfig] as CheckModeConfig[]}>
+            <For each={[PublicCheckConfig, UserDefinedCheckConfig] as CheckModeConfig[]}>
               {(modeOption) => (
                 <div
                   class={`btn-default ${mode() === modeOption.mode ? "btn-blue" : "btn-gray"}`}
@@ -102,6 +102,13 @@ const EligibilityCheckListView = (
             <tr>
               <td colSpan={3} class="p-4 font-bold text-center">
                 Loading checks...
+              </td>
+            </tr>
+          )}
+          {(activeChecks()() && activeChecks()().length === 0) && (
+            <tr>
+              <td colSpan={3} class="p-4 font-bold text-center text-gray-600">
+                No checks available.
               </td>
             </tr>
           )}
@@ -141,7 +148,7 @@ const EligibilityCheckRow = (
         />
       </td>
       <td class="eligibility-check-table-cell border-top">
-        { titleCase(check.id) }
+        { check.name }
       </td>
       <td class="eligibility-check-table-cell border-top">
         { check.description }

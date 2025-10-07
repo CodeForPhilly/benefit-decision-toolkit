@@ -1,15 +1,16 @@
-import { createResource } from "solid-js";
+import { createResource, createSignal, Show } from "solid-js";
 
-import { getAllAvailableBenefits } from "../../../../../api/fake_benefit_endpoints";
+import { fetchPublicBenefits } from "../../../../../api/benefit";
 
 import type { Benefit, BenefitDetail } from "../../types";
+import Loading from "../../../../Loading";
 
 
 const SelectExistingBenefitModal = (
-  { addNewBenefit, closeModal }:
-  { addNewBenefit: (benefit: BenefitDetail) => void; closeModal: () => void }
+  { copyPublicBenefit, closeModal }:
+  { copyPublicBenefit: (benefitId: string) => Promise<void>; closeModal: () => void }
 ) => {
-  const [availableBenefits] = createResource<Benefit[]>(getAllAvailableBenefits);
+  const [availableBenefits] = createResource<Benefit[]>(fetchPublicBenefits);
 
   return (
     <div
@@ -46,15 +47,8 @@ const SelectExistingBenefitModal = (
                   <div>
                     <div
                       class="btn-default btn-gray"
-                      onClick={() => {                        
-                        // Ensure the new benefit has a unique ID
-                        const benefitToAdd: BenefitDetail = {
-                          name: benefit.name,
-                          description: benefit.description,
-                          id: crypto.randomUUID(),
-                          isPublic: false
-                        }
-                        addNewBenefit(benefitToAdd);
+                      onClick={async () => {
+                        await copyPublicBenefit(benefit.id);
                         closeModal();
                       }}
                     >

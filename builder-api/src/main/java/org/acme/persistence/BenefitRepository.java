@@ -22,4 +22,6 @@ public interface BenefitRepository {
     List<Benefit> getBenefitsInScreener(Screener screener) throws Exception;
 
     void updateBenefit(Benefit benefit) throws Exception;
+
+    void deleteCustomBenefit(String screenerId, String benefitId) throws Exception;
 }

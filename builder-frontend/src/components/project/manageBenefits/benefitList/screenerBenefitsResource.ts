@@ -1,26 +1,28 @@
-import { createResource, createEffect } from "solid-js";
+import { createResource, createEffect, Accessor, createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
 
-import { addCustomBenefit, fetchProject, updateScreener } from "../../../../api/screener";
+import { addCustomBenefit, copyPublicBenefit as copyPublicBenefitApi, fetchProject, removeCustomBenefit, updateScreener } from "../../../../api/screener";
 
 import type { BenefitDetail, ScreenerBenefits } from "../types";
 
 
-interface ScreenerBenefitsResource {
+export interface ScreenerBenefitsResource {
   screenerBenefits: () => BenefitDetail[];
   actions: {
-    addNewBenefit: (benefit: BenefitDetail) => void;
-    removeBenefit: (indexToRemove: number) => void;
-    // updateBenefit: (index: number, updated: Partial<BenefitDetail>) => void;
+    addNewBenefit: (benefit: BenefitDetail) => Promise<void>;
+    removeBenefit: (benefitIdToRemove: string) => Promise<void>;
+    copyPublicBenefit: (benefitId: string) => Promise<void>;
   };
+  actionInProgress: Accessor<boolean>;
   initialLoadStatus: {
-    loading: boolean;
-    error: unknown;
+    loading: Accessor<boolean>;
+    error: Accessor<unknown>;
   };
 }
 
 const createScreenerBenefits = (projectId: string): ScreenerBenefitsResource => {
-  const [screenerResource] = createResource(() => projectId, fetchProject);
+  const [screenerResource, { refetch }] = createResource(() => projectId, fetchProject);
+  const [actionInProgress, setActionInProgress] = createSignal<boolean>(false);
 
   // Local fine-grained store
   const [screener, setScreener] = createStore<ScreenerBenefits>({
@@ -51,40 +53,49 @@ const createScreenerBenefits = (projectId: string): ScreenerBenefitsResource => 
 
   // Actions
   const addNewBenefit = async (benefit: BenefitDetail) => {
-    const before = screener.benefits;
-    const newBenefits: BenefitDetail[] = [...screener.benefits, benefit];
-    setScreener("benefits", newBenefits);
-
+    setActionInProgress(true);
     try {
       await addCustomBenefit(projectId, benefit);
-      // TODO: setScreener(updated);
+      await refetch();
     } catch (e) {
       console.error("Failed to add new benefit, reverting state", e);
-      setScreener("benefits", before);
     }
+    setActionInProgress(false);
   }
 
-  const removeBenefit = (indexToRemove: number) =>
-    updateScreenerBenefits(
-      screener.benefits.filter((_, idx) => idx !== indexToRemove)
-    );
+  const copyPublicBenefit = async (benefitId: string) => {
+    setActionInProgress(true);
+    try {
+      await copyPublicBenefitApi(projectId, benefitId);
+      await refetch();
+    } catch (e) {
+      console.error("Failed to add new benefit, reverting state", e);
+    }
+    setActionInProgress(false);
+  }
 
-  // const updateBenefit = (index: number, updated: Partial<BenefitDetail>) => {
-  //   // fine-grained property update
-  //   setScreener("benefits", index, (prev) => ({ ...prev, ...updated }));
-  //   updateScreenerBenefits(screener.benefits);
-  // };
+  const removeBenefit = async (benefitIdToRemove: string) => {
+    setActionInProgress(true);
+    try {
+      await removeCustomBenefit(projectId, benefitIdToRemove);
+      await refetch();
+    } catch (e) {
+      console.error("Failed to delete new benefit, reverting state", e);
+    }
+    setActionInProgress(false);
+  };
 
   return {
     screenerBenefits: () => screener.benefits,
     actions: {
       addNewBenefit,
       removeBenefit,
-      // updateBenefit
+      copyPublicBenefit
     },
+    actionInProgress,
     initialLoadStatus: {
-      loading: screenerResource.loading,
-      error: screenerResource.error,
+      loading: () => screenerResource.loading,
+      error: () => screenerResource.error,
     },
   };
 };

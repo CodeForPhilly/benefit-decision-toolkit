@@ -1,9 +1,9 @@
-import { createResource, For, createSignal, Show } from "solid-js";
+import { createResource, createSignal, For, Show } from "solid-js";
 
 import SelectedEligibilityCheck from "./SelectedEligibilityCheck";
 import EligibilityCheckListView from "./EligibilityCheckListView";
 
-import { fetchPublicChecks, fetchUserDefinedChecks } from "../../../../api/check_endpoints";
+import { fetchPublicChecks, fetchUserDefinedChecks } from "../../../../api/check";
 
 import type { EligibilityCheckListMode } from "./EligibilityCheckListView";
 import type { EligibilityCheck } from "../types";
@@ -17,7 +17,7 @@ const ConfigureBenefit = (
 ) => {
   const { benefit, actions, initialLoadStatus } = BenefitResource(screenerId, benefitId);
 
-  const [checkListMode, setCheckListMode] = createSignal<EligibilityCheckListMode>("user-defined");
+  const [checkListMode, setCheckListMode] = createSignal<EligibilityCheckListMode>("public");
   const [publicChecks] = createResource<EligibilityCheck[]>(fetchPublicChecks);
   const [userDefinedChecks] = createResource<EligibilityCheck[]>(fetchUserDefinedChecks);
 

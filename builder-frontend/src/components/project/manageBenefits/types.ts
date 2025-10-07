@@ -16,12 +16,13 @@ export interface Benefit {
   description: string;
   checks: CheckConfig[];
 }
+// An EligibilityCheck, as configured by a particular Benefit
 export interface CheckConfig {
   checkId: string;
   parameters: ParameterValues;
 }
 export interface ParameterValues {
-  [key: string]: string | number | boolean | string[] | undefined;
+  [key: string]: string | number | boolean | string[];
 }
 
 export interface EligibilityCheck {

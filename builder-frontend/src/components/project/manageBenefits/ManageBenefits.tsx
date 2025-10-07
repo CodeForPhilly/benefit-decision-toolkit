@@ -7,8 +7,6 @@ import ConfigureBenefit from "./configureBenefit/ConfigureBenefit";
 
 const ManageBenefits = () => {
   const params = useParams();
-
-
   const [benefitIdToConfigure, setBenefitIdToConfigure] = createSignal<null | string>(null);
 
   return (

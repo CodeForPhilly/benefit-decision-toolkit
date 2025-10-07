@@ -16,6 +16,9 @@ import java.util.Optional;
 @ApplicationScoped
 public class BenefitRepositoryImpl implements BenefitRepository {
 
+    public String calculateCustomBenefitCollection(String screenerId) {
+        return CollectionNames.SCREENER_COLLECTION + "/" + screenerId + "/customBenefit";
+    }
 
     public List<Benefit> getAllPublicBenefits(){
 
@@ -27,7 +30,6 @@ public class BenefitRepositoryImpl implements BenefitRepository {
 
         return benefits;
     }
-
 
     public Optional<Benefit> getBenefit(String benefitId){
 
@@ -46,7 +48,8 @@ public class BenefitRepositoryImpl implements BenefitRepository {
 
     public Optional<Benefit> getCustomBenefit(String screenerId, String benefitId){
         Optional<Map<String, Object>> benefitMap = FirestoreUtils.getFirestoreDocById(
-                CollectionNames.SCREENER_COLLECTION + "/" + screenerId + "/customBenefit", benefitId);
+            calculateCustomBenefitCollection(screenerId), benefitId
+        );
 
         if (benefitMap.isEmpty()) {
             return Optional.empty();
@@ -64,7 +67,7 @@ public class BenefitRepositoryImpl implements BenefitRepository {
                 .toList();
 
         List<Map<String, Object>> benefitsMaps = FirestoreUtils.getFirestoreDocsByIds(CollectionNames.BENEFIT_COLLECTION, publicBenefitIds);
-        List<Map<String, Object>> customBenefitMaps = FirestoreUtils.getAllDocsInCollection(CollectionNames.SCREENER_COLLECTION + "/" + screener.getId() + "/customBenefit");
+        List<Map<String, Object>> customBenefitMaps = FirestoreUtils.getAllDocsInCollection(calculateCustomBenefitCollection(screener.getId()));
 
         benefitsMaps.addAll(customBenefitMaps);
         ObjectMapper mapper = new ObjectMapper();
@@ -83,19 +86,25 @@ public class BenefitRepositoryImpl implements BenefitRepository {
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(benefit, Map.class);
         String benefitDocId = benefit.getId();
-        FirestoreUtils.updateDocument(CollectionNames.SCREENER_COLLECTION + "/" + screenerId + "/customBenefit", data, benefitDocId);
+        System.out.println("Updating custom benefit: " + benefit.getId());
+
+        FirestoreUtils.updateDocument(calculateCustomBenefitCollection(screenerId), data, benefitDocId);
     }
 
     public String saveNewCustomBenefit(String screenerId, Benefit benefit) throws Exception{
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(benefit, Map.class);
         String benefitDocId = benefit.getId();
-        return FirestoreUtils.persistDocumentWithId(CollectionNames.SCREENER_COLLECTION + "/" + screenerId + "/customBenefit", benefitDocId, data);
+        return FirestoreUtils.persistDocumentWithId(calculateCustomBenefitCollection(screenerId), benefitDocId, data);
     }
 
     public void updateBenefit(Benefit benefit) throws Exception{
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(benefit, Map.class);
         FirestoreUtils.updateDocument(CollectionNames.BENEFIT_COLLECTION, data, benefit.getId());
+    }
+
+    public void deleteCustomBenefit(String screenerId, String benefitId) throws Exception {
+        FirestoreUtils.deleteDocument(calculateCustomBenefitCollection(screenerId), benefitId);
     }
 }

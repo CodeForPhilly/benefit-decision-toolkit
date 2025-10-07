@@ -1,10 +1,11 @@
-import { Accessor, createSignal, For, Setter } from "solid-js";
+import { Accessor, createSignal, For, Setter, Show } from "solid-js";
 
 import AddNewBenefitModal from "./modals/AddNewBenefitModal";
 import ConfirmationModal from "../../../shared/ConfirmationModal";
 import SelectExistingBenefitModal from "./modals/SelectExistingBenefitModal";
 
 import screenerBenefitResource from "./screenerBenefitsResource";
+import Loading from "../../../Loading";
 
 import type { BenefitDetail } from "../types";
 
@@ -13,11 +14,11 @@ const BenefitList = (
   { screenerId, setBenefitIdToConfigure }:
   { screenerId: string; setBenefitIdToConfigure: Setter<null | string> }
 ) => {
-  const { screenerBenefits, actions, initialLoadStatus } = screenerBenefitResource(screenerId);
+  const { screenerBenefits, actions, actionInProgress, initialLoadStatus } = screenerBenefitResource(screenerId);
 
   const [addingNewBenefit, setAddingNewBenefit] = createSignal<boolean>(false);
   const [selectExistingBenefitModal, setSelectExistingBenefitModal] = createSignal<boolean>(false);
-  const [benefitIndexToRemove, setBenefitIndexToRemove] = createSignal<null | number>(null);
+  const [benefitIdToRemove, setBenefitIdToRemove] = createSignal<null | string>(null);
 
   return (
     <div class="p-5">
@@ -45,6 +46,14 @@ const BenefitList = (
           grid gap-4 justify-items-center
           grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
       >
+        <Show when={initialLoadStatus.loading() || actionInProgress()}>
+          <Loading/>
+        </Show>
+        <Show when={!initialLoadStatus.loading() && screenerBenefits().length === 0}>
+          <div class="w-full flex text-gray-600 font-bold">
+            No benefits found. Please add a new benefit.
+          </div>
+        </Show>
         <For each={screenerBenefits()}>
           {(benefit, benefitIndex) => {
             return (
@@ -52,7 +61,7 @@ const BenefitList = (
                 benefit={benefit}
                 benefitIndex={benefitIndex}
                 setBenefitIdToConfigure={setBenefitIdToConfigure}
-                setBenefitIndexToRemove={setBenefitIndexToRemove}
+                setBenefitIdToRemove={setBenefitIdToRemove}
               />
             );
           }}
@@ -69,16 +78,16 @@ const BenefitList = (
         selectExistingBenefitModal() &&
         <SelectExistingBenefitModal
           closeModal={() => setSelectExistingBenefitModal(false)}
-          addNewBenefit={actions.addNewBenefit}
+          copyPublicBenefit={actions.copyPublicBenefit}
         />
       }
       {
-        benefitIndexToRemove() !== null &&
+        benefitIdToRemove() !== null &&
         <ConfirmationModal
           confirmationTitle="Remove Benefit"
           confirmationText="Are you sure you want to remove this benefit? This action cannot be undone."
-          callback={() => actions.removeBenefit(benefitIndexToRemove()) }
-          closeModal={() => setBenefitIndexToRemove(null) }
+          callback={() => actions.removeBenefit(benefitIdToRemove()) }
+          closeModal={() => setBenefitIdToRemove(null) }
         />
       }
     </div>
@@ -86,12 +95,12 @@ const BenefitList = (
 };
 
 const BenefitCard = (
-  { benefit, benefitIndex, setBenefitIdToConfigure, setBenefitIndexToRemove }:
+  { benefit, benefitIndex, setBenefitIdToConfigure, setBenefitIdToRemove }:
   {
     benefit: BenefitDetail,
     benefitIndex: Accessor<number>,
     setBenefitIdToConfigure: Setter<string>,
-    setBenefitIndexToRemove: Setter<number>
+    setBenefitIdToRemove: Setter<string>
   }
 ) => {
   return (
@@ -124,7 +133,7 @@ const BenefitCard = (
           </div>
           <div
             class="btn-default btn-red"
-            onClick={() => { setBenefitIndexToRemove(benefitIndex()); } }
+            onClick={() => { setBenefitIdToRemove(benefit.id); } }
           >
             Remove
           </div>
