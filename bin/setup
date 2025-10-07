@@ -11,6 +11,8 @@ source "$SCRIPT_DIR/functions"
 
 print_status "🚀 Starting Benefit Decision Toolkit Developer Setup..."
 
+echo ""
+
 if [[ "$DEVBOX_SHELL_ENABLED" != "1" ]]; then
   if ask_user "This project is configured to use devbox (https://www.jetify.com/devbox) to manage system dependencies. Do you want to use devbox? (default=yes)" "y"; then
     echo ""
@@ -88,10 +90,33 @@ cd ..
 
 print_status "Finished installing backend dependencies."
 
+echo ""
+
+print_status "Setting up environment files..."
+
+bin/ensure-root-env-file
+
+SERVICES=("builder-frontend" "screener-frontend" "builder-api" "screener-api" "library-api")
+for service in "${SERVICES[@]}"; do
+  if [ -f "$service/.env.example" ] && [ ! -f "$service/.env" ]; then
+    cp "$service/.env.example" "$service/.env"
+    print_success "✓ Created $service/.env from .env.example"
+  elif [ -f "$service/.env" ]; then
+    print_status "○ $service/.env already exists"
+  else
+    print_error "⚠ Error: $service/.env.example not found"
+    exit 1
+  fi
+done
+
+echo ""
+
 print_success "🎉 Developer setup completed successfully!"
 echo ""
 echo "📋 Next Steps:"
-echo "1. Ask a teammate to help you setup .env files in builder-frontend and screener-frontend."
+echo "1. Environment Configuration:"
+echo "  a. If you plan to use devbox and develop against local emulators, then you are good to go!"
+echo "  b. If not using devbox and/or plan to develop against real Firebase services, then you might need help from a teammate to finish setting up your environment."
 echo "2. If using devbox, then:"
 echo "  a. Run 'devbox shell' within the project root directory to load dependencies. (https://www.jetify.com/docs/devbox/cli_reference/devbox_shell/)"
 echo "  b. Consider using the direnv integration to load dependencies automatically. (https://www.jetify.com/docs/devbox/ide_configuration/direnv/)"

@@ -4,6 +4,7 @@
     "dockerfile": "./Dockerfile",
     "context": ".."
   },
+  "postCreateCommand": "devbox run setup",
   "customizations": {
     "vscode": {
       "settings": {},

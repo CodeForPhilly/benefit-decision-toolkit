@@ -28,6 +28,20 @@ else
   print_status "devbox already installed."
 fi
 
+bin/ensure-root-env-file
+
+print_status "🔍 Checking for existing bin/devbox-init-hook..."
+if [ -f "bin/devbox-init-hook.example" ] && [ ! -f "bin/devbox-init-hook" ]; then
+  cp "bin/devbox-init-hook.example" "bin/devbox-init-hook"
+  chmod +x "bin/devbox-init-hook"
+  print_success "✓ Created bin/devbox-init-hook from example"
+elif [ -f "bin/devbox-init-hook" ]; then
+  print_status "○ bin/devbox-init-hook already exists"
+else
+  print_error "⚠ Error: bin/devbox-init-hook.example not found."
+  exit 1
+fi
+
 print_status "📦 Setting up devbox environment..."
 if [ -f "devbox.json" ]; then
   devbox install

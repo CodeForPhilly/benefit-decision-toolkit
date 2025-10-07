@@ -10,5 +10,5 @@ set -e
 # IMPORTANT: don't use this script for environment variables; use .env instead.
 
 # e.g. disable mise in devbox shell
-command -v mise >/dev/null && mise --quiet deactivate || true
+# command -v mise >/dev/null && mise deactivate || true
 

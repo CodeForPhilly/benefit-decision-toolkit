@@ -10,9 +10,8 @@ processes:
     command: quarkus dev
     working_dir: builder-api/
     environment:
-      - "QUARKUS_HTTP_PORT=8081"
       - "QUARKUS_CONSOLE_COLOR=true"
-    ready_log_line: "Listening on: http://localhost:8081"
+    ready_log_line: "Listening on: http://localhost:"
     depends_on:
       firebase-emulators:
         condition: process_log_ready
@@ -28,9 +27,8 @@ processes:
     command: quarkus dev
     working_dir: screener-api/
     environment:
-      - "QUARKUS_HTTP_PORT=8082"
       - "QUARKUS_CONSOLE_COLOR=true"
-    ready_log_line: "Listening on: http://localhost:8082"
+    ready_log_line: "Listening on: http://localhost:"
     depends_on:
       firebase-emulators:
         condition: process_log_ready

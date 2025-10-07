@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -e
+
+set -a
+[ -f .env ] && source .env
+set +a
