@@ -79,6 +79,12 @@ public class BenefitRepositoryImpl implements BenefitRepository {
         return FirestoreUtils.persistDocumentWithId(CollectionNames.BENEFIT_COLLECTION, benefitDocId, data);
     }
 
+    public void updateCustomBenefit(String screenerId, Benefit benefit) throws Exception {
+        ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Map<String, Object> data = mapper.convertValue(benefit, Map.class);
+        String benefitDocId = benefit.getId();
+        FirestoreUtils.updateDocument(CollectionNames.SCREENER_COLLECTION + "/" + screenerId + "/customBenefit", data, benefitDocId);
+    }
 
     public String saveNewCustomBenefit(String screenerId, Benefit benefit) throws Exception{
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -87,14 +93,9 @@ public class BenefitRepositoryImpl implements BenefitRepository {
         return FirestoreUtils.persistDocumentWithId(CollectionNames.SCREENER_COLLECTION + "/" + screenerId + "/customBenefit", benefitDocId, data);
     }
 
-    @Override
-    public void updateBenefit(Benefit benefit) throws Exception {
+    public void updateBenefit(Benefit benefit) throws Exception{
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(benefit, Map.class);
-
-        data.remove("dmnModel");
-        data.remove("formSchema");
-
         FirestoreUtils.updateDocument(CollectionNames.BENEFIT_COLLECTION, data, benefit.getId());
     }
 }
