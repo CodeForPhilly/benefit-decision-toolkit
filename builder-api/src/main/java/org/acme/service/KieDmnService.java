@@ -5,6 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
 import org.acme.model.domain.DmnModel;
+import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.domain.Screener;
 import org.acme.model.dto.Dependency;
 import org.acme.persistence.DmnModelRepository;
@@ -229,4 +230,68 @@ public class KieDmnService implements DmnService {
         }
         return dmnXml;
     }
+
+    private String getCheckDmnXml(EligibilityCheck check) {
+        String filePath = storageService.getCheckDmnModelPath(check.getModule(), check.getId(), check.getVersion());
+        Optional<String> dmnXml = storageService.getStringFromStorage(filePath);
+        if (dmnXml.isEmpty()){
+            throw new RuntimeException("Eligibility Check DMN file not found");
+        }
+        return dmnXml.get();
+    }
+
+    public Boolean evaluateCheck(EligibilityCheck check, Map<String, Object> inputs) throws Exception{
+        String dmnXml = getCheckDmnXml(check);
+
+        byte[] serializedModel = compileDmnModel(dmnXml, new HashMap<>(), check.getId());
+
+
+        KieSession kieSession = initializeKieSession(serializedModel);
+        DMNRuntime dmnRuntime = kieSession.getKieRuntime(DMNRuntime.class);
+
+        try {
+            DMNModel dmnModel = dmnRuntime.getModel(screener.getWorkingDmnNameSpace(), screener.getWorkingDmnName());
+
+            DMNContext context = dmnRuntime.newContext();
+            for (String key : inputs.keySet()) {
+                context.set(key, inputs.get(key));
+            }
+
+            DMNResult dmnResult = dmnRuntime.evaluateAll(dmnModel, context);
+
+            Map<String, Object> response = new LinkedHashMap<>();
+            response.put("inputs", inputs);
+
+
+            List<Map<String, Object>> decisions = new ArrayList<>();
+            for (DMNDecisionResult decisionResult :  dmnResult.getDecisionResults()) {
+                Map<String, Object> decisionDetail = new LinkedHashMap<>();
+                decisionDetail.put("decisionName", decisionResult.getDecisionName());
+                decisionDetail.put("result", decisionResult.getResult());
+                decisionDetail.put("status", decisionResult.getEvaluationStatus().toString());
+
+                decisions.add(decisionDetail);
+            }
+            response.put("decisions", decisions);
+
+            if (!dmnResult.getMessages().isEmpty()) {
+                response.put("messages", dmnResult.getMessages().stream()
+                        .map(DMNMessage::getMessage).collect(Collectors.toList()));
+            }
+
+            kieSession.dispose();
+            return response;
+        }
+        catch (Exception e){
+            return new HashMap<>();
+        } finally{
+            if (kieSession != null) {
+                kieSession.dispose();
+            }
+        }
+
+        return true;
+    }
+
+
 }

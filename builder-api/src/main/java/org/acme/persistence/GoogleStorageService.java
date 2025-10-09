@@ -140,6 +140,12 @@ public class GoogleStorageService implements StorageService {
     public String getWorkingCompiledDmnModelPath(String screenerId){
         return "compiled_dmn_models/working/" + screenerId + "/kiebase.ser";
     }
+
+    @Override
+    public String getCheckDmnModelPath(String module, String checkId, String version){
+        return "check/" + module + "/" + checkId + "/" + version + "/" +  module + "_" + checkId + ".dmn";
+    }
+
     @Override
     public Map<String, Object> getFormSchemaFromStorage(String filePath) {
         try {
