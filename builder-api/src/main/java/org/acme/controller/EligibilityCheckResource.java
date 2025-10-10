@@ -87,7 +87,7 @@ public class EligibilityCheckResource {
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/elegiblitiy-check")
+    @Path("/elegibilitiy-check")
     public Response updateElegibilityCheck(@Context ContainerRequestContext requestContext, EligibilityCheck check){
         String userId = AuthUtils.getUserId(requestContext);
         if (!isUserAuthorizedToAccessCheckByCheckId(userId, check.getId())) return Response.status(Response.Status.UNAUTHORIZED).build();
