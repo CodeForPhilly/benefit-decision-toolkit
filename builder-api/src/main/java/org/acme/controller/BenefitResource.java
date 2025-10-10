@@ -142,38 +142,7 @@ public class BenefitResource {
         }
     }
 
-
-    // Utility endpoint to update a benefit
-    @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/benefit")
-    public Response updateBenefit(@Context ContainerRequestContext requestContext, Benefit benefit) {
-        String userId = AuthUtils.getUserId(requestContext);
-        if (!isUserAuthorizedToAccessBenefitByBenefitId(userId, benefit.getId())) return Response.status(Response.Status.UNAUTHORIZED).build();
-
-        benefit.setOwnerId(userId);
-
-        Log.info("isPublic: " + benefit.getPublic());
-        try {
-            benefitRepository.updateBenefit(benefit);
-            return Response.ok().build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(Map.of("error", "Could not update Benefit"))
-                    .build();
-        }
-    }
-
-    private boolean isUserAuthorizedToAccessBenefitByBenefitId(String userId, String benefitId) {
-        Optional<Benefit> benefitOptional = benefitRepository.getBenefit(benefitId);
-        if (benefitOptional.isEmpty()){
-            return false;
-        }
-        Benefit benefit = benefitOptional.get();
-        return isUserAuthorizedToAccessBenefitByBenefit(userId, benefit);
-    }
-
-    private boolean isUserAuthorizedToAccessBenefitByBenefit(String userId, Benefit benefit) {
+    private boolean isUserAuthorizedToUpdateBenefit(String userId, Benefit benefit) {
         String ownerId = benefit.getOwnerId();
         if (ownerId == null){
             return false;
