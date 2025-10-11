@@ -42,40 +42,114 @@ If you are interested in getting involved with the project, check out [our page 
 
 [library-api](/library-api) contains a library of pre-built benefits and eligibility rules, suitable for including in custom screeners and for standing up a standalone eligibility API.
 
-## Local Development Setup
+## Development Setup
+
+### In the Cloud (Github Codespaces)
+
+This is the easiest way to get started with development if you like having a cloud-based development environment. Just click the badge:
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/CodeForPhilly/benefit-decision-toolkit)
+
+Once you create a new codespace, the included Devcontainer will build and configure the project. This takes several minutes the first time, so be patient!
+
+### On Your Local Machine
 
 Clone this repository:
+
 ```bash
 git clone https://github.com/CodeForPhilly/benefit-decision-toolkit.git
 ```
 
 Go to the project's root directory:
+
 ```bash
 cd benefit-decision-toolkit
 ```
 
-To setup using the pre-defined [Devbox](https://www.jetify.com/docs/devbox/) configuration:
-*Note that this installs Devbox and Nix (if they aren't already installed).
+From here, you have 3 options:
+- Use [Devbox](https://www.jetify.com/docs/devbox/) (recommended),
+- Use [Devcontainer in VS Code](https://code.visualstudio.com/docs/devcontainers/containers), or
+- DIY (not recommended)
+
+#### Option 1: Devbox (recommended)
+
+We use [Jetify Devbox](https://www.jetify.com/docs/devbox/) to declare and manage project development dependencies. This makes it easy to setup the project and reduces *"works on my machine"* issues. It uses the Nix Package Manager under the hood, which results in higher performance compared to container-based solutions.
+
+To install devbox (and Nix) and configure your machine for development:
+
 ```bash
 bin/install-devbox && devbox run setup
 ```
 
-If you don't want to use devbox/nix, then you can install system dependencies (e.g. JDK, Node, Maven) manually (see devbox.json for the list) and run:
+Then, to startup all the services/apps with the default configuration, run:
+
+```bash
+# uses process-compose under the hood
+devbox services up
+```
+
+You can also run a shell in the context of Devbox with:
+
+```bash
+devbox shell
+```
+
+Or run a single command in the context of Devbox with:
+
+```bash
+# export data from the firebase emulators (they must be running!)
+devbox run -- firebase emulators:export ./dir
+```
+
+Tips:
+- Use the [Devbox direnv integration](https://www.jetify.com/docs/devbox/ide-configuration/direnv) to automatically start a Devbox shell whenever you navigate to the project directory.
+- If you develop in VS Code, then consider installing the [Devbox and Direnv extensions](https://www.jetify.com/docs/devbox/ide-configuration/vscode) to automatically start `devbox shell` in VS Code Terminal and otherwise manage Devbox via the Command Palette.
+- Edit the `.devboxrc` file (not in source control) to run custom commands every time you start a devbox environment. You can use this for things like disabling conflicting tools or adding project-specific shell aliases.
+
+#### Option 2: Devcontainer in VS Code
+
+This project comes with a devcontainer configuration that runs the Devbox/Nix environment inside the container itself. This is a good option for those used to a container-based workflow and don't mind the corresponding performance degradation as compared to native Devbox.
+
+To use the provided devcontainer, first open VS Code and install the `Dev Containers` extension.
+
+Then, use the command palette (Cmd+Shift+P or Ctrl+Shift+P) to run *"Dev Containers: Open Folder in Container..."* and select this project. It will take several minutes to build the container the first time.
+
+You should be prompted to install Docker if it isn't already installed.
+
+Once the container builds, startup all the services/apps in the default configuration by opening a Terminal in VS Code and running:
+
+```bash
+devbox services up
+```
+
+Note: the devcontainer automatically uses the equivalent of `devbox shell` in VS Code Terminal, so there is no need to run it manually.
+
+#### Option 3: DIY (not recommended)
+
+It is recommended to use Devbox, Devcontainer, or Codespaces to develop with this project because each of those methods draw from a single source of truth to build the development environment (devbox.json).
+
+If you insist on going your own way then you can install system dependencies (e.g. JDK, Node, Maven) manually (see devbox.json for the list) and run:
+
 ```bash
 bin/setup
 ```
 
-If using devbox, then run the shell to load dependencies:
+Then to startup all the services/apps in the default configuration, install [process-compose](https://f1bonacc1.github.io/process-compose/) and run:
+
 ```bash
-devbox shell
-# Consider using direnv and/or the VS Code extensions (Devbox and Direnv) to automate this step.
+process-compose
 ```
 
-Then start apps as needed, e.g.:
+Or to run services manually (without `process-compose`):
+
 ```bash
-cd builder-frontend && npm run dev
+# start the firebase emulators
+firebase emulators:start --project demo-bdt-dev --only auth,firestore,storage
 ```
 
-You can find additional instructions to work on each app within the project in their respective directories, which are linked above.
-
-Note that for the frontend apps, you will need a .env file from a teammate. Please do not commit this file to the repo.
+```bash
+# then start up services one by one in new shells, e.g.:
+bin/load-root-env
+cd builder-api
+quarkus dev
+```
