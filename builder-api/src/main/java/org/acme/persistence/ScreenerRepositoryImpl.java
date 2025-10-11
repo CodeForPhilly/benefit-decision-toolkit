@@ -125,4 +125,3 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
         FirestoreUtils.removeObjectFromListFieldOfDocument(CollectionNames.SCREENER_COLLECTION, screenerId, FieldNames.DEPENDENCIES, modelMap);
     }
 }
-

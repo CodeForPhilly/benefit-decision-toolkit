@@ -4,7 +4,9 @@ import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
+import org.acme.enums.DmnResult;
 import org.acme.model.domain.DmnModel;
+import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.domain.Screener;
 import org.acme.model.dto.Dependency;
 import org.acme.persistence.DmnModelRepository;
@@ -20,6 +22,7 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
+
 
 @ApplicationScoped
 public class KieDmnService implements DmnService {
@@ -60,9 +63,8 @@ public class KieDmnService implements DmnService {
             Map<String, Object> response = new LinkedHashMap<>();
             response.put("inputs", inputs);
 
-
             List<Map<String, Object>> decisions = new ArrayList<>();
-            for (DMNDecisionResult decisionResult :  dmnResult.getDecisionResults()) {
+            for (DMNDecisionResult decisionResult : dmnResult.getDecisionResults()) {
                 Map<String, Object> decisionDetail = new LinkedHashMap<>();
                 decisionDetail.put("decisionName", decisionResult.getDecisionName());
                 decisionDetail.put("result", decisionResult.getResult());
@@ -167,7 +169,6 @@ public class KieDmnService implements DmnService {
         return xmlOpt.get();
     }
 
-
     private byte[] compileDmnModel(String dmnXml, Map<String, String> dependenciesMap, String modelId) throws IOException {
         Log.info("Compiling and saving DMN model: " + modelId);
 
@@ -228,5 +229,68 @@ public class KieDmnService implements DmnService {
             throw new RuntimeException("working DMN file not found");
         }
         return dmnXml;
+    }
+
+    public DmnResult evaluateCheck(EligibilityCheck check, Map<String, Object> inputs) throws Exception{
+        Log.info("Evaluating eligibility check: " + check.getId());
+        String filePath = storageService.getCheckDmnModelPath(check.getModule(), check.getId(), check.getVersion());
+        Log.info("Loading eligibility check dmn model from path: " + filePath);
+        Optional<String> dmnXmlOpt = storageService.getStringFromStorage(filePath);
+        if (dmnXmlOpt.isEmpty()){
+            throw new RuntimeException("Eligibility Check DMN file not found");
+        }
+
+        Log.info("Loaded eligibility check dmn model: " + check.getId());
+        return evaluateSimpleDmn(
+            dmnXmlOpt.get(),
+            "_1434258E-D8CA-49CA-A427-BFE443221977",
+            "https://kiegroup.org/dmn/_C100F2AE-CB78-498C-B105-4DC039DE518F",
+            "demographic-minimum_age",
+            inputs
+        );
+    }
+
+    public DmnResult evaluateSimpleDmn(
+        String xml,
+        String modelId,
+        String namespace,
+        String modelName,
+        Map<String, Object> inputs
+    ) throws Exception {
+        byte[] serializedModel = compileDmnModel(xml, new HashMap<>(), modelId);
+
+        KieSession kieSession = initializeKieSession(serializedModel);
+        DMNRuntime dmnRuntime = kieSession.getKieRuntime(DMNRuntime.class);
+
+        // Prepare model and context using inputs
+        DMNModel dmnModel = dmnRuntime.getModel(namespace, modelName);
+        DMNContext context = dmnRuntime.newContext();
+        for (String key : inputs.keySet()) {
+            context.set(key, inputs.get(key));
+        }
+        DMNResult dmnResult = dmnRuntime.evaluateAll(dmnModel, context);
+
+        // Collect and interpret results
+        List<DMNDecisionResult> decisionResults = dmnResult.getDecisionResults();
+        if (decisionResults.isEmpty()) {
+            throw new RuntimeException("No decision results from DMN evaluation");
+        }
+        if (decisionResults.size() > 1) {
+            throw new RuntimeException("Multiple decision results from DMN evaluation");
+        }
+
+        // Assuming single decision result for a Simple DMN
+        DMNDecisionResult decisionResult = decisionResults.get(0);
+        Object result = decisionResult.getResult();
+        if (result == null) {
+            return DmnResult.UNABLE_TO_DETERMINE;
+        }
+        else if (result instanceof Boolean && (Boolean) result) {
+            return DmnResult.TRUE;
+        }
+        else if (result instanceof Boolean && !(Boolean) result) {
+            return DmnResult.FALSE;
+        }
+        throw new RuntimeException("Unexpected decision result type: " + result.getClass().getName());
     }
 }

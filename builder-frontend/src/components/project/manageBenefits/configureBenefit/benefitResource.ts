@@ -53,7 +53,6 @@ const createScreenerBenefits = (screenerId: Accessor<string>, benefitId: Accesso
 
   // Actions
   const addCheck = (newCheck: CheckConfig) => {
-    console.log("Adding check:", newCheck);
     if (!benefit) return;
 
     const updatedChecks: CheckConfig[] = [...benefit.checks, newCheck]

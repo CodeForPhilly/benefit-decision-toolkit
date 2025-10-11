@@ -8,7 +8,6 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
-import org.acme.persistence.DmnModelRepository;
 import org.acme.service.ModelLibraryService;
 
 @Path("/api")

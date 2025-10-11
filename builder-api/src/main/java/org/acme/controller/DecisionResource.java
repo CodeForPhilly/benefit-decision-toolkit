@@ -1,10 +1,21 @@
 package org.acme.controller;
 
+import io.quarkus.logging.Log;
+
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import org.acme.auth.AuthUtils;
+import org.acme.enums.DmnResult;
+import org.acme.model.domain.Benefit;
+import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.domain.Screener;
+import org.acme.persistence.BenefitRepository;
+import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.ScreenerRepository;
 import org.acme.persistence.StorageService;
 import org.acme.service.DmnParser;
@@ -25,6 +36,12 @@ public class DecisionResource {
 
     @Inject
     DmnService dmnService;
+
+    @Inject
+    EligibilityCheckRepository eligibilityCheckRepository;
+
+    @Inject
+    BenefitRepository benefitRepository;
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -83,5 +100,97 @@ public class DecisionResource {
         updateScreener.setWorkingDmnName(dmnParser.getName());
         updateScreener.setWorkingDmnNameSpace(dmnParser.getNameSpace());
         screenerRepository.updateScreener(updateScreener);
+    }
+
+    @POST
+    @Path("/v2/dumb")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response dumb(
+        @Context ContainerRequestContext requestContext
+    ) throws Exception {
+        Map<String, Object> inputData = new HashMap<>();
+        inputData.put("inputs", Map.of("parameters", Map.of("minimum_age", 65)));
+        try {
+            Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getCheck("minimum_age");
+            if (checkOpt.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            DmnResult result = dmnService.evaluateCheck(checkOpt.get(), inputData);
+            return Response.ok().entity(result.label).build();
+        } catch (Exception e) {
+            Log.error("Error");
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @POST
+    @Path("/v2")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response evaluateBenefit(
+        @Context ContainerRequestContext requestContext,
+        @QueryParam("screenerId") String screenerId,
+        @QueryParam("benefitId") String benefitId,
+        Map<String, Object> inputData
+    ) throws Exception {
+        if (benefitId == null || benefitId.isBlank()){
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Error: Missing required query parameter: benefitId")
+                    .build();
+        }
+
+        if (inputData == null || inputData.isEmpty()){
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Error: Missing decision inputs")
+                    .build();
+        }
+
+        String userId = AuthUtils.getUserId(requestContext);
+        Optional<Benefit> benefitOpt = Optional.empty();
+        if (!screenerId.isEmpty()){
+            if (!isUserAuthorizedToAccessScreenerByScreenerId(userId, screenerId)){
+                return Response.status(Response.Status.UNAUTHORIZED).build();
+            }
+            benefitOpt = benefitRepository.getCustomBenefit(screenerId, benefitId);
+        } else {
+            benefitOpt = benefitRepository.getBenefit(benefitId);
+        }
+
+        if (benefitOpt.isEmpty()){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        Benefit benefit = benefitOpt.get();
+        try {
+            List<EligibilityCheck> checks = eligibilityCheckRepository.getChecksInBenefit(benefit);
+            Map<String, String> results = new HashMap<>();
+            for (EligibilityCheck check : checks) {
+                DmnResult result = dmnService.evaluateCheck(check, inputData);
+                results.put(check.getId(), result.label);
+            }
+
+            // TODO: evaluate and add benefit final result attribute to results
+            return Response.ok().entity(results).build();
+        } catch (Exception e) {
+            Log.error("Error");
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    private boolean isUserAuthorizedToAccessScreenerByScreenerId(String userId, String screenerId) {
+        Optional<Screener> screenerOpt = screenerRepository.getScreenerMetaDataOnly(screenerId);
+        if (screenerOpt.isEmpty()){
+            return false;
+        }
+        Screener screener = screenerOpt.get();
+        return isUserAuthorizedToAccessScreenerByScreener(userId, screener);
+    }
+
+    private boolean isUserAuthorizedToAccessScreenerByScreener(String userId, Screener screener) {
+        String ownerId = screener.getOwnerId();
+        if (userId.equals(ownerId)){
+            return true;
+        }
+        return false;
     }
 }

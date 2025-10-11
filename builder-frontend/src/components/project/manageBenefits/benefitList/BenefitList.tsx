@@ -8,6 +8,7 @@ import screenerBenefitResource from "./screenerBenefitsResource";
 import Loading from "../../../Loading";
 
 import type { BenefitDetail } from "../types";
+import { doDumb } from "../../../../api/dumb";
 
 
 const BenefitList = (
@@ -40,6 +41,12 @@ const BenefitList = (
         onClick={() => {setSelectExistingBenefitModal(true)}}
       >
         Copy from Existing Benefit
+      </div>
+        <div
+        class="btn-default btn-blue mb-3"
+        onClick={() => {doDumb()}}
+      >
+        Dumb
       </div>
       <div
         class="

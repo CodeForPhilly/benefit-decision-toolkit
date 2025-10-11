@@ -40,8 +40,6 @@ public class BenefitResource {
         return Response.ok(benefits, MediaType.APPLICATION_JSON).build();
     }
 
-
-
     @GET
     @Path("/benefit/{benefitId}")
     public Response getBenefit(@Context ContainerRequestContext requestContext, @PathParam("benefitId") String benefitId) {

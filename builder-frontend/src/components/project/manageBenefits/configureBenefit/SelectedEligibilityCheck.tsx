@@ -1,4 +1,4 @@
-import { createSignal, For } from "solid-js";
+import { Accessor, createSignal, For } from "solid-js";
 
 import SelectedCheckModal from "./modals/ConfigureCheckModal";
 
@@ -15,7 +15,7 @@ const SelectedEligibilityCheck = (
   { check, checkConfig, checkIndex, updateCheckConfigParams }:
   {
     check: EligibilityCheck;
-    checkConfig: CheckConfig;
+    checkConfig: Accessor<CheckConfig>;
     checkIndex: number;
     updateCheckConfigParams: (checkIndex: number, newCheckData: ParameterValues) => void
   }
@@ -23,7 +23,7 @@ const SelectedEligibilityCheck = (
   const [configuringCheckModalOpen, setConfiguringCheckModalOpen] = createSignal(false);
 
   const checkParameters: ParameterWithConfiguredValue[] = check.parameters.map((param) => {
-    return { parameter: param, value: checkConfig.parameters[param.key]! };
+    return { parameter: param, value: checkConfig().parameters[param.key]! };
   });
 
   const unfilledRequiredParameters = () => {return []};

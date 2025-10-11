@@ -1,4 +1,4 @@
-import { For } from "solid-js";
+import { Accessor, For, onMount } from "solid-js";
 
 import { titleCase } from "../../../../../utils/title_case";
 
@@ -9,7 +9,7 @@ import { createStore, SetStoreFunction } from "solid-js/store";
 const ConfigureCheckModal = (
   { checkConfig, check, checkIndex, updateCheckConfigParams, closeModal }:
   {
-    checkConfig: CheckConfig;
+    checkConfig: Accessor<CheckConfig>;
     check: EligibilityCheck;
     checkIndex: number
     updateCheckConfigParams: (checkIndex: number, newCheckData: ParameterValues) => void;
@@ -17,7 +17,7 @@ const ConfigureCheckModal = (
   }
 ) => {
   const [tempCheck, setTempCheck] = createStore<CheckConfig>(
-    { checkId: checkConfig.checkId, parameters: checkConfig.parameters }
+    { checkId: checkConfig().checkId, parameters: { ...checkConfig().parameters } }
   );
 
   const confirmAndClose = () => {
@@ -27,8 +27,8 @@ const ConfigureCheckModal = (
 
   return (
     <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div class="bg-white px-12 py-8 rounded-xl max-w-140 w-1/2 min-w-80 min-h-96">
-        <div class="text-2xl mb-4">Configure Check: {titleCase(checkConfig.checkId)}</div>
+      <div class="bg-white px-12 py-8 rounded-xl max-w-140 w-1/2 min-w-80">
+        <div class="text-2xl mb-4">Configure Check: {titleCase(checkConfig().checkId)}</div>
 
         {check.parameters.length === 0 && (
           <div class="mb-4">This check has no configurable parameters.</div>
@@ -43,9 +43,9 @@ const ConfigureCheckModal = (
                 {(parameter) => {
                   return (
                     <ParameterInput
-                      tempCheck={tempCheck}
+                      tempCheck={() => tempCheck}
                       setTempCheck={setTempCheck}
-                      parameter={parameter}
+                      parameter={() => parameter}
                     />
                   );
                 }}
@@ -55,10 +55,10 @@ const ConfigureCheckModal = (
         )}
 
         <div class="flex justify-end space-x-2">
-          <div class="btn-default hover:bg-gray-200" onClick={closeModal}>
+          <div class="btn-default btn-gray" onClick={closeModal}>
             Cancel
           </div>
-          <div class="btn-default hover:bg-gray-200" onClick={confirmAndClose}>
+          <div class="btn-default btn-blue" onClick={confirmAndClose}>
             Confirm
           </div>
         </div>
@@ -69,39 +69,42 @@ const ConfigureCheckModal = (
 
 const ParameterInput = (
   { tempCheck, setTempCheck, parameter }:
-  { tempCheck: CheckConfig; setTempCheck: SetStoreFunction<CheckConfig>, parameter: ParameterDefinition }
+  { tempCheck: Accessor<CheckConfig>; setTempCheck: SetStoreFunction<CheckConfig>, parameter: Accessor<ParameterDefinition> }
 ) => {
+  const parameterKey = () => parameter().key;
+  const parameterType = () => parameter().type;
+
   const onParameterChange = (newValue: any) => {
     setTempCheck(
-      "parameters", parameter.key, newValue
+      "parameters", parameterKey(), newValue
     );
   }
 
-  if (parameter.type === "number") {
-    return <ParameterNumberInput onParameterChange={onParameterChange} parameter={parameter} currentValue={tempCheck.parameters[parameter.key]} />;
-  } else if (parameter.type === "string") {
-    return <ParameterStringInput onParameterChange={onParameterChange} parameter={parameter} currentValue={tempCheck.parameters[parameter.key]} />;
-  } else if (parameter.type === "boolean") {
-    return <ParameterBooleanInput onParameterChange={onParameterChange} parameter={parameter} currentValue={tempCheck.parameters[parameter.key]} />;
+  if (parameter().type === "number") {
+    return <ParameterNumberInput onParameterChange={onParameterChange} parameter={parameter as Accessor<NumberParameter>} currentValue={() => tempCheck().parameters[parameterKey()]} />;
+  } else if (parameterType() === "string") {
+    return <ParameterStringInput onParameterChange={onParameterChange} parameter={parameter as Accessor<StringParameter>} currentValue={() => tempCheck().parameters[parameterKey()]} />;
+  } else if (parameterType() === "boolean") {
+    return <ParameterBooleanInput onParameterChange={onParameterChange} parameter={parameter as Accessor<BooleanParameter>} currentValue={() => tempCheck().parameters[parameterKey()]} />;
   }
-  return <div>Unsupported parameter type: {parameter.type}</div>;
+  return <div>Unsupported parameter type: {parameterType()}</div>;
 }
 
 const ParameterNumberInput = (
   { onParameterChange, parameter, currentValue }:
-  { onParameterChange: (value: any) => void, parameter: NumberParameter, currentValue: any }
+  { onParameterChange: (value: any) => void, parameter: Accessor<NumberParameter>, currentValue: Accessor<any> }
 ) => {
   return (
     <div class="pl-2">
       <div class="mb-2 font-bold">
-        {titleCase(parameter.key)} {parameter.required && <span class="text-red-600">*</span>}
+        {titleCase(parameter().key)} {parameter().required && <span class="text-red-600">*</span>}
       </div>
       <div class="mb-2">
-        {parameter.label}
+        {parameter().label}
       </div>
       <input
         onInput={(e) => {onParameterChange(Number(e.target.value))}}
-        value={currentValue}
+        value={currentValue()}
         type="number"
       />
     </div>
@@ -110,20 +113,20 @@ const ParameterNumberInput = (
 
 const ParameterStringInput = (
   { onParameterChange, parameter, currentValue }:
-  { onParameterChange: (value: any) => void, parameter: StringParameter, currentValue: any }
+  { onParameterChange: (value: any) => void, parameter: Accessor<StringParameter>, currentValue: Accessor<any> }
 ) => {
   return (
     <div class="pl-2">
       <div class="mb-2 font-bold">
-        {titleCase(parameter.key)} {parameter.required && <span class="text-red-600">*</span>}
+        {titleCase(parameter().key)} {parameter().required && <span class="text-red-600">*</span>}
       </div>
       <div class="mb-2">
-        {parameter.label}
+        {parameter().label}
       </div>
       <input
         onInput={(e) => { onParameterChange(e.target.value); }}
         type="text"
-        value={currentValue ?? ""}
+        value={currentValue() ?? ""}
       />
     </div>
   );
@@ -131,22 +134,22 @@ const ParameterStringInput = (
 
 const ParameterBooleanInput = (
   { onParameterChange, parameter, currentValue }:
-  { onParameterChange: (value: any) => void, parameter: BooleanParameter, currentValue: any }
+  { onParameterChange: (value: any) => void, parameter: Accessor<BooleanParameter>, currentValue: Accessor<any> }
 ) => {
   return (
     <div class="pl-2">
       <div class="mb-2 font-bold">
-        {titleCase(parameter.key)} {parameter.required && <span class="text-red-600">*</span>}
+        {titleCase(parameter().key)} {parameter().required && <span class="text-red-600">*</span>}
       </div>
       <div class="mb-2">
-        {parameter.label}
+        {parameter().label}
       </div>
       <div class="flex items-center gap-4">
         <div class="flex items-center gap-2">
           <input
             type="radio"
-            name={`param-${parameter.key}`}
-            checked={currentValue === true}
+            name={`param-${parameter().key}`}
+            checked={currentValue() === true}
             onInput={() => onParameterChange(true)}
           />
           True
@@ -154,14 +157,14 @@ const ParameterBooleanInput = (
         <div class="flex items-center gap-2">
           <input
             type="radio"
-            name={`param-${parameter.key}`}
-            checked={currentValue === false}
+            name={`param-${parameter().key}`}
+            checked={currentValue() === false}
             onInput={() => onParameterChange(false)}
           />
           False
         </div>
         {
-          currentValue === undefined &&
+          currentValue() === undefined &&
           <span class="ml-2 text-gray-500">Not set</span>
         }
       </div>

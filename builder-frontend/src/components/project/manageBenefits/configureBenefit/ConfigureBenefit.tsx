@@ -9,6 +9,7 @@ import type { EligibilityCheckListMode } from "./EligibilityCheckListView";
 import type { EligibilityCheck } from "../types";
 
 import BenefitResource from "./benefitResource";
+import Loading from "../../../Loading";
 
 
 const ConfigureBenefit = (
@@ -23,14 +24,13 @@ const ConfigureBenefit = (
 
   const getSelectedCheck = (checkId: string) => {
     const allChecks = [...publicChecks() || [], ...userDefinedChecks() || []];
-    console.log("All checks:", allChecks);
     return allChecks.find((check) => check.id === checkId);
   }
 
   return (
     <>
       <Show when={initialLoadStatus.loading()}>
-        <div>Loading benefit... {initialLoadStatus.loading()}</div>
+        <Loading/>
       </Show>
 
       <Show when={benefit().id !== undefined && !initialLoadStatus.loading()}>
@@ -78,7 +78,7 @@ const ConfigureBenefit = (
                         <Show when={getSelectedCheck(checkConfig.checkId)}>
                           <SelectedEligibilityCheck
                             check={getSelectedCheck(checkConfig.checkId)}
-                            checkConfig={checkConfig}
+                            checkConfig={() => checkConfig}
                             checkIndex={checkIndex()}
                             updateCheckConfigParams={actions.updateCheckConfigParams}
                           />

@@ -7,7 +7,6 @@ import org.acme.constants.CollectionNames;
 import org.acme.constants.FieldNames;
 import org.acme.model.domain.Benefit;
 import org.acme.model.domain.EligibilityCheck;
-import org.acme.model.domain.Screener;
 
 import java.util.List;
 import java.util.Map;

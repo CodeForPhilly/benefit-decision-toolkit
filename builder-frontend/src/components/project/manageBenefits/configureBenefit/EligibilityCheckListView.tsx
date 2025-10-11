@@ -53,7 +53,6 @@ const EligibilityCheckListView = (
     () => mode() === "public" ? publicChecks : userDefinedChecks
   );
   const onEligibilityCheckToggle = (check: EligibilityCheck) => {
-    console.log("Toggling check:", check);
     const isCheckSelected = benefit().checks.some((selected) => selected.checkId === check.id);
     if (isCheckSelected) {
       const checkIndexToRemove = benefit().checks.findIndex((selected) => selected.checkId === check.id);
