@@ -167,7 +167,7 @@ public class ScreenerResource {
     @Path("/save-dmn-model")
     public Response saveDmnModel(@Context ContainerRequestContext requestContext, SaveDmnRequest saveDmnRequest){
 
-        String screenerId = saveDmnRequest.screenerId;
+        String screenerId = saveDmnRequest.id;
         String dmnModel = saveDmnRequest.dmnModel;
         if (screenerId == null || screenerId.isBlank()){
             return Response.status(Response.Status.BAD_REQUEST)
