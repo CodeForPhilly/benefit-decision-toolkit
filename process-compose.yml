@@ -7,7 +7,7 @@ processes:
     ready_log_line: "All emulators ready!"
   builder-api:
     description: This process runs the builder-api in dev mode on port ${QUARKUS_HTTP_PORT}.
-    command: quarkus dev
+    command: quarkus dev -Ddebug=false
     working_dir: builder-api/
     environment:
       - "QUARKUS_CONSOLE_COLOR=true"
@@ -24,7 +24,7 @@ processes:
         condition: process_log_ready
   screener-api:
     description: This process runs the screener-api in dev mode on port ${QUARKUS_HTTP_PORT}.
-    command: quarkus dev
+    command: quarkus dev -Ddebug=false
     working_dir: screener-api/
     environment:
       - "QUARKUS_CONSOLE_COLOR=true"
