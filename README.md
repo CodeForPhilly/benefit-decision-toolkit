@@ -149,7 +149,7 @@ firebase emulators:start --project demo-bdt-dev --only auth,firestore,storage
 
 ```bash
 # then start up services one by one in new shells, e.g.:
-bin/load-root-env
+source .rootenvrc
 cd builder-api
 quarkus dev
 ```

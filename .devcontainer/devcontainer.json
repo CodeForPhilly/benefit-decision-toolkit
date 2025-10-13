@@ -4,7 +4,7 @@
     "dockerfile": "./Dockerfile",
     "context": ".."
   },
-  "postCreateCommand": "devbox run setup",
+  "postCreateCommand": "bin/ensure-root-env-file && devbox run setup",
   "customizations": {
     "vscode": {
       "settings": {},

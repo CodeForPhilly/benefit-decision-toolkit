@@ -8,10 +8,9 @@
     "google-cloud-sdk@latest",
     "nodejs@22"
   ],
+  "env_from": ".env",
   "shell": {
     "init_hook": [
-      "bin/ensure-root-env-file || echo 'error ensuring root .env file'",
-      "bin/load-root-env || echo 'error loading root .env'",
       "command -v bin/devbox-init-hook >/dev/null && bin/devbox-init-hook || true",
       "echo 'Welcome to devbox!'"
     ],
