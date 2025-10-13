@@ -302,3 +302,27 @@ export const copyPublicBenefit = async (screenerId: string, benefitId: string) =
     throw error;
   }
 };
+
+export const evaluateScreener = async (screenerId: string, inputData: any) => {
+  const url = apiUrl + "/decision/v2?screenerId=" + screenerId;
+  try {
+    const response = await authFetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(inputData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Evaluation failed with status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error evaluating:", error);
+    throw error;
+  }
+};

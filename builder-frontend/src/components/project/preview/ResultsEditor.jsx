@@ -1,5 +1,7 @@
+/* POSSIBLY DEPRECATED */
+
 import { createSignal, For, onMount } from "solid-js";
-import { updateScreener } from "../../api/screener";
+import { updateScreener } from "../../../api/screener";
 import { XMLParser } from "fast-xml-parser";
 
 async function getDecisionNames(dmnXmlString) {
@@ -148,7 +150,7 @@ export default function ResultsEditor({ project, dmnModel }) {
 
   return (
     <form class="flex flex-col mx-8 p-4 space-y-4 border border-gray-300 rounded shadow-sm">
-      <div className="text-lg text-gray-800 text-md font-bold">
+      <div class="text-lg text-gray-800 text-md font-bold">
         Screener Results Section
       </div>
       <div>

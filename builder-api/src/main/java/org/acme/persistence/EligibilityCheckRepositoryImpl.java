@@ -2,9 +2,12 @@ package org.acme.persistence;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.acme.constants.CollectionNames;
 import org.acme.constants.FieldNames;
+import org.acme.enums.OptionalBoolean;
 import org.acme.model.domain.Benefit;
 import org.acme.model.domain.EligibilityCheck;
 
@@ -41,13 +44,12 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
     }
 
     public List<EligibilityCheck> getChecksInBenefit(Benefit benefit){
-
         List<String> checkIds = benefit.getChecks().stream().map(checkConfig -> checkConfig.getCheckId()).toList();
         List<Map<String, Object>> checkMaps = FirestoreUtils.getFirestoreDocsByIds(
                 CollectionNames.ELIGIBILITY_CHECK_COLLECTION, checkIds);
 
         ObjectMapper mapper = new ObjectMapper();
-        return checkMaps.stream().map(checkMap ->  mapper.convertValue(checkMap, EligibilityCheck.class)).toList();
+        return checkMaps.stream().map(checkMap -> mapper.convertValue(checkMap, EligibilityCheck.class)).toList();
     }
 
     public String saveNewCheck(EligibilityCheck check) throws Exception{

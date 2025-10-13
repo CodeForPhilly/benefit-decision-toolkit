@@ -61,7 +61,6 @@ public class EligibilityCheckResource {
 
     }
 
-
     // Utility endpoint to create an Eligibility check
     // In the future seperate endpoints will need to be created for publishing public checks and creating private checks
     @POST

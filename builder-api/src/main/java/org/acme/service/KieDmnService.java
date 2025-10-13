@@ -4,9 +4,8 @@ import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
-import org.acme.enums.DmnResult;
+import org.acme.enums.OptionalBoolean;
 import org.acme.model.domain.DmnModel;
-import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.domain.Screener;
 import org.acme.model.dto.Dependency;
 import org.acme.persistence.DmnModelRepository;
@@ -26,7 +25,6 @@ import org.drools.compiler.kie.builder.impl.InternalKieModule;
 
 @ApplicationScoped
 public class KieDmnService implements DmnService {
-
     @Inject
     private StorageService storageService;
 
@@ -180,7 +178,6 @@ public class KieDmnService implements DmnService {
         ReleaseId releaseId = kieServices.newReleaseId("user-model", modelId, "1.0.0");
         kfs.write("src/main/resources/model.dmn", dmnXml);
 
-
         String kmoduleXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<kmodule xmlns=\"http://www.drools.org/xsd/kmodule\">\n" +
                 "  <kbase name=\"dmn-kbase\" default=\"true\">\n" +
@@ -231,42 +228,40 @@ public class KieDmnService implements DmnService {
         return dmnXml;
     }
 
-    public DmnResult evaluateCheck(EligibilityCheck check, Map<String, Object> inputs) throws Exception{
-        Log.info("Evaluating eligibility check: " + check.getId());
-        String filePath = storageService.getCheckDmnModelPath(check.getModule(), check.getId(), check.getVersion());
-        Log.info("Loading eligibility check dmn model from path: " + filePath);
-        Optional<String> dmnXmlOpt = storageService.getStringFromStorage(filePath);
-        if (dmnXmlOpt.isEmpty()){
-            throw new RuntimeException("Eligibility Check DMN file not found");
-        }
-
-        Log.info("Loaded eligibility check dmn model: " + check.getId());
-        return evaluateSimpleDmn(
-            dmnXmlOpt.get(),
-            "_1434258E-D8CA-49CA-A427-BFE443221977",
-            "https://kiegroup.org/dmn/_C100F2AE-CB78-498C-B105-4DC039DE518F",
-            "demographic-minimum_age",
-            inputs
-        );
-    }
-
-    public DmnResult evaluateSimpleDmn(
-        String xml,
-        String modelId,
-        String namespace,
-        String modelName,
+    public OptionalBoolean evaluateSimpleDmn(
+        String dmnFilePath,
+        String dmnModelName,
         Map<String, Object> inputs
     ) throws Exception {
-        byte[] serializedModel = compileDmnModel(xml, new HashMap<>(), modelId);
+        Log.info("Evaluating Simple DMN: " + dmnFilePath + " Model: " + dmnModelName);
+
+        Map<String, Object> inputData = new HashMap<>();
+        inputData.put("inputs", inputs);
+
+        Optional<String> dmnXmlOpt = storageService.getStringFromStorage(dmnFilePath);
+        if (dmnXmlOpt.isEmpty()) {
+            throw new RuntimeException("DMN file not found: " + dmnFilePath);
+        }
+
+        String dmnXml = dmnXmlOpt.get();
+        HashMap<String, String> dmnDependenciesMap = new HashMap<String, String>();
+        byte[] serializedModel = compileDmnModel(dmnXml, dmnDependenciesMap, dmnModelName);
 
         KieSession kieSession = initializeKieSession(serializedModel);
         DMNRuntime dmnRuntime = kieSession.getKieRuntime(DMNRuntime.class);
 
+        List<DMNModel> dmnModels = dmnRuntime.getModels();
+        if (dmnModels.size() != 1) {
+            throw new RuntimeException("Expected exactly one DMN model, found: " + dmnModels.size());
+        }
+
+        Log.info("DMN Model loaded: " + dmnModels.get(0).getName() + " Namespace: " + dmnModels.get(0).getNamespace());
+
         // Prepare model and context using inputs
-        DMNModel dmnModel = dmnRuntime.getModel(namespace, modelName);
+        DMNModel dmnModel = dmnModels.get(0);
         DMNContext context = dmnRuntime.newContext();
-        for (String key : inputs.keySet()) {
-            context.set(key, inputs.get(key));
+        for (String key : inputData.keySet()) {
+            context.set(key, inputData.get(key));
         }
         DMNResult dmnResult = dmnRuntime.evaluateAll(dmnModel, context);
 
@@ -283,13 +278,13 @@ public class KieDmnService implements DmnService {
         DMNDecisionResult decisionResult = decisionResults.get(0);
         Object result = decisionResult.getResult();
         if (result == null) {
-            return DmnResult.UNABLE_TO_DETERMINE;
+            return OptionalBoolean.UNABLE_TO_DETERMINE;
         }
         else if (result instanceof Boolean && (Boolean) result) {
-            return DmnResult.TRUE;
+            return OptionalBoolean.TRUE;
         }
         else if (result instanceof Boolean && !(Boolean) result) {
-            return DmnResult.FALSE;
+            return OptionalBoolean.FALSE;
         }
         throw new RuntimeException("Unexpected decision result type: " + result.getClass().getName());
     }

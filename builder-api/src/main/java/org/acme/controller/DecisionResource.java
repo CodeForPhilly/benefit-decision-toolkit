@@ -10,8 +10,9 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import org.acme.auth.AuthUtils;
-import org.acme.enums.DmnResult;
+import org.acme.enums.OptionalBoolean;
 import org.acme.model.domain.Benefit;
+import org.acme.model.domain.CheckConfig;
 import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.domain.Screener;
 import org.acme.persistence.BenefitRepository;
@@ -20,8 +21,9 @@ import org.acme.persistence.ScreenerRepository;
 import org.acme.persistence.StorageService;
 import org.acme.service.DmnParser;
 import org.acme.service.DmnService;
+import org.kie.dmn.api.core.DMNResult;
 
-import java.io.InputStream;
+import java.lang.classfile.ClassFile.Option;
 import java.time.Instant;
 import java.util.*;
 
@@ -103,29 +105,47 @@ public class DecisionResource {
     }
 
     @POST
-    @Path("/v2/dumb")
+    @Path("/v2")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response dumb(
-        @Context ContainerRequestContext requestContext
+    public Response evaluateScreener(
+        @Context ContainerRequestContext requestContext,
+        @QueryParam("screenerId") String screenerId,
+        Map<String, Object> inputData
     ) throws Exception {
-        Map<String, Object> inputData = new HashMap<>();
-        inputData.put("inputs", Map.of("parameters", Map.of("minimum_age", 65)));
+        // Authorize user and get benefit
+        String userId = AuthUtils.getUserId(requestContext);
+        if (screenerId.isEmpty() || !isUserAuthorizedToAccessScreenerByScreenerId(userId, screenerId)){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        Optional<Screener> screenerOpt = screenerRepository.getScreener(screenerId);
+        if (screenerOpt.isEmpty()){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        Screener screener = screenerOpt.get();
+
+        List<Benefit> benefits = benefitRepository.getBenefitsInScreener(screener);
+        if (benefits.isEmpty()){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
         try {
-            Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getCheck("minimum_age");
-            if (checkOpt.isEmpty()) {
-                return Response.status(Response.Status.NOT_FOUND).build();
+            Map<String, Object> screenerResults = new HashMap<String, Object>();
+            for (Benefit benefit : benefits) {
+                // Evaluate benefit
+                Map<String, Object> benefitResults = evaluateBenefitDmn(benefit, inputData);
+                screenerResults.put(benefit.getId(), benefitResults);
             }
-            DmnResult result = dmnService.evaluateCheck(checkOpt.get(), inputData);
-            return Response.ok().entity(result.label).build();
+            return Response.ok().entity(screenerResults).build();
         } catch (Exception e) {
-            Log.error("Error");
+            Log.error("Error: " + e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @POST
-    @Path("/v2")
+    @Path("/v2/benefit")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response evaluateBenefit(
@@ -139,13 +159,13 @@ public class DecisionResource {
                     .entity("Error: Missing required query parameter: benefitId")
                     .build();
         }
-
         if (inputData == null || inputData.isEmpty()){
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("Error: Missing decision inputs")
                     .build();
         }
 
+        // Authorize user and get benefit
         String userId = AuthUtils.getUserId(requestContext);
         Optional<Benefit> benefitOpt = Optional.empty();
         if (!screenerId.isEmpty()){
@@ -156,25 +176,69 @@ public class DecisionResource {
         } else {
             benefitOpt = benefitRepository.getBenefit(benefitId);
         }
-
         if (benefitOpt.isEmpty()){
             return Response.status(Response.Status.NOT_FOUND).build();
         }
+
         Benefit benefit = benefitOpt.get();
         try {
-            List<EligibilityCheck> checks = eligibilityCheckRepository.getChecksInBenefit(benefit);
-            Map<String, String> results = new HashMap<>();
-            for (EligibilityCheck check : checks) {
-                DmnResult result = dmnService.evaluateCheck(check, inputData);
-                results.put(check.getId(), result.label);
-            }
-
-            // TODO: evaluate and add benefit final result attribute to results
+            // Evaluate benefit
+            Map<String, Object> results = evaluateBenefitDmn(benefit, inputData);
             return Response.ok().entity(results).build();
         } catch (Exception e) {
-            Log.error("Error");
+            Log.error("Error: " + e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    private Map<String, Object> evaluateBenefitDmn(Benefit benefit, Map<String, Object> inputData) throws Exception {
+        List<EligibilityCheck> checks = eligibilityCheckRepository.getChecksInBenefit(benefit);
+
+        List<OptionalBoolean> checkResultsList = new ArrayList<>();
+        Map<String, Object> checkResults = new HashMap<>();
+        for (EligibilityCheck check : checks) {
+            Optional<CheckConfig> matchingCheckConfig = benefit.getChecks().stream().filter(
+                checkConfig -> checkConfig.getCheckId().equals(check.getId())
+            ).findFirst();
+            if (matchingCheckConfig.isEmpty()) {
+                throw new Exception("Could not find CheckConfig for check " + check.getId());
+            }
+            Map<String, Object> checkInputData = new HashMap<String, Object>(inputData);
+            checkInputData.put("parameters", matchingCheckConfig.get().getParameters());
+
+            String dmnFilepath = storageService.getCheckDmnModelPath(
+                check.getModule(), check.getId(), check.getVersion()
+            );
+            Log.info(checkInputData);
+            String dmnModelName = check.getId();
+            OptionalBoolean result = dmnService.evaluateSimpleDmn(
+                dmnFilepath, dmnModelName, checkInputData
+            );
+            checkResultsList.add(result);
+            checkResults.put(check.getId(), Map.of("name", check.getName(),"result", result));
+        }
+
+        // Determine overall Benefit result
+        Boolean allChecksTrue = checkResultsList.stream().allMatch(result -> result == OptionalBoolean.TRUE);
+        Boolean anyChecksFalse = checkResultsList.stream().anyMatch(result -> result == OptionalBoolean.FALSE);
+        Log.info("All True: " + allChecksTrue + " Any False: " + anyChecksFalse);
+
+        OptionalBoolean benefitResult;
+        if (allChecksTrue) {
+            benefitResult = OptionalBoolean.TRUE;
+        } else if (anyChecksFalse) {
+            benefitResult = OptionalBoolean.FALSE;
+        } else {
+            benefitResult = OptionalBoolean.UNABLE_TO_DETERMINE;
+        }
+
+        return new HashMap<String, Object>(
+            Map.of(
+                "name", benefit.getName(),
+                "result", benefitResult,
+                "check_results", checkResults
+            )
+        );
     }
 
     private boolean isUserAuthorizedToAccessScreenerByScreenerId(String userId, String screenerId) {

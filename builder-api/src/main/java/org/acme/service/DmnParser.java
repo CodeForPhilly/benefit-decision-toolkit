@@ -8,7 +8,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 
 public class DmnParser {
     private String nameSpace;

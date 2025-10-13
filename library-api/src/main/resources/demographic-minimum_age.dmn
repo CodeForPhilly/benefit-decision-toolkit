@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/" xmlns="https://kiegroup.org/dmn/_C100F2AE-CB78-498C-B105-4DC039DE518F" xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/" xmlns:kie="http://www.drools.org/kie/dmn/1.2" xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" id="_1434258E-D8CA-49CA-A427-BFE443221977" name="demographic-minimum_age" typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/" namespace="https://kiegroup.org/dmn/_C100F2AE-CB78-498C-B105-4DC039DE518F">
   <dmn:extensionElements/>
-  <dmn:inputData id="_C1BAE4FD-8689-4839-AA86-12ACDC36E826" name="inputs">
-    <dmn:extensionElements/>
-    <dmn:variable id="_3B73275E-2A9F-453F-BF20-AB95C530CE0C" name="inputs" typeRef="Any"/>
-  </dmn:inputData>
   <dmn:decisionService id="_C0AB2AE4-FCB1-451E-9258-2B2D50ACE1AB" name="AgeDecisionService">
     <dmn:extensionElements/>
     <dmn:variable id="_4A0C9542-DBEA-4671-B1B4-80192942AF0F" name="AgeDecisionService"/>
     <dmn:outputDecision href="#_05CF6F6C-2E74-4283-AEE9-4E318065F4BC"/>
     <dmn:inputData href="#_C1BAE4FD-8689-4839-AA86-12ACDC36E826"/>
   </dmn:decisionService>
+  <dmn:inputData id="_C1BAE4FD-8689-4839-AA86-12ACDC36E826" name="inputs">
+    <dmn:extensionElements/>
+    <dmn:variable id="_3B73275E-2A9F-453F-BF20-AB95C530CE0C" name="inputs" typeRef="Any"/>
+  </dmn:inputData>
   <dmn:decision id="_05CF6F6C-2E74-4283-AEE9-4E318065F4BC" name="AgeDecision">
     <dmn:extensionElements/>
     <dmn:variable id="_D4318731-73BC-4618-97F7-C46285CCF93D" name="AgeDecision" typeRef="boolean"/>
@@ -21,8 +21,8 @@
       <dmn:contextEntry>
         <dmn:variable id="_41FA4A86-94E6-4B5C-85E6-7E86514E4EE4" name="result" typeRef="boolean"/>
         <dmn:literalExpression id="_4C7759AE-ABCB-46FF-A23F-E4010E641104">
-          <dmn:text>if (inputs.age = null or inputs.parameters.minimum_age = null) then null
-else (if (inputs.age &gt; inputs.parameters.minimum_age) then true else false)</dmn:text>
+          <dmn:text>if (inputs.age = null or inputs.parameters.minimum_target_age = null) then null
+else (if (inputs.age &gt; inputs.parameters.minimum_target_age) then true else false)</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>
@@ -49,15 +49,6 @@ else (if (inputs.age &gt; inputs.parameters.minimum_age) then true else false)</
           </kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
-      <dmndi:DMNShape id="dmnshape-drg-_C1BAE4FD-8689-4839-AA86-12ACDC36E826" dmnElementRef="_C1BAE4FD-8689-4839-AA86-12ACDC36E826" isCollapsed="false">
-        <dmndi:DMNStyle>
-          <dmndi:FillColor red="255" green="255" blue="255"/>
-          <dmndi:StrokeColor red="0" green="0" blue="0"/>
-          <dmndi:FontColor red="0" green="0" blue="0"/>
-        </dmndi:DMNStyle>
-        <dc:Bounds x="773" y="462" width="106" height="50"/>
-        <dmndi:DMNLabel/>
-      </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_C0AB2AE4-FCB1-451E-9258-2B2D50ACE1AB" dmnElementRef="_C0AB2AE4-FCB1-451E-9258-2B2D50ACE1AB" isCollapsed="false">
         <dmndi:DMNStyle>
           <dmndi:FillColor red="255" green="255" blue="255"/>
@@ -70,6 +61,15 @@ else (if (inputs.age &gt; inputs.parameters.minimum_age) then true else false)</
           <di:waypoint x="723" y="293"/>
           <di:waypoint x="923" y="293"/>
         </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_C1BAE4FD-8689-4839-AA86-12ACDC36E826" dmnElementRef="_C1BAE4FD-8689-4839-AA86-12ACDC36E826" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="773" y="462" width="106" height="50"/>
+        <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_05CF6F6C-2E74-4283-AEE9-4E318065F4BC" dmnElementRef="_05CF6F6C-2E74-4283-AEE9-4E318065F4BC" isCollapsed="false">
         <dmndi:DMNStyle>

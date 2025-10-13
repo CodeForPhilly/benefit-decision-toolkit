@@ -5,7 +5,7 @@ import FormEditorView from "./FormEditorView";
 import Header from "../Header";
 import Loading from "../Loading";
 import ManageBenefits from "./manageBenefits/ManageBenefits";
-import Preview from "./Preview";
+import Preview from "./preview/Preview";
 import Publish from "./Publish";
 
 import {
