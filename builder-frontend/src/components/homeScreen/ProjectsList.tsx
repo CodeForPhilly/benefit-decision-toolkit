@@ -1,22 +1,19 @@
 import { For, Show, createResource, createSignal, onMount } from "solid-js";
 import { useNavigate } from "@solidjs/router";
-import Header from "../Header";
-import {
-  fetchProjects,
-  updateScreener,
-  deleteScreener,
-  createNewScreener,
-} from "../../api/screener";
+
+import EditScreenerForm from "./EditScreenerForm";
 import NewScreenerForm from "./NewScreenerForm";
 import MenuIcon from "../icon/MenuIcon";
-import EditScreenerForm from "./EditScreenerForm";
+
+import {
+  fetchProjects, updateScreener, deleteScreener, createNewScreener,
+} from "../../api/screener";
 import { useAuth } from "../../context/AuthContext";
 
 
 export default function ProjectsList() {
   const [projectList, { refetch: refetchProjectList }] = createResource(fetchProjects);
-  const [isNewScreenerModalVisible, setIsNewScreenerModalVisible] =
-    createSignal(false);
+  const [isNewScreenerModalVisible, setIsNewScreenerModalVisible] = createSignal(false);
   const [isEditModalVisible, setIsEditgModalVisible] = createSignal(false);
   const [editModelData, setEditModalData] = createSignal();
   const navigate = useNavigate();
@@ -70,7 +67,6 @@ export default function ProjectsList() {
   return (
     <>
       <div>
-        <Header/>
         <Show when={projectList} fallback={<div>Loading...</div>}>
           <div class="flex flex-wrap gap-4 p-4 w-100">
             <div
@@ -78,7 +74,7 @@ export default function ProjectsList() {
               class="
                 p-4 w-80 h-60 flex justify-center cursor-pointer
                 border-4 border-gray-300 rounded-lg
-                shadow-md hover:shadow-lg hover:bg-gray-100"
+                shadow-md hover:shadow-lg hover:bg-gray-200"
             >
               <div class="flex items-center text-2xl font-bold">
                 Create new screener
@@ -98,7 +94,7 @@ export default function ProjectsList() {
                     class="
                       w-80 h-60 relative cursor-pointer
                       border-2 border-gray-300 rounded-lg
-                      shadow-md hover:shadow-lg hover:bg-gray-100"
+                      shadow-md hover:shadow-lg hover:bg-gray-200"
                   >
                     <div
                       class="absolute px-2 top-2 right-2 hover:bg-gray-300 rounded-xl"

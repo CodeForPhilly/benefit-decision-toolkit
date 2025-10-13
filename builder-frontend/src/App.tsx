@@ -1,9 +1,10 @@
 import { Route } from "@solidjs/router";
 
 import Project from "./components/project/Project";
-import ProjectsList from "./components/projectsList/ProjectsList";
 import AuthForm from "./components/auth/AuthForm";
 import { useAuth } from "./context/AuthContext";
+import HomeScreen from "./components/homeScreen/HomeScreen";
+import EligibilityCheckDetail from "./components/eligibilityCheck/EligibilityCheckDetail";
 
 
 function App() {
@@ -18,8 +19,9 @@ function App() {
         <>
           <Route path="/login" component={AuthForm} />
           <Route path="/signup" component={AuthForm} />
-          <Route path="/" component={ProjectsList as any} />
+          <Route path="/" component={HomeScreen as any} />
           <Route path="/project/:projectId" component={Project as any} />
+          <Route path="/check/:checkId" component={EligibilityCheckDetail as any} />
           <Route path="*" component={() => <div class="p-4">404 - Page Not Found</div>} />
         </>
       )}

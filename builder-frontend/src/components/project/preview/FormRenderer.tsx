@@ -1,4 +1,4 @@
-import { onMount } from "solid-js";
+import { Accessor, onMount } from "solid-js";
 import debounce from "lodash.debounce";
 
 import { Form } from "@bpmn-io/form-js-viewer";
@@ -7,7 +7,7 @@ import { PreviewFormData } from "./types";
 
 import "@bpmn-io/form-js/dist/assets/form-js.css";
 
-function FormRenderer({ schema, submitForm }: { schema: any; submitForm: (data: PreviewFormData) => void }) {
+function FormRenderer({ schema, submitForm }: { schema: Accessor<any>; submitForm: (data: PreviewFormData) => void }) {
   let container: HTMLDivElement | undefined;
 
   onMount(() => {
@@ -18,7 +18,7 @@ function FormRenderer({ schema, submitForm }: { schema: any; submitForm: (data: 
     );
 
     form
-      .importSchema(schema)
+      .importSchema(schema())
       .then(() => {
         form.on("changed", (event) => {
           debouncedSubmit(event.data);

@@ -10,7 +10,6 @@ import jakarta.ws.rs.core.Response;
 import org.acme.auth.AuthUtils;
 import org.acme.model.domain.Benefit;
 import org.acme.model.domain.EligibilityCheck;
-import org.acme.model.domain.Screener;
 import org.acme.persistence.BenefitRepository;
 import org.acme.persistence.EligibilityCheckRepository;
 

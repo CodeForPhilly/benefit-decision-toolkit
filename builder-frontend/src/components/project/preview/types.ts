@@ -1,3 +1,4 @@
+/* Screener Evaluation Results */
 export interface ScreenerResult {
   [key: string]: BenefitResult
 }
@@ -12,9 +13,9 @@ interface CheckResult {
   name: string;
   result: OptionalBoolean;
 }
-
 type OptionalBoolean = "TRUE" | "FALSE" | "UNABLE_TO_DETERMINE";
 
-export interface FormData {
+/* Form Data for Preview */
+export interface PreviewFormData {
   [key: string]: any;
 }

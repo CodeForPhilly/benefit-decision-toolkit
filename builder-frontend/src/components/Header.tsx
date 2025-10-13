@@ -33,7 +33,7 @@ export default function Header() {
         </span>
       </div>
       <div class="flex items-center h-full">
-        <HeaderButton buttonText="← Back to Projects" onClick={() => navigate("/")} />
+        <HeaderButton buttonText="← Back to Home" onClick={() => navigate("/")} />
         <HeaderButton buttonText="Logout" onClick={handleLogout} />
       </div>
     </header>

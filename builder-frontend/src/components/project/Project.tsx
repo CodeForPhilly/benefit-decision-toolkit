@@ -125,11 +125,7 @@ function Project() {
             <ManageBenefits />
           )}
           {activeTab() == "Preview" && (
-            <Preview
-              project={project}
-              formSchema={formSchema}
-              dmnModel={dmnModel}
-            />
+            <Preview project={project} formSchema={formSchema}/>
           )}
           {activeTab() == "Publish" && (
             <Publish
