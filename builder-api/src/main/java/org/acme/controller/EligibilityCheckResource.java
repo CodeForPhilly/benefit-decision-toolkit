@@ -3,18 +3,19 @@ package org.acme.controller;
 
 import io.quarkus.logging.Log;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.acme.auth.AuthUtils;
 import org.acme.model.domain.EligibilityCheck;
+import org.acme.model.domain.Screener;
+import org.acme.model.dto.SaveDmnRequest;
 import org.acme.persistence.EligibilityCheckRepository;
+import org.acme.persistence.StorageService;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,6 +25,9 @@ public class EligibilityCheckResource {
 
     @Inject
     EligibilityCheckRepository eligibilityCheckRepository;
+
+    @Inject
+    StorageService storageService;
 
     @GET
     @Path("/check")
@@ -79,6 +83,68 @@ public class EligibilityCheckResource {
             return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(Map.of("error", "Could not save Check"))
                     .build();
+        }
+    }
+
+    @PUT
+    @Path("/check")
+    public Response updateCheck(@Context ContainerRequestContext requestContext, EligibilityCheck updateCheck){
+        String userId = AuthUtils.getUserId(requestContext);
+
+        // TODO: Add authorization to update check
+        try {
+            eligibilityCheckRepository.updateCheck(updateCheck);
+            return Response.ok().entity(updateCheck).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "could not update Check"))
+                    .build();
+        }
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/save-check-dmn")
+    public Response updateCheckDmn(@Context ContainerRequestContext requestContext, SaveDmnRequest saveDmnRequest){
+
+        String checkId = saveDmnRequest.id;
+        String dmnModel = saveDmnRequest.dmnModel;
+        if (checkId == null || checkId.isBlank()){
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Error: Missing required data: checkId")
+                    .build();
+        }
+
+        String userId = AuthUtils.getUserId(requestContext);
+        Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getCheck(checkId);
+        if (checkOpt.isEmpty()){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        EligibilityCheck check = checkOpt.get();
+
+        //AUTHORIZATION
+//        if (!check.getOwnerId().equals(userId)){
+//           return Response.status(Response.Status.UNAUTHORIZED).build();
+//        }
+
+        if (dmnModel == null){
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Error: Missing required data: DMN Model")
+                    .build();
+        }
+        try {
+            String filePath = storageService.getCheckDmnModelPath(check.getModule(), check.getId(), check.getVersion());
+            storageService.writeStringToStorage(filePath, dmnModel, "application/xml");
+            Log.info("Saved DMN model of check " + checkId + " to storage");
+
+            //TODO: Need to figure out if we are allowing DMN versions to be mutable. If so, we need to update a
+            // last_saved field so that we know the check was updated and needs to be recompiled on evaluation
+
+            return Response.ok().build();
+        } catch (Exception e){
+            Log.info(("Failed to save DMN model for check " + checkId));
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

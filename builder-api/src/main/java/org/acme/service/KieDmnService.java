@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
 import org.acme.enums.OptionalBoolean;
 import org.acme.model.domain.DmnModel;
+import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.domain.Screener;
 import org.acme.model.dto.Dependency;
 import org.acme.persistence.DmnModelRepository;

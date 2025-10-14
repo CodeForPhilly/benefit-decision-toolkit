@@ -1,7 +1,6 @@
 package org.acme.controller;
 
 import io.quarkus.logging.Log;
-
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.container.ContainerRequestContext;
@@ -13,6 +12,8 @@ import org.acme.auth.AuthUtils;
 import org.acme.enums.OptionalBoolean;
 import org.acme.model.domain.Benefit;
 import org.acme.model.domain.CheckConfig;
+import org.acme.auth.AuthUtils;
+import org.acme.model.domain.Benefit;
 import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.domain.Screener;
 import org.acme.persistence.BenefitRepository;
@@ -25,7 +26,7 @@ import org.acme.service.DmnService;
 import java.time.Instant;
 import java.util.*;
 
-@Path("/api/decision")
+@Path("/api")
 public class DecisionResource {
 
     @Inject
@@ -44,6 +45,8 @@ public class DecisionResource {
     BenefitRepository benefitRepository;
 
     @POST
+
+    @Path("/decision")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response post(@QueryParam("screenerId") String screenerId, Map<String, Object> inputData) {
