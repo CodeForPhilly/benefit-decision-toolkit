@@ -47,26 +47,13 @@ interface BaseInput {
 }
 interface StringInput extends BaseInput {
   type: "string";
-  validation: {
-    required: boolean;
-    min_length?: number;
-    max_length?: number;
-  };
 }
 interface StringSelectInput extends BaseInput {
   type: "select";
   options?: string;
-  validation: {
-    required: boolean;
-  };
 }
 interface NumberInput extends BaseInput {
   type: "number";
-  validation: {
-    required: boolean;
-    min?: number;
-    max?: number;
-  };
 }
 interface BooleanInput extends BaseInput {
   type: "boolean";

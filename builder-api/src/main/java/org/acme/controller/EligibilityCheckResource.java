@@ -40,7 +40,7 @@ public class EligibilityCheckResource {
 
     @GET
     @Path("/check/{checkId}")
-    public Response getAllChecks(@Context ContainerRequestContext requestContext, @PathParam("checkId") String checkId) {
+    public Response getCheck(@Context ContainerRequestContext requestContext, @PathParam("checkId") String checkId) {
         String userId = AuthUtils.getUserId(requestContext);
         if (userId == null){
             return Response.status(Response.Status.UNAUTHORIZED).build();

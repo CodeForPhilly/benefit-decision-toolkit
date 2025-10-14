@@ -1,7 +1,5 @@
 import { Accessor, For, Resource, Setter } from "solid-js";
 
-import { titleCase } from "../../../../utils/title_case";
-
 import type { Benefit, CheckConfig, EligibilityCheck } from "../types";
 
 
