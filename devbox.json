@@ -11,7 +11,7 @@
   "env_from": ".env",
   "shell": {
     "init_hook": [
-      "command -v bin/devbox-init-hook >/dev/null && bin/devbox-init-hook || true",
+      "[ -f .devboxrc ] && . ./.devboxrc",
       "echo 'Welcome to devbox!'"
     ],
     "scripts": {

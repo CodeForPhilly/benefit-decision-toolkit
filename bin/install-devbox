@@ -30,15 +30,14 @@ fi
 
 bin/ensure-root-env-file
 
-print_status "🔍 Checking for existing bin/devbox-init-hook..."
-if [ -f "bin/devbox-init-hook.example" ] && [ ! -f "bin/devbox-init-hook" ]; then
-  cp "bin/devbox-init-hook.example" "bin/devbox-init-hook"
-  chmod +x "bin/devbox-init-hook"
-  print_success "✓ Created bin/devbox-init-hook from example"
-elif [ -f "bin/devbox-init-hook" ]; then
-  print_status "○ bin/devbox-init-hook already exists"
+print_status "🔍 Checking for existing .devboxrc..."
+if [ -f ".devboxrc.example" ] && [ ! -f ".devboxrc" ]; then
+  cp ".devboxrc.example" ".devboxrc"
+  print_success "✓ Created .devboxrc from example"
+elif [ -f ".devboxrc" ]; then
+  print_status "○ .devboxrc already exists"
 else
-  print_error "⚠ Error: bin/devbox-init-hook.example not found."
+  print_error "⚠ Error: .devboxrc.example not found."
   exit 1
 fi
 

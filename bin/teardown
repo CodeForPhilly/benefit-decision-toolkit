@@ -33,6 +33,6 @@ echo -n "Backing up .env files"
 find . -type f -name ".env" -exec mv {} {}.backup-$(date -Iseconds) \;
 echo "...done"
 
-echo -n "Backing up bin/devbox-init-hook"
-mv bin/devbox-init-hook bin/devbox-init-hook.backup-$(date -Iseconds)
+echo -n "Backing up .devboxrc"
+mv .devboxrc .devboxrc.backup-$(date -Iseconds)
 echo "...done"

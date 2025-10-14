@@ -77,4 +77,4 @@ node_modules/
 
 .quarkus/
 
-bin/devbox-init-hook
+.devboxrc
