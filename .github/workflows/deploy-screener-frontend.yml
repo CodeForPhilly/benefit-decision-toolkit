@@ -1,4 +1,7 @@
-name: Build and Deploy to Firebase Hosting
+# This workflow uses devbox for dependency management and builds/deploys the screener frontend
+# to Firebase Hosting when a commit is pushed to the "main" branch.
+
+name: 'Build and Deploy Screener Frontend to Firebase Hosting'
 
 on:
   push:
@@ -6,6 +9,8 @@ on:
       - main
     paths:
       - 'screener-frontend/**'
+      - 'devbox.json'
+      - 'devbox.lock'
 
 env:
   PROJECT_ID: 'benefit-decision-toolkit-play'
@@ -24,10 +29,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Configure Workload Identity Federation and generate an access token.
-      #
-      # See https://github.com/google-github-actions/auth for more options,
-      # including authenticating via a JSON credentials file.
+      # Devbox needs a .env file to exist, even if it's empty
+      - name: 'Create .env file'
+        run: touch .env
+
+      # Setup devbox which includes Node.js, Firebase CLI, and Google Cloud SDK
+      - name: 'Install devbox'
+        uses: 'jetify-com/devbox-install-action@v0.12.0'
+        with:
+          enable-cache: true
+
+      # Configure Workload Identity Federation and generate an access token
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v2'
@@ -36,33 +48,23 @@ jobs:
           service_account: cicd-build-deploy-api@benefit-decision-toolkit-play.iam.gserviceaccount.com
           project_id: ${{ env.PROJECT_ID }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
       - name: Cache node modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: screener-frontend/node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('screener-frontend/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-          cache: 'npm'
-          cache-dependency-path: 'screener-frontend/package-lock.json'
 
       - name: Install dependencies
         working-directory: screener-frontend
-        run: npm ci
+        run: devbox run install-screener-frontend-ci
 
       - name: Build application
         working-directory: screener-frontend
-        run: npm run build
+        run: devbox run build-screener-frontend-ci
         env:
           VITE_API_URL: ${{ secrets.VITE_SCREENER_API_URL}}
 
-      - name: Install Firebase CLI
-        run: npm install -g firebase-tools
-
       - name: Deploy to Firebase Hosting
-        run: firebase deploy --only hosting:screener-frontend
+        run: devbox run -- firebase deploy --only hosting:screener-frontend
