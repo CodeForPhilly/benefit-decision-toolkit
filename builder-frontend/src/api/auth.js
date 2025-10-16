@@ -1,5 +1,6 @@
 import { getAuth } from "firebase/auth";
 
+
 export async function authFetch(input, init = {}) {
   const auth = getAuth();
   const user = auth.currentUser;
@@ -10,12 +11,8 @@ export async function authFetch(input, init = {}) {
   }
 
   const token = await user.getIdToken();
-
   const headers = new Headers(init.headers || {});
-  headers.set("Authorization", `Bearer ${token}`);
 
-  return fetch(input, {
-    ...init,
-    headers,
-  });
+  headers.set("Authorization", `Bearer ${token}`);
+  return fetch(input, { ...init, headers });
 }

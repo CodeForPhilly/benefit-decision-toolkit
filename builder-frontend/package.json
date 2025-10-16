@@ -31,6 +31,7 @@
     "sass-embedded": "^1.89.2",
     "tailwindcss": "^4.1.8",
     "vite": "^6.3.5",
-    "vite-plugin-solid": "^2.11.6"
+    "vite-plugin-solid": "^2.11.6",
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }

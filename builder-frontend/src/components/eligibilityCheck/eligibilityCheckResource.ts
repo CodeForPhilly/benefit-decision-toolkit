@@ -3,7 +3,7 @@ import { createStore } from "solid-js/store";
 
 import { fetchCheck } from "../../api/check";
 
-import type { EligibilityCheck, ParameterDefinition } from "../project/manageBenefits/types";
+import type { EligibilityCheck, ParameterDefinition } from "@/types";
 
 
 export interface ScreenerBenefitsResource {

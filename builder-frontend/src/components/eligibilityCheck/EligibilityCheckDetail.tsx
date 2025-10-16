@@ -5,7 +5,7 @@ import Header from "../Header";
 import Loading from "../Loading";
 import eligibilityCheckResource from "./eligibilityCheckResource";
 
-import type { EligibilityCheck } from "../project/manageBenefits/types";
+import type { EligibilityCheck } from "@/types";
 
 
 const EligibilityCheckDetail = () => {

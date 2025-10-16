@@ -2,8 +2,9 @@ import { Accessor, createSignal, For } from "solid-js";
 
 import SelectedCheckModal from "./modals/ConfigureCheckModal";
 
-import { titleCase } from "../../../../utils/title_case";
-import { CheckConfig, EligibilityCheck, ParameterDefinition, ParameterValues } from "../types";
+import { titleCase } from "@/utils/title_case";
+
+import type { CheckConfig, EligibilityCheck, ParameterDefinition, ParameterValues } from "@/types";
 
 
 interface ParameterWithConfiguredValue {

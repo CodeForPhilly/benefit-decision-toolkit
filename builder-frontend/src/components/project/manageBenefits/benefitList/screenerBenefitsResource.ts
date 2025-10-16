@@ -1,9 +1,15 @@
 import { createResource, createEffect, Accessor, createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
 
-import { addCustomBenefit, copyPublicBenefit as copyPublicBenefitApi, fetchProject, removeCustomBenefit, updateScreener } from "../../../../api/screener";
+import {
+  addCustomBenefit,
+  copyPublicBenefit as copyPublicBenefitApi,
+  fetchProject,
+  removeCustomBenefit,
+  updateScreener
+} from "@/api/screener";
 
-import type { BenefitDetail, ScreenerBenefits } from "../types";
+import type { BenefitDetail, ScreenerBenefits } from "@/types";
 
 
 export interface ScreenerBenefitsResource {

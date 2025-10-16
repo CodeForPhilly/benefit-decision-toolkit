@@ -45,7 +45,6 @@ public class DecisionResource {
     BenefitRepository benefitRepository;
 
     @POST
-
     @Path("/decision")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -106,7 +105,7 @@ public class DecisionResource {
     }
 
     @POST
-    @Path("/v2")
+    @Path("/decision/v2")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response evaluateScreener(
@@ -146,7 +145,7 @@ public class DecisionResource {
     }
 
     @POST
-    @Path("/v2/benefit")
+    @Path("/decision/v2/benefit")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response evaluateBenefit(

@@ -1,9 +1,9 @@
 import { createResource, createEffect, Accessor } from "solid-js";
 import { createStore } from "solid-js/store";
 
-import { fetchScreenerBenefit, updateScreenerBenefit } from "../../../../api/benefit";
+import { fetchScreenerBenefit, updateScreenerBenefit } from "@/api/benefit";
 
-import type { Benefit, CheckConfig, ParameterValues } from "../types";
+import type { Benefit, CheckConfig, ParameterValues } from "@/types";
 
 
 interface ScreenerBenefitsResource {

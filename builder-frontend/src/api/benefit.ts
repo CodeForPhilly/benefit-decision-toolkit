@@ -1,6 +1,6 @@
-import { authFetch } from "./auth";
+import { authFetch } from "@/api/auth";
 
-import { Benefit } from "../components/project/manageBenefits/types";
+import { Benefit } from "@/types";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 

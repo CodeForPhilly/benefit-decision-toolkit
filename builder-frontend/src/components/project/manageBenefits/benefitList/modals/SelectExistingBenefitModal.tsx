@@ -1,9 +1,8 @@
-import { createResource, createSignal, Show } from "solid-js";
+import { createResource } from "solid-js";
 
-import { fetchPublicBenefits } from "../../../../../api/benefit";
+import { fetchPublicBenefits } from "@/api/benefit";
 
-import type { Benefit, BenefitDetail } from "../../types";
-import Loading from "../../../../Loading";
+import type { Benefit } from "@/types";
 
 
 const SelectExistingBenefitModal = (

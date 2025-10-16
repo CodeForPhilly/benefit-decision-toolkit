@@ -7,8 +7,7 @@ import SelectExistingBenefitModal from "./modals/SelectExistingBenefitModal";
 import screenerBenefitResource from "./screenerBenefitsResource";
 import Loading from "../../../Loading";
 
-import type { BenefitDetail } from "../types";
-import { evaluateScreener } from "../../../../api/screener";
+import type { BenefitDetail } from "@/types";
 
 
 const BenefitList = (

@@ -1,9 +1,17 @@
-import { Accessor, For, onMount } from "solid-js";
-
-import { titleCase } from "../../../../../utils/title_case";
-
-import type { BooleanParameter, CheckConfig, EligibilityCheck, NumberParameter, ParameterDefinition, ParameterValues, StringParameter } from "../../types";
+import { Accessor, For } from "solid-js";
 import { createStore, SetStoreFunction } from "solid-js/store";
+
+import { titleCase } from "@/utils/title_case";
+
+import type {
+  CheckConfig,
+  EligibilityCheck,
+  ParameterDefinition,
+  ParameterValues,
+  BooleanParameter,
+  NumberParameter,
+  StringParameter,
+} from "@/types";
 
 
 const ConfigureCheckModal = (

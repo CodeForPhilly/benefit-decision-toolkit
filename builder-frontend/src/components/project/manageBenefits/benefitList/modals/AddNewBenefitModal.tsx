@@ -1,8 +1,7 @@
 import { createStore } from "solid-js/store"
 
-import type { BenefitDetail } from "../../types";
-import { createSignal, Show } from "solid-js";
-import Loading from "../../../../Loading";
+import type { BenefitDetail } from "@/types";
+
 
 type NewBenefitValues = {
   name: string;

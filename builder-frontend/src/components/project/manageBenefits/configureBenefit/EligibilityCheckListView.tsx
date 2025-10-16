@@ -1,6 +1,6 @@
 import { Accessor, For, Resource, Setter } from "solid-js";
 
-import type { Benefit, CheckConfig, EligibilityCheck } from "../types";
+import type { Benefit, CheckConfig, EligibilityCheck } from "@/types";
 
 
 export type EligibilityCheckListMode = "user-defined" | "public";

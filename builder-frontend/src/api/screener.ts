@@ -1,6 +1,8 @@
-import { BenefitDetail } from "../components/project/manageBenefits/types";
-import { authFetch } from "./auth";
 import { cloneDeep } from "lodash";
+import { authFetch } from "@/api/auth";
+
+import type { BenefitDetail } from "@/types";
+
 const apiUrl = import.meta.env.VITE_API_URL;
 
 export const fetchProjects = async () => {

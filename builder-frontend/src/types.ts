@@ -1,5 +1,4 @@
 /* Types for managing benefits in a project */
-
 export interface ScreenerBenefits {
   benefits: BenefitDetail[];
 }
@@ -34,7 +33,7 @@ export interface EligibilityCheck {
   parameters: ParameterDefinition[];
 }
 
-/* Check Input Types */
+// Check Input Types
 type InputDefinition = (
   StringInput |
   StringSelectInput |
@@ -60,7 +59,7 @@ interface BooleanInput extends BaseInput {
   // No additional validation needed for boolean
 }
 
-/* Parameter Types */
+// Parameter Types
 export type ParameterDefinition = (
   StringParameter |
   StringSelectParameter |
@@ -88,4 +87,26 @@ export interface NumberParameter extends BaseParameter {
 }
 export interface BooleanParameter extends BaseParameter {
   type: "boolean";
+}
+
+/* Screener Evaluation Results */
+export interface ScreenerResult {
+  [key: string]: BenefitResult
+}
+interface BenefitResult {
+  name: string;
+  result: OptionalBoolean;
+  check_results: {
+    [key: string]: CheckResult;
+  }
+}
+interface CheckResult {
+  name: string;
+  result: OptionalBoolean;
+}
+type OptionalBoolean = "TRUE" | "FALSE" | "UNABLE_TO_DETERMINE";
+
+/* Form Data for Preview */
+export interface PreviewFormData {
+  [key: string]: any;
 }

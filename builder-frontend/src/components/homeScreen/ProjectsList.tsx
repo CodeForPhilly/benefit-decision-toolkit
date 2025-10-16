@@ -7,8 +7,8 @@ import MenuIcon from "../icon/MenuIcon";
 
 import {
   fetchProjects, updateScreener, deleteScreener, createNewScreener,
-} from "../../api/screener";
-import { useAuth } from "../../context/AuthContext";
+} from "@/api/screener";
+import { useAuth } from "@/context/AuthContext";
 
 
 export default function ProjectsList() {

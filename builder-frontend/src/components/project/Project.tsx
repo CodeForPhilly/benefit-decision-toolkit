@@ -10,9 +10,9 @@ import Publish from "./Publish";
 
 import {
   cacheDependency, getCachedDependency
-} from "../../storageUtils/storageUtils";
-import { fetchProject } from "../../api/screener";
-import { fetchModel } from "../../api/models";
+} from "@/storageUtils/storageUtils";
+import { fetchProject } from "@/api/screener";
+import { fetchModel } from "@/api/models";
 
 
 type TabOption = "Manage Benefits" | "Form Editor" | "Preview" | "Publish";

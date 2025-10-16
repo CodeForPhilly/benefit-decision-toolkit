@@ -2,15 +2,13 @@ import { Accessor, createResource, createSignal, For, Show } from "solid-js";
 
 import SelectedEligibilityCheck from "./SelectedEligibilityCheck";
 import EligibilityCheckListView from "./EligibilityCheckListView";
-
-import { fetchPublicChecks, fetchUserDefinedChecks } from "../../../../api/check";
-
-import type { EligibilityCheckListMode } from "./EligibilityCheckListView";
-import type { EligibilityCheck } from "../types";
-
-import BenefitResource from "./benefitResource";
 import Loading from "../../../Loading";
 
+import BenefitResource from "./benefitResource";
+import { fetchPublicChecks, fetchUserDefinedChecks } from "@/api/check";
+
+import type { EligibilityCheckListMode } from "./EligibilityCheckListView";
+import type { EligibilityCheck } from "@/types";
 
 const ConfigureBenefit = (
   { screenerId, benefitId, setBenefitId }:
