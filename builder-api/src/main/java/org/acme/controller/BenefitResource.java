@@ -1,9 +1,9 @@
 package org.acme.controller;
 
 import io.quarkus.logging.Log;
+import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -28,8 +28,8 @@ public class BenefitResource {
 
     @GET
     @Path("/benefit")
-    public Response getAllBenefits(@Context ContainerRequestContext requestContext) {
-        String userId = AuthUtils.getUserId(requestContext);
+    public Response getAllBenefits(@Context SecurityIdentity identity) {
+        String userId = AuthUtils.getUserId(identity);
         if (userId == null){
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
@@ -41,8 +41,9 @@ public class BenefitResource {
 
     @GET
     @Path("/benefit/{benefitId}")
-    public Response getBenefit(@Context ContainerRequestContext requestContext, @PathParam("benefitId") String benefitId) {
-        String userId = AuthUtils.getUserId(requestContext);
+    public Response getBenefit(@Context SecurityIdentity identity,
+                               @PathParam("benefitId") String benefitId) {
+        String userId = AuthUtils.getUserId(identity);
         if (userId == null){
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
@@ -65,8 +66,9 @@ public class BenefitResource {
     // Get all of the full Eligibility Check Objects that have been added to a  Public Benefit
     @GET
     @Path("/benefit/{benefitId}/check")
-    public Response getBenefitChecks(@Context ContainerRequestContext requestContext, @PathParam("benefitId") String benefitId) {
-        String userId = AuthUtils.getUserId(requestContext);
+    public Response getBenefitChecks(@Context SecurityIdentity identity,
+                                     @PathParam("benefitId") String benefitId) {
+        String userId = AuthUtils.getUserId(identity);
         if (userId == null){
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
@@ -90,8 +92,9 @@ public class BenefitResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/benefit")
-    public Response updateBenefit(@Context ContainerRequestContext requestContext, Benefit newBenefit) {
-        String userId = AuthUtils.getUserId(requestContext);
+    public Response updateBenefit(@Context SecurityIdentity identity,
+                                  Benefit newBenefit) {
+        String userId = AuthUtils.getUserId(identity);
         //TODO: Add validations for user provided data
 
         newBenefit.setOwnerId(userId);
@@ -121,8 +124,9 @@ public class BenefitResource {
     // Utility endpoint to create a public benefit
     @POST
     @Path("/benefit")
-    public Response createBenefit(@Context ContainerRequestContext requestContext, Benefit newBenefit) {
-        String userId = AuthUtils.getUserId(requestContext);
+    public Response createBenefit(@Context SecurityIdentity identity,
+                                  Benefit newBenefit) {
+        String userId = AuthUtils.getUserId(identity);
 
         //TODO: Add validations for user provided data
 

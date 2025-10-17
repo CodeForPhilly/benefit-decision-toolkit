@@ -1,9 +1,9 @@
 package org.acme.controller;
 
 import io.quarkus.logging.Log;
+import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -12,20 +12,14 @@ import org.acme.auth.AuthUtils;
 import org.acme.enums.OptionalBoolean;
 import org.acme.model.domain.Benefit;
 import org.acme.model.domain.CheckConfig;
-import org.acme.auth.AuthUtils;
-import org.acme.model.domain.Benefit;
 import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.domain.Screener;
 import org.acme.persistence.BenefitRepository;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.ScreenerRepository;
 import org.acme.persistence.StorageService;
-import org.acme.service.DmnParser;
 import org.acme.service.DmnService;
 
-import io.quarkus.logging.Log;
-
-import java.time.Instant;
 import java.util.*;
 
 @Path("/api")
@@ -47,77 +41,16 @@ public class DecisionResource {
     BenefitRepository benefitRepository;
 
     @POST
-    @Path("/decision")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response post(@QueryParam("screenerId") String screenerId, Map<String, Object> inputData) {
-        if (screenerId == null || screenerId.isBlank()){
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Error: Missing required query parameter: screenerId")
-                    .build();
-        }
-
-        if (inputData == null || inputData.isEmpty()){
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Error: Missing decision inputs")
-                    .build();
-        }
-
-        return getScreenerResults(screenerId, inputData);
-    }
-
-    private Response getScreenerResults(String screenerId, Map<String, Object> inputData) {
-        Optional<Screener> screenerOptional = screenerRepository.getScreener(screenerId);
-
-        if (screenerOptional.isEmpty()){
-            throw new NotFoundException(String.format("Form %s was not found", screenerId));
-        }
-
-        Screener screener = screenerOptional.get();
-
-        try {
-            if (isLastScreenerCompileOutOfDate(screener)){
-                dmnService.compileWorkingDmnModel(screener);
-                updateScreenerLastCompileTime(screenerId, screener.getDmnModel());
-            }
-
-            Map <String, Object> result = dmnService.evaluateDecision(screener, inputData);
-
-            if (result.isEmpty()) return Response.ok().entity(Collections.emptyList()).build();
-
-            return Response.ok().entity(result).build();
-
-        } catch (Exception e){
-            Log.error("Error evaluating decision: ", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    private static boolean isLastScreenerCompileOutOfDate(Screener screener) {
-        return screener.getLastDmnCompile() == null || Instant.parse(screener.getLastDmnSave()).isAfter(Instant.parse(screener.getLastDmnCompile()));
-    }
-
-    private void updateScreenerLastCompileTime(String screenerId, String dmnXml) throws Exception {
-        Screener updateScreener = new Screener();
-        updateScreener.setId(screenerId);
-        updateScreener.setLastDmnCompile(Instant.now().toString());
-        DmnParser dmnParser = new DmnParser(dmnXml);
-        updateScreener.setWorkingDmnName(dmnParser.getName());
-        updateScreener.setWorkingDmnNameSpace(dmnParser.getNameSpace());
-        screenerRepository.updateScreener(updateScreener);
-    }
-
-    @POST
     @Path("/decision/v2")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response evaluateScreener(
-        @Context ContainerRequestContext requestContext,
+        @Context SecurityIdentity identity,
         @QueryParam("screenerId") String screenerId,
         Map<String, Object> inputData
     ) throws Exception {
         // Authorize user and get benefit
-        String userId = AuthUtils.getUserId(requestContext);
+        String userId = AuthUtils.getUserId(identity);
         if (screenerId.isEmpty() || !isUserAuthorizedToAccessScreenerByScreenerId(userId, screenerId)){
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
@@ -152,7 +85,7 @@ public class DecisionResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response evaluateBenefit(
-        @Context ContainerRequestContext requestContext,
+        @Context SecurityIdentity identity,
         @QueryParam("screenerId") String screenerId,
         @QueryParam("benefitId") String benefitId,
         Map<String, Object> inputData
@@ -169,7 +102,7 @@ public class DecisionResource {
         }
 
         // Authorize user and get benefit
-        String userId = AuthUtils.getUserId(requestContext);
+        String userId = AuthUtils.getUserId(identity);
         Optional<Benefit> benefitOpt = Optional.empty();
         if (!screenerId.isEmpty()){
             if (!isUserAuthorizedToAccessScreenerByScreenerId(userId, screenerId)){

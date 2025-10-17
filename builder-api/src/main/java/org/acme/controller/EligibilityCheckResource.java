@@ -2,20 +2,18 @@ package org.acme.controller;
 
 
 import io.quarkus.logging.Log;
+import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.acme.auth.AuthUtils;
 import org.acme.model.domain.EligibilityCheck;
-import org.acme.model.domain.Screener;
 import org.acme.model.dto.SaveDmnRequest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.StorageService;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,8 +29,8 @@ public class EligibilityCheckResource {
 
     @GET
     @Path("/check")
-    public Response getAllChecks(@Context ContainerRequestContext requestContext) {
-        String userId = AuthUtils.getUserId(requestContext);
+    public Response getAllChecks(@Context SecurityIdentity identity) {
+        String userId = AuthUtils.getUserId(identity);
         if (userId == null) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
@@ -44,8 +42,8 @@ public class EligibilityCheckResource {
 
     @GET
     @Path("/check/{checkId}")
-    public Response getCheck(@Context ContainerRequestContext requestContext, @PathParam("checkId") String checkId) {
-        String userId = AuthUtils.getUserId(requestContext);
+    public Response getCheck(@Context SecurityIdentity identity, @PathParam("checkId") String checkId) {
+        String userId = AuthUtils.getUserId(identity);
         if (userId == null){
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
@@ -69,11 +67,11 @@ public class EligibilityCheckResource {
     // In the future seperate endpoints will need to be created for publishing public checks and creating private checks
     @POST
     @Path("/check")
-    public Response createCheck(@Context ContainerRequestContext requestContext, EligibilityCheck newCheck) {
-          String userId = AuthUtils.getUserId(requestContext);
+    public Response createCheck(@Context SecurityIdentity identity,
+                                EligibilityCheck newCheck) {
+        String userId = AuthUtils.getUserId(identity);
 
         //TODO: Add validations for user provided data
-
         newCheck.setOwnerId(userId);
         try {
             String checkId = eligibilityCheckRepository.saveNewCheck(newCheck);
@@ -88,8 +86,9 @@ public class EligibilityCheckResource {
 
     @PUT
     @Path("/check")
-    public Response updateCheck(@Context ContainerRequestContext requestContext, EligibilityCheck updateCheck){
-        String userId = AuthUtils.getUserId(requestContext);
+    public Response updateCheck(@Context SecurityIdentity identity,
+                                EligibilityCheck updateCheck){
+        String userId = AuthUtils.getUserId(identity);
 
         // TODO: Add authorization to update check
         try {
@@ -105,7 +104,7 @@ public class EligibilityCheckResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/save-check-dmn")
-    public Response updateCheckDmn(@Context ContainerRequestContext requestContext, SaveDmnRequest saveDmnRequest){
+    public Response updateCheckDmn(@Context SecurityIdentity identity, SaveDmnRequest saveDmnRequest){
 
         String checkId = saveDmnRequest.id;
         String dmnModel = saveDmnRequest.dmnModel;
@@ -115,7 +114,7 @@ public class EligibilityCheckResource {
                     .build();
         }
 
-        String userId = AuthUtils.getUserId(requestContext);
+        String userId = AuthUtils.getUserId(identity);
         Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getCheck(checkId);
         if (checkOpt.isEmpty()){
             return Response.status(Response.Status.NOT_FOUND).build();

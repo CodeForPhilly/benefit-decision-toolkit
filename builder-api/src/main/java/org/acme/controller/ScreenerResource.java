@@ -298,7 +298,7 @@ public class ScreenerResource {
         }
     }
 
-    private boolean isUserAuthorizedToAccessScreenerByScreenerId(String userId, String screenerId) {
+    private boolean isUserAuthorizedToAccessScreener(String userId, String screenerId) {
         Optional<Screener> screenerOptional = screenerRepository.getScreenerMetaDataOnly(screenerId);
         if (screenerOptional.isEmpty()){
             return false;
@@ -338,10 +338,9 @@ public class ScreenerResource {
 
     @GET
     @Path("/screener/{screenerId}/benefit")
-    public Response getScreenerBenefits(@Context ContainerRequestContext requestContext,
+    public Response getScreenerBenefits(@Context SecurityIdentity identity,
                                         @PathParam("screenerId") String screenerId){
-
-        String userId = AuthUtils.getUserId(requestContext);
+        String userId = AuthUtils.getUserId(identity);
 
         Optional<Screener> screenerOpt = screenerRepository.getScreener(screenerId);
         if (screenerOpt.isEmpty()){
@@ -366,11 +365,11 @@ public class ScreenerResource {
 
     @GET
     @Path("/screener/{screenerId}/benefit/{benefitId}")
-    public Response getScreenerBenefit(@Context ContainerRequestContext requestContext,
-                                        @PathParam("screenerId") String screenerId,
+    public Response getScreenerBenefit(@Context SecurityIdentity identity,
+                                       @PathParam("screenerId") String screenerId,
                                        @PathParam("benefitId") String benefitId){
-        String userId = AuthUtils.getUserId(requestContext);
-        if (!isUserAuthorizedToAccessScreenerByScreenerId(userId, screenerId)){
+        String userId = AuthUtils.getUserId(identity);
+        if (!isUserAuthorizedToAccessScreener(userId, screenerId)){
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
 
@@ -390,11 +389,11 @@ public class ScreenerResource {
 
     @GET
     @Path("/screener/{screenerId}/benefit/{benefitId}/check")
-    public Response getScreenerCustomBenefitChecks(@Context ContainerRequestContext requestContext,
+    public Response getScreenerCustomBenefitChecks(@Context SecurityIdentity identity,
                                                     @PathParam("screenerId") String screenerId,
                                                     @PathParam("benefitId") String benefitId){
         try {
-            String userId = AuthUtils.getUserId(requestContext);
+            String userId = AuthUtils.getUserId(identity);
 
             Optional<Screener> screenerOpt = screenerRepository.getScreener(screenerId);
             if (screenerOpt.isEmpty()){
@@ -423,10 +422,10 @@ public class ScreenerResource {
 
     @POST
     @Path("/screener/{screenerId}/benefit")
-    public Response addCustomBenefit(@Context ContainerRequestContext requestContext,
+    public Response addCustomBenefit(@Context SecurityIdentity identity,
                                   @PathParam("screenerId") String screenerId,
                                   Benefit newBenefit) {
-        String userId = AuthUtils.getUserId(requestContext);
+        String userId = AuthUtils.getUserId(identity);
 
         newBenefit.setOwnerId(userId);
         newBenefit.setChecks(Collections.emptyList());
@@ -475,9 +474,9 @@ public class ScreenerResource {
 
     @POST
     @Path("/screener/{screenerId}/copy_public_benefit")
-    public Response copyPublicBenefit(@Context ContainerRequestContext requestContext,
-                                  @PathParam("screenerId") String screenerId,
-                                  @QueryParam("benefitId") String benefitId) {
+    public Response copyPublicBenefit(@Context SecurityIdentity identity,
+                                      @PathParam("screenerId") String screenerId,
+                                      @QueryParam("benefitId") String benefitId) {
         // Check if Screener and Benefit exist
         Optional<Screener> screenerOpt = screenerRepository.getScreener(screenerId);
         Optional<Benefit> benefitOpt = benefitRepository.getBenefit(benefitId);
@@ -489,7 +488,7 @@ public class ScreenerResource {
         }
 
         // Confirm user is authorized to make the change
-        String userId = AuthUtils.getUserId(requestContext);
+        String userId = AuthUtils.getUserId(identity);
         Screener screener = screenerOpt.get();
         if (!isUserAuthorizedToAccessScreenerByScreener(userId, screener)){
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -537,14 +536,14 @@ public class ScreenerResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/screener/{screenerId}/benefit")
-    public Response updateCustomBenefit(@Context ContainerRequestContext requestContext,
+    public Response updateCustomBenefit(@Context SecurityIdentity identity,
                                         @PathParam("screenerId") String screenerId,
                                         Benefit updatedBenefit) {
-        String userId = AuthUtils.getUserId(requestContext);
+        String userId = AuthUtils.getUserId(identity);
 
         // TODO: Add validations for user provided data
 
-        if (!isUserAuthorizedToAccessScreenerByScreenerId(userId, screenerId)) {
+        if (!isUserAuthorizedToAccessScreener(userId, screenerId)) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
 
@@ -566,7 +565,7 @@ public class ScreenerResource {
 
     @DELETE
     @Path("/screener/{screenerId}/benefit/{benefitId}")
-    public Response deleteCustomBenefit(@Context ContainerRequestContext requestContext,
+    public Response deleteCustomBenefit(@Context SecurityIdentity identity,
                                         @PathParam("screenerId") String screenerId,
                                         @PathParam("benefitId") String benefitId) {
         try {
@@ -581,7 +580,7 @@ public class ScreenerResource {
             }
 
             // Confirm user is authorized to make the change
-            String userId = AuthUtils.getUserId(requestContext);
+            String userId = AuthUtils.getUserId(identity);
             Screener screener = screenerOpt.get();
             if (!isUserAuthorizedToAccessScreenerByScreener(userId, screener)){
                 return Response.status(Response.Status.UNAUTHORIZED).build();
