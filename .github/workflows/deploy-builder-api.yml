@@ -1,33 +1,7 @@
-# This workflow build and push a Docker container to Google Artifact Registry
-# and deploy it on Cloud Run when a commit is pushed to the "main"
-# branch.
-#
-# To configure this workflow:
-#
-# 1. Enable the following Google Cloud APIs:
-#
-#    - Artifact Registry (artifactregistry.googleapis.com)
-#    - Cloud Run (run.googleapis.com)
-#    - IAM Credentials API (iamcredentials.googleapis.com)
-#
-#    You can learn more about enabling APIs at
-#    https://support.google.com/googleapi/answer/6158841.
-#
-# 2. Create and configure a Workload Identity Provider for GitHub:
-#    https://github.com/google-github-actions/auth#preferred-direct-workload-identity-federation.
-#
-#    Depending on how you authenticate, you will need to grant an IAM principal
-#    permissions on Google Cloud:
-#
-#    - Artifact Registry Administrator (roles/artifactregistry.admin)
-#    - Cloud Run Developer (roles/run.developer)
-#
-#    You can learn more about setting IAM permissions at
-#    https://cloud.google.com/iam/docs/manage-access-other-resources
-#
-# 3. Change the values in the "env" block to match your values.
+# This workflow uses devbox for dependency management and builds/deploys the builder API
+# to Cloud Run when a commit is pushed to the "main" branch.
 
-name: 'Build and Deploy to Cloud Run'
+name: 'Build and Deploy Builder API to Cloud Run'
 
 on:
   push:
@@ -35,6 +9,8 @@ on:
       - main
     paths:
       - 'builder-api/**'
+      - 'devbox.json'
+      - 'devbox.lock'
 
 env:
   PROJECT_ID: 'benefit-decision-toolkit-play'
@@ -53,13 +29,21 @@ jobs:
 
     steps:
       - name: 'Checkout'
-        uses: 'actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332' # actions/checkout@v4
-    
-        
-      # Configure Workload Identity Federation and generate an access token.
-      #
-      # See https://github.com/google-github-actions/auth for more options,
-      # including authenticating via a JSON credentials file.
+        uses: 'actions/checkout@v4'
+
+      # Devbox needs a .env file to exist, even if it's empty
+      # TODO: Make this useful in this and other workflows by just consolidating env vars
+      #       here (so that we don't need to manage multiple places)
+      - name: 'Create .env file'
+        run: touch .env
+
+      # Setup devbox which includes all our dependencies: Maven, JDK 21, Quarkus, etc.
+      - name: 'Install devbox'
+        uses: 'jetify-com/devbox-install-action@v0.12.0'
+        with:
+          enable-cache: true
+
+      # Configure Workload Identity Federation and generate an access token
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v2'
@@ -67,29 +51,17 @@ jobs:
           workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
           service_account: cicd-build-deploy-api@benefit-decision-toolkit-play.iam.gserviceaccount.com
           project_id: ${{ env.PROJECT_ID }}
-          
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v2'
-      
-      # BEGIN - Docker auth and build
 
-      # Configure Docker to use gcloud as a credential helper
+      # Configure Docker to use gcloud as a credential helper (using devbox gcloud)
       - name: 'Configure Docker'
         run: |
-          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
-          
-      # Download Java version
-      - name: Set up Java 21
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: 21
+          devbox run -- gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
 
-      # Build the Quarkus app with Maven
+      # Build the Quarkus app with Maven using devbox environment
       - name: 'Build Quarkus App'
         working-directory: builder-api
         run: |
-          ./mvnw package -DskipTests
+          devbox run build-builder-api-ci
 
       - name: 'Build and Push Container'
         working-directory: builder-api
@@ -99,21 +71,18 @@ jobs:
           docker push "${DOCKER_TAG}"
 
       - name: 'Deploy to Cloud Run'
-
-        # END - Docker auth and build
-
-        uses: 'google-github-actions/deploy-cloudrun@33553064113a37d688aa6937bacbdc481580be17' # google-github-actions/deploy-cloudrun@v2
+        uses: 'google-github-actions/deploy-cloudrun@v2'
         with:
           service: '${{ env.API_NAME }}'
           region: '${{ env.REGION }}'
-          # NOTE: If using a pre-built image, update the image name below:
-
           image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.API_NAME }}:latest'
           service_account: 'builder-api-service-account@${{ env.PROJECT_ID }}.iam.gserviceaccount.com'
           flags: '--allow-unauthenticated --max-instances=2'
+          env_vars: |
+            QUARKUS_GOOGLE_CLOUD_PROJECT_ID=${{ env.PROJECT_ID }}
+            GCS_BUCKET_NAME=${{ env.PROJECT_ID }}.firebasestorage.app
 
       # If required, use the Cloud Run URL output in later steps
       - name: 'Show output'
-        run: |2-
-
+        run: |
           echo ${{ steps.deploy.outputs.url }}

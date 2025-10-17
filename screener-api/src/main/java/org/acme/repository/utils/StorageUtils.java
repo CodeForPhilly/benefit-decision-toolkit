@@ -3,34 +3,48 @@ package org.acme.repository.utils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Bucket;
-import com.google.firebase.cloud.StorageClient;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.Storage;
+
 import io.quarkus.logging.Log;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Optional;
 
+import org.eclipse.microprofile.config.ConfigProvider;
+
+@ApplicationScoped
 public class StorageUtils {
 
-    public static String getScreenerPublishedFormSchemaPath(String screenerId){
+    @Inject
+    Storage storage;
+
+    private final String bucketName = ConfigProvider.getConfig()
+            .getOptionalValue("GCS_BUCKET_NAME", String.class)
+            .orElse("demo-bdt-dev.appspot.com");
+    // private static final Storage storage = Storage.getInstance();
+
+    public String getScreenerPublishedFormSchemaPath(String screenerId){
         return "form/published/" + screenerId + ".json";
     }
 
-    public static String getScreenerPublishedDmnModelPath(String screenerId){
+    public String getScreenerPublishedDmnModelPath(String screenerId){
         return "dmn/published/" + screenerId + ".dmn";
     }
 
 
-    public static String getPublishedCompiledDmnModelPath(String screenerId){
+    public String getPublishedCompiledDmnModelPath(String screenerId){
         return "compiled_dmn_models/published/" + screenerId + "/kiebase.ser";
     }
 
-    public static Map<String, Object> getFormSchemaFromStorage(String filePath) {
+    public Map<String, Object> getFormSchemaFromStorage(String filePath) {
         try {
-            Bucket bucket = StorageClient.getInstance().bucket();
-            Blob blob = bucket.get(filePath);
+            BlobId blobId = BlobId.of(bucketName, filePath);
+            Blob blob = this.storage.get(blobId);
 
             if (blob == null || !blob.exists()) {
                 return null;
@@ -49,10 +63,10 @@ public class StorageUtils {
         }
     }
 
-    public static Optional<byte[]> getFileBytesFromStorage(String filePath) {
+    public Optional<byte[]> getFileBytesFromStorage(String filePath) {
         try {
-            Bucket bucket = StorageClient.getInstance().bucket();
-            Blob blob = bucket.get(filePath);
+            BlobId blobId = BlobId.of(bucketName, filePath);
+            Blob blob = this.storage.get(blobId);
 
             if (blob == null || !blob.exists()) {
                 return Optional.empty();
@@ -68,10 +82,10 @@ public class StorageUtils {
         }
     }
 
-    public static Optional<InputStream> getFileInputStreamFromStorage(String filePath) {
+    public Optional<InputStream> getFileInputStreamFromStorage(String filePath) {
         try {
-            Bucket bucket = StorageClient.getInstance().bucket();
-            Blob blob = bucket.get(filePath);
+            BlobId blobId = BlobId.of(bucketName, filePath);
+            Blob blob = this.storage.get(blobId);
 
             if (blob == null || !blob.exists()) {
                 return Optional.empty();

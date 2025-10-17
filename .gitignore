@@ -65,6 +65,8 @@ node_modules/
 # dotenv environment variables file
 .env
 
+.envrc
+
 # dataconnect generated files
 .dataconnect
 # IntelliJ
@@ -74,3 +76,5 @@ node_modules/
 *.iws
 
 .quarkus/
+
+.devboxrc

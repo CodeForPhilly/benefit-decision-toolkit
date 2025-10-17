@@ -51,7 +51,7 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
         screener.setFormSchema(formSchema);
 
         String dmnPath = storageService.getScreenerWorkingDmnModelPath(screenerId);
-        Optional<String> dmnModel = FirestoreUtils.getFileAsStringFromStorage(dmnPath);
+        Optional<String> dmnModel = storageService.getStringFromStorage(dmnPath);
         dmnModel.ifPresent(screener::setDmnModel);
 
         return Optional.of(screener);
@@ -68,10 +68,6 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
         Screener screener = mapper.convertValue(data, Screener.class);
 
         return Optional.of(screener);
-    }
-
-    private Boolean doesAttributeExistAndOfType(Map<String, Object> map, String key, Class<?> expectedClass){
-        return map.containsKey(key) && expectedClass.isInstance(map.get(key));
     }
 
     @Override

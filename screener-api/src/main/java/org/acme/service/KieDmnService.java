@@ -2,6 +2,7 @@ package org.acme.service;
 
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
 import org.acme.model.ResultDetail;
 import org.acme.model.Screener;
@@ -18,10 +19,12 @@ import java.util.*;
 
 @ApplicationScoped
 public class KieDmnService implements DmnService {
+    @Inject
+    StorageUtils storageUtils;
     public List<ResultDetail> evaluateDecision(Screener screener, Map<String, Object> inputs) throws IOException {
 
-        String filePath = StorageUtils.getPublishedCompiledDmnModelPath(screener.getId());
-        Optional<byte[]> dmnDataOpt = StorageUtils.getFileBytesFromStorage(filePath);
+        String filePath = storageUtils.getPublishedCompiledDmnModelPath(screener.getId());
+        Optional<byte[]> dmnDataOpt = storageUtils.getFileBytesFromStorage(filePath);
 
 
         if (dmnDataOpt.isEmpty()){

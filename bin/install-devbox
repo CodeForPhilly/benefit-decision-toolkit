@@ -28,6 +28,19 @@ else
   print_status "devbox already installed."
 fi
 
+bin/ensure-root-env-file
+
+print_status "🔍 Checking for existing .devboxrc..."
+if [ -f ".devboxrc.example" ] && [ ! -f ".devboxrc" ]; then
+  cp ".devboxrc.example" ".devboxrc"
+  print_success "✓ Created .devboxrc from example"
+elif [ -f ".devboxrc" ]; then
+  print_status "○ .devboxrc already exists"
+else
+  print_error "⚠ Error: .devboxrc.example not found."
+  exit 1
+fi
+
 print_status "📦 Setting up devbox environment..."
 if [ -f "devbox.json" ]; then
   devbox install
