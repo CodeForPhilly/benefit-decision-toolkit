@@ -451,6 +451,9 @@ public class ScreenerResource {
             }
 
             List<BenefitDetail> benefits = screenerOpt.get().getBenefits();
+            if (benefits == null) {
+                benefits = Collections.emptyList();
+            }
             Boolean benefitIdExists = !benefits.stream().filter(benefit -> benefit.getId().equals(benefitDetail.getId())).toList().isEmpty();
 
             if (benefitIdExists){
