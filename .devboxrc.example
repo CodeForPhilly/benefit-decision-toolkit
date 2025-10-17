@@ -1,0 +1,31 @@
+# Commands you put here will run every time you enter the `devbox shell` or
+# run other devbox commands (like `devbox run` or `devbox services`).
+
+# IMPORTANT:
+# - don't use this file for environment variables; use .env instead.
+# - `devbox services` runs in a basic sh shell, so only put POSIX-compliant
+#   shell commands here (e.g. no bash-specific syntax) (unless you check for bash).
+
+
+# Tab completion for tools managed by devbox
+# if [ -n "$BASH_VERSION" ]; then
+#   eval "$(quarkus completion)"
+
+  # Some tools install their bash completions to this directory
+  # if [ -d .devbox/nix/profile/default/share/bash-completion/completions ]; then
+  #   for completion in .devbox/nix/profile/default/share/bash-completion/completions/*; do
+  #     [ -f "$completion" ] && source "$completion"
+  #   done
+  # fi
+
+  # NOTE: for tab completion of devbox itself, put the following in your ~/.bashrc, etc:
+  # source <(devbox completion bash)
+# fi
+
+
+# Disable or workaround tools that might interfere with devbox
+# command -v mise >/dev/null && mise deactivate # interferes with PATH
+
+
+# Project-specific aliases
+# alias dup="devbox services up"

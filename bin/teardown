@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+# NOTE: this is maybe temporary... for helping to test project setup
+
+if [ "$EUID" -ne 0 ]; then
+  echo "This script must be run as root (use sudo)"
+  exit 1
+fi
+
+echo -n "Removing all maven dependencies"
+rm -rf ~/.m2/repository
+echo "...done"
+
+echo -n "Removing all npm dependencies"
+rm -rf builder-frontend/node_modules screener-frontend/node_modules
+echo "...done"
+
+echo -n "Removing devbox"
+rm /usr/local/bin/devbox
+rm -rf ~/.cache/devbox
+rm -rf ~/.local/share/devbox
+echo "...done"
+
+echo -n "Removing nix"
+rm -rf /nix ~/.nix-channels ~/.nix-defexpr ~/.nix-profile
+echo "...done"
+
+echo -n "Removing firebase emulators"
+rm -rf ~/.cache/firebase/emulators
+echo "...done"
+
+echo -n "Backing up .env files"
+find . -type f -name ".env" -exec mv {} {}.backup-$(date -Iseconds) \;
+echo "...done"
+
+echo -n "Backing up .devboxrc"
+mv .devboxrc .devboxrc.backup-$(date -Iseconds)
+echo "...done"

@@ -1,8 +1,7 @@
-import { getAuth } from "firebase/auth";
+import { auth } from "../firebase/firebase.js";
 
 
 export async function authFetch(input, init = {}) {
-  const auth = getAuth();
   const user = auth.currentUser;
 
   // If no user is logged in, you can handle it accordingly

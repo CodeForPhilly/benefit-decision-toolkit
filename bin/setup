@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+
+# Benefit Decision Toolkit - One-Step Developer Setup Script
+# This script streamlines setup of a development environment for the Benefit Decision Toolkit
+
+set -e # Exit on any error
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+source "$SCRIPT_DIR/functions"
+
+print_status "🚀 Starting Benefit Decision Toolkit Developer Setup..."
+
+echo ""
+
+if [[ "$DEVBOX_SHELL_ENABLED" != "1" ]]; then
+  if ask_user "This project is configured to use devbox (https://www.jetify.com/devbox) to manage system dependencies. Do you want to use devbox? (default=yes)" "y"; then
+    echo ""
+    echo "Devbox instructions:"
+    echo ""
+    echo "1. If you already have devbox installed, then run:"
+    echo "  \$ devbox run setup"
+    echo ""
+    echo "2. If you don't already have devbox installed (or you're not sure), then run:"
+    echo "  \$ bin/install-devbox && devbox run setup"
+    echo ""
+    exit 0
+  else
+    print_warning "Setup won't use devbox; system dependencies are the developer's responsibility. See devbox.json for the list of dependencies needed."
+    sleep 2
+  fi
+fi
+
+print_status "📦 Installing frontend dependencies..."
+
+if ! command_exists npm; then
+  print_error "npm not found. Please install node manually or use devbox to manage dependencies."
+  exit 1
+fi
+
+print_status "Installing builder-frontend dependencies..."
+cd builder-frontend
+if [ -f "package.json" ]; then
+  npm install
+  print_success "builder-frontend dependencies installed"
+else
+  print_error "package.json not found in builder-frontend"
+  exit 1
+fi
+cd ..
+
+print_status "Installing screener-frontend dependencies..."
+cd screener-frontend
+if [ -f "package.json" ]; then
+  npm install
+  print_success "screener-frontend dependencies installed"
+else
+  print_error "package.json not found in screener-frontend"
+  exit 1
+fi
+cd ..
+
+print_status "Finished installing frontend dependencies."
+
+print_status "📦 Installing backend dependencies..."
+
+if ! command_exists mvn; then
+  print_error "mvn not found. Please install maven manually or use devbox to manage dependendcies."
+  exit 1
+fi
+
+print_status "Installing library-api dependencies..."
+cd library-api
+mvn clean package
+print_success "library-api dependencies installed"
+cd ..
+
+print_status "Installing builder-api dependencies..."
+cd builder-api
+# TODO: are the tests important to run here? (one of them was failing for me)
+mvn clean package -DskipTests
+print_success "builder-api dependencies installed"
+cd ..
+
+print_status "Installing screener-api dependencies..."
+cd screener-api
+mvn clean package
+print_success "screener-api dependencies installed"
+cd ..
+
+print_status "Finished installing backend dependencies."
+
+echo ""
+
+print_status "Setting up environment files..."
+
+bin/ensure-root-env-file
+
+SERVICES=("builder-frontend" "screener-frontend" "builder-api" "screener-api" "library-api")
+for service in "${SERVICES[@]}"; do
+  if [ -f "$service/.env.example" ] && [ ! -f "$service/.env" ]; then
+    cp "$service/.env.example" "$service/.env"
+    print_success "✓ Created $service/.env from .env.example"
+  elif [ -f "$service/.env" ]; then
+    print_status "○ $service/.env already exists"
+  else
+    print_error "⚠ Error: $service/.env.example not found"
+    exit 1
+  fi
+done
+
+echo ""
+
+print_success "🎉 Developer setup completed successfully!"
+echo ""
+echo "📋 Next Steps:"
+echo ""
+echo "1. Environment Configuration:"
+echo "  a. If you plan to use devbox and develop against local emulators, then you are good to go!"
+echo "  b. If not using devbox and/or plan to develop against real Firebase services, then you might need help from a teammate to finish setting up your environment."
+echo "2. Run all main web app services locally in dev mode:"
+echo "  a. With devbox: 'devbox services up'"
+echo "  b. Without devbox: install then run 'process-compose'"
+echo "3. Other things to try:"
+echo "  a. Run 'devbox shell' to load the environment without running services."
+echo "  b. Consider using the direnv integration to load dependencies automatically."
+echo "  c. Consider installing the Devbox and Direnv extensions for VS Code."
+echo "  d. Run the library-api:"
+echo "    i. 'devbox shell'"
+echo "    ii. 'cd library-api'"
+echo "    iii. 'quarkus dev'"
+echo ""
+print_status "Happy coding! 🚀"

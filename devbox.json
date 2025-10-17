@@ -4,18 +4,43 @@
     "maven@latest",
     "quarkus@latest",
     "jdk21@latest",
+    "firebase-tools@latest",
     "google-cloud-sdk@latest",
-    "podman@latest",
-    "docker@latest",
-    "firebase-tools@latest"
+    "nodejs@22"
   ],
+  "env_from": ".env",
   "shell": {
     "init_hook": [
-      "echo 'Welcome to devbox!' > /dev/null"
+      "[ -f .devboxrc ] && . ./.devboxrc",
+      "echo 'Welcome to devbox!'"
     ],
     "scripts": {
-      "test": [
-        "echo \"Error: no test specified\" && exit 1"
+      "setup": [
+        "bin/setup"
+      ],
+      "build-builder-api-ci": [
+        "cd builder-api",
+        "quarkus build --no-tests"
+      ],
+      "install-builder-frontend-ci": [
+        "cd builder-frontend",
+        "npm ci"
+      ],
+      "build-builder-frontend-ci": [
+        "cd builder-frontend",
+        "npm run build"
+      ],
+      "build-screener-api-ci": [
+        "cd screener-api",
+        "quarkus build --no-tests"
+      ],
+      "install-screener-frontend-ci": [
+        "cd screener-frontend",
+        "npm ci"
+      ],
+      "build-screener-frontend-ci": [
+        "cd screener-frontend",
+        "npm run build"
       ]
     }
   }

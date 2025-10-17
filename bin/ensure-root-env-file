@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+source "$SCRIPT_DIR/functions"
+
+print_status "🔍 Checking for existing root .env..."
+if [ -f ".env.example" ] && [ ! -f ".env" ]; then
+  cp ".env.example" ".env"
+  print_success "✓ Created root .env from .env.example"
+elif [ -f ".env" ]; then
+  print_status "○ Using existing root .env"
+else
+  print_error "⚠ Error: Root .env.example not found"
+  exit 1
+fi

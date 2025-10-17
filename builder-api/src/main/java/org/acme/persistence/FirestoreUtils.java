@@ -2,13 +2,9 @@ package org.acme.persistence;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Bucket;
 import com.google.firebase.cloud.FirestoreClient;
-import com.google.firebase.cloud.StorageClient;
 import io.quarkus.logging.Log;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -39,6 +35,8 @@ public class FirestoreUtils {
     }
 
     public static List<Map<String, Object>> getFirestoreDocsByField(String collection, String field, String value) {
+        System.out.println("Fetching documents from collection: " + collection + " where " + field + " = " + value);
+        System.out.println("Using Firestore instance: " + db.listCollections());
         try {
             ApiFuture<QuerySnapshot> query = db.collection(collection)
                     .whereEqualTo(field, value)
@@ -140,26 +138,6 @@ public class FirestoreUtils {
 
         }catch(Exception e){
             Log.error("Error fetching document from firestore: ", e);
-            return Optional.empty();
-        }
-    }
-
-    public static Optional<String> getFileAsStringFromStorage(String filePath) {
-        try {
-            Bucket bucket = StorageClient.getInstance().bucket();
-            Blob blob = bucket.get(filePath);
-
-            if (blob == null || !blob.exists()) {
-                return Optional.empty();
-            }
-
-            byte[] data = blob.getContent();
-            String content = new String(data, StandardCharsets.UTF_8);
-
-            return Optional.of(content);
-
-        } catch (Exception e){
-            Log.error("Error fetching file from firebase storage: ", e);
             return Optional.empty();
         }
     }

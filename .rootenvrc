@@ -1,0 +1,5 @@
+# source this file to manually load environment variables from .env file
+# (not needed if you use devbox, process-compose, direnv, etc.)
+set -a
+[ -f .env ] && source .env
+set +a

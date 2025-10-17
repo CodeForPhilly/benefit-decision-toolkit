@@ -2,9 +2,9 @@ package org.acme.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.logging.Log;
+import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -44,7 +44,7 @@ public class ScreenerResource {
 
     @Inject
     StorageService storageService;
-    
+
     @Inject
     DmnService dmnService;
 
@@ -53,8 +53,8 @@ public class ScreenerResource {
 
     @GET
     @Path("/screeners")
-    public Response getScreeners(@Context ContainerRequestContext requestContext) {
-        String userId = AuthUtils.getUserId(requestContext);
+    public Response getScreeners(@Context SecurityIdentity identity) {
+        String userId = AuthUtils.getUserId(identity);
         if (userId == null){
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
@@ -67,9 +67,9 @@ public class ScreenerResource {
 
     @GET
     @Path("/screener/{screenerId}")
-    public Response getScreener(@Context ContainerRequestContext requestContext, @PathParam("screenerId") String screenerId) {
+    public Response getScreener(@Context SecurityIdentity identity, @PathParam("screenerId") String screenerId) {
 
-        String userId = AuthUtils.getUserId(requestContext);
+        String userId = AuthUtils.getUserId(identity);
         Log.info("Fetching screener " + screenerId + "  for user " + userId);
 
         //perform authentication
@@ -91,8 +91,8 @@ public class ScreenerResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/screener")
-    public Response postScreener(@Context ContainerRequestContext requestContext, Screener newScreener){
-        String userId = AuthUtils.getUserId(requestContext);
+    public Response postScreener(@Context SecurityIdentity identity, Screener newScreener){
+        String userId = AuthUtils.getUserId(identity);
 
         //initialize screener data not in form
         newScreener.setIsPublished(false);
@@ -113,9 +113,9 @@ public class ScreenerResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/screener")
-    public Response updateScreener(@Context ContainerRequestContext requestContext, Screener screener){
-        String userId = AuthUtils.getUserId(requestContext);
-        if (!isUserAuthorizedToAccessScreenerByScreenerId(userId, screener.getId())) return Response.status(Response.Status.UNAUTHORIZED).build();
+    public Response updateScreener(@Context SecurityIdentity identity, Screener screener){
+        String userId = AuthUtils.getUserId(identity);
+        if (!isUserAuthorizedToAccessScreener(userId, screener.getId())) return Response.status(Response.Status.UNAUTHORIZED).build();
 
         //add user info to the update data
         screener.setOwnerId(userId);
@@ -135,7 +135,7 @@ public class ScreenerResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/save-form-schema")
-    public Response saveFormSchema(@Context ContainerRequestContext requestContext, SaveSchemaRequest saveSchemaRequest){
+    public Response saveFormSchema(@Context SecurityIdentity identity, SaveSchemaRequest saveSchemaRequest){
 
         String screenerId = saveSchemaRequest.screenerId;
         if (screenerId == null || screenerId.isBlank()){
@@ -144,8 +144,8 @@ public class ScreenerResource {
                     .build();
         }
 
-        String userId = AuthUtils.getUserId(requestContext);
-        if (!isUserAuthorizedToAccessScreenerByScreenerId(userId, saveSchemaRequest.screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
+        String userId = AuthUtils.getUserId(identity);
+        if (!isUserAuthorizedToAccessScreener(userId, saveSchemaRequest.screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
 
         JsonNode schema = saveSchemaRequest.schema;
         if (schema == null){
@@ -167,7 +167,7 @@ public class ScreenerResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/save-dmn-model")
-    public Response saveDmnModel(@Context ContainerRequestContext requestContext, SaveDmnRequest saveDmnRequest){
+    public Response saveDmnModel(@Context SecurityIdentity identity, SaveDmnRequest saveDmnRequest){
 
         String screenerId = saveDmnRequest.id;
         String dmnModel = saveDmnRequest.dmnModel;
@@ -177,8 +177,8 @@ public class ScreenerResource {
                     .build();
         }
 
-        String userId = AuthUtils.getUserId(requestContext);
-        if (!isUserAuthorizedToAccessScreenerByScreenerId(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
+        String userId = AuthUtils.getUserId(identity);
+        if (!isUserAuthorizedToAccessScreener(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
 
         if (dmnModel == null){
             return Response.status(Response.Status.BAD_REQUEST)
@@ -206,7 +206,7 @@ public class ScreenerResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/publish")
-    public Response publishScreener(@Context ContainerRequestContext requestContext, PublishScreenerRequest publishScreenerRequest){
+    public Response publishScreener(@Context SecurityIdentity identity, PublishScreenerRequest publishScreenerRequest){
 
         String screenerId = publishScreenerRequest.screenerId;
         if (screenerId == null || screenerId.isBlank()){
@@ -215,8 +215,8 @@ public class ScreenerResource {
                     .build();
         }
 
-        String userId = AuthUtils.getUserId(requestContext);
-        if (!isUserAuthorizedToAccessScreenerByScreenerId(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
+        String userId = AuthUtils.getUserId(identity);
+        if (!isUserAuthorizedToAccessScreener(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
 
         try {
             //update published form schema
@@ -252,7 +252,7 @@ public class ScreenerResource {
 
     @POST
     @Path("/unpublish")
-    public Response unpublishScreener(@Context ContainerRequestContext requestContext, @QueryParam("screenerId") String screenerId){
+    public Response unpublishScreener(@Context SecurityIdentity identity, @QueryParam("screenerId") String screenerId){
 
         if (screenerId == null || screenerId.isBlank()){
             return Response.status(Response.Status.BAD_REQUEST)
@@ -260,8 +260,8 @@ public class ScreenerResource {
                     .build();
         }
 
-        String userId = AuthUtils.getUserId(requestContext);
-        if (!isUserAuthorizedToAccessScreenerByScreenerId(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
+        String userId = AuthUtils.getUserId(identity);
+        if (!isUserAuthorizedToAccessScreener(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
 
         try {
             Screener updateScreener = new Screener();
@@ -279,15 +279,15 @@ public class ScreenerResource {
 
     @DELETE
     @Path("/screener/delete")
-    public Response deleteScreener(@Context ContainerRequestContext requestContext, @QueryParam("screenerId") String screenerId){
+    public Response deleteScreener(@Context SecurityIdentity identity, @QueryParam("screenerId") String screenerId){
         if (screenerId == null || screenerId.isBlank()){
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("Error: Missing required query parameter: screenerId")
                     .build();
         }
 
-        String userId = AuthUtils.getUserId(requestContext);
-        if (!isUserAuthorizedToAccessScreenerByScreenerId(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
+        String userId = AuthUtils.getUserId(identity);
+        if (!isUserAuthorizedToAccessScreener(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
 
         try {
             screenerRepository.deleteScreener(screenerId);
@@ -321,8 +321,8 @@ public class ScreenerResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/dependency")
-    public Response addDependency(@Context ContainerRequestContext requestContext, DmnImportRequest request){
-        String userId = AuthUtils.getUserId(requestContext);
+    public Response addDependency(@Context SecurityIdentity identity, DmnImportRequest request){
+        String userId = AuthUtils.getUserId(identity);
         return screenerDependencyService.addDependency(request, userId);
     }
 
@@ -331,8 +331,8 @@ public class ScreenerResource {
     @DELETE
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/dependency")
-    public Response deleteDependency(@Context ContainerRequestContext requestContext, DmnImportRequest request){
-        String userId = AuthUtils.getUserId(requestContext);
+    public Response deleteDependency(@Context SecurityIdentity identity, DmnImportRequest request){
+        String userId = AuthUtils.getUserId(identity);
         return screenerDependencyService.deleteDependency(request, userId);
     }
 
