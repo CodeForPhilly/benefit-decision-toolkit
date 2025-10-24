@@ -73,6 +73,7 @@ public class EligibilityCheckResource {
 
         //TODO: Add validations for user provided data
         newCheck.setOwnerId(userId);
+        newCheck.setPublic(true); // By default all created checks are public
         try {
             String checkId = eligibilityCheckRepository.saveNewCheck(newCheck);
             newCheck.setId(checkId);

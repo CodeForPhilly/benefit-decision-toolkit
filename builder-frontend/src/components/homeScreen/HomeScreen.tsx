@@ -1,5 +1,6 @@
 import { createSignal, Match, Switch } from "solid-js";
-import EligibilityChecksList from "./EligibilityChecksList";
+
+import EligibilityChecksList from "./eligibilityCheckList/EligibilityChecksList";
 import ProjectsList from "./ProjectsList"
 import Header from "../Header";
 

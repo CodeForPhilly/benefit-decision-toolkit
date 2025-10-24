@@ -55,7 +55,7 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
     public String saveNewCheck(EligibilityCheck check) throws Exception{
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(check, Map.class);
-        String checkDocId = check.getModule() + "-" + check.getId();
+        String checkDocId = check.getId();
         return FirestoreUtils.persistDocumentWithId(CollectionNames.ELIGIBILITY_CHECK_COLLECTION, checkDocId, data);
     }
 

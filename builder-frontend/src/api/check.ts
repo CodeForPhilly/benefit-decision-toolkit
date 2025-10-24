@@ -48,6 +48,30 @@ export const fetchCheck = async (checkId: string): Promise<EligibilityCheck> => 
   }
 };
 
+
+export const addCheck = async (check: EligibilityCheck) => {
+  const url = apiUrl + "/check";
+  try {
+    const response = await authFetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(check),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Post failed with status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error creating new check:", error);
+    throw error; // rethrow so you can handle it in your component if needed
+  }
+};
+
 export const fetchUserDefinedChecks = async (): Promise<EligibilityCheck[]> => {
   // Simulate an API call delay -- TODO: update to greater than 1ms delay
   await new Promise((resolve) => setTimeout(resolve, 1000));
