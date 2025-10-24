@@ -2,7 +2,7 @@ import { createSignal, For, Show } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 
 import Loading from "@/components/Loading";
-import AddNewCheckModal from "./modals/AddNewCheckModal";
+import CheckModal from "./modals/CheckModal";
 import eligibilityCheckResource from "./eligibilityCheckResource";
 
 import type { EligibilityCheck } from "@/types";
@@ -19,14 +19,15 @@ const EligibilityChecksList = () => {
   }
 
   return (
-    <div class="p-4">
+    <div class="px-12 py-8">
       <Show when={initialLoadStatus.loading() || actionInProgress()}>
         <Loading/>
       </Show>
       <div class="text-3xl font-bold mb-2 tracking-wide">
         Eligibility Checks
       </div>
-      <div class="text-lg mb-3"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+      <div class="text-lg mb-3">
+        Manage your eligibility checks here. Click on a check to view or edit its details.
       </div>
       <div
         class="btn-default btn-blue mb-3 mr-1"
@@ -49,9 +50,9 @@ const EligibilityChecksList = () => {
       </div>
       {
         addingNewCheck() &&
-        <AddNewCheckModal
+        <CheckModal
           closeModal={() => setAddingNewCheck(false)}
-          addNewCheck={actions.addNewCheck}
+          modalAction={actions.addNewCheck}
         />
       }
     </div>

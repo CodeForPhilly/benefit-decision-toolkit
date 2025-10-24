@@ -4,7 +4,7 @@ import Project from "./components/project/Project";
 import AuthForm from "./components/auth/AuthForm";
 import { useAuth } from "./context/AuthContext";
 import HomeScreen from "./components/homeScreen/HomeScreen";
-import EligibilityCheckDetail from "./components/eligibilityCheck/EligibilityCheckDetail";
+import EligibilityCheckDetail from "./components/homeScreen/eligibilityCheckList/eligibilityCheckDetail/EligibilityCheckDetail";
 
 
 function App() {

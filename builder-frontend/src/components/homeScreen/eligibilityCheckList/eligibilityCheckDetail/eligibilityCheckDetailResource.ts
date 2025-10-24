@@ -1,15 +1,15 @@
 import { createResource, createEffect, Accessor, createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
 
-import { fetchCheck } from "../../api/check";
+import { fetchCheck, updateCheck } from "@/api/check";
 
 import type { EligibilityCheck, ParameterDefinition } from "@/types";
 
 
-export interface ScreenerBenefitsResource {
+export interface EligibilityCheckDetailResource {
   eligibilityCheck: () => EligibilityCheck;
   actions: {
-    addParameter: (parameterDef: ParameterDefinition) => void;
+    addParameter: (parameterDef: ParameterDefinition) => Promise<void>;
   };
   actionInProgress: Accessor<boolean>;
   initialLoadStatus: {
@@ -18,7 +18,7 @@ export interface ScreenerBenefitsResource {
   };
 }
 
-const createScreenerBenefits = (checkId: Accessor<string>): ScreenerBenefitsResource => {
+const eligibilityCheckDetailResource = (checkId: Accessor<string>): EligibilityCheckDetailResource => {
   const [eligibilityCheckResource, { refetch }] = createResource(() => checkId(), fetchCheck);
   const [actionInProgress, setActionInProgress] = createSignal<boolean>(false);
 
@@ -32,21 +32,21 @@ const createScreenerBenefits = (checkId: Accessor<string>): ScreenerBenefitsReso
     }
   });
 
-  const addParameter = (parameterDef: ParameterDefinition) => {
-    if (!eligibilityCheck) return;
+  const addParameter = async (parameterDef: ParameterDefinition) => {
+    const updatedCheck: EligibilityCheck = { ...eligibilityCheck, parameters: [...eligibilityCheck.parameters, parameterDef] };
     setActionInProgress(true);
-    setTimeout(() => {
-      // Simulate async action
-      setEligibilityCheck("parameters", (params) => [...params, parameterDef]);
-      setActionInProgress(false);
-    }, 500);
+    try {
+      await updateCheck(updatedCheck);
+      await refetch();
+    } catch (e) {
+      console.error("Failed to add parameter", e);
+    }
+    setActionInProgress(false);
   };
 
   return {
     eligibilityCheck: () => eligibilityCheck,
-    actions: {
-      addParameter,
-    },
+    actions: { addParameter },
     actionInProgress,
     initialLoadStatus: {
       loading: () => eligibilityCheckResource.loading,
@@ -55,4 +55,4 @@ const createScreenerBenefits = (checkId: Accessor<string>): ScreenerBenefitsReso
   };
 };
 
-export default createScreenerBenefits;
+export default eligibilityCheckDetailResource;

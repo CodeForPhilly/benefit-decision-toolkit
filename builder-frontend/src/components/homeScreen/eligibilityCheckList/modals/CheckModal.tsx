@@ -3,16 +3,16 @@ import { createStore } from "solid-js/store"
 import type { EligibilityCheck } from "@/types";
 
 
-type NewCheckValues = {
+type CheckValues = {
   name: string;
   module: string;
   description: string;
 }
-const AddNewCheckModal = (
-  { addNewCheck, closeModal }:
-  { addNewCheck: (check: EligibilityCheck) => Promise<void>; closeModal: () => void }
+const EditCheckModal = (
+  { modalAction, closeModal }:
+  { modalAction: (check: EligibilityCheck) => Promise<void>; closeModal: () => void }
 ) => {
-  const [newCheck, setNewCheck] = createStore<NewCheckValues>({ name: "", module: "", description: "" });
+  const [newCheck, setNewCheck] = createStore<CheckValues>({ name: "", module: "", description: "" });
 
   // Styling for the Add button based on whether fields are filled
   const isAddDisabled = () => {
@@ -75,14 +75,14 @@ const AddNewCheckModal = (
                 return;
               }
               const check: EligibilityCheck = {
-                id: newCheck.module.toLowerCase() + "-" + newCheck.name.toLowerCase(),
+                id: newCheck.module.toLowerCase() + "-" + newCheck.name.toLowerCase().replace(/\s+/g, "_"),
                 name: newCheck.name,
                 module: newCheck.module,
                 description: newCheck.description,
                 inputs: [],
                 parameters: [],
               };
-              await addNewCheck(check);
+              await modalAction(check);
               closeModal();
             }}
           >
@@ -93,4 +93,4 @@ const AddNewCheckModal = (
     </div>
   );
 }
-export default AddNewCheckModal;
+export default EditCheckModal;

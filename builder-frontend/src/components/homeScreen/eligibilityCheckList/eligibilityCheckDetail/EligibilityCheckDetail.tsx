@@ -1,11 +1,12 @@
 import { Accessor, createSignal, For, Match, Show, Switch } from "solid-js";
 import { useParams } from "@solidjs/router";
 
-import Header from "../Header";
-import Loading from "../Loading";
-import eligibilityCheckResource from "./eligibilityCheckResource";
+import Header from "../../../Header";
+import Loading from "../../../Loading";
+import eligibilityCheckDetailResource from "./eligibilityCheckDetailResource";
 
-import type { EligibilityCheck } from "@/types";
+import type { EligibilityCheck, ParameterDefinition } from "@/types";
+import ParameterModal from "./modals/ParameterModal";
 
 
 const EligibilityCheckDetail = () => {
@@ -13,7 +14,9 @@ const EligibilityCheckDetail = () => {
 
   const [screenMode, setScreenMode] = createSignal<"inputs_params" | "dmn">("inputs_params");
 
-  const { eligibilityCheck, actions, actionInProgress, initialLoadStatus } = eligibilityCheckResource(() => checkId);
+  const { eligibilityCheck, actions, actionInProgress, initialLoadStatus } = (
+    eligibilityCheckDetailResource(() => checkId)
+  );
 
   return (
     <div>
@@ -39,7 +42,7 @@ const EligibilityCheckDetail = () => {
       <Show when={eligibilityCheck().id !== undefined && !initialLoadStatus.loading()}>
         <Switch>
           <Match when={screenMode() === "inputs_params"}>
-            <InputsParams eligibilityCheck={eligibilityCheck}/>
+            <ParametersScreen eligibilityCheck={eligibilityCheck} addParameter={actions.addParameter}/>
           </Match>
           <Match when={screenMode() === "dmn"}>
             <div class="p-2">
@@ -52,31 +55,24 @@ const EligibilityCheckDetail = () => {
   );
 };
 
-const InputsParams = ({eligibilityCheck}: {eligibilityCheck: Accessor<EligibilityCheck>}) => {
+const ParametersScreen = (
+  {eligibilityCheck, addParameter}:
+  {eligibilityCheck: Accessor<EligibilityCheck>; addParameter: (parameter: ParameterDefinition) => Promise<void>}
+) => {
+  const [addingParameter, setAddingParameter] = createSignal<boolean>(false);
+
   return (
     <div class="p-12">
       <div class="text-3xl font-bold tracking-wide mb-2">{eligibilityCheck().name}</div>
       <p class="text-xl mb-4">{eligibilityCheck().description}</p>
       <div class="p-2">
-        <h2 class="text-xl font-semibold mb-2">Inputs</h2>
-        <Show when={eligibilityCheck().inputs.length > 0} fallback={<p>No inputs defined.</p>}>
-          <ul class="list-disc list-inside">
-            <For each={eligibilityCheck().inputs}>
-              {(input) => (
-                <div
-                  class="border-2 border-gray-200 rounded p-4 w-80 hover:shadow-lg hover:bg-gray-200 cursor-pointer"
-                  onClick={() => {}}
-                >
-                  <div class="text-lg font-bold text-gray-800 mb-2">{input.key}</div>
-                  <div><span class="font-bold">Type:</span> {input.type}</div>
-                  <div><span class="font-bold">Prompt:</span> {input.prompt}</div>
-                </div>
-              )}
-            </For>
-          </ul>
-        </Show>
-
         <h2 class="text-xl font-semibold mb-2">Parameters</h2>
+        <div
+          class="btn-default btn-blue mb-3 mr-1"
+          onClick={() => {setAddingParameter(true)}}
+        >
+          Create New Parameter
+        </div>
         <Show when={eligibilityCheck().parameters.length > 0} fallback={<p>No parameters defined.</p>}>
           <ul class="list-disc list-inside">
             <For each={eligibilityCheck().parameters}>
@@ -95,6 +91,14 @@ const InputsParams = ({eligibilityCheck}: {eligibilityCheck: Accessor<Eligibilit
           </ul>
         </Show>
       </div>
+      {
+        addingParameter() &&
+        <ParameterModal
+          actionTitle="Add Parameter"
+          closeModal={() => setAddingParameter(false)}
+          modalAction={addParameter}
+        />
+      }
     </div>
   );
 }

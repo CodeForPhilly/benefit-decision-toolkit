@@ -60,7 +60,6 @@ public class EligibilityCheckResource {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         return Response.ok(check, MediaType.APPLICATION_JSON).build();
-
     }
 
     // Utility endpoint to create an Eligibility check
@@ -106,7 +105,6 @@ public class EligibilityCheckResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/save-check-dmn")
     public Response updateCheckDmn(@Context SecurityIdentity identity, SaveDmnRequest saveDmnRequest){
-
         String checkId = saveDmnRequest.id;
         String dmnModel = saveDmnRequest.dmnModel;
         if (checkId == null || checkId.isBlank()){
@@ -138,7 +136,7 @@ public class EligibilityCheckResource {
             storageService.writeStringToStorage(filePath, dmnModel, "application/xml");
             Log.info("Saved DMN model of check " + checkId + " to storage");
 
-            //TODO: Need to figure out if we are allowing DMN versions to be mutable. If so, we need to update a
+            // TODO: Need to figure out if we are allowing DMN versions to be mutable. If so, we need to update a
             // last_saved field so that we know the check was updated and needs to be recompiled on evaluation
 
             return Response.ok().build();
