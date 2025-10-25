@@ -32,6 +32,9 @@ export interface EligibilityCheck {
   inputs: InputDefinition[];
   parameters: ParameterDefinition[];
 }
+export interface EligibilityCheckDetail extends EligibilityCheck {
+  dmnModel: string;
+}
 
 // Check Input Types
 type InputDefinition = (

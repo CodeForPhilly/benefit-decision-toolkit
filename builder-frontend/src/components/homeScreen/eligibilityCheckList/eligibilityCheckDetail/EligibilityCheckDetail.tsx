@@ -3,23 +3,26 @@ import { useParams } from "@solidjs/router";
 
 import Header from "../../../Header";
 import Loading from "../../../Loading";
+import ParameterModal from "./modals/ParameterModal";
+import KogitoDmnEditorView from "./KogitoDmnEditorView";
+
 import eligibilityCheckDetailResource from "./eligibilityCheckDetailResource";
 
 import type { EligibilityCheck, ParameterDefinition } from "@/types";
-import ParameterModal from "./modals/ParameterModal";
 
 
 const EligibilityCheckDetail = () => {
   const { checkId } = useParams();
 
   const [screenMode, setScreenMode] = createSignal<"inputs_params" | "dmn">("inputs_params");
+  const [tmpDmnModel, setTmpDmnModel] = createSignal<string>("");
 
   const { eligibilityCheck, actions, actionInProgress, initialLoadStatus } = (
     eligibilityCheckDetailResource(() => checkId)
   );
 
   return (
-    <div>
+    <div class="h-screen flex flex-col">
       <Show when={initialLoadStatus.loading() || actionInProgress()}>
         <Loading/>
       </Show>
@@ -37,6 +40,14 @@ const EligibilityCheckDetail = () => {
         >
           DMN Definition
         </div>
+        <Show when={screenMode() === "dmn"}>
+          <div
+            class="btn-default btn-gray"
+            onClick={() => actions.saveDmnModel(tmpDmnModel())}
+          >
+            Save DMN
+          </div>
+        </Show>
       </div>
 
       <Show when={eligibilityCheck().id !== undefined && !initialLoadStatus.loading()}>
@@ -45,9 +56,10 @@ const EligibilityCheckDetail = () => {
             <ParametersScreen eligibilityCheck={eligibilityCheck} addParameter={actions.addParameter}/>
           </Match>
           <Match when={screenMode() === "dmn"}>
-            <div class="p-2">
-              <h2 class="text-xl font-semibold mb-2">DMN</h2>
-            </div>
+            <KogitoDmnEditorView
+              dmnModel={() => eligibilityCheck().dmnModel}
+              setTmpDmnModel={setTmpDmnModel}
+            />
           </Match>
         </Switch>
       </Show>
@@ -74,7 +86,7 @@ const ParametersScreen = (
           Create New Parameter
         </div>
         <Show when={eligibilityCheck().parameters.length > 0} fallback={<p>No parameters defined.</p>}>
-          <ul class="list-disc list-inside">
+          <div class="flex flex-wrap gap-4">
             <For each={eligibilityCheck().parameters}>
               {(param) => (
                 <div
@@ -88,7 +100,7 @@ const ParametersScreen = (
                 </div>
               )}
             </For>
-          </ul>
+          </div>
         </Show>
       </div>
       {

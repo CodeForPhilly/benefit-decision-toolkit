@@ -95,6 +95,29 @@ export const updateCheck = async (check: EligibilityCheck) => {
   }
 };
 
+export const saveCheckDmn = async (checkId: string, dmnModel: string) => {
+  const url = apiUrl + "/save-check-dmn";
+  try {
+    const response = await authFetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ id: checkId, dmnModel: dmnModel }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`DMN save failed with status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error saving DMN for check:", error);
+    throw error; // rethrow so you can handle it in your component if needed
+  }
+};
+
 export const fetchUserDefinedChecks = async (): Promise<EligibilityCheck[]> => {
   // Simulate an API call delay -- TODO: update to greater than 1ms delay
   await new Promise((resolve) => setTimeout(resolve, 1000));

@@ -12,6 +12,7 @@ public class EligibilityCheck {
     private String description;
     private String version;
     private boolean isActive;
+    private String dmnModel;
     private List<InputDefinition> inputs;
     private List<ParameterDefinition> parameters;
     private String ownerId;
@@ -32,6 +33,14 @@ public class EligibilityCheck {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setDmnModel(String dmnModel){
+        this.dmnModel = dmnModel;
+    }
+
+    public String getDmnModel(){
+        return dmnModel;
     }
 
     public String getModule() {

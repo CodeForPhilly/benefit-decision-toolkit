@@ -1,15 +1,16 @@
 import { createResource, createEffect, Accessor, createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
 
-import { fetchCheck, updateCheck } from "@/api/check";
+import { fetchCheck, saveCheckDmn, updateCheck } from "@/api/check";
 
-import type { EligibilityCheck, ParameterDefinition } from "@/types";
+import type { EligibilityCheckDetail, ParameterDefinition } from "@/types";
 
 
 export interface EligibilityCheckDetailResource {
-  eligibilityCheck: () => EligibilityCheck;
+  eligibilityCheck: () => EligibilityCheckDetail;
   actions: {
     addParameter: (parameterDef: ParameterDefinition) => Promise<void>;
+    saveDmnModel: (dmnString: string) => Promise<void>;
   };
   actionInProgress: Accessor<boolean>;
   initialLoadStatus: {
@@ -23,7 +24,7 @@ const eligibilityCheckDetailResource = (checkId: Accessor<string>): EligibilityC
   const [actionInProgress, setActionInProgress] = createSignal<boolean>(false);
 
   // Local fine-grained store
-  const [eligibilityCheck, setEligibilityCheck] = createStore<EligibilityCheck | null>(null);
+  const [eligibilityCheck, setEligibilityCheck] = createStore<EligibilityCheckDetail | null>(null);
 
   // When resource resolves, sync it into the store
   createEffect(() => {
@@ -33,7 +34,7 @@ const eligibilityCheckDetailResource = (checkId: Accessor<string>): EligibilityC
   });
 
   const addParameter = async (parameterDef: ParameterDefinition) => {
-    const updatedCheck: EligibilityCheck = { ...eligibilityCheck, parameters: [...eligibilityCheck.parameters, parameterDef] };
+    const updatedCheck: EligibilityCheckDetail = { ...eligibilityCheck, parameters: [...eligibilityCheck.parameters, parameterDef] };
     setActionInProgress(true);
     try {
       await updateCheck(updatedCheck);
@@ -44,9 +45,23 @@ const eligibilityCheckDetailResource = (checkId: Accessor<string>): EligibilityC
     setActionInProgress(false);
   };
 
+  const saveDmnModel = async (dmnString: string) => {
+    setActionInProgress(true);
+    try {
+      await saveCheckDmn(eligibilityCheck.id, dmnString);
+      await refetch();
+    } catch (e) {
+      console.error("Failed to save DMN model", e);
+    }
+    setActionInProgress(false);
+  }
+
   return {
     eligibilityCheck: () => eligibilityCheck,
-    actions: { addParameter },
+    actions: {
+      addParameter,
+      saveDmnModel,
+    },
     actionInProgress,
     initialLoadStatus: {
       loading: () => eligibilityCheckResource.loading,
