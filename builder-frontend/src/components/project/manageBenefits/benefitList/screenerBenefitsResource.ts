@@ -42,21 +42,6 @@ const createScreenerBenefits = (screenerId: Accessor<string>): ScreenerBenefitsR
     }
   });
 
-  // Optimistic update helper
-  const updateScreenerBenefits = async (newBenefits: BenefitDetail[]) => {
-    const before = screener.benefits;
-
-    setScreener("benefits", newBenefits);
-
-    try {
-      const updated = await updateScreener({ ...screener, benefits: newBenefits });
-      // TODO: setScreener(updated);
-    } catch (e) {
-      console.error("Failed to update screener benefits, reverting state", e);
-      setScreener("benefits", before);
-    }
-  };
-
   // Actions
   const addNewBenefit = async (benefit: BenefitDetail) => {
     setActionInProgress(true);

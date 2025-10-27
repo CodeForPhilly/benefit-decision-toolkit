@@ -1,4 +1,4 @@
-import { createSignal, For, Show } from "solid-js";
+import { createSignal, For, Setter, Show } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 
 import Loading from "@/components/Loading";
@@ -13,6 +13,8 @@ const EligibilityChecksList = () => {
   const navigate = useNavigate();
 
   const [addingNewCheck, setAddingNewCheck] = createSignal<boolean>(false);
+
+  const [checkIdToRemove, setCheckIdToRemove] = createSignal<null | string>(null);
 
   const navigateToCheck = (check: EligibilityCheck) => {
     navigate("/check/" + check.id);
@@ -38,13 +40,11 @@ const EligibilityChecksList = () => {
       <div class="flex flex-wrap gap-4">
         <For each={checks()}>
           {(check) => (
-            <div
-              class="border-2 border-gray-200 rounded p-4 w-60 hover:shadow-lg hover:bg-gray-200 cursor-pointer"
-              onClick={() => navigateToCheck(check)}
-            >
-              <div class="text-lg font-bold text-gray-800">{check.name}</div>
-              <div class="mt-2 text-gray-700">{check.description || "No description provided."}</div>
-            </div>
+            <CheckCard
+              eligibilityCheck={check}
+              navigateToCheck={navigateToCheck}
+              setCheckIdToRemove={setCheckIdToRemove}
+            />
           )}
         </For>
       </div>
@@ -58,5 +58,54 @@ const EligibilityChecksList = () => {
     </div>
   )
 };
+
+
+const CheckCard = (
+  { eligibilityCheck, navigateToCheck, setCheckIdToRemove }:
+  {
+    eligibilityCheck: EligibilityCheck,
+    navigateToCheck: (check: EligibilityCheck) => void,
+    setCheckIdToRemove: Setter<string>
+  }
+) => {
+  return (
+    <div class="w-full flex">
+      <div
+        class="
+          max-w-lg flex-1 flex flex-col
+          border-1 border-gray-300 rounded-lg"
+      >
+        <div
+          id={"check-card-details-" + eligibilityCheck.id}
+          class="p-4 border-bottom border-gray-300 flex-1"
+        >
+          <div class="text-2xl mb-2 font-bold">
+            {eligibilityCheck.name}
+          </div>
+          <div>
+            <span class="font-bold">Description:</span> {eligibilityCheck.description}
+          </div>
+        </div>
+        <div
+          id={"benefit-card-actions-" + eligibilityCheck.id}
+          class="p-4 flex justify-end space-x-2"
+        >
+          <div
+            class="btn-default btn-gray"
+            onClick={() => { navigateToCheck(eligibilityCheck); } }
+          >
+            Edit
+          </div>
+          <div
+            class="btn-default btn-red"
+            onClick={() => { setCheckIdToRemove(eligibilityCheck.id); } }
+          >
+            Remove
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default EligibilityChecksList;

@@ -10,6 +10,8 @@ export interface EligibilityCheckDetailResource {
   eligibilityCheck: () => EligibilityCheckDetail;
   actions: {
     addParameter: (parameterDef: ParameterDefinition) => Promise<void>;
+    updateParameter: (parameterIndex: number, parameterDef: ParameterDefinition) => Promise<void>;
+    removeParameter: (parameterIndex: number) => Promise<void>;
     saveDmnModel: (dmnString: string) => Promise<void>;
   };
   actionInProgress: Accessor<boolean>;
@@ -45,6 +47,37 @@ const eligibilityCheckDetailResource = (checkId: Accessor<string>): EligibilityC
     setActionInProgress(false);
   };
 
+  const updateParameter = async (parameterIndex: number, parameterDef: ParameterDefinition) => {
+    const updatedParameters = [ ...eligibilityCheck.parameters ];
+    updatedParameters[parameterIndex] = parameterDef;
+    console.log("updatedParameters", updatedParameters);
+    const updatedCheck: EligibilityCheckDetail = { ...eligibilityCheck, parameters: updatedParameters };
+
+    setActionInProgress(true);
+    try {
+      await updateCheck(updatedCheck);
+      await refetch();
+    } catch (e) {
+      console.error("Failed to update parameter", e);
+    }
+    setActionInProgress(false);
+  };
+
+  const removeParameter = async (parameterIndex: number) => {
+    const updatedParameters = [ ...eligibilityCheck.parameters ];
+    updatedParameters.splice(parameterIndex, 1);
+    const updatedCheck: EligibilityCheckDetail = { ...eligibilityCheck, parameters: updatedParameters };
+
+    setActionInProgress(true);
+    try {
+      await updateCheck(updatedCheck);
+      await refetch();
+    } catch (e) {
+      console.error("Failed to remove parameter", e);
+    }
+    setActionInProgress(false);
+  };
+
   const saveDmnModel = async (dmnString: string) => {
     setActionInProgress(true);
     try {
@@ -60,6 +93,8 @@ const eligibilityCheckDetailResource = (checkId: Accessor<string>): EligibilityC
     eligibilityCheck: () => eligibilityCheck,
     actions: {
       addParameter,
+      updateParameter,
+      removeParameter,
       saveDmnModel,
     },
     actionInProgress,

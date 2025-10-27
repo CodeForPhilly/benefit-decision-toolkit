@@ -9,12 +9,13 @@ import KogitoDmnEditorView from "./KogitoDmnEditorView";
 import eligibilityCheckDetailResource from "./eligibilityCheckDetailResource";
 
 import type { EligibilityCheck, ParameterDefinition } from "@/types";
+import ConfirmationModal from "@/components/shared/ConfirmationModal";
 
 
 const EligibilityCheckDetail = () => {
   const { checkId } = useParams();
 
-  const [screenMode, setScreenMode] = createSignal<"inputs_params" | "dmn">("inputs_params");
+  const [screenMode, setScreenMode] = createSignal<"params" | "dmn">("params");
   const [tmpDmnModel, setTmpDmnModel] = createSignal<string>("");
 
   const { eligibilityCheck, actions, actionInProgress, initialLoadStatus } = (
@@ -29,8 +30,8 @@ const EligibilityCheckDetail = () => {
       <Header/>
       <div class="flex space-x-4 p-4 border-b-2 border-gray-200">
         <div
-          class={`btn-default ${screenMode() === "inputs_params" ? "btn-blue" : "btn-gray"}`}
-          onClick={() => setScreenMode("inputs_params")}
+          class={`btn-default ${screenMode() === "params" ? "btn-blue" : "btn-gray"}`}
+          onClick={() => setScreenMode("params")}
         >
           Inputs/Parameters
         </div>
@@ -52,8 +53,13 @@ const EligibilityCheckDetail = () => {
 
       <Show when={eligibilityCheck().id !== undefined && !initialLoadStatus.loading()}>
         <Switch>
-          <Match when={screenMode() === "inputs_params"}>
-            <ParametersScreen eligibilityCheck={eligibilityCheck} addParameter={actions.addParameter}/>
+          <Match when={screenMode() === "params"}>
+            <ParametersScreen
+              eligibilityCheck={eligibilityCheck}
+              addParameter={actions.addParameter}
+              editParameter={actions.updateParameter}
+              removeParameter={actions.removeParameter}
+            />
           </Match>
           <Match when={screenMode() === "dmn"}>
             <KogitoDmnEditorView
@@ -68,10 +74,22 @@ const EligibilityCheckDetail = () => {
 };
 
 const ParametersScreen = (
-  {eligibilityCheck, addParameter}:
-  {eligibilityCheck: Accessor<EligibilityCheck>; addParameter: (parameter: ParameterDefinition) => Promise<void>}
+  {eligibilityCheck, addParameter, editParameter, removeParameter}:
+  {
+    eligibilityCheck: Accessor<EligibilityCheck>;
+    addParameter: (parameter: ParameterDefinition) => Promise<void>;
+    editParameter: (parameterIndex: number, parameter: ParameterDefinition) => Promise<void>;
+    removeParameter: (parameterIndex: number) => Promise<void>;
+  }
 ) => {
   const [addingParameter, setAddingParameter] = createSignal<boolean>(false);
+  const [parameterIndexToEdit, setParameterIndexToEdit] = createSignal<null | number>(null);
+  const [parameterIndexToRemove, setParameterIndexToRemove] = createSignal<null | number>(null);
+
+  const handleProjectMenuClicked = (e, parameterIndex: number) => {
+    e.stopPropagation();
+    setParameterIndexToRemove(parameterIndex);
+  };
 
   return (
     <div class="p-12">
@@ -88,15 +106,21 @@ const ParametersScreen = (
         <Show when={eligibilityCheck().parameters.length > 0} fallback={<p>No parameters defined.</p>}>
           <div class="flex flex-wrap gap-4">
             <For each={eligibilityCheck().parameters}>
-              {(param) => (
+              {(param, parameterIndex) => (
                 <div
-                  class="border-2 border-gray-200 rounded p-4 w-80 hover:shadow-lg hover:bg-gray-200 cursor-pointer"
-                  onClick={() => {}}
+                  class="relative border-2 border-gray-200 rounded p-4 w-80 hover:shadow-lg hover:bg-gray-200 cursor-pointer"
+                  onClick={() => { console.log("here"); setParameterIndexToEdit(parameterIndex()); }}
                 >
                   <div class="text-lg font-bold text-gray-800 mb-2">{param.key}</div>
                   <div><span class="font-bold">Type:</span> {param.type}</div>
                   <div><span class="font-bold">Label:</span> {param.label}</div>
-                  <div><span class="font-bold">Required:</span> {param.required.toString()}</div>                    
+                  <div><span class="font-bold">Required:</span> {param.required.toString()}</div>
+                  <div
+                    class="absolute px-2 top-2 right-2 hover:bg-gray-300 rounded-xl font-bold"
+                    onClick={(e) => handleProjectMenuClicked(e, parameterIndex())}
+                  >
+                    X
+                  </div>
                 </div>
               )}
             </For>
@@ -109,6 +133,31 @@ const ParametersScreen = (
           actionTitle="Add Parameter"
           closeModal={() => setAddingParameter(false)}
           modalAction={addParameter}
+        />
+      }
+      {
+        parameterIndexToEdit() !== null &&
+        <ParameterModal
+          actionTitle="Edit Parameter"
+          closeModal={() => setParameterIndexToEdit(null)}
+          modalAction={async (parameter) => { editParameter(parameterIndexToEdit(), parameter); }}
+          initialData={
+            {
+              key: eligibilityCheck().parameters[parameterIndexToEdit()].key,
+              type: eligibilityCheck().parameters[parameterIndexToEdit()].type,
+              label: eligibilityCheck().parameters[parameterIndexToEdit()].label,
+              required: eligibilityCheck().parameters[parameterIndexToEdit()].required
+            }
+          }
+        />
+      }
+      {
+        parameterIndexToRemove() !== null &&
+        <ConfirmationModal
+          confirmationTitle="Remove Parameter"
+          confirmationText="Are you sure you want to remove this parameter? This action cannot be undone."
+          callback={() => removeParameter(parameterIndexToRemove()) }
+          closeModal={() => setParameterIndexToRemove(null) }
         />
       }
     </div>

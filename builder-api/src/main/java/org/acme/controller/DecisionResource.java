@@ -139,16 +139,14 @@ public class DecisionResource {
             if (matchingCheckConfig.isEmpty()) {
                 throw new Exception("Could not find CheckConfig for check " + check.getId());
             }
-            Map<String, Object> checkInputData = new HashMap<String, Object>(inputData);
-            checkInputData.put("parameters", matchingCheckConfig.get().getParameters());
 
             String dmnFilepath = storageService.getCheckDmnModelPath(
                 check.getModule(), check.getId(), check.getVersion()
             );
-            Log.info(checkInputData);
             String dmnModelName = check.getId();
+
             OptionalBoolean result = dmnService.evaluateSimpleDmn(
-                dmnFilepath, dmnModelName, checkInputData
+                dmnFilepath, dmnModelName, inputData, matchingCheckConfig.get().getParameters()
             );
             checkResultsList.add(result);
             checkResults.put(check.getId(), Map.of("name", check.getName(),"result", result));

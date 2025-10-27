@@ -11,10 +11,10 @@ type ParamValues = {
   type: "string" | "number" | "boolean";
 }
 const ParameterModal = (
-  { actionTitle, modalAction, closeModal }:
-  { actionTitle: string, modalAction: (parameter: ParameterDefinition) => Promise<void>; closeModal: () => void }
+  { actionTitle, modalAction, closeModal, initialData }:
+  { actionTitle: string, modalAction: (parameter: ParameterDefinition) => Promise<void>; closeModal: () => void, initialData?: ParamValues }
 ) => {
-  const [newParam, setNewParam] = createStore<ParamValues>({ key: "", type: "string", label: "", required: undefined });
+  const [newParam, setNewParam] = createStore<ParamValues>(initialData || { key: "", type: "string", label: "", required: undefined });
 
   // Styling for the Add button based on whether fields are filled
   const isAddDisabled = () => {

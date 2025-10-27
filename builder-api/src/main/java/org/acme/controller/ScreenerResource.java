@@ -223,23 +223,16 @@ public class ScreenerResource {
             storageService.updatePublishedFormSchemaArtifact(screenerId);
             Log.info("Updated Screener " + screenerId + " to published.");
 
-            //update published dmn model
-            String dmnXml = dmnService.compilePublishedDmnModel(screenerId);
-
             Screener updateScreener = new Screener();
             updateScreener.setId(screenerId);
             updateScreener.setIsPublished(true);
             updateScreener.setLastPublishDate(Instant.now().toString());
-            DmnParser dmnParser = new DmnParser(dmnXml);
-            updateScreener.setPublishedDmnName(dmnParser.getName());
-            updateScreener.setPublishedDmnNameSpace(dmnParser.getNameSpace());
             //update screener metadata
             screenerRepository.updateScreener(updateScreener);
 
             Map<String, Object> responseData = new HashMap<>();
             responseData.put("screenerUrl", getScreenerUrl(screenerId));
             return Response.ok().entity(responseData).build();
-
         } catch (Exception e){
             Log.error("Error: Error updating screener to published. Screener: " + screenerId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();

@@ -65,8 +65,8 @@ interface BooleanInput extends BaseInput {
 // Parameter Types
 export type ParameterDefinition = (
   StringParameter |
-  StringSelectParameter |
-  StringMultiInputParameter |
+  // StringSelectParameter |
+  // StringMultiInputParameter |
   NumberParameter |
   BooleanParameter
 );
@@ -75,13 +75,13 @@ interface BaseParameter {
   label: string;
   required: boolean;
 }
-export interface StringSelectParameter extends BaseParameter {
-  type: "select";
-  options?: string;
-}
-export interface StringMultiInputParameter extends BaseParameter {
-  type: "multi_input_string";
-}
+// export interface StringSelectParameter extends BaseParameter {
+//   type: "select";
+//   options?: string;
+// }
+// export interface StringMultiInputParameter extends BaseParameter {
+//   type: "multi_input_string";
+// }
 export interface StringParameter extends BaseParameter {
   type: "string";
 }

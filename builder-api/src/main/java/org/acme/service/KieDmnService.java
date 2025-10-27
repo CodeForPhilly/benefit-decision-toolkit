@@ -232,12 +232,10 @@ public class KieDmnService implements DmnService {
     public OptionalBoolean evaluateSimpleDmn(
         String dmnFilePath,
         String dmnModelName,
-        Map<String, Object> inputs
+        Map<String, Object> inputs,
+        Map<String, Object> parameters
     ) throws Exception {
         Log.info("Evaluating Simple DMN: " + dmnFilePath + " Model: " + dmnModelName);
-
-        Map<String, Object> inputData = new HashMap<>();
-        inputData.put("inputs", inputs);
 
         Optional<String> dmnXmlOpt = storageService.getStringFromStorage(dmnFilePath);
         if (dmnXmlOpt.isEmpty()) {
@@ -261,9 +259,8 @@ public class KieDmnService implements DmnService {
         // Prepare model and context using inputs
         DMNModel dmnModel = dmnModels.get(0);
         DMNContext context = dmnRuntime.newContext();
-        for (String key : inputData.keySet()) {
-            context.set(key, inputData.get(key));
-        }
+        context.set("inputs", inputs);
+        context.set("parameters", parameters);
         DMNResult dmnResult = dmnRuntime.evaluateAll(dmnModel, context);
 
         // Collect and interpret results

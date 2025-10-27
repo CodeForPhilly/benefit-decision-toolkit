@@ -49,17 +49,16 @@ const BenefitList = (
         <Show when={initialLoadStatus.loading() || actionInProgress()}>
           <Loading/>
         </Show>
-        <Show when={!initialLoadStatus.loading() && screenerBenefits().length === 0}>
+        <Show when={!initialLoadStatus.loading() && (screenerBenefits() === null || screenerBenefits().length === 0)}>
           <div class="w-full flex text-gray-600 font-bold">
             No benefits found. Please add a new benefit.
           </div>
         </Show>
         <For each={screenerBenefits()}>
-          {(benefit, benefitIndex) => {
+          {(benefit) => {
             return (
               <BenefitCard
                 benefit={benefit}
-                benefitIndex={benefitIndex}
                 setBenefitIdToConfigure={setBenefitIdToConfigure}
                 setBenefitIdToRemove={setBenefitIdToRemove}
               />
@@ -95,10 +94,9 @@ const BenefitList = (
 };
 
 const BenefitCard = (
-  { benefit, benefitIndex, setBenefitIdToConfigure, setBenefitIdToRemove }:
+  { benefit, setBenefitIdToConfigure, setBenefitIdToRemove }:
   {
     benefit: BenefitDetail,
-    benefitIndex: Accessor<number>,
     setBenefitIdToConfigure: Setter<string>,
     setBenefitIdToRemove: Setter<string>
   }
