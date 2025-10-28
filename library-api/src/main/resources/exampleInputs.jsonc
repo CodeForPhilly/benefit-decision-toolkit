@@ -1,0 +1,63 @@
+[
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "people": [
+        {
+          "dateOfBirth": "2025-10-25",
+          "id": "p1"
+        },
+        {
+          "dateOfBirth": "2000-05-15",
+          "id": "p2"
+        }
+      ]
+    },
+    "parameters": {
+      "personId": "p2",
+      "asOfDate": "2025-10-25",
+      "minAge": 18
+    }
+  },
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "people": [
+        {
+          "dateOfBirth": "2025-10-25",
+          "id": "p1"
+        },
+        {
+          "dateOfBirth": "2000-05-15",
+          "id": "p2"
+        }
+      ]
+    },
+    "parameters": {
+      "peopleIds": [
+        "p1",
+        "p2"
+      ],
+      "asOfDate": "2025-10-25",
+      "minAge": 18
+    }
+  }
+  {
+    "situation": {
+      "primaryPersonId": "p2",
+      "people": [
+        {
+          "id": "p1"
+        },
+        {
+          "id": "p2"
+        }
+      ]
+    },
+    "parameters": {
+      "personId": "p2",
+      "asOfDate": "2025-10-25",
+      "minAge": 18
+    }
+  }
+]
