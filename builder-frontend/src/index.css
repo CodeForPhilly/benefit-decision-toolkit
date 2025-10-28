@@ -1,9 +1,45 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/forms";
+
+
+@layer components {
+  .btn-default {
+    @apply
+      inline-block px-6 py-1
+    border-gray-300 border-2
+      cursor-pointer select-none rounded-md
+  }
+  .btn-default.btn-gray {
+    @apply bg-white hover:bg-gray-200;
+    /* @apply bg-white hover:bg-gray-200 hover:scale-500 transition-all duration-1000; */
+  }
+  .btn-default.btn-red {
+    @apply bg-red-800 hover:bg-red-900 text-white;
+  }
+  .btn-default.btn-blue {
+    @apply bg-sky-600 hover:bg-sky-700 text-white
+  }
+
+  .eligibility-check-table-header {
+    @apply px-4 py-3 text-left text-gray-500 text-lg;
+  }
+  .eligibility-check-table-cell {
+    @apply px-4 py-3 border-gray-300;
+  }
+}
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
 
 .fjs-powered-by {
   display: none;
 }
-
 .bjs-powered-by {
   display: none;
 }

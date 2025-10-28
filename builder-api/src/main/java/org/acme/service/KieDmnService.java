@@ -4,7 +4,9 @@ import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
+import org.acme.enums.OptionalBoolean;
 import org.acme.model.domain.DmnModel;
+import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.domain.Screener;
 import org.acme.model.dto.Dependency;
 import org.acme.persistence.DmnModelRepository;
@@ -21,9 +23,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 
+
 @ApplicationScoped
 public class KieDmnService implements DmnService {
-
     @Inject
     private StorageService storageService;
 
@@ -60,9 +62,8 @@ public class KieDmnService implements DmnService {
             Map<String, Object> response = new LinkedHashMap<>();
             response.put("inputs", inputs);
 
-
             List<Map<String, Object>> decisions = new ArrayList<>();
-            for (DMNDecisionResult decisionResult :  dmnResult.getDecisionResults()) {
+            for (DMNDecisionResult decisionResult : dmnResult.getDecisionResults()) {
                 Map<String, Object> decisionDetail = new LinkedHashMap<>();
                 decisionDetail.put("decisionName", decisionResult.getDecisionName());
                 decisionDetail.put("result", decisionResult.getResult());
@@ -167,7 +168,6 @@ public class KieDmnService implements DmnService {
         return xmlOpt.get();
     }
 
-
     private byte[] compileDmnModel(String dmnXml, Map<String, String> dependenciesMap, String modelId) throws IOException {
         Log.info("Compiling and saving DMN model: " + modelId);
 
@@ -178,7 +178,6 @@ public class KieDmnService implements DmnService {
         // For production, consider versioning the ReleaseId carefully.
         ReleaseId releaseId = kieServices.newReleaseId("user-model", modelId, "1.0.0");
         kfs.write("src/main/resources/model.dmn", dmnXml);
-
 
         String kmoduleXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<kmodule xmlns=\"http://www.drools.org/xsd/kmodule\">\n" +
@@ -228,5 +227,63 @@ public class KieDmnService implements DmnService {
             throw new RuntimeException("working DMN file not found");
         }
         return dmnXml;
+    }
+
+    public OptionalBoolean evaluateSimpleDmn(
+        String dmnFilePath,
+        String dmnModelName,
+        Map<String, Object> inputs,
+        Map<String, Object> parameters
+    ) throws Exception {
+        Log.info("Evaluating Simple DMN: " + dmnFilePath + " Model: " + dmnModelName);
+
+        Optional<String> dmnXmlOpt = storageService.getStringFromStorage(dmnFilePath);
+        if (dmnXmlOpt.isEmpty()) {
+            throw new RuntimeException("DMN file not found: " + dmnFilePath);
+        }
+
+        String dmnXml = dmnXmlOpt.get();
+        HashMap<String, String> dmnDependenciesMap = new HashMap<String, String>();
+        byte[] serializedModel = compileDmnModel(dmnXml, dmnDependenciesMap, dmnModelName);
+
+        KieSession kieSession = initializeKieSession(serializedModel);
+        DMNRuntime dmnRuntime = kieSession.getKieRuntime(DMNRuntime.class);
+
+        List<DMNModel> dmnModels = dmnRuntime.getModels();
+        if (dmnModels.size() != 1) {
+            throw new RuntimeException("Expected exactly one DMN model, found: " + dmnModels.size());
+        }
+
+        Log.info("DMN Model loaded: " + dmnModels.get(0).getName() + " Namespace: " + dmnModels.get(0).getNamespace());
+
+        // Prepare model and context using inputs
+        DMNModel dmnModel = dmnModels.get(0);
+        DMNContext context = dmnRuntime.newContext();
+        context.set("inputs", inputs);
+        context.set("parameters", parameters);
+        DMNResult dmnResult = dmnRuntime.evaluateAll(dmnModel, context);
+
+        // Collect and interpret results
+        List<DMNDecisionResult> decisionResults = dmnResult.getDecisionResults();
+        if (decisionResults.isEmpty()) {
+            throw new RuntimeException("No decision results from DMN evaluation");
+        }
+        if (decisionResults.size() > 1) {
+            throw new RuntimeException("Multiple decision results from DMN evaluation");
+        }
+
+        // Assuming single decision result for a Simple DMN
+        DMNDecisionResult decisionResult = decisionResults.get(0);
+        Object result = decisionResult.getResult();
+        if (result == null) {
+            return OptionalBoolean.UNABLE_TO_DETERMINE;
+        }
+        else if (result instanceof Boolean && (Boolean) result) {
+            return OptionalBoolean.TRUE;
+        }
+        else if (result instanceof Boolean && !(Boolean) result) {
+            return OptionalBoolean.FALSE;
+        }
+        throw new RuntimeException("Unexpected decision result type: " + result.getClass().getName());
     }
 }

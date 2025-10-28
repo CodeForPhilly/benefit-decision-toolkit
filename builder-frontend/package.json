@@ -13,6 +13,8 @@
     "@bpmn-io/form-js-editor": "^1.15.2",
     "@kie-tools-core/editor": "^10.0.0",
     "@kogito-tooling/kie-editors-standalone": "^0.16.0",
+    "@solid-primitives/deep": "^0.3.3",
+    "@solid-primitives/resource": "^0.4.2",
     "@solidjs/router": "^0.15.3",
     "dmn-js": "^17.2.1",
     "fast-xml-parser": "^5.2.5",
@@ -22,12 +24,14 @@
     "solid-js": "^1.9.5"
   },
   "devDependencies": {
+    "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/postcss": "^4.1.8",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.4",
     "sass-embedded": "^1.89.2",
     "tailwindcss": "^4.1.8",
     "vite": "^6.3.5",
-    "vite-plugin-solid": "^2.11.6"
+    "vite-plugin-solid": "^2.11.6",
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }

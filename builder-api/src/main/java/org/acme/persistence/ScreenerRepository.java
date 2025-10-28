@@ -1,5 +1,7 @@
 package org.acme.persistence;
 
+import org.acme.model.domain.Benefit;
+import org.acme.model.domain.BenefitDetail;
 import org.acme.model.domain.DmnModel;
 import org.acme.model.domain.Screener;
 
@@ -17,6 +19,8 @@ public interface ScreenerRepository {
     public String saveNewScreener(Screener screener) throws Exception;
 
     public void updateScreener(Screener screener) throws Exception;
+
+    public void addBenefitDetailToScreener(String screenerId, BenefitDetail benefitDetail) throws Exception;
 
     public void deleteScreener(String screenerId) throws Exception;
 

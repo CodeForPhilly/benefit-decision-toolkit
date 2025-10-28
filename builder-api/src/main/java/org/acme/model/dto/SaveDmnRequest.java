@@ -1,6 +1,6 @@
 package org.acme.model.dto;
 
 public class SaveDmnRequest {
-    public String screenerId;
+    public String id;
     public String dmnModel;
 }

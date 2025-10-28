@@ -1,23 +1,26 @@
-import { createSignal, onMount, createResource, Show } from "solid-js";
+import { createSignal, createResource } from "solid-js";
 import { useParams } from "@solidjs/router";
-import {
-  cacheDependency,
-  getCachedDependency,
-} from "../../storageUtils/storageUtils";
-import "../../App.css";
-import Header from "../Header";
-import FormEditorView from "./FormEditorView";
-import Preview from "./Preview";
-import Publish from "./Publish";
-import KogitoDmnEditorView from "./KogitoDmnEditorView";
-import ImportModels from "./ImportModels";
-import { fetchProject } from "../../api/screener";
-import Loading from "../Loading";
-import { fetchModel } from "../../api/models";
 
-function Project({ clearUserState }) {
+import FormEditorView from "./FormEditorView";
+import Header from "../Header";
+import Loading from "../Loading";
+import ManageBenefits from "./manageBenefits/ManageBenefits";
+import Preview from "./preview/Preview";
+import Publish from "./Publish";
+
+import {
+  cacheDependency, getCachedDependency
+} from "@/storageUtils/storageUtils";
+import { fetchProject } from "@/api/screener";
+import { fetchModel } from "@/api/models";
+
+
+type TabOption = "Manage Benefits" | "Form Editor" | "Preview" | "Publish";
+
+function Project() {
   const params = useParams();
-  const [activeTab, setActiveTab] = createSignal("DMN Editor");
+
+  const [activeTab, setActiveTab] = createSignal<TabOption>("Manage Benefits");
   const [dmnModel, setDmnModel] = createSignal();
   const [formSchema, setFormSchema] = createSignal();
   const [projectDependencies, setProjectDependencies] = createSignal([]);
@@ -68,7 +71,7 @@ function Project({ clearUserState }) {
     }
   };
 
-  const [project, { refetchProject }] = createResource(
+  const [project] = createResource(
     // Using resrouce to more easily track states during refetch
     // However resources only refetch when key has changed.
     // In order to force refetch even thought he projectId hasn't change,
@@ -83,20 +86,19 @@ function Project({ clearUserState }) {
   };
 
   return (
-    <div className="h-screen flex flex-col">
-      <Header clearUserState={clearUserState}></Header>
+    <div class="h-screen flex flex-col">
+      <Header/>
       {project.loading ? (
-        <Loading></Loading>
+        <Loading/>
       ) : (
         <>
           <div class="flex border-b border-gray-200">
-            <span className="py-2 px-4 font-bold text-gray-600">
+            <span class="py-2 px-4 font-bold text-gray-600">
               {" "}
               {project().screenerName}
             </span>
             {[
-              "DMN Editor",
-              "Import Models",
+              "Manage Benefits",
               "Form Editor",
               "Preview",
               "Publish",
@@ -117,34 +119,19 @@ function Project({ clearUserState }) {
             <FormEditorView
               formSchema={formSchema}
               setFormSchema={setFormSchema}
-            ></FormEditorView>
+            />
           )}
-          {activeTab() == "DMN Editor" && (
-            <KogitoDmnEditorView
-              dmnModel={dmnModel}
-              setDmnModel={setDmnModel}
-              projectDependencies={projectDependencies}
-            ></KogitoDmnEditorView>
-          )}
-          {activeTab() == "Import Models" && (
-            <ImportModels
-              screener={project}
-              dependencies={project().dependencies}
-              fetchAndCacheProject={fetchAndCacheProject}
-            ></ImportModels>
+          {activeTab() == "Manage Benefits" && (
+            <ManageBenefits />
           )}
           {activeTab() == "Preview" && (
-            <Preview
-              project={project}
-              formSchema={formSchema}
-              dmnModel={dmnModel}
-            ></Preview>
+            <Preview project={project} formSchema={formSchema}/>
           )}
           {activeTab() == "Publish" && (
             <Publish
               project={project}
               refetchProject={() => setForceUpdate((prev) => prev + 1)}
-            ></Publish>
+            />
           )}
         </>
       )}

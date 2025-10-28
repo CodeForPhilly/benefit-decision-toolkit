@@ -1,4 +1,5 @@
-import { authFetch } from "./auth";
+import { authFetch } from "@/api/auth";
+
 const apiUrl = import.meta.env.VITE_API_URL;
 
 export const fetchAvailableModels = async () => {
