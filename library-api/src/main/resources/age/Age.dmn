@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/" xmlns="https://kie.apache.org/dmn/_81D401A8-CA81-4F9A-ABCC-532C25768708" xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/" xmlns:kie="http://www.drools.org/kie/dmn/1.2" xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" id="_238F82CA-D3A4-458D-992B-0ED2D9FA9952" name="age" typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/" namespace="https://kie.apache.org/dmn/_81D401A8-CA81-4F9A-ABCC-532C25768708">
+  <dmn:extensionElements/>
+  <dmn:businessKnowledgeModel id="_1919D943-09A4-4D5C-98A0-2B8377862E4C" name="as of date">
+    <dmn:extensionElements/>
+    <dmn:variable id="_BE3DFD22-F76F-4C29-B80C-745A01A88670" name="as of date" typeRef="number"/>
+    <dmn:encapsulatedLogic id="_585A271E-C315-41D7-99C8-830B085BE8F0" kind="FEEL">
+      <dmn:formalParameter id="_BB103AA1-0552-4B55-B1CF-75B4BC080DF4" name="date of birth" typeRef="date"/>
+      <dmn:formalParameter id="_BB4067B5-626D-49DF-A542-B29036FAF633" name="comparison date" typeRef="date"/>
+      <dmn:literalExpression id="_E4B71B0A-EA55-438B-9481-716B560FD05A">
+        <dmn:text>if date of birth = null or comparison date = null then
+  -1
+else
+  years and months duration(date(date of birth), date(comparison date)).years</dmn:text>
+      </dmn:literalExpression>
+    </dmn:encapsulatedLogic>
+  </dmn:businessKnowledgeModel>
+  <dmn:textAnnotation id="_750932D0-B998-4223-8D9C-25FC20A91A61" textFormat="text/plain">
+    <dmn:text>BKMs, data types, and/or Decision Services that will be included in every eligibility check categorized as "Age"</dmn:text>
+  </dmn:textAnnotation>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_C61A36F6-4E4D-4397-9308-6CECE630DE23" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_E4B71B0A-EA55-438B-9481-716B560FD05A">
+            <kie:width>696</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_585A271E-C315-41D7-99C8-830B085BE8F0">
+            <kie:width>50</kie:width>
+            <kie:width>696</kie:width>
+          </kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="dmnshape-drg-_1919D943-09A4-4D5C-98A0-2B8377862E4C" dmnElementRef="_1919D943-09A4-4D5C-98A0-2B8377862E4C" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="109" y="177" width="100" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_750932D0-B998-4223-8D9C-25FC20A91A61" dmnElementRef="_750932D0-B998-4223-8D9C-25FC20A91A61" isCollapsed="false">
+        <dmndi:DMNStyle fontSize="16">
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="109" y="8" width="600" height="136"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>
