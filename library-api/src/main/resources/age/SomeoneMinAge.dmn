@@ -5,7 +5,7 @@
   <dmn:import id="_3EE4C612-9336-48A1-9ED6-23833F808498" name="Age" namespace="https://kie.apache.org/dmn/_81D401A8-CA81-4F9A-ABCC-532C25768708" locationURI="Age.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
   <dmn:itemDefinition id="_D1F5C8A7-1382-4E36-A8BA-ED735D981B4D" name="tParameters" isCollection="false">
     <dmn:itemComponent id="_17C14AE4-6610-4326-A23D-F6BC42287E57" name="peopleIds" isCollection="false">
-      <dmn:typeRef>BDT.stringList</dmn:typeRef>
+      <dmn:typeRef>BDT.tStringList</dmn:typeRef>
     </dmn:itemComponent>
     <dmn:itemComponent id="_77D1FBE3-8707-404D-BD42-E4E1767D401E" name="asOfDate" isCollection="false">
       <dmn:typeRef>date</dmn:typeRef>
@@ -14,6 +14,13 @@
       <dmn:typeRef>number</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
+  <dmn:decisionService id="_E6D562CE-CAC3-4303-B254-66CE23CFBED9" name="SomeoneMinAge">
+    <dmn:extensionElements/>
+    <dmn:variable id="_46A48D43-AF3A-490D-87B5-D323B32E0579" name="SomeoneMinAge" typeRef="boolean"/>
+    <dmn:outputDecision href="#_C015A46D-E538-4F4B-9237-6620B7781DF8"/>
+    <dmn:inputData href="#_C98E92CF-600E-4C9B-AFAD-1531015A5A7F"/>
+    <dmn:inputData href="#_15ACE01F-0C2D-4F2D-B44F-5E562B7D61BA"/>
+  </dmn:decisionService>
   <dmn:decision id="_C015A46D-E538-4F4B-9237-6620B7781DF8" name="SomeoneMinAgeDecision">
     <dmn:extensionElements/>
     <dmn:variable id="_40D9D29F-E0D7-487F-AA72-17604E054CE5" name="SomeoneMinAgeDecision" typeRef="boolean"/>
@@ -28,13 +35,13 @@
     </dmn:knowledgeRequirement>
     <dmn:context id="_12C70E86-ABD3-4CD8-BF0C-3398AF9D4114">
       <dmn:contextEntry>
-        <dmn:variable id="_E1167B2C-849B-40A7-958F-8E9B1FC4421A" name="DOBs" typeRef="BDT.dateList"/>
+        <dmn:variable id="_465E2F28-1E99-47F2-95BE-27F1D025B1C2" name="DOBs" typeRef="BDT.tDateList"/>
         <dmn:literalExpression id="_D69F82E7-521B-4043-93D6-DFEF804F5E24">
           <dmn:text>situation.people[id in parameters.peopleIds].dateOfBirth</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_4A922A2B-32BD-4F93-8309-EC5A3F1147B5" name="ages" typeRef="boolean"/>
+        <dmn:variable id="_70883BC8-3532-4CD3-B209-EA23EC942BB4" name="ages" typeRef="boolean"/>
         <dmn:literalExpression id="_D26EB8DD-98E1-4C73-A847-9F40C849C542">
           <dmn:text>for dob in DOBs return Age.as of date(dob, parameters.asOfDate)</dmn:text>
         </dmn:literalExpression>
@@ -54,13 +61,6 @@
     <dmn:extensionElements/>
     <dmn:variable id="_F548ED80-9135-49B2-8A2D-FF09D65A0E61" name="parameters" typeRef="tParameters"/>
   </dmn:inputData>
-  <dmn:decisionService id="_E6D562CE-CAC3-4303-B254-66CE23CFBED9" name="SomeoneMinAge">
-    <dmn:extensionElements/>
-    <dmn:variable id="_46A48D43-AF3A-490D-87B5-D323B32E0579" name="SomeoneMinAge" typeRef="boolean"/>
-    <dmn:outputDecision href="#_C015A46D-E538-4F4B-9237-6620B7781DF8"/>
-    <dmn:inputData href="#_C98E92CF-600E-4C9B-AFAD-1531015A5A7F"/>
-    <dmn:inputData href="#_15ACE01F-0C2D-4F2D-B44F-5E562B7D61BA"/>
-  </dmn:decisionService>
   <dmn:textAnnotation id="_E37A201A-2965-4834-9997-85E2D3610E1F" textFormat="text/plain">
     <dmn:text>peopleIds, asOfDate, minimumAge</dmn:text>
   </dmn:textAnnotation>
@@ -84,6 +84,19 @@
           </kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
+      <dmndi:DMNShape id="dmnshape-drg-_E6D562CE-CAC3-4303-B254-66CE23CFBED9" dmnElementRef="_E6D562CE-CAC3-4303-B254-66CE23CFBED9" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="173" y="95" width="200" height="200"/>
+        <dmndi:DMNLabel/>
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="173" y="195"/>
+          <di:waypoint x="373" y="195"/>
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_C015A46D-E538-4F4B-9237-6620B7781DF8" dmnElementRef="_C015A46D-E538-4F4B-9237-6620B7781DF8" isCollapsed="false">
         <dmndi:DMNStyle>
           <dmndi:FillColor red="255" green="255" blue="255"/>
@@ -119,19 +132,6 @@
         </dmndi:DMNStyle>
         <dc:Bounds x="418" y="105" width="100" height="50"/>
         <dmndi:DMNLabel/>
-      </dmndi:DMNShape>
-      <dmndi:DMNShape id="dmnshape-drg-_E6D562CE-CAC3-4303-B254-66CE23CFBED9" dmnElementRef="_E6D562CE-CAC3-4303-B254-66CE23CFBED9" isCollapsed="false">
-        <dmndi:DMNStyle>
-          <dmndi:FillColor red="255" green="255" blue="255"/>
-          <dmndi:StrokeColor red="0" green="0" blue="0"/>
-          <dmndi:FontColor red="0" green="0" blue="0"/>
-        </dmndi:DMNStyle>
-        <dc:Bounds x="173" y="95" width="200" height="200"/>
-        <dmndi:DMNLabel/>
-        <dmndi:DMNDecisionServiceDividerLine>
-          <di:waypoint x="173" y="195"/>
-          <di:waypoint x="373" y="195"/>
-        </dmndi:DMNDecisionServiceDividerLine>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_E37A201A-2965-4834-9997-85E2D3610E1F" dmnElementRef="_E37A201A-2965-4834-9997-85E2D3610E1F" isCollapsed="false">
         <dmndi:DMNStyle>

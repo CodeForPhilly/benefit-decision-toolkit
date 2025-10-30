@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/" xmlns="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/" xmlns:kie="http://www.drools.org/kie/dmn/1.2" xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" id="_D3C0FDB9-CD2C-4E25-96F0-631D889B707A" name="BDT" typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79">
+<dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/" xmlns="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/" xmlns:kie="http://www.drools.org/kie/dmn/1.2" xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:included1="https://kie.apache.org/dmn/_6E9D53A6-E99A-4060-9E3E-1AE12EAB5465" xmlns:included2="https://kie.apache.org/dmn/_81D401A8-CA81-4F9A-ABCC-532C25768708" id="_D3C0FDB9-CD2C-4E25-96F0-631D889B707A" name="BDT" typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79">
   <dmn:extensionElements/>
+  <dmn:import id="_9FD0AC46-28F4-400B-9A14-C929C7B2DCED" name="Enrollment" namespace="https://kie.apache.org/dmn/_6E9D53A6-E99A-4060-9E3E-1AE12EAB5465" locationURI="enrollment/Enrollment.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+  <dmn:import id="_A5B42F45-471F-438A-BEA6-9C4E7F0BB7B0" name="Age" namespace="https://kie.apache.org/dmn/_81D401A8-CA81-4F9A-ABCC-532C25768708" locationURI="age/Age.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
   <dmn:itemDefinition id="_15B57F06-99F9-4AAD-9AC4-199D5DCC526E" name="tSituation" isCollection="false">
+    <dmn:itemComponent id="_1E78ACB2-C44C-498E-8B2E-2429E5FC09EF" name="enrollments" isCollection="false">
+      <dmn:typeRef>Enrollment.tEnrollmentList</dmn:typeRef>
+    </dmn:itemComponent>
     <dmn:itemComponent id="_6590C5B5-8CEC-417C-BAB2-E7648A98560D" name="primaryPersonId" isCollection="false">
       <dmn:typeRef>string</dmn:typeRef>
     </dmn:itemComponent>
     <dmn:itemComponent id="_9330054D-6109-4EF3-B69B-5F73ADBD5657" name="people" isCollection="false">
-      <dmn:typeRef>tPeople</dmn:typeRef>
+      <dmn:typeRef>tPersonList</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
   <dmn:itemDefinition id="_47681CD3-2FA0-4694-B03B-F381DA457BD3" name="tPerson" isCollection="false">
@@ -17,31 +22,70 @@
       <dmn:typeRef>string</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
-  <dmn:itemDefinition id="_63571AF5-6B52-436F-9BED-0A9A14CE87A4" name="tPeople" isCollection="true">
+  <dmn:itemDefinition id="_63571AF5-6B52-436F-9BED-0A9A14CE87A4" name="tPersonList" isCollection="true">
     <dmn:typeRef>tPerson</dmn:typeRef>
   </dmn:itemDefinition>
-  <dmn:itemDefinition id="_785E9153-6BD6-4DFA-83CD-CDF3D5DCB747" name="AnyList" isCollection="true">
+  <dmn:itemDefinition id="_785E9153-6BD6-4DFA-83CD-CDF3D5DCB747" name="tAnyList" isCollection="true">
     <dmn:typeRef>Any</dmn:typeRef>
   </dmn:itemDefinition>
-  <dmn:itemDefinition id="_42D120B0-A6B3-4085-83ED-E796FD2F9CD2" name="booleanList" isCollection="true">
+  <dmn:itemDefinition id="_42D120B0-A6B3-4085-83ED-E796FD2F9CD2" name="tBooleanList" isCollection="true">
     <dmn:typeRef>boolean</dmn:typeRef>
   </dmn:itemDefinition>
-  <dmn:itemDefinition id="_C8E9DA21-4D84-4F2A-AED5-792A9577F5EF" name="dateList" isCollection="true">
+  <dmn:itemDefinition id="_C8E9DA21-4D84-4F2A-AED5-792A9577F5EF" name="tDateList" isCollection="true">
     <dmn:typeRef>date</dmn:typeRef>
   </dmn:itemDefinition>
-  <dmn:itemDefinition id="_EFB08DD4-049C-428D-9E07-A2633630C91C" name="numberList" isCollection="true">
+  <dmn:itemDefinition id="_EFB08DD4-049C-428D-9E07-A2633630C91C" name="tNumberList" isCollection="true">
     <dmn:typeRef>number</dmn:typeRef>
   </dmn:itemDefinition>
-  <dmn:itemDefinition id="_A0E4F54C-5046-4B03-90A9-5B744DA1A029" name="stringList" isCollection="true">
+  <dmn:itemDefinition id="_A0E4F54C-5046-4B03-90A9-5B744DA1A029" name="tStringList" isCollection="true">
     <dmn:typeRef>string</dmn:typeRef>
   </dmn:itemDefinition>
+  <dmn:itemDefinition id="_A34DABF8-3CBB-4AE2-8257-01E65EBCDEB9" name="tPeriod" isCollection="false">
+    <dmn:itemComponent id="_ED2A02C2-609D-4E98-95DF-3B174298EDCE" name="unit" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+      <dmn:allowedValues kie:constraintType="enumeration" id="_0FE69AB3-3446-4F70-B575-D4D343F77C7B">
+        <dmn:text>"YEAR", "MONTH", "DAY"</dmn:text>
+      </dmn:allowedValues>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_215DB6EE-7305-4DCE-B4A2-FB347F9681B2" name="startDate" isCollection="false">
+      <dmn:typeRef>date</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_4CBF231E-CB44-4483-90DC-9174B5487833" name="quantity" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:businessKnowledgeModel id="_04036CBE-BE0E-44C8-9A49-01D01F005E6F" name="age as of date">
+    <dmn:extensionElements/>
+    <dmn:variable id="_4CD74BE8-605D-4B2D-B7F6-97ADFA2F0776" name="age as of date" typeRef="number"/>
+    <dmn:encapsulatedLogic id="_5A44B159-2892-4F0B-93E5-589D71B38D36" kind="FEEL">
+      <dmn:formalParameter id="_7FB0B73A-420D-4784-837B-0DBE25368FF9" name="date of birth" typeRef="date"/>
+      <dmn:formalParameter id="_D144AE11-154A-4702-98B6-55374EA03897" name="comparison date" typeRef="date"/>
+      <dmn:literalExpression id="_B00054F9-574C-49CF-9DD6-0F949EA673FF">
+        <dmn:text>Age.as of date(date of birth, comparison date)</dmn:text>
+      </dmn:literalExpression>
+    </dmn:encapsulatedLogic>
+    <dmn:knowledgeRequirement id="_675B603C-8125-4F08-9606-8396FA4D21D7">
+      <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_81D401A8-CA81-4F9A-ABCC-532C25768708#_1919D943-09A4-4D5C-98A0-2B8377862E4C"/>
+    </dmn:knowledgeRequirement>
+  </dmn:businessKnowledgeModel>
   <dmn:textAnnotation id="_1586DF76-6FC5-4E6E-B37B-53D30D67E005" textFormat="text/plain">
     <dmn:text>BKMs, data types, and/or Decision Services that will be included in every eligibility check model</dmn:text>
+  </dmn:textAnnotation>
+  <dmn:textAnnotation id="_CA4CB11D-7F1D-4F0D-A043-463CE48B660F" textFormat="text/plain">
+    <dmn:text>Did this just as an example... I was wondering about having certain functions available in the BDT context for the purposes of FEEL in parameters</dmn:text>
   </dmn:textAnnotation>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_103AE0FA-3F48-4614-A9A8-1200ABA96285" name="DRG">
       <di:extension>
-        <kie:ComponentsWidthsExtension/>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_B00054F9-574C-49CF-9DD6-0F949EA673FF">
+            <kie:width>464</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_5A44B159-2892-4F0B-93E5-589D71B38D36">
+            <kie:width>50</kie:width>
+            <kie:width>464</kie:width>
+          </kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="dmnshape-drg-_1586DF76-6FC5-4E6E-B37B-53D30D67E005" dmnElementRef="_1586DF76-6FC5-4E6E-B37B-53D30D67E005" isCollapsed="false">
         <dmndi:DMNStyle fontSize="15">
@@ -52,6 +96,37 @@
         <dc:Bounds x="124" y="49" width="600" height="200"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_04036CBE-BE0E-44C8-9A49-01D01F005E6F" dmnElementRef="_04036CBE-BE0E-44C8-9A49-01D01F005E6F" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="101" y="422" width="100" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_1919D943-09A4-4D5C-98A0-2B8377862E4C" dmnElementRef="included2:_1919D943-09A4-4D5C-98A0-2B8377862E4C" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="227" y="311" width="100" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_CA4CB11D-7F1D-4F0D-A043-463CE48B660F" dmnElementRef="_CA4CB11D-7F1D-4F0D-A043-463CE48B660F" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="242" y="393" width="322" height="74"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="dmnedge-drg-_675B603C-8125-4F08-9606-8396FA4D21D7-AUTO-TARGET" dmnElementRef="_675B603C-8125-4F08-9606-8396FA4D21D7">
+        <di:waypoint x="277" y="336"/>
+        <di:waypoint x="151" y="422"/>
+      </dmndi:DMNEdge>
     </dmndi:DMNDiagram>
   </dmndi:DMNDI>
 </dmn:definitions>
