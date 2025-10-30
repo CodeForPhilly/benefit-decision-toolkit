@@ -1,7 +1,7 @@
 # Template
 
 ## NameOfCheck
-### "Display name of this check for this benefit's results"
+### "Example Display name of this check for this benefit's results"
 
 - stringParam: "a string"
 - numberParam: 1000
@@ -20,13 +20,13 @@
 ### "Primary person is at least 60 years old"
 
 - personId: situation.primaryPersonId
-- asOfDate: today()
+- asOfDate: BDT.today()
 - minimumAge: 60
 
 ## SpecificPersonAgeMinimum
 ### "Spouse is at least 55 years old by end of 2024"
 
-- personId: spouse of(situation.primaryPersonId).id
+- personId: BDT.spouse of(situation.primaryPersonId).id
 - asOfDate: "2024-12-31"
 - minimumAge: 55
 
@@ -56,7 +56,7 @@
 ## SomeoneAgeBetween
 ### "A child in the household will be between 3 and 4 years old on September 1"
 
-- people: situation.people.id
+- peopleIds: situation.people.id
 - asOfDate: "2026-09-01"
 - minimumAge: 3
 - maximumAge: 4
@@ -94,4 +94,21 @@
 ## HouseholdGrossIncomeMinimum
 ### "Total SNAP-countable income is below $1000 per month"
 
-- incomeTypes: []
+- incomeTypes: BDT.earnedIncomeTypes()
+- period: BDT.thisMonth()
+- minIncome: 1000
+
+
+# Enrollment Examples
+
+## PersonEnrolledInBenefit
+### "Primary person already receives Homestead Exemption"
+
+- personId: situation.primaryPersonId
+- benefit: "phlHomesteadExemption"
+
+## SomeoneEnrolledInBenefit
+### "At least one child is already enrolled in Philly Pre-K"
+
+- peopleIds: situation.people[BDT.age as of date(item.dateOfBirth, today()) < 18].id
+- benefit: "phlPreK"
