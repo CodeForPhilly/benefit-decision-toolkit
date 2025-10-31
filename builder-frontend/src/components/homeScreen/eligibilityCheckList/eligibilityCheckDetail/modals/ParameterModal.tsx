@@ -35,7 +35,7 @@ const ParameterModal = (
           <label class="block font-bold mb-2">Key:</label>
           <input
             type="text"
-            class="w-full border border-gray-300 rounded px-3 py-2"
+            class="form-input w-full border border-gray-300 rounded px-3 py-2"
             value={newParam.key}
             onInput={(e) => setNewParam("key", e.currentTarget.value)}
             placeholder="Enter parameter key"
@@ -45,7 +45,7 @@ const ParameterModal = (
           <label class="block font-bold mb-2">Label:</label>
           <input
             type="text"
-            class="w-full border border-gray-300 rounded px-3 py-2"
+            class="form-input w-full border border-gray-300 rounded px-3 py-2"
             value={newParam.label}
             onInput={(e) => setNewParam("label", e.currentTarget.value)}
             placeholder="Enter parameter label"
@@ -54,7 +54,7 @@ const ParameterModal = (
         <div class="mb-4">
           <label class="block font-bold mb-2">Type:</label>
           <select
-            class="w-full border border-gray-300 rounded px-3 py-2"
+            class="form-input w-full border border-gray-300 rounded px-3 py-2"
             value={newParam.type}
             onChange={(e) => setNewParam("type", e.currentTarget.value as "string" | "number" | "boolean")}
           >
@@ -72,6 +72,7 @@ const ParameterModal = (
                 name={`param-required`}
                 checked={newParam.required === true}
                 onInput={() => setNewParam("required", true)}
+                class="form-radio"
               />
               True
             </div>
@@ -81,6 +82,7 @@ const ParameterModal = (
                 name={`param-required`}
                 checked={newParam.required === false}
                 onInput={() => setNewParam("required", false)}
+                class="form-radio"
               />
               False
             </div>
