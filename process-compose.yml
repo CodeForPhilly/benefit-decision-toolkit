@@ -3,11 +3,11 @@ version: "0.5"
 processes:
   firebase-emulators:
     description: This process runs the local firebase emulators used in the project.
-    command: firebase emulators:start --project demo-bdt-dev --only auth,storage,firestore
+    command: firebase emulators:start --project demo-bdt-dev --only auth,storage,firestore --import ./emulator-data --export-on-exit
     ready_log_line: "All emulators ready!"
   builder-api:
     description: This process runs the builder-api in dev mode on port ${QUARKUS_HTTP_PORT}.
-    command: quarkus dev -Ddebug=false
+    command: quarkus dev -Ddebug=5005
     working_dir: builder-api/
     environment:
       - "QUARKUS_CONSOLE_COLOR=true"
