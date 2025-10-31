@@ -37,7 +37,7 @@ const EligibilityChecksList = () => {
       >
         Create New Check
       </div>
-      <div class="flex flex-wrap gap-4">
+      <div class="grid gap-4 justify-items-center grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
         <For each={checks()}>
           {(check) => (
             <CheckCard

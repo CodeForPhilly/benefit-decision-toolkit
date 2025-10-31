@@ -1,6 +1,7 @@
 @import "tailwindcss";
-@plugin "@tailwindcss/forms";
-
+@plugin "@tailwindcss/forms" {
+  strategy: "class"; /* only generate form-* classes */
+}
 
 @layer components {
   .btn-default {

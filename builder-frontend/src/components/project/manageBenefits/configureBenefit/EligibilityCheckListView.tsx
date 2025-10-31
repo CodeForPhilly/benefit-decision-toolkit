@@ -138,7 +138,7 @@ const EligibilityCheckRow = (
     <tr>
       <td class="eligibility-check-table-cell border-top">
         <input
-          class="rounded-sm border-2 border-gray-400"
+          class="form-checkbox rounded-sm"
           type="checkbox"
           checked={isCheckSelected()}
           onChange={() => onToggle(check)}

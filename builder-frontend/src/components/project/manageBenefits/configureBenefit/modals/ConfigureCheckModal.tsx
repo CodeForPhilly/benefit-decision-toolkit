@@ -114,6 +114,7 @@ const ParameterNumberInput = (
         onInput={(e) => {onParameterChange(Number(e.target.value))}}
         value={currentValue()}
         type="number"
+        class="form-input"
       />
     </div>
   );
@@ -135,6 +136,7 @@ const ParameterStringInput = (
         onInput={(e) => { onParameterChange(e.target.value); }}
         type="text"
         value={currentValue() ?? ""}
+        class="form-input"
       />
     </div>
   );
@@ -159,6 +161,7 @@ const ParameterBooleanInput = (
             name={`param-${parameter().key}`}
             checked={currentValue() === true}
             onInput={() => onParameterChange(true)}
+            class="form-radio"
           />
           True
         </div>
@@ -168,6 +171,7 @@ const ParameterBooleanInput = (
             name={`param-${parameter().key}`}
             checked={currentValue() === false}
             onInput={() => onParameterChange(false)}
+            class="form-radio"
           />
           False
         </div>

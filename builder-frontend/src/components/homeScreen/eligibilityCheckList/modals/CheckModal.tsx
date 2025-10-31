@@ -34,7 +34,7 @@ const EditCheckModal = (
           <label class="block font-bold mb-2">Name:</label>
           <input
             type="text"
-            class="w-full border border-gray-300 rounded px-3 py-2"
+            class="form-input w-full border border-gray-300 rounded px-3 py-2"
             value={newCheck.name}
             onInput={(e) => setNewCheck("name", e.currentTarget.value)}
             placeholder="Enter check name"
@@ -44,7 +44,7 @@ const EditCheckModal = (
           <label class="block font-bold mb-2">Module:</label>
           <input
             type="text"
-            class="w-full border border-gray-300 rounded px-3 py-2"
+            class="form-input w-full border border-gray-300 rounded px-3 py-2"
             value={newCheck.module}
             onInput={(e) => setNewCheck("module", e.currentTarget.value)}
             placeholder="Enter check module"
