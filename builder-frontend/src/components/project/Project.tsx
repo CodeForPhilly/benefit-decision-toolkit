@@ -8,11 +8,7 @@ import ManageBenefits from "./manageBenefits/ManageBenefits";
 import Preview from "./preview/Preview";
 import Publish from "./Publish";
 
-import {
-  cacheDependency, getCachedDependency
-} from "@/storageUtils/storageUtils";
 import { fetchProject } from "@/api/screener";
-import { fetchModel } from "@/api/models";
 
 
 type TabOption = "Manage Benefits" | "Form Editor" | "Preview" | "Publish";
@@ -21,54 +17,13 @@ function Project() {
   const params = useParams();
 
   const [activeTab, setActiveTab] = createSignal<TabOption>("Manage Benefits");
-  const [dmnModel, setDmnModel] = createSignal();
   const [formSchema, setFormSchema] = createSignal();
-  const [projectDependencies, setProjectDependencies] = createSignal([]);
   const [forceUpdate, setForceUpdate] = createSignal(0);
 
   const fetchAndCacheProject = async (keys) => {
     const projectData = await fetchProject(keys[0]);
-    setDmnModel(projectData.dmnModel);
     setFormSchema(projectData.formSchema);
-    fetchAndCacheProjectDependencies(projectData);
     return projectData;
-  };
-
-  const fetchAndCacheProjectDependencies = async (screenerData) => {
-    if (screenerData.dependencies) {
-      // Read any cached dependencies from session storage and track any deps not cached
-      const cachedDeps = [];
-      const neededDeps = [];
-      for (const dep of screenerData.dependencies) {
-        const cachedDep = getCachedDependency(dep);
-        if (cachedDep) {
-          cachedDeps.push({
-            groupId: dep.groupId,
-            artifactId: dep.artifactId,
-            version: dep.version,
-            xml: cachedDep,
-          });
-        } else {
-          neededDeps.push(dep);
-        }
-      }
-
-      //fetch any dependencies that are not cached
-      const dependencyPromises = [];
-      for (const dep of neededDeps) {
-        dependencyPromises.push(
-          await fetchModel(dep.groupId, dep.artifactId, dep.version)
-        );
-      }
-
-      const dependencies = await Promise.all(dependencyPromises);
-      for (const dep of dependencies) {
-        cacheDependency(dep);
-        cachedDeps.push(dep);
-      }
-
-      setProjectDependencies(cachedDeps);
-    }
   };
 
   const [project] = createResource(

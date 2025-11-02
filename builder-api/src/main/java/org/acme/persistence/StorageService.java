@@ -19,15 +19,9 @@ public interface StorageService {
 
     Optional<byte[]> getFileBytesFromStorage(String filePath);
 
-    String getScreenerWorkingDmnModelPath(String screenerId);
-
     String getScreenerWorkingFormSchemaPath(String screenerId);
 
     String getScreenerPublishedFormSchemaPath(String screenerId);
-
-    String getPublishedCompiledDmnModelPath(String screenerId);
-
-    String getWorkingCompiledDmnModelPath(String screenerId);
 
     String getCheckDmnModelPath(String module, String checkId, String version);
 

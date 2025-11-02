@@ -135,30 +135,6 @@ export const saveFormSchema = async (screenerId, schema) => {
   }
 };
 
-export const saveDmnModel = async (screenerId, dmnModel) => {
-  const requestData: any = {};
-  requestData.screenerId = screenerId;
-  requestData.dmnModel = dmnModel;
-  const url = apiUrl + "/save-dmn-model";
-  try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(requestData),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Save failed with status: ${response.status}`);
-    }
-  } catch (error) {
-    console.error("Error saving DMN:", error);
-    throw error; // rethrow so you can handle it in your component if needed
-  }
-};
-
 export const submitForm = async (screenerId, data) => {
   const url = apiUrl + "/decision?screenerId=" + screenerId;
   const formData = cloneDeep(data);
@@ -214,32 +190,6 @@ export const publishScreener = async (screenerId) => {
     return data;
   } catch (error) {
     console.error("Error submitting form:", error);
-    throw error;
-  }
-};
-
-export const addDependency = async (screenerId, dependency) => {
-  const url = apiUrl + "/dependency";
-  try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        screenerId: screenerId,
-        groupId: dependency.groupId,
-        artifactId: dependency.artifactId,
-        version: dependency.version,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Model import failed with status: ${response.status}`);
-    }
-  } catch (error) {
-    console.error("Error adding dependency:", error);
     throw error;
   }
 };

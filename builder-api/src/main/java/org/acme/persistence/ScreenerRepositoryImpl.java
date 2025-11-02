@@ -7,10 +7,8 @@ import jakarta.inject.Inject;
 import org.acme.constants.CollectionNames;
 import org.acme.constants.FieldNames;
 import org.acme.model.domain.BenefitDetail;
-import org.acme.model.domain.DmnModel;
 import org.acme.model.domain.Screener;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,17 +41,12 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
         }
         Map<String, Object> data = dataOpt.get();
 
-
         ObjectMapper mapper = new ObjectMapper();
         Screener screener = mapper.convertValue(data, Screener.class);
 
         String formPath = storageService.getScreenerWorkingFormSchemaPath(screenerId);
         Map<String, Object>  formSchema = storageService.getFormSchemaFromStorage(formPath);
         screener.setFormSchema(formSchema);
-
-        String dmnPath = storageService.getScreenerWorkingDmnModelPath(screenerId);
-        Optional<String> dmnModel = storageService.getStringFromStorage(dmnPath);
-        dmnModel.ifPresent(screener::setDmnModel);
 
         return Optional.of(screener);
     }
@@ -101,23 +94,5 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
     @Override
     public void deleteScreener(String screenerId) throws Exception {
         FirestoreUtils.deleteDocument(CollectionNames.SCREENER_COLLECTION, screenerId);
-    }
-
-    @Override
-    public void addDmnDependency(String screenerId, DmnModel dmnModel) throws Exception {
-        Map<String, Object> modelMap = new HashMap<>();
-        modelMap.put(FieldNames.GROUP_ID, dmnModel.getGroupId());
-        modelMap.put(FieldNames.ARTIFACT_ID, dmnModel.getArtifactId());
-        modelMap.put(FieldNames.VERSION, dmnModel.getVersion());
-        FirestoreUtils.addObjectToListFieldOfDocument(CollectionNames.SCREENER_COLLECTION, screenerId, FieldNames.DEPENDENCIES, modelMap);
-    }
-
-    @Override
-    public void deleteDmnDependency(String screenerId, String groupId, String artifactId, String version) throws Exception{
-        Map<String, Object> modelMap = new HashMap<>();
-        modelMap.put(FieldNames.GROUP_ID, groupId);
-        modelMap.put(FieldNames.ARTIFACT_ID, artifactId);
-        modelMap.put(FieldNames.VERSION, version);
-        FirestoreUtils.removeObjectFromListFieldOfDocument(CollectionNames.SCREENER_COLLECTION, screenerId, FieldNames.DEPENDENCIES, modelMap);
     }
 }
