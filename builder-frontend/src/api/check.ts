@@ -1,6 +1,6 @@
 import { authFetch } from "@/api/auth";
 
-import type { EligibilityCheck } from "@/types";
+import type { EligibilityCheck, OptionalBoolean } from "@/types";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -117,6 +117,29 @@ export const saveCheckDmn = async (checkId: string, dmnModel: string) => {
     throw error; // rethrow so you can handle it in your component if needed
   }
 };
+
+export const testCheck = async (checkId: string, checkConfig: any, inputData: Record<string, any>): Promise<OptionalBoolean> => {
+  const url = apiUrl + `/decision/v2/check?checkId=${checkId}`;
+  try {
+    const response = await authFetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ checkConfig: checkConfig, inputData: inputData }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Test check failed with status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data["result"];
+  } catch (error) {
+    console.error("Error testing check:", error);
+    throw error; // rethrow so you can handle it in your component if needed
+  }
+}
 
 export const fetchUserDefinedChecks = async (): Promise<EligibilityCheck[]> => {
   // Simulate an API call delay -- TODO: update to greater than 1ms delay

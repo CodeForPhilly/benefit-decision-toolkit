@@ -175,6 +175,71 @@ public class DecisionResource {
         );
     }
 
+    @POST
+    @Path("/decision/v2/check")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response evaluateCheck(
+        @Context SecurityIdentity identity,
+        @QueryParam("checkId") String checkId,
+        Map<String, Object> data
+    ) throws Exception {
+        if (checkId == null || checkId.isBlank()){
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Error: Missing required query parameter: checkId")
+                    .build();
+        }
+        if (data == null || data.isEmpty()){
+            return Response.status(Response.Status.BAD_REQUEST)
+                .entity("Error: Missing decision inputs")
+                .build();
+        }
+
+        // Get CheckConfig from data
+        if (!data.containsKey("checkConfig")) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                .entity("Error: Missing CheckConfig in request body")
+                .build();
+        }
+        // TODO: Fix to be more in-line with Java standards
+        Map<String, Object> checkConfigData = (Map<String, Object>) data.get("checkConfig");
+        CheckConfig checkConfig = new CheckConfig();
+        checkConfig.setCheckId(checkId);
+        checkConfig.setParameters((Map<String, Object>) checkConfigData.get("parameters"));
+
+        Map<String, Object> inputData = null;
+        if (!data.containsKey("inputData")) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                .entity("Error: Missing inputData in request body")
+                .build();
+        }
+        inputData = (Map<String, Object>) data.get("inputData");
+
+        // Get EligibilityCheck
+        Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getCheck(checkId);
+        if (checkOpt.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND)
+                .entity("Error: Check not found")
+                .build();
+        }
+        EligibilityCheck check = checkOpt.get();
+
+        try {
+            String dmnFilepath = storageService.getCheckDmnModelPath(
+                check.getModule(), check.getId(), check.getVersion()
+            );
+            String dmnModelName = check.getId();
+
+            OptionalBoolean result = dmnService.evaluateSimpleDmn(
+                dmnFilepath, dmnModelName, inputData, checkConfig.getParameters()
+            );
+            return Response.ok().entity(Map.of("result", result)).build();
+        } catch (Exception e) {
+            Log.error("Error: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     private boolean isUserAuthorizedToAccessScreenerByScreenerId(String userId, String screenerId) {
         Optional<Screener> screenerOpt = screenerRepository.getScreenerMetaDataOnly(screenerId);
         if (screenerOpt.isEmpty()){

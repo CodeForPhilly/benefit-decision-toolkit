@@ -107,7 +107,7 @@ interface CheckResult {
   name: string;
   result: OptionalBoolean;
 }
-type OptionalBoolean = "TRUE" | "FALSE" | "UNABLE_TO_DETERMINE";
+export type OptionalBoolean = "TRUE" | "FALSE" | "UNABLE_TO_DETERMINE";
 
 /* Form Data for Preview */
 export interface PreviewFormData {

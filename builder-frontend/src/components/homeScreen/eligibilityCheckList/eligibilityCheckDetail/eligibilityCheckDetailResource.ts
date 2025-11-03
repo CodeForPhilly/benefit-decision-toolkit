@@ -1,9 +1,9 @@
 import { createResource, createEffect, Accessor, createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
 
-import { fetchCheck, saveCheckDmn, updateCheck } from "@/api/check";
+import { fetchCheck, saveCheckDmn, testCheck, updateCheck } from "@/api/check";
 
-import type { EligibilityCheckDetail, ParameterDefinition } from "@/types";
+import type { CheckConfig, EligibilityCheckDetail, OptionalBoolean, ParameterDefinition } from "@/types";
 
 
 export interface EligibilityCheckDetailResource {
@@ -12,6 +12,7 @@ export interface EligibilityCheckDetailResource {
     addParameter: (parameterDef: ParameterDefinition) => Promise<void>;
     updateParameter: (parameterIndex: number, parameterDef: ParameterDefinition) => Promise<void>;
     removeParameter: (parameterIndex: number) => Promise<void>;
+    testEligibility: (checkConfg: CheckConfig, inputData: Record<string, any>) => Promise<OptionalBoolean>;
     saveDmnModel: (dmnString: string) => Promise<void>;
   };
   actionInProgress: Accessor<boolean>;
@@ -89,6 +90,13 @@ const eligibilityCheckDetailResource = (checkId: Accessor<string>): EligibilityC
     setActionInProgress(false);
   }
 
+  const testEligibility = async (checkConfg: CheckConfig, inputData: Record<string, any>) => {
+    setActionInProgress(true);
+    const reponse = await testCheck(eligibilityCheck.id, checkConfg, inputData);
+    setActionInProgress(false);
+    return reponse;
+  };
+
   return {
     eligibilityCheck: () => eligibilityCheck,
     actions: {
@@ -96,6 +104,7 @@ const eligibilityCheckDetailResource = (checkId: Accessor<string>): EligibilityC
       updateParameter,
       removeParameter,
       saveDmnModel,
+      testEligibility,
     },
     actionInProgress,
     initialLoadStatus: {

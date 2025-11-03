@@ -77,8 +77,7 @@ const ConfigureBenefit = (
                           <SelectedEligibilityCheck
                             check={getSelectedCheck(checkConfig.checkId)}
                             checkConfig={() => checkConfig}
-                            checkIndex={checkIndex()}
-                            updateCheckConfigParams={actions.updateCheckConfigParams}
+                            updateCheckConfigParams={(newCheckData) => actions.updateCheckConfigParams(checkIndex(), newCheckData)}
                           />
                         </Show>
                       );

@@ -13,17 +13,16 @@ interface ParameterWithConfiguredValue {
 }
 
 const SelectedEligibilityCheck = (
-  { check, checkConfig, checkIndex, updateCheckConfigParams }:
+  { check, checkConfig, updateCheckConfigParams }:
   {
     check: EligibilityCheck;
     checkConfig: Accessor<CheckConfig>;
-    checkIndex: number;
-    updateCheckConfigParams: (checkIndex: number, newCheckData: ParameterValues) => void
+    updateCheckConfigParams: (newCheckData: ParameterValues) => void
   }
 ) => {
   const [configuringCheckModalOpen, setConfiguringCheckModalOpen] = createSignal(false);
 
-  const checkParameters: ParameterWithConfiguredValue[] = check.parameters.map((param) => {
+  const checkParameters: Accessor<ParameterWithConfiguredValue[]> = () => check.parameters.map((param) => {
     return { parameter: param, value: checkConfig().parameters[param.key]! };
   });
 
@@ -59,10 +58,10 @@ const SelectedEligibilityCheck = (
             </For>
           </div>
         )}
-        {checkParameters.length > 0 && (
+        {checkParameters().length > 0 && (
           <div class="[&:has(+div)]:mb-2">
             <div class="text-lg font-bold pl-2">Parameters</div>
-            <For each={checkParameters}>
+            <For each={checkParameters()}>
               {({parameter, value}: ParameterWithConfiguredValue) => {
                 const getLabel = () => {
                   return value !== undefined ? value.toString() : <span class="text-yellow-700">Not configured</span>;
@@ -88,7 +87,6 @@ const SelectedEligibilityCheck = (
         <SelectedCheckModal
           check={check}
           checkConfig={checkConfig}
-          checkIndex={checkIndex}
           updateCheckConfigParams={updateCheckConfigParams}
           closeModal={() => { setConfiguringCheckModalOpen(false); }}
         />

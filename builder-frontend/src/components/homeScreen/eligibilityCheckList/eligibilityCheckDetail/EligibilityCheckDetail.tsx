@@ -10,12 +10,13 @@ import eligibilityCheckDetailResource from "./eligibilityCheckDetailResource";
 
 import type { EligibilityCheck, ParameterDefinition } from "@/types";
 import ConfirmationModal from "@/components/shared/ConfirmationModal";
+import EligibilityCheckTest from "./EligibilityCheckTest";
 
 
 const EligibilityCheckDetail = () => {
   const { checkId } = useParams();
 
-  const [screenMode, setScreenMode] = createSignal<"params" | "dmn">("params");
+  const [screenMode, setScreenMode] = createSignal<"params" | "test_check" | "dmn">("params");
   const [tmpDmnModel, setTmpDmnModel] = createSignal<string>("");
 
   const { eligibilityCheck, actions, actionInProgress, initialLoadStatus } = (
@@ -34,6 +35,12 @@ const EligibilityCheckDetail = () => {
           onClick={() => setScreenMode("params")}
         >
           Inputs/Parameters
+        </div>
+        <div
+          class={`btn-default ${screenMode() === "test_check" ? "btn-blue" : "btn-gray"}`}
+          onClick={() => setScreenMode("test_check")}
+        >
+          Test Check
         </div>
         <div
           class={`btn-default ${screenMode() === "dmn" ? "btn-blue" : "btn-gray"}`}
@@ -59,6 +66,12 @@ const EligibilityCheckDetail = () => {
               addParameter={actions.addParameter}
               editParameter={actions.updateParameter}
               removeParameter={actions.removeParameter}
+            />
+          </Match>
+          <Match when={screenMode() === "test_check"}>
+            <EligibilityCheckTest 
+              eligibilityCheck={eligibilityCheck}
+              testEligibility={actions.testEligibility}
             />
           </Match>
           <Match when={screenMode() === "dmn"}>

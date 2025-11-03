@@ -15,12 +15,11 @@ import type {
 
 
 const ConfigureCheckModal = (
-  { checkConfig, check, checkIndex, updateCheckConfigParams, closeModal }:
+  { checkConfig, check, updateCheckConfigParams, closeModal }:
   {
     checkConfig: Accessor<CheckConfig>;
     check: EligibilityCheck;
-    checkIndex: number
-    updateCheckConfigParams: (checkIndex: number, newCheckData: ParameterValues) => void;
+    updateCheckConfigParams: (newCheckData: ParameterValues) => void;
     closeModal: () => void
   }
 ) => {
@@ -29,7 +28,7 @@ const ConfigureCheckModal = (
   );
 
   const confirmAndClose = () => {
-    updateCheckConfigParams(checkIndex, tempCheck.parameters);
+    updateCheckConfigParams(tempCheck.parameters);
     closeModal();
   }
 

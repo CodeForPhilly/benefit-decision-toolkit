@@ -108,8 +108,6 @@ public class KieDmnService implements DmnService {
             throw new RuntimeException("Expected exactly one DMN model, found: " + dmnModels.size());
         }
 
-        Log.info("DMN Model loaded: " + dmnModels.get(0).getName() + " Namespace: " + dmnModels.get(0).getNamespace());
-
         // Prepare model and context using inputs
         DMNModel dmnModel = dmnModels.get(0);
         DMNContext context = dmnRuntime.newContext();
