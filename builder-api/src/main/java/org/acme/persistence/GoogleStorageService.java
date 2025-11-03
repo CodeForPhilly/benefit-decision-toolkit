@@ -130,11 +130,6 @@ public class GoogleStorageService implements StorageService {
         }
     }
     @Override
-    public String getScreenerWorkingDmnModelPath(String screenerId){
-        return "dmn/working/" + screenerId + ".dmn";
-    }
-
-    @Override
     public String getScreenerWorkingFormSchemaPath(String screenerId){
         return "form/working/" + screenerId + ".json";
     }
@@ -142,16 +137,6 @@ public class GoogleStorageService implements StorageService {
     @Override
     public String getScreenerPublishedFormSchemaPath(String screenerId){
         return "form/published/" + screenerId + ".json";
-    }
-
-    @Override
-    public String getPublishedCompiledDmnModelPath(String screenerId){
-        return "compiled_dmn_models/published/" + screenerId + "/kiebase.ser";
-    }
-
-    @Override
-    public String getWorkingCompiledDmnModelPath(String screenerId){
-        return "compiled_dmn_models/working/" + screenerId + "/kiebase.ser";
     }
 
     @Override

@@ -1,6 +1,5 @@
 package org.acme.controller;
 
-
 import io.quarkus.logging.Log;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.inject.Inject;

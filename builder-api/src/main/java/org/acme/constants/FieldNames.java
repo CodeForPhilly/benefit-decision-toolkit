@@ -12,13 +12,6 @@ public class FieldNames {
     public static final String OWNER_ID = "ownerId";
     public static final String LAST_PUBLISHED_DATE = "lastPublishedDate";
     public static final String ORGANIZATION_NAME = "organizationName";
-    public static final String WORKING_DMN_NAME = "workingDmnName";
-    public static final String PUBLISHED_DMN_NAME = "publishedDmnName";
-    public static final String WORKING_DMN_NAMESPACE = "workingDmnNamespace";
-    public static final String PUBLISHED_DMN_NAMESPACE = "publishedDmnNamespace";
-    public static final String LAST_DMN_SAVE = "lastDmnSave";
-    public static final String LAST_DMN_COMPILE = "lastDmnCompile";
-    public static final String DEPENDENCIES = "dependencies";
     public static final String BENEFITS = "benefits";
 
     // DmnModel Database fields

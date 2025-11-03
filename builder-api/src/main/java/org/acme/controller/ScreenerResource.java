@@ -10,17 +10,13 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.acme.auth.AuthUtils;
 import org.acme.model.domain.*;
-import org.acme.model.dto.DmnImportRequest;
 import org.acme.model.dto.PublishScreenerRequest;
-import org.acme.model.dto.SaveDmnRequest;
 import org.acme.model.dto.SaveSchemaRequest;
 import org.acme.persistence.BenefitRepository;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.ScreenerRepository;
 import org.acme.persistence.StorageService;
 import org.acme.service.DmnService;
-import org.acme.service.ScreenerDependencyService;
-import org.acme.service.DmnParser;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -47,9 +43,6 @@ public class ScreenerResource {
 
     @Inject
     DmnService dmnService;
-
-    @Inject
-    ScreenerDependencyService screenerDependencyService;
 
     @GET
     @Path("/screeners")
@@ -166,45 +159,6 @@ public class ScreenerResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/save-dmn-model")
-    public Response saveDmnModel(@Context SecurityIdentity identity, SaveDmnRequest saveDmnRequest){
-
-        String screenerId = saveDmnRequest.id;
-        String dmnModel = saveDmnRequest.dmnModel;
-        if (screenerId == null || screenerId.isBlank()){
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Error: Missing required data: screenerId")
-                    .build();
-        }
-
-        String userId = AuthUtils.getUserId(identity);
-        if (!isUserAuthorizedToAccessScreener(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
-
-        if (dmnModel == null){
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Error: Missing required data: DMN Model")
-                    .build();
-        }
-        try {
-            String filePath = storageService.getScreenerWorkingDmnModelPath(screenerId);
-            storageService.writeStringToStorage(filePath, dmnModel, "application/xml");
-            Log.info("Saved DMN model of screener " + screenerId + " to storage");
-
-
-            Screener updateScreener = new Screener();
-            updateScreener.setId(screenerId);
-            updateScreener.setLastDmnSave(Instant.now().toString());
-            //update screener metadata
-            screenerRepository.updateScreener(updateScreener);
-            return Response.ok().build();
-        } catch (Exception e){
-            Log.info(("Failed to save DMN model for screener " + screenerId));
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
     @Path("/publish")
     public Response publishScreener(@Context SecurityIdentity identity, PublishScreenerRequest publishScreenerRequest){
 
@@ -306,27 +260,6 @@ public class ScreenerResource {
             return true;
         }
         return false;
-    }
-
-    // This Endpoint allows users to add a public DMN model into their project as a dependency.
-    // This makes the dmn model elements available in the dmn editor as well as includes the dmn model when the dmn is
-    // compiled
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/dependency")
-    public Response addDependency(@Context SecurityIdentity identity, DmnImportRequest request){
-        String userId = AuthUtils.getUserId(identity);
-        return screenerDependencyService.addDependency(request, userId);
-    }
-
-    // This Endpoint allows users to delete dmn dependencies from their project. The DMN model elements will no longer
-    // be available in the DMN editor.
-    @DELETE
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/dependency")
-    public Response deleteDependency(@Context SecurityIdentity identity, DmnImportRequest request){
-        String userId = AuthUtils.getUserId(identity);
-        return screenerDependencyService.deleteDependency(request, userId);
     }
 
     @GET
