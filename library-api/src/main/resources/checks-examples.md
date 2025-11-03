@@ -20,13 +20,13 @@
 ### "Primary person is at least 60 years old"
 
 - personId: situation.primaryPersonId
-- asOfDate: BDT.today()
+- asOfDate: today()
 - minimumAge: 60
 
 ## SpecificPersonAgeMinimum
 ### "Spouse is at least 55 years old by end of 2024"
 
-- personId: BDT.spouse of(situation.primaryPersonId).id
+- personId: BDT.spouse of(situation.primaryPersonId).id[1]
 - asOfDate: "2024-12-31"
 - minimumAge: 55
 
