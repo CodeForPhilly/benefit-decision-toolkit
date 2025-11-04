@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/" xmlns="https://kie.apache.org/dmn/_CB10DDEF-33B4-43C5-AD7D-55A06060FF2A" xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/" xmlns:kie="http://www.drools.org/kie/dmn/1.2" xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:included1="https://kie.apache.org/dmn/_6E9D53A6-E99A-4060-9E3E-1AE12EAB5465" xmlns:included2="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" id="_4836FB2E-EA9A-46D1-B532-C5FD8DCFEDE6" name="PersonEnrolledInBenefit" typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/" namespace="https://kie.apache.org/dmn/_CB10DDEF-33B4-43C5-AD7D-55A06060FF2A">
+<dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/" xmlns="https://kie.apache.org/dmn/_CB10DDEF-33B4-43C5-AD7D-55A06060FF2A" xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/" xmlns:kie="http://www.drools.org/kie/dmn/1.2" xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:included1="https://kie.apache.org/dmn/_6E9D53A6-E99A-4060-9E3E-1AE12EAB5465" xmlns:included2="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" id="_4836FB2E-EA9A-46D1-B532-C5FD8DCFEDE6" name="enrollment" typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/" namespace="https://kie.apache.org/dmn/_CB10DDEF-33B4-43C5-AD7D-55A06060FF2A">
   <dmn:extensionElements/>
   <dmn:import id="_222D61DF-1815-4010-AE37-6877961473E5" name="Enrollment" namespace="https://kie.apache.org/dmn/_6E9D53A6-E99A-4060-9E3E-1AE12EAB5465" locationURI="Enrollment.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
   <dmn:import id="_FFA4D8BE-A021-4476-8526-7D8E448C5203" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../BDT.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
@@ -11,16 +11,16 @@
       <dmn:typeRef>string</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
-  <dmn:decisionService id="_2020611B-1856-4A24-9C1E-345306535500" name="PersonEnrolledInBenefit">
+  <dmn:decisionService id="_5E85B343-11FA-4C1C-A08E-26402F99720E" name="main">
     <dmn:extensionElements/>
-    <dmn:variable id="_D31F41C3-38BD-4AA8-ACA9-35577F207B22" name="PersonEnrolledInBenefit" typeRef="boolean"/>
+    <dmn:variable id="_3E45EB79-1A6E-4E4B-B052-7A8205F58B69" name="main"/>
     <dmn:outputDecision href="#_11496BDA-61EA-44BB-AB63-A5A272ED2472"/>
     <dmn:inputData href="#_222EBF53-16BF-4A13-A424-0AD32C90100D"/>
     <dmn:inputData href="#_7E377FA3-246D-4CBF-AE45-3A3AFDB7372B"/>
   </dmn:decisionService>
-  <dmn:decision id="_11496BDA-61EA-44BB-AB63-A5A272ED2472" name="PersonEnrolledInBenefitDecision">
+  <dmn:decision id="_11496BDA-61EA-44BB-AB63-A5A272ED2472" name="result">
     <dmn:extensionElements/>
-    <dmn:variable id="_B50CA751-1E2E-4C2E-9C73-03285F3DD428" name="PersonEnrolledInBenefitDecision" typeRef="boolean"/>
+    <dmn:variable id="_B50CA751-1E2E-4C2E-9C73-03285F3DD428" name="result" typeRef="boolean"/>
     <dmn:informationRequirement id="_669BFE51-E50C-444C-853C-D6F45C4869F3">
       <dmn:requiredInput href="#_7E377FA3-246D-4CBF-AE45-3A3AFDB7372B"/>
     </dmn:informationRequirement>
@@ -28,7 +28,10 @@
       <dmn:requiredInput href="#_222EBF53-16BF-4A13-A424-0AD32C90100D"/>
     </dmn:informationRequirement>
     <dmn:literalExpression id="_EC3D9380-90FD-4FE1-9640-F713DE0BD846">
-      <dmn:text>some enrollment in situation.enrollments satisfies enrollment.personId = parameters.personId and enrollment.benefit = parameters.benefit</dmn:text>
+      <dmn:text>if situation.enrollments != null and parameters.personId != null and parameters.benefit != null then
+  some enrollment in situation.enrollments satisfies enrollment.personId = parameters.personId and enrollment.benefit = parameters.benefit
+else
+  null</dmn:text>
     </dmn:literalExpression>
   </dmn:decision>
   <dmn:inputData id="_7E377FA3-246D-4CBF-AE45-3A3AFDB7372B" name="situation">
@@ -48,17 +51,17 @@
           </kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
-      <dmndi:DMNShape id="dmnshape-drg-_2020611B-1856-4A24-9C1E-345306535500" dmnElementRef="_2020611B-1856-4A24-9C1E-345306535500" isCollapsed="false">
+      <dmndi:DMNShape id="dmnshape-drg-_5E85B343-11FA-4C1C-A08E-26402F99720E" dmnElementRef="_5E85B343-11FA-4C1C-A08E-26402F99720E" isCollapsed="false">
         <dmndi:DMNStyle>
           <dmndi:FillColor red="255" green="255" blue="255"/>
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="183" y="95" width="345" height="194"/>
+        <dc:Bounds x="253" y="106" width="200" height="200"/>
         <dmndi:DMNLabel/>
         <dmndi:DMNDecisionServiceDividerLine>
-          <di:waypoint x="183" y="195"/>
-          <di:waypoint x="528" y="195"/>
+          <di:waypoint x="253" y="206"/>
+          <di:waypoint x="453" y="206"/>
         </dmndi:DMNDecisionServiceDividerLine>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_11496BDA-61EA-44BB-AB63-A5A272ED2472" dmnElementRef="_11496BDA-61EA-44BB-AB63-A5A272ED2472" isCollapsed="false">
@@ -67,7 +70,7 @@
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="242" y="134" width="227" height="50"/>
+        <dc:Bounds x="309" y="149" width="88" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_7E377FA3-246D-4CBF-AE45-3A3AFDB7372B" dmnElementRef="_7E377FA3-246D-4CBF-AE45-3A3AFDB7372B" isCollapsed="false">
@@ -90,11 +93,11 @@
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_669BFE51-E50C-444C-853C-D6F45C4869F3-AUTO-TARGET" dmnElementRef="_669BFE51-E50C-444C-853C-D6F45C4869F3">
         <di:waypoint x="251" y="361"/>
-        <di:waypoint x="355.5" y="184"/>
+        <di:waypoint x="353" y="199"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_9164FE76-0C6C-4D96-9CBD-5EC2639D22A8-AUTO-TARGET" dmnElementRef="_9164FE76-0C6C-4D96-9CBD-5EC2639D22A8">
         <di:waypoint x="443" y="361"/>
-        <di:waypoint x="355.5" y="184"/>
+        <di:waypoint x="353" y="199"/>
       </dmndi:DMNEdge>
     </dmndi:DMNDiagram>
   </dmndi:DMNDI>

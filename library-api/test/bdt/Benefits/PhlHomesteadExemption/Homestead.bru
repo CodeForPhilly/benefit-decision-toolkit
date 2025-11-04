@@ -1,0 +1,27 @@
+meta {
+  name: Homestead
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/benefits/PhlHomesteadExemption
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "enrollments": null
+  //     "enrollments": []
+  //     "NotAlreadyOnHomestead": false
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
