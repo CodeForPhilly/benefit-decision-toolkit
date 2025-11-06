@@ -6,7 +6,8 @@
     "jdk21@latest",
     "firebase-tools@latest",
     "google-cloud-sdk@latest",
-    "nodejs@22"
+    "nodejs@22",
+    "bruno-cli@latest"
   ],
   "env_from": ".env",
   "shell": {
