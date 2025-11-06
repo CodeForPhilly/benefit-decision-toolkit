@@ -8,7 +8,9 @@
       "Bash(find:*)",
       "Bash(mvn clean compile:*)",
       "Bash(bin/dev)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(/usr/bin/env bash -c '/bashes')",
+      "Bash(mvn:*)"
     ],
     "deny": [],
     "ask": []
