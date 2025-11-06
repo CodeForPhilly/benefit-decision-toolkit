@@ -2,7 +2,7 @@
 
 set -e
 
-PID=$(ps aux | grep quarkus:dev | grep -v 'grep\|kill' | awk '{print $2}')
+PID=$(ps aux | grep 'quarkus dev' | grep -v 'grep\|kill' | awk '{print $2}')
 
 if [ ! -z "$PID" ]; then
     kill $PID
@@ -10,4 +10,4 @@ if [ ! -z "$PID" ]; then
 fi
 
 echo "=== Starting Quarkus Dev Server ==="
-mvn clean quarkus:dev -Ddebug=false
+quarkus dev --clean --no-debug
