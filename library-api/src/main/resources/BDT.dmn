@@ -109,14 +109,11 @@
             <kie:width>50</kie:width>
             <kie:width>464</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_INVOKE-DECISION-SERVICE-CONTEXT"/>
           <kie:ComponentWidths dmnElementRef="_INVOKE-DS-CLASS-EXPR">
             <kie:width>600</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_INVOKE-DS-METHOD-EXPR">
-            <kie:width>600</kie:width>
-          </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_INVOKE-DECISION-SERVICE-CONTEXT">
-            <kie:width>50</kie:width>
             <kie:width>600</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_INVOKE-DECISION-SERVICE-LOGIC">
