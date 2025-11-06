@@ -68,6 +68,30 @@
       <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_81D401A8-CA81-4F9A-ABCC-532C25768708#_1919D943-09A4-4D5C-98A0-2B8377862E4C"/>
     </dmn:knowledgeRequirement>
   </dmn:businessKnowledgeModel>
+  <dmn:businessKnowledgeModel id="_INVOKE-DECISION-SERVICE-BKM" name="invoke decision service">
+    <dmn:extensionElements/>
+    <dmn:variable id="_INVOKE-DECISION-SERVICE-VAR" name="invoke decision service" typeRef="Any"/>
+    <dmn:encapsulatedLogic id="_INVOKE-DECISION-SERVICE-LOGIC" kind="Java">
+      <dmn:formalParameter id="_INVOKE-DS-PARAM-MODEL" name="model name" typeRef="string"/>
+      <dmn:formalParameter id="_INVOKE-DS-PARAM-SERVICE" name="service name" typeRef="string"/>
+      <dmn:formalParameter id="_INVOKE-DS-PARAM-SITUATION" name="situation" typeRef="tSituation"/>
+      <dmn:formalParameter id="_INVOKE-DS-PARAM-PARAMETERS" name="parameters" typeRef="Any"/>
+      <dmn:context id="_INVOKE-DECISION-SERVICE-CONTEXT">
+        <dmn:contextEntry>
+          <dmn:variable id="_INVOKE-DS-CLASS-VAR" name="class" typeRef="string"/>
+          <dmn:literalExpression id="_INVOKE-DS-CLASS-EXPR">
+            <dmn:text>"org.prestoncabe.functions.DecisionServiceInvoker"</dmn:text>
+          </dmn:literalExpression>
+        </dmn:contextEntry>
+        <dmn:contextEntry>
+          <dmn:variable id="_INVOKE-DS-METHOD-VAR" name="method signature" typeRef="string"/>
+          <dmn:literalExpression id="_INVOKE-DS-METHOD-EXPR">
+            <dmn:text>"invoke(java.lang.String, java.lang.String, java.util.Map, java.util.Map)"</dmn:text>
+          </dmn:literalExpression>
+        </dmn:contextEntry>
+      </dmn:context>
+    </dmn:encapsulatedLogic>
+  </dmn:businessKnowledgeModel>
   <dmn:textAnnotation id="_1586DF76-6FC5-4E6E-B37B-53D30D67E005" textFormat="text/plain">
     <dmn:text>BKMs, data types, and/or Decision Services that will be included in every eligibility check model</dmn:text>
   </dmn:textAnnotation>
@@ -84,6 +108,20 @@
           <kie:ComponentWidths dmnElementRef="_5A44B159-2892-4F0B-93E5-589D71B38D36">
             <kie:width>50</kie:width>
             <kie:width>464</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_INVOKE-DS-CLASS-EXPR">
+            <kie:width>600</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_INVOKE-DS-METHOD-EXPR">
+            <kie:width>600</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_INVOKE-DECISION-SERVICE-CONTEXT">
+            <kie:width>50</kie:width>
+            <kie:width>600</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_INVOKE-DECISION-SERVICE-LOGIC">
+            <kie:width>50</kie:width>
+            <kie:width>650</kie:width>
           </kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
@@ -103,6 +141,15 @@
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
         <dc:Bounds x="101" y="422" width="100" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_INVOKE-DECISION-SERVICE-BKM" dmnElementRef="_INVOKE-DECISION-SERVICE-BKM" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="230" y="422" width="100" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_1919D943-09A4-4D5C-98A0-2B8377862E4C" dmnElementRef="included2:_1919D943-09A4-4D5C-98A0-2B8377862E4C" isCollapsed="false">
