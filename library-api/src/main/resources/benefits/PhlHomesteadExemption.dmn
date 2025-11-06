@@ -5,6 +5,11 @@
   <dmn:import id="_E026513E-9C0E-4E34-91E5-B876BB3B58E0" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../BDT.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
   <dmn:import id="_5FC70664-B676-4B71-B7A7-BD6A3189572C" name="PersonNotEnrolledInBenefit" namespace="https://kie.apache.org/dmn/_3B9E68B5-63FA-437C-AF93-CC12DDD00BC5" locationURI="../../../../target/classes/enrollment/PersonNotEnrolledInBenefit.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
   <dmn:import id="_38F480CD-22BE-434E-9760-A7B0B54BAAAB" name="PersonEnrolledInBenefit" namespace="https://kie.apache.org/dmn/_CB10DDEF-33B4-43C5-AD7D-55A06060FF2A" locationURI="../../../../target/classes/enrollment/PersonEnrolledInBenefit.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+  <dmn:itemDefinition id="_4A09EE08-11BA-407D-811E-1EBCCD2D43DD" name="tSituation" isCollection="false">
+    <dmn:itemComponent id="_16B784B6-F18D-4E50-A612-F92262388B22" name="situation" isCollection="false">
+      <dmn:typeRef>BDT.tSituation</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
   <dmn:decisionService id="_1A77F60B-62BC-49AB-9233-5AD89A72C7F3" name="PhlHomesteadExemption">
     <dmn:extensionElements/>
     <dmn:variable id="_1701CE79-1E46-4807-901C-A5E3C45EBA9E" name="PhlHomesteadExemption" typeRef="boolean"/>
@@ -23,16 +28,16 @@
     </dmn:knowledgeRequirement>
     <dmn:context id="_C480749B-8802-49B1-BD0F-9A7690C75C6A">
       <dmn:contextEntry>
-        <dmn:variable id="_A3998B95-F5BD-47FD-913A-76130DB541F2" name="NotAlreadyOnHomestead" typeRef="context"/>
+        <dmn:variable id="_7DD9A0CE-5975-401C-BD4C-32CD27580C06" name="NotAlreadyOnHomestead" typeRef="boolean"/>
         <dmn:context id="_6B8123B6-1902-461A-A36D-2D6A88D103BE">
           <dmn:contextEntry>
-            <dmn:variable id="_9B8D9F0F-2FC8-44F4-8D82-C612A268E8A9" name="simpleCheck" typeRef="boolean"/>
+            <dmn:variable id="_80E8311E-C1E9-443D-A37A-769590F90D5E" name="simpleCheck" typeRef="boolean"/>
             <dmn:literalExpression id="_B4ECE376-12BE-4A96-8A03-650EF4DA4AE5">
               <dmn:text>situation.NotAlreadyOnHomestead</dmn:text>
             </dmn:literalExpression>
           </dmn:contextEntry>
           <dmn:contextEntry>
-            <dmn:variable id="_AA6DA088-D1A3-4C68-9B35-694D666F5ECC" name="check" typeRef="boolean"/>
+            <dmn:variable id="_08AA8CF1-DC16-4459-A359-E77F669F2807" name="check" typeRef="boolean"/>
             <dmn:invocation id="_BE3FF7C4-646E-44BF-855B-FA2873DC86A0">
               <dmn:literalExpression id="_A0727810-48AA-47C2-AF7A-F2EC5D6D9D3C">
                 <dmn:text>PersonNotEnrolledInBenefit.main</dmn:text>
@@ -47,15 +52,15 @@
                 <dmn:parameter id="_119CE406-A8EE-4B0E-8680-9DA304B8F22E" name="parameters" typeRef="PersonEnrolledInBenefit.tParameters"/>
                 <dmn:context id="_E6CF8674-1DA3-433E-A2E0-1208C0AFB6B4">
                   <dmn:contextEntry>
-                    <dmn:variable id="_8A439FF8-8F75-4F14-87DE-3678CF3EE38A" name="personId" typeRef="boolean"/>
+                    <dmn:variable id="_E0755371-BAEE-4A98-8D3B-60396A824464" name="personId" typeRef="string"/>
                     <dmn:literalExpression id="_F79F1C29-336F-461A-AC16-D0642F1C0DA2">
                       <dmn:text>situation.primaryPersonId</dmn:text>
                     </dmn:literalExpression>
                   </dmn:contextEntry>
                   <dmn:contextEntry>
-                    <dmn:variable id="_29BBF9B0-C9B2-43A8-80ED-D299ACCD04AE" name="benefit" typeRef="boolean"/>
+                    <dmn:variable id="_331EE562-1ED7-4C04-A7A3-4102FFB346EC" name="benefit" typeRef="string"/>
                     <dmn:literalExpression id="_6DE79D41-BEFA-4ACC-9835-FF1AC8F65788">
-                      <dmn:text>"HomesteadExemption"</dmn:text>
+                      <dmn:text>"PhlHomesteadExemption"</dmn:text>
                     </dmn:literalExpression>
                   </dmn:contextEntry>
                 </dmn:context>
@@ -63,7 +68,7 @@
             </dmn:invocation>
           </dmn:contextEntry>
           <dmn:contextEntry>
-            <dmn:variable id="_4301D954-E9F9-4948-8017-D0D835EA0A35" name="result" typeRef="boolean"/>
+            <dmn:variable id="_2ACA5931-5FAE-4A30-9A1A-A6DA1B526BEF" name="result" typeRef="boolean"/>
             <dmn:literalExpression id="_221BF30D-DCEF-4103-9F98-1EB970BFD48D">
               <dmn:text>if simpleCheck != null then
   simpleCheck
@@ -77,6 +82,12 @@ else
             </dmn:literalExpression>
           </dmn:contextEntry>
         </dmn:context>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_F2F6F64E-973B-4653-B851-A3E689CCFBFE" name="NoTenYearTaxAbatement" typeRef="boolean"/>
+        <dmn:literalExpression id="_43FF78A6-4F26-47F2-B9BB-4509F28F0240">
+          <dmn:text>not(situation.TenYearTaxAbatement)</dmn:text>
+        </dmn:literalExpression>
       </dmn:contextEntry>
     </dmn:context>
   </dmn:decision>
@@ -158,6 +169,9 @@ all(checksAsList)</dmn:text>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_AB138167-3505-4E72-858F-8A56999B50F2">
             <kie:width>599</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_43FF78A6-4F26-47F2-B9BB-4509F28F0240">
+            <kie:width>789</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_D64041F6-D21C-4BE4-A1BE-842557AD6F7A">
             <kie:width>50</kie:width>

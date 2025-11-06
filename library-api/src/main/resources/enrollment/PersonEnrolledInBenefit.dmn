@@ -13,7 +13,7 @@
   </dmn:itemDefinition>
   <dmn:decisionService id="_5E85B343-11FA-4C1C-A08E-26402F99720E" name="main">
     <dmn:extensionElements/>
-    <dmn:variable id="_3E45EB79-1A6E-4E4B-B052-7A8205F58B69" name="main"/>
+    <dmn:variable id="_3E45EB79-1A6E-4E4B-B052-7A8205F58B69" name="main" typeRef="boolean"/>
     <dmn:outputDecision href="#_11496BDA-61EA-44BB-AB63-A5A272ED2472"/>
     <dmn:inputData href="#_222EBF53-16BF-4A13-A424-0AD32C90100D"/>
     <dmn:inputData href="#_7E377FA3-246D-4CBF-AE45-3A3AFDB7372B"/>

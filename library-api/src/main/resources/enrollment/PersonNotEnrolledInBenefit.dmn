@@ -5,7 +5,7 @@
   <dmn:import id="_AFBE3A16-222F-4BA0-8FC5-780F5BCCBB5C" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../../../target/classes/BDT.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
   <dmn:decisionService id="_513F29D9-6F29-4B8A-AD8D-F5C339B354DE" name="main">
     <dmn:extensionElements/>
-    <dmn:variable id="_A689F266-51CA-428C-93B6-ED604192571D" name="main"/>
+    <dmn:variable id="_A689F266-51CA-428C-93B6-ED604192571D" name="main" typeRef="boolean"/>
     <dmn:outputDecision href="#_D047F2EA-124C-4CC4-9EA0-5CF496ED9E5C"/>
     <dmn:inputData href="#_380ACD7B-0D9B-47E6-A601-474E38C1EBCF"/>
     <dmn:inputData href="#_63C15A72-50A2-471A-B023-7A2B39937C40"/>
@@ -56,6 +56,19 @@
           <di:waypoint x="528" y="210"/>
         </dmndi:DMNDecisionServiceDividerLine>
       </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_5E85B343-11FA-4C1C-A08E-26402F99720E" dmnElementRef="included1:_5E85B343-11FA-4C1C-A08E-26402F99720E" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="594" y="2" width="224" height="100"/>
+        <dmndi:DMNLabel/>
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="594" y="52"/>
+          <di:waypoint x="818" y="52"/>
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_63C15A72-50A2-471A-B023-7A2B39937C40" dmnElementRef="_63C15A72-50A2-471A-B023-7A2B39937C40" isCollapsed="false">
         <dmndi:DMNStyle>
           <dmndi:FillColor red="255" green="255" blue="255"/>
@@ -82,19 +95,6 @@
         </dmndi:DMNStyle>
         <dc:Bounds x="378" y="150" width="100" height="50"/>
         <dmndi:DMNLabel/>
-      </dmndi:DMNShape>
-      <dmndi:DMNShape id="dmnshape-drg-_5E85B343-11FA-4C1C-A08E-26402F99720E" dmnElementRef="included1:_5E85B343-11FA-4C1C-A08E-26402F99720E" isCollapsed="false">
-        <dmndi:DMNStyle>
-          <dmndi:FillColor red="255" green="255" blue="255"/>
-          <dmndi:StrokeColor red="0" green="0" blue="0"/>
-          <dmndi:FontColor red="0" green="0" blue="0"/>
-        </dmndi:DMNStyle>
-        <dc:Bounds x="594" y="2" width="224" height="100"/>
-        <dmndi:DMNLabel/>
-        <dmndi:DMNDecisionServiceDividerLine>
-          <di:waypoint x="594" y="52"/>
-          <di:waypoint x="818" y="52"/>
-        </dmndi:DMNDecisionServiceDividerLine>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_A373B877-A5F0-4485-A430-5FC17EB0BFB6-AUTO-TARGET" dmnElementRef="_A373B877-A5F0-4485-A430-5FC17EB0BFB6">
         <di:waypoint x="351" y="349"/>
