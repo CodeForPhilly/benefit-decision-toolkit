@@ -13,6 +13,15 @@
     <dmn:itemComponent id="_9330054D-6109-4EF3-B69B-5F73ADBD5657" name="people" isCollection="false">
       <dmn:typeRef>tPersonList</dmn:typeRef>
     </dmn:itemComponent>
+    <dmn:itemComponent id="_380BB676-06C1-4C91-AA9F-EE098B4341AC" name="TenYearTaxAbatement" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_CCDE99DA-A46A-4985-B9AA-3EE29CC55F7F" name="PhillyHomeownerOccupant" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_2478F0D4-7BAE-4DC0-B767-E4CC4A81727D" name="relationships" isCollection="false">
+      <dmn:typeRef>tRelationshipList</dmn:typeRef>
+    </dmn:itemComponent>
   </dmn:itemDefinition>
   <dmn:itemDefinition id="_47681CD3-2FA0-4694-B03B-F381DA457BD3" name="tPerson" isCollection="false">
     <dmn:itemComponent id="_CAC97D8B-FF24-4C38-8F32-C1507705112D" name="dateOfBirth" isCollection="false">
@@ -54,6 +63,23 @@
       <dmn:typeRef>number</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
+  <dmn:itemDefinition id="_0C88835F-7F14-4224-B7EA-C46E87B5511E" name="tRelationship" isCollection="false">
+    <dmn:itemComponent id="_052D313F-6BA5-4566-8419-63EA324C5EA4" name="type" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+      <dmn:allowedValues kie:constraintType="enumeration" id="_18C51F80-C535-4FBA-AEAD-DA84EA77A7F2">
+        <dmn:text>"spouse"</dmn:text>
+      </dmn:allowedValues>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_B6B1CB1E-19E5-451F-8096-1C60665EBFCD" name="personId" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_747FAC1D-B39C-4DD4-8639-EB90FFE36ACE" name="relatedPersonId" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_164304EB-122E-4673-A350-C805FCEA97EE" name="tRelationshipList" isCollection="true">
+    <dmn:typeRef>tRelationship</dmn:typeRef>
+  </dmn:itemDefinition>
   <dmn:businessKnowledgeModel id="_04036CBE-BE0E-44C8-9A49-01D01F005E6F" name="age as of date">
     <dmn:extensionElements/>
     <dmn:variable id="_4CD74BE8-605D-4B2D-B7F6-97ADFA2F0776" name="age as of date" typeRef="number"/>
@@ -92,6 +118,33 @@
       </dmn:context>
     </dmn:encapsulatedLogic>
   </dmn:businessKnowledgeModel>
+  <dmn:businessKnowledgeModel id="_14EAB512-0E33-419C-9630-BA0265476B6E" name="spouse id">
+    <dmn:extensionElements/>
+    <dmn:variable id="_6ABB0ADE-65E8-4781-BAAC-1F2D12E9FBF1" name="spouse id" typeRef="string"/>
+    <dmn:encapsulatedLogic id="_B17F52FC-DF57-4B5D-A886-F5A036FAE734" kind="FEEL">
+      <dmn:formalParameter id="_60B65F2B-E1E6-4447-BC5D-101604B53F5D" name="situation" typeRef="tSituation"/>
+      <dmn:formalParameter id="_6D93B24C-CA8A-4321-B8DB-28AC877986D4" name="personId" typeRef="string"/>
+      <dmn:context id="_99AACC40-610C-4630-8867-1850B8B31DD4">
+        <dmn:contextEntry>
+          <dmn:variable id="_BDBE1CDF-D05B-48B0-B66C-12F3EF6EDC73" name="persons spouse relationship" typeRef="tRelationship"/>
+          <dmn:literalExpression id="_ABB16747-F8DF-4834-934C-BDA6DD5D3C8F">
+            <dmn:text>situation.relationships[item.personId = personId and item.type = "spouse"][1]</dmn:text>
+          </dmn:literalExpression>
+        </dmn:contextEntry>
+        <dmn:contextEntry>
+          <dmn:variable id="_4611CC75-7B0B-4354-8F31-3486050EFD72" name="result" typeRef="string"/>
+          <dmn:literalExpression id="_8115DEB8-9910-4739-8165-2EE3C1186631">
+            <dmn:text>persons spouse relationship.relatedPersonId</dmn:text>
+          </dmn:literalExpression>
+        </dmn:contextEntry>
+        <dmn:contextEntry>
+          <dmn:literalExpression id="_2719CFB0-EB0E-4062-A446-961A35E84635">
+            <dmn:text>result</dmn:text>
+          </dmn:literalExpression>
+        </dmn:contextEntry>
+      </dmn:context>
+    </dmn:encapsulatedLogic>
+  </dmn:businessKnowledgeModel>
   <dmn:textAnnotation id="_1586DF76-6FC5-4E6E-B37B-53D30D67E005" textFormat="text/plain">
     <dmn:text>BKMs, data types, and/or Decision Services that will be included in every eligibility check model</dmn:text>
   </dmn:textAnnotation>
@@ -119,6 +172,24 @@
           <kie:ComponentWidths dmnElementRef="_INVOKE-DECISION-SERVICE-LOGIC">
             <kie:width>50</kie:width>
             <kie:width>650</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_99AACC40-610C-4630-8867-1850B8B31DD4">
+            <kie:width>50</kie:width>
+            <kie:width>305</kie:width>
+            <kie:width>463</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_ABB16747-F8DF-4834-934C-BDA6DD5D3C8F">
+            <kie:width>463</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_8115DEB8-9910-4739-8165-2EE3C1186631">
+            <kie:width>463</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_2719CFB0-EB0E-4062-A446-961A35E84635">
+            <kie:width>463</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_B17F52FC-DF57-4B5D-A886-F5A036FAE734">
+            <kie:width>50</kie:width>
+            <kie:width>838</kie:width>
           </kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
@@ -164,7 +235,16 @@
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="242" y="393" width="322" height="74"/>
+        <dc:Bounds x="413" y="399" width="322" height="74"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_14EAB512-0E33-419C-9630-BA0265476B6E" dmnElementRef="_14EAB512-0E33-419C-9630-BA0265476B6E" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="534" y="254" width="100" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_675B603C-8125-4F08-9606-8396FA4D21D7-AUTO-TARGET" dmnElementRef="_675B603C-8125-4F08-9606-8396FA4D21D7">
