@@ -4,6 +4,7 @@ import debounce from "lodash.debounce";
 import { Form } from "@bpmn-io/form-js-viewer";
 
 import { PreviewFormData } from "./types";
+import CustomFormFieldsModule from "../formJsExtensions/customFormFields";
 
 import "@bpmn-io/form-js/dist/assets/form-js.css";
 
@@ -11,7 +12,7 @@ function FormRenderer({ schema, submitForm }: { schema: Accessor<any>; submitFor
   let container: HTMLDivElement | undefined;
 
   onMount(() => {
-    const form = new Form({ container });
+    const form = new Form({ container, additionalModules: [ CustomFormFieldsModule ] });
     const debouncedSubmit = debounce(
       (data: PreviewFormData) => submitForm(data),
       500
