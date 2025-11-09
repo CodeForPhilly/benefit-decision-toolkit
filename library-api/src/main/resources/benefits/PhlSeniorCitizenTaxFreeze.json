@@ -3,8 +3,7 @@
   "checks": {
     "Not Already On Senior Citizen Tax Freeze": {
       "service": "PersonNotEnrolledInBenefit",
-      "personId": "feel:situation.primaryPersonId",
-      "benefit": "PhlSeniorCitizenTaxFreeze"
+      "personId": "feel:situation.primaryPersonId"
     },
     "Philly Homeowner/Occupant": {
       "service": "simpleTrue",
@@ -12,7 +11,7 @@
     },
     "Spouse will be at least age 65 or older this year": {
       "service": "PersonMinAge",
-      "personId": "feel:BDT.spouse id of(situation, situation.primaryPersonId)",
+      "personId": "feel:BDT.spouse id(situation.relationships, situation.primaryPersonId)",
       "minAge": 65,
       "asOfDate": "feel:date(today().year, 12, 31)"
     }

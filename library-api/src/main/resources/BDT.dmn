@@ -122,17 +122,17 @@
     <dmn:extensionElements/>
     <dmn:variable id="_6ABB0ADE-65E8-4781-BAAC-1F2D12E9FBF1" name="spouse id" typeRef="string"/>
     <dmn:encapsulatedLogic id="_B17F52FC-DF57-4B5D-A886-F5A036FAE734" kind="FEEL">
-      <dmn:formalParameter id="_60B65F2B-E1E6-4447-BC5D-101604B53F5D" name="situation" typeRef="tSituation"/>
+      <dmn:formalParameter id="_60B65F2B-E1E6-4447-BC5D-101604B53F5D" name="relationships" typeRef="tRelationshipList"/>
       <dmn:formalParameter id="_6D93B24C-CA8A-4321-B8DB-28AC877986D4" name="personId" typeRef="string"/>
       <dmn:context id="_99AACC40-610C-4630-8867-1850B8B31DD4">
         <dmn:contextEntry>
-          <dmn:variable id="_BDBE1CDF-D05B-48B0-B66C-12F3EF6EDC73" name="persons spouse relationship" typeRef="tRelationship"/>
+          <dmn:variable id="_57CFAD94-AB2F-4A84-AC8D-4E21E16E0E0E" name="persons spouse relationship" typeRef="tRelationship"/>
           <dmn:literalExpression id="_ABB16747-F8DF-4834-934C-BDA6DD5D3C8F">
-            <dmn:text>situation.relationships[item.personId = personId and item.type = "spouse"][1]</dmn:text>
+            <dmn:text>relationships[item.personId = personId and item.type = "spouse"][1]</dmn:text>
           </dmn:literalExpression>
         </dmn:contextEntry>
         <dmn:contextEntry>
-          <dmn:variable id="_4611CC75-7B0B-4354-8F31-3486050EFD72" name="result" typeRef="string"/>
+          <dmn:variable id="_436AB065-453F-469B-9D4E-BF067E88A83E" name="result" typeRef="string"/>
           <dmn:literalExpression id="_8115DEB8-9910-4739-8165-2EE3C1186631">
             <dmn:text>persons spouse relationship.relatedPersonId</dmn:text>
           </dmn:literalExpression>
@@ -176,20 +176,20 @@
           <kie:ComponentWidths dmnElementRef="_99AACC40-610C-4630-8867-1850B8B31DD4">
             <kie:width>50</kie:width>
             <kie:width>305</kie:width>
-            <kie:width>463</kie:width>
+            <kie:width>423</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_ABB16747-F8DF-4834-934C-BDA6DD5D3C8F">
-            <kie:width>463</kie:width>
+            <kie:width>423</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_8115DEB8-9910-4739-8165-2EE3C1186631">
-            <kie:width>463</kie:width>
+            <kie:width>423</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_2719CFB0-EB0E-4062-A446-961A35E84635">
-            <kie:width>463</kie:width>
+            <kie:width>423</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_B17F52FC-DF57-4B5D-A886-F5A036FAE734">
             <kie:width>50</kie:width>
-            <kie:width>838</kie:width>
+            <kie:width>798</kie:width>
           </kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
