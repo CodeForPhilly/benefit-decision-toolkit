@@ -22,10 +22,10 @@
     </dmn:knowledgeRequirement>
     <dmn:context id="_C480749B-8802-49B1-BD0F-9A7690C75C6A">
       <dmn:contextEntry>
-        <dmn:variable id="_3600635D-FCDB-49DA-9310-4C36A8351AC5" name="Not Already On Homestead" typeRef="boolean"/>
+        <dmn:variable id="_C9F9D85E-BD96-4867-A730-C3ED5E97214B" name="Not Already On Homestead" typeRef="boolean"/>
         <dmn:invocation id="_B005A993-AB91-41AB-8F4E-CCCBB7F85499">
           <dmn:literalExpression id="_4932AA87-8913-48E2-A33D-E4C0D5A9EDE3">
-            <dmn:text>PersonNotEnrolledInBenefit.main</dmn:text>
+            <dmn:text>PersonNotEnrolledInBenefit.PersonNotEnrolledInBenefitService</dmn:text>
           </dmn:literalExpression>
           <dmn:binding>
             <dmn:parameter id="_6DA8547D-DC53-42E5-88F2-3A53D6C1ED10" name="situation" typeRef="BDT.tSituation"/>
@@ -37,13 +37,13 @@
             <dmn:parameter id="_3687F80D-9B5B-43AB-B39D-B32BD3210E76" name="parameters" typeRef="PersonNotEnrolledInBenefit.tParameters"/>
             <dmn:context id="_63E3027C-A3F8-4E92-BC11-BC749F712B1F">
               <dmn:contextEntry>
-                <dmn:variable id="_711412E3-10E8-481E-B648-F4523EBA9494" name="personId" typeRef="string"/>
+                <dmn:variable id="_2AA18A08-C2A7-4B39-8BFA-107D53A3C8BB" name="personId" typeRef="string"/>
                 <dmn:literalExpression id="_69711CBE-3EF3-4E55-A76C-98BDBFB0336B">
                   <dmn:text>situation.primaryPersonId</dmn:text>
                 </dmn:literalExpression>
               </dmn:contextEntry>
               <dmn:contextEntry>
-                <dmn:variable id="_CD8E6E4C-C711-4C3E-8CA0-F8B3E429E6D4" name="benefit" typeRef="string"/>
+                <dmn:variable id="_C5D0C035-362E-4C62-9C5A-25BC7A1108AE" name="benefit" typeRef="string"/>
                 <dmn:literalExpression id="_8BFE79E2-52B9-45D0-B328-D6914079DBD5">
                   <dmn:text>"PhlHomesteadExemption"</dmn:text>
                 </dmn:literalExpression>
@@ -53,7 +53,7 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_41DCB75D-BB5C-4D2C-B0B4-DA9D324958D1" name="No Ten Year Tax Abatement" typeRef="boolean"/>
+        <dmn:variable id="_0769B44B-8D53-43DD-B6AA-11F35077C753" name="No Ten Year Tax Abatement" typeRef="boolean"/>
         <dmn:literalExpression id="_43FF78A6-4F26-47F2-B9BB-4509F28F0240">
           <dmn:text>not(situation.TenYearTaxAbatement)</dmn:text>
         </dmn:literalExpression>
@@ -157,6 +157,19 @@ all(checksAsList)</dmn:text>
           <di:waypoint x="780" y="275.5"/>
         </dmndi:DMNDecisionServiceDividerLine>
       </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_513F29D9-6F29-4B8A-AD8D-F5C339B354DE" dmnElementRef="included2:_513F29D9-6F29-4B8A-AD8D-F5C339B354DE" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="62" y="32" width="453" height="100"/>
+        <dmndi:DMNLabel/>
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="62" y="82"/>
+          <di:waypoint x="515" y="82"/>
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_38277B56-7BEA-4297-A8B5-BBF084A043E8" dmnElementRef="_38277B56-7BEA-4297-A8B5-BBF084A043E8" isCollapsed="false">
         <dmndi:DMNStyle>
           <dmndi:FillColor red="255" green="255" blue="255"/>
@@ -184,25 +197,12 @@ all(checksAsList)</dmn:text>
         <dc:Bounds x="612" y="217.5" width="100" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
-      <dmndi:DMNShape id="dmnshape-drg-_513F29D9-6F29-4B8A-AD8D-F5C339B354DE" dmnElementRef="included2:_513F29D9-6F29-4B8A-AD8D-F5C339B354DE" isCollapsed="false">
-        <dmndi:DMNStyle>
-          <dmndi:FillColor red="255" green="255" blue="255"/>
-          <dmndi:StrokeColor red="0" green="0" blue="0"/>
-          <dmndi:FontColor red="0" green="0" blue="0"/>
-        </dmndi:DMNStyle>
-        <dc:Bounds x="62" y="32" width="272" height="100"/>
-        <dmndi:DMNLabel/>
-        <dmndi:DMNDecisionServiceDividerLine>
-          <di:waypoint x="62" y="82"/>
-          <di:waypoint x="334" y="82"/>
-        </dmndi:DMNDecisionServiceDividerLine>
-      </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_5580529E-A7FF-4D74-9235-BBC68818ABBD-AUTO-TARGET" dmnElementRef="_5580529E-A7FF-4D74-9235-BBC68818ABBD">
         <di:waypoint x="513.2990654205607" y="432"/>
         <di:waypoint x="513" y="267.5"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_3BE33937-991F-49F3-AF8E-E6A4F74217D7" dmnElementRef="_3BE33937-991F-49F3-AF8E-E6A4F74217D7">
-        <di:waypoint x="198" y="82"/>
+        <di:waypoint x="288.5" y="82"/>
         <di:waypoint x="463" y="242.5"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_65645AE3-6865-486A-9E5C-293862F38B81-AUTO-TARGET" dmnElementRef="_65645AE3-6865-486A-9E5C-293862F38B81">

@@ -11,9 +11,9 @@
       <dmn:typeRef>string</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
-  <dmn:decisionService id="_5E85B343-11FA-4C1C-A08E-26402F99720E" name="main">
+  <dmn:decisionService id="_5E85B343-11FA-4C1C-A08E-26402F99720E" name="PersonEnrolledInBenefitService">
     <dmn:extensionElements/>
-    <dmn:variable id="_3E45EB79-1A6E-4E4B-B052-7A8205F58B69" name="main" typeRef="boolean"/>
+    <dmn:variable id="_3E45EB79-1A6E-4E4B-B052-7A8205F58B69" name="PersonEnrolledInBenefitService" typeRef="boolean"/>
     <dmn:outputDecision href="#_11496BDA-61EA-44BB-AB63-A5A272ED2472"/>
     <dmn:inputData href="#_222EBF53-16BF-4A13-A424-0AD32C90100D"/>
     <dmn:inputData href="#_7E377FA3-246D-4CBF-AE45-3A3AFDB7372B"/>
@@ -57,11 +57,11 @@ else
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="253" y="106" width="200" height="200"/>
+        <dc:Bounds x="253" y="106" width="235" height="199"/>
         <dmndi:DMNLabel/>
         <dmndi:DMNDecisionServiceDividerLine>
           <di:waypoint x="253" y="206"/>
-          <di:waypoint x="453" y="206"/>
+          <di:waypoint x="488" y="206"/>
         </dmndi:DMNDecisionServiceDividerLine>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_11496BDA-61EA-44BB-AB63-A5A272ED2472" dmnElementRef="_11496BDA-61EA-44BB-AB63-A5A272ED2472" isCollapsed="false">
@@ -70,7 +70,7 @@ else
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="309" y="149" width="88" height="50"/>
+        <dc:Bounds x="327" y="147" width="88" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_7E377FA3-246D-4CBF-AE45-3A3AFDB7372B" dmnElementRef="_7E377FA3-246D-4CBF-AE45-3A3AFDB7372B" isCollapsed="false">
@@ -93,11 +93,11 @@ else
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_669BFE51-E50C-444C-853C-D6F45C4869F3-AUTO-TARGET" dmnElementRef="_669BFE51-E50C-444C-853C-D6F45C4869F3">
         <di:waypoint x="251" y="361"/>
-        <di:waypoint x="353" y="199"/>
+        <di:waypoint x="371" y="197"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_9164FE76-0C6C-4D96-9CBD-5EC2639D22A8-AUTO-TARGET" dmnElementRef="_9164FE76-0C6C-4D96-9CBD-5EC2639D22A8">
         <di:waypoint x="443" y="361"/>
-        <di:waypoint x="353" y="199"/>
+        <di:waypoint x="371" y="197"/>
       </dmndi:DMNEdge>
     </dmndi:DMNDiagram>
   </dmndi:DMNDI>

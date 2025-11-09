@@ -14,9 +14,9 @@
       <dmn:typeRef>number</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
-  <dmn:decisionService id="_6E428234-5215-4D38-AB4E-9083E80882D4" name="main">
+  <dmn:decisionService id="_6E428234-5215-4D38-AB4E-9083E80882D4" name="PersonMinAgeService">
     <dmn:extensionElements/>
-    <dmn:variable id="_DAF63FA4-85ED-405B-859E-7AFF792F499E" name="main" typeRef="boolean"/>
+    <dmn:variable id="_DAF63FA4-85ED-405B-859E-7AFF792F499E" name="PersonMinAgeService" typeRef="boolean"/>
     <dmn:outputDecision href="#_ACEED577-3BAE-4C6D-9F43-297A3A832E81"/>
     <dmn:inputData href="#_F4F5DB0A-F298-4519-9554-44344C6179FE"/>
     <dmn:inputData href="#_7E4E0F8D-FA5D-49EF-8A65-0FEB4B7C0951"/>

@@ -197,3 +197,4 @@ Current registered models:
 - **Maven**: Build tool
 - **SQLite**: Embedded database for location data
 - **Bruno**: API testing (replaces Thunder Client)
+- Remember that imported decision services can't be named the same, even if they are in different models
