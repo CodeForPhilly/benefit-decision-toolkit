@@ -10,7 +10,9 @@
       "Bash(bin/dev)",
       "Bash(curl:*)",
       "Bash(/usr/bin/env bash -c '/bashes')",
-      "Bash(mvn:*)"
+      "Bash(mvn:*)",
+      "WebFetch(domain:blog.kie.org)",
+      "WebFetch(domain:groups.google.com)"
     ],
     "deny": [],
     "ask": []
