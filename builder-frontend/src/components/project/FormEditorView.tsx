@@ -1,7 +1,10 @@
-import { onMount, onCleanup, createSignal } from "solid-js";
+import { onMount, onCleanup, createSignal, Switch, Match } from "solid-js";
 import { useParams } from "@solidjs/router";
 
 import { FormEditor } from "@bpmn-io/form-js-editor";
+
+import FilterFormComponentsModule from "./formJsExtensions/FilterFormComponentsModule";
+import CustomFormFieldsModule from "./formJsExtensions/customFormFields";
 
 import { saveFormSchema } from "../../api/screener";
 
@@ -16,7 +19,7 @@ function FormEditorView({ formSchema, setFormSchema }) {
 
   let timeoutId;
   let container;
-  let formEditor;
+  let formEditor: FormEditor;
   let emptySchema = {
     components: [],
     exporter: { name: "form-js (https://demo.bpmn.io)", version: "1.15.0" },
@@ -26,7 +29,13 @@ function FormEditorView({ formSchema, setFormSchema }) {
   };
 
   onMount(() => {
-    formEditor = new FormEditor({ container });
+    formEditor = new FormEditor({
+      container,
+      additionalModules: [
+        FilterFormComponentsModule,
+        CustomFormFieldsModule
+      ],
+    });
 
     if (formSchema()) {
       formEditor.importSchema(formSchema()).catch((err) => {
@@ -63,30 +72,41 @@ function FormEditorView({ formSchema, setFormSchema }) {
   };
 
   return (
-    <>
-      <div className="overflow-auto">
-        <div className="h-full" ref={(el) => (container = el)} />
+    <div class="flex flex-row">
+      <div class="flex-8 overflow-auto">
+        <div class="h-full" ref={(el) => (container = el)} />
       </div>
-
-      <div className="fixed z-50 top-19 right-4 flex ml-auto mr-8 gap-2 justify-center">
-        {isUnsaved() && (
-          <span className="underline text-sm flex items-center text-gray-500">
-            unsaved changes
-          </span>
-        )}
-        {isSaving() && (
-          <span className="text-sm flex items-center text-gray-500">
-            saving ...
-          </span>
-        )}
-        <button
-          onClick={handleSave}
-          className="px-2 text-emerald-500 h-8 border-2 rounded hover:bg-emerald-100"
-        >
-          Save
-        </button>
+      <div class="flex-1 border-l-4 border-l-gray-200">
+        <div class="flex flex-col p-10 gap-4">
+          <Switch>
+            <Match when={isUnsaved()}>
+              <button
+                onClick={handleSave}
+                class="px-2 text-yellow-500 h-8 border-2 rounded hover:bg-yellow-100"
+              >
+                Save changes
+              </button>
+            </Match>
+            <Match when={isSaving()}>
+              <button
+                onClick={handleSave}
+                class="px-2 text-gray-300 h-8 border-2 rounded"
+              >
+                Saving...
+              </button>
+            </Match>
+            <Match when={!isUnsaved() && !isSaving()}>
+              <button
+                onClick={handleSave}
+                class="px-2 text-emerald-500 h-8 border-2 rounded hover:bg-emerald-100"
+              >
+                Save changes
+              </button>
+            </Match>
+          </Switch>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
 
