@@ -10,6 +10,8 @@ class CustomFormFieldsModule {
   }
 }
 
+CustomFormFieldsModule.$inject = ["formFields"]
+
 export default {
   __init__: [ 'customFields' ],
   customFields: [ 'type', CustomFormFieldsModule ]
