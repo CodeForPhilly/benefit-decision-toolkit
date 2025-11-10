@@ -22,15 +22,16 @@ export default function Results(
           <>
             <div class="text-md font-semibold text-gray-600">Inputs</div>
             <div class="p-2">
-              <div class="flex flex-col">
+              <table class="bg-gray-200 p-3 rounded-md">
                 <For each={Object.entries(inputData())}>
                   {([key, value]) => (
-                    <div class="flex text-md text-gray-700">
-                      <span class="font-medium capitalize">{key}: {value?.toString() || "--"}</span>
-                    </div>
+                    <tr class="text-md text-gray-700">
+                      <td class="px-3 py-2 font-mono font-bold">{key}:</td>
+                      <td class="px-3 py-2 font-mono">{value?.toString() || "--"}</td>
+                    </tr>
                   )}
                 </For>
-              </div>
+              </table>
             </div>
           </>
         )}
