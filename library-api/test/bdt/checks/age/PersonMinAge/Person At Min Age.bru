@@ -1,11 +1,11 @@
 meta {
-  name: Enrolled in Bogus Benefit
+  name: Person At Min Age
   type: http
-  seq: 1
+  seq: 2
 }
 
 post {
-  url: {{host}}/enrollment/PersonEnrolledInBenefit
+  url: {{host}}/checks/age/PersonMinAge
   body: json
   auth: inherit
 }
@@ -15,21 +15,21 @@ body:json {
     "situation": {
       "people": [
         {
-          "id": "p1"
-        }
-      ],
-      "enrollments": [
-        {
-          "personId": "p1",
-          "benefit": "bogus"
+          "id": "p1",
+          "dateOfBirth": "2020-01-01"
         }
       ]
     },
     "parameters": {
       "personId": "p1",
-      "benefit": "bogus"
+      "asOfDate": "2024-01-01",
+      "minAge": 4
     }
   }
+}
+
+assert {
+  res.body.result: eq true
 }
 
 settings {
