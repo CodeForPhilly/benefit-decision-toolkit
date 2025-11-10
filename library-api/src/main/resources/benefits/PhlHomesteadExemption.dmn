@@ -4,9 +4,9 @@
   <dmn:import id="_238A792B-F4EA-470B-8E03-BE23D451B749" name="Benefits" namespace="https://kie.apache.org/dmn/_9514D95A-63FB-4345-911B-D83E1867F709" locationURI="Benefits.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
   <dmn:import id="_E026513E-9C0E-4E34-91E5-B876BB3B58E0" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../BDT.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
   <dmn:import id="_903FD418-B2AA-4574-9DC5-470C2EFE2ECA" name="PersonNotEnrolledInBenefit" namespace="https://kie.apache.org/dmn/_3B9E68B5-63FA-437C-AF93-CC12DDD00BC5" locationURI="../enrollment/PersonNotEnrolledInBenefit.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
-  <dmn:decisionService id="_1A77F60B-62BC-49AB-9233-5AD89A72C7F3" name="PhlHomesteadExemption">
+  <dmn:decisionService id="_1A77F60B-62BC-49AB-9233-5AD89A72C7F3" name="PhlHomesteadExemptionService">
     <dmn:extensionElements/>
-    <dmn:variable id="_1701CE79-1E46-4807-901C-A5E3C45EBA9E" name="PhlHomesteadExemption" typeRef="Any"/>
+    <dmn:variable id="_1701CE79-1E46-4807-901C-A5E3C45EBA9E" name="PhlHomesteadExemptionService" typeRef="Any"/>
     <dmn:outputDecision href="#_38277B56-7BEA-4297-A8B5-BBF084A043E8"/>
     <dmn:outputDecision href="#_51D3A9BB-4110-42E1-86CF-77FCA5DACE9A"/>
     <dmn:inputData href="#_2011065F-8B21-49FE-8685-D7566CCA1D60"/>

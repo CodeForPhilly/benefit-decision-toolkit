@@ -38,12 +38,10 @@ public class ModelsDiscoveryEndpoint {
      *     "PersonMinAge": {
      *       "namespace": "https://kie.apache.org/dmn/...",
      *       "modelName": "PersonMinAge",
+     *       "path": "age/PersonMinAge",
      *       "decisionServices": ["PersonMinAgeService"],
      *       "decisions": ["result"],
-     *       "endpoints": {
-     *         "evaluateService": "POST /api/v1/PersonMinAge/PersonMinAgeService",
-     *         "evaluateModel": "POST /api/v1/PersonMinAge"
-     *       }
+     *       "endpoint": "POST /api/v1/age/PersonMinAge"
      *     },
      *     ...
      *   },
@@ -68,20 +66,13 @@ public class ModelsDiscoveryEndpoint {
                             Map<String, Object> modelData = new HashMap<>();
                             modelData.put("namespace", info.getNamespace());
                             modelData.put("modelName", info.getModelName());
+                            modelData.put("path", info.getPath());
                             modelData.put("decisionServices", info.getDecisionServices());
                             modelData.put("decisions", info.getDecisions());
 
-                            // Add endpoint URLs
-                            Map<String, Object> endpoints = new HashMap<>();
-                            endpoints.put("evaluateModel", "POST /api/v1/" + info.getModelName());
+                            // Add endpoint URL (uses path-based routing with inferred service name)
+                            modelData.put("endpoint", "POST /api/v1/" + info.getPath());
 
-                            Map<String, String> services = new HashMap<>();
-                            for (String service : info.getDecisionServices()) {
-                                services.put(service, "POST /api/v1/" + info.getModelName() + "/" + service);
-                            }
-                            endpoints.put("decisionServices", services);
-
-                            modelData.put("endpoints", endpoints);
                             return modelData;
                         }
                 ));
@@ -100,12 +91,10 @@ public class ModelsDiscoveryEndpoint {
      * {
      *   "namespace": "https://kie.apache.org/dmn/...",
      *   "modelName": "PersonMinAge",
+     *   "path": "age/PersonMinAge",
      *   "decisionServices": ["PersonMinAgeService"],
      *   "decisions": ["result", "dateOfBirth", "age"],
-     *   "endpoints": {
-     *     "evaluateService": "POST /api/v1/PersonMinAge/PersonMinAgeService",
-     *     "evaluateModel": "POST /api/v1/PersonMinAge"
-     *   }
+     *   "endpoint": "POST /api/v1/age/PersonMinAge"
      * }
      */
     @GET
@@ -129,20 +118,12 @@ public class ModelsDiscoveryEndpoint {
         Map<String, Object> response = new HashMap<>();
         response.put("namespace", modelInfo.getNamespace());
         response.put("modelName", modelInfo.getModelName());
+        response.put("path", modelInfo.getPath());
         response.put("decisionServices", modelInfo.getDecisionServices());
         response.put("decisions", modelInfo.getDecisions());
 
-        // Add endpoint URLs
-        Map<String, Object> endpoints = new HashMap<>();
-        endpoints.put("evaluateModel", "POST /api/v1/" + modelInfo.getModelName());
-
-        Map<String, String> services = new HashMap<>();
-        for (String service : modelInfo.getDecisionServices()) {
-            services.put(service, "POST /api/v1/" + modelInfo.getModelName() + "/" + service);
-        }
-        endpoints.put("decisionServices", services);
-
-        response.put("endpoints", endpoints);
+        // Add endpoint URL (uses path-based routing with inferred service name)
+        response.put("endpoint", "POST /api/v1/" + modelInfo.getPath());
 
         return Response.ok(response).build();
     }

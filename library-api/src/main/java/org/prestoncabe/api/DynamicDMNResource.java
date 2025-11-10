@@ -36,47 +36,52 @@ public class DynamicDMNResource {
     ModelRegistry modelRegistry;
 
     /**
-     * Evaluate a decision service for a given model.
+     * Evaluate a decision service for a given model using path-based routing.
+     * The service name is inferred as {modelName}Service.
      *
-     * @param modelName the DMN model name (e.g., "PersonMinAge")
-     * @param serviceName the decision service name (e.g., "PersonMinAgeService")
+     * @param path the path to the DMN model (e.g., "age/PersonMinAge", "checks/test/TestOne")
      * @param variables the input variables (must include "situation" and "parameters" as per DMN model)
      * @return the decision result or error response
      */
     @POST
-    @Path("/{modelName}/{serviceName}")
+    @Path("/{path:.+}")
     public Response evaluateDecisionService(
-            @PathParam("modelName") String modelName,
-            @PathParam("serviceName") String serviceName,
+            @PathParam("path") String path,
             Map<String, Object> variables) {
 
-        log.debug("Evaluating decision service: {}/{}", modelName, serviceName);
+        log.debug("Evaluating decision service for path: {}", path);
 
-        // 1. Look up model metadata
-        ModelInfo modelInfo = modelRegistry.getModelInfo(modelName);
+        // 1. Look up model metadata by path
+        ModelInfo modelInfo = modelRegistry.getModelInfoByPath(path);
         if (modelInfo == null) {
-            log.warn("Model not found: {}", modelName);
+            log.warn("Model not found for path: {}", path);
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(Map.of(
                             "error", "Model not found",
-                            "modelName", modelName,
-                            "message", "No DMN model with name '" + modelName + "' exists. " +
-                                    "Check /api/v1/models for available models."
+                            "path", path,
+                            "message", "No DMN model found at path '" + path + "'. " +
+                                    "Check GET /api/v1/models for available models."
                     ))
                     .build();
         }
 
-        // 2. Check if the decision service exists in this model
+        String modelName = modelInfo.getModelName();
+
+        // 2. Infer service name: {modelName}Service (enforced convention)
+        String serviceName = modelName + "Service";
+
+        // 3. Check if the inferred service exists in this model
         if (!modelInfo.getDecisionServices().contains(serviceName)) {
-            log.warn("Decision service '{}' not found in model '{}'", serviceName, modelName);
+            log.warn("Expected decision service '{}' not found in model '{}'", serviceName, modelName);
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(Map.of(
                             "error", "Decision service not found",
+                            "path", path,
                             "modelName", modelName,
-                            "serviceName", serviceName,
+                            "expectedServiceName", serviceName,
                             "availableServices", modelInfo.getDecisionServices(),
-                            "message", "Model '" + modelName + "' does not have a decision service named '" +
-                                    serviceName + "'"
+                            "message", "Model '" + modelName + "' must have a decision service named '" +
+                                    serviceName + "'. Available services: " + modelInfo.getDecisionServices()
                     ))
                     .build();
         }
@@ -138,71 +143,8 @@ public class DynamicDMNResource {
         // 7. Return successful result
         log.debug("Decision service {}/{} evaluated successfully", modelName, serviceName);
 
-        // Extract the decision result value (simplified response)
-        if (!result.getDecisionResults().isEmpty()) {
-            return Response.ok(result.getDecisionResults().get(0).getResult()).build();
-        } else {
-            return Response.ok(result).build();
-        }
-    }
-
-    /**
-     * Evaluate all decisions in a model (full model evaluation).
-     *
-     * @param modelName the DMN model name
-     * @param variables the input variables
-     * @return the decision results
-     */
-    @POST
-    @Path("/{modelName}")
-    public Response evaluateModel(
-            @PathParam("modelName") String modelName,
-            Map<String, Object> variables) {
-
-        log.debug("Evaluating full model: {}", modelName);
-
-        // 1. Look up model metadata
-        ModelInfo modelInfo = modelRegistry.getModelInfo(modelName);
-        if (modelInfo == null) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity(Map.of(
-                            "error", "Model not found",
-                            "modelName", modelName
-                    ))
-                    .build();
-        }
-
-        // 2. Get the decision model
-        DecisionModel decision;
-        try {
-            DecisionModels decisionModels = application.get(DecisionModels.class);
-            decision = decisionModels.getDecisionModel(modelInfo.getNamespace(), modelName);
-        } catch (Exception e) {
-            log.error("Error loading decision model: {}", modelName, e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(Map.of("error", "Failed to load decision model"))
-                    .build();
-        }
-
-        // 3. Evaluate all decisions
-        DMNResult dmnResult;
-        try {
-            dmnResult = decision.evaluateAll(DMNJSONUtils.ctx(decision, variables));
-        } catch (Exception e) {
-            log.error("Error evaluating model: {}", modelName, e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(Map.of("error", "Decision evaluation failed"))
-                    .build();
-        }
-
-        // 4. Build result
-        KogitoDMNResult result = new KogitoDMNResult(
-                modelInfo.getNamespace(),
-                modelName,
-                dmnResult
-        );
-
-        // 5. Return result
+        // Return the DMN context (contains all output variables)
         return Response.ok(result.getDmnContext()).build();
     }
+
 }

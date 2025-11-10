@@ -5,9 +5,9 @@
   <dmn:import id="_D9AED23B-CB50-4FFD-983E-CAF51FB360C4" name="Benefits" namespace="https://kie.apache.org/dmn/_9514D95A-63FB-4345-911B-D83E1867F709" locationURI="Benefits.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
   <dmn:import id="_590D7CA8-7571-4564-A062-2858D26047DC" name="PersonMinAge" namespace="https://kie.apache.org/dmn/_C189BB80-C23E-476E-B0BB-DDF4FF7D305A" locationURI="../age/PersonMinAge.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
   <dmn:import id="_9F201B41-4E25-4A61-943C-458F075B05F1" name="PersonNotEnrolledInBenefit" namespace="https://kie.apache.org/dmn/_3B9E68B5-63FA-437C-AF93-CC12DDD00BC5" locationURI="../enrollment/PersonNotEnrolledInBenefit.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
-  <dmn:decisionService id="_62C59400-F886-4E36-88EE-993952958729" name="PhlSeniorCitizenTaxFreeze">
+  <dmn:decisionService id="_62C59400-F886-4E36-88EE-993952958729" name="PhlSeniorCitizenTaxFreezeService">
     <dmn:extensionElements/>
-    <dmn:variable id="_B6540DC2-9F2F-4240-B2AE-C06C6097537C" name="PhlSeniorCitizenTaxFreeze" typeRef="Any"/>
+    <dmn:variable id="_B6540DC2-9F2F-4240-B2AE-C06C6097537C" name="PhlSeniorCitizenTaxFreezeService" typeRef="Any"/>
     <dmn:outputDecision href="#_48837847-A17B-46D3-B836-CBC03A496DD2"/>
     <dmn:outputDecision href="#_4A938843-44E5-49D1-9487-A6DE4374FF36"/>
     <dmn:inputData href="#_CEA5EA1A-F1CB-4C2C-BFFE-8C38CCE3EF0C"/>

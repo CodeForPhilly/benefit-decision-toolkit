@@ -11,12 +11,14 @@ public class ModelInfo {
     private final String modelName;
     private final List<String> decisionServices;
     private final List<String> decisions;
+    private final String path;
 
-    public ModelInfo(String namespace, String modelName, List<String> decisionServices, List<String> decisions) {
+    public ModelInfo(String namespace, String modelName, List<String> decisionServices, List<String> decisions, String path) {
         this.namespace = namespace;
         this.modelName = modelName;
         this.decisionServices = decisionServices;
         this.decisions = decisions;
+        this.path = path;
     }
 
     public String getNamespace() {
@@ -33,6 +35,10 @@ public class ModelInfo {
 
     public List<String> getDecisions() {
         return decisions;
+    }
+
+    public String getPath() {
+        return path;
     }
 
     @Override
@@ -56,6 +62,7 @@ public class ModelInfo {
                 ", modelName='" + modelName + '\'' +
                 ", decisionServices=" + decisionServices +
                 ", decisions=" + decisions +
+                ", path='" + path + '\'' +
                 '}';
     }
 }
