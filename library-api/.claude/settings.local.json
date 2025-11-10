@@ -14,7 +14,12 @@
       "WebFetch(domain:blog.kie.org)",
       "WebFetch(domain:groups.google.com)",
       "Bash(jar -tf:*)",
-      "Bash(unzip:*)"
+      "Bash(unzip:*)",
+      "Bash(jar:*)",
+      "Bash(cat:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(nc:*)"
     ],
     "deny": [],
     "ask": []

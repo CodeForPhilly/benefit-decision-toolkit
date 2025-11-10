@@ -41,6 +41,63 @@ public class ModelInfo {
         return path;
     }
 
+    /**
+     * Extract category/tag from the path for OpenAPI grouping.
+     * Examples:
+     * - "checks/age/PersonMinAge" -> "Age Checks"
+     * - "benefits/pa/philadelphia/HomesteadExemption" -> "Benefits"
+     */
+    public String getCategory() {
+        if (path == null || path.isEmpty()) {
+            return "DMN Decisions";
+        }
+
+        String[] parts = path.split("/");
+        if (parts.length == 0) {
+            return "DMN Decisions";
+        }
+
+        // First part determines the category
+        String firstPart = parts[0];
+        switch (firstPart) {
+            case "checks":
+                // For checks, use the second part if available (e.g., "age" -> "Age Checks")
+                if (parts.length > 1) {
+                    return capitalize(parts[1]) + " Checks";
+                }
+                return "Checks";
+            case "benefits":
+                return "Benefits";
+            default:
+                return capitalize(firstPart);
+        }
+    }
+
+    /**
+     * Get a human-readable description for this model.
+     */
+    public String getDescription() {
+        StringBuilder desc = new StringBuilder();
+        desc.append("Decision service for ").append(modelName).append(".");
+
+        if (!decisionServices.isEmpty()) {
+            desc.append("\n\nAvailable services: ").append(String.join(", ", decisionServices));
+        }
+
+        if (!decisions.isEmpty()) {
+            desc.append("\n\nDecisions: ").append(String.join(", ", decisions));
+        }
+
+        return desc.toString();
+    }
+
+    private String capitalize(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
