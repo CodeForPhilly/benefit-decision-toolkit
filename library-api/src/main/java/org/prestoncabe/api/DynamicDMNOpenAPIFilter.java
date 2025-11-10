@@ -52,20 +52,35 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
             openAPI.setComponents(OASFactory.createComponents());
         }
 
-        // Add all DMN schemas from dmnDefinitions.json to OpenAPI components
-        addDMNSchemas(openAPI);
-
         // Get all discovered DMN models
         Map<String, ModelInfo> allModels = modelRegistry.getAllModels();
-        LOG.info("Generating OpenAPI paths for " + allModels.size() + " DMN models");
+        LOG.info("Discovered " + allModels.size() + " DMN models");
+
+        // Filter to only models that expose {ModelName}Service
+        Map<String, ModelInfo> exposedModels = new java.util.LinkedHashMap<>();
+        for (ModelInfo model : allModels.values()) {
+            String expectedServiceName = model.getModelName() + "Service";
+            if (model.getDecisionServices().contains(expectedServiceName)) {
+                exposedModels.put(model.getModelName(), model);
+            } else {
+                LOG.fine("Skipping model " + model.getModelName() +
+                        " - does not have expected service: " + expectedServiceName +
+                        " (has: " + model.getDecisionServices() + ")");
+            }
+        }
+
+        LOG.info("Generating OpenAPI paths for " + exposedModels.size() + " DMN models with {ModelName}Service");
+
+        // Add all DMN schemas from dmnDefinitions.json to OpenAPI components (only for exposed models)
+        addDMNSchemas(openAPI, exposedModels);
 
         // Remove the generic parameterized path if it exists
         if (openAPI.getPaths() != null) {
             openAPI.getPaths().removePathItem("/api/v1/{path}");
         }
 
-        // Add individual paths for each model
-        for (ModelInfo model : allModels.values()) {
+        // Add individual paths for each exposed model
+        for (ModelInfo model : exposedModels.values()) {
             addPathForModel(openAPI, model);
         }
 
@@ -77,15 +92,13 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
      * Add only the DMN schemas that are actually used by the API endpoints.
      * This keeps the schema list clean by excluding internal wrapper types.
      */
-    private void addDMNSchemas(OpenAPI openAPI) {
+    private void addDMNSchemas(OpenAPI openAPI, Map<String, ModelInfo> exposedModels) {
         Set<String> usedSchemas = new HashSet<>();
 
         // Collect all schema keys that will be referenced by endpoints
-        Map<String, ModelInfo> allModels = modelRegistry.getAllModels();
-        for (ModelInfo model : allModels.values()) {
-            String serviceName = model.getDecisionServices().isEmpty()
-                ? model.getModelName() + "Service"
-                : model.getDecisionServices().get(0);
+        for (ModelInfo model : exposedModels.values()) {
+            // We know all exposed models have {ModelName}Service
+            String serviceName = model.getModelName() + "Service";
 
             String inputRef = schemaResolver.findInputSchemaRef(model.getModelName(), serviceName);
             String outputRef = schemaResolver.findOutputSchemaRef(model.getModelName(), serviceName);
@@ -232,11 +245,8 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
     private void addPathForModel(OpenAPI openAPI, ModelInfo model) {
         String path = "/api/v1/" + model.getPath();
 
-        // Determine the service name (convention: {ModelName}Service)
+        // Service name follows convention: {ModelName}Service
         String serviceName = model.getModelName() + "Service";
-        if (!model.getDecisionServices().isEmpty()) {
-            serviceName = model.getDecisionServices().get(0);
-        }
 
         // Find schema references
         String inputRef = schemaResolver.findInputSchemaRef(model.getModelName(), serviceName);
