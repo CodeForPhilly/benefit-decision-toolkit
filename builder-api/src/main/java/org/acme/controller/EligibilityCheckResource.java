@@ -114,7 +114,7 @@ public class EligibilityCheckResource {
         }
 
         String userId = AuthUtils.getUserId(identity);
-        Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getCheck(checkId);
+        Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getCustomCheck(userId, checkId);
         if (checkOpt.isEmpty()){
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -132,7 +132,7 @@ public class EligibilityCheckResource {
                     .build();
         }
         try {
-            String filePath = storageService.getCheckDmnModelPath(check.getModule(), check.getId(), check.getVersion());
+            String filePath = storageService.getCheckDmnModelPath(userId, check.getModule(), check.getId(), check.getVersion());
             storageService.writeStringToStorage(filePath, dmnModel, "application/xml");
             Log.info("Saved DMN model of check " + checkId + " to storage");
 
@@ -143,6 +143,82 @@ public class EligibilityCheckResource {
         } catch (Exception e){
             Log.info(("Failed to save DMN model for check " + checkId));
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GET
+    @Path("/account/check")
+    public Response getCustomChecks(@Context SecurityIdentity identity) {
+        String userId = AuthUtils.getUserId(identity);
+        if (userId == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        Log.info("Fetching all eligibility checks. User:  " + userId);
+        List<EligibilityCheck> checks = eligibilityCheckRepository.getCustomChecks(userId);
+
+        return Response.ok(checks, MediaType.APPLICATION_JSON).build();
+    }
+
+    @GET
+    @Path("/account/check/{checkId}")
+    public Response getCustomCheck(@Context SecurityIdentity identity) {
+        String userId = AuthUtils.getUserId(identity);
+        if (userId == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        Log.info("Fetching all eligibility checks. User:  " + userId);
+        Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getCustomCheck(userId, userId);
+
+
+        if (checkOpt.isEmpty()){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        EligibilityCheck check = checkOpt.get();
+
+        if (!check.getPublic() && !check.getOwnerId().equals(userId)){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+        return Response.ok(check, MediaType.APPLICATION_JSON).build();
+    }
+
+    @POST
+    @Path("/account/check")
+    public Response createCustomCheck(@Context SecurityIdentity identity,
+                                EligibilityCheck newCheck) {
+        String userId = AuthUtils.getUserId(identity);
+
+        //TODO: Add validations for user provided data
+        newCheck.setOwnerId(userId);
+        newCheck.setPublic(false);
+        newCheck.setVersion("1");
+        try {
+            String checkId = eligibilityCheckRepository.saveNewCustomCheck(newCheck);
+            newCheck.setId(checkId);
+            return Response.ok(newCheck, MediaType.APPLICATION_JSON).build();
+        } catch (Exception e){
+            return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Could not save Check"))
+                    .build();
+        }
+    }
+
+    @PUT
+    @Path("/account/check")
+    public Response updateCustomCheck(@Context SecurityIdentity identity,
+                                EligibilityCheck updateCheck){
+        String userId = AuthUtils.getUserId(identity);
+
+        // TODO: Add authorization to update check
+        try {
+            eligibilityCheckRepository.updateCustomCheck(updateCheck);
+            return Response.ok().entity(updateCheck).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "could not update Check"))
+                    .build();
         }
     }
 }

@@ -2,8 +2,11 @@ import { createResource, createEffect, Accessor, createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
 
 import type { EligibilityCheck } from "@/types";
-import { addCheck, fetchPublicChecks } from "@/api/check";
-
+import {
+  addCheck,
+  fetchPublicChecks,
+  fetchUserDefinedChecks,
+} from "@/api/check";
 
 export interface EligibilityCheckResource {
   checks: () => EligibilityCheck[];
@@ -19,7 +22,7 @@ export interface EligibilityCheckResource {
 }
 
 const eligibilityCheckResource = (): EligibilityCheckResource => {
-  const [checksResource, { refetch }] = createResource(fetchPublicChecks);
+  const [checksResource, { refetch }] = createResource(fetchUserDefinedChecks);
   const [actionInProgress, setActionInProgress] = createSignal<boolean>(false);
 
   // Local fine-grained store
@@ -42,7 +45,7 @@ const eligibilityCheckResource = (): EligibilityCheckResource => {
       console.error("Failed to add new check", e);
     }
     setActionInProgress(false);
-  }
+  };
 
   const removeCheck = async (checkIdToRemove: string) => {
     setActionInProgress(true);

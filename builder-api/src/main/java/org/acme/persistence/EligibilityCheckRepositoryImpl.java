@@ -43,11 +43,6 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
 
         ObjectMapper mapper = new ObjectMapper();
         EligibilityCheck check = mapper.convertValue(data, EligibilityCheck.class);
-
-        String dmnPath = storageService.getCheckDmnModelPath(check.getModule(), checkId, check.getVersion());
-        Optional<String> dmnModel = storageService.getStringFromStorage(dmnPath);
-        dmnModel.ifPresent(check::setDmnModel);
-
         return Optional.of(check);
     }
 
@@ -71,5 +66,42 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(check, Map.class);
         FirestoreUtils.updateDocument(CollectionNames.ELIGIBILITY_CHECK_COLLECTION, data, check.getId());
+    }
+
+    public List<EligibilityCheck> getCustomChecks(String userId){
+        List<Map<String, Object>> checkMaps = FirestoreUtils.getFirestoreDocsByField(CollectionNames.CUSTOM_CHECK_COLLECTION, FieldNames.OWNER_ID, userId);
+        ObjectMapper mapper = new ObjectMapper();
+        return checkMaps.stream().map(checkMap -> mapper.convertValue(checkMap, EligibilityCheck.class)).toList();
+    }
+
+    public Optional<EligibilityCheck> getCustomCheck(String userId, String checkId){
+
+        List<Map<String, Object>> checkMaps = FirestoreUtils.getFirestoreDocsByField(CollectionNames.CUSTOM_CHECK_COLLECTION, FieldNames.ID, checkId);
+        if (checkMaps.isEmpty()){
+            return Optional.empty();
+        }
+        Map<String, Object> data = checkMaps.getFirst();
+
+        ObjectMapper mapper = new ObjectMapper();
+        EligibilityCheck check = mapper.convertValue(data, EligibilityCheck.class);
+
+        String dmnPath = storageService.getCheckDmnModelPath(userId, check.getModule(), checkId, check.getVersion());
+        Optional<String> dmnModel = storageService.getStringFromStorage(dmnPath);
+        dmnModel.ifPresent(check::setDmnModel);
+
+        return Optional.of(check);
+    }
+
+    public String saveNewCustomCheck(EligibilityCheck check) throws Exception{
+        ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Map<String, Object> data = mapper.convertValue(check, Map.class);
+        String checkDocId = check.getId();
+        return FirestoreUtils.persistDocumentWithId(CollectionNames.CUSTOM_CHECK_COLLECTION, checkDocId, data);
+    }
+
+    public void updateCustomCheck(EligibilityCheck check) throws Exception{
+        ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Map<String, Object> data = mapper.convertValue(check, Map.class);
+        FirestoreUtils.updateDocument(CollectionNames.CUSTOM_CHECK_COLLECTION, data, check.getId());
     }
 }

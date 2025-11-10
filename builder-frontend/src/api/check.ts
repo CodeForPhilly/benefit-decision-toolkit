@@ -4,7 +4,6 @@ import type { EligibilityCheck } from "@/types";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-
 export const fetchPublicChecks = async (): Promise<EligibilityCheck[]> => {
   const url = apiUrl + "/check";
   try {
@@ -26,7 +25,9 @@ export const fetchPublicChecks = async (): Promise<EligibilityCheck[]> => {
   }
 };
 
-export const fetchCheck = async (checkId: string): Promise<EligibilityCheck> => {
+export const fetchCheck = async (
+  checkId: string
+): Promise<EligibilityCheck> => {
   const url = apiUrl + `/check/${checkId}`;
   try {
     const response = await authFetch(url, {
@@ -48,9 +49,32 @@ export const fetchCheck = async (checkId: string): Promise<EligibilityCheck> => 
   }
 };
 
+export const fetchCustomCheck = async (
+  checkId: string
+): Promise<EligibilityCheck> => {
+  const url = apiUrl + `/account/check/${checkId}`;
+  try {
+    const response = await authFetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Fetch failed with status: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log("Fetched custom check:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching custom check:", error);
+    throw error; // rethrow so you can handle it in your component if needed
+  }
+};
 
 export const addCheck = async (check: EligibilityCheck) => {
-  const url = apiUrl + "/check";
+  const url = apiUrl + "/account/check";
   try {
     const response = await authFetch(url, {
       method: "POST",
@@ -73,7 +97,7 @@ export const addCheck = async (check: EligibilityCheck) => {
 };
 
 export const updateCheck = async (check: EligibilityCheck) => {
-  const url = apiUrl + "/check";
+  const url = apiUrl + "/account/check";
   try {
     const response = await authFetch(url, {
       method: "PUT",
@@ -119,8 +143,22 @@ export const saveCheckDmn = async (checkId: string, dmnModel: string) => {
 };
 
 export const fetchUserDefinedChecks = async (): Promise<EligibilityCheck[]> => {
-  // Simulate an API call delay -- TODO: update to greater than 1ms delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  const url = apiUrl + "/account/check";
+  try {
+    const response = await authFetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
 
-  return [];
+    if (!response.ok) {
+      throw new Error(`Fetch failed with status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching checks:", error);
+    throw error; // rethrow so you can handle it in your component if needed
+  }
 };
