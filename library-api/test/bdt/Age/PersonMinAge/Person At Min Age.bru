@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{host}}/PersonMinAge/PersonMinAgeService
+  url: {{host}}/age/PersonMinAge
   body: json
   auth: inherit
 }
@@ -29,7 +29,7 @@ body:json {
 }
 
 assert {
-  res.body: eq true
+  res.body.result: eq true
 }
 
 settings {

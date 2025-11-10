@@ -1,5 +1,5 @@
 {
-  "name": "PhlHomesteadExemption",
+  "name": "HomesteadExemption",
   "checks": {
     "Not Already On Homestead": {
       // service key is special; should be the name of a DMN model that implements a "main" decision service
