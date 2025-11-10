@@ -12,7 +12,9 @@
       "Bash(/usr/bin/env bash -c '/bashes')",
       "Bash(mvn:*)",
       "WebFetch(domain:blog.kie.org)",
-      "WebFetch(domain:groups.google.com)"
+      "WebFetch(domain:groups.google.com)",
+      "Bash(jar -tf:*)",
+      "Bash(unzip:*)"
     ],
     "deny": [],
     "ask": []
