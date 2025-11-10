@@ -102,16 +102,16 @@
       <dmn:formalParameter id="_INVOKE-DS-PARAM-SERVICE" name="service name" typeRef="string"/>
       <dmn:formalParameter id="_INVOKE-DS-PARAM-SITUATION" name="situation" typeRef="tSituation"/>
       <dmn:formalParameter id="_INVOKE-DS-PARAM-PARAMETERS" name="parameters" typeRef="Any"/>
-      <dmn:context id="_INVOKE-DECISION-SERVICE-CONTEXT">
+      <dmn:context id="_F12A7114-6215-4A32-A25C-B99F4D7BD49D">
         <dmn:contextEntry>
-          <dmn:variable id="_INVOKE-DS-CLASS-VAR" name="class" typeRef="string"/>
-          <dmn:literalExpression id="_INVOKE-DS-CLASS-EXPR">
+          <dmn:variable id="_E6BD953F-968B-4B81-9C52-FCE0AC7F78EC" name="class" typeRef="string"/>
+          <dmn:literalExpression id="_EFA52AF3-5C0F-4DAB-9A08-86788CF578C7">
             <dmn:text>"org.prestoncabe.functions.DecisionServiceInvoker"</dmn:text>
           </dmn:literalExpression>
         </dmn:contextEntry>
         <dmn:contextEntry>
-          <dmn:variable id="_INVOKE-DS-METHOD-VAR" name="method signature" typeRef="string"/>
-          <dmn:literalExpression id="_INVOKE-DS-METHOD-EXPR">
+          <dmn:variable id="_199D37DA-8FC6-4438-A413-8CA2E885EB4F" name="method signature" typeRef="string"/>
+          <dmn:literalExpression id="_228DA497-4D1D-47C6-A391-C351770E2DF7">
             <dmn:text>"invoke(java.lang.String, java.lang.String, java.util.Map, java.util.Map)"</dmn:text>
           </dmn:literalExpression>
         </dmn:contextEntry>
@@ -162,12 +162,16 @@
             <kie:width>50</kie:width>
             <kie:width>464</kie:width>
           </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_INVOKE-DECISION-SERVICE-CONTEXT"/>
-          <kie:ComponentWidths dmnElementRef="_INVOKE-DS-CLASS-EXPR">
-            <kie:width>600</kie:width>
+          <kie:ComponentWidths dmnElementRef="_F12A7114-6215-4A32-A25C-B99F4D7BD49D">
+            <kie:width>50</kie:width>
+            <kie:width>100</kie:width>
+            <kie:width>480</kie:width>
           </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_INVOKE-DS-METHOD-EXPR">
-            <kie:width>600</kie:width>
+          <kie:ComponentWidths dmnElementRef="_EFA52AF3-5C0F-4DAB-9A08-86788CF578C7">
+            <kie:width>480</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_228DA497-4D1D-47C6-A391-C351770E2DF7">
+            <kie:width>480</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_INVOKE-DECISION-SERVICE-LOGIC">
             <kie:width>50</kie:width>
@@ -217,7 +221,7 @@
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="230" y="422" width="100" height="50"/>
+        <dc:Bounds x="101" y="578" width="100" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_1919D943-09A4-4D5C-98A0-2B8377862E4C" dmnElementRef="included2:_1919D943-09A4-4D5C-98A0-2B8377862E4C" isCollapsed="false">
