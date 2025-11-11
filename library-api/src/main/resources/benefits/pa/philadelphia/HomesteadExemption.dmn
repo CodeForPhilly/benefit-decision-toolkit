@@ -6,7 +6,7 @@
   <dmn:import id="_B4BB17BE-CD12-4C1A-BCDE-70E6D71373C7" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../../BDT.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
   <dmn:decisionService id="_1A77F60B-62BC-49AB-9233-5AD89A72C7F3" name="HomesteadExemptionService">
     <dmn:extensionElements/>
-    <dmn:variable id="_1701CE79-1E46-4807-901C-A5E3C45EBA9E" name="HomesteadExemptionService" typeRef="Any"/>
+    <dmn:variable id="_1701CE79-1E46-4807-901C-A5E3C45EBA9E" name="HomesteadExemptionService" typeRef="Benefits.tBenefitResponse"/>
     <dmn:outputDecision href="#_38277B56-7BEA-4297-A8B5-BBF084A043E8"/>
     <dmn:outputDecision href="#_51D3A9BB-4110-42E1-86CF-77FCA5DACE9A"/>
     <dmn:inputData href="#_2011065F-8B21-49FE-8685-D7566CCA1D60"/>
@@ -64,9 +64,9 @@
     <dmn:extensionElements/>
     <dmn:variable id="_AB7FF3DD-B357-4052-BAF4-5B0335423F24" name="situation" typeRef="BDT.tSituation"/>
   </dmn:inputData>
-  <dmn:decision id="_51D3A9BB-4110-42E1-86CF-77FCA5DACE9A" name="eligible">
+  <dmn:decision id="_51D3A9BB-4110-42E1-86CF-77FCA5DACE9A" name="isEligible">
     <dmn:extensionElements/>
-    <dmn:variable id="_E863E078-1E8E-4F55-94D6-6FE246B25F89" name="eligible" typeRef="boolean"/>
+    <dmn:variable id="_E863E078-1E8E-4F55-94D6-6FE246B25F89" name="isEligible" typeRef="boolean"/>
     <dmn:informationRequirement id="_65645AE3-6865-486A-9E5C-293862F38B81">
       <dmn:requiredDecision href="#_38277B56-7BEA-4297-A8B5-BBF084A043E8"/>
     </dmn:informationRequirement>
