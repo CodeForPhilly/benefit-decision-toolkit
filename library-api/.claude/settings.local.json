@@ -25,7 +25,9 @@
       "Bash(xmllint:*)",
       "Bash(for f in /home/pcabe/code/benefit-decision-toolkit/library-api/src/main/resources/**/*.dmn)",
       "WebFetch(domain:quarkus.io)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(python3 -m json.tool:*)",
+      "Bash(python3:*)"
     ],
     "deny": [],
     "ask": []

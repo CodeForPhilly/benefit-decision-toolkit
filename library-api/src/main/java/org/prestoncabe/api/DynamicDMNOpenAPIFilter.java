@@ -319,17 +319,24 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
 
         // 200 Success response
         APIResponse successResponse = OASFactory.createAPIResponse();
-        successResponse.description("Decision evaluated successfully");
+        successResponse.description("Decision evaluated successfully - returns full DMN context including inputs and outputs");
 
         Content successContent = OASFactory.createContent();
         MediaType successMediaType = OASFactory.createMediaType();
 
-        if (outputRef != null) {
-            Schema schema = OASFactory.createSchema();
-            schema.ref(outputRef);
-            successMediaType.schema(schema);
-        } else {
-            successMediaType.schema(createFallbackOutputSchema());
+        String serviceName = model.getModelName() + "Service";
+        String inputRef = schemaResolver.findInputSchemaRef(model.getModelName(), serviceName);
+
+        // Create a composite schema that represents the full DMN context (inputs + outputs)
+        Schema contextSchema = createDMNContextSchema(model, inputRef, outputRef);
+        successMediaType.schema(contextSchema);
+
+        // Generate example from the composite schema
+        Map<String, Object> exampleData = generateContextExample(inputRef, outputRef, model);
+        if (!exampleData.isEmpty()) {
+            Example example = OASFactory.createExample();
+            example.value(convertToOpenAPIValue(exampleData));
+            successMediaType.addExample("Example response", example);
         }
 
         successContent.addMediaType("application/json", successMediaType);
@@ -369,18 +376,211 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
         return schema;
     }
 
-    private Schema createFallbackOutputSchema() {
-        Schema schema = OASFactory.createSchema();
-        schema.type(Schema.SchemaType.OBJECT);
-        schema.description("Decision result");
-        return schema;
-    }
-
     private Example createFallbackExample() {
         Example example = OASFactory.createExample();
         Map<String, Object> exampleData = schemaResolver.generateExample(null);
         example.value(convertToOpenAPIValue(exampleData));
         return example;
+    }
+
+    /**
+     * Helper method to get schema node from a ref like "#/components/schemas/SchemaKey"
+     */
+    private com.fasterxml.jackson.databind.JsonNode getSchemaByRef(String ref) {
+        if (ref == null) {
+            return null;
+        }
+
+        String schemaKey = null;
+        if (ref.startsWith("#/components/schemas/")) {
+            schemaKey = ref.substring("#/components/schemas/".length());
+        } else if (ref.startsWith("#/definitions/")) {
+            schemaKey = ref.substring("#/definitions/".length());
+        }
+
+        return schemaKey != null ? schemaResolver.getSchema(schemaKey) : null;
+    }
+
+    /**
+     * Create a schema representing the full DMN context (inputs + outputs).
+     * This matches what DynamicDMNResource returns via result.getDmnContext().
+     */
+    private Schema createDMNContextSchema(ModelInfo model, String inputRef, String outputRef) {
+        Schema contextSchema = OASFactory.createSchema();
+        contextSchema.type(Schema.SchemaType.OBJECT);
+        contextSchema.description("DMN evaluation context containing all input and output variables");
+
+        // Get the input schema to extract its properties (situation, parameters, etc.)
+        if (inputRef != null) {
+            com.fasterxml.jackson.databind.JsonNode inputSchemaNode = getSchemaByRef(inputRef);
+            if (inputSchemaNode != null && inputSchemaNode.has("properties")) {
+                com.fasterxml.jackson.databind.JsonNode inputProps = inputSchemaNode.get("properties");
+                inputProps.fields().forEachRemaining(entry -> {
+                    Schema propSchema = convertJsonNodeToSchema(entry.getValue());
+                    contextSchema.addProperty(entry.getKey(), propSchema);
+                });
+            }
+        }
+
+        // Add the output decision to the context
+        if (outputRef != null) {
+            com.fasterxml.jackson.databind.JsonNode outputSchemaNode = getSchemaByRef(outputRef);
+            if (outputSchemaNode != null) {
+                // The output decision is typically the decision service's output decision name
+                // For PersonMinAge, this would be "checkResult"
+                // Try to infer the decision name - look for common patterns
+                // For now, just add it with a generic name based on output schema
+                Schema outputSchema = convertJsonNodeToSchema(outputSchemaNode);
+
+                // Get the actual decision name from the DMN file
+                String serviceName = model.getModelName() + "Service";
+                String decisionName = getOutputDecisionName(model, serviceName);
+                contextSchema.addProperty(decisionName, outputSchema);
+            }
+        }
+
+        return contextSchema;
+    }
+
+    /**
+     * Get the actual output decision name from the DMN file.
+     * Parses the decision service definition to find the output decision's name attribute.
+     */
+    private String getOutputDecisionName(ModelInfo model, String serviceName) {
+        try {
+            // Read the DMN file
+            String dmnPath = "src/main/resources/" + model.getPath() + ".dmn";
+            java.nio.file.Path path = java.nio.file.Paths.get(dmnPath);
+
+            if (!java.nio.file.Files.exists(path)) {
+                LOG.warning("DMN file not found: " + dmnPath);
+                return "result"; // fallback
+            }
+
+            String dmnContent = java.nio.file.Files.readString(path);
+
+            // Find the decision service with the given name
+            String servicePattern = "name=\"" + serviceName + "\"";
+            int serviceIndex = dmnContent.indexOf(servicePattern);
+
+            if (serviceIndex == -1) {
+                LOG.warning("Decision service not found in DMN: " + serviceName);
+                return "result";
+            }
+
+            // Find the outputDecision element within this decision service
+            // Look for <dmn:outputDecision href="#DECISION_ID"/>
+            int serviceStart = dmnContent.lastIndexOf("<dmn:decisionService", serviceIndex);
+            int serviceEnd = dmnContent.indexOf("</dmn:decisionService>", serviceIndex);
+
+            if (serviceStart == -1 || serviceEnd == -1) {
+                return "result";
+            }
+
+            String serviceSection = dmnContent.substring(serviceStart, serviceEnd);
+            String outputDecisionPattern = "<dmn:outputDecision href=\"#";
+            int outputIndex = serviceSection.indexOf(outputDecisionPattern);
+
+            if (outputIndex == -1) {
+                return "result";
+            }
+
+            // Extract the decision ID
+            int idStart = outputIndex + outputDecisionPattern.length();
+            int idEnd = serviceSection.indexOf("\"", idStart);
+            String decisionId = serviceSection.substring(idStart, idEnd);
+
+            // Now find the decision element with this ID and get its name
+            String decisionPattern = "id=\"" + decisionId + "\"";
+            int decisionIndex = dmnContent.indexOf(decisionPattern);
+
+            if (decisionIndex == -1) {
+                return "result";
+            }
+
+            // Find the name attribute in this decision element
+            int decisionStart = dmnContent.lastIndexOf("<dmn:decision", decisionIndex);
+            int decisionEnd = dmnContent.indexOf(">", decisionIndex);
+            String decisionElement = dmnContent.substring(decisionStart, decisionEnd);
+
+            String namePattern = "name=\"";
+            int nameIndex = decisionElement.indexOf(namePattern);
+
+            if (nameIndex == -1) {
+                return "result";
+            }
+
+            int nameStart = nameIndex + namePattern.length();
+            int nameEnd = decisionElement.indexOf("\"", nameStart);
+            String decisionName = decisionElement.substring(nameStart, nameEnd);
+
+            LOG.fine("Found output decision name for " + serviceName + ": " + decisionName);
+            return decisionName;
+
+        } catch (Exception e) {
+            LOG.warning("Error parsing DMN file for " + model.getModelName() + ": " + e.getMessage());
+            return "result"; // fallback
+        }
+    }
+
+    /**
+     * Generate an example combining input and output examples.
+     */
+    private Map<String, Object> generateContextExample(String inputRef, String outputRef, ModelInfo model) {
+        Map<String, Object> contextExample = new java.util.LinkedHashMap<>();
+
+        // Add input examples
+        if (inputRef != null) {
+            Map<String, Object> inputExample = schemaResolver.generateExample(inputRef);
+            contextExample.putAll(inputExample);
+        }
+
+        // Add output example
+        if (outputRef != null) {
+            String serviceName = model.getModelName() + "Service";
+            String decisionName = getOutputDecisionName(model, serviceName);
+
+            // Get the output schema to check if it's a primitive or complex type
+            com.fasterxml.jackson.databind.JsonNode outputSchemaNode = getSchemaByRef(outputRef);
+
+            if (outputSchemaNode != null) {
+                // Check if it's a primitive type (boolean, number, string) or complex type
+                if (outputSchemaNode.has("type")) {
+                    String type = outputSchemaNode.get("type").asText();
+
+                    // For primitive types, generate a simple example value
+                    Object exampleValue;
+                    switch (type) {
+                        case "boolean":
+                            exampleValue = true;
+                            break;
+                        case "number":
+                        case "integer":
+                            exampleValue = 0;
+                            break;
+                        case "string":
+                            exampleValue = "example";
+                            break;
+                        default:
+                            // For complex types, use the schema resolver
+                            Map<String, Object> outputExample = schemaResolver.generateExample(outputRef);
+                            exampleValue = outputExample.isEmpty() ? null : outputExample;
+                    }
+
+                    if (exampleValue != null) {
+                        contextExample.put(decisionName, exampleValue);
+                    }
+                } else {
+                    // No type specified, try to generate example
+                    Map<String, Object> outputExample = schemaResolver.generateExample(outputRef);
+                    if (!outputExample.isEmpty()) {
+                        contextExample.put(decisionName, outputExample);
+                    }
+                }
+            }
+        }
+
+        return contextExample;
     }
 
     /**

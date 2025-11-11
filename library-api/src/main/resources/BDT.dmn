@@ -80,6 +80,11 @@
   <dmn:itemDefinition id="_164304EB-122E-4673-A350-C805FCEA97EE" name="tRelationshipList" isCollection="true">
     <dmn:typeRef>tRelationship</dmn:typeRef>
   </dmn:itemDefinition>
+  <dmn:itemDefinition id="_D622E87A-091B-497C-A38A-70BB1CD0FDE1" name="tCheckResponse" isCollection="false">
+    <dmn:itemComponent id="_943F5C69-F958-418A-B67C-71D314BA17BA" name="checkResult" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
   <dmn:businessKnowledgeModel id="_04036CBE-BE0E-44C8-9A49-01D01F005E6F" name="age as of date">
     <dmn:extensionElements/>
     <dmn:variable id="_4CD74BE8-605D-4B2D-B7F6-97ADFA2F0776" name="age as of date" typeRef="number"/>

@@ -13,7 +13,7 @@
   </dmn:itemDefinition>
   <dmn:decisionService id="_513F29D9-6F29-4B8A-AD8D-F5C339B354DE" name="PersonNotEnrolledInBenefitService">
     <dmn:extensionElements/>
-    <dmn:variable id="_A689F266-51CA-428C-93B6-ED604192571D" name="PersonNotEnrolledInBenefitService" typeRef="boolean"/>
+    <dmn:variable id="_A689F266-51CA-428C-93B6-ED604192571D" name="PersonNotEnrolledInBenefitService" typeRef="BDT.tCheckResponse"/>
     <dmn:outputDecision href="#_D047F2EA-124C-4CC4-9EA0-5CF496ED9E5C"/>
     <dmn:inputData href="#_380ACD7B-0D9B-47E6-A601-474E38C1EBCF"/>
     <dmn:inputData href="#_63C15A72-50A2-471A-B023-7A2B39937C40"/>
@@ -26,9 +26,9 @@
     <dmn:extensionElements/>
     <dmn:variable id="_DE16DBA5-D8D2-48E3-BF92-4DF037BF0D00" name="parameters" typeRef="PersonEnrolledInBenefit.tParameters"/>
   </dmn:inputData>
-  <dmn:decision id="_D047F2EA-124C-4CC4-9EA0-5CF496ED9E5C" name="result">
+  <dmn:decision id="_D047F2EA-124C-4CC4-9EA0-5CF496ED9E5C" name="checkResult">
     <dmn:extensionElements/>
-    <dmn:variable id="_2F864824-1C7A-44B0-BD26-58B25A119A4D" name="result" typeRef="boolean"/>
+    <dmn:variable id="_2F864824-1C7A-44B0-BD26-58B25A119A4D" name="checkResult" typeRef="boolean"/>
     <dmn:informationRequirement id="_A373B877-A5F0-4485-A430-5FC17EB0BFB6">
       <dmn:requiredInput href="#_63C15A72-50A2-471A-B023-7A2B39937C40"/>
     </dmn:informationRequirement>
@@ -64,6 +64,19 @@
           <di:waypoint x="599" y="213"/>
         </dmndi:DMNDecisionServiceDividerLine>
       </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_5E85B343-11FA-4C1C-A08E-26402F99720E" dmnElementRef="included2:_5E85B343-11FA-4C1C-A08E-26402F99720E" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="627" y="50" width="389" height="100"/>
+        <dmndi:DMNLabel/>
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="627" y="100"/>
+          <di:waypoint x="1016" y="100"/>
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_63C15A72-50A2-471A-B023-7A2B39937C40" dmnElementRef="_63C15A72-50A2-471A-B023-7A2B39937C40" isCollapsed="false">
         <dmndi:DMNStyle>
           <dmndi:FillColor red="255" green="255" blue="255"/>
@@ -90,19 +103,6 @@
         </dmndi:DMNStyle>
         <dc:Bounds x="414" y="154" width="100" height="50"/>
         <dmndi:DMNLabel/>
-      </dmndi:DMNShape>
-      <dmndi:DMNShape id="dmnshape-drg-_5E85B343-11FA-4C1C-A08E-26402F99720E" dmnElementRef="included2:_5E85B343-11FA-4C1C-A08E-26402F99720E" isCollapsed="false">
-        <dmndi:DMNStyle>
-          <dmndi:FillColor red="255" green="255" blue="255"/>
-          <dmndi:StrokeColor red="0" green="0" blue="0"/>
-          <dmndi:FontColor red="0" green="0" blue="0"/>
-        </dmndi:DMNStyle>
-        <dc:Bounds x="627" y="50" width="389" height="100"/>
-        <dmndi:DMNLabel/>
-        <dmndi:DMNDecisionServiceDividerLine>
-          <di:waypoint x="627" y="100"/>
-          <di:waypoint x="1016" y="100"/>
-        </dmndi:DMNDecisionServiceDividerLine>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_A373B877-A5F0-4485-A430-5FC17EB0BFB6-AUTO-TARGET" dmnElementRef="_A373B877-A5F0-4485-A430-5FC17EB0BFB6">
         <di:waypoint x="373" y="348"/>

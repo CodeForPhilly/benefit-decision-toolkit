@@ -16,14 +16,14 @@
   </dmn:itemDefinition>
   <dmn:decisionService id="_115363CB-5A44-450E-A973-2718F10C793A" name="SomeoneMinAgeService">
     <dmn:extensionElements/>
-    <dmn:variable id="_38A41479-24D4-4F40-A8D4-CA5E6CF356CA" name="SomeoneMinAgeService" typeRef="boolean"/>
+    <dmn:variable id="_38A41479-24D4-4F40-A8D4-CA5E6CF356CA" name="SomeoneMinAgeService" typeRef="BDT.tCheckResponse"/>
     <dmn:outputDecision href="#_C015A46D-E538-4F4B-9237-6620B7781DF8"/>
     <dmn:inputData href="#_C98E92CF-600E-4C9B-AFAD-1531015A5A7F"/>
     <dmn:inputData href="#_15ACE01F-0C2D-4F2D-B44F-5E562B7D61BA"/>
   </dmn:decisionService>
-  <dmn:decision id="_C015A46D-E538-4F4B-9237-6620B7781DF8" name="result">
+  <dmn:decision id="_C015A46D-E538-4F4B-9237-6620B7781DF8" name="checkResult">
     <dmn:extensionElements/>
-    <dmn:variable id="_40D9D29F-E0D7-487F-AA72-17604E054CE5" name="result" typeRef="boolean"/>
+    <dmn:variable id="_40D9D29F-E0D7-487F-AA72-17604E054CE5" name="checkResult" typeRef="boolean"/>
     <dmn:informationRequirement id="_9CC1ACE1-B8D4-465B-B538-359B47CAB805">
       <dmn:requiredInput href="#_C98E92CF-600E-4C9B-AFAD-1531015A5A7F"/>
     </dmn:informationRequirement>

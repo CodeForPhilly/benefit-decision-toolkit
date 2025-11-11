@@ -16,14 +16,14 @@
   </dmn:itemDefinition>
   <dmn:decisionService id="_6E428234-5215-4D38-AB4E-9083E80882D4" name="PersonMinAgeService">
     <dmn:extensionElements/>
-    <dmn:variable id="_DAF63FA4-85ED-405B-859E-7AFF792F499E" name="PersonMinAgeService" typeRef="boolean"/>
+    <dmn:variable id="_DAF63FA4-85ED-405B-859E-7AFF792F499E" name="PersonMinAgeService" typeRef="BDT.tCheckResponse"/>
     <dmn:outputDecision href="#_ACEED577-3BAE-4C6D-9F43-297A3A832E81"/>
     <dmn:inputData href="#_F4F5DB0A-F298-4519-9554-44344C6179FE"/>
     <dmn:inputData href="#_7E4E0F8D-FA5D-49EF-8A65-0FEB4B7C0951"/>
   </dmn:decisionService>
-  <dmn:decision id="_ACEED577-3BAE-4C6D-9F43-297A3A832E81" name="result">
+  <dmn:decision id="_ACEED577-3BAE-4C6D-9F43-297A3A832E81" name="checkResult">
     <dmn:extensionElements/>
-    <dmn:variable id="_49F4EE32-6F14-4571-8738-6FCD7E506E1B" name="result" typeRef="boolean"/>
+    <dmn:variable id="_49F4EE32-6F14-4571-8738-6FCD7E506E1B" name="checkResult" typeRef="boolean"/>
     <dmn:informationRequirement id="_C3219D7A-ABD5-4FCC-B63F-0511B93B9BAE">
       <dmn:requiredInput href="#_7E4E0F8D-FA5D-49EF-8A65-0FEB4B7C0951"/>
     </dmn:informationRequirement>
@@ -35,19 +35,19 @@
     </dmn:knowledgeRequirement>
     <dmn:context id="_B499A169-67C3-4405-95A2-F5405AF19DC9">
       <dmn:contextEntry>
-        <dmn:variable id="_3EC5BE6A-7BE1-4A5C-9CA9-67DF5D16D6BC" name="dateOfBirth" typeRef="date"/>
+        <dmn:variable id="_5CA16BFD-AE11-4865-A2E5-828E7763A90C" name="dateOfBirth" typeRef="date"/>
         <dmn:literalExpression id="_4C11ABE5-B19B-4C63-B46B-755FF3A6FACC">
           <dmn:text>situation.people[id = parameters.personId].dateOfBirth[1]</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_44935D00-4E0F-4A1A-97A7-EDC5646FD878" name="age" typeRef="number"/>
+        <dmn:variable id="_EBC0A5AB-1F8C-41E7-9D6B-D7AC9E7543E5" name="age" typeRef="number"/>
         <dmn:literalExpression id="_0E389038-35B8-42FF-8FAD-4E26290F0B80">
           <dmn:text>Age.as of date(dateOfBirth, parameters.asOfDate)</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_FF6253C7-D934-4712-8CF7-3AF58FD4A919" name="result" typeRef="boolean"/>
+        <dmn:variable id="_C3861949-8A9C-4E6A-AF13-81C8349B5D91" name="result" typeRef="boolean"/>
         <dmn:literalExpression id="_0E389038-35B8-42FF-8FAD-4E26290F0B81">
           <dmn:text>age &gt;= parameters.minAge</dmn:text>
         </dmn:literalExpression>
