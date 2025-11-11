@@ -27,7 +27,9 @@
       "WebFetch(domain:quarkus.io)",
       "Bash(test:*)",
       "Bash(python3 -m json.tool:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(/tmp/openapi2.yaml)",
+      "Bash(/tmp/openapi3.yaml)"
     ],
     "deny": [],
     "ask": []

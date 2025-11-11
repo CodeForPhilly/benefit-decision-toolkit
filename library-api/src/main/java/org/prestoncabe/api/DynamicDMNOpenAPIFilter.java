@@ -422,20 +422,27 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
             }
         }
 
-        // Add the output decision to the context
+        // Add the output decision(s) to the context
         if (outputRef != null) {
             com.fasterxml.jackson.databind.JsonNode outputSchemaNode = getSchemaByRef(outputRef);
             if (outputSchemaNode != null) {
-                // The output decision is typically the decision service's output decision name
-                // For PersonMinAge, this would be "checkResult"
-                // Try to infer the decision name - look for common patterns
-                // For now, just add it with a generic name based on output schema
-                Schema outputSchema = convertJsonNodeToSchema(outputSchemaNode);
-
-                // Get the actual decision name from the DMN file
-                String serviceName = model.getModelName() + "Service";
-                String decisionName = getOutputDecisionName(model, serviceName);
-                contextSchema.addProperty(decisionName, outputSchema);
+                // Check if output schema has properties (multiple output decisions like checks + isEligible)
+                if (outputSchemaNode.has("properties")) {
+                    // Multiple outputs: add each property directly to context
+                    // This handles Decision Services with multiple output decisions (e.g., HomesteadExemption)
+                    com.fasterxml.jackson.databind.JsonNode outputProps = outputSchemaNode.get("properties");
+                    outputProps.fields().forEachRemaining(entry -> {
+                        Schema propSchema = convertJsonNodeToSchema(entry.getValue());
+                        contextSchema.addProperty(entry.getKey(), propSchema);
+                    });
+                } else {
+                    // Single output: wrap under decision name
+                    // This handles Decision Services with one output decision (e.g., PersonMinAge)
+                    Schema outputSchema = convertJsonNodeToSchema(outputSchemaNode);
+                    String serviceName = model.getModelName() + "Service";
+                    String decisionName = getOutputDecisionName(model, serviceName);
+                    contextSchema.addProperty(decisionName, outputSchema);
+                }
             }
         }
 
@@ -537,50 +544,126 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
 
         // Add output example
         if (outputRef != null) {
-            String serviceName = model.getModelName() + "Service";
-            String decisionName = getOutputDecisionName(model, serviceName);
-
-            // Get the output schema to check if it's a primitive or complex type
+            // Get the output schema to check if it has multiple properties (multiple output decisions)
             com.fasterxml.jackson.databind.JsonNode outputSchemaNode = getSchemaByRef(outputRef);
 
             if (outputSchemaNode != null) {
-                // Check if it's a primitive type (boolean, number, string) or complex type
-                if (outputSchemaNode.has("type")) {
-                    String type = outputSchemaNode.get("type").asText();
+                // Check if output schema has properties (multiple output decisions like checks + isEligible)
+                if (outputSchemaNode.has("properties")) {
+                    // Multiple outputs: generate examples for each property directly
+                    com.fasterxml.jackson.databind.JsonNode outputProps = outputSchemaNode.get("properties");
+                    outputProps.fields().forEachRemaining(entry -> {
+                        String propName = entry.getKey();
+                        com.fasterxml.jackson.databind.JsonNode propNode = entry.getValue();
 
-                    // For primitive types, generate a simple example value
-                    Object exampleValue;
-                    switch (type) {
-                        case "boolean":
-                            exampleValue = true;
-                            break;
-                        case "number":
-                        case "integer":
-                            exampleValue = 0;
-                            break;
-                        case "string":
-                            exampleValue = "example";
-                            break;
-                        default:
-                            // For complex types, use the schema resolver
-                            Map<String, Object> outputExample = schemaResolver.generateExample(outputRef);
-                            exampleValue = outputExample.isEmpty() ? null : outputExample;
-                    }
-
-                    if (exampleValue != null) {
-                        contextExample.put(decisionName, exampleValue);
-                    }
+                        // Generate example based on property type
+                        Object exampleValue = generateExampleForProperty(propNode);
+                        if (exampleValue != null) {
+                            contextExample.put(propName, exampleValue);
+                        }
+                    });
                 } else {
-                    // No type specified, try to generate example
-                    Map<String, Object> outputExample = schemaResolver.generateExample(outputRef);
-                    if (!outputExample.isEmpty()) {
-                        contextExample.put(decisionName, outputExample);
+                    // Single output: wrap under decision name
+                    String serviceName = model.getModelName() + "Service";
+                    String decisionName = getOutputDecisionName(model, serviceName);
+
+                    // Check if it's a primitive type (boolean, number, string) or complex type
+                    if (outputSchemaNode.has("type")) {
+                        String type = outputSchemaNode.get("type").asText();
+
+                        // For primitive types, generate a simple example value
+                        Object exampleValue;
+                        switch (type) {
+                            case "boolean":
+                                exampleValue = true;
+                                break;
+                            case "number":
+                            case "integer":
+                                exampleValue = 0;
+                                break;
+                            case "string":
+                                exampleValue = "example";
+                                break;
+                            default:
+                                // For complex types, use the schema resolver
+                                Map<String, Object> outputExample = schemaResolver.generateExample(outputRef);
+                                exampleValue = outputExample.isEmpty() ? null : outputExample;
+                        }
+
+                        if (exampleValue != null) {
+                            contextExample.put(decisionName, exampleValue);
+                        }
+                    } else {
+                        // No type specified, try to generate example
+                        Map<String, Object> outputExample = schemaResolver.generateExample(outputRef);
+                        if (!outputExample.isEmpty()) {
+                            contextExample.put(decisionName, outputExample);
+                        }
                     }
                 }
             }
         }
 
         return contextExample;
+    }
+
+    /**
+     * Generate an example value for a property node.
+     * Handles primitive types and complex types.
+     */
+    private Object generateExampleForProperty(com.fasterxml.jackson.databind.JsonNode propNode) {
+        if (propNode.has("type")) {
+            String type = propNode.get("type").asText();
+            switch (type) {
+                case "boolean":
+                    return true;
+                case "number":
+                case "integer":
+                    return 0;
+                case "string":
+                    return "example";
+                case "object":
+                    // For objects, try to generate example from properties
+                    Map<String, Object> objectExample = new java.util.LinkedHashMap<>();
+                    if (propNode.has("properties")) {
+                        com.fasterxml.jackson.databind.JsonNode properties = propNode.get("properties");
+                        properties.fields().forEachRemaining(entry -> {
+                            Object value = generateExampleForProperty(entry.getValue());
+                            if (value != null) {
+                                objectExample.put(entry.getKey(), value);
+                            }
+                        });
+                    }
+                    return objectExample.isEmpty() ? null : objectExample;
+                default:
+                    return null;
+            }
+        } else if (propNode.has("$ref")) {
+            // For references, use the schema resolver
+            String ref = propNode.get("$ref").asText();
+            if (ref.startsWith("#/definitions/")) {
+                ref = "#/components/schemas/" + ref.substring("#/definitions/".length());
+            }
+            Map<String, Object> refExample = schemaResolver.generateExample(ref);
+            return refExample.isEmpty() ? null : refExample;
+        } else if (propNode.has("x-dmn-type")) {
+            // Handle DMN-specific types that don't have OpenAPI "type" field
+            // These are typically dynamic contexts or complex FEEL types
+            String dmnType = propNode.get("x-dmn-type").asText();
+            if (dmnType.equals("FEEL:context") || dmnType.startsWith("FEEL:")) {
+                // Return a placeholder example for dynamic contexts
+                Map<String, Object> placeholderExample = new java.util.LinkedHashMap<>();
+                placeholderExample.put("example-check", true);
+                return placeholderExample;
+            }
+        } else if (propNode.isObject() && propNode.size() == 0) {
+            // Handle empty object definition like "checks: {}"
+            // This represents a dynamically structured object, so return a placeholder
+            Map<String, Object> placeholderExample = new java.util.LinkedHashMap<>();
+            placeholderExample.put("example-check", true);
+            return placeholderExample;
+        }
+        return null;
     }
 
     /**
