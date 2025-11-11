@@ -75,8 +75,9 @@ public class ModelRegistry {
         Map<String, ModelInfo> modelMap = new HashMap<>();
 
         try {
-            // Build mapping of model name -> file path
-            Map<String, String> modelNameToPath = scanDMNFiles();
+            // Build mappings of model name -> file path and model name -> description
+            Map<String, String> modelDescriptions = new HashMap<>();
+            Map<String, String> modelNameToPath = scanDMNFiles(modelDescriptions);
 
             DecisionModels decisionModels = application.get(DecisionModels.class);
             DMNRuntime dmnRuntime = getDMNRuntime(decisionModels);
@@ -101,14 +102,16 @@ public class ModelRegistry {
                     .map(d -> d.getName())
                     .collect(Collectors.toList());
 
-                // Get the file path for this model
+                // Get the file path and description for this model
                 String path = modelNameToPath.getOrDefault(modelName, modelName);
+                String description = modelDescriptions.get(modelName);
 
-                ModelInfo info = new ModelInfo(namespace, modelName, decisionServices, decisions, path);
+                ModelInfo info = new ModelInfo(namespace, modelName, decisionServices, decisions, path, description);
                 modelMap.put(modelName, info);
 
-                log.debug("Registered model: {} (namespace: {}, services: {}, decisions: {}, path: {})",
-                    modelName, namespace, decisionServices.size(), decisions.size(), path);
+                log.debug("Registered model: {} (namespace: {}, services: {}, decisions: {}, path: {}, description: {})",
+                    modelName, namespace, decisionServices.size(), decisions.size(), path,
+                    description != null ? description.substring(0, Math.min(30, description.length())) + "..." : "null");
             }
 
         } catch (Exception e) {
@@ -202,7 +205,7 @@ public class ModelRegistry {
     }
 
     /**
-     * Scan the filesystem for .dmn files and build a mapping of model name to relative path.
+     * Scan the filesystem for .dmn files and build mappings of model name to relative path and description.
      * Paths are relative to src/main/resources/, excluding the .dmn extension.
      *
      * Example: src/main/resources/age/PersonMinAge.dmn -> "age/PersonMinAge"
@@ -210,6 +213,17 @@ public class ModelRegistry {
      * @return map of model name to relative path
      */
     private Map<String, String> scanDMNFiles() {
+        return scanDMNFiles(null);
+    }
+
+    /**
+     * Scan the filesystem for .dmn files and build mappings of model name to relative path and description.
+     * Paths are relative to src/main/resources/, excluding the .dmn extension.
+     *
+     * @param modelDescriptions if not null, will be populated with model name to description mappings
+     * @return map of model name to relative path
+     */
+    private Map<String, String> scanDMNFiles(Map<String, String> modelDescriptions) {
         Map<String, String> modelNameToPath = new HashMap<>();
 
         try {
@@ -230,6 +244,14 @@ public class ModelRegistry {
                                      relativePath = relativePath.substring(0, relativePath.length() - 4); // remove .dmn
                                      modelNameToPath.put(modelName, relativePath);
                                      log.debug("Mapped DMN file: {} -> {}", modelName, relativePath);
+
+                                     // Extract description if requested
+                                     if (modelDescriptions != null) {
+                                         String description = extractModelDescription(path);
+                                         modelDescriptions.put(modelName, description);
+                                         log.debug("Extracted description for {}: {}", modelName,
+                                                   description != null ? description.substring(0, Math.min(50, description.length())) + "..." : "null");
+                                     }
                                  }
                              } catch (Exception e) {
                                  log.warn("Failed to parse DMN file: {}", path, e);
@@ -269,6 +291,39 @@ public class ModelRegistry {
             }
         } catch (Exception e) {
             log.debug("Failed to extract model name from {}: {}", dmnFilePath, e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Extract the model description from a DMN file by parsing its XML.
+     * Looks for the <dmn:description> element within the root <dmn:definitions> element.
+     *
+     * @param dmnFilePath path to the DMN file
+     * @return the model description, or null if not present or parsing fails
+     */
+    private String extractModelDescription(Path dmnFilePath) {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(dmnFilePath.toFile());
+
+            Element root = doc.getDocumentElement();
+            if (root != null) {
+                // Look for <dmn:description> child element
+                org.w3c.dom.NodeList descNodes = root.getElementsByTagNameNS(
+                    "http://www.omg.org/spec/DMN/20180521/MODEL/",
+                    "description"
+                );
+                if (descNodes.getLength() > 0) {
+                    String description = descNodes.item(0).getTextContent();
+                    // Return null if description is just whitespace
+                    return (description != null && !description.trim().isEmpty()) ? description.trim() : null;
+                }
+            }
+        } catch (Exception e) {
+            log.debug("Failed to extract description from {}: {}", dmnFilePath, e.getMessage());
         }
         return null;
     }

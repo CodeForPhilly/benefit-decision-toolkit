@@ -12,13 +12,15 @@ public class ModelInfo {
     private final List<String> decisionServices;
     private final List<String> decisions;
     private final String path;
+    private final String dmnDescription;
 
-    public ModelInfo(String namespace, String modelName, List<String> decisionServices, List<String> decisions, String path) {
+    public ModelInfo(String namespace, String modelName, List<String> decisionServices, List<String> decisions, String path, String dmnDescription) {
         this.namespace = namespace;
         this.modelName = modelName;
         this.decisionServices = decisionServices;
         this.decisions = decisions;
         this.path = path;
+        this.dmnDescription = dmnDescription;
     }
 
     public String getNamespace() {
@@ -74,21 +76,11 @@ public class ModelInfo {
     }
 
     /**
-     * Get a human-readable description for this model.
+     * Get the description for this model from the DMN file.
+     * Returns the value from the <dmn:description> element, or null/empty if not present.
      */
     public String getDescription() {
-        StringBuilder desc = new StringBuilder();
-        desc.append("Decision service for ").append(modelName).append(".");
-
-        if (!decisionServices.isEmpty()) {
-            desc.append("\n\nAvailable services: ").append(String.join(", ", decisionServices));
-        }
-
-        if (!decisions.isEmpty()) {
-            desc.append("\n\nDecisions: ").append(String.join(", ", decisions));
-        }
-
-        return desc.toString();
+        return dmnDescription;
     }
 
     private String capitalize(String str) {
@@ -120,6 +112,7 @@ public class ModelInfo {
                 ", decisionServices=" + decisionServices +
                 ", decisions=" + decisions +
                 ", path='" + path + '\'' +
+                ", dmnDescription='" + dmnDescription + '\'' +
                 '}';
     }
 }
