@@ -19,6 +19,10 @@
       "setup": [
         "bin/setup"
       ],
+      "build-library-api-ci": [
+        "cd library-api",
+        "quarkus build --no-tests"
+      ],
       "build-builder-api-ci": [
         "cd builder-api",
         "quarkus build --no-tests"
