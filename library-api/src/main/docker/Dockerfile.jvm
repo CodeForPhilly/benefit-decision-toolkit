@@ -1,5 +1,5 @@
 # Use Kogito builder image with Java 17
-FROM quay.io/kiegroup/kogito-swf-builder-nightly:latest AS builder
+FROM quay.io/kiegroup/kogito-swf-builder:1.44.1 AS builder
 
 WORKDIR $KOGITO_HOME
 
@@ -15,7 +15,7 @@ ENV PATH=$JAVA_HOME/bin:$PATH
 RUN $MAVEN_HOME/bin/mvn clean package -Dmaven.compiler.release=17
 
 # Use Kogito runtime image with Java 17
-FROM quay.io/kiegroup/kogito-runtime-jvm-nightly:latest
+FROM quay.io/kiegroup/kogito-runtime-jvm:1.44.1
 
 ENV RUNTIME_TYPE quarkus
 ENV JAVA_HOME=/usr/lib/jvm/java-17
