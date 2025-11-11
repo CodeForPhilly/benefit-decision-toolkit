@@ -1,5 +1,7 @@
-import { onMount, onCleanup, createSignal, Switch, Match } from "solid-js";
+import { onMount, onCleanup, createSignal, Switch, Match, on } from "solid-js";
 import { useParams } from "@solidjs/router";
+import toast, { Toaster } from 'solid-toast';
+import hotkeys from 'hotkeys-js';
 
 import { FormEditor } from "@bpmn-io/form-js-editor";
 
@@ -10,11 +12,24 @@ import { saveFormSchema } from "../../api/screener";
 
 import "@bpmn-io/form-js/dist/assets/form-js.css";
 import "@bpmn-io/form-js-editor/dist/assets/form-js-editor.css";
+import { Modeling } from "@bpmn-io/form-js-editor/dist/types/features/modeling/Modeling";
+
+function stringrand(length) {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
 
 
 function FormEditorView({ formSchema, setFormSchema }) {
   const [isUnsaved, setIsUnsaved] = createSignal(false);
   const [isSaving, setIsSaving] = createSignal(false);
+
+  const [copiedSelection, setCopiedSelection] = createSignal(null);
   const params = useParams();
 
   let timeoutId;
@@ -27,6 +42,41 @@ function FormEditorView({ formSchema, setFormSchema }) {
     schemaVersion: 18,
     type: "default",
   };
+
+  const onCopy = (event) => {
+    if (!formEditor) {
+      return;
+    }
+    const selection: any = formEditor.get('selection');
+    if (!selection.get()) {
+      return;
+    }
+
+    event.preventDefault();
+    setCopiedSelection(selection.get());
+    toast.success('Selection copied to clipboard');
+  };
+
+  const onPaste = (event) => {
+    if (!formEditor) {
+      return;
+    }
+    if (!copiedSelection()) {
+      return;
+    }
+    event.preventDefault();
+
+    const selectionToPaste = { ...copiedSelection() };
+    delete selectionToPaste.id;
+    delete selectionToPaste.layout;
+    selectionToPaste.key = selectionToPaste.key + '_' + stringrand(5);
+
+    const schema = formEditor.getSchema();
+    const targetFormField = { ...schema, _path: "" };
+    const modeling = formEditor.get("modeling") as Modeling;
+    modeling.addFormField(selectionToPaste, targetFormField, schema.components.length);
+    toast.success('Selection pasted');
+  }
 
   onMount(() => {
     formEditor = new FormEditor({
@@ -52,12 +102,17 @@ function FormEditorView({ formSchema, setFormSchema }) {
       setFormSchema(e.schema);
     });
 
+    hotkeys("ctrl+c", onCopy);
+    hotkeys("ctrl+v", onPaste);
+
     onCleanup(() => {
       if (formEditor) {
         formEditor.destroy();
         formEditor = null;
         clearTimeout(timeoutId);
       }
+      hotkeys.unbind("ctrl+c");
+      hotkeys.unbind("ctrl+v");
     });
   });
 
@@ -73,7 +128,8 @@ function FormEditorView({ formSchema, setFormSchema }) {
 
   return (
     <div class="flex flex-row">
-      <div class="flex-8 overflow-auto">
+      <Toaster/>
+      <div class="flex-7 overflow-auto">
         <div class="h-full" ref={(el) => (container = el)} />
       </div>
       <div class="flex-1 border-l-4 border-l-gray-200">
