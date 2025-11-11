@@ -23,10 +23,6 @@
         "cd library-api",
         "quarkus build --no-tests"
       ],
-      "get-library-api-version": [
-        "cd library-api",
-        "mvn help:evaluate -Dexpression=project.version -q -DforceStdout | xargs"
-      ],
       "build-builder-api-ci": [
         "cd builder-api",
         "quarkus build --no-tests"

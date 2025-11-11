@@ -42,13 +42,13 @@ jobs:
         id: extract_version
         working-directory: library-api
         run: |
-          VERSION=$(devbox run get-library-api-version)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          VERSION=$(devbox run -- mvn help:evaluate -Dexpression=project.version -q -DforceStdout | tr -d '\n' | xargs)
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           # Create revision-safe version string (replace dots with dashes for Cloud Run)
-          REVISION_VERSION=$(echo "$VERSION" | tr '.' '-')
-          echo "revision_version=$REVISION_VERSION" >> $GITHUB_OUTPUT
-          echo "Extracted version from pom.xml: $VERSION"
-          echo "Revision version: $REVISION_VERSION"
+          REVISION_VERSION=$(echo "${VERSION}" | tr '.' '-')
+          echo "revision_version=${REVISION_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Extracted version from pom.xml: ${VERSION}"
+          echo "Revision version: ${REVISION_VERSION}"
 
       # Validate that git tag exists for this pom.xml version
       - name: 'Validate git tag matches pom.xml version'
