@@ -1,0 +1,116 @@
+# This workflow uses devbox for dependency management and builds/deploys the library API
+# to Cloud Run when a version tag is pushed (e.g., library-api-v1.0.0).
+
+name: 'Build and Deploy Library API to Cloud Run'
+
+on:
+  push:
+    tags:
+      - 'library-api-v*'
+
+env:
+  PROJECT_ID: 'benefit-decision-toolkit-play'
+  REGION: 'us-central1'
+  SERVICE: 'benefit-decision-toolkit-play'
+  API_NAME: 'library-api'
+  WORKLOAD_IDENTITY_PROVIDER: 'projects/1034049717668/locations/global/workloadIdentityPools/github-actions-google-cloud/providers/github'
+
+jobs:
+  deploy:
+    runs-on: 'ubuntu-latest'
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@v4'
+
+      # Devbox needs a .env file to exist, even if it's empty
+      - name: 'Create .env file'
+        run: touch .env
+
+      # Setup devbox which includes all our dependencies: Maven, JDK 21, Quarkus, etc.
+      - name: 'Install devbox'
+        uses: 'jetify-com/devbox-install-action@v0.12.0'
+        with:
+          enable-cache: true
+
+      # Extract version from pom.xml (source of truth) using Maven
+      - name: 'Extract version from pom.xml'
+        id: extract_version
+        working-directory: library-api
+        run: |
+          VERSION=$(devbox run -- mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          # Create revision-safe version string (replace dots with dashes for Cloud Run)
+          REVISION_VERSION=$(echo "$VERSION" | tr '.' '-')
+          echo "revision_version=$REVISION_VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version from pom.xml: $VERSION"
+          echo "Revision version: $REVISION_VERSION"
+
+      # Validate that git tag exists for this pom.xml version
+      - name: 'Validate git tag matches pom.xml version'
+        run: |
+          devbox run -- bin/validate-library-api-version
+
+      # Configure Workload Identity Federation and generate an access token
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
+          service_account: cicd-build-deploy-api@benefit-decision-toolkit-play.iam.gserviceaccount.com
+          project_id: ${{ env.PROJECT_ID }}
+
+      # Configure Docker to use gcloud as a credential helper (using devbox gcloud)
+      - name: 'Configure Docker'
+        run: |
+          devbox run -- gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+      # Build the Quarkus app with Maven using devbox environment
+      - name: 'Build Quarkus App'
+        working-directory: library-api
+        run: |
+          devbox run build-library-api-ci
+
+      - name: 'Build and Push Container'
+        working-directory: library-api
+        run: |-
+          VERSION="${{ steps.extract_version.outputs.version }}"
+          DOCKER_TAG_VERSIONED="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.API_NAME }}:v${VERSION}"
+          DOCKER_TAG_LATEST="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.API_NAME }}:latest"
+
+          # Build and tag with version
+          docker build -f src/main/docker/Dockerfile.jvm --tag "${DOCKER_TAG_VERSIONED}" --tag "${DOCKER_TAG_LATEST}" .
+
+          # Push both tags
+          docker push "${DOCKER_TAG_VERSIONED}"
+          docker push "${DOCKER_TAG_LATEST}"
+
+          echo "Pushed images:"
+          echo "  - ${DOCKER_TAG_VERSIONED}"
+          echo "  - ${DOCKER_TAG_LATEST}"
+
+      - name: 'Deploy to Cloud Run'
+        id: deploy
+        uses: 'google-github-actions/deploy-cloudrun@v2'
+        with:
+          service: '${{ env.API_NAME }}'
+          region: '${{ env.REGION }}'
+          image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.API_NAME }}:v${{ steps.extract_version.outputs.version }}'
+          tag: '${{ env.API_NAME }}-v${{ steps.extract_version.outputs.revision_version }}'
+          service_account: 'library-api-service-account@${{ env.PROJECT_ID }}.iam.gserviceaccount.com'
+          flags: '--allow-unauthenticated --max-instances=2'
+          env_vars: |
+            QUARKUS_GOOGLE_CLOUD_PROJECT_ID=${{ env.PROJECT_ID }}
+            GCS_BUCKET_NAME=${{ env.PROJECT_ID }}.firebasestorage.app
+
+      # Show deployment output
+      - name: 'Show deployment output'
+        run: |
+          echo "Deployment complete!"
+          echo "Service URL: ${{ steps.deploy.outputs.url }}"
+          echo "Version: v${{ steps.extract_version.outputs.version }}"
+          echo "Revision: ${{ env.API_NAME }}-v${{ steps.extract_version.outputs.revision_version }}"
