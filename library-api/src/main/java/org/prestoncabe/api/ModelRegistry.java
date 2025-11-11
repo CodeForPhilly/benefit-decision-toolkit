@@ -9,6 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import io.quarkus.runtime.Startup;
+
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.parsers.DocumentBuilder;
@@ -17,6 +20,7 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +31,7 @@ import java.util.stream.Stream;
  * Registry that automatically discovers all DMN models at runtime using reflection.
  * Provides mapping from model names to their namespaces and metadata.
  */
+@Startup
 @ApplicationScoped
 public class ModelRegistry {
 
@@ -111,6 +116,70 @@ public class ModelRegistry {
         }
 
         return modelMap;
+    }
+
+    /**
+     * Validates that all DMN model names are unique.
+     * This runs at application startup and on every hot reload to ensure no duplicate model names exist.
+     *
+     * @throws IllegalStateException if duplicate model names are detected
+     */
+    @PostConstruct
+    public void validateUniqueModelNames() {
+        try {
+            // Get models directly from DMNRuntime BEFORE deduplication
+            DecisionModels decisionModels = application.get(DecisionModels.class);
+            DMNRuntime dmnRuntime = getDMNRuntime(decisionModels);
+
+            if (dmnRuntime == null) {
+                log.warn("DMNRuntime is null, skipping validation");
+                return;
+            }
+
+            List<DMNModel> models = dmnRuntime.getModels();
+            Map<String, String> namespaceToPath = scanDMNFilesForNamespaces();
+            Map<String, List<String>> nameToFiles = new HashMap<>();
+
+            // Check all models from runtime (including duplicates)
+            for (DMNModel model : models) {
+                String modelName = model.getName();
+                String namespace = model.getNamespace();
+                String path = namespaceToPath.getOrDefault(namespace, "unknown");
+                String shortNamespace = namespace.substring(namespace.lastIndexOf('/') + 1);
+
+                nameToFiles.computeIfAbsent(modelName, k -> new ArrayList<>())
+                           .add(path + " (namespace: " + shortNamespace + ")");
+            }
+
+            // Find and report duplicates
+            List<String> duplicateErrors = new ArrayList<>();
+            for (Map.Entry<String, List<String>> entry : nameToFiles.entrySet()) {
+                if (entry.getValue().size() > 1) {
+                    duplicateErrors.add(
+                        "  - Model name '" + entry.getKey() + "' found in:\n    " +
+                        String.join("\n    ", entry.getValue())
+                    );
+                }
+            }
+
+            if (!duplicateErrors.isEmpty()) {
+                String errorMessage = "Duplicate DMN model names detected:\n" +
+                                    String.join("\n", duplicateErrors) +
+                                    "\n\nEach DMN model must have a unique 'name' attribute in its <dmn:definitions> element.";
+                log.error(errorMessage);
+                throw new IllegalStateException(errorMessage);
+            }
+
+            log.info("DMN model name validation passed - {} unique model names found across {} total models",
+                     nameToFiles.size(), models.size());
+
+        } catch (IllegalStateException e) {
+            // Re-throw validation failures
+            throw e;
+        } catch (Exception e) {
+            log.error("Error during model name validation", e);
+            throw new IllegalStateException("Failed to validate DMN model names", e);
+        }
     }
 
     /**
@@ -202,5 +271,48 @@ public class ModelRegistry {
             log.debug("Failed to extract model name from {}: {}", dmnFilePath, e.getMessage());
         }
         return null;
+    }
+
+    /**
+     * Scan the filesystem for .dmn files and build a mapping of namespace to relative path.
+     * This is used for validation to show the correct file paths for duplicate models.
+     *
+     * @return map of namespace to relative path
+     */
+    private Map<String, String> scanDMNFilesForNamespaces() {
+        Map<String, String> namespaceToPath = new HashMap<>();
+
+        try {
+            Path resourcesPath = Paths.get("src/main/resources");
+
+            if (Files.exists(resourcesPath)) {
+                try (Stream<Path> paths = Files.walk(resourcesPath)) {
+                    paths.filter(path -> path.toString().endsWith(".dmn"))
+                         .forEach(path -> {
+                             try {
+                                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                                 factory.setNamespaceAware(true);
+                                 DocumentBuilder builder = factory.newDocumentBuilder();
+                                 Document doc = builder.parse(path.toFile());
+
+                                 Element root = doc.getDocumentElement();
+                                 if (root != null && root.hasAttribute("namespace")) {
+                                     String namespace = root.getAttribute("namespace");
+                                     String relativePath = resourcesPath.relativize(path).toString();
+                                     relativePath = relativePath.substring(0, relativePath.length() - 4); // remove .dmn
+                                     namespaceToPath.put(namespace, relativePath);
+                                     log.debug("Mapped DMN namespace: {} -> {}", namespace, relativePath);
+                                 }
+                             } catch (Exception e) {
+                                 log.warn("Failed to parse DMN file: {}", path, e);
+                             }
+                         });
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error scanning DMN files for namespaces", e);
+        }
+
+        return namespaceToPath;
     }
 }

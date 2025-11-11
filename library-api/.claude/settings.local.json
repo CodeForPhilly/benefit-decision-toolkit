@@ -19,7 +19,13 @@
       "Bash(cat:*)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(nc:*)"
+      "Bash(nc:*)",
+      "Bash(done)",
+      "Bash(paste:*)",
+      "Bash(xmllint:*)",
+      "Bash(for f in /home/pcabe/code/benefit-decision-toolkit/library-api/src/main/resources/**/*.dmn)",
+      "WebFetch(domain:quarkus.io)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []
