@@ -208,18 +208,6 @@ public class ModelRegistry {
      * Scan the filesystem for .dmn files and build mappings of model name to relative path and description.
      * Paths are relative to src/main/resources/, excluding the .dmn extension.
      *
-     * Example: src/main/resources/age/PersonMinAge.dmn -> "age/PersonMinAge"
-     *
-     * @return map of model name to relative path
-     */
-    private Map<String, String> scanDMNFiles() {
-        return scanDMNFiles(null);
-    }
-
-    /**
-     * Scan the filesystem for .dmn files and build mappings of model name to relative path and description.
-     * Paths are relative to src/main/resources/, excluding the .dmn extension.
-     *
      * @param modelDescriptions if not null, will be populated with model name to description mappings
      * @return map of model name to relative path
      */
