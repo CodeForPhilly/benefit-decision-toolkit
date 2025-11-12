@@ -12,8 +12,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
-  signInWithRedirect,
 } from "firebase/auth";
+
 import { auth } from "../firebase/firebase";
 
 const AuthContext = createContext();

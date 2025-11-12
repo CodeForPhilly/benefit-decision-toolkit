@@ -14,7 +14,6 @@ import org.acme.persistence.BenefitRepository;
 import org.acme.persistence.EligibilityCheckRepository;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Path("/api")
@@ -34,7 +33,7 @@ public class BenefitResource {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         Log.info("Fetching all eligibility checks. User:  " + userId);
-        List<Benefit> benefits = benefitRepository.getAllPublicBenefits();
+        List<Benefit> benefits = benefitRepository.getAllBenefits();
 
         return Response.ok(benefits, MediaType.APPLICATION_JSON).build();
     }
@@ -86,71 +85,5 @@ public class BenefitResource {
         List<EligibilityCheck> checks = eligibilityCheckRepository.getChecksInBenefit(benefit);
 
         return Response.ok(checks, MediaType.APPLICATION_JSON).build();
-    }
-
-
-    @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/benefit")
-    public Response updateBenefit(@Context SecurityIdentity identity,
-                                  Benefit newBenefit) {
-        String userId = AuthUtils.getUserId(identity);
-        //TODO: Add validations for user provided data
-
-        newBenefit.setOwnerId(userId);
-        try {
-            Optional<Benefit> benefitOpt = benefitRepository.getBenefit(newBenefit.getId());
-            if (benefitOpt.isEmpty()){
-                return Response.status(Response.Status.NOT_FOUND).build();
-            }
-            Benefit existingBenefit = benefitOpt.get();
-
-            if (!isUserAuthorizedToUpdateBenefit(userId, existingBenefit)){
-                return Response.status(Response.Status.UNAUTHORIZED).build();
-            }
-
-
-            benefitRepository.updateBenefit(newBenefit);
-            return Response.ok(newBenefit, MediaType.APPLICATION_JSON).build();
-
-        } catch (Exception e){
-            Log.error(e);
-            return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(Map.of("error", "Could not update benefit"))
-                    .build();
-        }
-    }
-
-    // Utility endpoint to create a public benefit
-    @POST
-    @Path("/benefit")
-    public Response createBenefit(@Context SecurityIdentity identity,
-                                  Benefit newBenefit) {
-        String userId = AuthUtils.getUserId(identity);
-
-        //TODO: Add validations for user provided data
-
-        newBenefit.setOwnerId(userId);
-        try {
-            String benefitId = benefitRepository.saveNewBenefit(newBenefit);
-            newBenefit.setId(benefitId);
-            return Response.ok(newBenefit, MediaType.APPLICATION_JSON).build();
-        } catch (Exception e){
-            Log.error(e);
-            return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(Map.of("error", "Could not save benefit"))
-                    .build();
-        }
-    }
-
-    private boolean isUserAuthorizedToUpdateBenefit(String userId, Benefit benefit) {
-        String ownerId = benefit.getOwnerId();
-        if (ownerId == null){
-            return false;
-        }
-        if (userId.equals(ownerId)){
-            return true;
-        }
-        return false;
     }
 }

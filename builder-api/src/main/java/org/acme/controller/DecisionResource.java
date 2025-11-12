@@ -13,8 +13,8 @@ import org.acme.enums.OptionalBoolean;
 import org.acme.model.domain.Benefit;
 import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.domain.Screener;
-import org.acme.persistence.BenefitRepository;
 import org.acme.persistence.EligibilityCheckRepository;
+import org.acme.persistence.PublishedScreenerRepository;
 import org.acme.persistence.ScreenerRepository;
 import org.acme.persistence.StorageService;
 import org.acme.service.DmnService;
@@ -23,9 +23,15 @@ import java.util.*;
 
 @Path("/api")
 public class DecisionResource {
+    
+    @Inject
+    EligibilityCheckRepository eligibilityCheckRepository;
 
     @Inject
     ScreenerRepository screenerRepository;
+
+    @Inject
+    PublishedScreenerRepository publishedScreenerRepository;
 
     @Inject
     StorageService storageService;
@@ -33,11 +39,40 @@ public class DecisionResource {
     @Inject
     DmnService dmnService;
 
-    @Inject
-    EligibilityCheckRepository eligibilityCheckRepository;
+    @POST
+    @Path("/published/{screenerId}/evaluate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response evaluatePublishedScreener(
+        @PathParam("screenerId") String screenerId,
+        Map<String, Object> inputData
+    ) throws Exception {
+        Optional<Screener> screenerOpt = publishedScreenerRepository.getScreener(screenerId);
+        if (screenerOpt.isEmpty()){
+            Log.info("Screener not found: " + screenerId);
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        Screener screener = screenerOpt.get();
 
-    @Inject
-    BenefitRepository benefitRepository;
+        List<Benefit> benefits = publishedScreenerRepository.getBenefitsInScreener(screener);
+        if (benefits.isEmpty()){
+            Log.info("Benefits not found: " + screenerId);
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        try {
+            Map<String, Object> screenerResults = new HashMap<String, Object>();
+            for (Benefit benefit : benefits) {
+                // Evaluate benefit
+                Map<String, Object> benefitResults = evaluateBenefit(benefit, inputData);
+                screenerResults.put(benefit.getId(), benefitResults);
+            }
+            return Response.ok().entity(screenerResults).build();
+        } catch (Exception e) {
+            Log.error("Error: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     @POST
     @Path("/decision/v2")
@@ -60,7 +95,7 @@ public class DecisionResource {
         }
         Screener screener = screenerOpt.get();
 
-        List<Benefit> benefits = benefitRepository.getBenefitsInScreener(screener);
+        List<Benefit> benefits = screenerRepository.getBenefitsInScreener(screener);
         if (benefits.isEmpty()){
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -69,7 +104,7 @@ public class DecisionResource {
             Map<String, Object> screenerResults = new HashMap<String, Object>();
             for (Benefit benefit : benefits) {
                 // Evaluate benefit
-                Map<String, Object> benefitResults = evaluateBenefitDmn(benefit, inputData);
+                Map<String, Object> benefitResults = evaluateBenefit(benefit, inputData);
                 screenerResults.put(benefit.getId(), benefitResults);
             }
             return Response.ok().entity(screenerResults).build();
@@ -79,54 +114,7 @@ public class DecisionResource {
         }
     }
 
-    @POST
-    @Path("/decision/v2/benefit")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response evaluateBenefit(
-        @Context SecurityIdentity identity,
-        @QueryParam("screenerId") String screenerId,
-        @QueryParam("benefitId") String benefitId,
-        Map<String, Object> inputData
-    ) throws Exception {
-        if (benefitId == null || benefitId.isBlank()){
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Error: Missing required query parameter: benefitId")
-                    .build();
-        }
-        if (inputData == null || inputData.isEmpty()){
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Error: Missing decision inputs")
-                    .build();
-        }
-
-        // Authorize user and get benefit
-        String userId = AuthUtils.getUserId(identity);
-        Optional<Benefit> benefitOpt = Optional.empty();
-        if (!screenerId.isEmpty()){
-            if (!isUserAuthorizedToAccessScreenerByScreenerId(userId, screenerId)){
-                return Response.status(Response.Status.UNAUTHORIZED).build();
-            }
-            benefitOpt = benefitRepository.getCustomBenefit(screenerId, benefitId);
-        } else {
-            benefitOpt = benefitRepository.getBenefit(benefitId);
-        }
-        if (benefitOpt.isEmpty()){
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-
-        Benefit benefit = benefitOpt.get();
-        try {
-            // Evaluate benefit
-            Map<String, Object> results = evaluateBenefitDmn(benefit, inputData);
-            return Response.ok().entity(results).build();
-        } catch (Exception e) {
-            Log.error("Error: " + e.getMessage());
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    private Map<String, Object> evaluateBenefitDmn(Benefit benefit, Map<String, Object> inputData) throws Exception {
+    private Map<String, Object> evaluateBenefit(Benefit benefit, Map<String, Object> inputData) throws Exception {
         List<EligibilityCheck> checks = eligibilityCheckRepository.getChecksInBenefit(benefit);
 
         if (benefit.getPublic()){

@@ -35,12 +35,12 @@ const BenefitList = (
       >
         Create New Benefit
       </div>
-      <div
+      {/* <div
         class="btn-default btn-blue mb-3"
         onClick={() => {setSelectExistingBenefitModal(true)}}
       >
         Copy from Existing Benefit
-      </div>
+      </div> */}
       <div
         class="
           grid gap-4 justify-items-center
@@ -73,13 +73,13 @@ const BenefitList = (
           addNewBenefit={actions.addNewBenefit}
         />
       }
-      {
+      {/* {
         selectExistingBenefitModal() &&
         <SelectExistingBenefitModal
           closeModal={() => setSelectExistingBenefitModal(false)}
           copyPublicBenefit={actions.copyPublicBenefit}
         />
-      }
+      } */}
       {
         benefitIdToRemove() !== null &&
         <ConfirmationModal

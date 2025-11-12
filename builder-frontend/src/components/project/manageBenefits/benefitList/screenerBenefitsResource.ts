@@ -3,10 +3,8 @@ import { createStore } from "solid-js/store";
 
 import {
   addCustomBenefit,
-  copyPublicBenefit as copyPublicBenefitApi,
   fetchProject,
   removeCustomBenefit,
-  updateScreener
 } from "@/api/screener";
 
 import type { BenefitDetail, ScreenerBenefits } from "@/types";
@@ -17,7 +15,7 @@ export interface ScreenerBenefitsResource {
   actions: {
     addNewBenefit: (benefit: BenefitDetail) => Promise<void>;
     removeBenefit: (benefitIdToRemove: string) => Promise<void>;
-    copyPublicBenefit: (benefitId: string) => Promise<void>;
+    // copyPublicBenefit: (benefitId: string) => Promise<void>;
   };
   actionInProgress: Accessor<boolean>;
   initialLoadStatus: {
@@ -54,16 +52,16 @@ const createScreenerBenefits = (screenerId: Accessor<string>): ScreenerBenefitsR
     setActionInProgress(false);
   }
 
-  const copyPublicBenefit = async (benefitId: string) => {
-    setActionInProgress(true);
-    try {
-      await copyPublicBenefitApi(screenerId(), benefitId);
-      await refetch();
-    } catch (e) {
-      console.error("Failed to add new benefit, reverting state", e);
-    }
-    setActionInProgress(false);
-  }
+  // const copyPublicBenefit = async (benefitId: string) => {
+  //   setActionInProgress(true);
+  //   try {
+  //     await copyPublicBenefitApi(screenerId(), benefitId);
+  //     await refetch();
+  //   } catch (e) {
+  //     console.error("Failed to add new benefit, reverting state", e);
+  //   }
+  //   setActionInProgress(false);
+  // }
 
   const removeBenefit = async (benefitIdToRemove: string) => {
     setActionInProgress(true);
@@ -81,7 +79,7 @@ const createScreenerBenefits = (screenerId: Accessor<string>): ScreenerBenefitsR
     actions: {
       addNewBenefit,
       removeBenefit,
-      copyPublicBenefit
+      // copyPublicBenefit
     },
     actionInProgress,
     initialLoadStatus: {

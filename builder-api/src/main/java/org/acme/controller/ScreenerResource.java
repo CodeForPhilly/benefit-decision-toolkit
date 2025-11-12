@@ -3,6 +3,7 @@ package org.acme.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.logging.Log;
 import io.quarkus.security.identity.SecurityIdentity;
+import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -12,19 +13,16 @@ import org.acme.auth.AuthUtils;
 import org.acme.model.domain.*;
 import org.acme.model.dto.PublishScreenerRequest;
 import org.acme.model.dto.SaveSchemaRequest;
-import org.acme.persistence.BenefitRepository;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.ScreenerRepository;
+import org.acme.persistence.PublishedScreenerRepository;
 import org.acme.persistence.StorageService;
 import org.acme.service.DmnService;
 
-import java.time.Instant;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 @Path("/api")
 public class ScreenerResource {
@@ -33,7 +31,7 @@ public class ScreenerResource {
     ScreenerRepository screenerRepository;
 
     @Inject
-    BenefitRepository benefitRepository;
+    PublishedScreenerRepository publishedScreenerRepository;
 
     @Inject
     EligibilityCheckRepository eligibilityCheckRepository;
@@ -57,38 +55,43 @@ public class ScreenerResource {
         return Response.ok(screeners, MediaType.APPLICATION_JSON).build();
     }
 
-
     @GET
     @Path("/screener/{screenerId}")
     public Response getScreener(@Context SecurityIdentity identity, @PathParam("screenerId") String screenerId) {
-
         String userId = AuthUtils.getUserId(identity);
         Log.info("Fetching screener " + screenerId + "  for user " + userId);
-
-        //perform authentication
 
         Optional<Screener> screenerOptional = screenerRepository.getWorkingScreener(screenerId);
 
         if (screenerOptional.isEmpty()){
-          throw new NotFoundException();
+            throw new NotFoundException();
         }
 
         Screener screener = screenerOptional.get();
-
-        if (!isUserAuthorizedToAccessScreenerByScreener(userId, screener)) return Response.status(Response.Status.UNAUTHORIZED).build();
+        if (!isUserAuthorizedToAccessScreenerByScreener(userId, screener)) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
 
         return Response.ok(screener, MediaType.APPLICATION_JSON).build();
     }
 
+    @GET
+    @Path("/published/screener/{screenerId}")
+    @PermitAll // This endpoint is accessible without authentication
+    public Response getPublishedScreener(@PathParam("screenerId") String screenerId) {
+        Optional<Screener> screenerOptional = publishedScreenerRepository.getScreener(screenerId);
+        if (screenerOptional.isEmpty()){
+          throw new NotFoundException();
+        }
+
+        return Response.ok(screenerOptional.get(), MediaType.APPLICATION_JSON).build();
+    }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/screener")
     public Response postScreener(@Context SecurityIdentity identity, Screener newScreener){
         String userId = AuthUtils.getUserId(identity);
-
-        //initialize screener data not in form
-        newScreener.setIsPublished(false);
 
         newScreener.setOwnerId(userId);
         try {
@@ -102,7 +105,6 @@ public class ScreenerResource {
         }
     }
 
-
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/screener")
@@ -113,7 +115,6 @@ public class ScreenerResource {
         //add user info to the update data
         screener.setOwnerId(userId);
 
-        Log.info("isPublished: " + screener.isPublished());
         try {
             screenerRepository.updateWorkingScreener(screener);
 
@@ -173,53 +174,15 @@ public class ScreenerResource {
         if (!isUserAuthorizedToAccessScreener(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
 
         try {
-            //update published form schema
-            storageService.updatePublishedFormSchemaArtifact(screenerId);
-            Log.info("Updated Screener " + screenerId + " to published.");
-
-            Screener updateScreener = new Screener();
-            updateScreener.setId(screenerId);
-            updateScreener.setIsPublished(true);
-            updateScreener.setLastPublishDate(Instant.now().toString());
-            //update screener metadata
-            screenerRepository.updateWorkingScreener(updateScreener);
-
-            Map<String, Object> responseData = new HashMap<>();
-            responseData.put("screenerUrl", getScreenerUrl(screenerId));
-            return Response.ok().entity(responseData).build();
-        } catch (Exception e){
-            Log.error("Error: Error updating screener to published. Screener: " + screenerId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    private static String getScreenerUrl(String screenerId) {
-        return "screener/" + screenerId;
-    }
-
-    @POST
-    @Path("/unpublish")
-    public Response unpublishScreener(@Context SecurityIdentity identity, @QueryParam("screenerId") String screenerId){
-
-        if (screenerId == null || screenerId.isBlank()){
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Error: Missing required query parameter: screenerId")
-                    .build();
-        }
-
-        String userId = AuthUtils.getUserId(identity);
-        if (!isUserAuthorizedToAccessScreener(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
-
-        try {
-            Screener updateScreener = new Screener();
-            updateScreener.setId(screenerId);
-            updateScreener.setIsPublished(false);
-            screenerRepository.updateWorkingScreener(updateScreener);
-            Log.info("Updated Screener " + screenerId + " to unpublished.");
+            Optional<Screener> screenerOpt = screenerRepository.getWorkingScreener(screenerId);
+            if (screenerOpt.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            Screener screener = screenerOpt.get();
+            screenerRepository.publishScreener(screener);
             return Response.ok().build();
-
-        } catch (Exception e){
-            Log.error("Error: Error updating screener to unpublished. Screener: " + screenerId);
+        } catch (Exception e) {
+            Log.error("Error: Error updating screener to published. Screener: " + screenerId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -279,7 +242,7 @@ public class ScreenerResource {
         }
 
         try{
-            List<Benefit> benefits = benefitRepository.getBenefitsInScreener(screener);
+            List<Benefit> benefits = screenerRepository.getBenefitsInScreener(screener);
             return Response.ok().entity(benefits).build();
         } catch (Exception e){
             Log.error(e);
@@ -300,7 +263,7 @@ public class ScreenerResource {
         }
 
         try{
-            Optional<Benefit> benefitOpt = benefitRepository.getCustomBenefit(screenerId, benefitId);
+            Optional<Benefit> benefitOpt = screenerRepository.getCustomBenefit(screenerId, benefitId);
             if (benefitOpt.isEmpty()){
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
@@ -331,7 +294,7 @@ public class ScreenerResource {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
 
-            Optional<Benefit> benefitOpt = benefitRepository.getCustomBenefit(screenerId, benefitId);
+            Optional<Benefit> benefitOpt = screenerRepository.getCustomBenefit(screenerId, benefitId);
             if (benefitOpt.isEmpty()) {
                 throw new NotFoundException();
             }
@@ -389,70 +352,9 @@ public class ScreenerResource {
                 ).build();
             }
 
-            String benefitId = benefitRepository.saveNewCustomBenefit(screenerId, newBenefit);
+            String benefitId = screenerRepository.saveNewCustomBenefit(screenerId, newBenefit);
             screenerRepository.addBenefitDetailToWorkingScreener(screenerId, benefitDetail);
             newBenefit.setId(benefitId);
-            return Response.ok(newBenefit, MediaType.APPLICATION_JSON).build();
-        } catch (Exception e) {
-            Log.error(e);
-            return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(Map.of("error", "Could not save benefit"))
-                    .build();
-        }
-    }
-
-    @POST
-    @Path("/screener/{screenerId}/copy_public_benefit")
-    public Response copyPublicBenefit(@Context SecurityIdentity identity,
-                                      @PathParam("screenerId") String screenerId,
-                                      @QueryParam("benefitId") String benefitId) {
-        // Check if Screener and Benefit exist
-        Optional<Screener> screenerOpt = screenerRepository.getWorkingScreener(screenerId);
-        Optional<Benefit> benefitOpt = benefitRepository.getBenefit(benefitId);
-        if (screenerOpt.isEmpty()) {
-            throw new NotFoundException();
-        }
-        if (benefitOpt.isEmpty()) {
-            throw new NotFoundException();
-        }
-
-        // Confirm user is authorized to make the change
-        String userId = AuthUtils.getUserId(identity);
-        Screener screener = screenerOpt.get();
-        if (!isUserAuthorizedToAccessScreenerByScreener(userId, screener)){
-            return Response.status(Response.Status.UNAUTHORIZED).build();
-        }
-
-        Benefit publicBenefit = benefitOpt.get();
-        List<BenefitDetail> benefits = screenerOpt.get().getBenefits();
-        Boolean benefitIdExists = !benefits.stream().filter(
-            benefitDetail -> publicBenefit.getId().equals(benefitDetail.getId())
-        ).toList().isEmpty();
-        if (benefitIdExists){
-            return Response.status(
-                Response.Status.CONFLICT.getStatusCode(),
-                "Benefit with provided ID already exists on screener."
-            ).build();
-        }
-
-        try {
-            Benefit newBenefit = new Benefit();
-            newBenefit.setId(UUID.randomUUID().toString());
-            newBenefit.setName(publicBenefit.getName());
-            newBenefit.setDescription(publicBenefit.getDescription());
-            newBenefit.setOwnerId(userId);
-            newBenefit.setChecks(publicBenefit.getChecks());
-
-            BenefitDetail benefitDetail = new BenefitDetail();
-            benefitDetail.setId(newBenefit.getId());
-            benefitDetail.setName(newBenefit.getName());
-            benefitDetail.setDescription(newBenefit.getDescription());
-            benefitDetail.setPublic(newBenefit.getPublic());
-
-            String generatedBenefitId = benefitRepository.saveNewCustomBenefit(screenerId, newBenefit);
-            screenerRepository.addBenefitDetailToWorkingScreener(screenerId, benefitDetail);
-            newBenefit.setId(generatedBenefitId);
-
             return Response.ok(newBenefit, MediaType.APPLICATION_JSON).build();
         } catch (Exception e) {
             Log.error(e);
@@ -477,12 +379,12 @@ public class ScreenerResource {
         }
 
         try {
-            Optional<Benefit> benefitOpt = benefitRepository.getCustomBenefit(screenerId, updatedBenefit.getId());
+            Optional<Benefit> benefitOpt = screenerRepository.getCustomBenefit(screenerId, updatedBenefit.getId());
             if (benefitOpt.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-            benefitRepository.updateCustomBenefit(screenerId, updatedBenefit);
+            screenerRepository.updateCustomBenefit(screenerId, updatedBenefit);
             return Response.ok(updatedBenefit, MediaType.APPLICATION_JSON).build();
         } catch (Exception e) {
             Log.error(e);
@@ -500,7 +402,7 @@ public class ScreenerResource {
         try {
             // Check if Screener and Benefit exist
             Optional<Screener> screenerOpt = screenerRepository.getWorkingScreener(screenerId);
-            Optional<Benefit> benefitOpt = benefitRepository.getCustomBenefit(screenerId, benefitId);
+            Optional<Benefit> benefitOpt = screenerRepository.getCustomBenefit(screenerId, benefitId);
             if (screenerOpt.isEmpty()){
                 throw new NotFoundException();
             }
@@ -516,7 +418,7 @@ public class ScreenerResource {
             }
 
             // Delete the benefit and remove the benefitDetail from the screener
-            benefitRepository.deleteCustomBenefit(screenerId, benefitId);
+            screenerRepository.deleteCustomBenefit(screenerId, benefitId);
             List<BenefitDetail> updatedBenefits = screener.getBenefits()
                     .stream()
                     .filter(benefitDetail -> !benefitDetail.getId().equals(benefitId))

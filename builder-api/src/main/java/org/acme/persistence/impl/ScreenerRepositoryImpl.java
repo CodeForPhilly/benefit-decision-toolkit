@@ -6,21 +6,31 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.acme.constants.CollectionNames;
 import org.acme.constants.FieldNames;
+import org.acme.model.domain.Benefit;
 import org.acme.model.domain.BenefitDetail;
 import org.acme.model.domain.Screener;
 import org.acme.persistence.FirestoreUtils;
 import org.acme.persistence.ScreenerRepository;
 import org.acme.persistence.StorageService;
+import org.acme.persistence.PublishedScreenerRepository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @ApplicationScoped
 public class ScreenerRepositoryImpl implements ScreenerRepository {
+    
+    @Inject
+    private PublishedScreenerRepository publishedScreenerRepository;
 
     @Inject
     private StorageService storageService;
+
+    public String calculateCustomBenefitCollection(String screenerId) {
+        return CollectionNames.WORKING_SCREENER_COLLECTION + "/" + screenerId + "/customBenefit";
+    }
 
     @Override
     public List<Screener> getWorkingScreeners(String userId) {
@@ -31,7 +41,11 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
                 userId);
 
         ObjectMapper mapper = new ObjectMapper();
-        List<Screener> screeners = screenersMaps.stream().map(screenerMap ->  mapper.convertValue(screenerMap, Screener.class)).toList();
+        List<Screener> screeners = (
+            screenersMaps.stream().map(
+                screenerMap -> mapper.convertValue(screenerMap, Screener.class)
+            ).toList()
+        );
 
         return screeners;
     }
@@ -79,10 +93,9 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(screener, Map.class);
 
-        // Remove DMN model and form schema if included on the model.
-        // We don't want to save these artifacts as fields on the firestore document.
-        // These are saved separately on in cloud storage.
-        data.remove("dmnModel");
+        // Remove form schema if included on the model.
+        // We don't want to save this artifact as a field on the firestore document.
+        // It is saved separately on in cloud storage.
         data.remove("formSchema");
 
         FirestoreUtils.updateDocument(CollectionNames.WORKING_SCREENER_COLLECTION, data, screener.getId());
@@ -97,5 +110,72 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
     @Override
     public void deleteWorkingScreener(String screenerId) throws Exception {
         FirestoreUtils.deleteDocument(CollectionNames.WORKING_SCREENER_COLLECTION, screenerId);
+    }
+
+    /* Screener Benefits logic */
+    public Optional<Benefit> getCustomBenefit(String screenerId, String benefitId) {
+        Optional<Map<String, Object>> benefitMap = FirestoreUtils.getFirestoreDocById(
+            calculateCustomBenefitCollection(screenerId), benefitId
+        );
+
+        if (benefitMap.isEmpty()) {
+            return Optional.empty();
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        return Optional.of(mapper.convertValue(benefitMap.get(), Benefit.class));
+    }
+
+    public List<Benefit> getBenefitsInScreener(Screener screener) throws Exception{
+        List<Map<String, Object>> customBenefitMaps = (
+            FirestoreUtils.getAllDocsInCollection(calculateCustomBenefitCollection(screener.getId()))
+        );
+
+        ObjectMapper mapper = new ObjectMapper();
+        return customBenefitMaps.stream().map(
+            benefitMap -> mapper.convertValue(benefitMap, Benefit.class)
+        ).toList();
+    }
+
+    public void updateCustomBenefit(String screenerId, Benefit benefit) throws Exception {
+        ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Map<String, Object> data = mapper.convertValue(benefit, Map.class);
+        String benefitDocId = benefit.getId();
+        System.out.println("Updating custom benefit: " + benefit.getId());
+
+        FirestoreUtils.updateDocument(calculateCustomBenefitCollection(screenerId), data, benefitDocId);
+    }
+
+    public String saveNewCustomBenefit(String screenerId, Benefit benefit) throws Exception{
+        ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Map<String, Object> data = mapper.convertValue(benefit, Map.class);
+        String benefitDocId = benefit.getId();
+        return FirestoreUtils.persistDocumentWithId(calculateCustomBenefitCollection(screenerId), benefitDocId, data);
+    }
+
+    public void deleteCustomBenefit(String screenerId, String benefitId) throws Exception {
+        FirestoreUtils.deleteDocument(calculateCustomBenefitCollection(screenerId), benefitId);
+    }
+
+    /* Publishing logic */
+    @Override
+    public void publishScreener(Screener screener) throws Exception {
+        if (screener.getPublishedScreenerId() == null || screener.getPublishedScreenerId().isEmpty()) {
+            String publishedScreenerId = publishedScreenerRepository.createPublishedScreener(screener);
+            screener.setPublishedScreenerId(publishedScreenerId);
+        } else {
+            publishedScreenerRepository.updatePublishedScreener(screener.getPublishedScreenerId(), screener);
+        }
+
+        screener.setLastPublishDate(Instant.now().toString());
+        this.updateWorkingScreener(screener);
+
+        publishedScreenerRepository.refreshPublishedScreenerbenefits(
+            screener.getPublishedScreenerId(),
+            this.getBenefitsInScreener(screener)
+        );
+
+        storageService.updatePublishedFormSchemaArtifact(
+            screener.getId(), screener.getPublishedScreenerId()
+        );
     }
 }

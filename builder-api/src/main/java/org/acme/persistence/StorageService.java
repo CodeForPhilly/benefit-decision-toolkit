@@ -29,5 +29,5 @@ public interface StorageService {
 
     Map<String, Object> getFormSchemaFromStorage(String filePath);
 
-    void updatePublishedFormSchemaArtifact(String screenerId) throws Exception;
+    void updatePublishedFormSchemaArtifact(String screenerId, String publishedScreenerId) throws Exception;
 }

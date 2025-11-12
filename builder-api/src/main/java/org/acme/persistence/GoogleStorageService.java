@@ -174,10 +174,10 @@ public class GoogleStorageService implements StorageService {
     }
 
     @Override
-    public void updatePublishedFormSchemaArtifact(String screenerId) throws Exception {
+    public void updatePublishedFormSchemaArtifact(String screenerId, String publishedScreenerId) throws Exception {
         try {
             String sourcePath = getScreenerWorkingFormSchemaPath(screenerId);
-            String destPath = getScreenerPublishedFormSchemaPath(screenerId);
+            String destPath = getScreenerPublishedFormSchemaPath(publishedScreenerId);
 
             BlobId sourceBlobId = BlobId.of(bucketName, sourcePath);
             Blob sourceBlob = storage.get(sourceBlobId);
