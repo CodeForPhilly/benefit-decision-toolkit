@@ -1,21 +1,16 @@
-# Use Kogito runtime image with Java 17
-FROM quay.io/kiegroup/kogito-runtime-jvm:1.44.1
+FROM registry.access.redhat.com/ubi9/openjdk-17:1.20
 
-ENV RUNTIME_TYPE=quarkus
-ENV JAVA_HOME=/usr/lib/jvm/java-17
-ENV PATH=$JAVA_HOME/bin:$PATH
+ENV LANGUAGE='en_US:en'
 
-# Copy the pre-built application (built by GitHub Actions before Docker)
-COPY target/quarkus-app/lib/ $KOGITO_HOME/bin/lib/
-COPY target/quarkus-app/*.jar $KOGITO_HOME/bin/
-COPY target/quarkus-app/app/ $KOGITO_HOME/bin/app/
-COPY target/quarkus-app/quarkus/ $KOGITO_HOME/bin/quarkus/
+# We make four distinct layers so if there are application changes the library layers can be re-used
+COPY --chown=185 target/quarkus-app/lib/ /deployments/lib/
+COPY --chown=185 target/quarkus-app/*.jar /deployments/
+COPY --chown=185 target/quarkus-app/app/ /deployments/app/
+COPY --chown=185 target/quarkus-app/quarkus/ /deployments/quarkus/
 
-# Set working directory and run the application
-WORKDIR $KOGITO_HOME/bin
 EXPOSE 8080
+USER 185
+ENV JAVA_OPTS_APPEND="-Dquarkus.http.host=0.0.0.0 -Dquarkus.http.port=${PORT:-8080} -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
 
-# Configure Quarkus to listen on 0.0.0.0 and use PORT env var from Cloud Run
-ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Dquarkus.http.port=${PORT:-8080} -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
-
-CMD ["sh", "-c", "java ${JAVA_OPTS} -jar quarkus-run.jar"]
+ENTRYPOINT [ "/opt/jboss/container/java/run/run-java.sh" ]
