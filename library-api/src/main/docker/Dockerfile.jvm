@@ -10,3 +10,8 @@ COPY target/quarkus-app/lib/ $KOGITO_HOME/bin/lib/
 COPY target/quarkus-app/*.jar $KOGITO_HOME/bin/
 COPY target/quarkus-app/app/ $KOGITO_HOME/bin/app/
 COPY target/quarkus-app/quarkus/ $KOGITO_HOME/bin/quarkus/
+
+# Set working directory and run the application
+WORKDIR $KOGITO_HOME/bin
+EXPOSE 8080
+CMD ["java", "-jar", "quarkus-run.jar"]
