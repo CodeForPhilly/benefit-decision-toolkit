@@ -42,7 +42,7 @@ jobs:
         id: extract_version
         run: |
           cd library-api
-          VERSION=$(devbox run -q -- mvn help:evaluate -Dexpression=project.version -q -DforceStdout | tr -d '\n' | xargs)
+          VERSION=$(devbox run -q -- mvn help:evaluate -Dexpression=project.version -q -DforceStdout 2>/dev/null | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -1 | tr -d '\n' | xargs)
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           # Create revision-safe version string (replace dots with dashes for Cloud Run)
           REVISION_VERSION=$(echo "${VERSION}" | tr '.' '-')
