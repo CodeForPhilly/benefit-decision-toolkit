@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.prestoncabe</groupId>
   <artifactId>benefit-decision-toolkit</artifactId>
-  <version>0.1.3</version>
+  <version>0.1.4</version>
   <name>Benefit Decision Toolkit</name>
 
   <properties>
