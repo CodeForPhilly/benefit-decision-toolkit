@@ -14,4 +14,8 @@ COPY target/quarkus-app/quarkus/ $KOGITO_HOME/bin/quarkus/
 # Set working directory and run the application
 WORKDIR $KOGITO_HOME/bin
 EXPOSE 8080
-CMD ["java", "-jar", "quarkus-run.jar"]
+
+# Configure Quarkus to listen on 0.0.0.0 and use PORT env var from Cloud Run
+ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Dquarkus.http.port=${PORT:-8080} -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+
+CMD ["sh", "-c", "java ${JAVA_OPTS} -jar quarkus-run.jar"]
