@@ -16,6 +16,8 @@ import org.eclipse.microprofile.openapi.models.responses.APIResponse;
 import org.eclipse.microprofile.openapi.models.responses.APIResponses;
 
 import javax.enterprise.inject.spi.CDI;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -450,21 +452,44 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
     }
 
     /**
+     * Read DMN file content from classpath.
+     * Works in both dev mode (filesystem) and production (JAR packaging).
+     * Pattern mirrors ModelRegistry.scanDMNFiles() for consistency.
+     *
+     * @param relativePath path relative to classpath root (e.g., "checks/age/PersonMinAge")
+     * @return DMN file content as string, or null if not found
+     */
+    private String readDMNFileContent(String relativePath) {
+        try {
+            String resourcePath = relativePath + ".dmn";
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
+            try (InputStream is = classLoader.getResourceAsStream(resourcePath)) {
+                if (is == null) {
+                    LOG.warning("DMN file not found on classpath: " + resourcePath);
+                    return null;
+                }
+                return new String(is.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+            }
+        } catch (IOException e) {
+            LOG.warning("Error reading DMN file " + relativePath + ": " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Get the actual output decision name from the DMN file.
      * Parses the decision service definition to find the output decision's name attribute.
      */
     private String getOutputDecisionName(ModelInfo model, String serviceName) {
         try {
-            // Read the DMN file
-            String dmnPath = "src/main/resources/" + model.getPath() + ".dmn";
-            java.nio.file.Path path = java.nio.file.Paths.get(dmnPath);
+            // Read the DMN file from classpath
+            String dmnContent = readDMNFileContent(model.getPath());
 
-            if (!java.nio.file.Files.exists(path)) {
-                LOG.warning("DMN file not found: " + dmnPath);
+            if (dmnContent == null) {
+                LOG.warning("DMN file not found for model: " + model.getModelName() + " at path: " + model.getPath());
                 return "result"; // fallback
             }
-
-            String dmnContent = java.nio.file.Files.readString(path);
 
             // Find the decision service with the given name
             String servicePattern = "name=\"" + serviceName + "\"";
