@@ -16,14 +16,19 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -205,8 +210,9 @@ public class ModelRegistry {
     }
 
     /**
-     * Scan the filesystem for .dmn files and build mappings of model name to relative path and description.
-     * Paths are relative to src/main/resources/, excluding the .dmn extension.
+     * Scan the classpath for .dmn files and build mappings of model name to relative path and description.
+     * Uses ClassLoader-based scanning that works in both dev mode and production (JAR).
+     * Paths are relative to the classpath root, excluding the .dmn extension.
      *
      * @param modelDescriptions if not null, will be populated with model name to description mappings
      * @return map of model name to relative path
@@ -215,70 +221,154 @@ public class ModelRegistry {
         Map<String, String> modelNameToPath = new HashMap<>();
 
         try {
-            // In production, DMN files are in the classpath
-            // We need to check if we're in dev mode (filesystem) or production (classpath)
-            Path resourcesPath = Paths.get("src/main/resources");
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-            if (Files.exists(resourcesPath)) {
-                // Dev mode - scan filesystem
-                try (Stream<Path> paths = Files.walk(resourcesPath)) {
-                    paths.filter(path -> path.toString().endsWith(".dmn"))
-                         .forEach(path -> {
-                             try {
-                                 String modelName = extractModelName(path);
-                                 if (modelName != null) {
-                                     // Build relative path without extension
-                                     String relativePath = resourcesPath.relativize(path).toString();
-                                     relativePath = relativePath.substring(0, relativePath.length() - 4); // remove .dmn
-                                     modelNameToPath.put(modelName, relativePath);
-                                     log.debug("Mapped DMN file: {} -> {}", modelName, relativePath);
+            // Try to find a known DMN file to locate the resources root
+            URL resourceUrl = classLoader.getResource("BDT.dmn");
 
-                                     // Extract description if requested
-                                     if (modelDescriptions != null) {
-                                         String description = extractModelDescription(path);
-                                         modelDescriptions.put(modelName, description);
-                                         log.debug("Extracted description for {}: {}", modelName,
-                                                   description != null ? description.substring(0, Math.min(50, description.length())) + "..." : "null");
-                                     }
-                                 }
-                             } catch (Exception e) {
-                                 log.warn("Failed to parse DMN file: {}", path, e);
-                             }
-                         });
+            if (resourceUrl != null) {
+                String protocol = resourceUrl.getProtocol();
+                log.debug("Found BDT.dmn at: {} (protocol: {})", resourceUrl, protocol);
+
+                if ("file".equals(protocol)) {
+                    // Dev mode or exploded deployment - get parent directory
+                    try {
+                        Path dmnPath = Paths.get(resourceUrl.toURI());
+                        Path rootPath = dmnPath.getParent(); // This should be target/classes or similar
+                        log.debug("Scanning filesystem for DMN files from root: {}", rootPath);
+                        scanFilesystemForDMN(rootPath, rootPath, modelNameToPath, modelDescriptions);
+                    } catch (Exception e) {
+                        log.error("Error scanning filesystem from resource URL", e);
+                    }
+                } else if ("jar".equals(protocol)) {
+                    // Production mode - extract JAR path
+                    try {
+                        String jarPath = resourceUrl.getPath();
+                        if (jarPath.contains("!")) {
+                            jarPath = jarPath.substring(0, jarPath.indexOf("!"));
+                            if (jarPath.startsWith("file:")) {
+                                jarPath = jarPath.substring(5);
+                            }
+                            log.debug("Scanning JAR for DMN files: {}", jarPath);
+                            scanJarForDMN(jarPath, modelNameToPath, modelDescriptions);
+                        }
+                    } catch (Exception e) {
+                        log.error("Error scanning JAR from resource URL", e);
+                    }
                 }
             } else {
-                // Production mode - scan classpath resources
-                log.debug("Scanning classpath for DMN files (production mode)");
-                // For now, we'll skip production mode scanning
-                // This can be enhanced later if needed
+                log.warn("Could not locate BDT.dmn resource, falling back to target/classes scan");
+                // Fallback for dev mode: check if target/classes exists
+                Path targetClasses = Paths.get("target/classes");
+                if (Files.exists(targetClasses)) {
+                    log.debug("Scanning fallback directory: {}", targetClasses);
+                    scanFilesystemForDMN(targetClasses, targetClasses, modelNameToPath, modelDescriptions);
+                } else {
+                    log.error("Could not find DMN files - neither BDT.dmn resource nor target/classes directory found");
+                }
             }
 
+            log.info("DMN classpath scan complete: found {} models", modelNameToPath.size());
+
         } catch (Exception e) {
-            log.error("Error scanning DMN files", e);
+            log.error("Error scanning DMN files from classpath", e);
         }
 
         return modelNameToPath;
     }
 
     /**
+     * Scan a filesystem directory for DMN files.
+     */
+    private void scanFilesystemForDMN(Path rootPath, Path currentPath,
+                                       Map<String, String> modelNameToPath,
+                                       Map<String, String> modelDescriptions) throws Exception {
+        log.debug("Walking filesystem from {} (root: {})", currentPath, rootPath);
+        try (Stream<Path> paths = Files.walk(currentPath)) {
+            paths.filter(path -> path.toString().endsWith(".dmn"))
+                 .forEach(path -> {
+                     try (InputStream is = Files.newInputStream(path)) {
+                         String modelName = extractModelName(is);
+                         if (modelName != null) {
+                             String relativePath = rootPath.relativize(path).toString();
+                             relativePath = relativePath.substring(0, relativePath.length() - 4); // remove .dmn
+                             modelNameToPath.put(modelName, relativePath);
+                             log.debug("Mapped DMN file: {} -> {}", modelName, relativePath);
+
+                             if (modelDescriptions != null) {
+                                 try (InputStream is2 = Files.newInputStream(path)) {
+                                     String description = extractModelDescription(is2);
+                                     modelDescriptions.put(modelName, description);
+                                     log.debug("Extracted description for {}: {}", modelName,
+                                               description != null ? description.substring(0, Math.min(50, description.length())) + "..." : "null");
+                                 }
+                             }
+                         }
+                     } catch (Exception e) {
+                         log.warn("Failed to parse DMN file: {}", path, e);
+                     }
+                 });
+        }
+    }
+
+    /**
+     * Scan a JAR file for DMN files.
+     */
+    private void scanJarForDMN(String jarPath, Map<String, String> modelNameToPath,
+                               Map<String, String> modelDescriptions) {
+        try (JarFile jarFile = new JarFile(jarPath)) {
+            Enumeration<JarEntry> entries = jarFile.entries();
+
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                String name = entry.getName();
+
+                if (name.endsWith(".dmn") && !entry.isDirectory()) {
+                    try (InputStream is = jarFile.getInputStream(entry)) {
+                        String modelName = extractModelName(is);
+                        if (modelName != null) {
+                            String relativePath = name.substring(0, name.length() - 4); // remove .dmn
+                            modelNameToPath.put(modelName, relativePath);
+                            log.debug("Mapped DMN file from JAR: {} -> {}", modelName, relativePath);
+
+                            if (modelDescriptions != null) {
+                                try (InputStream is2 = jarFile.getInputStream(entry)) {
+                                    String description = extractModelDescription(is2);
+                                    modelDescriptions.put(modelName, description);
+                                    log.debug("Extracted description for {}: {}", modelName,
+                                              description != null ? description.substring(0, Math.min(50, description.length())) + "..." : "null");
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.warn("Failed to parse DMN file from JAR: {}", name, e);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error scanning JAR for DMN files: {}", jarPath, e);
+        }
+    }
+
+    /**
      * Extract the model name from a DMN file by parsing its XML.
      *
-     * @param dmnFilePath path to the DMN file
+     * @param inputStream InputStream of the DMN file
      * @return the model name, or null if parsing fails
      */
-    private String extractModelName(Path dmnFilePath) {
+    private String extractModelName(InputStream inputStream) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(dmnFilePath.toFile());
+            Document doc = builder.parse(inputStream);
 
             Element root = doc.getDocumentElement();
             if (root != null && root.hasAttribute("name")) {
                 return root.getAttribute("name");
             }
         } catch (Exception e) {
-            log.debug("Failed to extract model name from {}: {}", dmnFilePath, e.getMessage());
+            log.debug("Failed to extract model name: {}", e.getMessage());
         }
         return null;
     }
@@ -287,15 +377,15 @@ public class ModelRegistry {
      * Extract the model description from a DMN file by parsing its XML.
      * Looks for the <dmn:description> element within the root <dmn:definitions> element.
      *
-     * @param dmnFilePath path to the DMN file
+     * @param inputStream InputStream of the DMN file
      * @return the model description, or null if not present or parsing fails
      */
-    private String extractModelDescription(Path dmnFilePath) {
+    private String extractModelDescription(InputStream inputStream) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(dmnFilePath.toFile());
+            Document doc = builder.parse(inputStream);
 
             Element root = doc.getDocumentElement();
             if (root != null) {
@@ -311,13 +401,14 @@ public class ModelRegistry {
                 }
             }
         } catch (Exception e) {
-            log.debug("Failed to extract description from {}: {}", dmnFilePath, e.getMessage());
+            log.debug("Failed to extract description: {}", e.getMessage());
         }
         return null;
     }
 
     /**
-     * Scan the filesystem for .dmn files and build a mapping of namespace to relative path.
+     * Scan the classpath for .dmn files and build a mapping of namespace to relative path.
+     * Uses ClassLoader-based scanning that works in both dev mode and production (JAR).
      * This is used for validation to show the correct file paths for duplicate models.
      *
      * @return map of namespace to relative path
@@ -326,36 +417,106 @@ public class ModelRegistry {
         Map<String, String> namespaceToPath = new HashMap<>();
 
         try {
-            Path resourcesPath = Paths.get("src/main/resources");
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-            if (Files.exists(resourcesPath)) {
-                try (Stream<Path> paths = Files.walk(resourcesPath)) {
-                    paths.filter(path -> path.toString().endsWith(".dmn"))
-                         .forEach(path -> {
-                             try {
-                                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                                 factory.setNamespaceAware(true);
-                                 DocumentBuilder builder = factory.newDocumentBuilder();
-                                 Document doc = builder.parse(path.toFile());
+            // Try to find a known DMN file to locate the resources root
+            URL resourceUrl = classLoader.getResource("BDT.dmn");
 
-                                 Element root = doc.getDocumentElement();
-                                 if (root != null && root.hasAttribute("namespace")) {
-                                     String namespace = root.getAttribute("namespace");
-                                     String relativePath = resourcesPath.relativize(path).toString();
-                                     relativePath = relativePath.substring(0, relativePath.length() - 4); // remove .dmn
-                                     namespaceToPath.put(namespace, relativePath);
-                                     log.debug("Mapped DMN namespace: {} -> {}", namespace, relativePath);
-                                 }
-                             } catch (Exception e) {
-                                 log.warn("Failed to parse DMN file: {}", path, e);
-                             }
-                         });
+            if (resourceUrl != null) {
+                String protocol = resourceUrl.getProtocol();
+
+                if ("file".equals(protocol)) {
+                    // Dev mode or exploded deployment
+                    Path dmnPath = Paths.get(resourceUrl.toURI());
+                    Path rootPath = dmnPath.getParent();
+                    scanFilesystemForNamespaces(rootPath, rootPath, namespaceToPath);
+                } else if ("jar".equals(protocol)) {
+                    // Production mode - scan JAR file
+                    String jarPath = resourceUrl.getPath();
+                    if (jarPath.contains("!")) {
+                        jarPath = jarPath.substring(0, jarPath.indexOf("!"));
+                        if (jarPath.startsWith("file:")) {
+                            jarPath = jarPath.substring(5);
+                        }
+                        scanJarForNamespaces(jarPath, namespaceToPath);
+                    }
+                }
+            } else {
+                // Fallback for dev mode
+                Path targetClasses = Paths.get("target/classes");
+                if (Files.exists(targetClasses)) {
+                    scanFilesystemForNamespaces(targetClasses, targetClasses, namespaceToPath);
                 }
             }
+
         } catch (Exception e) {
-            log.error("Error scanning DMN files for namespaces", e);
+            log.error("Error scanning DMN files for namespaces from classpath", e);
         }
 
         return namespaceToPath;
+    }
+
+    /**
+     * Scan a filesystem directory for DMN namespaces.
+     */
+    private void scanFilesystemForNamespaces(Path rootPath, Path currentPath,
+                                             Map<String, String> namespaceToPath) throws Exception {
+        try (Stream<Path> paths = Files.walk(currentPath)) {
+            paths.filter(path -> path.toString().endsWith(".dmn"))
+                 .forEach(path -> {
+                     try (InputStream is = Files.newInputStream(path)) {
+                         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                         factory.setNamespaceAware(true);
+                         DocumentBuilder builder = factory.newDocumentBuilder();
+                         Document doc = builder.parse(is);
+
+                         Element root = doc.getDocumentElement();
+                         if (root != null && root.hasAttribute("namespace")) {
+                             String namespace = root.getAttribute("namespace");
+                             String relativePath = rootPath.relativize(path).toString();
+                             relativePath = relativePath.substring(0, relativePath.length() - 4); // remove .dmn
+                             namespaceToPath.put(namespace, relativePath);
+                             log.debug("Mapped DMN namespace: {} -> {}", namespace, relativePath);
+                         }
+                     } catch (Exception e) {
+                         log.warn("Failed to parse DMN file: {}", path, e);
+                     }
+                 });
+        }
+    }
+
+    /**
+     * Scan a JAR file for DMN namespaces.
+     */
+    private void scanJarForNamespaces(String jarPath, Map<String, String> namespaceToPath) {
+        try (JarFile jarFile = new JarFile(jarPath)) {
+            Enumeration<JarEntry> entries = jarFile.entries();
+
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                String name = entry.getName();
+
+                if (name.endsWith(".dmn") && !entry.isDirectory()) {
+                    try (InputStream is = jarFile.getInputStream(entry)) {
+                        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                        factory.setNamespaceAware(true);
+                        DocumentBuilder builder = factory.newDocumentBuilder();
+                        Document doc = builder.parse(is);
+
+                        Element root = doc.getDocumentElement();
+                        if (root != null && root.hasAttribute("namespace")) {
+                            String namespace = root.getAttribute("namespace");
+                            String relativePath = name.substring(0, name.length() - 4); // remove .dmn
+                            namespaceToPath.put(namespace, relativePath);
+                            log.debug("Mapped DMN namespace from JAR: {} -> {}", namespace, relativePath);
+                        }
+                    } catch (Exception e) {
+                        log.warn("Failed to parse DMN file from JAR: {}", name, e);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error scanning JAR for namespaces: {}", jarPath, e);
+        }
     }
 }
