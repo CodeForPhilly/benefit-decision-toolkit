@@ -42,7 +42,7 @@ jobs:
         id: extract_version
         working-directory: library-api
         run: |
-          VERSION=$(devbox run -- mvn help:evaluate -Dexpression=project.version -q -DforceStdout | tr -d '\n' | xargs)
+          VERSION=$(devbox run -q -- mvn help:evaluate -Dexpression=project.version -q -DforceStdout | tr -d '\n' | xargs)
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           # Create revision-safe version string (replace dots with dashes for Cloud Run)
           REVISION_VERSION=$(echo "${VERSION}" | tr '.' '-')
@@ -53,7 +53,7 @@ jobs:
       # Validate that git tag exists for this pom.xml version
       - name: 'Validate git tag matches pom.xml version'
         run: |
-          devbox run -- bin/validate-library-api-version
+          devbox run -q -- bin/validate-library-api-version
 
       # Configure Workload Identity Federation and generate an access token
       - id: 'auth'
@@ -67,13 +67,13 @@ jobs:
       # Configure Docker to use gcloud as a credential helper (using devbox gcloud)
       - name: 'Configure Docker'
         run: |
-          devbox run -- gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+          devbox run -q -- gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
 
       # Build the Quarkus app with Maven using devbox environment
       - name: 'Build Quarkus App'
         working-directory: library-api
         run: |
-          devbox run build-library-api-ci
+          devbox run -q build-library-api-ci
 
       - name: 'Build and Push Container'
         working-directory: library-api
