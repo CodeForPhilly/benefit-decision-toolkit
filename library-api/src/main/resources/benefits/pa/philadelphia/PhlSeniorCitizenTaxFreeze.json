@@ -1,5 +1,5 @@
 {
-  "name": "SeniorCitizenTaxFreeze",
+  "name": "PhlSeniorCitizenTaxFreeze",
   "checks": {
     "Not Already On Senior Citizen Tax Freeze": {
       "service": "PersonNotEnrolledInBenefit",
