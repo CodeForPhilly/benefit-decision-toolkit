@@ -41,7 +41,10 @@
       "Bash(git reset:*)",
       "Bash(git commit:*)",
       "Bash(git mv:*)",
-      "Bash(./bin/dev:*)"
+      "Bash(./bin/dev:*)",
+      "Bash(for i in {1..5})",
+      "Bash(do curl -s http://localhost:8083/api/v1/models)",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "ask": []
