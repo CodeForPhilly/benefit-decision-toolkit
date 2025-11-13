@@ -1,4 +1,4 @@
-package org.prestoncabe.functions;
+package org.codeforphilly.bdt.functions;
 
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.Unremovable;
@@ -8,8 +8,8 @@ import org.kie.kogito.decision.DecisionModels;
 import org.kie.kogito.dmn.rest.DMNJSONUtils;
 import org.kie.dmn.api.core.DMNContext;
 import org.kie.dmn.api.core.DMNResult;
-import org.prestoncabe.api.ModelInfo;
-import org.prestoncabe.api.ModelRegistry;
+import org.codeforphilly.bdt.api.ModelInfo;
+import org.codeforphilly.bdt.api.ModelRegistry;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -20,7 +20,7 @@ import java.util.Map;
  * Service that allows dynamic invocation of decision services from FEEL expressions.
  *
  * Usage from FEEL:
- * org.prestoncabe.functions.DecisionServiceInvoker.invoke(
+ * org.codeforphilly.bdt.functions.DecisionServiceInvoker.invoke(
  *   "benefits",                    // model name
  *   "PhlHomesteadExemption",       // decision service name
  *   situation,                     // tSituation context

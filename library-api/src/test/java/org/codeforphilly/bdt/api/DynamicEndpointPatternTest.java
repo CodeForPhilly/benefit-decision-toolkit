@@ -1,4 +1,4 @@
-package org.prestoncabe.api;
+package org.codeforphilly.bdt.api;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.common.mapper.TypeRef;

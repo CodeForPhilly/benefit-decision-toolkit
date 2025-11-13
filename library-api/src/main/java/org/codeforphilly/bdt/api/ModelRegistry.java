@@ -1,4 +1,4 @@
-package org.prestoncabe.api;
+package org.codeforphilly.bdt.api;
 
 import org.kie.dmn.api.core.DMNModel;
 import org.kie.dmn.api.core.DMNRuntime;
