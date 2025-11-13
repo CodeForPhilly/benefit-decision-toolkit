@@ -1,34 +1,44 @@
 ---
+import { Image } from "astro:assets";
 import { Content } from "../assets/copy/Contact.md";
+import manInOffice from "../assets/photos/man-in-office.png";
 ---
 
-<section id="contact" class="py-6">
-  <div class="prose">
-    <Content />
+<section id="contact">
+  <div class="max-w-[130ch] mx-auto">
+    <div class="flex flex-row">
+      <div class="w-1/2 p-6">
+        <div class="prose">
+          <Content />
+        </div>
+        <form action="message" class="mt-6">
+          <div><label for="name">Name:</label></div>
+          <div>
+            <input type="text" name="name" id="name" placeholder="John Doe" />
+          </div>
+          <div><label for="name">Email:</label></div>
+          <div>
+            <input
+              type="text"
+              name="email"
+              id="email"
+              placeholder="johndoe@example.com"
+            />
+          </div>
+          <div><label for="name">Message:</label></div>
+          <div>
+            <input
+              type="text"
+              name="message"
+              id="message"
+              placeholder="Your message"
+            />
+          </div>
+          <input type="submit" value="Submit" />
+        </form>
+      </div>
+      <div class="w-1/2 bg-[url(../assets/photos/man-in-office.png)] bg-cover">
+      </div>
+    </div>
   </div>
-  <form action="message" class="mt-6">
-    <div><label for="name">Name:</label></div>
-    <div>
-      <input type="text" name="name" id="name" placeholder="John Doe" />
-    </div>
-    <div><label for="name">Email:</label></div>
-    <div>
-      <input
-        type="text"
-        name="email"
-        id="email"
-        placeholder="johndoe@example.com"
-      />
-    </div>
-    <div><label for="name">Message:</label></div>
-    <div>
-      <input
-        type="text"
-        name="message"
-        id="message"
-        placeholder="Your message"
-      />
-    </div>
-    <input type="submit" value="Submit" />
-  </form>
 </section>

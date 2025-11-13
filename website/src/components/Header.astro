@@ -4,22 +4,23 @@ import { Image } from "astro:assets";
 import logo from "../assets/logos/bdt-logo-large-mono-dark.svg";
 ---
 
-<header
-  id="top"
-  class="py-6 flex flex-row justify-between items-baseline gap-6"
->
-  <div class="w-30">
-    <Image src={logo} alt="BDT logo" />
+<header id="top" class="py-6 px-3 bg-sky-500">
+  <div
+    class="flex flex-row justify-between items-baseline gap-6 max-w-[130ch] mx-auto"
+  >
+    <div class="w-36">
+      <Image src={logo} alt="BDT logo" />
+    </div>
+    <nav>
+      <ul class="flex gap-4">
+        {
+          navLinks.map((link) => (
+            <li>
+              <a href={link.path}>{link.title}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
   </div>
-  <nav>
-    <ul class="flex gap-4">
-      {
-        navLinks.map((link) => (
-          <li>
-            <a href={link.path}>{link.title}</a>
-          </li>
-        ))
-      }
-    </ul>
-  </nav>
 </header>
