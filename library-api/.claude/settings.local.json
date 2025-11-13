@@ -39,7 +39,9 @@
       "Bash(git fetch:*)",
       "Bash(git rev-parse:*)",
       "Bash(git reset:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git mv:*)",
+      "Bash(./bin/dev:*)"
     ],
     "deny": [],
     "ask": []
