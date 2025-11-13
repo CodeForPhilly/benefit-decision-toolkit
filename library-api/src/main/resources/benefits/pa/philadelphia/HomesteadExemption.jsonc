@@ -1,0 +1,17 @@
+{
+  "name": "HomesteadExemption",
+  "checks": {
+    "Not Already On Homestead": {
+      // service key is special; should be the name of a DMN model that implements a "main" decision service
+      "service": "PersonNotEnrolledInBenefit",
+      // other keys represent the parameters to pass to the service as the "parameters" input data
+      "personId": "feel:situation.primaryPersonId",
+      "benefit": "PhlHomesteadExemption"
+    },
+    "No Ten Year Tax Abatement": {
+      // simpleFalse is a special case that means to lookup the key in the situation and expect it to be false
+      "service": "simpleFalse",
+      "key": "TenYearTaxAbatement"
+    }
+  }
+}
