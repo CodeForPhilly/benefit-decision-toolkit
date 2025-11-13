@@ -70,7 +70,7 @@ To modify API behavior, edit the DMN files, not the generated Java code.
 ### Java Source Code
 
 Custom Java code is minimal:
-- `src/main/java/org/prestoncabe/functions/LocationService.java` - Database service for location lookups
+- `src/main/java/org/codeforphilly/bdt/functions/LocationService.java` - Database service for location lookups
   - Uses SQLite database (`src/main/resources/data/locations.db`)
   - Provides static `lookup()` method callable from FEEL expressions in DMN
 
@@ -128,7 +128,7 @@ tSituation {
 
 ## Dynamic Decision Service Invocation
 
-**DecisionServiceInvoker** (`src/main/java/org/prestoncabe/functions/DecisionServiceInvoker.java`) provides a programmatic way to dynamically invoke decision services at runtime without requiring static DMN imports.
+**DecisionServiceInvoker** (`src/main/java/org/codeforphilly/bdt/functions/DecisionServiceInvoker.java`) provides a programmatic way to dynamically invoke decision services at runtime without requiring static DMN imports.
 
 ### Usage in Java Code
 

@@ -111,7 +111,7 @@
         <dmn:contextEntry>
           <dmn:variable id="_E6BD953F-968B-4B81-9C52-FCE0AC7F78EC" name="class" typeRef="string"/>
           <dmn:literalExpression id="_EFA52AF3-5C0F-4DAB-9A08-86788CF578C7">
-            <dmn:text>"org.prestoncabe.functions.DecisionServiceInvoker"</dmn:text>
+            <dmn:text>"org.codeforphilly.bdt.functions.DecisionServiceInvoker"</dmn:text>
           </dmn:literalExpression>
         </dmn:contextEntry>
         <dmn:contextEntry>

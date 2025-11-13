@@ -22,7 +22,7 @@
     </dmn:knowledgeRequirement>
     <dmn:context id="_C480749B-8802-49B1-BD0F-9A7690C75C6A">
       <dmn:contextEntry>
-        <dmn:variable id="_C9F9D85E-BD96-4867-A730-C3ED5E97214B" name="Not Already On Homestead" typeRef="boolean"/>
+        <dmn:variable id="_E8B1BB36-7D97-4C96-882A-5BEBE08C8628" name="Not Already On Homestead" typeRef="boolean"/>
         <dmn:invocation id="_B005A993-AB91-41AB-8F4E-CCCBB7F85499">
           <dmn:literalExpression id="_4932AA87-8913-48E2-A33D-E4C0D5A9EDE3">
             <dmn:text>PersonNotEnrolledInBenefit.PersonNotEnrolledInBenefitService</dmn:text>
@@ -37,13 +37,13 @@
             <dmn:parameter id="_3687F80D-9B5B-43AB-B39D-B32BD3210E76" name="parameters" typeRef="PersonNotEnrolledInBenefit.tParameters"/>
             <dmn:context id="_63E3027C-A3F8-4E92-BC11-BC749F712B1F">
               <dmn:contextEntry>
-                <dmn:variable id="_2AA18A08-C2A7-4B39-8BFA-107D53A3C8BB" name="personId" typeRef="string"/>
+                <dmn:variable id="_A0EBC40B-AF78-4E90-AF29-A79FD6160E57" name="personId" typeRef="string"/>
                 <dmn:literalExpression id="_69711CBE-3EF3-4E55-A76C-98BDBFB0336B">
                   <dmn:text>situation.primaryPersonId</dmn:text>
                 </dmn:literalExpression>
               </dmn:contextEntry>
               <dmn:contextEntry>
-                <dmn:variable id="_C5D0C035-362E-4C62-9C5A-25BC7A1108AE" name="benefit" typeRef="string"/>
+                <dmn:variable id="_5EF7C986-2FB2-44B9-A654-3B6EB410D241" name="benefit" typeRef="string"/>
                 <dmn:literalExpression id="_8BFE79E2-52B9-45D0-B328-D6914079DBD5">
                   <dmn:text>"PhlHomesteadExemption"</dmn:text>
                 </dmn:literalExpression>
@@ -53,7 +53,7 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_0769B44B-8D53-43DD-B6AA-11F35077C753" name="No Ten Year Tax Abatement" typeRef="boolean"/>
+        <dmn:variable id="_3034FD56-E963-4049-B0F3-E2B264F52E6B" name="No Ten Year Tax Abatement" typeRef="boolean"/>
         <dmn:literalExpression id="_43FF78A6-4F26-47F2-B9BB-4509F28F0240">
           <dmn:text>not(situation.TenYearTaxAbatement)</dmn:text>
         </dmn:literalExpression>
