@@ -46,38 +46,58 @@ public class ModelRegistry {
     org.kie.kogito.Application application;
 
     /**
+     * Cached model registry built once at startup.
+     * Volatile to ensure visibility across threads.
+     */
+    private volatile Map<String, ModelInfo> cachedModels;
+
+    /**
+     * Cached path-to-model mapping built once at startup.
+     * Volatile to ensure visibility across threads.
+     */
+    private volatile Map<String, ModelInfo> cachedModelsByPath;
+
+    /**
      * Get metadata for a specific model by name.
+     * Returns cached result built at startup.
      *
      * @param modelName the DMN model name (e.g., "PersonMinAge", "PhlHomesteadExemption")
      * @return ModelInfo containing namespace and available services, or null if not found
      */
     public ModelInfo getModelInfo(String modelName) {
-        Map<String, ModelInfo> allModels = getAllModels();
-        return allModels.get(modelName);
+        return cachedModels.get(modelName);
     }
 
     /**
      * Get metadata for a specific model by path.
+     * Returns cached result built at startup.
      *
      * @param path the relative path (e.g., "age/PersonMinAge", "checks/test/TestOne")
      * @return ModelInfo or null if not found
      */
     public ModelInfo getModelInfoByPath(String path) {
-        Map<String, ModelInfo> allModels = getAllModels();
-        return allModels.values().stream()
-                .filter(info -> info.getPath().equals(path))
-                .findFirst()
-                .orElse(null);
+        return cachedModelsByPath.get(path);
     }
 
     /**
      * Get all discovered DMN models.
-     * Rebuilds the mapping on each call to ensure hot-reload compatibility.
+     * Returns cached results built once at startup.
+     * Hot-reload compatibility: Quarkus dev mode reloads the entire class, triggering cache rebuild.
      *
      * @return map of model name to ModelInfo
      */
     public Map<String, ModelInfo> getAllModels() {
+        return cachedModels;
+    }
+
+    /**
+     * Build the model registry cache.
+     * This is called once during @PostConstruct initialization.
+     * Scans the classpath for DMN files and builds the model metadata registry.
+     */
+    private void buildModelCache() {
         Map<String, ModelInfo> modelMap = new HashMap<>();
+        Map<String, ModelInfo> modelsByPath = new HashMap<>();
 
         try {
             // Build mappings of model name -> file path and model name -> description
@@ -89,7 +109,9 @@ public class ModelRegistry {
 
             if (dmnRuntime == null) {
                 log.warn("DMNRuntime is null, no models discovered");
-                return modelMap;
+                this.cachedModels = modelMap;
+                this.cachedModelsByPath = modelsByPath;
+                return;
             }
 
             List<DMNModel> models = dmnRuntime.getModels();
@@ -113,27 +135,37 @@ public class ModelRegistry {
 
                 ModelInfo info = new ModelInfo(namespace, modelName, decisionServices, decisions, path, description);
                 modelMap.put(modelName, info);
+                modelsByPath.put(path, info);
 
                 log.debug("Registered model: {} (namespace: {}, services: {}, decisions: {}, path: {}, description: {})",
                     modelName, namespace, decisionServices.size(), decisions.size(), path,
                     description != null ? description.substring(0, Math.min(30, description.length())) + "..." : "null");
             }
 
+            log.info("Model registry cache built: {} models registered", modelMap.size());
+
         } catch (Exception e) {
-            log.error("Error discovering DMN models", e);
+            log.error("Error building DMN model cache", e);
         }
 
-        return modelMap;
+        // Assign to volatile fields for thread-safe publication
+        this.cachedModels = modelMap;
+        this.cachedModelsByPath = modelsByPath;
     }
 
     /**
-     * Validates that all DMN model names are unique.
-     * This runs at application startup and on every hot reload to ensure no duplicate model names exist.
+     * Initializes the model registry and validates that all DMN model names are unique.
+     * This runs at application startup and on every hot reload.
+     * Builds the model cache FIRST, then validates for duplicate model names.
      *
      * @throws IllegalStateException if duplicate model names are detected
      */
     @PostConstruct
-    public void validateUniqueModelNames() {
+    public void initialize() {
+        // Build the cache first
+        buildModelCache();
+
+        // Then validate model names
         try {
             // Get models directly from DMNRuntime BEFORE deduplication
             DecisionModels decisionModels = application.get(DecisionModels.class);
