@@ -1,0 +1,38 @@
+meta {
+  name: NOT Enrolled in Bogus Benefit
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/checks/enrollment/PersonNotEnrolledInBenefit
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "people": [
+        {
+          "id": "p1"
+        }
+      ],
+      "enrollments": [
+        {
+          "personId": "p2",
+          "benefit": "bogus"
+        }
+      ]
+    },
+    "parameters": {
+      "personId": "p1",
+      "benefit": "bogus"
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
