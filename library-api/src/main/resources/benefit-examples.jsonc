@@ -1,0 +1,39 @@
+[
+  {
+    "name": "PhlHomesteadExemption",
+    "checks": {
+      "Not already on Homestead": {
+        // service key is special; should be the name of a DMN model that implements a "main" decision service
+        "service": "PersonNotEnrolledInBenefit",
+        // other keys represent the parameters to pass to the service as the "parameters" input data
+        "personId": "feel:situation.primaryPersonId",
+        "benefit": "PhlHomesteadExemption"
+      },
+      "No Ten Year Tax Abatement": {
+        // simpleFalse is a special case that means to lookup the key in the situation and expect it to be false
+        "service": "simpleFalse",
+        "key": "TenYearTaxAbatement"
+      }
+    }
+  },
+  {
+    "name": "PhlSeniorCitizenTaxFreeze",
+    "checks": {
+      "Not already on Senior Citizen Tax Freeze": {
+        "service": "PersonNotEnrolledInBenefit",
+        "personId": "feel:situation.primaryPersonId",
+        "benefit": "PhlSeniorCitizenTaxFreeze"
+      },
+      "Spouse will be at least age 65 or older this year": {
+        "service": "PersonMinAge",
+        "personId": "feel:BDT.spouse id of(situation.primaryPersonId)",
+        "minAge": 65,
+        "asOfDate": "feel:date(today().year, 12, 31)"
+      },
+      "Philly Homeowner/Occupant": {
+        "service": "simpleTrue",
+        "key": "PhillyHomeownerOccupant"
+      }
+    }
+  }
+]
