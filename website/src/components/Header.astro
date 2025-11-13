@@ -1,0 +1,25 @@
+---
+import navLinks from "../data/navLinks";
+import { Image } from "astro:assets";
+import logo from "../assets/logos/bdt-logo-large-mono-dark.svg";
+---
+
+<header
+  id="top"
+  class="py-6 flex flex-row justify-between items-baseline gap-6"
+>
+  <div class="w-30">
+    <Image src={logo} alt="BDT logo" />
+  </div>
+  <nav>
+    <ul class="flex gap-4">
+      {
+        navLinks.map((link) => (
+          <li>
+            <a href={link.path}>{link.title}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</header>
