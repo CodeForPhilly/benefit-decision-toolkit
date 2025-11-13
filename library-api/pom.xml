@@ -3,9 +3,9 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.prestoncabe</groupId>
-  <artifactId>benefit-decision-toolkit</artifactId>
-  <version>v0.0.1</version>
-  <name>Benefit Decision Toolkit</name>
+  <artifactId>bdt-library-api</artifactId>
+  <version>0.1.18</version>
+  <name>BDT Library API</name>
 
   <properties>
     <compiler-plugin.version>3.11.0</compiler-plugin.version>

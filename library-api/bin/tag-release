@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+
+# library-api Release Tagging Script
+# This script ensures pom.xml version and git tag stay in sync
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LIBRARY_API_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+POM_FILE="$LIBRARY_API_DIR/pom.xml"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+print_error() {
+    echo -e "${RED}ERROR: $1${NC}" >&2
+}
+
+print_success() {
+    echo -e "${GREEN}✓ $1${NC}"
+}
+
+print_info() {
+    echo -e "${YELLOW}→ $1${NC}"
+}
+
+# Check if version argument provided
+if [ $# -eq 0 ]; then
+    print_error "No version specified"
+    echo "Usage: $0 <version>"
+    echo "Example: $0 1.0.0"
+    exit 1
+fi
+
+VERSION="$1"
+
+# Validate semantic versioning format
+if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    print_error "Invalid version format: $VERSION"
+    echo "Version must follow semantic versioning: MAJOR.MINOR.PATCH (e.g., 1.0.0)"
+    exit 1
+fi
+
+TAG_NAME="library-api-v${VERSION}"
+
+print_info "Preparing to tag library-api release: $VERSION"
+echo ""
+
+# Check if we're in a git repository
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    print_error "Not in a git repository"
+    exit 1
+fi
+
+# Check if tag already exists
+if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+    print_error "Tag $TAG_NAME already exists"
+    echo "Use 'git tag -d $TAG_NAME' to delete it locally if needed"
+    exit 1
+fi
+
+# Check if pom.xml exists
+if [ ! -f "$POM_FILE" ]; then
+    print_error "pom.xml not found at $POM_FILE"
+    exit 1
+fi
+
+# Update pom.xml version using Maven
+print_info "Updating pom.xml version to $VERSION..."
+
+cd "$LIBRARY_API_DIR"
+
+# Use Maven versions plugin to update project version
+if ! mvn versions:set -DnewVersion="$VERSION" -DgenerateBackupPoms=false > /dev/null 2>&1; then
+    print_error "Failed to update pom.xml version using Maven"
+    exit 1
+fi
+
+# Verify the update by extracting the project version
+CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout 2>/dev/null || echo "")
+
+if [ "$CURRENT_VERSION" != "$VERSION" ]; then
+    print_error "Failed to update pom.xml version"
+    echo "Current version in pom.xml: $CURRENT_VERSION"
+    echo "Expected version: $VERSION"
+    exit 1
+fi
+
+print_success "Updated pom.xml to version $VERSION"
+
+# Stage pom.xml
+print_info "Staging pom.xml..."
+git add "$POM_FILE"
+print_success "Staged pom.xml"
+
+# Create commit
+print_info "Creating commit..."
+git commit -m "Bump library-api version to $VERSION"
+print_success "Created commit"
+
+# Create tag
+print_info "Creating git tag $TAG_NAME..."
+git tag -a "$TAG_NAME" -m "Release library-api $VERSION"
+print_success "Created tag $TAG_NAME"
+
+echo ""
+print_success "Release preparation complete!"
+echo ""
+echo "Next steps:"
+echo "  1. Review the changes: git show"
+echo "  2. Push the commit: git push origin $(git rev-parse --abbrev-ref HEAD)"
+echo "  3. Push the tag: git push origin $TAG_NAME"
+echo ""
+echo "Pushing the tag will trigger the GitHub Actions deployment workflow."
