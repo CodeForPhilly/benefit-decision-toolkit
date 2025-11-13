@@ -1,0 +1,38 @@
+meta {
+  name: Person At Min Age
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/checks/age/PersonMinAge
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "people": [
+        {
+          "id": "p1",
+          "dateOfBirth": "2020-01-01"
+        }
+      ]
+    },
+    "parameters": {
+      "personId": "p1",
+      "asOfDate": "2024-01-01",
+      "minAge": 4
+    }
+  }
+}
+
+assert {
+  res.body.checkResult: eq true
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

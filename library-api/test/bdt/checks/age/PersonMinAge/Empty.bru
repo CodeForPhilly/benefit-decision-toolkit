@@ -1,0 +1,23 @@
+meta {
+  name: Empty
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/checks/age/PersonMinAge
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "situation": {},
+    "parameters": {}
+  }
+}
+
+assert {
+  res.body.checkResult: eq null
+  res.status: eq 200
+}

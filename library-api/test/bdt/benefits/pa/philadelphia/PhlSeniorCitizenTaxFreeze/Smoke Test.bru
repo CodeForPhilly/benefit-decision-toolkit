@@ -1,0 +1,58 @@
+meta {
+  name: Smoke Test
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/benefits/pa/philadelphia/SeniorCitizenTaxFreeze
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "TenYearTaxAbatement": false,
+      "PhillyHomeownerOccupant": true,
+      "people": [
+        {
+          "id": "p1",
+          "dateOfBirth": "1970-08-01"
+        },
+        {
+          "id": "p2",
+          "dateOfBirth": "1960-12-30"
+        }
+      ],
+      "enrollments": [
+        {
+          "personId": "p1",
+          "benefit": "PhlSeniorCitizenTaxFreeze"
+        },
+        {
+          "personId": "p2",
+          "benefit": "PhlHomesteadExemption"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "spouse",
+          "personId": "p1",
+          "relatedPersonId": "p2"
+        },
+        {
+          "type": "spouse",
+          "personId": "p2",
+          "relatedPersonId": "p1"
+        }
+      ]
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
