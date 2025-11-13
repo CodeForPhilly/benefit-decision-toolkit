@@ -15,7 +15,7 @@
       "enrollments": [
         {
           "personId": "p2",
-          "benefit": "phlSeniorCitizenTaxFreeze"
+          "benefit": "PhlSeniorCitizenTaxFreeze"
         },
         {
           "personId": "p1",
@@ -27,7 +27,7 @@
       "personId": "p2",
       // "asOfDate": "2025-10-25",
       // "minAge": 18
-      "benefit": "phlSeniorCitizenTaxFreeze" // default to checking the benefit this check is selected for
+      "benefit": "PhlSeniorCitizenTaxFreeze" // default to checking the benefit this check is selected for
     }
   }
 ]
