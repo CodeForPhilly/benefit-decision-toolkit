@@ -231,7 +231,7 @@ public class DMNSchemaResolver {
                 if (fieldName.contains("Id") || fieldName.equals("id")) {
                     return "p1";
                 } else if (fieldName.contains("benefit") || fieldName.contains("Benefit")) {
-                    return "HomesteadExemption";
+                    return "PhlHomesteadExemption";
                 } else if (fieldName.contains("type")) {
                     return "spouse";
                 }
