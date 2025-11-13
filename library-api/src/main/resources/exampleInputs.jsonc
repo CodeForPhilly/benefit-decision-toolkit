@@ -1,0 +1,33 @@
+[
+  {
+    "situation": {
+      "primaryPersonId": "p1", // the person the analyst is speaking with
+      "people": [
+        {
+          "dateOfBirth": "2025-10-25",
+          "id": "p1"
+        },
+        {
+          "dateOfBirth": "2000-05-15",
+          "id": "p2"
+        }
+      ],
+      "enrollments": [
+        {
+          "personId": "p2",
+          "benefit": "phlSeniorCitizenTaxFreeze"
+        },
+        {
+          "personId": "p1",
+          "benefit": "phlHomestead"
+        }
+      ]
+    },
+    "parameters": {
+      "personId": "p2",
+      // "asOfDate": "2025-10-25",
+      // "minAge": 18
+      "benefit": "phlSeniorCitizenTaxFreeze" // default to checking the benefit this check is selected for
+    }
+  }
+]
