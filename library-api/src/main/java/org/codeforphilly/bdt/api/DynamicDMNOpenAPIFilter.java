@@ -431,7 +431,7 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
                 // Check if output schema has properties (multiple output decisions like checks + isEligible)
                 if (outputSchemaNode.has("properties")) {
                     // Multiple outputs: add each property directly to context
-                    // This handles Decision Services with multiple output decisions (e.g., HomesteadExemption)
+                    // This handles Decision Services with multiple output decisions (e.g., PhlHomesteadExemption)
                     com.fasterxml.jackson.databind.JsonNode outputProps = outputSchemaNode.get("properties");
                     outputProps.fields().forEachRemaining(entry -> {
                         Schema propSchema = convertJsonNodeToSchema(entry.getValue());

@@ -105,10 +105,10 @@
 ### "Primary person already receives Homestead Exemption"
 
 - personId: situation.primaryPersonId
-- benefit: "phlHomesteadExemption"
+- benefit: "PhlHomesteadExemption"
 
 ## SomeoneEnrolledInBenefit
 ### "At least one child is already enrolled in Philly Pre-K"
 
 - peopleIds: situation.people[BDT.age as of date(item.dateOfBirth, today()) < 18].id
-- benefit: "phlPreK"
+- benefit: "PhlPreK"

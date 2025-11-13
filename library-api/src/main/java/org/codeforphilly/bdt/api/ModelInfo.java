@@ -47,7 +47,7 @@ public class ModelInfo {
      * Extract category/tag from the path for OpenAPI grouping.
      * Examples:
      * - "checks/age/PersonMinAge" -> "Age Checks"
-     * - "benefits/pa/philadelphia/HomesteadExemption" -> "Benefits"
+     * - "benefits/pa/philadelphia/PhlHomesteadExemption" -> "Benefits"
      */
     public String getCategory() {
         if (path == null || path.isEmpty()) {
