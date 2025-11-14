@@ -87,11 +87,11 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
     private Optional<EligibilityCheck> getCustomCheck(String userId, String checkId, boolean isPublished){
         String collectionName = isPublished ? CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION : CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION;
 
-        List<Map<String, Object>> checkMaps = FirestoreUtils.getFirestoreDocsByField(collectionName, FieldNames.ID, checkId);
-        if (checkMaps.isEmpty()){
+        Optional<Map<String, Object>> checkMap = FirestoreUtils.getFirestoreDocById(collectionName, checkId);
+        if (checkMap.isEmpty()){
             return Optional.empty();
         }
-        Map<String, Object> data = checkMaps.getFirst();
+        Map<String, Object> data = checkMap.get();
 
         ObjectMapper mapper = new ObjectMapper();
         EligibilityCheck check = mapper.convertValue(data, EligibilityCheck.class);
