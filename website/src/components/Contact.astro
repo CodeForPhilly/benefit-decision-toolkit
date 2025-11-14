@@ -1,7 +1,6 @@
 ---
-import { Image } from "astro:assets";
 import { Content } from "../assets/copy/Contact.md";
-import manInOffice from "../assets/photos/man-in-office.png";
+import wedge from "../assets/backgrounds/wedge.svg";
 ---
 
 <section id="contact">
@@ -14,11 +13,18 @@ import manInOffice from "../assets/photos/man-in-office.png";
         <form action="message" class="mt-6">
           <div><label for="name">Name:</label></div>
           <div>
-            <input type="text" name="name" id="name" placeholder="John Doe" />
+            <input
+              class="my-3 p-3 border-2 border-sky-500 rounded-2xl"
+              type="text"
+              name="name"
+              id="name"
+              placeholder="John Doe"
+            />
           </div>
           <div><label for="name">Email:</label></div>
           <div>
             <input
+              class="my-3 p-3 border-2 border-sky-500 rounded-2xl"
               type="text"
               name="email"
               id="email"
@@ -27,17 +33,24 @@ import manInOffice from "../assets/photos/man-in-office.png";
           </div>
           <div><label for="name">Message:</label></div>
           <div>
-            <input
-              type="text"
+            <textarea
+              class="my-3 p-3 border-2 border-sky-500 rounded-2xl"
               name="message"
               id="message"
               placeholder="Your message"
-            />
+              cols="40"
+              rows="10"></textarea>
           </div>
-          <input type="submit" value="Submit" />
+          <input
+            class="px-4 py-2 mt-3 font-serif font-bold bg-green-300 rounded-full text-lg cursor-pointer"
+            type="submit"
+            value="Submit"
+            size=""
+          />
         </form>
       </div>
       <div class="w-1/2 bg-[url(../assets/photos/man-in-office.png)] bg-cover">
+        <img class="h-full relative right-0.5" src={wedge.src} alt="" />
       </div>
     </div>
   </div>
