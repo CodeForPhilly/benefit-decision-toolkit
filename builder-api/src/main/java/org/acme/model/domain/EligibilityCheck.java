@@ -10,7 +10,7 @@ public class EligibilityCheck {
     private String name;
     private String module;
     private String description;
-    private String version;
+    private Integer version;
     private boolean isActive;
     private String dmnModel;
     private List<InputDefinition> inputs;
@@ -59,11 +59,11 @@ public class EligibilityCheck {
         this.description = description;
     }
 
-    public String getVersion() {
+    public Integer getVersion() {
         return version;
     }
 
-    public void setVersion(String version) {
+    public void setVersion(Integer version) {
         this.version = version;
     }
 

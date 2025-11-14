@@ -8,21 +8,23 @@ import java.util.Optional;
 
 public interface EligibilityCheckRepository {
 
-    List<EligibilityCheck> getAllPublicChecks();
+    List<EligibilityCheck> getPublicChecks();
 
-    Optional<EligibilityCheck> getCheck(String checkId);
+    Optional<EligibilityCheck> getPublicCheck(String checkId);
 
     List<EligibilityCheck> getChecksInBenefit(Benefit benefit);
 
-    List<EligibilityCheck> getCustomChecks(String userId);
+    List<EligibilityCheck> getWorkingCustomChecks(String userId);
 
-    Optional<EligibilityCheck> getCustomCheck(String userId, String checkId);
+    List<EligibilityCheck> getPublishedCustomChecks(String userId);
 
-    String saveNewCheck(EligibilityCheck check) throws Exception;
+    Optional<EligibilityCheck> getWorkingCustomCheck(String userId, String checkId);
 
-    String saveNewCustomCheck(EligibilityCheck check) throws Exception;
+    Optional<EligibilityCheck> getPublishedCustomCheck(String userId, String checkId);
 
-    void updateCheck(EligibilityCheck check) throws Exception;
+    String saveWorkingCustomCheck(EligibilityCheck check) throws Exception;
 
-    void updateCustomCheck(EligibilityCheck check) throws Exception;
+    String savePublishedCustomCheck(EligibilityCheck check) throws Exception;
+
+    String savePublicCheck(EligibilityCheck check) throws Exception;
 }

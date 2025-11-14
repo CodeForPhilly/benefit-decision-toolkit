@@ -1,4 +1,4 @@
-package org.acme.persistence;
+package org.acme.persistence.impl;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,6 +8,8 @@ import org.acme.constants.FieldNames;
 import org.acme.model.domain.Benefit;
 import org.acme.model.domain.BenefitDetail;
 import org.acme.model.domain.Screener;
+import org.acme.persistence.BenefitRepository;
+import org.acme.persistence.FirestoreUtils;
 
 import java.util.List;
 import java.util.Map;

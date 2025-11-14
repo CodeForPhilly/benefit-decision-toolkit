@@ -1,0 +1,126 @@
+package org.acme.persistence.impl;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+import org.acme.constants.CollectionNames;
+import org.acme.constants.FieldNames;
+import org.acme.model.domain.Benefit;
+import org.acme.model.domain.EligibilityCheck;
+import org.acme.persistence.EligibilityCheckRepository;
+import org.acme.persistence.FirestoreUtils;
+import org.acme.persistence.StorageService;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+@ApplicationScoped
+public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepository {
+
+    @Inject
+    private StorageService storageService;
+
+    public List<EligibilityCheck> getPublicChecks(){
+
+        List<Map<String, Object>> checkMaps = FirestoreUtils.getAllDocsInCollection(
+                CollectionNames.PUBLIC_CHECK_COLLECTION);
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<EligibilityCheck> checks = checkMaps.stream().map( checkMap ->  mapper.convertValue(checkMap, EligibilityCheck.class)).toList();
+
+        return checks;    }
+
+    public Optional<EligibilityCheck> getPublicCheck(String checkId){
+        Optional<Map<String, Object>> dataOpt = FirestoreUtils.getFirestoreDocById(CollectionNames.PUBLIC_CHECK_COLLECTION, checkId);
+        if (dataOpt.isEmpty()){
+            return Optional.empty();
+        }
+        Map<String, Object> data = dataOpt.get();
+
+        ObjectMapper mapper = new ObjectMapper();
+        EligibilityCheck check = mapper.convertValue(data, EligibilityCheck.class);
+        return Optional.of(check);
+    }
+
+    public List<EligibilityCheck> getChecksInBenefit(Benefit benefit){
+        List<String> checkIds = benefit.getChecks().stream().map(checkConfig -> checkConfig.getCheckId()).toList();
+        List<Map<String, Object>> customCheckMaps = FirestoreUtils.getFirestoreDocsByIds(
+                CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION, checkIds);
+
+        List<Map<String, Object>> publicCheckMaps = FirestoreUtils.getFirestoreDocsByIds(
+                CollectionNames.PUBLIC_CHECK_COLLECTION, checkIds);
+
+        List<Map<String, Object>> checkMaps = new ArrayList<>();
+        checkMaps.addAll(customCheckMaps);
+        checkMaps.addAll(publicCheckMaps);
+
+        ObjectMapper mapper = new ObjectMapper();
+        return checkMaps.stream().map(checkMap -> mapper.convertValue(checkMap, EligibilityCheck.class)).toList();
+    }
+
+    public List<EligibilityCheck> getWorkingCustomChecks(String userId){
+        List<Map<String, Object>> checkMaps = FirestoreUtils.getFirestoreDocsByField(CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION, FieldNames.OWNER_ID, userId);
+        ObjectMapper mapper = new ObjectMapper();
+        return checkMaps.stream().map(checkMap -> mapper.convertValue(checkMap, EligibilityCheck.class)).toList();
+
+    }
+
+    public List<EligibilityCheck> getPublishedCustomChecks(String userId){
+        List<Map<String, Object>> checkMaps = FirestoreUtils.getFirestoreDocsByField(CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION, FieldNames.OWNER_ID, userId);
+        ObjectMapper mapper = new ObjectMapper();
+        return checkMaps.stream().map(checkMap -> mapper.convertValue(checkMap, EligibilityCheck.class)).toList();
+    }
+
+    public Optional<EligibilityCheck> getWorkingCustomCheck(String userId, String checkId){
+        return getCustomCheck(userId, checkId, false);
+    }
+
+    public Optional<EligibilityCheck> getPublishedCustomCheck(String userId, String checkId){
+        return getCustomCheck(userId, checkId, true);
+    }
+
+    private Optional<EligibilityCheck> getCustomCheck(String userId, String checkId, boolean isPublished){
+        String collectionName = isPublished ? CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION : CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION;
+
+        List<Map<String, Object>> checkMaps = FirestoreUtils.getFirestoreDocsByField(collectionName, FieldNames.ID, checkId);
+        if (checkMaps.isEmpty()){
+            return Optional.empty();
+        }
+        Map<String, Object> data = checkMaps.getFirst();
+
+        ObjectMapper mapper = new ObjectMapper();
+        EligibilityCheck check = mapper.convertValue(data, EligibilityCheck.class);
+
+        String dmnPath = storageService.getCheckDmnModelPath(userId, check.getModule(), checkId, check.getVersion());
+        Optional<String> dmnModel = storageService.getStringFromStorage(dmnPath);
+        dmnModel.ifPresent(check::setDmnModel);
+
+        return Optional.of(check);
+    }
+
+    public String saveWorkingCustomCheck(EligibilityCheck check) throws Exception{
+        ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Map<String, Object> data = mapper.convertValue(check, Map.class);
+        String checkDocId = check.getId();
+        return FirestoreUtils.persistDocumentWithId(CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION, checkDocId, data);
+    }
+
+    public String savePublishedCustomCheck(EligibilityCheck check) throws Exception{
+        ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Map<String, Object> data = mapper.convertValue(check, Map.class);
+        String checkDocId = check.getId();
+        return FirestoreUtils.persistDocumentWithId(CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION, checkDocId, data);
+    }
+
+    public String savePublicCheck(EligibilityCheck check) throws Exception{
+        ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Map<String, Object> data = mapper.convertValue(check, Map.class);
+        String checkDocId = check.getId();
+        return FirestoreUtils.persistDocumentWithId(CollectionNames.PUBLIC_CHECK_COLLECTION, checkDocId, data);
+    }
+}
