@@ -70,7 +70,7 @@ public class EligibilityCheckResource {
                                 EligibilityCheck newCheck) {
         String userId = AuthUtils.getUserId(identity);
 
-        //TODO: Add validations for user provided data
+        // TODO: Add validations for user provided data
         newCheck.setOwnerId(userId);
         newCheck.setPublic(true);
         newCheck.setVersion(1);

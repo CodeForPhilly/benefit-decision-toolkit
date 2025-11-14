@@ -145,11 +145,6 @@ public class GoogleStorageService implements StorageService {
     }
 
     @Override
-    public String getCheckDmnModelPath(String userId, String module, String checkId, Integer version){
-        return "check/" + userId + "/" + module + "/" + checkId + "/" + version.toString() + "/" + checkId + ".dmn";
-    }
-
-    @Override
     public Map<String, Object> getFormSchemaFromStorage(String filePath) {
         try {
             BlobId blobId = BlobId.of(bucketName, filePath);
@@ -174,10 +169,10 @@ public class GoogleStorageService implements StorageService {
     }
 
     @Override
-    public void updatePublishedFormSchemaArtifact(String screenerId) throws Exception {
+    public void updatePublishedFormSchemaArtifact(String screenerId, String publishedScreenerId) throws Exception {
         try {
             String sourcePath = getScreenerWorkingFormSchemaPath(screenerId);
-            String destPath = getScreenerPublishedFormSchemaPath(screenerId);
+            String destPath = getScreenerPublishedFormSchemaPath(publishedScreenerId);
 
             BlobId sourceBlobId = BlobId.of(bucketName, sourcePath);
             Blob sourceBlob = storage.get(sourceBlobId);

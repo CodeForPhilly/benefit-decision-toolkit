@@ -1,7 +1,6 @@
-import { cloneDeep } from "lodash";
 import { authFetch } from "@/api/auth";
 
-import type { BenefitDetail } from "@/types";
+import type { BenefitDetail, ScreenerResult } from "@/types";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -135,42 +134,7 @@ export const saveFormSchema = async (screenerId, schema) => {
   }
 };
 
-export const submitForm = async (screenerId, data) => {
-  const url = apiUrl + "/decision?screenerId=" + screenerId;
-  const formData = cloneDeep(data);
-  for (const key in formData) {
-    let value = formData[key];
-    if (value === "true") {
-      formData[key] = true;
-    } else if (value === "false") {
-      formData[key] = false;
-    }
-  }
-
-  if (!formData || Object.keys(formData).length === 0) return {};
-
-  try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Submit failed with status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error submitting form:", error);
-    throw error; // rethrow so you can handle it in your component if needed
-  }
-};
-
-export const publishScreener = async (screenerId) => {
+export const publishScreener = async (screenerId: string): Promise<void> => {
   const url = apiUrl + "/publish";
   try {
     const response = await authFetch(url, {
@@ -185,9 +149,6 @@ export const publishScreener = async (screenerId) => {
     if (!response.ok) {
       throw new Error(`Submit failed with status: ${response.status}`);
     }
-
-    const data = await response.json();
-    return data;
   } catch (error) {
     console.error("Error submitting form:", error);
     throw error;
@@ -235,27 +196,7 @@ export const removeCustomBenefit = async (screenerId: string, benefitId: string)
   }
 };
 
-export const copyPublicBenefit = async (screenerId: string, benefitId: string) => {
-  const url = apiUrl + "/screener/" + screenerId + "/copy_public_benefit?benefitId=" + benefitId;
-  try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Copy benefit failed with status: ${response.status}`);
-    }
-  } catch (error) {
-    console.error("Error copying benefit:", error);
-    throw error;
-  }
-};
-
-export const evaluateScreener = async (screenerId: string, inputData: any) => {
+export const evaluateScreener = async (screenerId: string, inputData: any): Promise<ScreenerResult> => {
   const url = apiUrl + "/decision/v2?screenerId=" + screenerId;
   try {
     const response = await authFetch(url, {

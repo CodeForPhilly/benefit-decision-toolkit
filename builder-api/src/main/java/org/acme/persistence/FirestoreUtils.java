@@ -7,7 +7,6 @@ import io.quarkus.logging.Log;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 public class FirestoreUtils {
 
@@ -221,7 +220,24 @@ public class FirestoreUtils {
             Log.error("Failed to delete document from firestore");
             throw new Exception(e);
         }
+    }
 
+    public static void deleteAllDocuments(String collectionName) throws Exception {
+        try{
+            db.collection(collectionName).listDocuments().forEach(
+                documentRef -> {
+                    try {
+                        WriteResult result = documentRef.delete().get();
+                        Log.info("Document " + documentRef.getId() + " deleted at " + result.getUpdateTime());
+                    } catch (Exception e) {
+                        Log.error("Failed to delete document: " + documentRef.getId(), e);
+                    }
+                }
+            );
+        } catch (Exception e){
+            Log.error("Failed to delete document from firestore");
+            throw new Exception(e);
+        }
     }
 
     public static void addObjectToListFieldOfDocument(String collection, String docId, String field, Object object) throws Exception{

@@ -1,27 +1,29 @@
 package org.acme.model.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Screener {
+    /* Screener metadata */
     private String id;
-    private Map<String, Object> formSchema;
-    @JsonProperty("isPublished")
-    private Boolean isPublished;
     private String ownerId;
     private String screenerName;
-    private String lastPublishDate;
     private String organizationName;
+
+    /* Screener data */
+    private Map<String, Object> formSchema;
     private List<ResultDetail> resultsSchema;
     private List<BenefitDetail> benefits;
 
-    public Screener(Map<String, Object> model, boolean isPublished){
+    /* Publishing properties */
+    private String publishedScreenerId;
+    private String lastPublishDate;
+
+    public Screener(Map<String, Object> model) {
         this.formSchema = model;
-        this.isPublished = isPublished;
     }
 
     public Screener(){
@@ -29,14 +31,6 @@ public class Screener {
 
     public Map<String, Object> getFormSchema() {
         return formSchema;
-    }
-
-    public Boolean isPublished() {
-        return isPublished;
-    }
-
-    public void setIsPublished(Boolean isPublished){
-        this.isPublished = isPublished;
     }
 
     public void setFormSchema(Map<String, Object> formSchema) {
@@ -77,6 +71,14 @@ public class Screener {
 
     public void setOrganizationName(String organizationName){
         this.organizationName = organizationName;
+    }
+
+    public void setPublishedScreenerId(String publishedScreenerId){
+        this.publishedScreenerId = publishedScreenerId;
+    }
+
+    public String getPublishedScreenerId(){
+        return this.publishedScreenerId;
     }
 
     public void setLastPublishedDate(String lastPublishDate){

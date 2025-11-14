@@ -50,7 +50,11 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
     public List<EligibilityCheck> getChecksInBenefit(Benefit benefit){
         List<String> checkIds = benefit.getChecks().stream().map(checkConfig -> checkConfig.getCheckId()).toList();
         List<Map<String, Object>> customCheckMaps = FirestoreUtils.getFirestoreDocsByIds(
-                CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION, checkIds);
+                CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION, checkIds);
+
+        // TODO: Replace with PUBLISHED_CUSTOM_CHECK_COLLECTION after implementing published checks
+        // List<Map<String, Object>> customCheckMaps = FirestoreUtils.getFirestoreDocsByIds(
+        //         CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION, checkIds);
 
         List<Map<String, Object>> publicCheckMaps = FirestoreUtils.getFirestoreDocsByIds(
                 CollectionNames.PUBLIC_CHECK_COLLECTION, checkIds);
@@ -96,7 +100,7 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
         ObjectMapper mapper = new ObjectMapper();
         EligibilityCheck check = mapper.convertValue(data, EligibilityCheck.class);
 
-        String dmnPath = storageService.getCheckDmnModelPath(userId, check.getModule(), checkId, check.getVersion());
+        String dmnPath = storageService.getCheckDmnModelPath(userId, checkId);
         Optional<String> dmnModel = storageService.getStringFromStorage(dmnPath);
         dmnModel.ifPresent(check::setDmnModel);
 

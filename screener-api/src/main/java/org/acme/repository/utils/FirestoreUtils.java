@@ -10,7 +10,6 @@ import java.util.Optional;
 
 public class FirestoreUtils {
 
-
     public static Optional<Map<String, Object>> getFirestoreDocById(String collection, String id) {
 
         Firestore db = FirestoreClient.getFirestore();
@@ -24,7 +23,6 @@ public class FirestoreUtils {
             if (!doc.exists()) {
                 return Optional.empty();
             }
-
 
             Map<String, Object> data = doc.getData();
             data.put("id", doc.getId());
