@@ -2,6 +2,8 @@ package org.acme.model.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.acme.constants.CheckStatus;
+
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -19,8 +21,13 @@ public class EligibilityCheck {
     @JsonProperty("isPublic")
     private Boolean isPublic;
 
-    public String getId() {
-        return id;
+    public String getWorkingId() {
+        return CheckStatus.WORKING.getCode() + "-" + ownerId + "-" + module + "-" + name;
+    }
+
+    public String getPublishedId() {
+        return CheckStatus.PUBLISHED.getCode() + "-" + ownerId + "-" + module + "-" + name;
+
     }
 
     public void setId(String id) {

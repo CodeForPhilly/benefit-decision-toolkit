@@ -24,7 +24,7 @@ public interface StorageService {
     String getScreenerPublishedFormSchemaPath(String screenerId);
 
 
-    String getCheckDmnModelPath(String module, String checkId, String version);
+    String getCheckDmnModelPath(String userId, String checkId);
 
     String getCheckDmnModelPath(String userId, String module, String checkId, String version);
 

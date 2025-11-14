@@ -5,7 +5,7 @@ import type { EligibilityCheck } from "@/types";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 export const fetchPublicChecks = async (): Promise<EligibilityCheck[]> => {
-  const url = apiUrl + "/check";
+  const url = apiUrl + "/checks";
   try {
     const response = await authFetch(url, {
       method: "GET",
@@ -28,7 +28,7 @@ export const fetchPublicChecks = async (): Promise<EligibilityCheck[]> => {
 export const fetchCheck = async (
   checkId: string
 ): Promise<EligibilityCheck> => {
-  const url = apiUrl + `/check/${checkId}`;
+  const url = apiUrl + `/checks/${checkId}`;
   try {
     const response = await authFetch(url, {
       method: "GET",
@@ -52,7 +52,7 @@ export const fetchCheck = async (
 export const fetchCustomCheck = async (
   checkId: string
 ): Promise<EligibilityCheck> => {
-  const url = apiUrl + `/account/check/${checkId}`;
+  const url = apiUrl + `/custom-checks/${checkId}`;
   try {
     const response = await authFetch(url, {
       method: "GET",
@@ -74,7 +74,7 @@ export const fetchCustomCheck = async (
 };
 
 export const addCheck = async (check: EligibilityCheck) => {
-  const url = apiUrl + "/account/check";
+  const url = apiUrl + "/custom-checks";
   try {
     const response = await authFetch(url, {
       method: "POST",
@@ -97,7 +97,7 @@ export const addCheck = async (check: EligibilityCheck) => {
 };
 
 export const updateCheck = async (check: EligibilityCheck) => {
-  const url = apiUrl + "/account/check";
+  const url = apiUrl + "/custom-checks";
   try {
     const response = await authFetch(url, {
       method: "PUT",
@@ -142,8 +142,16 @@ export const saveCheckDmn = async (checkId: string, dmnModel: string) => {
   }
 };
 
-export const fetchUserDefinedChecks = async (): Promise<EligibilityCheck[]> => {
-  const url = apiUrl + "/account/check";
+export const fetchUserDefinedChecks = async (
+  working: boolean
+): Promise<EligibilityCheck[]> => {
+  let url: string;
+  if (working) {
+    url = apiUrl + "/custom-checks?working=true";
+  } else {
+    url = apiUrl + "/custom-checks?working=false";
+  }
+
   try {
     const response = await authFetch(url, {
       method: "GET",

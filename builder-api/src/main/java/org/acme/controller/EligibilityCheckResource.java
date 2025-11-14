@@ -8,6 +8,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.acme.auth.AuthUtils;
+import org.acme.constants.CheckStatus;
 import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.dto.SaveDmnRequest;
 import org.acme.persistence.EligibilityCheckRepository;
@@ -134,7 +135,7 @@ public class EligibilityCheckResource {
                     .build();
         }
         try {
-            String filePath = storageService.getCheckDmnModelPath(userId, check.getModule(), check.getId(), check.getVersion());
+            String filePath = storageService.getCheckDmnModelPath(userId, checkId);
             storageService.writeStringToStorage(filePath, dmnModel, "application/xml");
             Log.info("Saved DMN model of check " + checkId + " to storage");
 
@@ -174,15 +175,19 @@ public class EligibilityCheckResource {
 
     @GET
     @Path("/custom-checks/{checkId}")
-    public Response getCustomCheck(@Context SecurityIdentity identity, @PathParam("checkId") String checkId,  @QueryParam("working") Boolean working) {
+    public Response getCustomCheck(@Context SecurityIdentity identity, @PathParam("checkId") String checkId) {
         String userId = AuthUtils.getUserId(identity);
         if (userId == null) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
 
+        char statusIndicator = (checkId != null && !checkId.isEmpty())
+                ? checkId.charAt(0)
+                : '\0';
+
         Optional<EligibilityCheck> checkOpt;
 
-        if (working != null && working){
+        if (statusIndicator == CheckStatus.WORKING.getCode()){
             Log.info("Fetching working custom check: " + checkId + " User:  " + userId);
             checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, userId);
         } else {
