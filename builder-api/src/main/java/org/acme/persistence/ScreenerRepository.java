@@ -7,17 +7,17 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ScreenerRepository {
-    public List<Screener> getScreeners(String userId);
+    public List<Screener> getWorkingScreeners(String userId);
 
-    public Optional<Screener> getScreener(String screenerId);
+    public Optional<Screener> getWorkingScreener(String screenerId);
 
-    public Optional<Screener> getScreenerMetaDataOnly(String screenerId);
+    public Optional<Screener> getWorkingScreenerMetaDataOnly(String screenerId);
 
-    public String saveNewScreener(Screener screener) throws Exception;
+    public String saveNewWorkingScreener(Screener screener) throws Exception;
 
-    public void updateScreener(Screener screener) throws Exception;
+    public void updateWorkingScreener(Screener screener) throws Exception;
 
-    public void addBenefitDetailToScreener(String screenerId, BenefitDetail benefitDetail) throws Exception;
+    public void addBenefitDetailToWorkingScreener(String screenerId, BenefitDetail benefitDetail) throws Exception;
 
-    public void deleteScreener(String screenerId) throws Exception;
+    public void deleteWorkingScreener(String screenerId) throws Exception;
 }

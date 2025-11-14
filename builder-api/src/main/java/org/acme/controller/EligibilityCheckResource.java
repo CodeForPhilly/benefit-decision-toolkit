@@ -76,7 +76,6 @@ public class EligibilityCheckResource {
         newCheck.setVersion(1);
         try {
             String checkId = eligibilityCheckRepository.savePublicCheck(newCheck);
-            newCheck.setId(checkId);
             return Response.ok(newCheck, MediaType.APPLICATION_JSON).build();
         } catch (Exception e){
             return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -189,10 +188,10 @@ public class EligibilityCheckResource {
 
         if (statusIndicator == CheckStatus.WORKING.getCode()){
             Log.info("Fetching working custom check: " + checkId + " User:  " + userId);
-            checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, userId);
+            checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, checkId);
         } else {
             Log.info("Fetching published custom check: " + checkId + " User:  " + userId);
-            checkOpt = eligibilityCheckRepository.getPublishedCustomCheck(userId, userId);
+            checkOpt = eligibilityCheckRepository.getPublishedCustomCheck(userId, checkId);
         }
 
         if (checkOpt.isEmpty()){
@@ -217,9 +216,9 @@ public class EligibilityCheckResource {
         newCheck.setOwnerId(userId);
         newCheck.setPublic(false);
         newCheck.setVersion(1);
+        newCheck.setPublished(false);
         try {
-            String checkId = eligibilityCheckRepository.saveWorkingCustomCheck(newCheck);
-            newCheck.setId(checkId);
+            eligibilityCheckRepository.saveWorkingCustomCheck(newCheck);
             return Response.ok(newCheck, MediaType.APPLICATION_JSON).build();
         } catch (Exception e){
             return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -236,7 +235,7 @@ public class EligibilityCheckResource {
 
         // TODO: Add authorization to update check
         try {
-            eligibilityCheckRepository.saveWorkingCustomCheck(updateCheck);
+            eligibilityCheckRepository.updateWorkingCustomCheck(updateCheck);
             return Response.ok().entity(updateCheck).build();
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

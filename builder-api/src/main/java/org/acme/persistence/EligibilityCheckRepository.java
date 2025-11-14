@@ -26,5 +26,9 @@ public interface EligibilityCheckRepository {
 
     String savePublishedCustomCheck(EligibilityCheck check) throws Exception;
 
+    void updateWorkingCustomCheck(EligibilityCheck check) throws Exception;
+
+    void updatePublishedCustomCheck(EligibilityCheck check) throws Exception;
+
     String savePublicCheck(EligibilityCheck check) throws Exception;
 }

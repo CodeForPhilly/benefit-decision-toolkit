@@ -52,7 +52,7 @@ public class ScreenerResource {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         Log.info("Fetching screeners for user: " + userId);
-        List<Screener> screeners = screenerRepository.getScreeners(userId);
+        List<Screener> screeners = screenerRepository.getWorkingScreeners(userId);
 
         return Response.ok(screeners, MediaType.APPLICATION_JSON).build();
     }
@@ -67,7 +67,7 @@ public class ScreenerResource {
 
         //perform authentication
 
-        Optional<Screener> screenerOptional = screenerRepository.getScreener(screenerId);
+        Optional<Screener> screenerOptional = screenerRepository.getWorkingScreener(screenerId);
 
         if (screenerOptional.isEmpty()){
           throw new NotFoundException();
@@ -92,7 +92,7 @@ public class ScreenerResource {
 
         newScreener.setOwnerId(userId);
         try {
-            String screenerId = screenerRepository.saveNewScreener(newScreener);
+            String screenerId = screenerRepository.saveNewWorkingScreener(newScreener);
             newScreener.setId(screenerId);
             return Response.ok(newScreener, MediaType.APPLICATION_JSON).build();
         } catch (Exception e){
@@ -115,7 +115,7 @@ public class ScreenerResource {
 
         Log.info("isPublished: " + screener.isPublished());
         try {
-            screenerRepository.updateScreener(screener);
+            screenerRepository.updateWorkingScreener(screener);
 
             return Response.ok().build();
         } catch (Exception e){
@@ -182,7 +182,7 @@ public class ScreenerResource {
             updateScreener.setIsPublished(true);
             updateScreener.setLastPublishDate(Instant.now().toString());
             //update screener metadata
-            screenerRepository.updateScreener(updateScreener);
+            screenerRepository.updateWorkingScreener(updateScreener);
 
             Map<String, Object> responseData = new HashMap<>();
             responseData.put("screenerUrl", getScreenerUrl(screenerId));
@@ -214,7 +214,7 @@ public class ScreenerResource {
             Screener updateScreener = new Screener();
             updateScreener.setId(screenerId);
             updateScreener.setIsPublished(false);
-            screenerRepository.updateScreener(updateScreener);
+            screenerRepository.updateWorkingScreener(updateScreener);
             Log.info("Updated Screener " + screenerId + " to unpublished.");
             return Response.ok().build();
 
@@ -237,7 +237,7 @@ public class ScreenerResource {
         if (!isUserAuthorizedToAccessScreener(userId, screenerId)) return Response.status(Response.Status.UNAUTHORIZED).build();
 
         try {
-            screenerRepository.deleteScreener(screenerId);
+            screenerRepository.deleteWorkingScreener(screenerId);
             return Response.ok().build();
         } catch (Exception e){
             Log.error("Error: error deleting screener " + screenerId);
@@ -246,7 +246,7 @@ public class ScreenerResource {
     }
 
     private boolean isUserAuthorizedToAccessScreener(String userId, String screenerId) {
-        Optional<Screener> screenerOptional = screenerRepository.getScreenerMetaDataOnly(screenerId);
+        Optional<Screener> screenerOptional = screenerRepository.getWorkingScreenerMetaDataOnly(screenerId);
         if (screenerOptional.isEmpty()){
             return false;
         }
@@ -268,7 +268,7 @@ public class ScreenerResource {
                                         @PathParam("screenerId") String screenerId){
         String userId = AuthUtils.getUserId(identity);
 
-        Optional<Screener> screenerOpt = screenerRepository.getScreener(screenerId);
+        Optional<Screener> screenerOpt = screenerRepository.getWorkingScreener(screenerId);
         if (screenerOpt.isEmpty()){
             throw new NotFoundException();
         }
@@ -321,7 +321,7 @@ public class ScreenerResource {
         try {
             String userId = AuthUtils.getUserId(identity);
 
-            Optional<Screener> screenerOpt = screenerRepository.getScreener(screenerId);
+            Optional<Screener> screenerOpt = screenerRepository.getWorkingScreener(screenerId);
             if (screenerOpt.isEmpty()){
                 throw new NotFoundException();
             }
@@ -363,7 +363,7 @@ public class ScreenerResource {
         benefitDetail.setPublic(newBenefit.getPublic());
         try {
             // Check to make sure not introducing duplicates
-            Optional<Screener> screenerOpt = screenerRepository.getScreener(screenerId);
+            Optional<Screener> screenerOpt = screenerRepository.getWorkingScreener(screenerId);
             if (screenerOpt.isEmpty()){
                 Log.error("Screener not found. Screener ID:" + screenerId);
                 throw new NotFoundException();
@@ -390,7 +390,7 @@ public class ScreenerResource {
             }
 
             String benefitId = benefitRepository.saveNewCustomBenefit(screenerId, newBenefit);
-            screenerRepository.addBenefitDetailToScreener(screenerId, benefitDetail);
+            screenerRepository.addBenefitDetailToWorkingScreener(screenerId, benefitDetail);
             newBenefit.setId(benefitId);
             return Response.ok(newBenefit, MediaType.APPLICATION_JSON).build();
         } catch (Exception e) {
@@ -407,7 +407,7 @@ public class ScreenerResource {
                                       @PathParam("screenerId") String screenerId,
                                       @QueryParam("benefitId") String benefitId) {
         // Check if Screener and Benefit exist
-        Optional<Screener> screenerOpt = screenerRepository.getScreener(screenerId);
+        Optional<Screener> screenerOpt = screenerRepository.getWorkingScreener(screenerId);
         Optional<Benefit> benefitOpt = benefitRepository.getBenefit(benefitId);
         if (screenerOpt.isEmpty()) {
             throw new NotFoundException();
@@ -450,7 +450,7 @@ public class ScreenerResource {
             benefitDetail.setPublic(newBenefit.getPublic());
 
             String generatedBenefitId = benefitRepository.saveNewCustomBenefit(screenerId, newBenefit);
-            screenerRepository.addBenefitDetailToScreener(screenerId, benefitDetail);
+            screenerRepository.addBenefitDetailToWorkingScreener(screenerId, benefitDetail);
             newBenefit.setId(generatedBenefitId);
 
             return Response.ok(newBenefit, MediaType.APPLICATION_JSON).build();
@@ -499,7 +499,7 @@ public class ScreenerResource {
                                         @PathParam("benefitId") String benefitId) {
         try {
             // Check if Screener and Benefit exist
-            Optional<Screener> screenerOpt = screenerRepository.getScreener(screenerId);
+            Optional<Screener> screenerOpt = screenerRepository.getWorkingScreener(screenerId);
             Optional<Benefit> benefitOpt = benefitRepository.getCustomBenefit(screenerId, benefitId);
             if (screenerOpt.isEmpty()){
                 throw new NotFoundException();
@@ -522,7 +522,7 @@ public class ScreenerResource {
                     .filter(benefitDetail -> !benefitDetail.getId().equals(benefitId))
                     .toList();
             screener.setBenefits(updatedBenefits);
-            screenerRepository.updateScreener(screener);
+            screenerRepository.updateWorkingScreener(screener);
 
             return Response.ok().build();
         } catch (Exception e) {

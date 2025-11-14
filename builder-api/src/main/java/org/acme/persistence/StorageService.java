@@ -26,7 +26,7 @@ public interface StorageService {
 
     String getCheckDmnModelPath(String userId, String checkId);
 
-    String getCheckDmnModelPath(String userId, String module, String checkId, String version);
+    String getCheckDmnModelPath(String userId, String module, String checkId, Integer version);
 
     Map<String, Object> getFormSchemaFromStorage(String filePath);
 

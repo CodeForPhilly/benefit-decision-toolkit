@@ -23,10 +23,10 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
     private StorageService storageService;
 
     @Override
-    public List<Screener> getScreeners(String userId) {
+    public List<Screener> getWorkingScreeners(String userId) {
 
         List<Map<String, Object>> screenersMaps = FirestoreUtils.getFirestoreDocsByField(
-                CollectionNames.SCREENER_COLLECTION,
+                CollectionNames.WORKING_SCREENER_COLLECTION,
                 FieldNames.OWNER_ID,
                 userId);
 
@@ -37,8 +37,8 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
     }
 
     @Override
-    public Optional<Screener> getScreener(String screenerId){
-        Optional<Map<String, Object>> dataOpt = FirestoreUtils.getFirestoreDocById(CollectionNames.SCREENER_COLLECTION, screenerId);
+    public Optional<Screener> getWorkingScreener(String screenerId){
+        Optional<Map<String, Object>> dataOpt = FirestoreUtils.getFirestoreDocById(CollectionNames.WORKING_SCREENER_COLLECTION, screenerId);
         if (dataOpt.isEmpty()){
             return Optional.empty();
         }
@@ -55,8 +55,8 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
     }
 
     @Override
-    public Optional<Screener> getScreenerMetaDataOnly(String screenerId){
-        Optional<Map<String, Object>> dataOpt = FirestoreUtils.getFirestoreDocById(CollectionNames.SCREENER_COLLECTION, screenerId);
+    public Optional<Screener> getWorkingScreenerMetaDataOnly(String screenerId){
+        Optional<Map<String, Object>> dataOpt = FirestoreUtils.getFirestoreDocById(CollectionNames.WORKING_SCREENER_COLLECTION, screenerId);
         if (dataOpt.isEmpty()){
             return Optional.empty();
         }
@@ -68,14 +68,14 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
     }
 
     @Override
-    public String saveNewScreener(Screener screener) throws Exception{
+    public String saveNewWorkingScreener(Screener screener) throws Exception{
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(screener, Map.class);
-        return FirestoreUtils.persistDocument(CollectionNames.SCREENER_COLLECTION, data);
+        return FirestoreUtils.persistDocument(CollectionNames.WORKING_SCREENER_COLLECTION, data);
     }
 
     @Override
-    public void updateScreener(Screener screener) throws Exception {
+    public void updateWorkingScreener(Screener screener) throws Exception {
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(screener, Map.class);
 
@@ -85,17 +85,17 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
         data.remove("dmnModel");
         data.remove("formSchema");
 
-        FirestoreUtils.updateDocument(CollectionNames.SCREENER_COLLECTION, data, screener.getId());
+        FirestoreUtils.updateDocument(CollectionNames.WORKING_SCREENER_COLLECTION, data, screener.getId());
     }
 
-    public void addBenefitDetailToScreener(String screenerId, BenefitDetail benefitDetail) throws Exception {
+    public void addBenefitDetailToWorkingScreener(String screenerId, BenefitDetail benefitDetail) throws Exception {
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(benefitDetail, Map.class);
-        FirestoreUtils.addObjectToArrayField(CollectionNames.SCREENER_COLLECTION, screenerId, FieldNames.BENEFITS, data);
+        FirestoreUtils.addObjectToArrayField(CollectionNames.WORKING_SCREENER_COLLECTION, screenerId, FieldNames.BENEFITS, data);
     }
 
     @Override
-    public void deleteScreener(String screenerId) throws Exception {
-        FirestoreUtils.deleteDocument(CollectionNames.SCREENER_COLLECTION, screenerId);
+    public void deleteWorkingScreener(String screenerId) throws Exception {
+        FirestoreUtils.deleteDocument(CollectionNames.WORKING_SCREENER_COLLECTION, screenerId);
     }
 }

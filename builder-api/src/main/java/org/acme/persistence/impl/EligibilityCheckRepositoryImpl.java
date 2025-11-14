@@ -106,21 +106,36 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
     public String saveWorkingCustomCheck(EligibilityCheck check) throws Exception{
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(check, Map.class);
-        String checkDocId = check.getId();
+        String checkDocId = check.getWorkingId();
         return FirestoreUtils.persistDocumentWithId(CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION, checkDocId, data);
+    }
+
+    public void updateWorkingCustomCheck(EligibilityCheck check) throws Exception{
+        ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Map<String, Object> data = mapper.convertValue(check, Map.class);
+        String checkDocId = check.getWorkingId();
+        FirestoreUtils.updateDocument(CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION, data, checkDocId);
     }
 
     public String savePublishedCustomCheck(EligibilityCheck check) throws Exception{
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(check, Map.class);
-        String checkDocId = check.getId();
+        String checkDocId = check.getPublishedId();
         return FirestoreUtils.persistDocumentWithId(CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION, checkDocId, data);
+    }
+
+
+    public void updatePublishedCustomCheck(EligibilityCheck check) throws Exception{
+        ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Map<String, Object> data = mapper.convertValue(check, Map.class);
+        String checkDocId = check.getPublishedId();
+        FirestoreUtils.updateDocument(CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION, data, checkDocId);
     }
 
     public String savePublicCheck(EligibilityCheck check) throws Exception{
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(check, Map.class);
-        String checkDocId = check.getId();
+        String checkDocId = check.getPublishedId();
         return FirestoreUtils.persistDocumentWithId(CollectionNames.PUBLIC_CHECK_COLLECTION, checkDocId, data);
     }
 }

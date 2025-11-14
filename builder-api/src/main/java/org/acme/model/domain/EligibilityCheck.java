@@ -20,6 +20,7 @@ public class EligibilityCheck {
     private String ownerId;
     @JsonProperty("isPublic")
     private Boolean isPublic;
+    private Boolean isPublished;
 
     public String getWorkingId() {
         return CheckStatus.WORKING.getCode() + "-" + ownerId + "-" + module + "-" + name;
@@ -27,11 +28,10 @@ public class EligibilityCheck {
 
     public String getPublishedId() {
         return CheckStatus.PUBLISHED.getCode() + "-" + ownerId + "-" + module + "-" + name;
-
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public String getId() {
+        return this.id;
     }
 
     public String getName() {
@@ -112,5 +112,9 @@ public class EligibilityCheck {
 
     public void setPublic(Boolean aPublic) {
         isPublic = aPublic;
+    }
+
+    public void setPublished(Boolean published) {
+        isPublished = published;
     }
 }

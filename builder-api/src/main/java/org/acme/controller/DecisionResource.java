@@ -11,7 +11,6 @@ import jakarta.ws.rs.core.Response;
 import org.acme.auth.AuthUtils;
 import org.acme.enums.OptionalBoolean;
 import org.acme.model.domain.Benefit;
-import org.acme.model.domain.CheckConfig;
 import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.domain.Screener;
 import org.acme.persistence.BenefitRepository;
@@ -55,7 +54,7 @@ public class DecisionResource {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
 
-        Optional<Screener> screenerOpt = screenerRepository.getScreener(screenerId);
+        Optional<Screener> screenerOpt = screenerRepository.getWorkingScreener(screenerId);
         if (screenerOpt.isEmpty()){
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -130,53 +129,64 @@ public class DecisionResource {
     private Map<String, Object> evaluateBenefitDmn(Benefit benefit, Map<String, Object> inputData) throws Exception {
         List<EligibilityCheck> checks = eligibilityCheckRepository.getChecksInBenefit(benefit);
 
-        List<OptionalBoolean> checkResultsList = new ArrayList<>();
-        Map<String, Object> checkResults = new HashMap<>();
-        for (EligibilityCheck check : checks) {
-            Optional<CheckConfig> matchingCheckConfig = benefit.getChecks().stream().filter(
-                checkConfig -> checkConfig.getCheckId().equals(check.getId())
-            ).findFirst();
-            if (matchingCheckConfig.isEmpty()) {
-                throw new Exception("Could not find CheckConfig for check " + check.getId());
-            }
-
-            String dmnFilepath = storageService.getCheckDmnModelPath(
-                check.getModule(), check.getId(), check.getVersion()
-            );
-            String dmnModelName = check.getId();
-
-            OptionalBoolean result = dmnService.evaluateSimpleDmn(
-                dmnFilepath, dmnModelName, inputData, matchingCheckConfig.get().getParameters()
-            );
-            checkResultsList.add(result);
-            checkResults.put(check.getId(), Map.of("name", check.getName(),"result", result));
-        }
-
-        // Determine overall Benefit result
-        Boolean allChecksTrue = checkResultsList.stream().allMatch(result -> result == OptionalBoolean.TRUE);
-        Boolean anyChecksFalse = checkResultsList.stream().anyMatch(result -> result == OptionalBoolean.FALSE);
-        Log.info("All True: " + allChecksTrue + " Any False: " + anyChecksFalse);
-
-        OptionalBoolean benefitResult;
-        if (allChecksTrue) {
-            benefitResult = OptionalBoolean.TRUE;
-        } else if (anyChecksFalse) {
-            benefitResult = OptionalBoolean.FALSE;
+        if (benefit.getPublic()){
+            // Public benefit, call the Library API to evaluate
+            Map<String, Object> result = new HashMap<>();
+            return result;
         } else {
-            benefitResult = OptionalBoolean.UNABLE_TO_DETERMINE;
-        }
+            // Custom benefit, evaluate here in the web app api (as opposed to calling the library api for evaluation)
+            List<OptionalBoolean> checkResultsList = new ArrayList<>();
+            Map<String, Object> checkResults = new HashMap<>();
 
-        return new HashMap<String, Object>(
-            Map.of(
-                "name", benefit.getName(),
-                "result", benefitResult,
-                "check_results", checkResults
-            )
-        );
+            Map<String, Object> result = new HashMap<>();
+            return result;
+            //TODO: update implementation here
+//            for (EligibilityCheck check : checks) {
+//                Optional<CheckConfig> matchingCheckConfig = benefit.getChecks().stream().filter(
+//                        checkConfig -> checkConfig.getCheckId().equals(check.getId())
+//                ).findFirst();
+//                if (matchingCheckConfig.isEmpty()) {
+//                    throw new Exception("Could not find CheckConfig for check " + check.getId());
+//                }
+//
+//                String dmnFilepath = storageService.getCheckDmnModelPath(
+//                        check.getModule(), check.getId(), check.getVersion()
+//                );
+//                String dmnModelName = check.getId();
+//
+//                OptionalBoolean result = dmnService.evaluateSimpleDmn(
+//                        dmnFilepath, dmnModelName, inputData, matchingCheckConfig.get().getParameters()
+//                );
+//                checkResultsList.add(result);
+//                checkResults.put(check.getId(), Map.of("name", check.getName(), "result", result));
+//            }
+//
+//            // Determine overall Benefit result
+//            Boolean allChecksTrue = checkResultsList.stream().allMatch(result -> result == OptionalBoolean.TRUE);
+//            Boolean anyChecksFalse = checkResultsList.stream().anyMatch(result -> result == OptionalBoolean.FALSE);
+//            Log.info("All True: " + allChecksTrue + " Any False: " + anyChecksFalse);
+//
+//            OptionalBoolean benefitResult;
+//            if (allChecksTrue) {
+//                benefitResult = OptionalBoolean.TRUE;
+//            } else if (anyChecksFalse) {
+//                benefitResult = OptionalBoolean.FALSE;
+//            } else {
+//                benefitResult = OptionalBoolean.UNABLE_TO_DETERMINE;
+//            }
+//
+//            return new HashMap<String, Object>(
+//                    Map.of(
+//                            "name", benefit.getName(),
+//                            "result", benefitResult,
+//                            "check_results", checkResults
+//                    )
+//            );
+        }
     }
 
     private boolean isUserAuthorizedToAccessScreenerByScreenerId(String userId, String screenerId) {
-        Optional<Screener> screenerOpt = screenerRepository.getScreenerMetaDataOnly(screenerId);
+        Optional<Screener> screenerOpt = screenerRepository.getWorkingScreenerMetaDataOnly(screenerId);
         if (screenerOpt.isEmpty()){
             return false;
         }
