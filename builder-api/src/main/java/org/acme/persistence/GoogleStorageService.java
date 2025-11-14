@@ -145,11 +145,6 @@ public class GoogleStorageService implements StorageService {
     }
 
     @Override
-    public String getCheckDmnModelPath(String userId, String module, String checkId, Integer version){
-        return "check/" + userId + "/" + module + "/" + checkId + "/" + version.toString() + "/" + checkId + ".dmn";
-    }
-
-    @Override
     public Map<String, Object> getFormSchemaFromStorage(String filePath) {
         try {
             BlobId blobId = BlobId.of(bucketName, filePath);

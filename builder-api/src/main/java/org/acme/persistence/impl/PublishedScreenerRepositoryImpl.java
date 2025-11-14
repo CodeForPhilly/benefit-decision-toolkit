@@ -1,4 +1,4 @@
-package org.acme.persistence;
+package org.acme.persistence.impl;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,6 +7,9 @@ import jakarta.inject.Inject;
 import org.acme.constants.CollectionNames;
 import org.acme.model.domain.Benefit;
 import org.acme.model.domain.Screener;
+import org.acme.persistence.FirestoreUtils;
+import org.acme.persistence.PublishedScreenerRepository;
+import org.acme.persistence.StorageService;
 
 import java.util.List;
 import java.util.Map;

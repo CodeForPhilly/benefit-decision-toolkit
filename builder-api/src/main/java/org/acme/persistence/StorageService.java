@@ -25,8 +25,6 @@ public interface StorageService {
 
     String getCheckDmnModelPath(String userId, String checkId);
 
-    String getCheckDmnModelPath(String userId, String module, String checkId, Integer version);
-
     Map<String, Object> getFormSchemaFromStorage(String filePath);
 
     void updatePublishedFormSchemaArtifact(String screenerId, String publishedScreenerId) throws Exception;
