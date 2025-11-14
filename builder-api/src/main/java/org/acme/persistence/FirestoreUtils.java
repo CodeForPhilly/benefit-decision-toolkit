@@ -120,7 +120,6 @@ public class FirestoreUtils {
 
     public static Optional<Map<String, Object>> getFirestoreDocById(String collection, String id) {
         try {
-
             DocumentSnapshot doc = db.collection(collection)
                     .document(id)
                     .get().get();
@@ -129,7 +128,6 @@ public class FirestoreUtils {
             if (!doc.exists()) {
                 return Optional.empty();
             }
-
 
             Map<String, Object> data = doc.getData();
             data.put("id", doc.getId());
