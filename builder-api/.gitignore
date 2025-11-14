@@ -45,3 +45,9 @@ nb-configuration.xml
 .certs/
 
 config/
+
+# Service account crdentials
+src/main/resources/benefit-decision-toolkit*.json
+
+# Temp
+src/main/resources/properties-test.txt

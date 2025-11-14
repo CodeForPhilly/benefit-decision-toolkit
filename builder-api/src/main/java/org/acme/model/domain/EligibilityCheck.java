@@ -2,6 +2,8 @@ package org.acme.model.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.acme.constants.CheckStatus;
+
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -10,7 +12,7 @@ public class EligibilityCheck {
     private String name;
     private String module;
     private String description;
-    private String version;
+    private Integer version;
     private boolean isActive;
     private String dmnModel;
     private List<InputDefinition> inputs;
@@ -18,13 +20,18 @@ public class EligibilityCheck {
     private String ownerId;
     @JsonProperty("isPublic")
     private Boolean isPublic;
+    private Boolean isPublished;
 
-    public String getId() {
-        return id;
+    public String getWorkingId() {
+        return CheckStatus.WORKING.getCode() + "-" + ownerId + "-" + module + "-" + name;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public String getPublishedId() {
+        return CheckStatus.PUBLISHED.getCode() + "-" + ownerId + "-" + module + "-" + name;
+    }
+
+    public String getId() {
+        return this.id;
     }
 
     public String getName() {
@@ -59,11 +66,11 @@ public class EligibilityCheck {
         this.description = description;
     }
 
-    public String getVersion() {
+    public Integer getVersion() {
         return version;
     }
 
-    public void setVersion(String version) {
+    public void setVersion(Integer version) {
         this.version = version;
     }
 
@@ -105,5 +112,9 @@ public class EligibilityCheck {
 
     public void setPublic(Boolean aPublic) {
         isPublic = aPublic;
+    }
+
+    public void setPublished(Boolean published) {
+        isPublished = published;
     }
 }

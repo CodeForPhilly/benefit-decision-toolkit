@@ -1,16 +1,29 @@
-import { createResource, createEffect, Accessor, createSignal } from "solid-js";
+import {
+  createResource,
+  createEffect,
+  Accessor,
+  createSignal,
+  on,
+} from "solid-js";
 import { createStore } from "solid-js/store";
 
-import { fetchCheck, saveCheckDmn, updateCheck } from "@/api/check";
+import {
+  fetchCheck,
+  fetchCustomCheck,
+  saveCheckDmn,
+  updateCheck,
+} from "@/api/check";
 
 import type { EligibilityCheckDetail, ParameterDefinition } from "@/types";
-
 
 export interface EligibilityCheckDetailResource {
   eligibilityCheck: () => EligibilityCheckDetail;
   actions: {
     addParameter: (parameterDef: ParameterDefinition) => Promise<void>;
-    updateParameter: (parameterIndex: number, parameterDef: ParameterDefinition) => Promise<void>;
+    updateParameter: (
+      parameterIndex: number,
+      parameterDef: ParameterDefinition
+    ) => Promise<void>;
     removeParameter: (parameterIndex: number) => Promise<void>;
     saveDmnModel: (dmnString: string) => Promise<void>;
   };
@@ -21,22 +34,36 @@ export interface EligibilityCheckDetailResource {
   };
 }
 
-const eligibilityCheckDetailResource = (checkId: Accessor<string>): EligibilityCheckDetailResource => {
-  const [eligibilityCheckResource, { refetch }] = createResource(() => checkId(), fetchCheck);
+const eligibilityCheckDetailResource = (
+  checkId: Accessor<string>
+): EligibilityCheckDetailResource => {
+  const [eligibilityCheckResource, { refetch }] = createResource(
+    () => checkId(),
+    fetchCustomCheck
+  );
   const [actionInProgress, setActionInProgress] = createSignal<boolean>(false);
 
   // Local fine-grained store
-  const [eligibilityCheck, setEligibilityCheck] = createStore<EligibilityCheckDetail | null>(null);
+  const [eligibilityCheck, setEligibilityCheck] =
+    createStore<EligibilityCheckDetail | null>(null);
 
   // When resource resolves, sync it into the store
   createEffect(() => {
+    console.log("Setting eligibility check");
+    const data = eligibilityCheckResource();
     if (eligibilityCheckResource()) {
+      console.log("here");
+      console.log(data.name);
+
       setEligibilityCheck(eligibilityCheckResource()!);
     }
   });
 
   const addParameter = async (parameterDef: ParameterDefinition) => {
-    const updatedCheck: EligibilityCheckDetail = { ...eligibilityCheck, parameters: [...eligibilityCheck.parameters, parameterDef] };
+    const updatedCheck: EligibilityCheckDetail = {
+      ...eligibilityCheck,
+      parameters: [...eligibilityCheck.parameters, parameterDef],
+    };
     setActionInProgress(true);
     try {
       await updateCheck(updatedCheck);
@@ -47,11 +74,17 @@ const eligibilityCheckDetailResource = (checkId: Accessor<string>): EligibilityC
     setActionInProgress(false);
   };
 
-  const updateParameter = async (parameterIndex: number, parameterDef: ParameterDefinition) => {
-    const updatedParameters = [ ...eligibilityCheck.parameters ];
+  const updateParameter = async (
+    parameterIndex: number,
+    parameterDef: ParameterDefinition
+  ) => {
+    const updatedParameters = [...eligibilityCheck.parameters];
     updatedParameters[parameterIndex] = parameterDef;
     console.log("updatedParameters", updatedParameters);
-    const updatedCheck: EligibilityCheckDetail = { ...eligibilityCheck, parameters: updatedParameters };
+    const updatedCheck: EligibilityCheckDetail = {
+      ...eligibilityCheck,
+      parameters: updatedParameters,
+    };
 
     setActionInProgress(true);
     try {
@@ -64,9 +97,12 @@ const eligibilityCheckDetailResource = (checkId: Accessor<string>): EligibilityC
   };
 
   const removeParameter = async (parameterIndex: number) => {
-    const updatedParameters = [ ...eligibilityCheck.parameters ];
+    const updatedParameters = [...eligibilityCheck.parameters];
     updatedParameters.splice(parameterIndex, 1);
-    const updatedCheck: EligibilityCheckDetail = { ...eligibilityCheck, parameters: updatedParameters };
+    const updatedCheck: EligibilityCheckDetail = {
+      ...eligibilityCheck,
+      parameters: updatedParameters,
+    };
 
     setActionInProgress(true);
     try {
@@ -87,7 +123,7 @@ const eligibilityCheckDetailResource = (checkId: Accessor<string>): EligibilityC
       console.error("Failed to save DMN model", e);
     }
     setActionInProgress(false);
-  }
+  };
 
   return {
     eligibilityCheck: () => eligibilityCheck,

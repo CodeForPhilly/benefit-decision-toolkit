@@ -8,11 +8,13 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.acme.auth.AuthUtils;
+import org.acme.constants.CheckStatus;
 import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.dto.SaveDmnRequest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.StorageService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,27 +29,27 @@ public class EligibilityCheckResource {
     StorageService storageService;
 
     @GET
-    @Path("/check")
-    public Response getAllChecks(@Context SecurityIdentity identity) {
+    @Path("/checks")
+    public Response getPublicChecks(@Context SecurityIdentity identity) {
         String userId = AuthUtils.getUserId(identity);
         if (userId == null) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         Log.info("Fetching all eligibility checks. User:  " + userId);
-        List<EligibilityCheck> checks = eligibilityCheckRepository.getAllPublicChecks();
+        List<EligibilityCheck> checks = eligibilityCheckRepository.getPublicChecks();
 
         return Response.ok(checks, MediaType.APPLICATION_JSON).build();
     }
 
     @GET
-    @Path("/check/{checkId}")
-    public Response getCheck(@Context SecurityIdentity identity, @PathParam("checkId") String checkId) {
+    @Path("/checks/{checkId}")
+    public Response getPublicCheck(@Context SecurityIdentity identity, @PathParam("checkId") String checkId) {
         String userId = AuthUtils.getUserId(identity);
         if (userId == null){
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         Log.info("Fetching all eligibility checks. User:  " + userId);
-        Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getCheck(checkId);
+        Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getPublicCheck(checkId);
 
         if (checkOpt.isEmpty()){
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -61,21 +63,19 @@ public class EligibilityCheckResource {
         return Response.ok(check, MediaType.APPLICATION_JSON).build();
     }
 
-    // Utility endpoint to create an Eligibility check
-    // In the future seperate endpoints will need to be created for publishing public checks and creating private checks
+    // Utility endpoint, public checks come from the Library API schema and shouldn't usually be created through the app
     @POST
-    @Path("/check")
-    public Response createCheck(@Context SecurityIdentity identity,
+    @Path("/checks")
+    public Response createPublicCheck(@Context SecurityIdentity identity,
                                 EligibilityCheck newCheck) {
         String userId = AuthUtils.getUserId(identity);
 
         //TODO: Add validations for user provided data
         newCheck.setOwnerId(userId);
-        newCheck.setPublic(true); // By default all created checks are public
-        newCheck.setVersion("1");
+        newCheck.setPublic(true);
+        newCheck.setVersion(1);
         try {
-            String checkId = eligibilityCheckRepository.saveNewCheck(newCheck);
-            newCheck.setId(checkId);
+            String checkId = eligibilityCheckRepository.savePublicCheck(newCheck);
             return Response.ok(newCheck, MediaType.APPLICATION_JSON).build();
         } catch (Exception e){
             return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -84,15 +84,17 @@ public class EligibilityCheckResource {
         }
     }
 
+    // Utility endpoint, public checks are static and come from the library api schema
+    // and usually should not be updated through the app
     @PUT
-    @Path("/check")
-    public Response updateCheck(@Context SecurityIdentity identity,
+    @Path("/checks")
+    public Response updatePublicCheck(@Context SecurityIdentity identity,
                                 EligibilityCheck updateCheck){
         String userId = AuthUtils.getUserId(identity);
 
         // TODO: Add authorization to update check
         try {
-            eligibilityCheckRepository.updateCheck(updateCheck);
+            eligibilityCheckRepository.savePublicCheck(updateCheck);
             return Response.ok().entity(updateCheck).build();
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -114,7 +116,7 @@ public class EligibilityCheckResource {
         }
 
         String userId = AuthUtils.getUserId(identity);
-        Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getCheck(checkId);
+        Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, checkId);
         if (checkOpt.isEmpty()){
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -132,7 +134,7 @@ public class EligibilityCheckResource {
                     .build();
         }
         try {
-            String filePath = storageService.getCheckDmnModelPath(check.getModule(), check.getId(), check.getVersion());
+            String filePath = storageService.getCheckDmnModelPath(userId, checkId);
             storageService.writeStringToStorage(filePath, dmnModel, "application/xml");
             Log.info("Saved DMN model of check " + checkId + " to storage");
 
@@ -143,6 +145,102 @@ public class EligibilityCheckResource {
         } catch (Exception e){
             Log.info(("Failed to save DMN model for check " + checkId));
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // By default, returns the most recent versions of all published checks owned by the calling user
+    // If the query parameter 'working' is set to true,
+    // then all the working check objects owned by the user are returned
+    @GET
+    @Path("/custom-checks")
+    public Response getCustomChecks(@Context SecurityIdentity identity, @QueryParam("working") Boolean working) {
+        String userId = AuthUtils.getUserId(identity);
+        if (userId == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        List<EligibilityCheck> checks;
+
+        if (working != null && working){
+            Log.info("Fetching all working custom checks. User:  " + userId);
+            checks = eligibilityCheckRepository.getWorkingCustomChecks(userId);
+        } else {
+            Log.info("Fetching all published custom checks. User:  " + userId);
+            checks = eligibilityCheckRepository.getPublishedCustomChecks(userId);
+        }
+
+        return Response.ok(checks, MediaType.APPLICATION_JSON).build();
+    }
+
+    @GET
+    @Path("/custom-checks/{checkId}")
+    public Response getCustomCheck(@Context SecurityIdentity identity, @PathParam("checkId") String checkId) {
+        String userId = AuthUtils.getUserId(identity);
+        if (userId == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        char statusIndicator = (checkId != null && !checkId.isEmpty())
+                ? checkId.charAt(0)
+                : '\0';
+
+        Optional<EligibilityCheck> checkOpt;
+
+        if (statusIndicator == CheckStatus.WORKING.getCode()){
+            Log.info("Fetching working custom check: " + checkId + " User:  " + userId);
+            checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, checkId);
+        } else {
+            Log.info("Fetching published custom check: " + checkId + " User:  " + userId);
+            checkOpt = eligibilityCheckRepository.getPublishedCustomCheck(userId, checkId);
+        }
+
+        if (checkOpt.isEmpty()){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        EligibilityCheck check = checkOpt.get();
+
+        if (!check.getPublic() && !check.getOwnerId().equals(userId)){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+        return Response.ok(check, MediaType.APPLICATION_JSON).build();
+    }
+
+    @POST
+    @Path("/custom-checks")
+    public Response createCustomCheck(@Context SecurityIdentity identity,
+                                EligibilityCheck newCheck) {
+        String userId = AuthUtils.getUserId(identity);
+
+        //TODO: Add validations for user provided data
+        newCheck.setOwnerId(userId);
+        newCheck.setPublic(false);
+        newCheck.setVersion(1);
+        newCheck.setPublished(false);
+        try {
+            eligibilityCheckRepository.saveWorkingCustomCheck(newCheck);
+            return Response.ok(newCheck, MediaType.APPLICATION_JSON).build();
+        } catch (Exception e){
+            return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Could not save Check"))
+                    .build();
+        }
+    }
+
+    @PUT
+    @Path("/custom-checks")
+    public Response updateCustomCheck(@Context SecurityIdentity identity,
+                                EligibilityCheck updateCheck){
+        String userId = AuthUtils.getUserId(identity);
+
+        // TODO: Add authorization to update check
+        try {
+            eligibilityCheckRepository.updateWorkingCustomCheck(updateCheck);
+            return Response.ok().entity(updateCheck).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "could not update Check"))
+                    .build();
         }
     }
 }
