@@ -137,7 +137,11 @@ public class DMNSchemaResolver {
         return generateExampleFromSchema(schema);
     }
 
-    private Map<String, Object> generateExampleFromSchema(JsonNode schema) {
+    /**
+     * Generate an example Map from a JSON schema node.
+     * Package-private to allow test access.
+     */
+    Map<String, Object> generateExampleFromSchema(JsonNode schema) {
         Map<String, Object> example = new LinkedHashMap<>();
 
         if (!schema.has("properties")) {
