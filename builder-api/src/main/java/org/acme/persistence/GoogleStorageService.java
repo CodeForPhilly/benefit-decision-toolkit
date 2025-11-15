@@ -26,7 +26,7 @@ public class GoogleStorageService implements StorageService {
     String bucketName;
 
     @Override
-    public void writeStringToStorage(String filePath, String content, String contentType){
+    public void writeStringToStorage(String filePath, String content, String contentType) throws Exception {
         try {
             BlobId blobId = BlobId.of(bucketName, filePath);
             BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
@@ -37,6 +37,7 @@ public class GoogleStorageService implements StorageService {
             Log.info("Uploaded to GCS: " + filePath);
         } catch (Exception e){
             Log.error("Error writing string to GCS: " + e.getMessage());
+            throw new Exception(e);
         }
     }
 

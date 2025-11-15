@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface StorageService {
-    void writeStringToStorage(String filePath, String content, String contentType);
+    void writeStringToStorage(String filePath, String content, String contentType) throws Exception;
 
     void writeBytesToStorage(String filePath, byte[] content, String contentType);
 
