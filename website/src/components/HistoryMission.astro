@@ -1,0 +1,30 @@
+---
+import { Content as Mission } from "../assets/copy/Mission.md";
+import { Content as History } from "../assets/copy/History.md";
+import { Image } from "astro:assets";
+import womanWithLaptop from "../assets/photos/woman-with-laptop.png";
+import manInOffice from "../assets/photos/man-in-office.png";
+---
+
+<section id="mission">
+  <div class="max-w-[130ch] mx-auto">
+    <div class="grid grid-rows-2 grid-cols-2">
+      <div class="bg-green-200 flex justify-center items-center">
+        <div class="max-w-72 relative top-30">
+          <Image src={womanWithLaptop} alt="Woman with laptop." />
+        </div>
+      </div>
+      <div class="prose p-6 pb-30">
+        <Mission />
+      </div>
+      <div class="prose p-6 pt-30">
+        <History />
+      </div>
+      <div class="bg-green-200 flex justify-center items-center">
+        <div class="max-w-72 relative bottom-30">
+          <Image src={manInOffice} alt="Woman with laptop." />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
