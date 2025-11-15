@@ -16,7 +16,9 @@ import logo from "../assets/logos/bdt-logo-large-mono-dark.svg";
         {
           navLinks.map((link) => (
             <li>
-              <a href={link.path}>{link.title}</a>
+              <a href={`${import.meta.env.BASE_URL}/${link.path}`}>
+                {link.title}
+              </a>
             </li>
           ))
         }
