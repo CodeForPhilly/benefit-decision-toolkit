@@ -5,6 +5,6 @@ import tailwindcss from "@tailwindcss/vite";
 // https://astro.build/config
 export default defineConfig({
   vite: { plugins: [tailwindcss()] },
-  site: "https://earth-walker.github.io",
+  site: "https://codeforphilly.github.io",
   base: "/benefit-decision-toolkit",
 });
