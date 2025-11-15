@@ -12,6 +12,8 @@ Assets for the site including copy text and images can be contributed via the de
 
 ## Get Started
 
-`cd website`
-`npm i`
-`npm run dev`
+```
+cd website
+npm i
+npm run dev
+```
