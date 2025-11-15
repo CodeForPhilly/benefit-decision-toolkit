@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(find:*)",
+      "Bash(chmod:*)",
+      "Bash(quarkus dev:*)",
+      "Bash(bin/tag-release:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
