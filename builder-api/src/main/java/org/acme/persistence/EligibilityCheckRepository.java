@@ -22,9 +22,9 @@ public interface EligibilityCheckRepository {
 
     Optional<EligibilityCheck> getPublishedCustomCheck(String userId, String checkId);
 
-    String saveWorkingCustomCheck(EligibilityCheck check) throws Exception;
+    String saveNewWorkingCustomCheck(EligibilityCheck check) throws Exception;
 
-    String savePublishedCustomCheck(EligibilityCheck check) throws Exception;
+    String saveNewPublishedCustomCheck(EligibilityCheck check) throws Exception;
 
     void updateWorkingCustomCheck(EligibilityCheck check) throws Exception;
 

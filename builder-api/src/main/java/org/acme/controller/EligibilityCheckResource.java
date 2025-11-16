@@ -14,7 +14,6 @@ import org.acme.model.dto.SaveDmnRequest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.StorageService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -216,9 +215,8 @@ public class EligibilityCheckResource {
         newCheck.setOwnerId(userId);
         newCheck.setPublic(false);
         newCheck.setVersion(1);
-        newCheck.setPublished(false);
         try {
-            eligibilityCheckRepository.saveWorkingCustomCheck(newCheck);
+            eligibilityCheckRepository.saveNewWorkingCustomCheck(newCheck);
             return Response.ok(newCheck, MediaType.APPLICATION_JSON).build();
         } catch (Exception e){
             return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -231,9 +229,12 @@ public class EligibilityCheckResource {
     @Path("/custom-checks")
     public Response updateCustomCheck(@Context SecurityIdentity identity,
                                 EligibilityCheck updateCheck){
+        // Authorization
         String userId = AuthUtils.getUserId(identity);
+        if (!userId.equals(updateCheck.getOwnerId())){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
 
-        // TODO: Add authorization to update check
         try {
             eligibilityCheckRepository.updateWorkingCustomCheck(updateCheck);
             return Response.ok().entity(updateCheck).build();
@@ -242,5 +243,52 @@ public class EligibilityCheckResource {
                     .entity(Map.of("error", "could not update Check"))
                     .build();
         }
+    }
+
+    @POST
+    @Path("/publish-check/{checkId}")
+    public Response publishCustomCheck(@Context SecurityIdentity identity, @PathParam("checkId") String checkId){
+
+        String userId = AuthUtils.getUserId(identity);
+        Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, checkId);
+        if (checkOpt.isEmpty()){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        EligibilityCheck check = checkOpt.get();
+
+        // Authorization
+        if (!userId.equals(check.getOwnerId())){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        // Update workingCheck so that the incremented version number is saved
+        check.setVersion(check.getVersion() + 1);
+        try {
+            eligibilityCheckRepository.updateWorkingCustomCheck(check);
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "could not update working Check, published check version was not created"))
+                    .build();
+        }
+
+        // Create new published custom check
+        try {
+            // save published check meta data document
+            String publishedCheckId = eligibilityCheckRepository.saveNewPublishedCustomCheck(check);
+
+            // save published check DMN to storage
+            Optional<String> workingDmnOpt = storageService.getStringFromStorage(storageService.getCheckDmnModelPath(userId, check.getId()));
+            if (workingDmnOpt.isPresent()){
+                String workingDmn = workingDmnOpt.get();
+                storageService.writeStringToStorage(storageService.getCheckDmnModelPath(userId, publishedCheckId), workingDmn, "application/xml");
+            }
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "could not create new published custom check version"))
+                    .build();
+        }
+
+        return Response.ok(check, MediaType.APPLICATION_JSON).build();
     }
 }
