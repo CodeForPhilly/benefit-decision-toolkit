@@ -14,7 +14,6 @@ import org.acme.model.dto.SaveDmnRequest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.StorageService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -217,7 +216,7 @@ public class EligibilityCheckResource {
         newCheck.setPublic(false);
         newCheck.setVersion(1);
         try {
-            eligibilityCheckRepository.saveWorkingCustomCheck(newCheck);
+            eligibilityCheckRepository.saveNewWorkingCustomCheck(newCheck);
             return Response.ok(newCheck, MediaType.APPLICATION_JSON).build();
         } catch (Exception e){
             return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -274,17 +273,15 @@ public class EligibilityCheckResource {
         }
 
         // Create new published custom check
-        check.setId(check.getPublishedId());
         try {
             // save published check meta data document
-            eligibilityCheckRepository.savePublishedCustomCheck(check);
+            String publishedCheckId = eligibilityCheckRepository.saveNewPublishedCustomCheck(check);
 
             // save published check DMN to storage
-            Optional<String> workingDmnOpt = storageService.getStringFromStorage(storageService.getCheckDmnModelPath(userId, check.getWorkingId()));
+            Optional<String> workingDmnOpt = storageService.getStringFromStorage(storageService.getCheckDmnModelPath(userId, check.getId()));
             if (workingDmnOpt.isPresent()){
                 String workingDmn = workingDmnOpt.get();
-                storageService.writeStringToStorage(storageService.getCheckDmnModelPath(userId, check.getPublishedId()), workingDmn, "application/xml");
-
+                storageService.writeStringToStorage(storageService.getCheckDmnModelPath(userId, publishedCheckId), workingDmn, "application/xml");
             }
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

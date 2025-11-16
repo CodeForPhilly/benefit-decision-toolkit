@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.acme.constants.CheckStatus;
 import org.acme.constants.CollectionNames;
 import org.acme.constants.FieldNames;
 import org.acme.model.domain.Benefit;
@@ -107,24 +108,25 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
         return Optional.of(check);
     }
 
-    public String saveWorkingCustomCheck(EligibilityCheck check) throws Exception{
+    public String saveNewWorkingCustomCheck(EligibilityCheck check) throws Exception{
+        String checkId = getWorkingId(check);
+        check.setId(checkId);
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(check, Map.class);
-        String checkDocId = check.getWorkingId();
-        return FirestoreUtils.persistDocumentWithId(CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION, checkDocId, data);
+        return FirestoreUtils.persistDocumentWithId(CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION, checkId, data);
     }
 
     public void updateWorkingCustomCheck(EligibilityCheck check) throws Exception{
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(check, Map.class);
-        String checkDocId = check.getWorkingId();
-        FirestoreUtils.updateDocument(CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION, data, checkDocId);
+        FirestoreUtils.updateDocument(CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION, data, check.getId());
     }
 
-    public String savePublishedCustomCheck(EligibilityCheck check) throws Exception{
+    public String saveNewPublishedCustomCheck(EligibilityCheck check) throws Exception{
+        check.setId(getPublishedId(check));
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(check, Map.class);
-        String checkDocId = check.getPublishedId();
+        String checkDocId = getPublishedId(check);
         return FirestoreUtils.persistDocumentWithId(CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION, checkDocId, data);
     }
 
@@ -132,14 +134,22 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
     public void updatePublishedCustomCheck(EligibilityCheck check) throws Exception{
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(check, Map.class);
-        String checkDocId = check.getPublishedId();
-        FirestoreUtils.updateDocument(CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION, data, checkDocId);
+        FirestoreUtils.updateDocument(CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION, data, check.getId());
     }
 
     public String savePublicCheck(EligibilityCheck check) throws Exception{
+        String checkId = getPublishedId(check);
+        check.setId(checkId);
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(check, Map.class);
-        String checkDocId = check.getPublishedId();
-        return FirestoreUtils.persistDocumentWithId(CollectionNames.PUBLIC_CHECK_COLLECTION, checkDocId, data);
+        return FirestoreUtils.persistDocumentWithId(CollectionNames.PUBLIC_CHECK_COLLECTION, checkId , data);
+    }
+
+    public String getWorkingId(EligibilityCheck check) {
+        return CheckStatus.WORKING.getCode() + "-" + check.getOwnerId() + "-" + check.getModule() + "-" + check.getName();
+    }
+
+    public String getPublishedId(EligibilityCheck check) {
+        return CheckStatus.PUBLISHED.getCode() + "-" + check.getOwnerId() + "-" + check.getModule() + "-" + check.getName() + "-" + check.getVersion().toString();
     }
 }

@@ -21,14 +21,6 @@ public class EligibilityCheck {
     @JsonProperty("isPublic")
     private Boolean isPublic;
 
-    public String getWorkingId() {
-        return CheckStatus.WORKING.getCode() + "-" + ownerId + "-" + module + "-" + name;
-    }
-
-    public String getPublishedId() {
-        return CheckStatus.PUBLISHED.getCode() + "-" + ownerId + "-" + module + "-" + name + "-" + version.toString();
-    }
-
     public String getId() {
         return this.id;
     }
