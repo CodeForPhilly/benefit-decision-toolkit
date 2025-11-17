@@ -50,7 +50,6 @@ public class FirestoreUtils {
                         return data;
                     })
                     .toList();
-
         }catch(Exception e){
             Log.error("Error fetching documents from firestore: ", e);
             return new ArrayList<>();
@@ -136,6 +135,30 @@ public class FirestoreUtils {
         }catch(Exception e){
             Log.error("Error fetching document from firestore: ", e);
             return Optional.empty();
+        }
+    }
+
+    public static List<Map<String, Object>> getFirestoreDocsByIdPrefix (String collection, String prefix) {
+        try {
+            /* TODO: Temporary logic - codify prefix searching in a more robust way */
+            ApiFuture<QuerySnapshot> query = db.collection(collection)
+                    .whereGreaterThanOrEqualTo(FieldPath.documentId(), prefix)
+                    .whereLessThan(FieldPath.documentId(), prefix + "\uf8ff")
+                    .get();
+
+            List<QueryDocumentSnapshot> documents;
+            documents = query.get().getDocuments();
+
+            return documents.stream()
+                    .map(doc -> {
+                        Map<String, Object> data = doc.getData();
+                        data.put("id", doc.getId());
+                        return data;
+                    })
+                    .toList();
+        }catch(Exception e){
+            Log.error("Error fetching documents from firestore: ", e);
+            return new ArrayList<>();
         }
     }
 

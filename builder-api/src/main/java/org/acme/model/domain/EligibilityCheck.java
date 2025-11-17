@@ -2,7 +2,6 @@ package org.acme.model.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.acme.constants.CheckStatus;
 
 import java.util.List;
 
@@ -108,6 +107,4 @@ public class EligibilityCheck {
     public void setPublic(Boolean aPublic) {
         isPublic = aPublic;
     }
-
-
 }
