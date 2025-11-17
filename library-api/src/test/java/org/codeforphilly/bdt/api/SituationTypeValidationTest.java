@@ -245,6 +245,27 @@ public class SituationTypeValidationTest {
             return;
         }
 
+        // Check if local is unstructured (only x-dmn-type, no type/properties/items/$ref)
+        boolean localHasStructure = resolvedLocal.has("type") ||
+                                     resolvedLocal.has("properties") ||
+                                     resolvedLocal.has("items") ||
+                                     resolvedLocal.has("$ref");
+
+        boolean bdtHasStructure = resolvedBdt.has("type") ||
+                                  resolvedBdt.has("properties") ||
+                                  resolvedBdt.has("items") ||
+                                  resolvedBdt.has("$ref");
+
+        // If BDT has structure but local doesn't, that's invalid
+        if (bdtHasStructure && !localHasStructure) {
+            String localType = resolvedLocal.has("x-dmn-type") ?
+                resolvedLocal.get("x-dmn-type").asText() : "unknown";
+            invalidPaths.add(currentPath +
+                " [local uses unstructured type '" + localType +
+                "' but BDT has structured type]");
+            return;
+        }
+
         // Handle object types (have "properties")
         if (resolvedLocal.has("properties")) {
             if (!resolvedBdt.has("properties")) {
