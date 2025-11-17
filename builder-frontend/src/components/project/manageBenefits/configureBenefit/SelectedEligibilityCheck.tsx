@@ -1,6 +1,6 @@
 import { Accessor, createSignal, For } from "solid-js";
 
-import SelectedCheckModal from "./modals/ConfigureCheckModal";
+import ConfigureCheckModal from "./modals/ConfigureCheckModal";
 
 import { titleCase } from "@/utils/title_case";
 
@@ -16,28 +16,19 @@ interface ParameterWithConfiguredValue {
   value: string | number | boolean | string[] | undefined;
 }
 
-const SelectedEligibilityCheck = ({
-  check,
-  checkConfig,
-  checkIndex,
-  updateCheckConfigParams,
-}: {
-  check: EligibilityCheck;
-  checkConfig: Accessor<CheckConfig>;
-  checkIndex: number;
-  updateCheckConfigParams: (
-    checkIndex: number,
-    newCheckData: ParameterValues
-  ) => void;
-}) => {
-  const [configuringCheckModalOpen, setConfiguringCheckModalOpen] =
-    createSignal(false);
+const SelectedEligibilityCheck = (
+  { check, checkConfig, updateCheckConfigParams }:
+  {
+    check: EligibilityCheck;
+    checkConfig: Accessor<CheckConfig>;
+    updateCheckConfigParams: (newCheckData: ParameterValues) => void
+  }
+) => {
+  const [configuringCheckModalOpen, setConfiguringCheckModalOpen] = createSignal(false);
 
-  const checkParameters: ParameterWithConfiguredValue[] = check.parameters.map(
-    (param) => {
-      return { parameter: param, value: checkConfig().parameters[param.key]! };
-    }
-  );
+  const checkParameters: Accessor<ParameterWithConfiguredValue[]> = () => check.parameters.map((param) => {
+    return { parameter: param, value: checkConfig().parameters[param.key]! };
+  });
 
   const unfilledRequiredParameters = () => {
     return [];
@@ -71,10 +62,10 @@ const SelectedEligibilityCheck = ({
             </For>
           </div>
         )}
-        {checkParameters.length > 0 && (
+        {checkParameters().length > 0 && (
           <div class="[&:has(+div)]:mb-2">
             <div class="text-lg font-bold pl-2">Parameters</div>
-            <For each={checkParameters}>
+            <For each={checkParameters()}>
               {({ parameter, value }: ParameterWithConfiguredValue) => {
                 const getLabel = () => {
                   return value !== undefined ? (
@@ -101,10 +92,9 @@ const SelectedEligibilityCheck = ({
         )}
       </div>
       {configuringCheckModalOpen() && (
-        <SelectedCheckModal
+        <ConfigureCheckModal
           check={check}
           checkConfig={checkConfig}
-          checkIndex={checkIndex}
           updateCheckConfigParams={updateCheckConfigParams}
           closeModal={() => {
             setConfiguringCheckModalOpen(false);

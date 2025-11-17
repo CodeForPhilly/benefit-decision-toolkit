@@ -3,18 +3,24 @@ import {
   createEffect,
   Accessor,
   createSignal,
-  on,
 } from "solid-js";
 import { createStore } from "solid-js/store";
+import toast from 'solid-toast';
 
 import {
-  fetchCheck,
   fetchCustomCheck,
   saveCheckDmn,
   updateCheck,
+  evaluateWorkingCheck,
+  publishCheck as publishCheckApi,
 } from "@/api/check";
 
-import type { EligibilityCheckDetail, ParameterDefinition } from "@/types";
+import type {
+  CheckConfig,
+  EligibilityCheckDetail,
+  OptionalBoolean,
+  ParameterDefinition
+} from "@/types";
 
 export interface EligibilityCheckDetailResource {
   eligibilityCheck: () => EligibilityCheckDetail;
@@ -26,6 +32,8 @@ export interface EligibilityCheckDetailResource {
     ) => Promise<void>;
     removeParameter: (parameterIndex: number) => Promise<void>;
     saveDmnModel: (dmnString: string) => Promise<void>;
+    testEligibility: (checkConfg: CheckConfig, inputData: Record<string, any>) => Promise<OptionalBoolean>;
+    publishCheck: (checkId: string) => Promise<void>;
   };
   actionInProgress: Accessor<boolean>;
   initialLoadStatus: {
@@ -125,6 +133,30 @@ const eligibilityCheckDetailResource = (
     setActionInProgress(false);
   };
 
+  const testEligibility = async (checkConfg: CheckConfig, inputData: Record<string, any>): Promise<OptionalBoolean> => {
+    setActionInProgress(true);
+    try {
+      const reponse = await evaluateWorkingCheck(eligibilityCheck.id, checkConfg, inputData);
+      setActionInProgress(false);
+      return reponse;
+    } catch (e) {
+      toast.error("Test failed to run, confirm that your DMN file is valid.");
+    }
+    setActionInProgress(false);
+  };
+
+  const publishCheck = async (checkId: string) => {
+    setActionInProgress(true);
+    try {
+      console.log("publish", checkId);
+      await publishCheckApi(checkId);
+      await refetch();
+    } catch (e) {
+      console.error("Failed to publish check", e);
+    }
+    setActionInProgress(false);
+  };
+
   return {
     eligibilityCheck: () => eligibilityCheck,
     actions: {
@@ -132,6 +164,8 @@ const eligibilityCheckDetailResource = (
       updateParameter,
       removeParameter,
       saveDmnModel,
+      testEligibility,
+      publishCheck,
     },
     actionInProgress,
     initialLoadStatus: {

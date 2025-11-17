@@ -262,6 +262,14 @@ public class EligibilityCheckResource {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
 
+        // Retrieve DMN Path before incrementing version
+        Optional<String> workingDmnOpt = storageService.getStringFromStorage(storageService.getCheckDmnModelPath(check.getId()));
+        if (!workingDmnOpt.isPresent()) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "could not find DMN file for working Check"))
+                    .build();
+        }
+
         // Update workingCheck so that the incremented version number is saved
         check.setVersion(check.getVersion() + 1);
         try {
@@ -278,10 +286,11 @@ public class EligibilityCheckResource {
             String publishedCheckId = eligibilityCheckRepository.saveNewPublishedCustomCheck(check);
 
             // save published check DMN to storage
-            Optional<String> workingDmnOpt = storageService.getStringFromStorage(storageService.getCheckDmnModelPath(check.getId()));
             if (workingDmnOpt.isPresent()){
                 String workingDmn = workingDmnOpt.get();
                 storageService.writeStringToStorage(storageService.getCheckDmnModelPath(publishedCheckId), workingDmn, "application/xml");
+            } else {
+                Log.warn("Could not find working DMN model for check " + check.getId() + ", published check created without DMN model");
             }
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -290,5 +299,34 @@ public class EligibilityCheckResource {
         }
 
         return Response.ok(check, MediaType.APPLICATION_JSON).build();
+    }
+
+    @GET
+    @Path("/custom-checks/{checkId}/related_published_checks")
+    public Response getRelatedPublishedChecks(@Context SecurityIdentity identity, @PathParam("checkId") String checkId){
+        String userId = AuthUtils.getUserId(identity);
+        Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, checkId);
+        if (checkOpt.isEmpty()){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        EligibilityCheck check = checkOpt.get();
+
+        // Authorization
+        if (!userId.equals(check.getOwnerId())){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        // Update workingCheck so that the incremented version number is saved
+        check.setVersion(check.getVersion() + 1);
+        try {
+            List<EligibilityCheck> publishedChecks = eligibilityCheckRepository.getRelatedPublishedChecks(check);
+
+            return Response.ok(publishedChecks, MediaType.APPLICATION_JSON).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "could not update working Check, published check version was not created"))
+                    .build();
+        }
     }
 }

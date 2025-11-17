@@ -1,4 +1,4 @@
-import { onCleanup, onMount, Accessor, Setter } from "solid-js";
+import { onCleanup, onMount, Accessor, Setter, createEffect } from "solid-js";
 
 import * as DmnEditor from "@kogito-tooling/kie-editors-standalone/dist/dmn";
 
