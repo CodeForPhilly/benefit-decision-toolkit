@@ -15,6 +15,22 @@
       <dmn:typeRef>number</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
+  <dmn:itemDefinition id="_2AE75E76-E5A1-4C32-B030-F9E38DBBF373" name="tSituation" isCollection="false">
+    <dmn:itemComponent id="_46B25CC1-C7ED-40D1-91B8-E330499C53A4" name="people" isCollection="false">
+      <dmn:typeRef>tPersonList</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_6297C5BC-307D-480A-8791-6949B87D7004" name="tPerson" isCollection="false">
+    <dmn:itemComponent id="_5AC41AD0-1091-4DBE-8138-2324EB946ECB" name="id" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_9CE78D63-FB21-45E6-B5DC-A50A0C40FB8D" name="dateOfBirth" isCollection="false">
+      <dmn:typeRef>date</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_DAD4F1DD-9B91-48C2-B603-4381C5897644" name="tPersonList" isCollection="true">
+    <dmn:typeRef>tPerson</dmn:typeRef>
+  </dmn:itemDefinition>
   <dmn:decisionService id="_115363CB-5A44-450E-A973-2718F10C793A" name="SomeoneMinAgeService">
     <dmn:extensionElements/>
     <dmn:variable id="_38A41479-24D4-4F40-A8D4-CA5E6CF356CA" name="SomeoneMinAgeService" typeRef="BDT.tCheckResponse"/>
@@ -62,7 +78,7 @@
   </dmn:decision>
   <dmn:inputData id="_15ACE01F-0C2D-4F2D-B44F-5E562B7D61BA" name="situation">
     <dmn:extensionElements/>
-    <dmn:variable id="_36657472-D664-46F5-909B-0D372E13D5FF" name="situation" typeRef="BDT.tSituation"/>
+    <dmn:variable id="_36657472-D664-46F5-909B-0D372E13D5FF" name="situation" typeRef="tSituation"/>
   </dmn:inputData>
   <dmn:inputData id="_C98E92CF-600E-4C9B-AFAD-1531015A5A7F" name="parameters">
     <dmn:extensionElements/>
