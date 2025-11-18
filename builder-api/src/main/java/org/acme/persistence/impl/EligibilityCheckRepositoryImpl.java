@@ -81,12 +81,18 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
         return checkMaps.stream().map(checkMap -> mapper.convertValue(checkMap, EligibilityCheck.class)).toList();
     }
 
-    public List<EligibilityCheck> getRelatedPublishedChecks(EligibilityCheck workingCustomCheck){
+    public List<EligibilityCheck> getPublishedCheckVersions(EligibilityCheck workingCustomCheck){
+        Map<String, String> fieldValues = Map.of(
+            "ownerId", workingCustomCheck.getOwnerId(),
+            "module", workingCustomCheck.getModule(),
+            "name", workingCustomCheck.getName()
+        );
+
         /* Get all related Published Checks for a Working Check */
         List<Map<String, Object>> checkMaps = (
-            FirestoreUtils.getFirestoreDocsByIdPrefix(
+            FirestoreUtils.getFirestoreDocsByFields(
                 CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION,
-                getPublishedPrefix(workingCustomCheck)
+                fieldValues
             )
         );
         ObjectMapper mapper = new ObjectMapper();

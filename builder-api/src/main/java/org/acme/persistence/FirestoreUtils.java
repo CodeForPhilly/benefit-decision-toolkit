@@ -56,6 +56,32 @@ public class FirestoreUtils {
         }
     }
 
+    public static List<Map<String, Object>> getFirestoreDocsByFields(String collection, Map<String, String> fieldValues) {
+        System.out.println("Fetching documents from collection: " + collection + " with field values: " + fieldValues);
+        System.out.println("Using Firestore instance: " + db.listCollections());
+        try {
+            Query query = db.collection(collection);
+            for (Map.Entry<String, String> entry : fieldValues.entrySet()) {
+                // Add a whereEqualTo clause for each field-value pair
+                query = query.whereEqualTo(entry.getKey(), entry.getValue());
+            }
+            ApiFuture<QuerySnapshot> querySnapshot = query.get();
+            List<QueryDocumentSnapshot> documents;
+            documents = querySnapshot.get().getDocuments();
+
+            return documents.stream()
+                    .map(doc -> {
+                        Map<String, Object> data = doc.getData();
+                        data.put("id", doc.getId());
+                        return data;
+                    })
+                    .toList();
+        }catch(Exception e){
+            Log.error("Error fetching documents from firestore: ", e);
+            return new ArrayList<>();
+        }
+    }
+
     public static List<Map<String, Object>> getFirestoreDocsByField(String collection, String field, boolean value) {
         try {
             ApiFuture<QuerySnapshot> query = db.collection(collection)
@@ -135,30 +161,6 @@ public class FirestoreUtils {
         }catch(Exception e){
             Log.error("Error fetching document from firestore: ", e);
             return Optional.empty();
-        }
-    }
-
-    public static List<Map<String, Object>> getFirestoreDocsByIdPrefix (String collection, String prefix) {
-        try {
-            /* TODO: Temporary logic - codify prefix searching in a more robust way */
-            ApiFuture<QuerySnapshot> query = db.collection(collection)
-                    .whereGreaterThanOrEqualTo(FieldPath.documentId(), prefix)
-                    .whereLessThan(FieldPath.documentId(), prefix + "\uf8ff")
-                    .get();
-
-            List<QueryDocumentSnapshot> documents;
-            documents = query.get().getDocuments();
-
-            return documents.stream()
-                    .map(doc -> {
-                        Map<String, Object> data = doc.getData();
-                        data.put("id", doc.getId());
-                        return data;
-                    })
-                    .toList();
-        }catch(Exception e){
-            Log.error("Error fetching documents from firestore: ", e);
-            return new ArrayList<>();
         }
     }
 

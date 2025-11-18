@@ -301,9 +301,10 @@ public class EligibilityCheckResource {
         return Response.ok(check, MediaType.APPLICATION_JSON).build();
     }
 
+    /* Endpoint for returning all Published Check Versions related to a given Working Eligibility Check */
     @GET
-    @Path("/custom-checks/{checkId}/related_published_checks")
-    public Response getRelatedPublishedChecks(@Context SecurityIdentity identity, @PathParam("checkId") String checkId){
+    @Path("/custom-checks/{checkId}/published-check-versions")
+    public Response getPublishedVersionsOfWorkingCheck(@Context SecurityIdentity identity, @PathParam("checkId") String checkId){
         String userId = AuthUtils.getUserId(identity);
         Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, checkId);
         if (checkOpt.isEmpty()){
@@ -320,7 +321,7 @@ public class EligibilityCheckResource {
         // Update workingCheck so that the incremented version number is saved
         check.setVersion(check.getVersion() + 1);
         try {
-            List<EligibilityCheck> publishedChecks = eligibilityCheckRepository.getRelatedPublishedChecks(check);
+            List<EligibilityCheck> publishedChecks = eligibilityCheckRepository.getPublishedCheckVersions(check);
 
             return Response.ok(publishedChecks, MediaType.APPLICATION_JSON).build();
         } catch (Exception e){
