@@ -12,7 +12,6 @@ import org.acme.auth.AuthUtils;
 import org.acme.enums.EvaluationResult;
 import org.acme.model.domain.Benefit;
 import org.acme.model.domain.CheckConfig;
-import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.domain.Screener;
 import org.acme.model.dto.EvaluateCheckRequest;
 import org.acme.persistence.EligibilityCheckRepository;
