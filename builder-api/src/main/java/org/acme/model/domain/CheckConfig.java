@@ -7,6 +7,7 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CheckConfig {
     private String checkId;
+    private String checkName;
     private Map<String, Object> parameters;
 
     public String getCheckId() {
@@ -23,5 +24,13 @@ public class CheckConfig {
 
     public void setParameters(Map<String, Object> parameters) {
         this.parameters = parameters;
+    }
+
+    public String getCheckName() {
+        return checkName;
+    }
+
+    public void setCheckName(String checkName) {
+        this.checkName = checkName;
     }
 }

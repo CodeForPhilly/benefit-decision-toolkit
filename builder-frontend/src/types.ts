@@ -18,6 +18,7 @@ export interface Benefit {
 // An EligibilityCheck, as configured by a particular Benefit
 export interface CheckConfig {
   checkId: string;
+  checkName: string;
   parameters: ParameterValues;
 }
 export interface ParameterValues {
@@ -37,12 +38,11 @@ export interface EligibilityCheckDetail extends EligibilityCheck {
 }
 
 // Check Input Types
-type InputDefinition = (
-  StringInput |
-  StringSelectInput |
-  NumberInput |
-  BooleanInput
-);
+type InputDefinition =
+  | StringInput
+  | StringSelectInput
+  | NumberInput
+  | BooleanInput;
 interface BaseInput {
   key: string;
   prompt: string;
@@ -63,13 +63,12 @@ interface BooleanInput extends BaseInput {
 }
 
 // Parameter Types
-export type ParameterDefinition = (
-  StringParameter |
+export type ParameterDefinition =
+  | StringParameter
   // StringSelectParameter |
   // StringMultiInputParameter |
-  NumberParameter |
-  BooleanParameter
-);
+  | NumberParameter
+  | BooleanParameter;
 interface BaseParameter {
   key: string;
   label: string;
@@ -94,7 +93,7 @@ export interface BooleanParameter extends BaseParameter {
 
 /* Screener Evaluation Results */
 export interface ScreenerResult {
-  [key: string]: BenefitResult
+  [key: string]: BenefitResult;
 }
 export interface ScreenerTest {
   inputData: PublishedScreener
@@ -105,7 +104,7 @@ export interface BenefitResult {
   result: OptionalBoolean;
   check_results: {
     [key: string]: CheckResult;
-  }
+  };
 }
 interface CheckResult {
   name: string;
