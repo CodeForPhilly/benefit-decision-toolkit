@@ -14,6 +14,7 @@ import org.acme.model.domain.Benefit;
 import org.acme.model.domain.CheckConfig;
 import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.domain.Screener;
+import org.acme.model.dto.EvaluateCheckRequest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.PublishedScreenerRepository;
 import org.acme.persistence.ScreenerRepository;
@@ -117,7 +118,6 @@ public class DecisionResource {
     }
 
     private Map<String, Object> evaluateBenefit(Benefit benefit, Map<String, Object> inputData) throws Exception {
-
         if (benefit.getPublic()){
             // Public benefit, call the Library API to evaluate
             Map<String, Object> result = new HashMap<>();
@@ -161,13 +161,13 @@ public class DecisionResource {
     }
 
     @POST
-    @Path("/decision/v2/working_check")
+    @Path("/decision/working-check")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response evaluateCheck(
         @Context SecurityIdentity identity,
         @QueryParam("checkId") String checkId,
-        Map<String, Object> data
+        EvaluateCheckRequest request
     ) throws Exception {
         String userId = AuthUtils.getUserId(identity);
 
@@ -176,31 +176,6 @@ public class DecisionResource {
                     .entity("Error: Missing required query parameter: checkId")
                     .build();
         }
-        if (data == null || data.isEmpty()){
-            return Response.status(Response.Status.BAD_REQUEST)
-                .entity("Error: Missing decision inputs")
-                .build();
-        }
-
-        // Get CheckConfig from data
-        if (!data.containsKey("checkConfig")) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                .entity("Error: Missing CheckConfig in request body")
-                .build();
-        }
-        // TODO: Fix to be more in-line with Java standards
-        Map<String, Object> checkConfigData = (Map<String, Object>) data.get("checkConfig");
-        CheckConfig checkConfig = new CheckConfig();
-        checkConfig.setCheckId(checkId);
-        checkConfig.setParameters((Map<String, Object>) checkConfigData.get("parameters"));
-
-        Map<String, Object> inputData = null;
-        if (!data.containsKey("inputData")) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                .entity("Error: Missing inputData in request body")
-                .build();
-        }
-        inputData = (Map<String, Object>) data.get("inputData");
 
         // Get EligibilityCheck
         Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, checkId);
@@ -216,7 +191,7 @@ public class DecisionResource {
             String dmnModelName = check.getId();
 
             OptionalBoolean result = dmnService.evaluateSimpleDmn(
-                dmnFilepath, dmnModelName, inputData, checkConfig.getParameters()
+                dmnFilepath, dmnModelName, request.inputData, request.checkConfig.getParameters()
             );
             return Response.ok().entity(Map.of("result", result)).build();
         } catch (Exception e) {

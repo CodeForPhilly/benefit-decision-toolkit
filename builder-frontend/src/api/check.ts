@@ -170,7 +170,7 @@ export const fetchUserDefinedChecks = async (
 };
 
 export const evaluateWorkingCheck = async (checkId: string, checkConfig: any, inputData: Record<string, any>): Promise<OptionalBoolean> => {
-  const url = apiUrl + `/decision/v2/working_check?checkId=${checkId}`;
+  const url = apiUrl + `/decision/working-check?checkId=${checkId}`;
   try {
     const response = await authFetch(url, {
       method: "POST",
@@ -193,7 +193,7 @@ export const evaluateWorkingCheck = async (checkId: string, checkConfig: any, in
 }
 
 export const getRelatedPublishedChecks = async (checkId: string): Promise<EligibilityCheck[]> => {
-  const url = apiUrl + `/custom-checks/${checkId}/related_published_checks`;
+  const url = apiUrl + `/custom-checks/${checkId}/published-check-versions`;
   try {
     const response = await authFetch(url, {
       method: "GET",
