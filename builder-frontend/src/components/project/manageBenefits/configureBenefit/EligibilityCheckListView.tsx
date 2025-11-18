@@ -146,6 +146,7 @@ const EligibilityCheckRow = ({
           Add
         </div>
       </td>
+      <td class="eligibility-check-table-cell border-top">{check.name}</td>
       <td class="eligibility-check-table-cell border-top">
         {titleCase(check.name)}
       </td>
