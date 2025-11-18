@@ -12,7 +12,9 @@ import org.acme.auth.AuthUtils;
 import org.acme.enums.OptionalBoolean;
 import org.acme.model.domain.Benefit;
 import org.acme.model.domain.CheckConfig;
+import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.domain.Screener;
+import org.acme.model.dto.EvaluateCheckRequest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.PublishedScreenerRepository;
 import org.acme.persistence.ScreenerRepository;
@@ -116,7 +118,6 @@ public class DecisionResource {
     }
 
     private Map<String, Object> evaluateBenefit(Benefit benefit, Map<String, Object> inputData) throws Exception {
-
         if (benefit.getPublic()){
             // Public benefit, call the Library API to evaluate
             Map<String, Object> result = new HashMap<>();
@@ -156,6 +157,46 @@ public class DecisionResource {
                             "check_results", checkResults
                     )
             );
+        }
+    }
+
+    @POST
+    @Path("/decision/working-check")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response evaluateCheck(
+        @Context SecurityIdentity identity,
+        @QueryParam("checkId") String checkId,
+        EvaluateCheckRequest request
+    ) throws Exception {
+        String userId = AuthUtils.getUserId(identity);
+
+        if (checkId == null || checkId.isBlank()){
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Error: Missing required query parameter: checkId")
+                    .build();
+        }
+
+        // Get EligibilityCheck
+        Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, checkId);
+        if (checkOpt.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND)
+                .entity("Error: Check not found")
+                .build();
+        }
+        EligibilityCheck check = checkOpt.get();
+
+        try {
+            String dmnFilepath = storageService.getCheckDmnModelPath(check.getId());
+            String dmnModelName = check.getId();
+
+            OptionalBoolean result = dmnService.evaluateSimpleDmn(
+                dmnFilepath, dmnModelName, request.inputData, request.checkConfig.getParameters()
+            );
+            return Response.ok().entity(Map.of("result", result)).build();
+        } catch (Exception e) {
+            Log.error("Error: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 

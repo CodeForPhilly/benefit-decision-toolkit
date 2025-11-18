@@ -13,22 +13,16 @@ import type {
   StringParameter,
 } from "@/types";
 
-const ConfigureCheckModal = ({
-  checkConfig,
-  check,
-  checkIndex,
-  updateCheckConfigParams,
-  closeModal,
-}: {
-  checkConfig: Accessor<CheckConfig>;
-  check: EligibilityCheck;
-  checkIndex: number;
-  updateCheckConfigParams: (
-    checkIndex: number,
-    newCheckData: ParameterValues
-  ) => void;
-  closeModal: () => void;
-}) => {
+
+const ConfigureCheckModal = (
+  { checkConfig, check, updateCheckConfigParams, closeModal }:
+  {
+    checkConfig: Accessor<CheckConfig>;
+    check: EligibilityCheck;
+    updateCheckConfigParams: (newCheckData: ParameterValues) => void;
+    closeModal: () => void
+  }
+) => {
   const [tempCheck, setTempCheck] = createStore<CheckConfig>({
     checkId: checkConfig().checkId,
     checkName: checkConfig().checkName,
@@ -36,7 +30,7 @@ const ConfigureCheckModal = ({
   });
 
   const confirmAndClose = () => {
-    updateCheckConfigParams(checkIndex, tempCheck.parameters);
+    updateCheckConfigParams(tempCheck.parameters);
     closeModal();
   };
 

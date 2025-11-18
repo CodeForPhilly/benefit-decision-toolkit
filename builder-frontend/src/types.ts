@@ -29,6 +29,7 @@ export interface EligibilityCheck {
   id: string;
   name: string;
   module: string;
+  version: number;
   description: string;
   inputs: InputDefinition[];
   parameters: ParameterDefinition[];
@@ -106,7 +107,7 @@ interface CheckResult {
   name: string;
   result: OptionalBoolean;
 }
-type OptionalBoolean = "TRUE" | "FALSE" | "UNABLE_TO_DETERMINE";
+export type OptionalBoolean = "TRUE" | "FALSE" | "UNABLE_TO_DETERMINE";
 
 /* Form Data for Preview */
 export interface PreviewFormData {

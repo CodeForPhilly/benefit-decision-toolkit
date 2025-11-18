@@ -3,6 +3,7 @@ package org.acme.persistence.impl;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -72,11 +73,28 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
         List<Map<String, Object>> checkMaps = FirestoreUtils.getFirestoreDocsByField(CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION, FieldNames.OWNER_ID, userId);
         ObjectMapper mapper = new ObjectMapper();
         return checkMaps.stream().map(checkMap -> mapper.convertValue(checkMap, EligibilityCheck.class)).toList();
-
     }
 
     public List<EligibilityCheck> getPublishedCustomChecks(String userId){
         List<Map<String, Object>> checkMaps = FirestoreUtils.getFirestoreDocsByField(CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION, FieldNames.OWNER_ID, userId);
+        ObjectMapper mapper = new ObjectMapper();
+        return checkMaps.stream().map(checkMap -> mapper.convertValue(checkMap, EligibilityCheck.class)).toList();
+    }
+
+    public List<EligibilityCheck> getPublishedCheckVersions(EligibilityCheck workingCustomCheck){
+        Map<String, String> fieldValues = Map.of(
+            "ownerId", workingCustomCheck.getOwnerId(),
+            "module", workingCustomCheck.getModule(),
+            "name", workingCustomCheck.getName()
+        );
+
+        /* Get all related Published Checks for a Working Check */
+        List<Map<String, Object>> checkMaps = (
+            FirestoreUtils.getFirestoreDocsByFields(
+                CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION,
+                fieldValues
+            )
+        );
         ObjectMapper mapper = new ObjectMapper();
         return checkMaps.stream().map(checkMap -> mapper.convertValue(checkMap, EligibilityCheck.class)).toList();
     }
@@ -116,20 +134,21 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
         return FirestoreUtils.persistDocumentWithId(CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION, checkId, data);
     }
 
-    public void updateWorkingCustomCheck(EligibilityCheck check) throws Exception{
+    public void updateWorkingCustomCheck(EligibilityCheck check) throws Exception {
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(check, Map.class);
         FirestoreUtils.updateDocument(CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION, data, check.getId());
     }
 
-    public String saveNewPublishedCustomCheck(EligibilityCheck check) throws Exception{
-        check.setId(getPublishedId(check));
+    public String saveNewPublishedCustomCheck(EligibilityCheck check) throws Exception {
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(check, Map.class);
+        data.put("id", getPublishedId(check));
+        data.put("datePublished", System.currentTimeMillis());
+
         String checkDocId = getPublishedId(check);
         return FirestoreUtils.persistDocumentWithId(CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION, checkDocId, data);
     }
-
 
     public void updatePublishedCustomCheck(EligibilityCheck check) throws Exception{
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -149,7 +168,11 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
         return CheckStatus.WORKING.getCode() + "-" + check.getOwnerId() + "-" + check.getModule() + "-" + check.getName();
     }
 
+    public String getPublishedPrefix(EligibilityCheck check) {
+        return CheckStatus.PUBLISHED.getCode() + "-" + check.getOwnerId() + "-" + check.getModule() + "-" + check.getName();
+    }
+
     public String getPublishedId(EligibilityCheck check) {
-        return CheckStatus.PUBLISHED.getCode() + "-" + check.getOwnerId() + "-" + check.getModule() + "-" + check.getName() + "-" + check.getVersion().toString();
+        return getPublishedPrefix(check) + "-" + check.getVersion().toString();
     }
 }
