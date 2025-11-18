@@ -101,7 +101,7 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
         ObjectMapper mapper = new ObjectMapper();
         EligibilityCheck check = mapper.convertValue(data, EligibilityCheck.class);
 
-        String dmnPath = storageService.getCheckDmnModelPath(userId, checkId);
+        String dmnPath = storageService.getCheckDmnModelPath(checkId);
         Optional<String> dmnModel = storageService.getStringFromStorage(dmnPath);
         dmnModel.ifPresent(check::setDmnModel);
 

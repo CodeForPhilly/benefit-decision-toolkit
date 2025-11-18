@@ -118,7 +118,9 @@ public class KieDmnService implements DmnService {
         DMNResult dmnResult = dmnRuntime.evaluateAll(dmnModel, context);
 
         // Collect and interpret results
-        List<DMNDecisionResult> decisionResults = dmnResult.getDecisionResults();
+        List<DMNDecisionResult> decisionResults = dmnResult.getDecisionResults().stream()
+                .filter(result -> result.getDecisionName().equals(dmnModelName)).toList();
+
         if (decisionResults.isEmpty()) {
             throw new RuntimeException("No decision results from DMN evaluation");
         }

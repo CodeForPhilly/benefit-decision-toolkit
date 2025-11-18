@@ -12,7 +12,6 @@ import org.acme.auth.AuthUtils;
 import org.acme.enums.OptionalBoolean;
 import org.acme.model.domain.Benefit;
 import org.acme.model.domain.CheckConfig;
-import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.domain.Screener;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.PublishedScreenerRepository;
@@ -103,6 +102,7 @@ public class DecisionResource {
 
         try {
             Map<String, Object> screenerResults = new HashMap<String, Object>();
+            //TODO: consider ways of processing benefits in parallel
             for (Benefit benefit : benefits) {
                 // Evaluate benefit
                 Map<String, Object> benefitResults = evaluateBenefit(benefit, inputData);
@@ -116,7 +116,6 @@ public class DecisionResource {
     }
 
     private Map<String, Object> evaluateBenefit(Benefit benefit, Map<String, Object> inputData) throws Exception {
-        List<EligibilityCheck> checks = eligibilityCheckRepository.getChecksInBenefit(benefit);
 
         if (benefit.getPublic()){
             // Public benefit, call the Library API to evaluate
@@ -127,25 +126,13 @@ public class DecisionResource {
             List<OptionalBoolean> checkResultsList = new ArrayList<>();
             Map<String, Object> checkResults = new HashMap<>();
 
-            // TODO: update implementation here
-            for (EligibilityCheck check : checks) {
-                Optional<CheckConfig> matchingCheckConfig = benefit.getChecks().stream().filter(
-                    checkConfig -> checkConfig.getCheckId().equals(check.getId())
-                ).findFirst();
-                if (matchingCheckConfig.isEmpty()) {
-                    throw new Exception("Could not find CheckConfig for check " + check.getId());
-                }
-
-                String dmnFilepath = storageService.getCheckDmnModelPath(
-                    check.getOwnerId(), check.getId()
-                );
-                String dmnModelName = check.getId();
-
+            for (CheckConfig checkConfig : benefit.getChecks()) {
+                String dmnFilepath = storageService.getCheckDmnModelPath(checkConfig.getCheckId());
                 OptionalBoolean result = dmnService.evaluateSimpleDmn(
-                        dmnFilepath, dmnModelName, inputData, matchingCheckConfig.get().getParameters()
+                        dmnFilepath, checkConfig.getCheckName(), inputData, checkConfig.getParameters()
                 );
                 checkResultsList.add(result);
-                checkResults.put(check.getId(), Map.of("name", check.getName(), "result", result));
+                checkResults.put(checkConfig.getCheckId(), Map.of("name", checkConfig.getCheckName(), "result", result));
             }
 
             // Determine overall Benefit result

@@ -133,7 +133,7 @@ public class EligibilityCheckResource {
                     .build();
         }
         try {
-            String filePath = storageService.getCheckDmnModelPath(userId, checkId);
+            String filePath = storageService.getCheckDmnModelPath(checkId);
             storageService.writeStringToStorage(filePath, dmnModel, "application/xml");
             Log.info("Saved DMN model of check " + checkId + " to storage");
 
@@ -278,10 +278,10 @@ public class EligibilityCheckResource {
             String publishedCheckId = eligibilityCheckRepository.saveNewPublishedCustomCheck(check);
 
             // save published check DMN to storage
-            Optional<String> workingDmnOpt = storageService.getStringFromStorage(storageService.getCheckDmnModelPath(userId, check.getId()));
+            Optional<String> workingDmnOpt = storageService.getStringFromStorage(storageService.getCheckDmnModelPath(check.getId()));
             if (workingDmnOpt.isPresent()){
                 String workingDmn = workingDmnOpt.get();
-                storageService.writeStringToStorage(storageService.getCheckDmnModelPath(userId, publishedCheckId), workingDmn, "application/xml");
+                storageService.writeStringToStorage(storageService.getCheckDmnModelPath(publishedCheckId), workingDmn, "application/xml");
             }
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

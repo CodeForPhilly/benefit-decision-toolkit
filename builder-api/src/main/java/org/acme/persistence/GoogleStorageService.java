@@ -141,8 +141,8 @@ public class GoogleStorageService implements StorageService {
     }
 
     @Override
-    public String getCheckDmnModelPath(String userId, String checkId){
-        return "check/" + userId + "/" + checkId + ".dmn";
+    public String getCheckDmnModelPath(String checkId){
+        return "check/" + checkId + ".dmn";
     }
 
     @Override

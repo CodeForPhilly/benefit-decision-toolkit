@@ -23,7 +23,7 @@ public interface StorageService {
 
     String getScreenerPublishedFormSchemaPath(String screenerId);
 
-    String getCheckDmnModelPath(String userId, String checkId);
+    String getCheckDmnModelPath(String checkId);
 
     Map<String, Object> getFormSchemaFromStorage(String filePath);
 
