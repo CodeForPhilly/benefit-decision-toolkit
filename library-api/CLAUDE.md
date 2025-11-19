@@ -46,7 +46,7 @@ The project uses a modular DMN structure:
 2. **Modular DMN Files**:
    - `age/` - Age-related checks (PersonMinAge, SomeoneMinAge, Age.dmn)
    - `enrollment/` - Enrollment checks (PersonEnrolledInBenefit, PersonNotEnrolledInBenefit, Enrollment.dmn)
-   - `benefits/` - Specific benefit rules (PhlHomesteadExemption.dmn, Benefits.dmn)
+   - `benefits/` - Specific benefit rules (homestead-exemption.dmn, Benefits.dmn)
 
 3. **DMN Import Hierarchy**:
    - Benefit DMN files import BDT.dmn and other needed models

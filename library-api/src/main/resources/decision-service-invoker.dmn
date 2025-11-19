@@ -125,10 +125,6 @@
         <dc:Bounds x="587" y="506" width="100" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
-      <dmndi:DMNEdge id="dmnedge-drg-_AEEADEC1-D37B-4F70-9F03-AEDE4060F294" dmnElementRef="_AEEADEC1-D37B-4F70-9F03-AEDE4060F294">
-        <di:waypoint x="605" y="210"/>
-        <di:waypoint x="439" y="272"/>
-      </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_15F642DD-B982-4A30-B41B-75869527CB88-AUTO-TARGET" dmnElementRef="_15F642DD-B982-4A30-B41B-75869527CB88">
         <di:waypoint x="211" y="531"/>
         <di:waypoint x="389" y="297"/>
@@ -144,6 +140,10 @@
       <dmndi:DMNEdge id="dmnedge-drg-_34B56251-0B82-44DC-AD10-A16BD2BDA435-AUTO-TARGET" dmnElementRef="_34B56251-0B82-44DC-AD10-A16BD2BDA435">
         <di:waypoint x="637" y="531"/>
         <di:waypoint x="389" y="297"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_AEEADEC1-D37B-4F70-9F03-AEDE4060F294" dmnElementRef="_AEEADEC1-D37B-4F70-9F03-AEDE4060F294">
+        <di:waypoint x="605" y="210"/>
+        <di:waypoint x="439" y="272"/>
       </dmndi:DMNEdge>
     </dmndi:DMNDiagram>
   </dmndi:DMNDI>
