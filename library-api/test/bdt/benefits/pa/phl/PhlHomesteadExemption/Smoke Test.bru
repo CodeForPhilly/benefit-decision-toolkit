@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{host}}/benefits/pa/philadelphia/PhlHomesteadExemption
+  url: {{host}}/benefits/pa/phl/PhlHomesteadExemption
   body: json
   auth: inherit
 }
@@ -14,16 +14,15 @@ body:json {
   {
     "situation": {
       "primaryPersonId": "p1",
-      "TenYearTaxAbatement": false,
-  //     "TenYearTaxAbatement": true,
-  //     "enrollments": null
       "enrollments": [
         {
           "personId": "p2",
           "benefit": "PhlHomesteadExemption"
         }
-      ]
-  //     "NotAlreadyOnHomestead": false
+      ],
+      "simpleChecks": {
+        "tenYearTaxAbatement": false
+      }
     }
   }
 }

@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{host}}/benefits/pa/philadelphia/PhlSeniorCitizenTaxFreeze
+  url: {{host}}/benefits/pa/phl/PhlSeniorCitizenTaxFreeze
   body: json
   auth: inherit
 }
@@ -13,9 +13,10 @@ post {
 body:json {
   {
     "situation": {
+      "simpleChecks": {
+        "phillyHomeownerOccupant": true
+      },
       "primaryPersonId": "p1",
-      "TenYearTaxAbatement": false,
-      "PhillyHomeownerOccupant": true,
       "people": [
         {
           "id": "p1",
@@ -27,10 +28,6 @@ body:json {
         }
       ],
       "enrollments": [
-        {
-          "personId": "p1",
-          "benefit": "PhlSeniorCitizenTaxFreeze"
-        },
         {
           "personId": "p2",
           "benefit": "PhlHomesteadExemption"

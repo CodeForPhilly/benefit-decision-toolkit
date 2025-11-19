@@ -13,14 +13,11 @@
     <dmn:itemComponent id="_9330054D-6109-4EF3-B69B-5F73ADBD5657" name="people" isCollection="false">
       <dmn:typeRef>tPersonList</dmn:typeRef>
     </dmn:itemComponent>
-    <dmn:itemComponent id="_380BB676-06C1-4C91-AA9F-EE098B4341AC" name="TenYearTaxAbatement" isCollection="false">
-      <dmn:typeRef>boolean</dmn:typeRef>
-    </dmn:itemComponent>
-    <dmn:itemComponent id="_CCDE99DA-A46A-4985-B9AA-3EE29CC55F7F" name="PhillyHomeownerOccupant" isCollection="false">
-      <dmn:typeRef>boolean</dmn:typeRef>
-    </dmn:itemComponent>
     <dmn:itemComponent id="_2478F0D4-7BAE-4DC0-B767-E4CC4A81727D" name="relationships" isCollection="false">
       <dmn:typeRef>tRelationshipList</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_02DAA70A-534A-4529-82DE-DCC9677306C4" name="simpleChecks" isCollection="false">
+      <dmn:typeRef>tSimpleChecks</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
   <dmn:itemDefinition id="_47681CD3-2FA0-4694-B03B-F381DA457BD3" name="tPerson" isCollection="false">
@@ -82,6 +79,14 @@
   </dmn:itemDefinition>
   <dmn:itemDefinition id="_D622E87A-091B-497C-A38A-70BB1CD0FDE1" name="tCheckResponse" isCollection="false">
     <dmn:itemComponent id="_943F5C69-F958-418A-B67C-71D314BA17BA" name="checkResult" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_1E1DA902-4758-4582-8BD9-483CACB88450" name="tSimpleChecks" isCollection="false">
+    <dmn:itemComponent id="_5E71CF8D-3431-4376-8247-05D159A12B53" name="tenYearTaxAbatement" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_7164A435-9E19-49E8-A22F-C31AF3403C78" name="phillyHomeownerOccupant" isCollection="false">
       <dmn:typeRef>boolean</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
