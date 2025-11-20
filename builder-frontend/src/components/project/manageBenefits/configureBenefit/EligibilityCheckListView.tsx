@@ -1,6 +1,9 @@
 import { Accessor, For, Resource, Setter } from "solid-js";
 
-import type { Benefit, CheckConfig, EligibilityCheck } from "@/types";
+import { titleCase } from "@/utils/title_case";
+
+import type { CheckConfig, EligibilityCheck } from "@/types";
+
 
 export type EligibilityCheckListMode = "user-defined" | "public";
 interface CheckModeConfig {
@@ -33,17 +36,13 @@ const UserDefinedCheckConfig: CheckModeConfig = {
     - userDefinedChecks: resource containing the list of user-defined eligibility checks
 */
 const EligibilityCheckListView = ({
-  benefit,
   addCheck,
-  removeCheck,
   mode,
   setMode,
   publicChecks,
   userDefinedChecks,
 }: {
-  benefit: Accessor<Benefit>;
   addCheck: (newCheck: CheckConfig) => void;
-  removeCheck: (indexToRemove: number) => void;
   mode: Accessor<EligibilityCheckListMode>;
   setMode: Setter<EligibilityCheckListMode>;
   publicChecks: Resource<EligibilityCheck[]>;
@@ -53,23 +52,14 @@ const EligibilityCheckListView = ({
     mode() === "public" ? PublicCheckConfig : UserDefinedCheckConfig;
   const activeChecks: Accessor<Resource<EligibilityCheck[]>> = () =>
     mode() === "public" ? publicChecks : userDefinedChecks;
-  const onEligibilityCheckToggle = (check: EligibilityCheck) => {
-    const isCheckSelected = benefit().checks.some(
-      (selected) => selected.checkId === check.id
-    );
-    if (isCheckSelected) {
-      const checkIndexToRemove = benefit().checks.findIndex(
-        (selected) => selected.checkId === check.id
-      );
-      removeCheck(checkIndexToRemove);
-    } else {
-      const checkConfig: CheckConfig = {
-        checkId: check.id,
-        checkName: check.name,
-        parameters: {},
-      };
-      addCheck(checkConfig);
-    }
+
+  const onAddEligibilityCheck = (check: EligibilityCheck) => {
+    const checkConfig: CheckConfig = {
+      checkId: check.id,
+      checkName: check.name,
+      parameters: {},
+    };
+    addCheck(checkConfig);
   };
 
   return (
@@ -102,9 +92,10 @@ const EligibilityCheckListView = ({
       <table class="table-auto w-full mt-4 border-collapse">
         <thead>
           <tr>
-            <th class="eligibility-check-table-header">Select</th>
+            <th class="eligibility-check-table-header">Add</th>
             <th class="eligibility-check-table-header">Check Name</th>
             <th class="eligibility-check-table-header">Description</th>
+            <th class="eligibility-check-table-header">Version</th>
           </tr>
         </thead>
         <tbody>
@@ -126,8 +117,7 @@ const EligibilityCheckListView = ({
             {(check) => (
               <EligibilityCheckRow
                 check={check}
-                selectedCheckConfigs={benefit().checks}
-                onToggle={() => onEligibilityCheckToggle(check)}
+                onAdd={() => onAddEligibilityCheck(check)}
               />
             )}
           </For>
@@ -139,30 +129,19 @@ const EligibilityCheckListView = ({
 
 const EligibilityCheckRow = ({
   check,
-  selectedCheckConfigs,
-  onToggle,
+  onAdd,
 }: {
   check: EligibilityCheck;
-  selectedCheckConfigs: CheckConfig[];
-  onToggle: (check: EligibilityCheck) => void;
+  onAdd: (check: EligibilityCheck) => void;
 }) => {
-  const isCheckSelected = () =>
-    selectedCheckConfigs.some((selected) => selected.checkId === check.id);
-
   return (
     <tr>
       <td class="eligibility-check-table-cell border-top">
-        <input
-          class="form-checkbox rounded-sm"
-          type="checkbox"
-          checked={isCheckSelected()}
-          onChange={() => onToggle(check)}
-        />
+        <div class="btn-default btn-blue" onClick={() => onAdd(check)}>Add</div>
       </td>
-      <td class="eligibility-check-table-cell border-top">{check.name}</td>
-      <td class="eligibility-check-table-cell border-top">
-        {check.description}
-      </td>
+      <td class="eligibility-check-table-cell border-top">{titleCase(check.name)}</td>
+      <td class="eligibility-check-table-cell border-top">{check.description}</td>
+      <td class="eligibility-check-table-cell border-top">{check.version}</td>
     </tr>
   );
 };

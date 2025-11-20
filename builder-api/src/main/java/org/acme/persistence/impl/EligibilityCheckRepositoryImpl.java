@@ -81,6 +81,17 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
         return checkMaps.stream().map(checkMap -> mapper.convertValue(checkMap, EligibilityCheck.class)).toList();
     }
 
+    public List<EligibilityCheck> getMostRecentlyPublishedVersions(String userId) {
+        List<EligibilityCheck> publishedChecks = getPublishedCustomChecks(userId);
+        Map<String, EligibilityCheck> latestVersionMap = publishedChecks.stream()
+            .collect(java.util.stream.Collectors.toMap(
+                check -> getPublishedPrefix(check),
+                check -> check,
+                (check1, check2) -> check1.getVersion() > check2.getVersion() ? check1 : check2
+            ));
+        return new ArrayList<>(latestVersionMap.values());
+    }
+
     public List<EligibilityCheck> getPublishedCheckVersions(EligibilityCheck workingCustomCheck){
         Map<String, String> fieldValues = Map.of(
             "ownerId", workingCustomCheck.getOwnerId(),

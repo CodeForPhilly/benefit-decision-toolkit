@@ -1,4 +1,4 @@
-import { createResource, createEffect, Accessor } from "solid-js";
+import { createResource, createEffect, Accessor, createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
 
 import { fetchScreenerBenefit, updateScreenerBenefit } from "@/api/benefit";
@@ -13,6 +13,7 @@ interface ScreenerBenefitsResource {
     removeCheck: (indexToRemove: number) => void;
     updateCheckConfigParams: (indexToUpdate: number, parameters: ParameterValues) => void;
   };
+  actionInProgress: Accessor<boolean>;
   initialLoadStatus: {
     loading: Accessor<boolean>;
     error: Accessor<unknown>;
@@ -20,7 +21,7 @@ interface ScreenerBenefitsResource {
 }
 
 const createScreenerBenefits = (screenerId: Accessor<string>, benefitId: Accessor<string>): ScreenerBenefitsResource => {
-  const [benefitResource] = createResource<Benefit, string[]>(
+  const [benefitResource, { refetch }] = createResource<Benefit, string[]>(
     () => [screenerId(), benefitId()],
     ([sId, bId]) => fetchScreenerBenefit(sId, bId)
   );
@@ -28,6 +29,8 @@ const createScreenerBenefits = (screenerId: Accessor<string>, benefitId: Accesso
   // Local fine-grained store
   const [benefit, setBenefit] = createStore<Benefit | null>(null);
 
+  const [actionInProgress, setActionInProgress] = createSignal<boolean>(false);
+  
   // When resource resolves, sync it into the store
   createEffect(() => {
     if (benefitResource()) {
@@ -38,17 +41,16 @@ const createScreenerBenefits = (screenerId: Accessor<string>, benefitId: Accesso
 
   // Optimistic update helper
   const updateBenefit = async (newBenefit: Benefit) => {
-    const before = benefit;
-
-    setBenefit({ ...newBenefit });
+    setActionInProgress(true);
 
     try {
-      const updated = await updateScreenerBenefit(screenerId(), { ...newBenefit });
-      setBenefit({ ...updated });
+      await updateScreenerBenefit(screenerId(), { ...newBenefit });
+      await refetch();
     } catch (e) {
-      console.error("Failed to update screener benefits, reverting state", e);
-      setBenefit({ ...before });
+      console.error("Failed to update Benefit", e);
     }
+    setActionInProgress(false);
+
   };
 
   // Actions
@@ -90,6 +92,7 @@ const createScreenerBenefits = (screenerId: Accessor<string>, benefitId: Accesso
       removeCheck,
       updateCheckConfigParams
     },
+    actionInProgress,
     initialLoadStatus: {
       loading: () => benefitResource.loading,
       error: () => benefitResource.error,

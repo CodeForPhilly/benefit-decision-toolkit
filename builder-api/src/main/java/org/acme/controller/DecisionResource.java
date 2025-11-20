@@ -127,19 +127,22 @@ public class DecisionResource {
             List<OptionalBoolean> checkResultsList = new ArrayList<>();
             Map<String, Object> checkResults = new HashMap<>();
 
+            int checkNum = 0;
             for (CheckConfig checkConfig : benefit.getChecks()) {
                 String dmnFilepath = storageService.getCheckDmnModelPath(checkConfig.getCheckId());
                 OptionalBoolean result = dmnService.evaluateSimpleDmn(
-                        dmnFilepath, checkConfig.getCheckName(), inputData, checkConfig.getParameters()
+                    dmnFilepath, checkConfig.getCheckName(), inputData, checkConfig.getParameters()
                 );
                 checkResultsList.add(result);
-                checkResults.put(checkConfig.getCheckId(), Map.of("name", checkConfig.getCheckName(), "result", result));
+
+                String uniqueCheckKey = checkConfig.getCheckId() + checkNum;
+                checkResults.put(uniqueCheckKey, Map.of("name", checkConfig.getCheckName(), "result", result));
+                checkNum += 1;
             }
 
             // Determine overall Benefit result
             Boolean allChecksTrue = checkResultsList.stream().allMatch(result -> result == OptionalBoolean.TRUE);
             Boolean anyChecksFalse = checkResultsList.stream().anyMatch(result -> result == OptionalBoolean.FALSE);
-            Log.info("All True: " + allChecksTrue + " Any False: " + anyChecksFalse);
 
             OptionalBoolean benefitResult;
             if (allChecksTrue) {
@@ -151,11 +154,11 @@ public class DecisionResource {
             }
 
             return new HashMap<String, Object>(
-                    Map.of(
-                            "name", benefit.getName(),
-                            "result", benefitResult,
-                            "check_results", checkResults
-                    )
+                Map.of(
+                    "name", benefit.getName(),
+                    "result", benefitResult,
+                    "check_results", checkResults
+                )
             );
         }
     }
@@ -188,10 +191,9 @@ public class DecisionResource {
 
         try {
             String dmnFilepath = storageService.getCheckDmnModelPath(check.getId());
-            String dmnModelName = check.getId();
 
             OptionalBoolean result = dmnService.evaluateSimpleDmn(
-                dmnFilepath, dmnModelName, request.inputData, request.checkConfig.getParameters()
+                dmnFilepath, request.checkConfig.getCheckName(), request.inputData, request.checkConfig.getParameters()
             );
             return Response.ok().entity(Map.of("result", result)).build();
         } catch (Exception e) {

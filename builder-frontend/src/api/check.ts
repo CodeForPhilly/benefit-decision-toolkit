@@ -143,12 +143,8 @@ export const saveCheckDmn = async (checkId: string, dmnModel: string) => {
 export const fetchUserDefinedChecks = async (
   working: boolean
 ): Promise<EligibilityCheck[]> => {
-  let url: string;
-  if (working) {
-    url = apiUrl + "/custom-checks?working=true";
-  } else {
-    url = apiUrl + "/custom-checks?working=false";
-  }
+  const workingQueryParam = working ? "true" : "false";
+  let url: string = apiUrl + `/custom-checks?working=${workingQueryParam}`;
 
   try {
     const response = await authFetch(url, {
