@@ -8,7 +8,7 @@ import BenefitResource from "./benefitResource";
 import { fetchPublicChecks, fetchUserDefinedChecks } from "@/api/check";
 
 import type { EligibilityCheckListMode } from "./EligibilityCheckListView";
-import type { EligibilityCheck } from "@/types";
+import type { EligibilityCheck, ParameterValues } from "@/types";
 
 const ConfigureBenefit = ({
   screenerId,
@@ -19,7 +19,7 @@ const ConfigureBenefit = ({
   benefitId: Accessor<string>;
   setBenefitId: (benefitId: string | null) => void;
 }) => {
-  const { benefit, actions, initialLoadStatus } = BenefitResource(
+  const { benefit, actions, actionInProgress, initialLoadStatus } = BenefitResource(
     screenerId,
     benefitId
   );
@@ -28,7 +28,7 @@ const ConfigureBenefit = ({
     createSignal<EligibilityCheckListMode>("public");
   const [publicChecks] = createResource<EligibilityCheck[]>(fetchPublicChecks);
   const [userDefinedChecks] = createResource<EligibilityCheck[]>(
-    fetchUserDefinedChecks
+    () => fetchUserDefinedChecks(false)
   );
 
   const getSelectedCheck = (checkId: string) => {
@@ -39,9 +39,13 @@ const ConfigureBenefit = ({
     return allChecks.find((check) => check.id === checkId);
   };
 
+  const onRemoveEligibilityCheck = (checkIndexToRemove: number) => {
+    actions.removeCheck(checkIndexToRemove);
+  };
+
   return (
     <>
-      <Show when={initialLoadStatus.loading()}>
+      <Show when={initialLoadStatus.loading() || actionInProgress()}>
         <Loading />
       </Show>
 
@@ -69,13 +73,11 @@ const ConfigureBenefit = ({
               class="flex-3 border-2 border-gray-200 rounded-lg h-min"
             >
               <EligibilityCheckListView
-                benefit={benefit}
                 mode={checkListMode}
                 setMode={setCheckListMode}
                 publicChecks={publicChecks}
                 userDefinedChecks={userDefinedChecks}
                 addCheck={actions.addCheck}
-                removeCheck={actions.removeCheck}
               />
             </div>
             <div id="selected-eligibility-checks" class="flex-2">
@@ -98,9 +100,13 @@ const ConfigureBenefit = ({
                           <SelectedEligibilityCheck
                             check={getSelectedCheck(checkConfig.checkId)}
                             checkConfig={() => checkConfig}
-                            checkIndex={checkIndex()}
+                            onRemove={() =>
+                              onRemoveEligibilityCheck(checkIndex())
+                            }
                             updateCheckConfigParams={
-                              actions.updateCheckConfigParams
+                              (newCheckData: ParameterValues) => {
+                                actions.updateCheckConfigParams(checkIndex(), newCheckData);
+                              }
                             }
                           />
                         </Show>

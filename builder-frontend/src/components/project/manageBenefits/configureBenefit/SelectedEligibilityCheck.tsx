@@ -17,10 +17,11 @@ interface ParameterWithConfiguredValue {
 }
 
 const SelectedEligibilityCheck = (
-  { check, checkConfig, updateCheckConfigParams }:
+  { check, checkConfig, onRemove, updateCheckConfigParams }:
   {
     check: EligibilityCheck;
     checkConfig: Accessor<CheckConfig>;
+    onRemove: () => void;
     updateCheckConfigParams: (newCheckData: ParameterValues) => void
   }
 ) => {
@@ -44,11 +45,18 @@ const SelectedEligibilityCheck = (
           setConfiguringCheckModalOpen(true);
         }}
         class="
-          mb-4 p-4 cursor-pointer select-none
+          mb-4 p-4 cursor-pointer select-none relative
           border-2 border-gray-200 rounded-lg hover:bg-gray-200"
       >
+        <div
+          class="absolute px-2 top-2 right-2 hover:bg-gray-300 rounded-xl font-bold"
+          onClick={(e) => { e.stopPropagation(); onRemove(); }}
+        >
+          X
+        </div>
         <div class="text-xl font-bold mb-2">{titleCase(check.name)}</div>
         <div class="pl-2 [&:has(+div)]:mb-2">{check.description}</div>
+
         {check.inputs.length > 0 && (
           <div class="[&:has(+div)]:mb-2">
             <div class="text-lg font-bold pl-2">Inputs</div>
@@ -91,6 +99,7 @@ const SelectedEligibilityCheck = (
           </div>
         )}
       </div>
+      
       {configuringCheckModalOpen() && (
         <ConfigureCheckModal
           check={check}

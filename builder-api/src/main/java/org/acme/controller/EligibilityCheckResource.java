@@ -72,7 +72,7 @@ public class EligibilityCheckResource {
         // TODO: Add validations for user provided data
         newCheck.setOwnerId(userId);
         newCheck.setPublic(true);
-        newCheck.setVersion(1);
+        newCheck.setVersion(0);
         try {
             String checkId = eligibilityCheckRepository.savePublicCheck(newCheck);
             return Response.ok(newCheck, MediaType.APPLICATION_JSON).build();
@@ -152,7 +152,10 @@ public class EligibilityCheckResource {
     // then all the working check objects owned by the user are returned
     @GET
     @Path("/custom-checks")
-    public Response getCustomChecks(@Context SecurityIdentity identity, @QueryParam("working") Boolean working) {
+    public Response getCustomChecks(
+        @Context SecurityIdentity identity,
+        @QueryParam("working") Boolean working
+    ) {
         String userId = AuthUtils.getUserId(identity);
         if (userId == null) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -165,7 +168,7 @@ public class EligibilityCheckResource {
             checks = eligibilityCheckRepository.getWorkingCustomChecks(userId);
         } else {
             Log.info("Fetching all published custom checks. User:  " + userId);
-            checks = eligibilityCheckRepository.getPublishedCustomChecks(userId);
+            checks = eligibilityCheckRepository.getMostRecentlyPublishedVersions(userId);
         }
 
         return Response.ok(checks, MediaType.APPLICATION_JSON).build();
@@ -214,7 +217,7 @@ public class EligibilityCheckResource {
         //TODO: Add validations for user provided data
         newCheck.setOwnerId(userId);
         newCheck.setPublic(false);
-        newCheck.setVersion(1);
+        newCheck.setVersion(0);
         try {
             eligibilityCheckRepository.saveNewWorkingCustomCheck(newCheck);
             return Response.ok(newCheck, MediaType.APPLICATION_JSON).build();
