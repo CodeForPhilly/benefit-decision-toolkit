@@ -4,7 +4,7 @@ import org.acme.enums.OptionalBoolean;
 import java.util.Map;
 
 public interface DmnService {
-    public OptionalBoolean evaluateSimpleDmn(
+    public OptionalBoolean evaluateDmn(
         String dmnFilePath,
         String dmnModelName,
         Map<String, Object> inputs,
