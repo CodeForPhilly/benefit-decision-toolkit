@@ -18,6 +18,8 @@ public interface EligibilityCheckRepository {
 
     List<EligibilityCheck> getPublishedCheckVersions(EligibilityCheck workingCustomCheck);
 
+    List<EligibilityCheck> getLatestVersionPublishedCustomChecks(String userId);
+
     List<EligibilityCheck> getPublishedCustomChecks(String userId);
 
     Optional<EligibilityCheck> getWorkingCustomCheck(String userId, String checkId);
