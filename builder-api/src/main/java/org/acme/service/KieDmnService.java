@@ -83,7 +83,7 @@ public class KieDmnService implements DmnService {
         return kieModuleBytes;
     }
 
-    public OptionalBoolean evaluateSimpleDmn(
+    public OptionalBoolean evaluateDmn(
         String dmnFilePath,
         String dmnModelName,
         Map<String, Object> inputs,

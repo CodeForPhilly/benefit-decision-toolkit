@@ -130,7 +130,7 @@ public class DecisionResource {
             int checkNum = 0;
             for (CheckConfig checkConfig : benefit.getChecks()) {
                 String dmnFilepath = storageService.getCheckDmnModelPath(checkConfig.getCheckId());
-                OptionalBoolean result = dmnService.evaluateSimpleDmn(
+                OptionalBoolean result = dmnService.evaluateDmn(
                     dmnFilepath, checkConfig.getCheckName(), inputData, checkConfig.getParameters()
                 );
                 checkResultsList.add(result);
@@ -192,7 +192,7 @@ public class DecisionResource {
         try {
             String dmnFilepath = storageService.getCheckDmnModelPath(check.getId());
 
-            OptionalBoolean result = dmnService.evaluateSimpleDmn(
+            OptionalBoolean result = dmnService.evaluateDmn(
                 dmnFilepath, request.checkConfig.getCheckName(), request.inputData, request.checkConfig.getParameters()
             );
             return Response.ok().entity(Map.of("result", result)).build();

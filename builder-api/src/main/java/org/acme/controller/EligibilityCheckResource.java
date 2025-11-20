@@ -168,7 +168,7 @@ public class EligibilityCheckResource {
             checks = eligibilityCheckRepository.getWorkingCustomChecks(userId);
         } else {
             Log.info("Fetching all published custom checks. User:  " + userId);
-            checks = eligibilityCheckRepository.getMostRecentlyPublishedVersions(userId);
+            checks = eligibilityCheckRepository.getLatestVersionPublishedCustomChecks(userId);
         }
 
         return Response.ok(checks, MediaType.APPLICATION_JSON).build();
