@@ -1,45 +1,292 @@
 # Library API
 
-## What is this?
+A Quarkus application that automatically generates REST APIs from DMN (Decision Model and Notation) files. **DMN files are "source code" for JSON web APIs**—add a DMN file, get a REST endpoint.
 
-What is now called `library-api` is what used to be at the top-level of this project. It contains a Quarkus application that still serves the [Philly Property Tax Relief Screener](https://phillypropertytaxrelief.org), the example [PACE Screener](https://phillypropertytaxrelief.org/pace), and the [Eligibility API](https://phillypropertytaxrelief.org/q/swagger-ui) that backs both of these screeners. The API is generated from the DMN models in `src/main/resources/`.
+---
 
-## What do we want this to be?
+## Quick Start
 
-We're not exactly sure, but we see the DMN models here as the proof-of-concept for a "library" of benefits and eligibility rules. We are in the process of creating a tool that will streamline the creation of screeners (the prototype of which you'll find in the `builder-frontend/` and `builder-api` modules of this project) and we imagine know that we'll want users of the builder to have access to some sort of rules library.
+### View the DMN models
 
-So `library-api` will evolve as we figure out the new builder tools. And we'll likely remove the screener code here as the builder is able to replace it.
+Use VS Code w/ the [DMN Editor Extension](https://marketplace.visualstudio.com/items?itemName=kie-group.dmn-vscode-extension)
 
-## Kicking the tires
+The models are in `src/main/resources`
 
-If you want to play with the example screeners and/or API yourself, you can follow the Development Setup instructions in the root README, then run `bin/dev` from this directory to start the Quarkus development server. This will serve the API and any existing eligibility screeners from `https://localhost:8083` by default.
+### Run the Server
 
-## Technologies overview
+```bash
+cd library-api
+bin/dev
+```
 
-We use a combination of open-source tools ([Kogito](https://kogito.kie.org/) and [form-js](https://bpmn.io/toolkit/form-js/)) with some scaffolding to tie them together and make them easier to use.
+Serves at **http://localhost:8083** with:
+- Swagger UI: http://localhost:8083/q/swagger-ui
+- OpenAPI spec: http://localhost:8083/q/openapi
 
-Here are some high-level things to orient you...
+### Your First API Call
 
-### DMN Files
+```bash
+curl -X POST http://localhost:8083/api/v1/checks/age/person-min-age \
+  -H "Content-Type: application/json" \
+  -d '{
+    "situation": {
+      "primaryPersonId": "p1",
+      "people": [{"id": "p1", "dateOfBirth": "1950-01-01"}]
+    },
+    "parameters": {"minAge": 65, "personId": "p1", "asOfDate": "2025-01-01"}
+  }'
+```
 
-DMN files (`.dmn`) can be edited directly in VS Code via the [DMN Editor extension](https://marketplace.visualstudio.com/items?itemName=kie-group.dmn-vscode-extension). If you're using Firebase Studio as described above, then this extension is already installed for you. If you're using another dev environment, then you'll need to install the extension manually.
+Returns: `{"checkResult": true, ...}`
 
-You may occasionally need to interact with the raw XML text of the DMN; this can be done via the "Reopen with Text Editor" feature of VS Code.
+Explore all endpoints in Swagger UI or check `test/bdt/` for more examples.
 
-A good orientation on the basics of DMN can be found [here](https://learn-dmn-in-15-minutes.com/).
+**New to DMN?** [Learn DMN in 15 Minutes](https://learn-dmn-in-15-minutes.com/)
 
-In this project, DMN (and its accompanying expression language FEEL) acts as the "source code" for a JSON web API. Kogito generates this API (with Java) when you run the Quarkus development server (automatic with Firebase Studio, or by running the `bin/dev` script).
+---
 
-### Form Files
+## Core Concepts
 
-Form files (`.form`) can be edited using [Camunda Modeler](https://camunda.com/download/modeler/). The modeler provides a UI for designing the form's layout and logic (which often incorporates FEEL expressions).
+### DMN → REST Endpoints
 
-Behind the scenes,the form is saved in JSON format.
+Each DMN file in `src/main/resources/` becomes a REST endpoint:
 
-When it comes time to use the form in a screener, form-js interprets this JSON and uses it to display the form on a web page.
+```
+File: src/main/resources/checks/age/person-min-age.dmn
+   └─ Decision Service: PersonMinAgeService
+      └─ Generates: POST /api/v1/checks/age/person-min-age
+```
 
-### Eligibility Screeners
+**Pattern**: `POST /api/v1/{path-to-dmn-without-extension}`
 
-To create the [Philadelphia Property Tax Relief Screener](https://phillypropertytaxrelief.org), we've written a [Qute template](https://quarkus.io/guides/qute) which displays the form, posts data as it is collected to the eligibility API (the one that is built from the DMN), and receives back eligibility results for display on the form.
+### Checks + Benefits Architecture
 
-For future screeners, we envision packaging up this functionality somehow, allowing the entire screening and results process to be included as part of other websites and tools, the content of which is outside the scope of this project.
+**Checks** = Reusable eligibility logic (e.g., "is person 65+?")
+- Location: `src/main/resources/checks/{category}/`
+- Example: `checks/age/person-min-age.dmn` → `/api/v1/checks/age/person-min-age`
+
+**Benefits** = Specific programs that compose checks (e.g., "Homestead Exemption")
+- Location: `src/main/resources/benefits/{jurisdiction}/`
+- Example: `benefits/pa/phl/homestead-exemption.dmn` → `/api/v1/benefits/pa/phl/homestead-exemption`
+
+### The tSituation Data Model
+
+Standard input for all endpoints. The situation upon which you'd like to compute some benefit's eligibility:
+
+```javascript
+{
+  "situation": {
+    "primaryPersonId": "p1",          // Person being evaluated
+    "people": [{                      // Household members
+      "id": "p1",
+      "dateOfBirth": "1950-01-01"
+    }],
+    "enrollments": [{                 // Current benefits
+      "personId": "p1",
+      "benefit": "homestead"
+    }],
+    "simpleChecks": {                 // Boolean flags
+      "ownerOccupant": true,
+      "livesInPhiladelphiaPa": true
+    }
+  }
+}
+```
+
+### Naming Rules (CRITICAL)
+
+1. **Decision Service naming**: Must be `{ModelName}Service`
+   - Model "PersonMinAge" → Service "PersonMinAgeService"
+2. **Model names must be unique** across all DMN files
+3. **File names**: Use kebab-case (`person-min-age.dmn`)
+
+Breaking these rules = endpoint won't appear.
+
+---
+
+## Development
+
+### Adding a Benefit
+
+1. Create DMN file: `src/main/resources/benefits/{jurisdiction}/{name}.dmn`
+2. Import: BDT.dmn, Benefits.dmn, any check DMNs you need
+3. Define Decision Service: `{BenefitName}Service`
+4. Implement checks (call reusable checks or inline logic)
+5. Create `checks` context and `isEligible` decision
+6. Save → endpoint appears at `/api/v1/benefits/{jurisdiction}/{name}`
+
+Example benefit response:
+```json
+{
+  "situation": {...},
+  "checks": {
+    "age65Plus": true,
+    "ownerOccupant": true,
+    "livesInPhiladelphia": false
+  },
+  "isEligible": false
+}
+```
+
+### Creating a Check
+
+1. Create DMN: `src/main/resources/checks/{category}/{name}.dmn`
+2. Import BDT.dmn (and relevant base modules)
+3. Define Decision Service: `{CheckName}Service`
+4. Input: `situation` + `parameters`, Output: `result` (boolean)
+5. Save → endpoint appears at `/api/v1/checks/{category}/{name}`
+
+### Hot Reload
+
+DMN changes are picked up automatically:
+1. Edit DMN file in VS Code ([DMN Editor extension](https://marketplace.visualstudio.com/items?itemName=kie-group.dmn-vscode-extension))
+2. Save
+3. Check Swagger UI—endpoint updates immediately
+
+Java changes require restart.
+
+### Debugging
+
+- **Endpoint missing?** Check Decision Service name matches `{ModelName}Service` pattern
+- **Evaluation errors?** Check Quarkus logs (shows DMN evaluation details)
+- **Import issues?** Use namespace-qualified references: `ImportedModel.ServiceName(...)`
+
+Test individual decisions in Swagger UI before composing them.
+
+---
+
+## Testing
+
+### Java Tests (`mvn test`)
+
+Purpose: Validate internal behavior (model discovery, endpoint patterns)
+- NOT for testing DMN business logic
+- Location: `src/test/java/org/codeforphilly/bdt/api/`
+
+### Bruno API Tests (`cd test/bdt && bru run`)
+
+Purpose: Validate DMN logic and API behavior
+- Test structure mirrors DMN structure
+- Location: `test/bdt/benefits/`, `test/bdt/checks/`
+- Create Bruno tests for every new benefit/check
+
+**Workflow**: Write Bruno tests first (TDD), then implement DMN.
+
+---
+
+## Deployment
+
+### Creating a Release
+
+```bash
+# Update version in pom.xml and create git tag atomically
+cd library-api
+./bin/tag-release 0.4.0
+
+# Review changes
+git show
+
+# Push to trigger deployment
+git push origin your-branch
+git push origin library-api-v0.4.0
+```
+
+Pushing the tag triggers GitHub Actions → Docker build → Google Cloud Run deployment.
+
+**Semantic versioning**:
+- MAJOR: Breaking changes (removing endpoints, changing response format)
+- MINOR: New features (new benefits/checks)
+- PATCH: Bug fixes
+
+**Production**: Google Cloud Run, `us-central1`, public API
+
+---
+
+## Reference
+
+### Technology Stack
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Java | 17 | Runtime |
+| Quarkus | 2.16.10.Final | Framework |
+| Kogito | 1.44.1.Final | DMN engine |
+| Maven | 3.8+ | Build tool |
+| DMN | 1.3 | Decision modeling |
+| Bruno | Latest | API testing |
+
+### Key Commands
+
+```bash
+# Development
+bin/dev                   # Start dev server
+mvn clean compile         # Clean rebuild
+mvn clean package         # Build JAR
+
+# Testing
+mvn test                  # Java tests
+cd test/bdt && bru run    # Bruno tests
+
+# Deployment
+./bin/tag-release 0.4.0   # Create release
+```
+
+### Important Constraints
+
+1. All DMN model names must be globally unique
+2. Decision Services must be named `{ModelName}Service`
+3. Java 17 required (not 21 like main BDT project)
+4. Hot reload works for DMN only; Java changes need restart
+5. Imported decision services can't share names
+
+### Configuration
+
+- **Port**: Set `QUARKUS_HTTP_PORT` (default: 8083)
+
+### Key Files
+
+- `src/main/resources/BDT.dmn` - Root model with shared types
+- `src/main/resources/checks/` - Reusable eligibility checks
+- `src/main/resources/benefits/` - Specific benefit programs
+- `src/main/java/org/codeforphilly/bdt/api/` - Custom REST endpoints
+- `test/bdt/` - Bruno API tests
+
+### Resources
+
+- **Learn DMN**: https://learn-dmn-in-15-minutes.com/
+- **Kogito Docs**: https://kogito.kie.org/
+- **Quarkus Guides**: https://quarkus.io/guides/
+- **CLAUDE.md**: Detailed architecture and AI assistant guidance
+- **GitHub**: https://github.com/codeforphilly/benefit-decision-toolkit
+
+---
+
+## Architecture Notes
+
+### Custom vs Kogito Defaults
+
+This project uses **custom endpoint generation** (not Kogito's defaults):
+- `DynamicDMNResource.java` handles all requests via `POST /api/v1/{path}`
+- `ModelRegistry.java` discovers DMN models at startup
+- `DynamicDMNOpenAPIFilter.java` generates OpenAPI docs
+
+**Why?** Better URL patterns (match file structure), consistent response format, custom OpenAPI.
+
+### Code You Can Edit
+
+- `src/main/java/org/codeforphilly/bdt/api/` - REST + OpenAPI
+- `src/main/java/org/codeforphilly/bdt/functions/` - Custom FEEL functions
+- `src/main/resources/*.dmn` - DMN decision models
+
+**DO NOT EDIT**: `target/generated-sources/kogito/` (auto-generated)
+
+### Advanced Features
+
+- **DecisionServiceInvoker**: Programmatic DMN invocation (Java only, not from FEEL)
+- **Custom OpenAPI**: Type schemas auto-generated from DMN types
+
+See **CLAUDE.md** for detailed architecture, troubleshooting, and development patterns.
+
+---
+
+**Version**: 0.4.0 | **Last Updated**: 2025-01-21
