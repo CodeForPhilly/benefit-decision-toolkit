@@ -1,0 +1,33 @@
+meta {
+  name: Smoke Test
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/benefits/pa/phl/homestead-exemption
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "enrollments": [
+        {
+          "personId": "p2",
+          "benefit": "PhlHomesteadExemption"
+        }
+      ],
+      "simpleChecks": {
+        "tenYearTaxAbatement": false
+      }
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

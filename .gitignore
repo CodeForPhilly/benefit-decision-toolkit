@@ -80,3 +80,5 @@ node_modules/
 .quarkus/
 
 .devboxrc
+
+.claude/settings.local.json
