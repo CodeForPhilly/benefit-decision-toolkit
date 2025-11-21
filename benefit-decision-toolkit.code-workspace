@@ -1,0 +1,119 @@
+{
+  "folders": [
+    {
+      "name": "🏗️ Builder API",
+      "path": "./builder-api"
+    },
+    {
+      "name": "🔍 Screener API",
+      "path": "./screener-api"
+    },
+    {
+      "name": "📚 Library API",
+      "path": "./library-api"
+    },
+    {
+      "name": "🎨 Builder Frontend",
+      "path": "./builder-frontend"
+    },
+    {
+      "name": "📱 Screener Frontend",
+      "path": "./screener-frontend"
+    },
+    {
+      "name": "📋 Project Root",
+      "path": "."
+    }
+  ],
+  "settings": {
+    // Java settings for API modules
+    "java.import.maven.enabled": true,
+    "java.compile.nullAnalysis.mode": "automatic",
+
+    // Node.js settings for frontend modules
+    "typescript.preferences.includePackageJsonAutoImports": "auto",
+    "typescript.suggest.autoImports": true,
+
+    // File associations
+    "files.associations": {
+      "*.env.example": "properties",
+      "devbox.json": "jsonc",
+      "process-compose.yml": "yaml"
+    },
+
+    // Exclude irrelevant folders from search
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/target": true,
+      "**/.quarkus": true,
+      "**/dist": true
+    },
+
+    // File watcher excludes for performance
+    "files.watcherExclude": {
+      "**/node_modules/**": true,
+      "**/target/**": true,
+      "**/.quarkus/**": true,
+      "**/dist/**": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      // Java development
+      "redhat.java",
+      "vscjava.vscode-java-debug",
+      "vscjava.vscode-maven",
+      "redhat.vscode-quarkus",
+
+      // Frontend development
+      "bradlc.vscode-tailwindcss",
+      "esbenp.prettier-vscode",
+      "ms-vscode.vscode-typescript-next",
+
+      // General productivity
+      "ms-vscode.vscode-json",
+      "redhat.vscode-yaml",
+      "ms-vscode.remote-containers",
+
+      // Project-specific
+      "jetpack-io.devbox"
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "🚀 Start All Services",
+        "type": "shell",
+        "command": "devbox services up",
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "🔨 Build All APIs",
+        "type": "shell",
+        "command": "for dir in builder-api screener-api library-api; do echo \"Building $dir...\"; cd $dir && mvn clean package -DskipTests && cd ..; done",
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always"
+        }
+      },
+      {
+        "label": "📦 Install All Frontend Dependencies",
+        "type": "shell",
+        "command": "cd builder-frontend && npm install && cd ../screener-frontend && npm install",
+        "group": "build"
+      }
+    ]
+  }
+}

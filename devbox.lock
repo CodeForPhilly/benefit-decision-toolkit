@@ -1,6 +1,54 @@
 {
   "lockfile_version": "1",
   "packages": {
+    "bruno-cli@latest": {
+      "last_modified": "2025-10-22T20:59:19Z",
+      "resolved": "github:NixOS/nixpkgs/01b6809f7f9d1183a2b3e081f0a1e6f8f415cb09#bruno-cli",
+      "source": "devbox-search",
+      "version": "2.13.2",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/2yrf1xw8da5a0g7d92zg5psn6ss8p67b-bruno-cli-2.13.2",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/2yrf1xw8da5a0g7d92zg5psn6ss8p67b-bruno-cli-2.13.2"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/l0gnb73v2z53l2v48323wn4apd3l3xxz-bruno-cli-2.13.2",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/l0gnb73v2z53l2v48323wn4apd3l3xxz-bruno-cli-2.13.2"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/vh42arjvvw2ns9c1yr4zcjycnz13sq1i-bruno-cli-2.13.2",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/vh42arjvvw2ns9c1yr4zcjycnz13sq1i-bruno-cli-2.13.2"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/j0jr5fvhxnng60jhynwjagl1bzrd0yqd-bruno-cli-2.13.2",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/j0jr5fvhxnng60jhynwjagl1bzrd0yqd-bruno-cli-2.13.2"
+        }
+      }
+    },
     "firebase-tools@latest": {
       "last_modified": "2025-08-08T08:05:48Z",
       "resolved": "github:NixOS/nixpkgs/a3f3e3f2c983e957af6b07a1db98bafd1f87b7a1#firebase-tools",

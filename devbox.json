@@ -6,7 +6,8 @@
     "jdk21@latest",
     "firebase-tools@latest",
     "google-cloud-sdk@latest",
-    "nodejs@22"
+    "nodejs@22",
+    "bruno-cli@latest"
   ],
   "env_from": ".env",
   "shell": {
@@ -17,6 +18,10 @@
     "scripts": {
       "setup": [
         "bin/setup"
+      ],
+      "build-library-api-ci": [
+        "cd library-api",
+        "quarkus build --no-tests"
       ],
       "build-builder-api-ci": [
         "cd builder-api",
