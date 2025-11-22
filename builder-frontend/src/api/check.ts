@@ -140,6 +140,30 @@ export const saveCheckDmn = async (checkId: string, dmnModel: string) => {
   }
 };
 
+export const validateCheckDmn = async (checkId: string, dmnModel: string): Promise<string[]> => {
+  const url = apiUrl + "/validate-check-dmn";
+  try {
+    const response = await authFetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ id: checkId, dmnModel: dmnModel }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Validation failed with status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.errors;
+  } catch (error) {
+    console.error("Error validation DMN for check:", error);
+    throw error; // rethrow so you can handle it in your component if needed
+  }
+};
+
 export const fetchUserDefinedChecks = async (
   working: boolean
 ): Promise<EligibilityCheck[]> => {

@@ -17,6 +17,9 @@
   .btn-default.btn-red {
     @apply bg-red-800 hover:bg-red-900 text-white;
   }
+  .btn-default.btn-yellow {
+    @apply bg-yellow-700 hover:bg-yellow-800 text-white;
+  }
   .btn-default.btn-blue {
     @apply bg-sky-600 hover:bg-sky-700 text-white
   }

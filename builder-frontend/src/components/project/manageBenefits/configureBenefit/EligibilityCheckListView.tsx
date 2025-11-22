@@ -141,7 +141,7 @@ const EligibilityCheckRow = ({
       </td>
       <td class="eligibility-check-table-cell border-top">{titleCase(check.name)}</td>
       <td class="eligibility-check-table-cell border-top">{check.description}</td>
-      <td class="eligibility-check-table-cell border-top">{check.version}</td>
+      <td class="eligibility-check-table-cell border-top">v{check.version}</td>
     </tr>
   );
 };

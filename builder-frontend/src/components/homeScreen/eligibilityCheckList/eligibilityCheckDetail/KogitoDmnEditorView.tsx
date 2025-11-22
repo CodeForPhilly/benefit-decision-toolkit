@@ -1,4 +1,4 @@
-import { onCleanup, onMount, Accessor, Setter, createEffect } from "solid-js";
+import { onCleanup, onMount, Accessor, Setter } from "solid-js";
 
 import * as DmnEditor from "@kogito-tooling/kie-editors-standalone/dist/dmn";
 
@@ -15,12 +15,13 @@ const trimXml = (xml: string): string => {
   return xml;
 };
 
-export default function KogitoDmnEditorView({
-  dmnModel, setTmpDmnModel,
+const KogitoDmnEditorView = ({
+  dmnModelToLoad,
+  onDmnModelChange,
 }: {
-  dmnModel: Accessor<string>;
-  setTmpDmnModel: Setter<string>;
-}) {
+  dmnModelToLoad: Accessor<string>;
+  onDmnModelChange: (dmnModelXml: string) => void;
+}) => {
   let editorElement: null | Element = null;
   let editorObject: null | any = null;
   let saveTimeoutId: null | number = null;
@@ -35,7 +36,7 @@ export default function KogitoDmnEditorView({
   });
 
   const initializeEditor = async () => {
-    const modelXml: string = dmnModel();
+    const modelXml: string = dmnModelToLoad();
     const initialDmnPromise: string = (modelXml) ? trimXml(modelXml): "";
 
     editorObject = DmnEditor.open({
@@ -44,10 +45,12 @@ export default function KogitoDmnEditorView({
       resources: new Map(),
       readOnly: false,
     });
+    onDmnModelChange(modelXml);
+
     editorObject.subscribeToContentChanges(
       async (_: boolean) => {
         const xml = await editorObject.getContent();
-        setTmpDmnModel(xml);
+        onDmnModelChange(xml);
       }
     );
   };
@@ -61,3 +64,5 @@ export default function KogitoDmnEditorView({
     </div>
   );
 }
+
+export default KogitoDmnEditorView;
