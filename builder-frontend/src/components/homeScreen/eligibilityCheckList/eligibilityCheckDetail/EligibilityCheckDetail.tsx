@@ -1,6 +1,8 @@
 import { Accessor, createSignal, For, Match, Show, Switch } from "solid-js";
 import { useParams } from "@solidjs/router";
 
+import { clsx } from "clsx";
+
 import Header from "../../../Header";
 import Loading from "../../../Loading";
 import ParameterModal from "./modals/ParameterModal";
@@ -12,6 +14,8 @@ import type { EligibilityCheck, ParameterDefinition } from "@/types";
 import ConfirmationModal from "@/components/shared/ConfirmationModal";
 import EligibilityCheckTest from "./checkTesting/EligibilityCheckTest";
 import PublishCheck from "./PublishCheck";
+import ErrorDisplayModal from "./modals/ErrorModel";
+import toast from "solid-toast";
 
 
 type CheckDetailScreenMode = "Parameter Configuration" |  "DMN Definition" | "Testing" | "Publish";
@@ -19,11 +23,28 @@ type CheckDetailScreenMode = "Parameter Configuration" |  "DMN Definition" | "Te
 const EligibilityCheckDetail = () => {
   const { checkId } = useParams();
 
-  const [tmpDmnModel, setTmpDmnModel] = createSignal<string>("");
+  const [currentDmnModel, setCurrentDmnModel] = createSignal<string>("");
   const [screenMode, setScreenMode] = createSignal<CheckDetailScreenMode>("Parameter Configuration");
+
+  const [validationErrors, setValidationErrors] = createSignal<string[]>([]);
+  const [showingErrorModal, setShowingErrorModal] = createSignal<boolean>(false);
 
   const { eligibilityCheck, actions, actionInProgress, initialLoadStatus } =
     eligibilityCheckDetailResource(() => checkId);
+
+  const hasDmnModelChanged = (): boolean => {
+    return eligibilityCheck().dmnModel !== currentDmnModel();
+  };
+
+  const validateDmnModel = async (dmnString: string) => {
+    const errors: string[] = await actions.validateDmnModel(dmnString);
+    setValidationErrors(errors);
+    if (errors.length > 0) {
+      setShowingErrorModal(true);
+    } else {
+      toast.success("No validation errors found in DMN model.");
+    }
+  }
 
   return (
     <div class="h-screen flex flex-col">
@@ -60,15 +81,21 @@ const EligibilityCheckDetail = () => {
             <>
               <div class="flex space-x-4 p-4 border-b-2 border-gray-200">
                 <div
-                  class="btn-default btn-gray"
-                  onClick={() => actions.saveDmnModel(tmpDmnModel())}
+                  class="btn-default btn-blue"
+                  onClick={() => validateDmnModel(currentDmnModel())}
                 >
-                  Save DMN
+                  Validate Current DMN
+                </div>
+                <div
+                  class={clsx("btn-default", { "btn-blue": !hasDmnModelChanged() }, { "btn-yellow": hasDmnModelChanged() })}
+                  onClick={() => actions.saveDmnModel(currentDmnModel())}
+                >
+                  {hasDmnModelChanged() ? "Save Changes" : "No Changes Detected"}
                 </div>
               </div>
               <KogitoDmnEditorView
-                dmnModel={() => eligibilityCheck().dmnModel}
-                setTmpDmnModel={setTmpDmnModel}
+                dmnModelToLoad={() => eligibilityCheck().dmnModel}
+                onDmnModelChange={setCurrentDmnModel}
               />
             </>
           </Match>
@@ -85,6 +112,13 @@ const EligibilityCheckDetail = () => {
             />
           </Match>
         </Switch>
+      </Show>
+      <Show when={showingErrorModal()}>
+        <ErrorDisplayModal
+          title={"DMN Validation Errors"}
+          errors={validationErrors()}
+          closeModal={() => setShowingErrorModal(false)}
+        />
       </Show>
     </div>
   );
