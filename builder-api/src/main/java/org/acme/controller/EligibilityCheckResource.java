@@ -10,10 +10,12 @@ import jakarta.ws.rs.core.Response;
 import org.acme.auth.AuthUtils;
 import org.acme.constants.CheckStatus;
 import org.acme.model.domain.EligibilityCheck;
-import org.acme.model.dto.SaveDmnRequest;
+import org.acme.model.dto.CheckDmnRequest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.StorageService;
+import org.acme.service.DmnService;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,6 +28,9 @@ public class EligibilityCheckResource {
 
     @Inject
     StorageService storageService;
+
+    @Inject
+    DmnService dmnService;
 
     @GET
     @Path("/checks")
@@ -105,7 +110,7 @@ public class EligibilityCheckResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/save-check-dmn")
-    public Response updateCheckDmn(@Context SecurityIdentity identity, SaveDmnRequest saveDmnRequest){
+    public Response updateCheckDmn(@Context SecurityIdentity identity, CheckDmnRequest saveDmnRequest){
         String checkId = saveDmnRequest.id;
         String dmnModel = saveDmnRequest.dmnModel;
         if (checkId == null || checkId.isBlank()){
@@ -121,17 +126,10 @@ public class EligibilityCheckResource {
         }
 
         EligibilityCheck check = checkOpt.get();
-
-        //AUTHORIZATION
-//        if (!check.getOwnerId().equals(userId)){
-//           return Response.status(Response.Status.UNAUTHORIZED).build();
-//        }
-
-        if (dmnModel == null){
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Error: Missing required data: DMN Model")
-                    .build();
+        if (!check.getOwnerId().equals(userId)){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         }
+
         try {
             String filePath = storageService.getCheckDmnModelPath(checkId);
             storageService.writeStringToStorage(filePath, dmnModel, "application/xml");
@@ -141,6 +139,51 @@ public class EligibilityCheckResource {
             // last_saved field so that we know the check was updated and needs to be recompiled on evaluation
 
             return Response.ok().build();
+        } catch (Exception e){
+            Log.info(("Failed to save DMN model for check " + checkId));
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/validate-check-dmn")
+    public Response validateCheckDmn(@Context SecurityIdentity identity, CheckDmnRequest validateDmnRequest){
+        String checkId = validateDmnRequest.id;
+        String dmnModel = validateDmnRequest.dmnModel;
+        if (checkId == null || checkId.isBlank()){
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Error: Missing required data: checkId")
+                    .build();
+        }
+
+        String userId = AuthUtils.getUserId(identity);
+        Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, checkId);
+        if (checkOpt.isEmpty()){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        EligibilityCheck check = checkOpt.get();
+        if (!check.getOwnerId().equals(userId)){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        if (dmnModel == null || dmnModel.isBlank()){
+            return Response.ok(Map.of("errors", List.of("DMN Definition cannot be empty"))).build();
+        }
+
+        try {
+            HashMap<String, String> dmnDependenciesMap = new HashMap<String, String>();
+            List<String> validationErrors = dmnService.validateDmnXml(dmnModel, dmnDependenciesMap, check.getName(), check.getName());
+            if (!validationErrors.isEmpty()) {
+                validationErrors = validationErrors.stream()
+                    .map(error -> error.replaceAll("\\(.*?\\)", ""))
+                    .collect(java.util.stream.Collectors.toList());
+
+                return Response.ok(Map.of("errors", validationErrors)).build();
+            }
+
+            return Response.ok(Map.of("errors", List.of())).build();
         } catch (Exception e){
             Log.info(("Failed to save DMN model for check " + checkId));
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();

@@ -13,6 +13,7 @@ import {
   updateCheck,
   evaluateWorkingCheck,
   publishCheck as publishCheckApi,
+  validateCheckDmn,
 } from "@/api/check";
 
 import type {
@@ -32,6 +33,7 @@ export interface EligibilityCheckDetailResource {
     ) => Promise<void>;
     removeParameter: (parameterIndex: number) => Promise<void>;
     saveDmnModel: (dmnString: string) => Promise<void>;
+    validateDmnModel: (dmnString: string) => Promise<string[]>;
     testEligibility: (checkConfg: CheckConfig, inputData: Record<string, any>) => Promise<OptionalBoolean>;
     publishCheck: (checkId: string) => Promise<void>;
   };
@@ -126,11 +128,25 @@ const eligibilityCheckDetailResource = (
     setActionInProgress(true);
     try {
       await saveCheckDmn(eligibilityCheck.id, dmnString);
+      toast.success("DMN model saved successfully.");
       await refetch();
     } catch (e) {
       console.error("Failed to save DMN model", e);
     }
     setActionInProgress(false);
+  };
+
+  const validateDmnModel = async (dmnString: string) => {
+    setActionInProgress(true);
+    try {
+      const errors: string[] = await validateCheckDmn(eligibilityCheck.id, dmnString);
+      console.log(errors);
+      setActionInProgress(false);
+      return errors;
+    } catch (e) {
+      console.error("Failed to validate DMN model", e);
+    }
+    return [];
   };
 
   const testEligibility = async (checkConfg: CheckConfig, inputData: Record<string, any>): Promise<OptionalBoolean> => {
@@ -164,6 +180,7 @@ const eligibilityCheckDetailResource = (
       updateParameter,
       removeParameter,
       saveDmnModel,
+      validateDmnModel,
       testEligibility,
       publishCheck,
     },

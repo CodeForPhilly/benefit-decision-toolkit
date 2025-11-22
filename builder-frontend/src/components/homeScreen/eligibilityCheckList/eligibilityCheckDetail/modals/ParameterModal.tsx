@@ -1,7 +1,6 @@
 import { createStore } from "solid-js/store"
 
-import type { EligibilityCheck, ParameterDefinition } from "@/types";
-import { Accessor } from "solid-js";
+import type { ParameterDefinition } from "@/types";
 
 
 type ParamValues = {

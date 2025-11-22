@@ -18,7 +18,7 @@ const ConfigureCheckModal = (
   { checkConfig, check, updateCheckConfigParams, closeModal }:
   {
     checkConfig: Accessor<CheckConfig>;
-    check: EligibilityCheck;
+    check: Accessor<EligibilityCheck>;
     updateCheckConfigParams: (newCheckData: ParameterValues) => void;
     closeModal: () => void
   }
@@ -41,14 +41,14 @@ const ConfigureCheckModal = (
           Configure Check: {titleCase(checkConfig().checkName)}
         </div>
 
-        {check.parameters.length === 0 && (
+        {check().parameters.length === 0 && (
           <div class="mb-4">This check has no configurable parameters.</div>
         )}
-        {check.parameters.length > 0 && (
+        {check().parameters.length > 0 && (
           <div class="mb-4">
             <div class="text-lg font-bold mb-2">Parameters</div>
             <div class="flex flex-col gap-4">
-              <For each={check.parameters}>
+              <For each={check().parameters}>
                 {(parameter) => {
                   return (
                     <ParameterInput
