@@ -11,10 +11,22 @@ import org.kie.api.io.Resource;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.dmn.api.core.*;
+import org.kie.dmn.api.core.ast.DecisionNode;
+
 import java.io.*;
 import java.util.*;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 
+
+class DmnCompilationResult {
+    public byte[] dmnBytes;
+    public List<String> errors;
+
+    public DmnCompilationResult(byte[] dmnBytes, List<String> errors) {
+        this.dmnBytes = dmnBytes;
+        this.errors = errors;
+    }
+}
 
 @ApplicationScoped
 public class KieDmnService implements DmnService {
@@ -31,7 +43,46 @@ public class KieDmnService implements DmnService {
         return kieContainer.newKieSession();
     }
 
-    private byte[] compileDmnModel(String dmnXml, Map<String, String> dependenciesMap, String modelId) throws IOException {
+    // Validates that the DMN XML can compile and contains the required decision.
+    // Returns a list of error messages if any issues are found.
+    public List<String> validateDmnXml (
+        String dmnXml, Map<String, String> dependenciesMap, String modelId, String requiredBooleanDecisionName
+    ) throws Exception {
+        DmnCompilationResult compilationResult = compileDmnModel(dmnXml, dependenciesMap, modelId);
+        if (!compilationResult.errors.isEmpty()) {
+            return compilationResult.errors;
+        }
+
+        KieSession kieSession = initializeKieSession(compilationResult.dmnBytes);
+        DMNRuntime dmnRuntime = kieSession.getKieRuntime(DMNRuntime.class);
+
+        List<DMNModel> dmnModels = dmnRuntime.getModels();
+        if (dmnModels.size() != 1) {
+            return List.of("Expected exactly one DMN model, found: " + dmnModels.size());
+        }
+
+        DMNModel dmnModel = dmnModels.get(0);
+        DecisionNode requiredBooleanDecision = dmnModel.getDecisions().stream()
+            .filter(d -> d.getName().equals(requiredBooleanDecisionName))
+            .findFirst()
+            .orElse(null);
+        if (requiredBooleanDecision == null) {
+            List<String> decisionNames = dmnModel.getDecisions().stream()
+                .map(DecisionNode::getName)
+                .toList();
+            return List.of(
+                "Required Decision '" + requiredBooleanDecisionName + "' not found in DMN definition. " +
+                "Decisions found: " + decisionNames
+            );
+        }
+
+        if (requiredBooleanDecision.getResultType().getName() != "boolean") {
+            return List.of("The Result DataType of Decision '" + requiredBooleanDecisionName + "' must be of type 'boolean'.");
+        }
+        return new ArrayList<String>();
+    }
+
+    private DmnCompilationResult compileDmnModel(String dmnXml, Map<String, String> dependenciesMap, String modelId) {
         Log.info("Compiling and saving DMN model: " + modelId);
 
         KieServices kieServices = KieServices.Factory.get();
@@ -69,18 +120,17 @@ public class KieDmnService implements DmnService {
         Results results = kieBuilder.getResults();
 
         if (results.hasMessages(Message.Level.ERROR)) {
-            Log.error("DMN Compilation errors for model " + modelId + ":");
-            for (Message message : results.getMessages(Message.Level.ERROR)) {
-                Log.error(message.getText());
-            }
-            throw new IllegalStateException("DMN Model compilation failed for model: " + modelId);
+            return new DmnCompilationResult(
+                null,
+                results.getMessages(Message.Level.ERROR).stream().map(Message::getText).toList()
+            );
         }
 
         InternalKieModule kieModule = (InternalKieModule) kieBuilder.getKieModule();
         byte[] kieModuleBytes = kieModule.getBytes();
 
         Log.info("Serialized kieModule for model " + modelId);
-        return kieModuleBytes;
+        return new DmnCompilationResult(kieModuleBytes, new ArrayList<String>());
     }
 
     public OptionalBoolean evaluateDmn(
@@ -95,12 +145,19 @@ public class KieDmnService implements DmnService {
         if (dmnXmlOpt.isEmpty()) {
             throw new RuntimeException("DMN file not found: " + dmnFilePath);
         }
-
         String dmnXml = dmnXmlOpt.get();
-        HashMap<String, String> dmnDependenciesMap = new HashMap<String, String>();
-        byte[] serializedModel = compileDmnModel(dmnXml, dmnDependenciesMap, dmnModelName);
 
-        KieSession kieSession = initializeKieSession(serializedModel);
+        HashMap<String, String> dmnDependenciesMap = new HashMap<String, String>();
+        DmnCompilationResult compilationResult = compileDmnModel(dmnXml, dmnDependenciesMap, dmnModelName);
+        if (!compilationResult.errors.isEmpty()) {
+            Log.error("DMN Compilation errors for model " + dmnModelName + ":");
+            for (String error : compilationResult.errors) {
+                Log.error(error);
+            }
+            throw new IllegalStateException("DMN Model compilation failed for model: " + dmnModelName);
+        }
+
+        KieSession kieSession = initializeKieSession(compilationResult.dmnBytes);
         DMNRuntime dmnRuntime = kieSession.getKieRuntime(DMNRuntime.class);
 
         List<DMNModel> dmnModels = dmnRuntime.getModels();

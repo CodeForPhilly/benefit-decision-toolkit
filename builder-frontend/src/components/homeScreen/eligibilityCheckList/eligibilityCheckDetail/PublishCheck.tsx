@@ -43,7 +43,7 @@ const PublishCheck = ({
               {(checkVersion) => (
                 <div class="relative p-4 w-96 border-2 border-gray-200 rounded">
                   <div class="text-lg font-bold text-gray-800 mb-2">
-                    Version {checkVersion.version}
+                    {checkVersion.name} - v{checkVersion.version}
                   </div>
                   <div>
                     <div>

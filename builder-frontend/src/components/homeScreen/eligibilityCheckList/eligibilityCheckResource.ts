@@ -2,11 +2,7 @@ import { createResource, createEffect, Accessor, createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
 
 import type { EligibilityCheck } from "@/types";
-import {
-  addCheck,
-  fetchPublicChecks,
-  fetchUserDefinedChecks,
-} from "@/api/check";
+import { addCheck, fetchUserDefinedChecks } from "@/api/check";
 
 export interface EligibilityCheckResource {
   checks: () => EligibilityCheck[];

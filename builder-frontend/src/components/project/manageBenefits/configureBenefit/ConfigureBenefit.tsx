@@ -96,20 +96,18 @@ const ConfigureBenefit = ({
                   <For each={benefit().checks}>
                     {(checkConfig, checkIndex) => {
                       return (
-                        <Show when={getSelectedCheck(checkConfig.checkId)}>
-                          <SelectedEligibilityCheck
-                            check={getSelectedCheck(checkConfig.checkId)}
-                            checkConfig={() => checkConfig}
-                            onRemove={() =>
-                              onRemoveEligibilityCheck(checkIndex())
+                        <SelectedEligibilityCheck
+                          checkId={() => checkConfig.checkId}
+                          checkConfig={() => checkConfig}
+                          onRemove={() =>
+                            onRemoveEligibilityCheck(checkIndex())
+                          }
+                          updateCheckConfigParams={
+                            (newCheckData: ParameterValues) => {
+                              actions.updateCheckConfigParams(checkIndex(), newCheckData);
                             }
-                            updateCheckConfigParams={
-                              (newCheckData: ParameterValues) => {
-                                actions.updateCheckConfigParams(checkIndex(), newCheckData);
-                              }
-                            }
-                          />
-                        </Show>
+                          }
+                        />
                       );
                     }}
                   </For>
