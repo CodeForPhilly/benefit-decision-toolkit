@@ -1,30 +1,31 @@
-import { createSignal, Match, Switch } from "solid-js";
+import { Accessor, createSignal, Match, Switch } from "solid-js";
 
 import EligibilityChecksList from "./eligibilityCheckList/EligibilityChecksList";
 import ProjectsList from "./ProjectsList"
 import Header from "../Header";
 
+import BdtNavbar, { NavbarProps } from "@/components/shared/BdtNavbar";0
+
 const HomeScreen = () => {
-  const [screenMode, setScreenMode] = createSignal<"projects" | "checks">("projects");
+  const [screenMode, setScreenMode] = createSignal<"screeners" | "checks">("screeners");
+
+  const navbarDefs: Accessor<NavbarProps> = () => {
+    return {
+      tabDefs: [
+        { key: "screeners", label: "Screeners", onClick: () => setScreenMode("screeners") },
+        { key: "checks", label: "Eligibility checks", onClick: () => setScreenMode("checks") },
+      ],
+      activeTabKey: () => screenMode(),
+      titleDef: null,
+    }
+  };
+
   return (
     <div>
       <Header/>
-      <div class="flex space-x-4 p-4 border-b-2 border-gray-200">
-        <div
-          class={`btn-default ${screenMode() === "projects" ? "btn-blue" : "btn-gray"}`}
-          onClick={() => setScreenMode("projects")}
-        >
-          Projects List
-        </div>
-        <div
-          class={`btn-default ${screenMode() === "checks" ? "btn-blue" : "btn-gray"}`}
-          onClick={() => setScreenMode("checks")}
-        >
-          Eligibility Checks List
-        </div>
-      </div>
+      <BdtNavbar navProps={navbarDefs} />
       <Switch>
-        <Match when={screenMode() === "projects"}>
+        <Match when={screenMode() === "screeners"}>
           <ProjectsList />
         </Match>
         <Match when={screenMode() === "checks"}>
