@@ -1,4 +1,4 @@
-import { createSignal, Match, Show, Switch } from "solid-js";
+import { Accessor, createSignal, Match, Show, Switch } from "solid-js";
 import { useParams } from "@solidjs/router";
 
 import { clsx } from "clsx";
@@ -11,18 +11,19 @@ import EligibilityCheckTest from "./checkTesting/EligibilityCheckTest";
 import PublishCheck from "./PublishCheck";
 
 import eligibilityCheckDetailResource from "./eligibilityCheckDetailResource";
-
-import ErrorDisplayModal from "@/components/shared/ErrorModal";
 import ParametersConfiguration from "./ParametersConfiguration";
 
+import ErrorDisplayModal from "@/components/shared/ErrorModal";
+import BdtNavbar, { NavbarProps } from "@/components/shared/BdtNavbar";
 
-type CheckDetailScreenMode = "Parameter Configuration" | "DMN Definition" | "Testing" | "Publish";
+
+type CheckDetailScreenMode = "paramConfig" | "dmnDefinition" | "testing" | "publish";
 
 const EligibilityCheckDetail = () => {
   const { checkId } = useParams();
 
   const [currentDmnModel, setCurrentDmnModel] = createSignal<string>("");
-  const [screenMode, setScreenMode] = createSignal<CheckDetailScreenMode>("Parameter Configuration");
+  const [screenMode, setScreenMode] = createSignal<CheckDetailScreenMode>("paramConfig");
 
   const [validationErrors, setValidationErrors] = createSignal<string[]>([]);
   const [showingErrorModal, setShowingErrorModal] = createSignal<boolean>(false);
@@ -44,30 +45,30 @@ const EligibilityCheckDetail = () => {
     }
   }
 
+  const navbarDefs: Accessor<NavbarProps> = () => {
+    return {
+      tabDefs: [
+        { key: "paramConfig", label: "Parameter Configuration", onClick: () => setScreenMode("paramConfig") },
+        { key: "dmnDefinition", label: "DMN Definition", onClick: () => setScreenMode("dmnDefinition") },
+        { key: "testing", label: "Testing", onClick: () => setScreenMode("testing") },
+        { key: "publish", label: "Publish", onClick: () => setScreenMode("publish") },
+      ],
+      activeTabKey: () => screenMode(),
+      titleDef: { label: eligibilityCheck().name },
+    };
+  };
+
   return (
     <div class="h-screen flex flex-col">
       <Show when={initialLoadStatus.loading() || actionInProgress()}>
         <Loading />
       </Show>
       <Header />
-      <div class="flex border-b border-gray-200">
-        {["Parameter Configuration", "DMN Definition", "Testing", "Publish"].map((tab: CheckDetailScreenMode) => (
-          <button
-            class={`px-4 py-2 -mb-px text-sm font-medium border-b-2 transition-colors ${
-              screenMode() === tab
-                ? "border-b border-gray-700 text-gray-700 hover:bg-gray-200"
-                : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-200"
-            }`}
-            onClick={() => setScreenMode(tab)}
-          >
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
-          </button>
-        ))}
-      </div>
 
+      <BdtNavbar navProps={navbarDefs} />
       <Show when={ eligibilityCheck().id !== undefined && !initialLoadStatus.loading() }>
         <Switch>
-          <Match when={screenMode() === "Parameter Configuration"}>
+          <Match when={screenMode() === "paramConfig"}>
             <ParametersConfiguration
               eligibilityCheck={eligibilityCheck}
               addParameter={actions.addParameter}
@@ -75,9 +76,9 @@ const EligibilityCheckDetail = () => {
               removeParameter={actions.removeParameter}
             />
           </Match>
-          <Match when={screenMode() === "DMN Definition"}>
+          <Match when={screenMode() === "dmnDefinition"}>
             <>
-              <div class="flex space-x-4 p-4 border-b-2 border-gray-200">
+              <div class="flex space-x-4 px-4 py-3 border-b-2 border-gray-200">
                 <div
                   class="btn-default btn-blue"
                   onClick={() => validateDmnModel(currentDmnModel())}
@@ -97,13 +98,13 @@ const EligibilityCheckDetail = () => {
               />
             </>
           </Match>
-          <Match when={screenMode() === "Testing"}>
+          <Match when={screenMode() === "testing"}>
             <EligibilityCheckTest
               eligibilityCheck={eligibilityCheck}
               testEligibility={actions.testEligibility}
             />
           </Match>
-          <Match when={screenMode() === "Publish"}>
+          <Match when={screenMode() === "publish"}>
             <PublishCheck
               eligibilityCheck={eligibilityCheck}
               publishCheck={actions.publishCheck}
