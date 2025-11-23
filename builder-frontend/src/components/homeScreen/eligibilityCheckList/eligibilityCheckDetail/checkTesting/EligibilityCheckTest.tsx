@@ -88,11 +88,12 @@ const EligibilityCheckTest = (
 
         <div class="flex-1">
           <SelectedEligibilityCheck
-            check={eligibilityCheck()}
+            checkId={() => checkConfig().checkId}
             checkConfig={checkConfig}
             updateCheckConfigParams={(newCheckData: ParameterValues) => {
               setCheckConfig({ ...checkConfig(), parameters: newCheckData });
             }}
+            onRemove={null}
           />
         </div>
       </div>

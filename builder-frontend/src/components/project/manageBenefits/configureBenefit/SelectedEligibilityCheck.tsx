@@ -22,8 +22,8 @@ const SelectedEligibilityCheck = (
   {
     checkId: Accessor<string>;
     checkConfig: Accessor<CheckConfig>;
-    onRemove: () => void;
     updateCheckConfigParams: (newCheckData: ParameterValues) => void
+    onRemove: () => void | null;
   }
 ) => {
   const [check] = createResource(() => checkId(), fetchCustomCheck);
@@ -50,12 +50,14 @@ const SelectedEligibilityCheck = (
             mb-4 p-4 cursor-pointer select-none relative
             border-2 border-gray-200 rounded-lg hover:bg-gray-200"
         >
-          <div
-            class="absolute px-2 top-2 right-2 hover:bg-gray-300 rounded-xl font-bold"
-            onClick={(e) => { e.stopPropagation(); onRemove(); }}
-          >
-            X
-          </div>
+          <Show when={onRemove !== null}>
+            <div
+              class="absolute px-2 top-2 right-2 hover:bg-gray-300 rounded-xl font-bold"
+              onClick={(e) => { e.stopPropagation(); onRemove(); }}
+            >
+              X
+            </div>
+          </Show>
           <div class="text-xl font-bold mb-2">{titleCase(check().name)} - v{check().version}</div>
           <div class="pl-2 [&:has(+div)]:mb-2">{check().description}</div>
 
