@@ -1,4 +1,4 @@
-import { createSignal, createResource } from "solid-js";
+import { createSignal, createResource, Accessor } from "solid-js";
 import { useParams } from "@solidjs/router";
 
 import FormEditorView from "./FormEditorView";
@@ -9,14 +9,15 @@ import Preview from "./preview/Preview";
 import Publish from "./Publish";
 
 import { fetchProject } from "@/api/screener";
+import BdtNavbar, { NavbarProps } from "@/components/shared/BdtNavbar";
 
 
-type TabOption = "Manage Benefits" | "Form Editor" | "Preview" | "Publish";
+type TabOption = "manageBenefits" | "formEditor" | "preview" | "publish";
 
 function Project() {
   const params = useParams();
 
-  const [activeTab, setActiveTab] = createSignal<TabOption>("Manage Benefits");
+  const [activeTab, setActiveTab] = createSignal<TabOption>("manageBenefits");
   const [formSchema, setFormSchema] = createSignal();
   const [forceUpdate, setForceUpdate] = createSignal(0);
 
@@ -36,8 +37,17 @@ function Project() {
     fetchAndCacheProject
   );
 
-  const handleSelectTab = (tab) => {
-    setActiveTab(tab);
+  const navbarDefs: Accessor<NavbarProps> = () => {
+    return {
+      tabDefs: [
+        { key: "manageBenefits", label: "Manage Benefits", onClick: () => setActiveTab("manageBenefits") },
+        { key: "formEditor", label: "Form Editor", onClick: () => setActiveTab("formEditor") },
+        { key: "preview", label: "Preview", onClick: () => setActiveTab("preview") },
+        { key: "publish", label: "Publish", onClick: () => setActiveTab("publish") },
+      ],
+      activeTabKey: () => activeTab(),
+      titleDef: { label: project().screenerName },
+    };
   };
 
   return (
@@ -47,42 +57,20 @@ function Project() {
         <Loading/>
       ) : (
         <>
-          <div class="flex border-b border-gray-200">
-            <span class="py-2 px-4 font-bold text-gray-600">
-              {" "}
-              {project().screenerName}
-            </span>
-            {[
-              "Manage Benefits",
-              "Form Editor",
-              "Preview",
-              "Publish",
-            ].map((tab) => (
-              <button
-                class={`px-4 py-2 -mb-px text-sm font-medium border-b-2 transition-colors ${
-                  activeTab() === tab
-                    ? "border-b border-gray-700 text-gray-700 hover:bg-gray-200"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-200"
-                }`}
-                onClick={() => handleSelectTab(tab)}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </button>
-            ))}
-          </div>
-          {activeTab() == "Form Editor" && (
+          <BdtNavbar navProps={navbarDefs} />
+          {activeTab() == "formEditor" && (
             <FormEditorView
               formSchema={formSchema}
               setFormSchema={setFormSchema}
             />
           )}
-          {activeTab() == "Manage Benefits" && (
+          {activeTab() == "manageBenefits" && (
             <ManageBenefits />
           )}
-          {activeTab() == "Preview" && (
+          {activeTab() == "preview" && (
             <Preview project={project} formSchema={formSchema}/>
           )}
-          {activeTab() == "Publish" && (
+          {activeTab() == "publish" && (
             <Publish
               project={project}
               refetchProject={() => setForceUpdate((prev) => prev + 1)}
