@@ -2,6 +2,7 @@ package org.acme.model.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ public class EligibilityCheck {
     private boolean isActive;
     private String dmnModel;
     private List<InputDefinition> inputs;
+    private JsonNode situation;
     private List<ParameterDefinition> parameters;
     private String ownerId;
     @JsonProperty("isPublic")
@@ -106,5 +108,13 @@ public class EligibilityCheck {
 
     public void setPublic(Boolean aPublic) {
         isPublic = aPublic;
+    }
+
+    public JsonNode getSituation() {
+        return situation;
+    }
+
+    public void setSituation(JsonNode situation) {
+        this.situation = situation;
     }
 }
