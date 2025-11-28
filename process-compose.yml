@@ -29,20 +29,3 @@ processes:
     depends_on:
       builder-api:
         condition: process_log_ready
-  screener-api:
-    description: This process runs the screener-api in dev mode on port ${QUARKUS_HTTP_PORT}.
-    command: quarkus dev -Ddebug=false
-    working_dir: screener-api/
-    environment:
-      - "QUARKUS_CONSOLE_COLOR=true"
-    ready_log_line: "Listening on: http://localhost:"
-    depends_on:
-      firebase-emulators:
-        condition: process_log_ready
-  screener-frontend:
-    description: This process runs the screener-frontend in dev mode.
-    command: npm run dev -- --host
-    working_dir: screener-frontend/
-    depends_on:
-      screener-api:
-        condition: process_log_ready
