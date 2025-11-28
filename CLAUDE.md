@@ -7,8 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Benefit Decision Toolkit (BDT) is a platform for creating benefit eligibility screeners using Decision Model and Notation (DMN) and Form-JS. The project consists of four main applications:
 
 - **library-api**: Standalone Quarkus API that generates REST endpoints from DMN files (Kogito-based)
-- **builder-api + builder-frontend**: Web application for creating and managing screeners (admin tool)
-- **screener-api + screener-frontend**: Public-facing screener evaluation interface (end-user tool)
+- **builder-api + builder-frontend**: Web application for creating and managing screeners (admin tool). Also deploys a public-facing screener evaluation interface (end-user tool).
 
 The core concept: Subject matter experts can define eligibility rules using visual DMN decision tables, which automatically become REST APIs and interactive screeners without traditional software development.
 
@@ -54,12 +53,10 @@ cd builder-frontend && npm run dev
 ```bash
 # Build specific API
 cd builder-api && mvn clean package
-cd screener-api && mvn clean package
 cd library-api && mvn clean package
 
 # Build frontend
 cd builder-frontend && npm run build
-cd screener-frontend && npm run build
 
 # Clean rebuild (useful when DMN files change)
 mvn clean compile
@@ -70,7 +67,6 @@ mvn clean compile
 ```bash
 # Run Java tests for an API
 cd builder-api && mvn test
-cd screener-api && mvn test
 
 # Run library-api tests with Bruno (API testing tool)
 cd library-api/test/bdt && bru run
@@ -100,16 +96,6 @@ This is a monorepo containing four distinct applications that work together:
    - Features: Form editor, DMN decision editor, benefit configuration, preview, publish
    - Routes: `/` (home), `/project/:id` (editor), `/check/:id` (DMN editor)
 
-4. **screener-api** (Lightweight Quarkus REST API, ~750 LOC)
-   - Read-only runtime for serving published screeners
-   - Executes pre-compiled DMN decisions against user input
-   - Two endpoints: GET screener schema, POST evaluate decisions
-
-5. **screener-frontend** (Solid.js, Form-JS Viewer)
-   - Public-facing screener with real-time eligibility evaluation
-   - Debounced auto-submission as user fills form
-   - Displays nested results (benefits → eligibility checks)
-
 ### Data Flow Architecture
 
 ```
@@ -119,12 +105,6 @@ Admin → builder-frontend → builder-api → Firebase (Firestore + Storage)
                             Compile DMN → Store compiled JAR
                                       ↓
                                 Publish screener
-
-Screener Flow:
-User → screener-frontend → screener-api → Firestore (read metadata)
-                                       → Cloud Storage (read form schema + DMN JAR)
-                                       → KIE Runtime (evaluate DMN)
-                                       → Return results
 ```
 
 ### Key Architectural Patterns
@@ -138,7 +118,6 @@ User → screener-frontend → screener-api → Firestore (read metadata)
 **DMN Processing Differences**:
 - **library-api**: Uses Kogito (automatic code generation at build time)
 - **builder-api**: Uses KIE DMN directly (runtime compilation from XML)
-- **screener-api**: Uses KIE DMN (loads pre-compiled JAR artifacts)
 
 **Storage Strategy**:
 - **Metadata** (relationships, configs): Firestore NoSQL collections
@@ -146,15 +125,13 @@ User → screener-frontend → screener-api → Firestore (read metadata)
 - **Reference data** (location lookups): Embedded SQLite databases
 
 **Authentication**:
-- **builder-api/builder-frontend**: Firebase Auth required (user ownership model)
-- **screener-api/screener-frontend**: Public/anonymous access
+- **builder-api/builder-frontend**: Firebase Auth required (user ownership model). Specific endpoints starting with /published are publicly accessible.
 - **library-api**: No authentication (standalone utility)
 
 ### Technology Stack
 
 **Backend (All APIs)**:
 - **builder-api**: Quarkus 3.23.0, Java 21, KIE DMN 10.0.0
-- **screener-api**: Quarkus 3.23.0, Java 21, KIE DMN 10.0.0
 - **library-api**: Quarkus 2.16.10, Java 17, Kogito 1.44.1
 
 **Frontend**:
@@ -218,8 +195,6 @@ The project uses `.env` files for configuration:
 # Service-specific .env files
 builder-api/.env
 builder-frontend/.env
-screener-api/.env
-screener-frontend/.env
 
 # Setup script copies .env.example → .env
 bin/setup
@@ -238,17 +213,6 @@ bin/setup
 - Key components: `ProjectEditor`, `KogitoDmnEditorView`, `FormEditor`
 - API client: `src/api/` (uses `authFetch` wrapper)
 
-**screener-api**:
-- Port: Configured via `QUARKUS_HTTP_PORT` env var
-- Debug: Disabled by default in process-compose
-- Main classes: `ScreenerResource`, `DecisionResource`
-- Lightweight (minimal business logic)
-
-**screener-frontend**:
-- Dev server: `npm run dev`
-- Main component: `Screener.tsx` (form + results)
-- No authentication required
-
 ### Common Development Scenarios
 
 **Add a new benefit to library-api**:
@@ -262,7 +226,7 @@ bin/setup
 1. Start all services: `devbox services up`
 2. Open builder-frontend (typically http://localhost:5173)
 3. Create project → Edit form → Add/configure benefits → Preview → Publish
-4. Access published screener via screener-frontend
+4. Access published screener via Public URL
 
 **Debug DMN evaluation issues**:
 1. Check DMN syntax in VS Code with DMN extension
@@ -368,7 +332,7 @@ This hook will:
 - Check `library-api/CLAUDE.md` for detailed DMN import hierarchy
 
 **Firebase Dependency**:
-- builder-api and screener-api require Firebase configuration
+- builder-api requires Firebase configuration
 - Use emulators for local dev (no real Firebase project needed)
 - Production requires actual Firebase project setup
 

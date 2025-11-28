@@ -5,20 +5,12 @@
       "path": "./builder-api"
     },
     {
-      "name": "🔍 Screener API",
-      "path": "./screener-api"
-    },
-    {
       "name": "📚 Library API",
       "path": "./library-api"
     },
     {
       "name": "🎨 Builder Frontend",
       "path": "./builder-frontend"
-    },
-    {
-      "name": "📱 Screener Frontend",
-      "path": "./screener-frontend"
     },
     {
       "name": "📋 Project Root",
@@ -101,7 +93,7 @@
       {
         "label": "🔨 Build All APIs",
         "type": "shell",
-        "command": "for dir in builder-api screener-api library-api; do echo \"Building $dir...\"; cd $dir && mvn clean package -DskipTests && cd ..; done",
+        "command": "for dir in builder-api library-api; do echo \"Building $dir...\"; cd $dir && mvn clean package -DskipTests && cd ..; done",
         "group": "build",
         "presentation": {
           "echo": true,
@@ -111,7 +103,7 @@
       {
         "label": "📦 Install All Frontend Dependencies",
         "type": "shell",
-        "command": "cd builder-frontend && npm install && cd ../screener-frontend && npm install",
+        "command": "cd builder-frontend && npm install",
         "group": "build"
       }
     ]
