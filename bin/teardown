@@ -12,7 +12,7 @@ rm -rf ~/.m2/repository
 echo "...done"
 
 echo -n "Removing all npm dependencies"
-rm -rf builder-frontend/node_modules screener-frontend/node_modules
+rm -rf builder-frontend/node_modules
 echo "...done"
 
 echo -n "Removing devbox"
