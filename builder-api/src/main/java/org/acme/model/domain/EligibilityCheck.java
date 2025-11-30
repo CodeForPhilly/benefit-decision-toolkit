@@ -21,6 +21,8 @@ public class EligibilityCheck {
     private String ownerId;
     @JsonProperty("isPublic")
     private Boolean isPublic;
+    // API endpoint for evaluating library checks
+    private String path;
 
     public String getId() {
         return this.id;
@@ -116,5 +118,13 @@ public class EligibilityCheck {
 
     public void setSituation(JsonNode situation) {
         this.situation = situation;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 }
