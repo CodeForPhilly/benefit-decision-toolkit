@@ -19,6 +19,8 @@ export interface Benefit {
 export interface CheckConfig {
   checkId: string;
   checkName: string;
+  // API endpoint for evaluating check (only for library checks)
+  path?: string;
   parameters: ParameterValues;
 }
 export interface ParameterValues {
@@ -33,6 +35,8 @@ export interface EligibilityCheck {
   description: string;
   inputs: InputDefinition[];
   parameters: ParameterDefinition[];
+  // API endpoint for evaluating check (Library checks only)
+  path?: string;
 }
 export interface EligibilityCheckDetail extends EligibilityCheck {
   dmnModel: string;

@@ -1,14 +1,9 @@
-import {
-  createResource,
-  createEffect,
-  Accessor,
-  createSignal,
-} from "solid-js";
+import { createResource, createEffect, Accessor, createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
-import toast from 'solid-toast';
+import toast from "solid-toast";
 
 import {
-  fetchCustomCheck,
+  fetchCheck,
   saveCheckDmn,
   updateCheck,
   evaluateWorkingCheck,
@@ -20,7 +15,7 @@ import type {
   CheckConfig,
   EligibilityCheckDetail,
   OptionalBoolean,
-  ParameterDefinition
+  ParameterDefinition,
 } from "@/types";
 
 export interface EligibilityCheckDetailResource {
@@ -34,7 +29,10 @@ export interface EligibilityCheckDetailResource {
     removeParameter: (parameterIndex: number) => Promise<void>;
     saveDmnModel: (dmnString: string) => Promise<void>;
     validateDmnModel: (dmnString: string) => Promise<string[]>;
-    testEligibility: (checkConfg: CheckConfig, inputData: Record<string, any>) => Promise<OptionalBoolean>;
+    testEligibility: (
+      checkConfg: CheckConfig,
+      inputData: Record<string, any>
+    ) => Promise<OptionalBoolean>;
     publishCheck: (checkId: string) => Promise<void>;
   };
   actionInProgress: Accessor<boolean>;
@@ -49,7 +47,7 @@ const eligibilityCheckDetailResource = (
 ): EligibilityCheckDetailResource => {
   const [eligibilityCheckResource, { refetch }] = createResource(
     () => checkId(),
-    fetchCustomCheck
+    fetchCheck
   );
   const [actionInProgress, setActionInProgress] = createSignal<boolean>(false);
 
@@ -139,7 +137,10 @@ const eligibilityCheckDetailResource = (
   const validateDmnModel = async (dmnString: string) => {
     setActionInProgress(true);
     try {
-      const errors: string[] = await validateCheckDmn(eligibilityCheck.id, dmnString);
+      const errors: string[] = await validateCheckDmn(
+        eligibilityCheck.id,
+        dmnString
+      );
       console.log(errors);
       setActionInProgress(false);
       return errors;
@@ -149,10 +150,17 @@ const eligibilityCheckDetailResource = (
     return [];
   };
 
-  const testEligibility = async (checkConfg: CheckConfig, inputData: Record<string, any>): Promise<OptionalBoolean> => {
+  const testEligibility = async (
+    checkConfg: CheckConfig,
+    inputData: Record<string, any>
+  ): Promise<OptionalBoolean> => {
     setActionInProgress(true);
     try {
-      const reponse = await evaluateWorkingCheck(eligibilityCheck.id, checkConfg, inputData);
+      const reponse = await evaluateWorkingCheck(
+        eligibilityCheck.id,
+        checkConfg,
+        inputData
+      );
       setActionInProgress(false);
       return reponse;
     } catch (e) {

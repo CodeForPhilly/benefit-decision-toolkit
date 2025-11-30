@@ -9,7 +9,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import org.acme.auth.AuthUtils;
-import org.acme.enums.OptionalBoolean;
+import org.acme.enums.CheckResult;
 import org.acme.model.domain.Benefit;
 import org.acme.model.domain.CheckConfig;
 import org.acme.model.domain.EligibilityCheck;
@@ -20,6 +20,7 @@ import org.acme.persistence.PublishedScreenerRepository;
 import org.acme.persistence.ScreenerRepository;
 import org.acme.persistence.StorageService;
 import org.acme.service.DmnService;
+import org.acme.service.LibraryApiService;
 
 import java.util.*;
 
@@ -40,6 +41,9 @@ public class DecisionResource {
 
     @Inject
     DmnService dmnService;
+
+    @Inject
+    LibraryApiService libraryApi;
 
     @POST
     @Path("/published/{screenerId}/evaluate")
@@ -124,15 +128,20 @@ public class DecisionResource {
             return result;
         } else {
             // Custom benefit, evaluate here in the web app api (as opposed to calling the library api for evaluation)
-            List<OptionalBoolean> checkResultsList = new ArrayList<>();
+            List<CheckResult> checkResultsList = new ArrayList<>();
             Map<String, Object> checkResults = new HashMap<>();
 
             int checkNum = 0;
             for (CheckConfig checkConfig : benefit.getChecks()) {
                 String dmnFilepath = storageService.getCheckDmnModelPath(checkConfig.getCheckId());
-                OptionalBoolean result = dmnService.evaluateDmn(
-                    dmnFilepath, checkConfig.getCheckName(), inputData, checkConfig.getParameters()
-                );
+                CheckResult result;
+                if (isLibraryCheck(checkConfig)){
+                    result = libraryApi.evaluateCheck(checkConfig, inputData);
+                } else {
+                    result = dmnService.evaluateDmn(
+                            dmnFilepath, checkConfig.getCheckName(), inputData, checkConfig.getParameters()
+                    );
+                }
                 checkResultsList.add(result);
 
                 String uniqueCheckKey = checkConfig.getCheckId() + checkNum;
@@ -141,16 +150,16 @@ public class DecisionResource {
             }
 
             // Determine overall Benefit result
-            Boolean allChecksTrue = checkResultsList.stream().allMatch(result -> result == OptionalBoolean.TRUE);
-            Boolean anyChecksFalse = checkResultsList.stream().anyMatch(result -> result == OptionalBoolean.FALSE);
+            Boolean allChecksTrue = checkResultsList.stream().allMatch(result -> result == CheckResult.TRUE);
+            Boolean anyChecksFalse = checkResultsList.stream().anyMatch(result -> result == CheckResult.FALSE);
 
-            OptionalBoolean benefitResult;
+            CheckResult benefitResult;
             if (allChecksTrue) {
-                benefitResult = OptionalBoolean.TRUE;
+                benefitResult = CheckResult.TRUE;
             } else if (anyChecksFalse) {
-                benefitResult = OptionalBoolean.FALSE;
+                benefitResult = CheckResult.FALSE;
             } else {
-                benefitResult = OptionalBoolean.UNABLE_TO_DETERMINE;
+                benefitResult = CheckResult.UNABLE_TO_DETERMINE;
             }
 
             return new HashMap<String, Object>(
@@ -192,7 +201,7 @@ public class DecisionResource {
         try {
             String dmnFilepath = storageService.getCheckDmnModelPath(check.getId());
 
-            OptionalBoolean result = dmnService.evaluateDmn(
+            CheckResult result = dmnService.evaluateDmn(
                 dmnFilepath, request.checkConfig.getCheckName(), request.inputData, request.checkConfig.getParameters()
             );
             return Response.ok().entity(Map.of("result", result)).build();
@@ -217,5 +226,10 @@ public class DecisionResource {
             return true;
         }
         return false;
+    }
+
+    private boolean isLibraryCheck(CheckConfig checkConfig){
+        Character libraryCheckPrefix = 'L';
+        return libraryCheckPrefix.equals(checkConfig.getCheckId().charAt(0));
     }
 }

@@ -5,7 +5,7 @@ import type { EligibilityCheck, OptionalBoolean } from "@/types";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 export const fetchPublicChecks = async (): Promise<EligibilityCheck[]> => {
-  const url = apiUrl + "/checks";
+  const url = apiUrl + "/library-checks";
   try {
     const response = await authFetch(url, {
       method: "GET",
@@ -25,34 +25,38 @@ export const fetchPublicChecks = async (): Promise<EligibilityCheck[]> => {
   }
 };
 
+// export const fetchCheck = async (
+//   checkId: string
+// ): Promise<EligibilityCheck> => {
+//   const url = apiUrl + `/library-checks/${checkId}`;
+//   try {
+//     const response = await authFetch(url, {
+//       method: "GET",
+//       headers: {
+//         Accept: "application/json",
+//       },
+//     });
+
+//     if (!response.ok) {
+//       throw new Error(`Fetch failed with status: ${response.status}`);
+//     }
+//     const data = await response.json();
+//     console.log("Fetched check:", data);
+//     return data;
+//   } catch (error) {
+//     console.error("Error fetching check:", error);
+//     throw error; // rethrow so you can handle it in your component if needed
+//   }
+// };
+
 export const fetchCheck = async (
   checkId: string
 ): Promise<EligibilityCheck> => {
-  const url = apiUrl + `/checks/${checkId}`;
-  try {
-    const response = await authFetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Fetch failed with status: ${response.status}`);
-    }
-    const data = await response.json();
-    console.log("Fetched check:", data);
-    return data;
-  } catch (error) {
-    console.error("Error fetching check:", error);
-    throw error; // rethrow so you can handle it in your component if needed
+  let url = apiUrl + `/custom-checks/${checkId}`;
+  if (checkId.charAt(0) === "L") {
+    url = apiUrl + `/library-checks/${checkId}`;
   }
-};
 
-export const fetchCustomCheck = async (
-  checkId: string
-): Promise<EligibilityCheck> => {
-  const url = apiUrl + `/custom-checks/${checkId}`;
   try {
     const response = await authFetch(url, {
       method: "GET",
@@ -140,7 +144,10 @@ export const saveCheckDmn = async (checkId: string, dmnModel: string) => {
   }
 };
 
-export const validateCheckDmn = async (checkId: string, dmnModel: string): Promise<string[]> => {
+export const validateCheckDmn = async (
+  checkId: string,
+  dmnModel: string
+): Promise<string[]> => {
   const url = apiUrl + "/validate-check-dmn";
   try {
     const response = await authFetch(url, {
@@ -189,7 +196,11 @@ export const fetchUserDefinedChecks = async (
   }
 };
 
-export const evaluateWorkingCheck = async (checkId: string, checkConfig: any, inputData: Record<string, any>): Promise<OptionalBoolean> => {
+export const evaluateWorkingCheck = async (
+  checkId: string,
+  checkConfig: any,
+  inputData: Record<string, any>
+): Promise<OptionalBoolean> => {
   const url = apiUrl + `/decision/working-check?checkId=${checkId}`;
   try {
     const response = await authFetch(url, {
@@ -210,9 +221,11 @@ export const evaluateWorkingCheck = async (checkId: string, checkConfig: any, in
     console.error("Error testing check:", error);
     throw error; // rethrow so you can handle it in your component if needed
   }
-}
+};
 
-export const getRelatedPublishedChecks = async (checkId: string): Promise<EligibilityCheck[]> => {
+export const getRelatedPublishedChecks = async (
+  checkId: string
+): Promise<EligibilityCheck[]> => {
   const url = apiUrl + `/custom-checks/${checkId}/published-check-versions`;
   try {
     const response = await authFetch(url, {
@@ -231,9 +244,11 @@ export const getRelatedPublishedChecks = async (checkId: string): Promise<Eligib
     console.error("Error fetching related published checks:", error);
     throw error; // rethrow so you can handle it in your component if needed
   }
-}
+};
 
-export const publishCheck = async (checkId: string): Promise<OptionalBoolean> => {
+export const publishCheck = async (
+  checkId: string
+): Promise<OptionalBoolean> => {
   const url = apiUrl + `/publish-check/${checkId}`;
   try {
     const response = await authFetch(url, {

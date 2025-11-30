@@ -1,5 +1,5 @@
 package org.acme.service;
-import org.acme.enums.OptionalBoolean;
+import org.acme.enums.CheckResult;
 
 import java.util.List;
 import java.util.Map;
@@ -11,7 +11,7 @@ public interface DmnService {
         String modelId,
         String requiredBooleanDecisionName
     ) throws Exception;
-    public OptionalBoolean evaluateDmn(
+    public CheckResult evaluateDmn(
         String dmnFilePath,
         String dmnModelName,
         Map<String, Object> inputs,

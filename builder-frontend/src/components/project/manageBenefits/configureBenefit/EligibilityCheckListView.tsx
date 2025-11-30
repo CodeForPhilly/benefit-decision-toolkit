@@ -4,7 +4,6 @@ import { titleCase } from "@/utils/title_case";
 
 import type { CheckConfig, EligibilityCheck } from "@/types";
 
-
 export type EligibilityCheckListMode = "user-defined" | "public";
 interface CheckModeConfig {
   mode: EligibilityCheckListMode;
@@ -57,6 +56,7 @@ const EligibilityCheckListView = ({
     const checkConfig: CheckConfig = {
       checkId: check.id,
       checkName: check.name,
+      path: check.path,
       parameters: {},
     };
     addCheck(checkConfig);
@@ -137,10 +137,16 @@ const EligibilityCheckRow = ({
   return (
     <tr>
       <td class="eligibility-check-table-cell border-top">
-        <div class="btn-default btn-blue" onClick={() => onAdd(check)}>Add</div>
+        <div class="btn-default btn-blue" onClick={() => onAdd(check)}>
+          Add
+        </div>
       </td>
-      <td class="eligibility-check-table-cell border-top">{titleCase(check.name)}</td>
-      <td class="eligibility-check-table-cell border-top">{check.description}</td>
+      <td class="eligibility-check-table-cell border-top">
+        {titleCase(check.name)}
+      </td>
+      <td class="eligibility-check-table-cell border-top">
+        {check.description}
+      </td>
       <td class="eligibility-check-table-cell border-top">v{check.version}</td>
     </tr>
   );
