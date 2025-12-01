@@ -29,11 +29,11 @@ public class LibraryCheckResource {
     @Path("/library-checks/{checkId}")
     public Response getLibraryCheck(@PathParam("checkId") String checkId) {
         if ( checkId != null) {
-            List<EligibilityCheck> checks = libraryApiMetadataService.getById(checkId);
-            if (checks.isEmpty()){
+            EligibilityCheck check = libraryApiMetadataService.getById(checkId);
+            if (check == null){
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            return Response.ok().entity(checks.getFirst()).build();
+            return Response.ok().entity(check).build();
         }
         return Response.status(Response.Status.NOT_FOUND).build();
     }

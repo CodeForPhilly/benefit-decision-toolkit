@@ -56,7 +56,6 @@ const EligibilityCheckListView = ({
     const checkConfig: CheckConfig = {
       checkId: check.id,
       checkName: check.name,
-      path: check.path,
       parameters: {},
     };
     addCheck(checkConfig);
