@@ -9,7 +9,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import org.acme.auth.AuthUtils;
-import org.acme.enums.OptionalBoolean;
+import org.acme.enums.EvaluationResult;
 import org.acme.model.domain.Benefit;
 import org.acme.model.domain.CheckConfig;
 import org.acme.model.domain.EligibilityCheck;
@@ -20,6 +20,7 @@ import org.acme.persistence.PublishedScreenerRepository;
 import org.acme.persistence.ScreenerRepository;
 import org.acme.persistence.StorageService;
 import org.acme.service.DmnService;
+import org.acme.service.LibraryApiService;
 
 import java.util.*;
 
@@ -40,6 +41,9 @@ public class DecisionResource {
 
     @Inject
     DmnService dmnService;
+
+    @Inject
+    LibraryApiService libraryApi;
 
     @POST
     @Path("/published/{screenerId}/evaluate")
@@ -124,39 +128,46 @@ public class DecisionResource {
             return result;
         } else {
             // Custom benefit, evaluate here in the web app api (as opposed to calling the library api for evaluation)
-            List<OptionalBoolean> checkResultsList = new ArrayList<>();
+            List<EvaluationResult> resultsList = new ArrayList<>();
             Map<String, Object> checkResults = new HashMap<>();
 
             int checkNum = 0;
             for (CheckConfig checkConfig : benefit.getChecks()) {
                 String dmnFilepath = storageService.getCheckDmnModelPath(checkConfig.getCheckId());
-                OptionalBoolean result = dmnService.evaluateDmn(
-                    dmnFilepath, checkConfig.getCheckName(), inputData, checkConfig.getParameters()
-                );
-                checkResultsList.add(result);
+                EvaluationResult evaluationResult;
+                if (isLibraryCheck(checkConfig)){
+                    EligibilityCheck check = libraryApi.getById(checkConfig.getCheckId());
+                    String path = check.getPath();
+                    evaluationResult = libraryApi.evaluateCheck(checkConfig, path, inputData);
+                } else {
+                    evaluationResult = dmnService.evaluateDmn(
+                            dmnFilepath, checkConfig.getCheckName(), inputData, checkConfig.getParameters()
+                    );
+                }
+                resultsList.add(evaluationResult);
 
                 String uniqueCheckKey = checkConfig.getCheckId() + checkNum;
-                checkResults.put(uniqueCheckKey, Map.of("name", checkConfig.getCheckName(), "result", result));
+                checkResults.put(uniqueCheckKey, Map.of("name", checkConfig.getCheckName(), "result", evaluationResult));
                 checkNum += 1;
             }
 
             // Determine overall Benefit result
-            Boolean allChecksTrue = checkResultsList.stream().allMatch(result -> result == OptionalBoolean.TRUE);
-            Boolean anyChecksFalse = checkResultsList.stream().anyMatch(result -> result == OptionalBoolean.FALSE);
+            Boolean allChecksTrue = resultsList.stream().allMatch(evaluationResult -> evaluationResult == EvaluationResult.TRUE);
+            Boolean anyChecksFalse = resultsList.stream().anyMatch(evaluationResult -> evaluationResult == EvaluationResult.FALSE);
 
-            OptionalBoolean benefitResult;
+            EvaluationResult benefitEvaluationResult;
             if (allChecksTrue) {
-                benefitResult = OptionalBoolean.TRUE;
+                benefitEvaluationResult = EvaluationResult.TRUE;
             } else if (anyChecksFalse) {
-                benefitResult = OptionalBoolean.FALSE;
+                benefitEvaluationResult = EvaluationResult.FALSE;
             } else {
-                benefitResult = OptionalBoolean.UNABLE_TO_DETERMINE;
+                benefitEvaluationResult = EvaluationResult.UNABLE_TO_DETERMINE;
             }
 
             return new HashMap<String, Object>(
                 Map.of(
                     "name", benefit.getName(),
-                    "result", benefitResult,
+                    "result", benefitEvaluationResult,
                     "check_results", checkResults
                 )
             );
@@ -192,10 +203,10 @@ public class DecisionResource {
         try {
             String dmnFilepath = storageService.getCheckDmnModelPath(check.getId());
 
-            OptionalBoolean result = dmnService.evaluateDmn(
+            EvaluationResult evaluationResult = dmnService.evaluateDmn(
                 dmnFilepath, request.checkConfig.getCheckName(), request.inputData, request.checkConfig.getParameters()
             );
-            return Response.ok().entity(Map.of("result", result)).build();
+            return Response.ok().entity(Map.of("result", evaluationResult)).build();
         } catch (Exception e) {
             Log.error("Error: " + e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -217,5 +228,10 @@ public class DecisionResource {
             return true;
         }
         return false;
+    }
+
+    private boolean isLibraryCheck(CheckConfig checkConfig){
+        Character libraryCheckPrefix = 'L';
+        return libraryCheckPrefix.equals(checkConfig.getCheckId().charAt(0));
     }
 }

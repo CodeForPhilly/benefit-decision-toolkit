@@ -3,7 +3,7 @@ package org.acme.service;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.acme.enums.OptionalBoolean;
+import org.acme.enums.EvaluationResult;
 import org.acme.persistence.StorageService;
 import org.kie.api.KieServices;
 import org.kie.api.builder.*;
@@ -133,7 +133,7 @@ public class KieDmnService implements DmnService {
         return new DmnCompilationResult(kieModuleBytes, new ArrayList<String>());
     }
 
-    public OptionalBoolean evaluateDmn(
+    public EvaluationResult evaluateDmn(
         String dmnFilePath,
         String dmnModelName,
         Map<String, Object> inputs,
@@ -189,13 +189,13 @@ public class KieDmnService implements DmnService {
         DMNDecisionResult decisionResult = decisionResults.get(0);
         Object result = decisionResult.getResult();
         if (result == null) {
-            return OptionalBoolean.UNABLE_TO_DETERMINE;
+            return EvaluationResult.UNABLE_TO_DETERMINE;
         }
         else if (result instanceof Boolean && (Boolean) result) {
-            return OptionalBoolean.TRUE;
+            return EvaluationResult.TRUE;
         }
         else if (result instanceof Boolean && !(Boolean) result) {
-            return OptionalBoolean.FALSE;
+            return EvaluationResult.FALSE;
         }
         throw new RuntimeException("Unexpected decision result type: " + result.getClass().getName());
     }

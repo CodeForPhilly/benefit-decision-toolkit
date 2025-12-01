@@ -6,6 +6,8 @@ import io.quarkus.logging.Log;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.acme.enums.EvaluationResult;
+import org.acme.model.domain.CheckConfig;
 import org.acme.model.domain.EligibilityCheck;
 import org.acme.persistence.StorageService;
 import org.acme.persistence.FirestoreUtils;
@@ -16,7 +18,7 @@ import java.util.Optional;
 
 
 @ApplicationScoped
-public class LibraryApiMetadataService {
+public class LibraryApiService {
     @Inject
     private StorageService storageService;
 
@@ -57,6 +59,20 @@ public class LibraryApiMetadataService {
         return checks.stream()
                 .filter(e -> module.equals(e.getModule()))
                 .toList();
+    }
+
+    public EligibilityCheck getById(String id) {
+         List<EligibilityCheck> matches = checks.stream()
+                .filter(e -> id.equals(e.getId()))
+                .toList();
+         if (matches.isEmpty()) {
+             return null;
+         }
+         return matches.getFirst();
+    }
+
+    public EvaluationResult evaluateCheck(CheckConfig checkConfig, String path, Map<String, Object> inputs){
+        return EvaluationResult.TRUE;
     }
 }
 

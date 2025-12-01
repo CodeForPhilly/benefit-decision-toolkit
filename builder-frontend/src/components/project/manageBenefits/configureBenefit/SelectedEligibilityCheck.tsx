@@ -2,7 +2,7 @@ import { Accessor, createResource, createSignal, For, Show } from "solid-js";
 
 import ConfigureCheckModal from "./modals/ConfigureCheckModal";
 
-import { fetchCustomCheck } from "@/api/check";
+import { fetchCheck } from "@/api/check";
 import { titleCase } from "@/utils/title_case";
 
 import type {
@@ -17,21 +17,25 @@ interface ParameterWithConfiguredValue {
   value: string | number | boolean | string[] | undefined;
 }
 
-const SelectedEligibilityCheck = (
-  { checkId, checkConfig, onRemove, updateCheckConfigParams }:
-  {
-    checkId: Accessor<string>;
-    checkConfig: Accessor<CheckConfig>;
-    updateCheckConfigParams: (newCheckData: ParameterValues) => void
-    onRemove: () => void | null;
-  }
-) => {
-  const [check] = createResource(() => checkId(), fetchCustomCheck);
-  const [configuringCheckModalOpen, setConfiguringCheckModalOpen] = createSignal(false);
+const SelectedEligibilityCheck = ({
+  checkId,
+  checkConfig,
+  onRemove,
+  updateCheckConfigParams,
+}: {
+  checkId: Accessor<string>;
+  checkConfig: Accessor<CheckConfig>;
+  updateCheckConfigParams: (newCheckData: ParameterValues) => void;
+  onRemove: () => void | null;
+}) => {
+  const [check] = createResource(() => checkId(), fetchCheck);
+  const [configuringCheckModalOpen, setConfiguringCheckModalOpen] =
+    createSignal(false);
 
-  const checkParameters: Accessor<ParameterWithConfiguredValue[]> = () => check().parameters.map((param) => {
-    return { parameter: param, value: checkConfig().parameters[param.key]! };
-  });
+  const checkParameters: Accessor<ParameterWithConfiguredValue[]> = () =>
+    check().parameters.map((param) => {
+      return { parameter: param, value: checkConfig().parameters[param.key]! };
+    });
 
   const unfilledRequiredParameters = () => {
     return [];
@@ -45,7 +49,9 @@ const SelectedEligibilityCheck = (
 
       <Show when={!check.loading && check()}>
         <div
-          onClick={() => { setConfiguringCheckModalOpen(true); }}
+          onClick={() => {
+            setConfiguringCheckModalOpen(true);
+          }}
           class="
             mb-4 p-4 cursor-pointer select-none relative
             border-2 border-gray-200 rounded-lg hover:bg-gray-200"
@@ -53,15 +59,20 @@ const SelectedEligibilityCheck = (
           <Show when={onRemove !== null}>
             <div
               class="absolute px-2 top-2 right-2 hover:bg-gray-300 rounded-xl font-bold"
-              onClick={(e) => { e.stopPropagation(); onRemove(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove();
+              }}
             >
               X
             </div>
           </Show>
-          <div class="text-xl font-bold mb-2">{titleCase(check().name)} - v{check().version}</div>
+          <div class="text-xl font-bold mb-2">
+            {titleCase(check().name)} - v{check().version}
+          </div>
           <div class="pl-2 [&:has(+div)]:mb-2">{check().description}</div>
 
-          {check().inputs.length > 0 && (
+          {check().inputs && check().inputs.length > 0 && (
             <div class="[&:has(+div)]:mb-2">
               <div class="text-lg font-bold pl-2">Inputs</div>
               <For each={check().inputs}>
@@ -103,7 +114,7 @@ const SelectedEligibilityCheck = (
             </div>
           )}
         </div>
-        
+
         {configuringCheckModalOpen() && (
           <ConfigureCheckModal
             check={check}
