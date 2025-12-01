@@ -6,7 +6,7 @@ import io.quarkus.logging.Log;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.acme.enums.CheckResult;
+import org.acme.enums.EvaluationResult;
 import org.acme.model.domain.CheckConfig;
 import org.acme.model.domain.EligibilityCheck;
 import org.acme.persistence.StorageService;
@@ -61,14 +61,18 @@ public class LibraryApiService {
                 .toList();
     }
 
-    public List<EligibilityCheck> getById(String id) {
-        return checks.stream()
+    public EligibilityCheck getById(String id) {
+         List<EligibilityCheck> matches = checks.stream()
                 .filter(e -> id.equals(e.getId()))
                 .toList();
+         if (matches.isEmpty()) {
+             return null;
+         }
+         return matches.getFirst();
     }
 
-    public CheckResult evaluateCheck(CheckConfig checkConfig, Map<String, Object> inputs){
-        return CheckResult.TRUE;
+    public EvaluationResult evaluateCheck(CheckConfig checkConfig, String path, Map<String, Object> inputs){
+        return EvaluationResult.TRUE;
     }
 }
 

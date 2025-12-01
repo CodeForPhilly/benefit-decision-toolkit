@@ -9,7 +9,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import org.acme.auth.AuthUtils;
-import org.acme.enums.CheckResult;
+import org.acme.enums.EvaluationResult;
 import org.acme.model.domain.Benefit;
 import org.acme.model.domain.CheckConfig;
 import org.acme.model.domain.EligibilityCheck;
@@ -128,44 +128,46 @@ public class DecisionResource {
             return result;
         } else {
             // Custom benefit, evaluate here in the web app api (as opposed to calling the library api for evaluation)
-            List<CheckResult> checkResultsList = new ArrayList<>();
+            List<EvaluationResult> resultsList = new ArrayList<>();
             Map<String, Object> checkResults = new HashMap<>();
 
             int checkNum = 0;
             for (CheckConfig checkConfig : benefit.getChecks()) {
                 String dmnFilepath = storageService.getCheckDmnModelPath(checkConfig.getCheckId());
-                CheckResult result;
+                EvaluationResult evaluationResult;
                 if (isLibraryCheck(checkConfig)){
-                    result = libraryApi.evaluateCheck(checkConfig, inputData);
+                    EligibilityCheck check = libraryApi.getById(checkConfig.getCheckId());
+                    String path = check.getPath();
+                    evaluationResult = libraryApi.evaluateCheck(checkConfig, path, inputData);
                 } else {
-                    result = dmnService.evaluateDmn(
+                    evaluationResult = dmnService.evaluateDmn(
                             dmnFilepath, checkConfig.getCheckName(), inputData, checkConfig.getParameters()
                     );
                 }
-                checkResultsList.add(result);
+                resultsList.add(evaluationResult);
 
                 String uniqueCheckKey = checkConfig.getCheckId() + checkNum;
-                checkResults.put(uniqueCheckKey, Map.of("name", checkConfig.getCheckName(), "result", result));
+                checkResults.put(uniqueCheckKey, Map.of("name", checkConfig.getCheckName(), "result", evaluationResult));
                 checkNum += 1;
             }
 
             // Determine overall Benefit result
-            Boolean allChecksTrue = checkResultsList.stream().allMatch(result -> result == CheckResult.TRUE);
-            Boolean anyChecksFalse = checkResultsList.stream().anyMatch(result -> result == CheckResult.FALSE);
+            Boolean allChecksTrue = resultsList.stream().allMatch(evaluationResult -> evaluationResult == EvaluationResult.TRUE);
+            Boolean anyChecksFalse = resultsList.stream().anyMatch(evaluationResult -> evaluationResult == EvaluationResult.FALSE);
 
-            CheckResult benefitResult;
+            EvaluationResult benefitEvaluationResult;
             if (allChecksTrue) {
-                benefitResult = CheckResult.TRUE;
+                benefitEvaluationResult = EvaluationResult.TRUE;
             } else if (anyChecksFalse) {
-                benefitResult = CheckResult.FALSE;
+                benefitEvaluationResult = EvaluationResult.FALSE;
             } else {
-                benefitResult = CheckResult.UNABLE_TO_DETERMINE;
+                benefitEvaluationResult = EvaluationResult.UNABLE_TO_DETERMINE;
             }
 
             return new HashMap<String, Object>(
                 Map.of(
                     "name", benefit.getName(),
-                    "result", benefitResult,
+                    "result", benefitEvaluationResult,
                     "check_results", checkResults
                 )
             );
@@ -201,10 +203,10 @@ public class DecisionResource {
         try {
             String dmnFilepath = storageService.getCheckDmnModelPath(check.getId());
 
-            CheckResult result = dmnService.evaluateDmn(
+            EvaluationResult evaluationResult = dmnService.evaluateDmn(
                 dmnFilepath, request.checkConfig.getCheckName(), request.inputData, request.checkConfig.getParameters()
             );
-            return Response.ok().entity(Map.of("result", result)).build();
+            return Response.ok().entity(Map.of("evaluationResult", evaluationResult)).build();
         } catch (Exception e) {
             Log.error("Error: " + e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
