@@ -206,7 +206,7 @@ public class DecisionResource {
             EvaluationResult evaluationResult = dmnService.evaluateDmn(
                 dmnFilepath, request.checkConfig.getCheckName(), request.inputData, request.checkConfig.getParameters()
             );
-            return Response.ok().entity(Map.of("evaluationResult", evaluationResult)).build();
+            return Response.ok().entity(Map.of("result", evaluationResult)).build();
         } catch (Exception e) {
             Log.error("Error: " + e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
