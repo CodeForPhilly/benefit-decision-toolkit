@@ -314,6 +314,54 @@
         }
       }
     },
+    "process-compose@latest": {
+      "last_modified": "2025-11-23T21:50:36Z",
+      "resolved": "github:NixOS/nixpkgs/ee09932cedcef15aaf476f9343d1dea2cb77e261#process-compose",
+      "source": "devbox-search",
+      "version": "1.78.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/d00iad83k88x0fq045h5pzhfj9ibdd3a-process-compose-1.78.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/d00iad83k88x0fq045h5pzhfj9ibdd3a-process-compose-1.78.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/zx59c11mchqfjpl0yvv2fad87pf3p8mn-process-compose-1.78.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/zx59c11mchqfjpl0yvv2fad87pf3p8mn-process-compose-1.78.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/hwipxpsgzpv8d51xvqdjyx3vbzaaf3rr-process-compose-1.78.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/hwipxpsgzpv8d51xvqdjyx3vbzaaf3rr-process-compose-1.78.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/vw9d8v9r0kp44lmizysj7idmqyf9747l-process-compose-1.78.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/vw9d8v9r0kp44lmizysj7idmqyf9747l-process-compose-1.78.0"
+        }
+      }
+    },
     "quarkus@latest": {
       "last_modified": "2025-08-11T16:06:55Z",
       "resolved": "github:NixOS/nixpkgs/4e942f9ef5b35526597c354d1ded817d1c285ef1#quarkus",
