@@ -170,7 +170,10 @@ public class KieDmnService implements DmnService {
         // Prepare model and context using inputs
         DMNModel dmnModel = dmnModels.get(0);
         DMNContext context = dmnRuntime.newContext();
-        context.set("inputs", inputs);
+
+        for (Map.Entry<String, Object> input : inputs.entrySet()) {
+            context.set(input.getKey(), input.getValue());
+        }
         context.set("parameters", parameters);
         DMNResult dmnResult = dmnRuntime.evaluateAll(dmnModel, context);
 
