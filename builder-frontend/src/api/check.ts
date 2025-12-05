@@ -21,7 +21,8 @@ export const fetchPublicChecks = async (): Promise<EligibilityCheck[]> => {
     return data;
   } catch (error) {
     console.error("Error fetching checks:", error);
-    throw error; // rethrow so you can handle it in your component if needed
+    // TODO: handle error appropriately
+    return [];
   }
 };
 
