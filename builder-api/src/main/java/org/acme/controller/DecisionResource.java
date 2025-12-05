@@ -87,7 +87,7 @@ public class DecisionResource {
     public Response evaluateScreener(
         @Context SecurityIdentity identity,
         @QueryParam("screenerId") String screenerId,
-        Map<String, Object> inputData
+        Map<String, Object> formData
     ) throws Exception {
         // Authorize user and get benefit
         String userId = AuthUtils.getUserId(identity);
@@ -111,7 +111,7 @@ public class DecisionResource {
             //TODO: consider ways of processing benefits in parallel
             for (Benefit benefit : benefits) {
                 // Evaluate benefit
-                Map<String, Object> benefitResults = evaluateBenefit(benefit, inputData);
+                Map<String, Object> benefitResults = evaluateBenefit(benefit, formData);
                 screenerResults.put(benefit.getId(), benefitResults);
             }
             return Response.ok().entity(screenerResults).build();
@@ -121,8 +121,8 @@ public class DecisionResource {
         }
     }
 
-    private Map<String, Object> evaluateBenefit(Benefit benefit, Map<String, Object> inputData) throws Exception {
-        if (benefit.getPublic()){
+    private Map<String, Object> evaluateBenefit(Benefit benefit, Map<String, Object> formData) throws Exception {
+        if (benefit.getPublic()) {
             // Public benefit, call the Library API to evaluate
             Map<String, Object> result = new HashMap<>();
             return result;
@@ -138,10 +138,14 @@ public class DecisionResource {
                 if (isLibraryCheck(checkConfig)){
                     EligibilityCheck check = libraryApi.getById(checkConfig.getCheckId());
                     String path = check.getPath();
-                    evaluationResult = libraryApi.evaluateCheck(checkConfig, path, inputData);
+                    evaluationResult = libraryApi.evaluateCheck(checkConfig, path, formData);
                 } else {
+                    Map<String, Object> customFormValues = (Map<String, Object>) formData.get("custom");
+                    if (customFormValues == null) {
+                        customFormValues = new HashMap<String, Object>();
+                    }
                     evaluationResult = dmnService.evaluateDmn(
-                            dmnFilepath, checkConfig.getCheckName(), inputData, checkConfig.getParameters()
+                        dmnFilepath, checkConfig.getCheckName(), customFormValues, checkConfig.getParameters()
                     );
                 }
                 resultsList.add(evaluationResult);
@@ -178,7 +182,7 @@ public class DecisionResource {
     @Path("/decision/working-check")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response evaluateCheck(
+    public Response evaluateCustomCheck(
         @Context SecurityIdentity identity,
         @QueryParam("checkId") String checkId,
         EvaluateCheckRequest request
