@@ -131,7 +131,7 @@ def flatten_schema(schema):
 # --------------------------------------------
 # Process entire OpenAPI document
 # --------------------------------------------
-def extract_check_records(openapi):
+def extract_check_records(openapi, version):
     components = openapi.get("components", {}).get("schemas", {})
     paths = openapi.get("paths", {})
 
@@ -146,9 +146,6 @@ def extract_check_records(openapi):
 
             # Split the URL into parts
             segments = path.strip("/").split("/")
-
-            # Extract version (always after 'api')
-            version = segments[1]
 
             # Find index of 'checks'
             checks_index = segments.index("checks")
@@ -196,6 +193,47 @@ def extract_check_records(openapi):
     return output
 
 
+def transform_parameters(properties_obj):
+    """Convert properties dict to a list of {key, name, type} objects."""
+    transformed = []
+
+    for key, val in properties_obj.items():
+        # Determine the property's type
+        prop_type = val.get("type", "object")  # fallback
+
+        transformed.append({
+            "key": key,
+            "label": key,
+            "required": False,
+            "type": prop_type
+        })
+
+    return transformed
+
+
+def transform_parameters_format(data):
+    """Transform all `inputs.parameters.properties` in the provided list."""
+    for check in data:
+        inputs = check.get("inputs", {})
+        parameters = inputs.get("parameters")
+
+        # Only transform objects that follow the original structure
+        if isinstance(parameters, dict) and "properties" in parameters:
+            properties_obj = parameters["properties"]
+            new_parameters = transform_parameters(properties_obj)
+
+            # Replace object with the transformed list
+            check["parameters"] = new_parameters
+    return data
+
+
+def transform_situation_format(data):
+    """Transform all `inputs.situation` in the provided list."""
+    for check in data:
+        check["situation"] = check["inputs"]["situation"]
+    return data
+
+
 # --------------------------------------------
 # Load your OpenAPI JSON here
 # --------------------------------------------
@@ -212,7 +250,14 @@ if __name__ == "__main__":
     # Parse JSON
     data = response.json()
 
-    check_records = extract_check_records(data)
+    version = data["info"]["version"]
+
+    check_records = extract_check_records(data, version)
+    check_records = transform_parameters_format(check_records)
+    check_records = transform_situation_format(check_records)
+
+    for check in check_records:
+        check.pop("inputs")
 
     # Write JSON file using UTF-8 to avoid errors
     with open("endpoint_inputs.json", "w", encoding="utf-8") as out:
