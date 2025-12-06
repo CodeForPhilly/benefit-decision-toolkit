@@ -7,10 +7,8 @@ from datetime import datetime
 # -----------------------------------
 # INIT FIREBASE
 # -----------------------------------
-
-# Add path to service account credentials
-cred = credentials.Certificate()
-
+cred = credentials.Certificate(
+    "C:\\Users\\Owner\\Code\\benefit-decision-toolkit\\builder-api\\src\\main\\resources\\benefit-decision-toolkit-play-69aed1a8f86b.json")
 firebase_admin.initialize_app(cred, {
     "storageBucket": "benefit-decision-toolkit-play.firebasestorage.app"
 })
