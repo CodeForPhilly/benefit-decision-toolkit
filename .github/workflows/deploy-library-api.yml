@@ -37,6 +37,15 @@ jobs:
         with:
           enable-cache: true
 
+      # Cache Maven dependencies to speed up builds
+      - name: 'Cache Maven dependencies'
+        uses: 'actions/cache@v4'
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('library-api/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
       # Extract version from pom.xml (source of truth) using Maven
       - name: 'Extract version from pom.xml'
         id: extract_version
