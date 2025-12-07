@@ -27,7 +27,6 @@ public class LibraryApiService {
     @PostConstruct
     void init() {
         try {
-
             // Get path of most recent library schema json document
             Optional<Map<String, Object>> configOpt = FirestoreUtils.getFirestoreDocById("system", "config");
             if (configOpt.isEmpty()){
@@ -71,7 +70,7 @@ public class LibraryApiService {
          return matches.getFirst();
     }
 
-    public EvaluationResult evaluateCheck(CheckConfig checkConfig, String path, Map<String, Object> inputs){
+    public EvaluationResult evaluateCheck(CheckConfig checkConfig, String evaluationUrl, Map<String, Object> inputs){
         return EvaluationResult.TRUE;
     }
 }

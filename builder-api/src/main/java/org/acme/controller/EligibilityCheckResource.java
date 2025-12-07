@@ -185,7 +185,9 @@ public class EligibilityCheckResource {
         //TODO: Add validations for user provided data
         newCheck.setOwnerId(userId);
         newCheck.setPublic(false);
-        newCheck.setVersion(0);
+        if (newCheck.getVersion().isEmpty()){
+            newCheck.setVersion("1.0.0");
+        }
         try {
             eligibilityCheckRepository.saveNewWorkingCustomCheck(newCheck);
             return Response.ok(newCheck, MediaType.APPLICATION_JSON).build();
@@ -242,7 +244,7 @@ public class EligibilityCheckResource {
         }
 
         // Update workingCheck so that the incremented version number is saved
-        check.setVersion(check.getVersion() + 1);
+        check.setVersion(incrementMajorVersion(check.getVersion()));
         try {
             eligibilityCheckRepository.updateWorkingCustomCheck(check);
         } catch (Exception e){
@@ -272,6 +274,24 @@ public class EligibilityCheckResource {
         return Response.ok(check, MediaType.APPLICATION_JSON).build();
     }
 
+    private String incrementMajorVersion(String version) {
+        int[] v = normalize(version);
+        v[0]++;         // increment major
+        v[1] = 0;       // reset minor
+        v[2] = 0;       // reset patch
+        return v[0] + "." + v[1] + "." + v[2];
+    }
+
+    private int[] normalize(String version) {
+        String[] parts = version.split("\\.");
+        int[] nums = new int[]{0, 0, 0};
+
+        for (int i = 0; i < parts.length && i < 3; i++) {
+            nums[i] = Integer.parseInt(parts[i]);
+        }
+        return nums;
+    }
+
     /* Endpoint for returning all Published Check Versions related to a given Working Eligibility Check */
     @GET
     @Path("/custom-checks/{checkId}/published-check-versions")
@@ -290,7 +310,7 @@ public class EligibilityCheckResource {
         }
 
         // Update workingCheck so that the incremented version number is saved
-        check.setVersion(check.getVersion() + 1);
+        check.setVersion(incrementMajorVersion(check.getVersion()));
         try {
             List<EligibilityCheck> publishedChecks = eligibilityCheckRepository.getPublishedCheckVersions(check);
 

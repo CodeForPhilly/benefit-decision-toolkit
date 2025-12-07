@@ -5,7 +5,6 @@ import ParameterModal from "./modals/ParameterModal";
 import ConfirmationModal from "@/components/shared/ConfirmationModal";
 import type { EligibilityCheck, ParameterDefinition } from "@/types";
 
-
 const ParametersConfiguration = ({
   eligibilityCheck,
   addParameter,
@@ -21,8 +20,12 @@ const ParametersConfiguration = ({
   removeParameter: (parameterIndex: number) => Promise<void>;
 }) => {
   const [addingParameter, setAddingParameter] = createSignal<boolean>(false);
-  const [parameterIndexToEdit, setParameterIndexToEdit] = createSignal<null | number>(null);
-  const [parameterIndexToRemove, setParameterIndexToRemove] = createSignal<null | number>(null);
+  const [parameterIndexToEdit, setParameterIndexToEdit] = createSignal<
+    null | number
+  >(null);
+  const [parameterIndexToRemove, setParameterIndexToRemove] = createSignal<
+    null | number
+  >(null);
 
   const handleProjectMenuClicked = (e, parameterIndex: number) => {
     e.stopPropagation();
@@ -46,11 +49,14 @@ const ParametersConfiguration = ({
           Create New Parameter
         </div>
         <Show
-          when={eligibilityCheck().parameters.length > 0}
+          when={
+            eligibilityCheck() &&
+            eligibilityCheck().parameterDefinitions.length > 0
+          }
           fallback={<p>No parameters defined.</p>}
         >
           <div class="flex flex-wrap gap-4">
-            <For each={eligibilityCheck().parameters}>
+            <For each={eligibilityCheck().parameterDefinitions}>
               {(param, parameterIndex) => (
                 <div
                   class="relative border-2 border-gray-200 rounded p-4 w-80 hover:shadow-lg hover:bg-gray-200 cursor-pointer"
@@ -101,11 +107,17 @@ const ParametersConfiguration = ({
             editParameter(parameterIndexToEdit(), parameter);
           }}
           initialData={{
-            key: eligibilityCheck().parameters[parameterIndexToEdit()].key,
-            type: eligibilityCheck().parameters[parameterIndexToEdit()].type,
-            label: eligibilityCheck().parameters[parameterIndexToEdit()].label,
+            key: eligibilityCheck().parameterDefinitions[parameterIndexToEdit()]
+              .key,
+            type: eligibilityCheck().parameterDefinitions[
+              parameterIndexToEdit()
+            ].type,
+            label:
+              eligibilityCheck().parameterDefinitions[parameterIndexToEdit()]
+                .label,
             required:
-              eligibilityCheck().parameters[parameterIndexToEdit()].required,
+              eligibilityCheck().parameterDefinitions[parameterIndexToEdit()]
+                .required,
           }}
         />
       )}

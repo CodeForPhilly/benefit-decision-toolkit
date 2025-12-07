@@ -1,6 +1,11 @@
 import { Accessor, createSignal, Match, Switch } from "solid-js";
 
-import { CheckConfig, EligibilityCheck, OptionalBoolean, ParameterValues } from "@/types";
+import {
+  CheckConfig,
+  EligibilityCheck,
+  OptionalBoolean,
+  ParameterValues,
+} from "@/types";
 import SelectedEligibilityCheck from "@/components/project/manageBenefits/configureBenefit/SelectedEligibilityCheck";
 import CheckJsonEditor from "./CheckJsonEditor";
 import { JSONContent } from "vanilla-jsoneditor";
@@ -10,26 +15,40 @@ interface TestRun {
   result: OptionalBoolean;
 }
 
-const EligibilityCheckTest = (
-  { eligibilityCheck, testEligibility }:
-  {
-    eligibilityCheck: Accessor<EligibilityCheck>,
-    testEligibility: (checkConfg: CheckConfig, inputData: Record<string, any>) => Promise<OptionalBoolean>;
-  }
-) => {
-  const [checkConfig, setCheckConfig] = createSignal<CheckConfig>(
-    { checkId: eligibilityCheck().id, checkName: eligibilityCheck().name, parameters: {} }
-  );
+const EligibilityCheckTest = ({
+  eligibilityCheck,
+  testEligibility,
+}: {
+  eligibilityCheck: Accessor<EligibilityCheck>;
+  testEligibility: (
+    checkConfg: CheckConfig,
+    inputData: Record<string, any>
+  ) => Promise<OptionalBoolean>;
+}) => {
+  const [checkConfig, setCheckConfig] = createSignal<CheckConfig>({
+    checkId: eligibilityCheck().id,
+    checkName: eligibilityCheck().name,
+    checkVersion: eligibilityCheck().version,
+    checkDescription: eligibilityCheck().description,
+    parameterDefinitions: eligibilityCheck().parameterDefinitions,
+    inputDefinition: eligibilityCheck().inputDefinition,
+    evaluationUrl: eligibilityCheck().evaluationUrl,
+    parameters: {},
+  });
   const [lastTestResult, setLastTestResult] = createSignal<TestRun>(null);
 
-  const [initialJsonContent, setInitialJsonContent] = (
-    createSignal<{ json: Record<string, any> }>({ json: { example: "data" } })
-  );
-  const [currentJsonContent, setCurrentJsonContent] = createSignal<{ json: Record<string, any> }>({ json: { example: "data" } });
+  const [initialJsonContent, setInitialJsonContent] = createSignal<{
+    json: Record<string, any>;
+  }>({ json: { example: "data" } });
+  const [currentJsonContent, setCurrentJsonContent] = createSignal<{
+    json: Record<string, any>;
+  }>({ json: { example: "data" } });
 
   return (
     <div class="p-12">
-      <div class="text-3xl font-bold tracking-wide mb-2">{eligibilityCheck().name}</div>
+      <div class="text-3xl font-bold tracking-wide mb-2">
+        {eligibilityCheck().name}
+      </div>
       <p class="text-xl mb-4">{eligibilityCheck().description}</p>
       <div
         class="btn-default btn-blue mb-3 mr-1"
@@ -43,7 +62,7 @@ const EligibilityCheckTest = (
           }
           setLastTestResult({
             inputData: currentJsonContent().json,
-            result: result
+            result: result,
           });
         }}
       >
@@ -52,7 +71,10 @@ const EligibilityCheckTest = (
       {lastTestResult() !== null && (
         <>
           <div class="mb-3">
-            <span class="font-bold">Latest Test Data:</span> <span class="p-2 font-mono bg-gray-200 rounded-md">{JSON.stringify(lastTestResult().inputData)}</span>
+            <span class="font-bold">Latest Test Data:</span>{" "}
+            <span class="p-2 font-mono bg-gray-200 rounded-md">
+              {JSON.stringify(lastTestResult().inputData)}
+            </span>
           </div>
           <div class="mb-4">
             <span class="font-bold">Latest Test Result: </span>
@@ -81,8 +103,8 @@ const EligibilityCheckTest = (
           <CheckJsonEditor
             jsonContent={initialJsonContent}
             onValidJsonChange={(content: JSONContent) => {
-              setCurrentJsonContent(content); }
-            }
+              setCurrentJsonContent(content);
+            }}
           />
         </div>
 
@@ -98,6 +120,6 @@ const EligibilityCheckTest = (
         </div>
       </div>
     </div>
-  )
+  );
 };
 export default EligibilityCheckTest;

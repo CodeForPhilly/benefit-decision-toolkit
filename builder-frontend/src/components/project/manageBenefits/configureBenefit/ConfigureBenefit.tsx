@@ -19,25 +19,15 @@ const ConfigureBenefit = ({
   benefitId: Accessor<string>;
   setBenefitId: (benefitId: string | null) => void;
 }) => {
-  const { benefit, actions, actionInProgress, initialLoadStatus } = BenefitResource(
-    screenerId,
-    benefitId
-  );
+  const { benefit, actions, actionInProgress, initialLoadStatus } =
+    BenefitResource(screenerId, benefitId);
 
   const [checkListMode, setCheckListMode] =
     createSignal<EligibilityCheckListMode>("public");
   const [publicChecks] = createResource<EligibilityCheck[]>(fetchPublicChecks);
-  const [userDefinedChecks] = createResource<EligibilityCheck[]>(
-    () => fetchUserDefinedChecks(false)
+  const [userDefinedChecks] = createResource<EligibilityCheck[]>(() =>
+    fetchUserDefinedChecks(false)
   );
-
-  const getSelectedCheck = (checkId: string) => {
-    const allChecks = [
-      ...(publicChecks() || []),
-      ...(userDefinedChecks() || []),
-    ];
-    return allChecks.find((check) => check.id === checkId);
-  };
 
   const onRemoveEligibilityCheck = (checkIndexToRemove: number) => {
     actions.removeCheck(checkIndexToRemove);
@@ -102,11 +92,14 @@ const ConfigureBenefit = ({
                           onRemove={() =>
                             onRemoveEligibilityCheck(checkIndex())
                           }
-                          updateCheckConfigParams={
-                            (newCheckData: ParameterValues) => {
-                              actions.updateCheckConfigParams(checkIndex(), newCheckData);
-                            }
-                          }
+                          updateCheckConfigParams={(
+                            newCheckData: ParameterValues
+                          ) => {
+                            actions.updateCheckConfigParams(
+                              checkIndex(),
+                              newCheckData
+                            );
+                          }}
                         />
                       );
                     }}
