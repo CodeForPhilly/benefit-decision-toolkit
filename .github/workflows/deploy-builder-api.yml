@@ -43,6 +43,15 @@ jobs:
         with:
           enable-cache: true
 
+      # Cache Maven dependencies to speed up builds
+      - name: 'Cache Maven dependencies'
+        uses: 'actions/cache@v4'
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('builder-api/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
       # Configure Workload Identity Federation and generate an access token
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
