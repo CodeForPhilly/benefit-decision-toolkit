@@ -12,12 +12,11 @@ public class EligibilityCheck {
     private String name;
     private String module;
     private String description;
-    private Integer version;
+    private String version;
     private boolean isActive;
     private String dmnModel;
-    private List<InputDefinition> inputs;
-    private JsonNode situation;
-    private List<ParameterDefinition> parameters;
+    private JsonNode inputDefinition;
+    private List<ParameterDefinition> parameterDefinitions;
     private String ownerId;
     @JsonProperty("isPublic")
     private Boolean isPublic;
@@ -64,11 +63,11 @@ public class EligibilityCheck {
         this.description = description;
     }
 
-    public Integer getVersion() {
+    public String getVersion() {
         return version;
     }
 
-    public void setVersion(Integer version) {
+    public void setVersion(String version) {
         this.version = version;
     }
 
@@ -80,20 +79,12 @@ public class EligibilityCheck {
         isActive = active;
     }
 
-    public List<InputDefinition> getInputs() {
-        return inputs;
+    public List<ParameterDefinition> getParameterDefinitions() {
+        return parameterDefinitions;
     }
 
-    public void setInputs(List<InputDefinition> inputDefinitions) {
-        this.inputs = inputDefinitions;
-    }
-
-    public List<ParameterDefinition> getParameters() {
-        return parameters;
-    }
-
-    public void setParameters(List<ParameterDefinition> parameters) {
-        this.parameters = parameters;
+    public void setParameterDefinitions(List<ParameterDefinition> parameterDefinitions) {
+        this.parameterDefinitions = parameterDefinitions;
     }
 
     public String getOwnerId() {
@@ -112,12 +103,12 @@ public class EligibilityCheck {
         isPublic = aPublic;
     }
 
-    public JsonNode getSituation() {
-        return situation;
+    public JsonNode getInputDefinition() {
+        return inputDefinition;
     }
 
-    public void setSituation(JsonNode situation) {
-        this.situation = situation;
+    public void setInputDefinition(JsonNode inputDefinition) {
+        this.inputDefinition = inputDefinition;
     }
 
     public String getPath() {

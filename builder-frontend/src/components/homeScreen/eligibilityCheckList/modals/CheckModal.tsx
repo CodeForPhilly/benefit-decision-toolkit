@@ -1,18 +1,24 @@
-import { createStore } from "solid-js/store"
+import { createStore } from "solid-js/store";
 
 import type { EligibilityCheck } from "@/types";
-
 
 type CheckValues = {
   name: string;
   module: string;
   description: string;
-}
-const EditCheckModal = (
-  { modalAction, closeModal }:
-  { modalAction: (check: EligibilityCheck) => Promise<void>; closeModal: () => void }
-) => {
-  const [newCheck, setNewCheck] = createStore<CheckValues>({ name: "", module: "", description: "" });
+};
+const EditCheckModal = ({
+  modalAction,
+  closeModal,
+}: {
+  modalAction: (check: EligibilityCheck) => Promise<void>;
+  closeModal: () => void;
+}) => {
+  const [newCheck, setNewCheck] = createStore<CheckValues>({
+    name: "",
+    module: "",
+    description: "",
+  });
 
   // Styling for the Add button based on whether fields are filled
   const isAddDisabled = () => {
@@ -21,10 +27,12 @@ const EditCheckModal = (
       newCheck.description.trim() === "" ||
       newCheck.module.trim() === ""
     );
-  }
+  };
   const addButtonClasses = () => {
-    return isAddDisabled() ? "opacity-50 cursor-not-allowed" : "hover:bg-sky-700";
-  }
+    return isAddDisabled()
+      ? "opacity-50 cursor-not-allowed"
+      : "hover:bg-sky-700";
+  };
 
   return (
     <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
@@ -63,7 +71,9 @@ const EditCheckModal = (
         <div class="flex justify-end space-x-2">
           <div
             class="btn-default hover:bg-gray-200"
-            onClick={() => { closeModal(); }}
+            onClick={() => {
+              closeModal();
+            }}
           >
             Cancel
           </div>
@@ -75,12 +85,17 @@ const EditCheckModal = (
                 return;
               }
               const check: EligibilityCheck = {
-                id: newCheck.module.toLowerCase() + "-" + newCheck.name.toLowerCase().replace(/\s+/g, "_"),
+                id:
+                  newCheck.module.toLowerCase() +
+                  "-" +
+                  newCheck.name.toLowerCase().replace(/\s+/g, "_"),
                 name: newCheck.name,
+                version: "1.0.0",
+
                 module: newCheck.module,
                 description: newCheck.description,
-                inputs: [],
-                parameters: [],
+                inputDefinition: {},
+                parameterDefinitions: [],
               };
               await modalAction(check);
               closeModal();
@@ -92,5 +107,5 @@ const EditCheckModal = (
       </div>
     </div>
   );
-}
+};
 export default EditCheckModal;

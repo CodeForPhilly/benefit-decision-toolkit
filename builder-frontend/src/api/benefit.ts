@@ -1,10 +1,14 @@
 import { authFetch } from "@/api/auth";
+import BenefitList from "@/components/project/manageBenefits/benefitList/BenefitList";
 
 import { Benefit } from "@/types";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-export const fetchScreenerBenefit = async (srceenerId: string, benefitId: string): Promise<Benefit> => {
+export const fetchScreenerBenefit = async (
+  srceenerId: string,
+  benefitId: string
+): Promise<Benefit> => {
   const url = apiUrl + "/screener/" + srceenerId + "/benefit/" + benefitId;
   try {
     const response = await authFetch(url, {
@@ -25,7 +29,12 @@ export const fetchScreenerBenefit = async (srceenerId: string, benefitId: string
   }
 };
 
-export const updateScreenerBenefit = async (screenerId: string, benefitData: Benefit): Promise<Benefit> => {
+export const updateScreenerBenefit = async (
+  screenerId: string,
+  benefitData: Benefit
+): Promise<Benefit> => {
+  console.log("in updateScreenerBenefit");
+  console.log(benefitData);
   const url = apiUrl + "/screener/" + screenerId + "/benefit";
   try {
     const response = await authFetch(url, {
@@ -47,7 +56,6 @@ export const updateScreenerBenefit = async (screenerId: string, benefitData: Ben
     throw error;
   }
 };
-
 
 export const fetchPublicBenefits = async (): Promise<Benefit[]> => {
   const url = apiUrl + "/benefit";

@@ -13,19 +13,23 @@ import type {
   StringParameter,
 } from "@/types";
 
-
-const ConfigureCheckModal = (
-  { checkConfig, check, updateCheckConfigParams, closeModal }:
-  {
-    checkConfig: Accessor<CheckConfig>;
-    check: Accessor<EligibilityCheck>;
-    updateCheckConfigParams: (newCheckData: ParameterValues) => void;
-    closeModal: () => void
-  }
-) => {
+const ConfigureCheckModal = ({
+  checkConfig,
+  updateCheckConfigParams,
+  closeModal,
+}: {
+  checkConfig: Accessor<CheckConfig>;
+  updateCheckConfigParams: (newCheckData: ParameterValues) => void;
+  closeModal: () => void;
+}) => {
   const [tempCheck, setTempCheck] = createStore<CheckConfig>({
     checkId: checkConfig().checkId,
     checkName: checkConfig().checkName,
+    checkVersion: checkConfig().checkVersion,
+    checkDescription: checkConfig().checkDescription,
+    evaluationUrl: checkConfig().evaluationUrl,
+    parameterDefinitions: checkConfig().parameterDefinitions,
+    inputDefinition: checkConfig().inputDefinition,
     parameters: { ...checkConfig().parameters },
   });
 
@@ -41,14 +45,14 @@ const ConfigureCheckModal = (
           Configure Check: {titleCase(checkConfig().checkName)}
         </div>
 
-        {check().parameters.length === 0 && (
+        {checkConfig().parameterDefinitions.length === 0 && (
           <div class="mb-4">This check has no configurable parameters.</div>
         )}
-        {check().parameters.length > 0 && (
+        {checkConfig().parameterDefinitions.length > 0 && (
           <div class="mb-4">
             <div class="text-lg font-bold mb-2">Parameters</div>
             <div class="flex flex-col gap-4">
-              <For each={check().parameters}>
+              <For each={checkConfig().parameterDefinitions}>
                 {(parameter) => {
                   return (
                     <ParameterInput
