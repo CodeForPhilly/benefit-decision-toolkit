@@ -158,7 +158,7 @@ def extract_check_records(openapi, version):
 
             entry = {
                 "id": id,
-                "path": path,
+                "evaluationUrl": path,
                 "method": method,
                 "name": name,
                 "module": module,
@@ -223,14 +223,14 @@ def transform_parameters_format(data):
             new_parameters = transform_parameters(properties_obj)
 
             # Replace object with the transformed list
-            check["parameters"] = new_parameters
+            check["parameterDefinitions"] = new_parameters
     return data
 
 
 def transform_situation_format(data):
     """Transform all `inputs.situation` in the provided list."""
     for check in data:
-        check["situation"] = check["inputs"]["situation"]
+        check["inputDefinition"] = check["inputs"]["situation"]
     return data
 
 
