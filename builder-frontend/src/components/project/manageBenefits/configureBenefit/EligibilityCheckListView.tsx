@@ -56,7 +56,13 @@ const EligibilityCheckListView = ({
     const checkConfig: CheckConfig = {
       checkId: check.id,
       checkName: check.name,
+      checkVersion: check.version,
+      checkModule: check.module,
+      checkDescription: check.description,
+      evaluationUrl: check.evaluationUrl,
       parameters: {},
+      parameterDefinitions: check.parameterDefinitions,
+      inputDefinition: check.inputDefinition,
     };
     addCheck(checkConfig);
   };
@@ -146,7 +152,7 @@ const EligibilityCheckRow = ({
       <td class="eligibility-check-table-cell border-top">
         {check.description}
       </td>
-      <td class="eligibility-check-table-cell border-top">v{check.version}</td>
+      <td class="eligibility-check-table-cell border-top">{check.version}</td>
     </tr>
   );
 };

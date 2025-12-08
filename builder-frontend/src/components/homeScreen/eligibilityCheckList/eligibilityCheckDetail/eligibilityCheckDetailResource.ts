@@ -70,7 +70,10 @@ const eligibilityCheckDetailResource = (
   const addParameter = async (parameterDef: ParameterDefinition) => {
     const updatedCheck: EligibilityCheckDetail = {
       ...eligibilityCheck,
-      parameters: [...eligibilityCheck.parameters, parameterDef],
+      parameterDefinitions: [
+        ...eligibilityCheck.parameterDefinitions,
+        parameterDef,
+      ],
     };
     setActionInProgress(true);
     try {
@@ -86,12 +89,12 @@ const eligibilityCheckDetailResource = (
     parameterIndex: number,
     parameterDef: ParameterDefinition
   ) => {
-    const updatedParameters = [...eligibilityCheck.parameters];
+    const updatedParameters = [...eligibilityCheck.parameterDefinitions];
     updatedParameters[parameterIndex] = parameterDef;
     console.log("updatedParameters", updatedParameters);
     const updatedCheck: EligibilityCheckDetail = {
       ...eligibilityCheck,
-      parameters: updatedParameters,
+      parameterDefinitions: updatedParameters,
     };
 
     setActionInProgress(true);
@@ -105,11 +108,11 @@ const eligibilityCheckDetailResource = (
   };
 
   const removeParameter = async (parameterIndex: number) => {
-    const updatedParameters = [...eligibilityCheck.parameters];
+    const updatedParameters = [...eligibilityCheck.parameterDefinitions];
     updatedParameters.splice(parameterIndex, 1);
     const updatedCheck: EligibilityCheckDetail = {
       ...eligibilityCheck,
-      parameters: updatedParameters,
+      parameterDefinitions: updatedParameters,
     };
 
     setActionInProgress(true);
