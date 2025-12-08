@@ -33,8 +33,6 @@ export const updateScreenerBenefit = async (
   screenerId: string,
   benefitData: Benefit
 ): Promise<Benefit> => {
-  console.log("in updateScreenerBenefit");
-  console.log(benefitData);
   const url = apiUrl + "/screener/" + screenerId + "/benefit";
   try {
     const response = await authFetch(url, {
