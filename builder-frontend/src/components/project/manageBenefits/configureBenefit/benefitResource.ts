@@ -48,8 +48,6 @@ const createScreenerBenefits = (
   const updateBenefit = async (newBenefit: Benefit) => {
     setActionInProgress(true);
 
-    console.log("in update Benefit");
-    console.log(newBenefit);
     try {
       await updateScreenerBenefit(screenerId(), { ...newBenefit });
       await refetch();
