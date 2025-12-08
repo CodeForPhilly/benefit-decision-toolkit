@@ -11,6 +11,7 @@ public class CheckConfig {
     private String checkId;
     private String checkName;
     private String checkVersion;
+    private String checkModule;
     private Map<String, Object> parameters;
     // evaluation endpoint url for library checks
     private String evaluationUrl;
@@ -71,5 +72,13 @@ public class CheckConfig {
 
     public void setCheckVersion(String checkVersion) {
         this.checkVersion = checkVersion;
+    }
+
+    public String getCheckModule() {
+        return checkModule;
+    }
+
+    public void setCheckModule(String checkModule) {
+        this.checkModule = checkModule;
     }
 }

@@ -57,6 +57,7 @@ const EligibilityCheckListView = ({
       checkId: check.id,
       checkName: check.name,
       checkVersion: check.version,
+      checkModule: check.module,
       checkDescription: check.description,
       evaluationUrl: check.evaluationUrl,
       parameters: {},

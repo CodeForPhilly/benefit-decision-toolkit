@@ -51,6 +51,7 @@ const ParametersConfiguration = ({
         <Show
           when={
             eligibilityCheck() &&
+            eligibilityCheck().parameterDefinitions &&
             eligibilityCheck().parameterDefinitions.length > 0
           }
           fallback={<p>No parameters defined.</p>}

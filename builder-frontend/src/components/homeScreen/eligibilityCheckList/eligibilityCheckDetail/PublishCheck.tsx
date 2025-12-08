@@ -21,8 +21,34 @@ const PublishCheck = ({
     if (!checks) return [];
     return checks
       .slice()
-      .sort((check1, check2) => check2.version - check1.version);
+      .sort((check1, check2) =>
+        reverseCompareVersions(check1.version, check2.version)
+      );
   };
+
+  // Called reverse compare because we are sorting the largest version number first
+  function reverseCompareVersions(a: string, b: string): number {
+    const aValues = normalize(a);
+    const bValues = normalize(b);
+
+    for (let i = 0; i < 3; i++) {
+      if (aValues[i] !== bValues[i]) {
+        // The order of this subtraction is what reverses the sort order
+        return bValues[i] - aValues[i];
+      }
+    }
+    return 0;
+  }
+
+  function normalize(version: string): [number, number, number] {
+    const parts = version.split(".").map(Number);
+
+    while (parts.length < 3) {
+      parts.push(0);
+    }
+
+    return [parts[0], parts[1], parts[2]];
+  }
 
   return (
     <div class="p-12">

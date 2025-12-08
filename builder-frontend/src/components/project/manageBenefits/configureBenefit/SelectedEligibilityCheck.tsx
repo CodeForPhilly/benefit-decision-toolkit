@@ -63,29 +63,30 @@ const SelectedEligibilityCheck = ({
         {
           // Place to display information about expected inputs for check
         }
-        {checkConfig().parameterDefinitions.length > 0 && (
-          <div class="[&:has(+div)]:mb-2">
-            <div class="text-lg font-bold pl-2">Parameters</div>
-            <For each={checkConfig().parameterDefinitions}>
-              {(parameter: ParameterDefinition) => {
-                const getLabel = () => {
-                  let value = checkConfig().parameters[parameter.key];
-                  return value !== undefined ? (
-                    value.toString()
-                  ) : (
-                    <span class="text-yellow-700">Not configured</span>
+        {checkConfig().parameterDefinitions &&
+          checkConfig().parameterDefinitions.length > 0 && (
+            <div class="[&:has(+div)]:mb-2">
+              <div class="text-lg font-bold pl-2">Parameters</div>
+              <For each={checkConfig().parameterDefinitions}>
+                {(parameter: ParameterDefinition) => {
+                  const getLabel = () => {
+                    let value = checkConfig().parameters[parameter.key];
+                    return value !== undefined ? (
+                      value.toString()
+                    ) : (
+                      <span class="text-yellow-700">Not configured</span>
+                    );
+                  };
+                  return (
+                    <div class="flex gap-2 pl-4">
+                      <div>{titleCase(parameter.key)}:</div>
+                      <div>{getLabel()}</div>
+                    </div>
                   );
-                };
-                return (
-                  <div class="flex gap-2 pl-4">
-                    <div>{titleCase(parameter.key)}:</div>
-                    <div>{getLabel()}</div>
-                  </div>
-                );
-              }}
-            </For>
-          </div>
-        )}
+                }}
+              </For>
+            </div>
+          )}
         {unfilledRequiredParameters().length > 0 && (
           <div class="mt-2 text-yellow-700 font-bold">
             Warning: This check has required parameter(s) that are not

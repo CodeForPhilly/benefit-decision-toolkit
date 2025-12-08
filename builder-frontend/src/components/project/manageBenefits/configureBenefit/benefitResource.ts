@@ -62,10 +62,7 @@ const createScreenerBenefits = (
   // Actions
   const addCheck = (newCheck: CheckConfig) => {
     if (!benefit) return;
-    console.log("updating benefit");
     const updatedChecks: CheckConfig[] = [...benefit.checks, newCheck];
-    console.log("checks after upate");
-    console.log(updatedChecks);
     const updatedBenefit: Benefit = { ...benefit, checks: updatedChecks };
     updateBenefit(updatedBenefit);
   };
