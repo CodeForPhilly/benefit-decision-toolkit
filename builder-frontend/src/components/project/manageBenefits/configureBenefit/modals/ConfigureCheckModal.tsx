@@ -26,6 +26,7 @@ const ConfigureCheckModal = ({
     checkId: checkConfig().checkId,
     checkName: checkConfig().checkName,
     checkVersion: checkConfig().checkVersion,
+    checkModule: checkConfig().checkModule,
     checkDescription: checkConfig().checkDescription,
     evaluationUrl: checkConfig().evaluationUrl,
     parameterDefinitions: checkConfig().parameterDefinitions,

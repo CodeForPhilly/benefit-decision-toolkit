@@ -29,6 +29,7 @@ const EligibilityCheckTest = ({
     checkId: eligibilityCheck().id,
     checkName: eligibilityCheck().name,
     checkVersion: eligibilityCheck().version,
+    checkModule: eligibilityCheck().module,
     checkDescription: eligibilityCheck().description,
     parameterDefinitions: eligibilityCheck().parameterDefinitions,
     inputDefinition: eligibilityCheck().inputDefinition,

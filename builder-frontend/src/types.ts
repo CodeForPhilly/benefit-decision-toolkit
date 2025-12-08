@@ -20,6 +20,7 @@ export interface CheckConfig {
   checkId: string;
   checkName: string;
   checkVersion: string;
+  checkModule: string;
   checkDescription: string;
   // API endpoint for evaluating check (only for library checks)
   evaluationUrl?: string;
