@@ -8,5 +8,6 @@ export default {
     require('@tailwindcss/forms')({
       strategy: 'class', // only apply styles when using form-* classes
     }),
+    require('@corvu/tailwind'),
   ],
 }

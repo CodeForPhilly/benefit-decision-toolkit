@@ -1,3 +1,5 @@
+import type { JSONSchema7 } from 'json-schema';
+
 /* Types for managing benefits in a project */
 export interface ScreenerBenefits {
   benefits: BenefitDetail[];
@@ -25,7 +27,7 @@ export interface CheckConfig {
   // API endpoint for evaluating check (only for library checks)
   evaluationUrl?: string;
   parameters: ParameterValues;
-  inputDefinition: any;
+  inputDefinition: JSONSchema7;
   parameterDefinitions: ParameterDefinition[];
 }
 export interface ParameterValues {
@@ -38,38 +40,13 @@ export interface EligibilityCheck {
   module: string;
   version: string;
   description: string;
-  inputDefinition: any;
+  inputDefinition: JSONSchema7;
   parameterDefinitions: ParameterDefinition[];
   // API endpoint for evaluating check (Library checks only)
   evaluationUrl?: string;
 }
 export interface EligibilityCheckDetail extends EligibilityCheck {
   dmnModel: string;
-}
-
-// Check Input Types
-type InputDefinition =
-  | StringInput
-  | StringSelectInput
-  | NumberInput
-  | BooleanInput;
-interface BaseInput {
-  key: string;
-  prompt: string;
-}
-interface StringInput extends BaseInput {
-  type: "string";
-}
-interface StringSelectInput extends BaseInput {
-  type: "select";
-  options?: string;
-}
-interface NumberInput extends BaseInput {
-  type: "number";
-}
-interface BooleanInput extends BaseInput {
-  type: "boolean";
-  // No additional validation needed for boolean
 }
 
 // Parameter Types

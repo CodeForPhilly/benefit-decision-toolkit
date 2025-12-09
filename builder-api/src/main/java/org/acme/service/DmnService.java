@@ -1,4 +1,5 @@
 package org.acme.service;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.acme.enums.EvaluationResult;
 
 import java.util.List;
@@ -16,5 +17,10 @@ public interface DmnService {
         String dmnModelName,
         Map<String, Object> inputs,
         Map<String, Object> parameters
+    ) throws Exception;
+    public JsonNode extractInputSchema(
+        String dmnXml,
+        Map<String, String> dependenciesMap,
+        String modelId
     ) throws Exception;
 }

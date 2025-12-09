@@ -60,6 +60,7 @@ function Project() {
           <BdtNavbar navProps={navbarDefs} />
           {activeTab() == "formEditor" && (
             <FormEditorView
+              project={project}
               formSchema={formSchema}
               setFormSchema={setFormSchema}
             />
