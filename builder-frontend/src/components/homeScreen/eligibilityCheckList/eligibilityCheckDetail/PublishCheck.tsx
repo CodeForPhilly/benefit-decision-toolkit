@@ -81,7 +81,7 @@ const PublishCheck = ({
                     </div>
                     <div>
                       <span class="font-bold">Number of Parameters:</span>{" "}
-                      {check.parameterDefinitions.length}
+                      {check.parameterDefinitions?.length || 0}
                     </div>
                     <div>
                       <span class="font-bold">Date Published:</span> --
