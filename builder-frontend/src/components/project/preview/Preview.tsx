@@ -6,6 +6,7 @@ import Results from "./Results";
 import { evaluateScreener } from "../../../api/screener";
 
 import { PreviewFormData, ScreenerResult } from "./types";
+import { Button } from "solid-bootstrap";
 
 
 const Preview = ({ project, formSchema }) => {
@@ -35,6 +36,10 @@ const Preview = ({ project, formSchema }) => {
     setResultsLoading(false);
   };
 
+  const handleTest = async () => {
+
+  }
+
   return (
     <div>
       <div class="m-4 p-4 border-2 border-gray-200 rounded">
@@ -43,7 +48,23 @@ const Preview = ({ project, formSchema }) => {
       </div>
       <div class="m-4 p-4 border-2 border-gray-200 rounded">
         <div class="text-lg text-gray-800 text-md font-bold">Results</div>
+        <div>
+          <button
+            onClick={handleTest}
+          >
+            Add as Test
+          </button>
+        </div>
         <Results inputData={lastInputDataSent} results={results} resultsLoading={resultsLoading}/>
+      </div>
+      <div class="m-4 p-4 border-2 border-gray-200 rounded">
+        <div>
+        <button
+          onClick={handleTest}
+        >
+          Run Test
+        </button>
+        </div>
       </div>
     </div>
   );
