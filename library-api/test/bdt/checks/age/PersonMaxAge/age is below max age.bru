@@ -1,0 +1,38 @@
+meta {
+  name: age is below max age
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/checks/age/person-max-age
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "people": [
+        {
+          "id": "p1",
+          "dateOfBirth": "2025-01-01"
+        }
+      ]
+    },
+    "parameters": {
+      "personId": "p1",
+      "asOfDate": "2025-12-31",
+      "maxAge": 5
+    }
+  }
+}
+
+assert {
+  res.body.checkResult: eq true
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
