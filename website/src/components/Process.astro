@@ -1,9 +1,25 @@
 ---
 import { Content } from "../assets/copy/Process.md";
+const steps = ["Create a Screener", "Add Logic", "Deploy Your Tool"];
 ---
 
-<section id="process">
-  <div class="max-w-[85ch] mx-auto py-6 px-3 prose">
-    <Content />
+<section id="process" class="border-b-2 border-sky-500">
+  <div class="max-w-[85ch] mx-auto py-12 px-3 flex flex-col gap-8 relative">
+    <div class="prose max-w-[85ch]">
+      <Content />
+    </div>
+    <div class="flex sm:gap-4 w-fit mx-auto">
+      {
+        steps.map((step) => (
+          <div class="bg-[url(../assets/backgrounds/chevron.svg)] bg-no-repeat bg-contain sm:h-40 sm:w-40 h-25 w-25 flex justify-center items-center">
+            <div class="w-15 sm:w-20">
+              <p class="relative left-1 sm:left-2 text-center text-sm sm:text-xl text-white!">
+                {step}
+              </p>
+            </div>
+          </div>
+        ))
+      }
+    </div>
   </div>
 </section>
