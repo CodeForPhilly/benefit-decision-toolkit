@@ -1,0 +1,3 @@
+## The Process
+
+Building a benefits screener with the Benefits Decision Toolkit is simple, collaborative, and totally self-serve. Start by creating a screener tailored to your program, then layer in clear, transparent logic using our low-code, open-source tools. Once it’s ready, deploy your tool with confidence, giving your team the power to connect people to the benefits they qualify for quickly, accurately, and without barriers. Our process is designed to cut through complexity, support benefits navigators and analysts, and put accessible, community-driven technology directly in your hands.

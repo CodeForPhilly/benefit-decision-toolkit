@@ -37,9 +37,7 @@ import wedge from "../assets/backgrounds/wedge.svg";
               class="my-3 p-3 border-2 border-sky-500 rounded-2xl"
               name="message"
               id="message"
-              placeholder="Your message"
-              cols="40"
-              rows="10"></textarea>
+              placeholder="Your message"></textarea>
           </div>
           <input
             class="px-4 py-2 mt-3 font-serif font-bold bg-green-300 rounded-full text-lg cursor-pointer"
@@ -49,7 +47,9 @@ import wedge from "../assets/backgrounds/wedge.svg";
           />
         </form>
       </div>
-      <div class="w-1/2 bg-[url(../assets/photos/man-in-office.png)] bg-cover">
+      <div
+        class="w-1/2 bg-[url(../assets/photos/man-in-office.png)] bg-cover hidden sm:block"
+      >
         <img class="h-full relative right-0.5" src={wedge.src} alt="" />
       </div>
     </div>
