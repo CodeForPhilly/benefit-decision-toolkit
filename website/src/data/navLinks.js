@@ -4,16 +4,12 @@ export default [
     path: "/#top",
   },
   {
-    title: "Hero",
-    path: "/#hero",
+    title: "What We Do",
+    path: "/#overview",
   },
   {
-    title: "Mission",
-    path: "/#mission",
-  },
-  {
-    title: "Team",
-    path: "/#team",
+    title: "Values",
+    path: "/#values",
   },
   {
     title: "Projects",

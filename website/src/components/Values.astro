@@ -1,0 +1,35 @@
+---
+import { Content as Empathy } from "../assets/copy/values/Empathy.md";
+import { Content as Transparency } from "../assets/copy/values/Transparency.md";
+import { Content as Inclusivity } from "../assets/copy/values/Inclusivity.md";
+import { Image } from "astro:assets";
+import empathy from "../assets/icons/empathy.png";
+import transparency from "../assets/icons/transparency.png";
+import inclusivity from "../assets/icons/inclusivity.png";
+---
+
+<section id="values">
+  <div class="max-w-[130ch] mx-auto py-12 px-3">
+    <h2 class="font-bold font-serif text-2xl text-center">Our Values</h2>
+    <ul class="flex flex-col sm:flex-row justify-between">
+      <li class="flex flex-col gap-6 p-3 items-center">
+        <Image class="w-42" src={empathy} alt="Man in office." />
+        <div class="prose text-center">
+          <Empathy />
+        </div>
+      </li>
+      <li class="flex flex-col gap-6 p-3 items-center">
+        <Image class="w-42" src={transparency} alt="Man in office." />
+        <div class="prose text-center">
+          <Transparency />
+        </div>
+      </li>
+      <li class="flex flex-col gap-6 p-3 items-center">
+        <Image class="w-42" src={inclusivity} alt="Man in office." />
+        <div class="prose text-center">
+          <Inclusivity />
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>

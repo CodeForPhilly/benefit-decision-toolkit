@@ -1,28 +1,16 @@
 ---
-import navLinks from "../data/navLinks";
 import { Image } from "astro:assets";
 import logo from "../assets/logos/bdt-logo-large-mono-dark.svg";
+import NavMenu from "./NavMenu.svelte";
 ---
 
-<header id="top" class="py-6 px-3 bg-sky-500">
+<header class="py-6 px-3 bg-sky-500 sticky top-0 sm:static z-50">
   <div
     class="flex flex-row justify-between items-baseline gap-6 max-w-[130ch] mx-auto"
   >
     <div class="w-36">
       <Image src={logo} alt="BDT logo" />
     </div>
-    <nav>
-      <ul class="flex gap-4">
-        {
-          navLinks.map((link) => (
-            <li>
-              <a href={`${import.meta.env.BASE_URL}${link.path}`}>
-                {link.title}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
+    <NavMenu client:load />
   </div>
 </header>
