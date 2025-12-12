@@ -22,7 +22,16 @@
     "java.import.maven.enabled": true,
     "java.compile.nullAnalysis.mode": "automatic",
 
+    // Prettier
+    "prettier.requireConfig": true,
+
     // Node.js settings for frontend modules
+    "[javascript, typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true,
+      "typescript.preferences.importModuleSpecifier": "non-relative",
+      "javascript.preferences.importModuleSpecifier": "non-relative"
+    },
     "typescript.preferences.includePackageJsonAutoImports": "auto",
     "typescript.suggest.autoImports": true,
 
