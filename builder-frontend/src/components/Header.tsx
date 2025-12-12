@@ -2,10 +2,15 @@ import { useAuth } from "../context/AuthContext";
 import { useLocation, useNavigate } from "@solidjs/router";
 
 import bdtLogo from "../assets/logos/bdt-logo-large-mono-light.svg";
-import { Show } from "solid-js";
+import { createMemo, Show } from "solid-js";
 
-
-const HeaderButton = ({ buttonText, onClick }: { buttonText: string; onClick: () => void }) => {
+const HeaderButton = ({
+  buttonText,
+  onClick,
+}: {
+  buttonText: string;
+  onClick: () => void;
+}) => {
   return (
     <div
       onClick={onClick}
@@ -17,14 +22,14 @@ const HeaderButton = ({ buttonText, onClick }: { buttonText: string; onClick: ()
       {buttonText}
     </div>
   );
-}
+};
 
 export default function Header() {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
   const location = useLocation();
-  const isNotRoot = location.pathname !== "/";
+  const isNotRoot = createMemo(() => location.pathname !== "/");
 
   const handleLogout = () => {
     logout();
@@ -37,8 +42,11 @@ export default function Header() {
         <img src={bdtLogo} alt="" class="w-36" />
       </div>
       <div class="flex items-center h-full">
-        <Show when={isNotRoot}>
-          <HeaderButton buttonText="← Back to Home" onClick={() => navigate("/")} />
+        <Show when={isNotRoot()}>
+          <HeaderButton
+            buttonText="← Back to Home"
+            onClick={() => navigate("/")}
+          />
         </Show>
         <HeaderButton buttonText="Logout" onClick={handleLogout} />
       </div>

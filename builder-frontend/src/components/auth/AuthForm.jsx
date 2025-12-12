@@ -12,10 +12,10 @@ export default function AuthForm() {
   const location = useLocation();
 
   const toggleMode = () => {
-    if (location.pathname === "/login") {
-      navigate("/signup");
+    if (location.pathname === "/signup") {
+      navigate("/");
     } else {
-      navigate("/login");
+      navigate("/signup");
     }
   };
 
@@ -38,10 +38,10 @@ export default function AuthForm() {
         <div className="text-gray-800 text-xl font-semibold sm:text-2xl">
           Benefits Decision Tookit
         </div>
-        {location.pathname === "/login" ? (
-          <Login toggleMode={toggleMode}></Login>
-        ) : (
+        {location.pathname === "/signup" ? (
           <Signup toggleMode={toggleMode}></Signup>
+        ) : (
+          <Login toggleMode={toggleMode}></Login>
         )}
         <div class="relative flex w-100 h-12 justify-center items-center">
           <hr class="absolute w-100 border-t border-gray-300" />
