@@ -2,7 +2,7 @@ import { createResource, createEffect, Accessor, createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
 
 import type { EligibilityCheck } from "@/types";
-import { addCheck, fetchUserDefinedChecks } from "@/api/check";
+import { addCheck, archiveCheck, fetchUserDefinedChecks } from "@/api/check";
 
 export interface EligibilityCheckResource {
   checks: () => EligibilityCheck[];
@@ -46,10 +46,10 @@ const eligibilityCheckResource = (): EligibilityCheckResource => {
   const removeCheck = async (checkIdToRemove: string) => {
     setActionInProgress(true);
     try {
-      // await removeCustomBenefit(screenerId(), benefitIdToRemove); TODO
+      await archiveCheck(checkIdToRemove);
       await refetch();
     } catch (e) {
-      console.error("Failed to delete check", e);
+      console.error("Failed to archive check", e);
     }
     setActionInProgress(false);
   };
