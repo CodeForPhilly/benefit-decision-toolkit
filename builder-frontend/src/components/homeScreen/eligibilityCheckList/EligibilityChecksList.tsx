@@ -6,6 +6,7 @@ import CheckModal from "./modals/CheckModal";
 import eligibilityCheckResource from "./eligibilityCheckResource";
 
 import type { EligibilityCheck } from "@/types";
+import ConfirmationModal from "@/components/shared/ConfirmationModal";
 
 const EligibilityChecksList = () => {
   const { checks, actions, actionInProgress, initialLoadStatus } =
@@ -59,6 +60,14 @@ const EligibilityChecksList = () => {
           modalAction={actions.addNewCheck}
         />
       )}
+      {checkIdToRemove() && (
+        <ConfirmationModal
+          confirmationTitle="Archive Check"
+          confirmationText="Are you sure you want to archive this Eligibility Check? This action cannot be undone."
+          callback={() => actions.removeCheck(checkIdToRemove()!)}
+          closeModal={() => setCheckIdToRemove(null)}
+        />
+      )}
     </div>
   );
 };
@@ -107,7 +116,7 @@ const CheckCard = ({
               setCheckIdToRemove(eligibilityCheck.id);
             }}
           >
-            Remove
+            Archive
           </div>
         </div>
       </div>
