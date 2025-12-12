@@ -4,6 +4,8 @@ import {
   useContext,
   onCleanup,
   onMount,
+  Accessor,
+  ParentProps,
 } from "solid-js";
 import {
   onAuthStateChanged,
@@ -12,17 +14,28 @@ import {
   createUserWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
+  User,
+  UserCredential,
+  Unsubscribe,
 } from "firebase/auth";
 
 import { auth } from "../firebase/firebase";
 
-const AuthContext = createContext();
+type AuthContextValue = {
+  user: Accessor<User | null>;
+  isAuthLoading: Accessor<boolean>;
+  login: (email: string, password: string) => Promise<UserCredential>;
+  loginWithGoogle: () => Promise<UserCredential | null>;
+  register: (email: string, password: string) => Promise<UserCredential>;
+  logout: () => Promise<void>;
+};
+const AuthContext = createContext<AuthContextValue>();
 const googleProvider = new GoogleAuthProvider();
 
-export function AuthProvider(props) {
-  const [user, setUser] = createSignal("loading");
+export function AuthProvider(props: ParentProps) {
+  const [user, setUser] = createSignal<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = createSignal(true);
-  let unsubscribe;
+  let unsubscribe: Unsubscribe | undefined;
 
   onMount(() => {
     unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -36,25 +49,27 @@ export function AuthProvider(props) {
     if (unsubscribe) unsubscribe();
   });
 
-  const login = async (email, password) => {
+  const login = (email: string, password: string) => {
     return signInWithEmailAndPassword(auth, email, password);
   };
 
-  const register = async (email, password) => {
+  const register = (email: string, password: string) => {
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
   const loginWithGoogle = async () => {
-    try {
-      return signInWithPopup(auth, googleProvider);
-    } catch (error) {
+    return signInWithPopup(auth, googleProvider).catch((error) => {
       console.error("Google sign-in error:", error.message);
-    }
+      return null;
+    });
+    // try {
+    //   return signInWithPopup(auth, googleProvider);
+    // } catch (error) {
+    //   console.error("Google sign-in error:", error.message);
+    // }
   };
 
-  const logout = async () => {
-    await signOut(auth);
-  };
+  const logout = () => signOut(auth);
 
   return (
     <AuthContext.Provider
@@ -66,5 +81,11 @@ export function AuthProvider(props) {
 }
 
 export function useAuth() {
-  return useContext(AuthContext);
+  const ctx = useContext(AuthContext);
+
+  if (!ctx) {
+    throw new Error("AuthContext must be used within <AuthProvider />");
+  }
+
+  return ctx;
 }
