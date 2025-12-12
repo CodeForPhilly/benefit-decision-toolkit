@@ -11,6 +11,7 @@
   "dependencies": {
     "@bpmn-io/form-js": "^1.15.2",
     "@bpmn-io/form-js-editor": "^1.15.2",
+    "@corvu/drawer": "^0.2.4",
     "@kie-tools-core/editor": "^10.0.0",
     "@kogito-tooling/kie-editors-standalone": "^0.16.0",
     "@solid-primitives/deep": "^0.3.3",
@@ -28,6 +29,7 @@
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/postcss": "^4.1.8",
+    "@types/json-schema": "^7.0.15",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.4",
     "sass-embedded": "^1.89.2",

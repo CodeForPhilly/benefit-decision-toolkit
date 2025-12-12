@@ -12,6 +12,11 @@ import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.dmn.api.core.*;
 import org.kie.dmn.api.core.ast.DecisionNode;
+import org.kie.dmn.api.core.ast.InputDataNode;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.*;
 import java.util.*;
@@ -28,6 +33,16 @@ class DmnCompilationResult {
     }
 }
 
+class DmnModelResult {
+    public DMNModel model;
+    public DMNRuntime runtime;
+
+    public DmnModelResult(DMNModel model, DMNRuntime runtime) {
+        this.model = model;
+        this.runtime = runtime;
+    }
+}
+
 @ApplicationScoped
 public class KieDmnService implements DmnService {
     @Inject
@@ -41,6 +56,23 @@ public class KieDmnService implements DmnService {
         ReleaseId releaseId = kieModule.getReleaseId();
         KieContainer kieContainer = kieServices.newKieContainer(releaseId);
         return kieContainer.newKieSession();
+    }
+
+    private DmnModelResult compileAndGetDmnModel(String dmnXml, Map<String, String> dependenciesMap, String modelId) throws Exception {
+        DmnCompilationResult compilationResult = compileDmnModel(dmnXml, dependenciesMap, modelId);
+        if (!compilationResult.errors.isEmpty()) {
+            throw new IllegalStateException("DMN compilation failed: " + String.join(", ", compilationResult.errors));
+        }
+
+        KieSession kieSession = initializeKieSession(compilationResult.dmnBytes);
+        DMNRuntime dmnRuntime = kieSession.getKieRuntime(DMNRuntime.class);
+
+        List<DMNModel> dmnModels = dmnRuntime.getModels();
+        if (dmnModels.size() != 1) {
+            throw new RuntimeException("Expected exactly one DMN model, found: " + dmnModels.size());
+        }
+
+        return new DmnModelResult(dmnModels.get(0), dmnRuntime);
     }
 
     // Validates that the DMN XML can compile and contains the required decision.
@@ -148,27 +180,12 @@ public class KieDmnService implements DmnService {
         String dmnXml = dmnXmlOpt.get();
 
         HashMap<String, String> dmnDependenciesMap = new HashMap<String, String>();
-        DmnCompilationResult compilationResult = compileDmnModel(dmnXml, dmnDependenciesMap, dmnModelName);
-        if (!compilationResult.errors.isEmpty()) {
-            Log.error("DMN Compilation errors for model " + dmnModelName + ":");
-            for (String error : compilationResult.errors) {
-                Log.error(error);
-            }
-            throw new IllegalStateException("DMN Model compilation failed for model: " + dmnModelName);
-        }
+        DmnModelResult modelResult = compileAndGetDmnModel(dmnXml, dmnDependenciesMap, dmnModelName);
+        DMNModel dmnModel = modelResult.model;
+        DMNRuntime dmnRuntime = modelResult.runtime;
 
-        KieSession kieSession = initializeKieSession(compilationResult.dmnBytes);
-        DMNRuntime dmnRuntime = kieSession.getKieRuntime(DMNRuntime.class);
+        Log.info("DMN Model loaded: " + dmnModel.getName() + " Namespace: " + dmnModel.getNamespace());
 
-        List<DMNModel> dmnModels = dmnRuntime.getModels();
-        if (dmnModels.size() != 1) {
-            throw new RuntimeException("Expected exactly one DMN model, found: " + dmnModels.size());
-        }
-
-        Log.info("DMN Model loaded: " + dmnModels.get(0).getName() + " Namespace: " + dmnModels.get(0).getNamespace());
-
-        // Prepare model and context using inputs
-        DMNModel dmnModel = dmnModels.get(0);
         DMNContext context = dmnRuntime.newContext();
 
         for (Map.Entry<String, Object> input : inputs.entrySet()) {
@@ -201,5 +218,67 @@ public class KieDmnService implements DmnService {
             return EvaluationResult.FALSE;
         }
         throw new RuntimeException("Unexpected decision result type: " + result.getClass().getName());
+    }
+
+    public JsonNode extractInputSchema(
+        String dmnXml,
+        Map<String, String> dependenciesMap,
+        String modelId
+    ) throws Exception {
+        Log.info("Extracting input schema from DMN model: " + modelId);
+
+        DmnModelResult modelResult = compileAndGetDmnModel(dmnXml, dependenciesMap, modelId);
+        DMNModel dmnModel = modelResult.model;
+        Set<InputDataNode> inputs = dmnModel.getInputs();
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        // Create custom object for non-parameters inputs
+        ObjectNode customObj = mapper.createObjectNode();
+        customObj.put("type", "object");
+
+        ArrayList<String> requiredCustomProps = new ArrayList<String>();
+
+        // Fill out custom properties and check if parameters input exists
+        ObjectNode customProperties = mapper.createObjectNode();
+        boolean hasParametersInput = false;
+        for (InputDataNode input : inputs) {
+            String inputName = input.getName();
+            if ("parameters".equals(inputName)) {
+                hasParametersInput = true;
+                continue;
+            }
+            // Add as empty object (no type constraints)
+            customProperties.set(inputName, mapper.createObjectNode());
+            requiredCustomProps.add(inputName);
+        }
+        ArrayNode requiredCustomPropsNode = mapper.valueToTree(requiredCustomProps);
+        customObj.set("required", requiredCustomPropsNode);
+        customObj.set("properties", customProperties);
+
+        ObjectNode properties = mapper.createObjectNode();
+        properties.set("custom", customObj);
+
+        ArrayList<String> requiredTopLevelProps = new ArrayList<String>();
+        requiredTopLevelProps.add("custom");
+
+        // Only add parameters to schema if it's defined as an input in the DMN
+        if (hasParametersInput) {
+            ObjectNode parametersObj = mapper.createObjectNode();
+            ObjectNode parametersProperties = mapper.createObjectNode();
+            parametersObj.put("type", "object");
+            parametersObj.set("properties", parametersProperties);
+            properties.set("parameters", parametersObj);
+            requiredTopLevelProps.add("parameters");
+        }
+
+        ObjectNode schema = mapper.createObjectNode();
+        ArrayNode requiredTopLevelPropsNode = mapper.valueToTree(requiredTopLevelProps);
+        schema.put("type", "object");
+        schema.set("properties", properties);
+        schema.set("required", requiredTopLevelPropsNode);
+
+        Log.info("Extracted " + inputs.size() + " inputs from DMN model: " + modelId);
+        return schema;
     }
 }
