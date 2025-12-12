@@ -245,3 +245,22 @@ export const publishCheck = async (
     throw error; // rethrow so you can handle it in your component if needed
   }
 };
+
+export const archiveCheck = async (checkId: string): Promise<void> => {
+  const url = apiUrl + `/custom-checks/${checkId}/archive`;
+  try {
+    const response = await authFetch(url, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Archive failed with status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error archiving check:", error);
+    throw error;
+  }
+};
