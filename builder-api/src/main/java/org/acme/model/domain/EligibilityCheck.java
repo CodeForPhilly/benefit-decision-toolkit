@@ -13,15 +13,13 @@ public class EligibilityCheck {
     private String module;
     private String description;
     private String version;
-    private boolean isActive;
     private String dmnModel;
     private JsonNode inputDefinition;
     private List<ParameterDefinition> parameterDefinitions;
     private String ownerId;
-    @JsonProperty("isPublic")
-    private Boolean isPublic;
     // API endpoint for evaluating library checks
     private String path;
+    private Boolean isArchived;
 
     public String getId() {
         return this.id;
@@ -71,14 +69,6 @@ public class EligibilityCheck {
         this.version = version;
     }
 
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
-    }
-
     public List<ParameterDefinition> getParameterDefinitions() {
         return parameterDefinitions;
     }
@@ -95,14 +85,6 @@ public class EligibilityCheck {
         this.ownerId = ownerId;
     }
 
-    public Boolean getPublic() {
-        return isPublic;
-    }
-
-    public void setPublic(Boolean aPublic) {
-        isPublic = aPublic;
-    }
-
     public JsonNode getInputDefinition() {
         return inputDefinition;
     }
@@ -117,5 +99,13 @@ public class EligibilityCheck {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public Boolean getIsArchived() {
+        return isArchived != null ? isArchived : false;
+    }
+
+    public void setIsArchived(Boolean isArchived) {
+        this.isArchived = isArchived;
     }
 }

@@ -171,7 +171,7 @@ public class EligibilityCheckResource {
 
         EligibilityCheck check = checkOpt.get();
 
-        if (!check.getPublic() && !check.getOwnerId().equals(userId)){
+        if (!check.getOwnerId().equals(userId)){
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         return Response.ok(check, MediaType.APPLICATION_JSON).build();
@@ -185,7 +185,6 @@ public class EligibilityCheckResource {
 
         //TODO: Add validations for user provided data
         newCheck.setOwnerId(userId);
-        newCheck.setPublic(false);
         if (newCheck.getVersion().isEmpty()){
             newCheck.setVersion("1.0.0");
         }
@@ -207,6 +206,12 @@ public class EligibilityCheckResource {
         String userId = AuthUtils.getUserId(identity);
         if (!userId.equals(updateCheck.getOwnerId())){
             return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        // Check if the check exists and is not archived
+        Optional<EligibilityCheck> existingCheckOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, updateCheck.getId());
+        if (existingCheckOpt.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
 
         try {
@@ -303,6 +308,42 @@ public class EligibilityCheckResource {
             nums[i] = Integer.parseInt(parts[i]);
         }
         return nums;
+    }
+
+    @POST
+    @Path("/custom-checks/{checkId}/archive")
+    public Response archiveCustomCheck(@Context SecurityIdentity identity, @PathParam("checkId") String checkId) {
+        String userId = AuthUtils.getUserId(identity);
+        if (userId == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, checkId, true);
+        if (checkOpt.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        EligibilityCheck check = checkOpt.get();
+
+        if (!check.getOwnerId().equals(userId)) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        if (check.getIsArchived()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", "Check is already archived"))
+                    .build();
+        }
+
+        check.setIsArchived(true);
+        try {
+            eligibilityCheckRepository.updateWorkingCustomCheck(check);
+            return Response.ok().build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Could not archive check"))
+                    .build();
+        }
     }
 
     /* Endpoint for returning all Published Check Versions related to a given Working Eligibility Check */
