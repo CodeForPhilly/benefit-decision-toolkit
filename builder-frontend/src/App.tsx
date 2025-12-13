@@ -1,5 +1,5 @@
 import { Match, ParentProps, Switch } from "solid-js";
-import { Navigate, Route } from "@solidjs/router";
+import { Route } from "@solidjs/router";
 
 import Project from "./components/project/Project";
 import AuthForm from "./components/auth/AuthForm";
@@ -11,9 +11,15 @@ import ProjectsList from "@/components/homeScreen/ProjectsList";
 import EligibilityChecksList from "@/components/homeScreen/eligibilityCheckList/EligibilityChecksList";
 import EligibilityCheckDetail from "./components/homeScreen/eligibilityCheckList/eligibilityCheckDetail/EligibilityCheckDetail";
 import Header from "@/components/Header";
+import ANavBar from "@/components/shared/ANavBar";
 
 const ProtectedRoute = (props: ParentProps) => {
   const { user, isAuthLoading } = useAuth();
+
+  const navbarItems = [
+    { label: "Projects", href: "/project" },
+    { label: "Eligibility checks", href: "/check" },
+  ];
 
   return (
     <Switch>
@@ -25,6 +31,7 @@ const ProtectedRoute = (props: ParentProps) => {
       </Match>
       <Match when={user()}>
         <Header />
+        <ANavBar items={navbarItems} />
         {props.children}
       </Match>
     </Switch>
@@ -39,11 +46,11 @@ function App() {
         <Route path="/login" component={AuthForm} />
         <Route path="/signup" component={AuthForm} />
         <Route path="/project">
-          <Route path="/" />
+          <Route path="/" component={ProjectsList} />
           <Route path="/:projectId" component={Project} />
         </Route>
         <Route path="/check">
-          <Route path="/" />
+          <Route path="/" component={EligibilityChecksList} />
           <Route path="/:checkId" component={EligibilityCheckDetail} />
         </Route>
         <Route path="/screener/:publishedScreenerId" component={Screener} />

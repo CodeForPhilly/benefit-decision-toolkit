@@ -15,6 +15,7 @@
     "@kogito-tooling/kie-editors-standalone": "^0.16.0",
     "@solid-primitives/deep": "^0.3.3",
     "@solid-primitives/resource": "^0.4.2",
+    "@solidjs/meta": "^0.29.4",
     "@solidjs/router": "^0.15.3",
     "dmn-js": "^17.2.1",
     "fast-xml-parser": "^5.2.5",
@@ -28,6 +29,7 @@
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/postcss": "^4.1.8",
+    "@tailwindcss/vite": "^4.1.18",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.4",
     "prettier": "^3.7.4",

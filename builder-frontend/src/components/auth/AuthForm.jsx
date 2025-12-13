@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import Login from "./Login";
 import Signup from "./Signup";
 import { useLocation, useNavigate } from "@solidjs/router";
+import { Title } from "@solidjs/meta";
 
 export default function AuthForm() {
   const [isSigningIn, setIsSigningIn] = createSignal(false);
@@ -39,9 +40,15 @@ export default function AuthForm() {
           Benefits Decision Tookit
         </div>
         {location.pathname === "/signup" ? (
-          <Signup toggleMode={toggleMode}></Signup>
+          <>
+            <Title>Sign up to Builder Decision Toolkit</Title>
+            <Signup toggleMode={toggleMode}></Signup>
+          </>
         ) : (
-          <Login toggleMode={toggleMode}></Login>
+          <>
+            <Title>Log in to Builder Decision Toolkit</Title>
+            <Login toggleMode={toggleMode}></Login>
+          </>
         )}
         <div class="relative flex w-100 h-12 justify-center items-center">
           <hr class="absolute w-100 border-t border-gray-300" />
