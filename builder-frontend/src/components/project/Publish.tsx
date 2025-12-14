@@ -1,4 +1,4 @@
-import { createSignal, onMount } from "solid-js";
+import { createSignal } from "solid-js";
 import { useParams } from "@solidjs/router";
 import { publishScreener } from "../../api/screener";
 

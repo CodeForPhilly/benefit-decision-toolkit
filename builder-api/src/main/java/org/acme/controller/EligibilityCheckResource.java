@@ -7,6 +7,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.acme.auth.AuthUtils;
 import org.acme.constants.CheckStatus;
 import org.acme.model.domain.EligibilityCheck;
@@ -240,6 +241,18 @@ public class EligibilityCheckResource {
         if (!workingDmnOpt.isPresent()) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(Map.of("error", "could not find DMN file for working Check"))
+                    .build();
+        }
+
+        // Extract input schema from DMN
+        try {
+            String workingDmn = workingDmnOpt.get();
+            HashMap<String, String> dmnDependenciesMap = new HashMap<String, String>();
+            JsonNode inputSchema = dmnService.extractInputSchema(workingDmn, dmnDependenciesMap, check.getName());
+            check.setInputDefinition(inputSchema);
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Failed to extract input schema for check " + check.getId()))
                     .build();
         }
 
