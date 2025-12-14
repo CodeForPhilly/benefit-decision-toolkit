@@ -4,18 +4,24 @@ import debounce from "lodash.debounce";
 import { Form } from "@bpmn-io/form-js-viewer";
 import { State } from "@bpmn-io/form-js-viewer/dist/types/Form";
 
-import CustomFormFieldsModule from "../project/formJsExtensions/customFormFields";
+import CustomFormFieldsModule from "@/components/Project/ProjectDetails/formJsExtensions/customFormFields";
 
 import "@bpmn-io/form-js/dist/assets/form-js.css";
 
-function FormRenderer(
-  { schema, submitForm }:
-  { schema: { [key: string]: any; }, submitForm: (data: any) => void }
-) {
+function FormRenderer({
+  schema,
+  submitForm,
+}: {
+  schema: { [key: string]: any };
+  submitForm: (data: any) => void;
+}) {
   let container: Element | null = null;
 
   onMount(() => {
-    const form: Form = new Form({ container, additionalModules: [ CustomFormFieldsModule ] });
+    const form: Form = new Form({
+      container,
+      additionalModules: [CustomFormFieldsModule],
+    });
 
     const debouncedSubmit = debounce((data) => {
       submitForm(data);

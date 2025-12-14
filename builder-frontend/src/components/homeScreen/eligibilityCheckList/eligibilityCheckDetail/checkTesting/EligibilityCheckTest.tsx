@@ -6,7 +6,7 @@ import {
   OptionalBoolean,
   ParameterValues,
 } from "@/types";
-import SelectedEligibilityCheck from "@/components/project/manageBenefits/configureBenefit/SelectedEligibilityCheck";
+import SelectedEligibilityCheck from "@/components/Project/ProjectDetails/manageBenefits/configureBenefit/SelectedEligibilityCheck";
 import CheckJsonEditor from "./CheckJsonEditor";
 import { JSONContent } from "vanilla-jsoneditor";
 
@@ -22,7 +22,7 @@ const EligibilityCheckTest = ({
   eligibilityCheck: Accessor<EligibilityCheck>;
   testEligibility: (
     checkConfg: CheckConfig,
-    inputData: Record<string, any>
+    inputData: Record<string, any>,
   ) => Promise<OptionalBoolean>;
 }) => {
   const [checkConfig, setCheckConfig] = createSignal<CheckConfig>({
@@ -56,7 +56,7 @@ const EligibilityCheckTest = ({
         onClick={async () => {
           const result = await testEligibility(
             checkConfig(),
-            currentJsonContent().json
+            currentJsonContent().json,
           );
           if (!result) {
             return;

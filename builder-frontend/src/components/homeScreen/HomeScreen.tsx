@@ -2,7 +2,7 @@ import { createSignal, Match, Switch } from "solid-js";
 import { Title } from "@solidjs/meta";
 
 import EligibilityChecksList from "./eligibilityCheckList/EligibilityChecksList";
-import ProjectsList from "./ProjectsList";
+import ProjectsList from "@/components/Project/ProjectsList";
 
 const HomeScreen = () => {
   const [screenMode, setScreenMode] = createSignal<"screeners" | "checks">(
