@@ -1,3 +1,14 @@
+export type Project = {
+  id: string;
+  screenerName: string;
+  owner: string;
+  organizationName: null;
+  benefits: BenefitDetail[];
+  formSchema: null;
+  resultsSchema: null;
+  publishedScreenerId: string;
+  lastPublishedDate: Date;
+};
 /* Types for managing benefits in a project */
 export interface ScreenerBenefits {
   benefits: BenefitDetail[];

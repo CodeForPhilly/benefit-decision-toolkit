@@ -1,17 +1,27 @@
 import { auth } from "../firebase/firebase.js";
 
+type RestMethod = "GET" | "POST";
+type FetchInit = {
+  headers: Record<string, string>;
+  body: string;
+};
 
-export async function authFetch(input, init = {}) {
-  const user = auth.currentUser;
+export const authFetch =
+  (method: RestMethod) => async (url: string, init?: FetchInit) => {
+    const user = auth.currentUser;
 
-  // If no user is logged in, you can handle it accordingly
-  if (!user) {
-    throw new Error("User not authenticated");
-  }
+    // If no user is logged in, you can handle it accordingly
+    if (!user) {
+      throw new Error("User not authenticated");
+    }
 
-  const token = await user.getIdToken();
-  const headers = new Headers(init.headers || {});
+    const token = await user.getIdToken();
+    const basicHeaders = { Accept: "application/json" };
+    const headers = new Headers({ ...basicHeaders, ...init?.headers });
+    headers.set("Authorization", `Bearer ${token}`);
 
-  headers.set("Authorization", `Bearer ${token}`);
-  return fetch(input, { ...init, headers });
-}
+    return fetch(url, { method, ...init, headers });
+  };
+
+export const authGet = authFetch("GET");
+export const authPost = authFetch("POST");
