@@ -1,15 +1,27 @@
 import { createSignal, onMount } from "solid-js";
 import { useParams } from "@solidjs/router";
-import { publishScreener } from "../../api/screener";
+import { publishScreener } from "@/api/screener";
 
 export default function Publish({ project, refetchProject }) {
   const [isLoading, setIsLoading] = createSignal(false);
 
-  const screenerName = () => { return project()?.screenerName };
-  const isPublished = () => { return project()?.publishedScreenerId !== null };
-  const lastPublishDate = () => { return project()?.lastPublishDate };
+  const screenerName = () => {
+    return project()?.screenerName;
+  };
+  const isPublished = () => {
+    return project()?.publishedScreenerId !== null;
+  };
+  const lastPublishDate = () => {
+    return project()?.lastPublishDate;
+  };
   const screenerUrl = () => {
-    return window.location.protocol + "//" +window.location.host + "/screener/" + project()?.publishedScreenerId;
+    return (
+      window.location.protocol +
+      "//" +
+      window.location.host +
+      "/screener/" +
+      project()?.publishedScreenerId
+    );
   };
 
   const { projectId } = useParams();

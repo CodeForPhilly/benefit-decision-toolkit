@@ -6,11 +6,10 @@ import { FormEditor } from "@bpmn-io/form-js-editor";
 import FilterFormComponentsModule from "./formJsExtensions/FilterFormComponentsModule";
 import CustomFormFieldsModule from "./formJsExtensions/customFormFields";
 
-import { saveFormSchema } from "../../api/screener";
+import { saveFormSchema } from "@/api/screener";
 
 import "@bpmn-io/form-js/dist/assets/form-js.css";
 import "@bpmn-io/form-js-editor/dist/assets/form-js-editor.css";
-
 
 function FormEditorView({ formSchema, setFormSchema }) {
   const [isUnsaved, setIsUnsaved] = createSignal(false);
@@ -31,10 +30,7 @@ function FormEditorView({ formSchema, setFormSchema }) {
   onMount(() => {
     formEditor = new FormEditor({
       container,
-      additionalModules: [
-        FilterFormComponentsModule,
-        CustomFormFieldsModule
-      ],
+      additionalModules: [FilterFormComponentsModule, CustomFormFieldsModule],
     });
 
     if (formSchema()) {

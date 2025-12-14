@@ -1,37 +1,43 @@
 import { Accessor, createSignal, For, Setter, Show } from "solid-js";
 
 import AddNewBenefitModal from "./modals/AddNewBenefitModal";
-import ConfirmationModal from "../../../shared/ConfirmationModal";
+import ConfirmationModal from "@/components/shared/ConfirmationModal";
 import SelectExistingBenefitModal from "./modals/SelectExistingBenefitModal";
 
 import screenerBenefitResource from "./screenerBenefitsResource";
-import Loading from "../../../Loading";
+import Loading from "@/components/Loading";
 
 import type { BenefitDetail } from "@/types";
 
-
-const BenefitList = (
-  { screenerId, setBenefitIdToConfigure }:
-  { screenerId: Accessor<string>; setBenefitIdToConfigure: Setter<null | string> }
-) => {
-  const { screenerBenefits, actions, actionInProgress, initialLoadStatus } = screenerBenefitResource(screenerId);
+const BenefitList = ({
+  screenerId,
+  setBenefitIdToConfigure,
+}: {
+  screenerId: Accessor<string>;
+  setBenefitIdToConfigure: Setter<null | string>;
+}) => {
+  const { screenerBenefits, actions, actionInProgress, initialLoadStatus } =
+    screenerBenefitResource(screenerId);
 
   const [addingNewBenefit, setAddingNewBenefit] = createSignal<boolean>(false);
-  const [selectExistingBenefitModal, setSelectExistingBenefitModal] = createSignal<boolean>(false);
-  const [benefitIdToRemove, setBenefitIdToRemove] = createSignal<null | string>(null);
+  const [selectExistingBenefitModal, setSelectExistingBenefitModal] =
+    createSignal<boolean>(false);
+  const [benefitIdToRemove, setBenefitIdToRemove] = createSignal<null | string>(
+    null,
+  );
 
   return (
     <div class="p-5">
-      <div class="text-3xl font-bold mb-2 tracking-wide">
-        Manage Benefits
-      </div>
+      <div class="text-3xl font-bold mb-2 tracking-wide">Manage Benefits</div>
       <div class="text-lg mb-3">
-        Define and organize the benefits available in your screener.
-        Each benefit can have associated eligibility checks.
+        Define and organize the benefits available in your screener. Each
+        benefit can have associated eligibility checks.
       </div>
       <div
         class="btn-default btn-blue mb-3 mr-1"
-        onClick={() => {setAddingNewBenefit(true)}}
+        onClick={() => {
+          setAddingNewBenefit(true);
+        }}
       >
         Create New Benefit
       </div>
@@ -47,9 +53,14 @@ const BenefitList = (
           grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
       >
         <Show when={initialLoadStatus.loading() || actionInProgress()}>
-          <Loading/>
+          <Loading />
         </Show>
-        <Show when={!initialLoadStatus.loading() && (screenerBenefits() === null || screenerBenefits().length === 0)}>
+        <Show
+          when={
+            !initialLoadStatus.loading() &&
+            (screenerBenefits() === null || screenerBenefits().length === 0)
+          }
+        >
           <div class="w-full flex text-gray-600 font-bold">
             No benefits found. Please add a new benefit.
           </div>
@@ -66,13 +77,12 @@ const BenefitList = (
           }}
         </For>
       </div>
-      {
-        addingNewBenefit() &&
+      {addingNewBenefit() && (
         <AddNewBenefitModal
           closeModal={() => setAddingNewBenefit(false)}
           addNewBenefit={actions.addNewBenefit}
         />
-      }
+      )}
       {/* {
         selectExistingBenefitModal() &&
         <SelectExistingBenefitModal
@@ -80,27 +90,27 @@ const BenefitList = (
           copyPublicBenefit={actions.copyPublicBenefit}
         />
       } */}
-      {
-        benefitIdToRemove() !== null &&
+      {benefitIdToRemove() !== null && (
         <ConfirmationModal
           confirmationTitle="Remove Benefit"
           confirmationText="Are you sure you want to remove this benefit? This action cannot be undone."
-          callback={() => actions.removeBenefit(benefitIdToRemove()) }
-          closeModal={() => setBenefitIdToRemove(null) }
+          callback={() => actions.removeBenefit(benefitIdToRemove())}
+          closeModal={() => setBenefitIdToRemove(null)}
         />
-      }
+      )}
     </div>
-  )
+  );
 };
 
-const BenefitCard = (
-  { benefit, setBenefitIdToConfigure, setBenefitIdToRemove }:
-  {
-    benefit: BenefitDetail,
-    setBenefitIdToConfigure: Setter<string>,
-    setBenefitIdToRemove: Setter<string>
-  }
-) => {
+const BenefitCard = ({
+  benefit,
+  setBenefitIdToConfigure,
+  setBenefitIdToRemove,
+}: {
+  benefit: BenefitDetail;
+  setBenefitIdToConfigure: Setter<string>;
+  setBenefitIdToRemove: Setter<string>;
+}) => {
   return (
     <div class="w-full flex">
       <div
@@ -112,9 +122,7 @@ const BenefitCard = (
           id={"benefit-card-details-" + benefit.id}
           class="p-4 border-bottom border-gray-300 flex-1"
         >
-          <div class="text-2xl mb-2 font-bold">
-            {benefit.name}
-          </div>
+          <div class="text-2xl mb-2 font-bold">{benefit.name}</div>
           <div>
             <span class="font-bold">Description:</span> {benefit.description}
           </div>
@@ -125,13 +133,17 @@ const BenefitCard = (
         >
           <div
             class="btn-default btn-gray"
-            onClick={() => { setBenefitIdToConfigure(benefit.id); } }
+            onClick={() => {
+              setBenefitIdToConfigure(benefit.id);
+            }}
           >
             Edit
           </div>
           <div
             class="btn-default btn-red"
-            onClick={() => { setBenefitIdToRemove(benefit.id); } }
+            onClick={() => {
+              setBenefitIdToRemove(benefit.id);
+            }}
           >
             Remove
           </div>
@@ -139,6 +151,6 @@ const BenefitCard = (
       </div>
     </div>
   );
-}
+};
 
 export default BenefitList;

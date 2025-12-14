@@ -2,7 +2,7 @@ import { Accessor, createResource, createSignal, For, Show } from "solid-js";
 
 import SelectedEligibilityCheck from "./SelectedEligibilityCheck";
 import EligibilityCheckListView from "./EligibilityCheckListView";
-import Loading from "../../../Loading";
+import Loading from "@/components/Loading";
 
 import BenefitResource from "./benefitResource";
 import { fetchPublicChecks, fetchUserDefinedChecks } from "@/api/check";
@@ -26,7 +26,7 @@ const ConfigureBenefit = ({
     createSignal<EligibilityCheckListMode>("public");
   const [publicChecks] = createResource<EligibilityCheck[]>(fetchPublicChecks);
   const [userDefinedChecks] = createResource<EligibilityCheck[]>(() =>
-    fetchUserDefinedChecks(false)
+    fetchUserDefinedChecks(false),
   );
 
   const onRemoveEligibilityCheck = (checkIndexToRemove: number) => {
@@ -93,11 +93,11 @@ const ConfigureBenefit = ({
                             onRemoveEligibilityCheck(checkIndex())
                           }
                           updateCheckConfigParams={(
-                            newCheckData: ParameterValues
+                            newCheckData: ParameterValues,
                           ) => {
                             actions.updateCheckConfigParams(
                               checkIndex(),
-                              newCheckData
+                              newCheckData,
                             );
                           }}
                         />

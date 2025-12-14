@@ -2,8 +2,7 @@ import { createSignal, createResource, Accessor } from "solid-js";
 import { useParams } from "@solidjs/router";
 
 import FormEditorView from "./FormEditorView";
-import Header from "../Header";
-import Loading from "../Loading";
+import Loading from "@/components/Loading";
 import ManageBenefits from "./manageBenefits/ManageBenefits";
 import Preview from "./preview/Preview";
 import Publish from "./Publish";
