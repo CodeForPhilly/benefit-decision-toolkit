@@ -72,7 +72,10 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
     public List<EligibilityCheck> getWorkingCustomChecks(String userId){
         List<Map<String, Object>> checkMaps = FirestoreUtils.getFirestoreDocsByField(CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION, FieldNames.OWNER_ID, userId);
         ObjectMapper mapper = new ObjectMapper();
-        return checkMaps.stream().map(checkMap -> mapper.convertValue(checkMap, EligibilityCheck.class)).toList();
+        return checkMaps.stream()
+                .map(checkMap -> mapper.convertValue(checkMap, EligibilityCheck.class))
+                .filter(check -> !check.getIsArchived())
+                .toList();
     }
 
     public List<EligibilityCheck> getPublishedCustomChecks(String userId){
@@ -83,7 +86,15 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
 
     public List<EligibilityCheck> getLatestVersionPublishedCustomChecks(String userId) {
         List<EligibilityCheck> publishedChecks = getPublishedCustomChecks(userId);
+
+        // Get all working checks to determine which are archived
+        List<EligibilityCheck> workingChecks = getWorkingCustomChecks(userId);
+        java.util.Set<String> nonArchivedPrefixes = workingChecks.stream()
+                .map(this::getPublishedPrefix)
+                .collect(java.util.stream.Collectors.toSet());
+
         Map<String, EligibilityCheck> latestVersionMap = publishedChecks.stream()
+            .filter(check -> nonArchivedPrefixes.contains(getPublishedPrefix(check)))
             .collect(java.util.stream.Collectors.toMap(
                 check -> getPublishedPrefix(check),
                 check -> check,
@@ -133,11 +144,38 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
     }
 
     public Optional<EligibilityCheck> getWorkingCustomCheck(String userId, String checkId){
-        return getCustomCheck(userId, checkId, false);
+        return getWorkingCustomCheck(userId, checkId, false);
+    }
+
+    public Optional<EligibilityCheck> getWorkingCustomCheck(String userId, String checkId, boolean includeArchived){
+        Optional<EligibilityCheck> checkOpt = getCustomCheck(userId, checkId, false);
+        if (checkOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        EligibilityCheck check = checkOpt.get();
+        if (!includeArchived && check.getIsArchived()) {
+            return Optional.empty();
+        }
+        return checkOpt;
     }
 
     public Optional<EligibilityCheck> getPublishedCustomCheck(String userId, String checkId){
-        return getCustomCheck(userId, checkId, true);
+        Optional<EligibilityCheck> publishedCheckOpt = getCustomCheck(userId, checkId, true);
+        if (publishedCheckOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        // Check if the corresponding working check is archived
+        EligibilityCheck publishedCheck = publishedCheckOpt.get();
+        String workingCheckId = getWorkingId(publishedCheck);
+        Optional<EligibilityCheck> workingCheckOpt = getWorkingCustomCheck(userId, workingCheckId, true);
+
+        // If working check exists and is archived, return empty
+        if (workingCheckOpt.isPresent() && workingCheckOpt.get().getIsArchived()) {
+            return Optional.empty();
+        }
+
+        return publishedCheckOpt;
     }
 
     private Optional<EligibilityCheck> getCustomCheck(String userId, String checkId, boolean isPublished){
