@@ -1,22 +1,13 @@
-import { authFetch } from "@/api/auth";
-import BenefitList from "@/components/project/manageBenefits/benefitList/BenefitList";
-
 import { Benefit } from "@/types";
-
-const apiUrl = import.meta.env.VITE_API_URL;
+import { authGet, authPut } from "@/api/auth";
 
 export const fetchScreenerBenefit = async (
   srceenerId: string,
-  benefitId: string
+  benefitId: string,
 ): Promise<Benefit> => {
-  const url = apiUrl + "/screener/" + srceenerId + "/benefit/" + benefitId;
+  const url = `/api/screener/${srceenerId}/benefit/${benefitId}`;
   try {
-    const response = await authFetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await authGet(url);
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);
@@ -31,16 +22,12 @@ export const fetchScreenerBenefit = async (
 
 export const updateScreenerBenefit = async (
   screenerId: string,
-  benefitData: Benefit
+  benefitData: Benefit,
 ): Promise<Benefit> => {
-  const url = apiUrl + "/screener/" + screenerId + "/benefit";
+  const url = `/api/screener/${screenerId}/benefit`;
   try {
-    const response = await authFetch(url, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
+    const response = await authPut(url, {
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(benefitData),
     });
 
@@ -56,14 +43,9 @@ export const updateScreenerBenefit = async (
 };
 
 export const fetchPublicBenefits = async (): Promise<Benefit[]> => {
-  const url = apiUrl + "/benefit";
+  const url = "/api/benefit";
   try {
-    const response = await authFetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await authGet(url);
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);

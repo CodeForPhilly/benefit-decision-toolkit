@@ -1,6 +1,6 @@
 import { auth } from "../firebase/firebase.js";
 
-type RestMethod = "GET" | "POST";
+type RestMethod = "GET" | "POST" | "PUT" | "DELETE";
 type FetchInit = {
   headers: Record<string, string>;
   body: string;
@@ -25,3 +25,5 @@ export const authFetch =
 
 export const authGet = authFetch("GET");
 export const authPost = authFetch("POST");
+export const authPut = authFetch("PUT");
+export const authDelete = authFetch("DELETE");

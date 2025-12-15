@@ -1,18 +1,10 @@
-import { authFetch } from "@/api/auth";
-
 import type { EligibilityCheck, OptionalBoolean } from "@/types";
-
-const apiUrl = import.meta.env.VITE_API_URL;
+import { authGet, authPost, authPut } from "@/api/auth";
 
 export const fetchPublicChecks = async (): Promise<EligibilityCheck[]> => {
-  const url = apiUrl + "/library-checks";
+  const url = "/api/library-checks";
   try {
-    const response = await authFetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await authGet(url);
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);
@@ -27,20 +19,13 @@ export const fetchPublicChecks = async (): Promise<EligibilityCheck[]> => {
 };
 
 export const fetchCheck = async (
-  checkId: string
+  checkId: string,
 ): Promise<EligibilityCheck> => {
-  let url = apiUrl + `/custom-checks/${checkId}`;
-  if (checkId.charAt(0) === "L") {
-    url = apiUrl + `/library-checks/${checkId}`;
-  }
+  const checkResource = checkId[0] === "L" ? "library-checks" : "custom-checks";
+  const url = `/api/${checkResource}/${checkId}`;
 
   try {
-    const response = await authFetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await authGet(url);
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);
@@ -55,14 +40,10 @@ export const fetchCheck = async (
 };
 
 export const addCheck = async (check: EligibilityCheck) => {
-  const url = apiUrl + "/custom-checks";
+  const url = "/api/custom-checks";
   try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
+    const response = await authPost(url, {
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(check),
     });
 
@@ -78,14 +59,10 @@ export const addCheck = async (check: EligibilityCheck) => {
 };
 
 export const updateCheck = async (check: EligibilityCheck) => {
-  const url = apiUrl + "/custom-checks";
+  const url = "/api/custom-checks";
   try {
-    const response = await authFetch(url, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
+    const response = await authPut(url, {
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(check),
     });
 
@@ -101,14 +78,10 @@ export const updateCheck = async (check: EligibilityCheck) => {
 };
 
 export const saveCheckDmn = async (checkId: string, dmnModel: string) => {
-  const url = apiUrl + "/save-check-dmn";
+  const url = "/api/save-check-dmn";
   try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
+    const response = await authPost(url, {
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: checkId, dmnModel: dmnModel }),
     });
 
@@ -123,16 +96,12 @@ export const saveCheckDmn = async (checkId: string, dmnModel: string) => {
 
 export const validateCheckDmn = async (
   checkId: string,
-  dmnModel: string
+  dmnModel: string,
 ): Promise<string[]> => {
-  const url = apiUrl + "/validate-check-dmn";
+  const url = "/api/validate-check-dmn";
   try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
+    const response = await authPost(url, {
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: checkId, dmnModel: dmnModel }),
     });
 
@@ -149,18 +118,12 @@ export const validateCheckDmn = async (
 };
 
 export const fetchUserDefinedChecks = async (
-  working: boolean
+  working: boolean,
 ): Promise<EligibilityCheck[]> => {
-  const workingQueryParam = working ? "true" : "false";
-  let url: string = apiUrl + `/custom-checks?working=${workingQueryParam}`;
+  const url = `/api/custom-checks?working=${working}`;
 
   try {
-    const response = await authFetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await authGet(url);
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);
@@ -176,17 +139,13 @@ export const fetchUserDefinedChecks = async (
 export const evaluateWorkingCheck = async (
   checkId: string,
   checkConfig: any,
-  inputData: Record<string, any>
+  inputData: Record<string, any>,
 ): Promise<OptionalBoolean> => {
-  const url = apiUrl + `/decision/working-check?checkId=${checkId}`;
+  const url = `/api/decision/working-check?checkId=${checkId}`;
   try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({ checkConfig: checkConfig, inputData: inputData }),
+    const response = await authPost(url, {
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ checkConfig, inputData }),
     });
 
     if (!response.ok) {
@@ -201,16 +160,11 @@ export const evaluateWorkingCheck = async (
 };
 
 export const getRelatedPublishedChecks = async (
-  checkId: string
+  checkId: string,
 ): Promise<EligibilityCheck[]> => {
-  const url = apiUrl + `/custom-checks/${checkId}/published-check-versions`;
+  const url = `/api/custom-checks/${checkId}/published-check-versions`;
   try {
-    const response = await authFetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await authGet(url);
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);
@@ -224,15 +178,13 @@ export const getRelatedPublishedChecks = async (
 };
 
 export const publishCheck = async (
-  checkId: string
+  checkId: string,
 ): Promise<OptionalBoolean> => {
-  const url = apiUrl + `/publish-check/${checkId}`;
+  const url = `/api/publish-check/${checkId}`;
   try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-      },
+    const response = await authPost(url, {
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
     });
 
     if (!response.ok) {

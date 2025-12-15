@@ -1,6 +1,5 @@
-import { authFetch, authGet, authPost } from "@/api/auth";
-
 import type { BenefitDetail, Project, ScreenerResult } from "@/types";
+import { authDelete, authGet, authPost, authPut } from "@/api/auth";
 
 export const fetchProjects = async (): Promise<Project[]> => {
   const url = "/api/screeners";
@@ -14,6 +13,7 @@ export const fetchProjects = async (): Promise<Project[]> => {
     return data;
   } catch (error) {
     console.error("Error fetching projects:", error);
+    return [];
     throw error; // rethrow so you can handle it in your component if needed
   }
 };
@@ -55,15 +55,14 @@ export const createNewScreener = async (screenerData: {
   }
 };
 
-export const updateScreener = async (screenerData) => {
+export const updateScreener = async (screenerData: {
+  screenerName: string;
+  id: string;
+}) => {
   const url = "/api/screener";
   try {
-    const response = await authFetch(url, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
+    const response = await authPut(url, {
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(screenerData),
     });
 
@@ -76,16 +75,10 @@ export const updateScreener = async (screenerData) => {
   }
 };
 
-export const deleteScreener = async (screenerData) => {
-  const url = `/api/screener/delete?screenerId=${screenerData.id}`;
+export const deleteScreener = async (screenerId: string) => {
+  const url = `/api/screener/delete?screenerId=${screenerId}`;
   try {
-    const response = await authFetch(url, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-    });
+    const response = await authDelete(url);
 
     if (!response.ok) {
       throw new Error(`Update failed with status: ${response.status}`);
@@ -96,18 +89,15 @@ export const deleteScreener = async (screenerData) => {
   }
 };
 
-export const saveFormSchema = async (screenerId, schema) => {
+// What is schema's type?
+export const saveFormSchema = async (screenerId: string, schema) => {
   const requestData: any = {};
   requestData.screenerId = screenerId;
   requestData.schema = schema;
   const url = "/api/save-form-schema";
   try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
+    const response = await authPost(url, {
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(requestData),
     });
 
@@ -123,12 +113,8 @@ export const saveFormSchema = async (screenerId, schema) => {
 export const publishScreener = async (screenerId: string): Promise<void> => {
   const url = "/api/publish";
   try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
+    const response = await authPost(url, {
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ screenerId: screenerId }),
     });
 
@@ -147,12 +133,8 @@ export const addCustomBenefit = async (
 ) => {
   const url = `/api/screener/${screenerId}/benefit`;
   try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
+    const response = await authPost(url, {
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(benefit),
     });
 
@@ -171,13 +153,7 @@ export const removeCustomBenefit = async (
 ) => {
   const url = `/api/screener/${screenerId}/benefit/${benefitId}`;
   try {
-    const response = await authFetch(url, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-    });
+    const response = await authDelete(url);
 
     if (!response.ok) {
       throw new Error(
@@ -196,12 +172,8 @@ export const evaluateScreener = async (
 ): Promise<ScreenerResult> => {
   const url = `/api/decision/v2?screenerId=${screenerId}`;
   try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
+    const response = await authPost(url, {
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(inputData),
     });
 
