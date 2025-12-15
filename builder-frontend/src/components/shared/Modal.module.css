@@ -1,0 +1,27 @@
+@reference "tailwindcss";
+
+.modal-wrapper {
+  @apply fixed top-0 left-0 h-full w-full bg-black/10 backdrop-blur-sm;
+  z-index: 10;
+  overflow-y: auto;
+}
+.modal-content {
+  @apply bg-white rounded-xl mx-auto my-24 w-1/2;
+  position: relative;
+  padding: 2rem;
+  width: fit-content;
+  min-width: 50%;
+}
+.modal-header {
+  display: flex;
+  justify-content: flex-end;
+}
+.modal-close {
+  @apply w-fit text-gray-500;
+}
+.modal-close:hover {
+  @apply text-gray-800 cursor-pointer;
+}
+body:has(.modal-wrapper) {
+  overflow-y: hidden;
+}

@@ -1,0 +1,20 @@
+@reference "tailwindcss";
+
+.new-project-card {
+  @apply p-4 w-80 h-60 flex justify-center cursor-pointer border-4 border-gray-300 rounded-lg shadow-md hover:shadow-lg hover:bg-gray-200;
+}
+.project-card {
+  @apply w-80 h-60 relative cursor-pointer border-2 border-gray-300 rounded-lg shadow-md hover:shadow-lg hover:bg-gray-200;
+  color: var(--text-strong);
+}
+.project-card-menu {
+  @apply absolute px-2 top-2 right-2 hover:bg-gray-300 rounded-xl;
+}
+
+.project-card-link {
+  @apply h-60 p-4 flex flex-col justify-center items-center no-underline;
+  color: var(--text-strong);
+}
+.project-card-link:hover {
+  color: var(--text-strong);
+}

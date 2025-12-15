@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@reference "tailwindcss";
 
 .navbarlink {
   @apply px-4 py-2 no-underline border-b-2 hover:bg-gray-200 transition-colors;

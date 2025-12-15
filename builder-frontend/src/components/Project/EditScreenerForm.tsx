@@ -1,125 +1,99 @@
-import { createSignal, onCleanup, onMount } from "solid-js";
-import TrashIcon from "../icon/TrashIcon";
+import {
+  createSignal,
+  JSX,
+  ParentProps,
+  ResourceActions,
+  Show,
+} from "solid-js";
+import { Trash2 } from "lucide-solid";
+
+import type { Project } from "@/types";
+import { deleteScreener, updateScreener } from "@/api/screener";
+import Form from "@/components/shared/Form";
+import { Button } from "@/components/shared/Button";
+import { Modal } from "@/components/shared/Modal";
 import DeleteConfirmation from "./DeleteConfirmation";
 
-export default function EditScreenerForm({
-  setIsEditModalVisible,
-  screenerData,
-  handleEditScreener,
-  handleDeleteScreener,
-}) {
+interface Props {
+  id: string;
+  screenerName: string;
+  refetchProjects: ResourceActions<Project[]>["refetch"];
+}
+
+export default function EditScreenerForm(props: ParentProps<Props>) {
+  const [showDelete, setShowDelete] = createSignal(false);
+  const [error, setError] = createSignal<string | null>(null);
   const [isLoading, setIsLoading] = createSignal(false);
-  const [isConfirmationVisible, setIsConfirmationVisible] = createSignal(false);
-  const [screenerName, setScreenerName] = createSignal();
-  let isActive = true;
+  const [screenerName, setScreenerName] = createSignal(props.screenerName);
 
-  onMount(() => {
-    if (screenerData?.screenerName) {
-      setScreenerName(screenerData.screenerName);
-    }
-  });
-
-  onCleanup(() => {
-    isActive = false;
-  });
-
-  const handleSubmit = async (e) => {
+  const handleSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = (e) => {
     e.preventDefault();
-    try {
-      setIsLoading(true);
-      const data = {
-        screenerName: screenerName(),
-        id: screenerData.id,
-      };
-      await handleEditScreener(data);
-      if (isActive) setIsLoading(false);
-    } catch (e) {
-      if (setIsLoading()) {
-        setIsLoading(false);
-      }
+    setIsLoading(true);
+    const fd = new FormData(e.currentTarget);
+    const screenerName = fd.get("screenerName")?.toString() || "";
+
+    if (screenerName.length > 0) {
+      setError(null);
+      updateScreener({ screenerName, id: props.id })
+        .then(() => {
+          props.refetchProjects();
+          setIsLoading(false);
+        })
+        .catch((e) => {
+          setIsLoading(false);
+        });
+    } else {
+      setError("Please enter a name.");
+      setIsLoading(false);
     }
   };
 
-  const handleDelete = async () => {
-    try {
-      setIsLoading(true);
-      const data = {
-        id: screenerData.id,
-      };
-      await handleDeleteScreener(data);
-      if (isActive) setIsLoading(false);
-    } catch (e) {
-      if (setIsLoading()) {
+  const handleDelete = () => {
+    setIsLoading(true);
+    deleteScreener(props.id)
+      .then(() => {
+        props.refetchProjects();
         setIsLoading(false);
-      }
-    }
-  };
-
-  const handleDeleteClicked = (e) => {
-    e.preventDefault();
-    setIsConfirmationVisible(true);
+      })
+      .catch((e) => {
+        setIsLoading(false);
+      });
   };
 
   return (
-    <>
-      <div
-        onClick={() => setIsEditModalVisible(false)}
-        className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50"
-      >
-        <form
-          onClick={(e) => e.stopPropagation()}
-          className="bg-white px-12 py-8 rounded-xl max-w-140 w-1/2 min-w-80 h-96"
-        >
-          <div className="flex justify-between">
-            <div className="text-xl font-bold">Edit screener</div>
-            <div
-              onClick={() => setIsEditModalVisible(false)}
-              className="text-2xl hover:font-bold hover:cursor-pointer"
-            >
-              X
-            </div>
-          </div>
+    <div>
+      <h1 class="text-xl font-bold">Edit screener</h1>
 
-          <div>
-            <div className="mt-8 flex flex-col">
-              <label>Screener Name:</label>
-              <input
-                type="text"
-                value={screenerName()}
-                onInput={(e) => setScreenerName(e.currentTarget.value)}
-                className="p-1 border-1 border-gray-400 w-90"
-              ></input>
-            </div>
-            <button
-              onClick={handleSubmit}
-              disabled={isLoading()}
-              className="mt-3 py-2 px-4 text-white rounded bg-gray-800 disabled:opacity-50"
-            >
-              Update
-            </button>
+      <Form onSubmit={handleSubmit}>
+        <Form.LabelAbove htmlFor="screenerName" placeholder="Screener name">
+          <Form.TextInput
+            value={screenerName()}
+            onChange={(e) => setScreenerName(e.target.value)}
+          />
+        </Form.LabelAbove>
+        <Show when={error()}>
+          <div class="text-red-500">{error()}</div>
+        </Show>
+        <Button variant="secondary" type="submit" disabled={isLoading()}>
+          Update
+        </Button>
+      </Form>
 
-            <div className="pt-8">
-              <hr class="w-100 border-t border-gray-300" />
-            </div>
+      <hr class="w-100 border-t border-gray-300" />
 
-            <button
-              onClick={handleDeleteClicked}
-              className="text-red-400 flex border-2 border-red-400 rounded px-3 py-1"
-            >
-              <TrashIcon></TrashIcon>Delete Screener
-            </button>
+      <Button variant="outline-danger" onClick={() => setShowDelete(true)}>
+        <Trash2 /> Delete Screener
+      </Button>
 
-            {isLoading() && <div>Loading ...</div>}
-          </div>
-        </form>
-      </div>
-      {isConfirmationVisible() && (
+      <Modal show={showDelete} onClose={() => setShowDelete(false)}>
         <DeleteConfirmation
-          screenerData={screenerData}
-          setIsConfirmationVisible={setIsConfirmationVisible}
-          handleDelete={handleDelete}
-        ></DeleteConfirmation>
-      )}
-    </>
+          id={props.id}
+          screenerName={props.screenerName}
+          onCancel={() => setShowDelete(false)}
+          onDelete={handleDelete}
+        />
+      </Modal>
+      {isLoading() && <div>Loading ...</div>}
+    </div>
   );
 }

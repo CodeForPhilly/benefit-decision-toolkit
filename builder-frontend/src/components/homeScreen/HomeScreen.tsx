@@ -12,14 +12,14 @@ const HomeScreen = () => {
   return (
     <div>
       <Title>BDT Home</Title>
-      <Switch>
+      {/* <Switch>
         <Match when={screenMode() === "screeners"}>
           <ProjectsList />
         </Match>
         <Match when={screenMode() === "checks"}>
           <EligibilityChecksList />
         </Match>
-      </Switch>
+      </Switch> */}
     </div>
   );
 };

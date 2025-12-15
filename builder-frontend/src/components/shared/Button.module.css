@@ -1,0 +1,45 @@
+@reference "tailwindcss";
+
+.button {
+  @apply inline-flex py-1.5 px-4 rounded border-2 disabled:opacity-50;
+}
+
+.primary {
+  @apply border-(--brand) bg-(--brand) text-white;
+}
+.primary:not([disabled]):hover {
+  @apply brightness-110;
+}
+.outline-primary {
+  @apply border-(--brand) bg-white text-(--brand);
+}
+.outline-primary:not([disabled]):hover {
+  @apply border-(--brand)/70 bg-(--brand)/30;
+}
+
+.secondary {
+  @apply border-(--text-strong) bg-(--text-strong) text-white;
+}
+.secondary:not([disabled]):hover {
+  @apply brightness-130;
+}
+.outline-secondary {
+  @apply border-(--text-strong) bg-white text-(--text-strong);
+}
+.outline-secondary:not([disabled]):hover {
+  @apply border-(--text-strong)/70 bg-(--text-strong)/30;
+}
+
+.tertiary {
+  @apply border-(--text-strong) bg-(--text-strong) text-white;
+}
+
+.danger {
+  @apply border-red-400 bg-red-400 text-white;
+}
+.outline-danger {
+  @apply border-red-400 bg-white text-red-400;
+}
+.outline-danger:not([disabled]):hover {
+  @apply bg-red-100;
+}

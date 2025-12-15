@@ -1,0 +1,24 @@
+@reference "tailwindcss";
+
+.textfield {
+  @apply relative border-2 border-slate-400 rounded-sm;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+.textfield-label {
+  @apply absolute top-0 left-0 p-4 text-slate-500 pointer-events-none;
+}
+.textfield:hover {
+  @apply border-slate-500;
+}
+.textfield:has(.textfield-input:focus) {
+  @apply border-slate-800;
+}
+.textfield > .textfield-input:focus ~ .textfield-label,
+.textfield > .textfield-input:not(:placeholder-shown) ~ .textfield-label {
+  transform: scale(0.8) translateY(-1.5rem);
+  transform-origin: 1rem;
+}
+.textfield-input {
+  @apply w-full p-4 focus:outline-0 text-(--text-strong);
+}
