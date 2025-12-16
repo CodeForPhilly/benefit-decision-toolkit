@@ -55,6 +55,7 @@ const Preview = ({ project, formSchema }) => {
   }
 
   return (
+    // TODO: Make sure to put container as a row and not columns
     <div>
       <div class="m-4 p-4 border-2 border-gray-200 rounded">
         <div class="text-lg text-gray-800 text-md font-bold">Form</div>
