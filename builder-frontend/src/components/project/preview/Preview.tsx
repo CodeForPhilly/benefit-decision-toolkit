@@ -6,7 +6,6 @@ import Results from "./Results";
 import { evaluateScreener } from "../../../api/screener";
 
 import { PreviewFormData, ScreenerResult } from "./types";
-import { Button } from "solid-bootstrap";
 
 
 const Preview = ({ project, formSchema }) => {
@@ -41,29 +40,32 @@ const Preview = ({ project, formSchema }) => {
   }
 
   return (
+    // TODO: Make sure to put container as a row and not columns
     <div>
       <div class="m-4 p-4 border-2 border-gray-200 rounded">
         <div class="text-lg text-gray-800 text-md font-bold">Form</div>
         <FormRenderer schema={schema} submitForm={handleSubmitForm}/>
       </div>
-      <div class="m-4 p-4 border-2 border-gray-200 rounded">
-        <div class="text-lg text-gray-800 text-md font-bold">Results</div>
-        <div>
-          <button
-            onClick={handleTest}
-          >
-            Add as Test
-          </button>
+      <div class="grid-row-auto">
+        <div class="m-4 p-4 border-2 border-gray-200 rounded">
+          <div class="text-lg text-gray-800 text-md font-bold">Results</div>
+          <div>
+            <button
+              onClick={handleTest}
+            >
+              Add as Test
+            </button>
+          </div>
+          <Results inputData={lastInputDataSent} results={results} resultsLoading={resultsLoading}/>
         </div>
-        <Results inputData={lastInputDataSent} results={results} resultsLoading={resultsLoading}/>
-      </div>
-      <div class="m-4 p-4 border-2 border-gray-200 rounded">
-        <div>
-        <button
-          onClick={handleTest}
-        >
-          Run Test
-        </button>
+        <div class="m-4 p-4 border-2 border-gray-200 rounded">
+          <div>
+            <button
+              onClick={handleTest}
+            >
+              Run Test
+            </button>
+          </div>
         </div>
       </div>
     </div>
