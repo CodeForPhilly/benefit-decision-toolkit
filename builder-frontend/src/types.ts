@@ -95,6 +95,10 @@ export interface DateParameter extends BaseParameter {
 export interface ScreenerResult {
   [key: string]: BenefitResult;
 }
+export interface ScreenerTest {
+  inputData: PublishedScreener
+  outputData: ScreenerResult
+}
 export interface BenefitResult {
   name: string;
   result: OptionalBoolean;
