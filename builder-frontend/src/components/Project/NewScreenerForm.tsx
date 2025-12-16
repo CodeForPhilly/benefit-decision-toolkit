@@ -7,7 +7,6 @@ import Form from "@/components/shared/Form";
 export default function NewScreenerForm() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = createSignal(false);
-  const [screenerName, setScreenerName] = createSignal("");
   const [error, setError] = createSignal<string | null>();
 
   const handleSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (
@@ -33,10 +32,7 @@ export default function NewScreenerForm() {
       <h1 class="text-2xl">Create a screener</h1>
       <Form onSubmit={handleSubmit}>
         <Form.LabelAbove htmlFor="screenerName" placeholder="Screener name">
-          <Form.TextInput
-            value={screenerName()}
-            onChange={(e) => setScreenerName(e.target.value)}
-          />
+          <Form.TextInput />
         </Form.LabelAbove>
         <Show when={error()}>
           <div class="text-red-500">{error()}</div>

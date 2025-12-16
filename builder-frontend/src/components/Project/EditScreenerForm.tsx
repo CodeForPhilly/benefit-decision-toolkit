@@ -24,7 +24,6 @@ export default function EditScreenerForm(props: ParentProps<Props>) {
   const [showDelete, setShowDelete] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
   const [isLoading, setIsLoading] = createSignal(false);
-  const [screenerName, setScreenerName] = createSignal(props.screenerName);
 
   const handleSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = (e) => {
     e.preventDefault();
@@ -66,10 +65,7 @@ export default function EditScreenerForm(props: ParentProps<Props>) {
 
       <Form onSubmit={handleSubmit}>
         <Form.LabelAbove htmlFor="screenerName" placeholder="Screener name">
-          <Form.TextInput
-            value={screenerName()}
-            onChange={(e) => setScreenerName(e.target.value)}
-          />
+          <Form.TextInput value={props.screenerName} />
         </Form.LabelAbove>
         <Show when={error()}>
           <div class="text-red-500">{error()}</div>
