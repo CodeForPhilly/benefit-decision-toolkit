@@ -11,8 +11,7 @@ import jakarta.ws.rs.core.Context;
 public class ScreenerTestResource {
 
     @PUT
-    @Consumes
-    @Path("")
+    @Path("/screenerTest")
     public void testScreener(@Context SecurityIdentity identity, ScreenerTest screenerTest) {
         // Write logic here
         Log.info(screenerTest);
@@ -20,8 +19,8 @@ public class ScreenerTestResource {
 
     @GET
     @Consumes
-    @Path("")
-    public String getScreenerTestResult() {
+    @Path("/screenerTest/{screenerTestId}")
+    public String getScreenerTestResult(@Context SecurityIdentity identity, @PathParam("screenerTestId") String screenerTestId) {
         // Write logic here
         return "Empty string";
     }
