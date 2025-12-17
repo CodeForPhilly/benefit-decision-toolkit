@@ -70,7 +70,7 @@ const CheckCard = ({
 }: {
   eligibilityCheck: EligibilityCheck;
   navigateToCheck: (check: EligibilityCheck) => void;
-  setCheckIdToRemove: Setter<string>;
+  setCheckIdToRemove: Setter<null | string>;
 }) => {
   return (
     <div class="w-full flex">

@@ -1,19 +1,17 @@
 import { Match, ParentProps, Switch } from "solid-js";
-import { Route } from "@solidjs/router";
+import { Navigate, Route } from "@solidjs/router";
 
 import AuthForm from "./components/auth/AuthForm";
 import { useAuth } from "./context/AuthContext";
-import HomeScreen from "./components/homeScreen/HomeScreen";
 import Screener from "./components/screener/Screener";
 import Loading from "./components/Loading";
 import EligibilityChecksList from "@/components/homeScreen/eligibilityCheckList/EligibilityChecksList";
-import EligibilityCheckDetail from "./components/homeScreen/eligibilityCheckList/eligibilityCheckDetail/EligibilityCheckDetail";
+import EligibilityCheckDetail from "@/components/homeScreen/eligibilityCheckList/eligibilityCheckDetail/EligibilityCheckDetail";
 import Header from "@/components/Header";
 import ANavBar from "@/components/shared/ANavBar";
-import ProjectsList from "@/components/Project/ProjectsList";
 import Project from "@/components/Project/ProjectDetails/Project";
 import Projects from "@/components/Project/Projects";
-import { ProjectsLayout } from "@/components/Project/ProjectsLayout";
+
 
 const ProtectedRoute = (props: ParentProps) => {
   const { user, isAuthLoading } = useAuth();
@@ -44,10 +42,10 @@ function App() {
   return (
     <>
       <Route path="/" component={ProtectedRoute}>
-        <Route path="/" component={HomeScreen} />
+        <Route path="/" component={() => <Navigate href="/projects"/>} />
         <Route path="/login" component={AuthForm} />
         <Route path="/signup" component={AuthForm} />
-        <Route path="/projects" component={ProjectsLayout}>
+        <Route path="/projects">
           <Route path="/" component={Projects} />
           <Route path="/:projectId" component={Project} />
         </Route>
@@ -55,8 +53,8 @@ function App() {
           <Route path="/" component={EligibilityChecksList} />
           <Route path="/:checkId" component={EligibilityCheckDetail} />
         </Route>
-        <Route path="/screener/:publishedScreenerId" component={Screener} />
       </Route>
+      <Route path="/screener/:publishedScreenerId" component={Screener} />
       <Route
         path="*"
         component={() => <div class="p-4">404 - Page Not Found</div>}

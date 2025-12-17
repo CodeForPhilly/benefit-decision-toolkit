@@ -37,16 +37,16 @@ export default function AuthForm() {
     <div className="w-full h-screen flex self-center place-content-center place-items-center">
       <div className="w-96 text-gray-600 space-y-5 p-4 shadow-xl border rounded-xl">
         <div className="text-gray-800 text-xl font-semibold sm:text-2xl">
-          Benefits Decision Tookit
+          Benefit Decision Tookit
         </div>
         {location.pathname === "/signup" ? (
           <>
-            <Title>Sign up to Builder Decision Toolkit</Title>
+            <Title>Sign up to Benefit Decision Toolkit</Title>
             <Signup toggleMode={toggleMode}></Signup>
           </>
         ) : (
           <>
-            <Title>Log in to Builder Decision Toolkit</Title>
+            <Title>Log in to Benefit Decision Toolkit</Title>
             <Login toggleMode={toggleMode}></Login>
           </>
         )}
