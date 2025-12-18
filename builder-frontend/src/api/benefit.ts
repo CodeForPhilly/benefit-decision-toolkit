@@ -3,13 +3,11 @@ import BenefitList from "@/components/project/manageBenefits/benefitList/Benefit
 
 import { Benefit } from "@/types";
 
-const apiUrl = import.meta.env.VITE_API_URL;
-
 export const fetchScreenerBenefit = async (
   srceenerId: string,
   benefitId: string
 ): Promise<Benefit> => {
-  const url = apiUrl + "/screener/" + srceenerId + "/benefit/" + benefitId;
+  const url = `/api/screener/${srceenerId}/benefit/${benefitId}`;
   try {
     const response = await authFetch(url, {
       method: "GET",
@@ -33,7 +31,7 @@ export const updateScreenerBenefit = async (
   screenerId: string,
   benefitData: Benefit
 ): Promise<Benefit> => {
-  const url = apiUrl + "/screener/" + screenerId + "/benefit";
+  const url = `/api/screener/${screenerId}/benefit`;
   try {
     const response = await authFetch(url, {
       method: "PUT",
@@ -56,7 +54,7 @@ export const updateScreenerBenefit = async (
 };
 
 export const fetchPublicBenefits = async (): Promise<Benefit[]> => {
-  const url = apiUrl + "/benefit";
+  const url = "/api/benefit";
   try {
     const response = await authFetch(url, {
       method: "GET",
