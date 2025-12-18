@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [solid(), tsconfigPaths()],
     server: {
-      port: process.env.DEV_SERVER_PORT || 5173,
+      port: env.DEV_SERVER_PORT || 5173,
       // Proxy to connect to backend
       // https://vite.dev/config/server-options#server-proxy
       proxy: {
