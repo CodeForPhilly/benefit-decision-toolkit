@@ -1,16 +1,11 @@
-import { authFetch } from "@/api/auth";
+import { authFetch, authGet, authPost, authPut } from "@/api/auth";
 
 import type { EligibilityCheck, OptionalBoolean } from "@/types";
 
 export const fetchPublicChecks = async (): Promise<EligibilityCheck[]> => {
   const url = "/api/library-checks";
   try {
-    const response = await authFetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await authGet(url);
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);
@@ -31,12 +26,7 @@ export const fetchCheck = async (
   const url = `/api/${checkResource}/${checkId}`;
 
   try {
-    const response = await authFetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await authGet(url);
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);
@@ -53,14 +43,7 @@ export const fetchCheck = async (
 export const addCheck = async (check: EligibilityCheck) => {
   const url = "/api/custom-checks";
   try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(check),
-    });
+    const response = await authPost(url, check);
 
     if (!response.ok) {
       throw new Error(`Post failed with status: ${response.status}`);
@@ -76,14 +59,7 @@ export const addCheck = async (check: EligibilityCheck) => {
 export const updateCheck = async (check: EligibilityCheck) => {
   const url = "/api/custom-checks";
   try {
-    const response = await authFetch(url, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(check),
-    });
+    const response = await authPut(url, check);
 
     if (!response.ok) {
       throw new Error(`Update failed with status: ${response.status}`);
@@ -99,14 +75,7 @@ export const updateCheck = async (check: EligibilityCheck) => {
 export const saveCheckDmn = async (checkId: string, dmnModel: string) => {
   const url = "/api/save-check-dmn";
   try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({ id: checkId, dmnModel: dmnModel }),
-    });
+    const response = await authPost(url, { id: checkId, dmnModel });
 
     if (!response.ok) {
       throw new Error(`DMN save failed with status: ${response.status}`);
@@ -123,14 +92,7 @@ export const validateCheckDmn = async (
 ): Promise<string[]> => {
   const url = "/api/validate-check-dmn";
   try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({ id: checkId, dmnModel: dmnModel }),
-    });
+    const response = await authPost(url, { id: checkId, dmnModel });
 
     if (!response.ok) {
       throw new Error(`Validation failed with status: ${response.status}`);
@@ -150,12 +112,7 @@ export const fetchUserDefinedChecks = async (
   const url = `/api/custom-checks?working=${working}`;
 
   try {
-    const response = await authFetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await authGet(url);
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);
@@ -175,14 +132,7 @@ export const evaluateWorkingCheck = async (
 ): Promise<OptionalBoolean> => {
   const url = `/api/decision/working-check?checkId=${checkId}`;
   try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({ checkConfig: checkConfig, inputData: inputData }),
-    });
+    const response = await authPost(url, { checkConfig, inputData });
 
     if (!response.ok) {
       throw new Error(`Test check failed with status: ${response.status}`);
@@ -200,12 +150,7 @@ export const getRelatedPublishedChecks = async (
 ): Promise<EligibilityCheck[]> => {
   const url = `/api/custom-checks/${checkId}/published-check-versions`;
   try {
-    const response = await authFetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await authGet(url);
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);
@@ -223,12 +168,7 @@ export const publishCheck = async (
 ): Promise<OptionalBoolean> => {
   const url = `/api/publish-check/${checkId}`;
   try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await authPost(url, {});
 
     if (!response.ok) {
       throw new Error(`Publish failed with status: ${response.status}`);
@@ -244,12 +184,7 @@ export const publishCheck = async (
 export const archiveCheck = async (checkId: string): Promise<void> => {
   const url = `/api/custom-checks/${checkId}/archive`;
   try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await authPost(url, {});
 
     if (!response.ok) {
       throw new Error(`Archive failed with status: ${response.status}`);
