@@ -1,9 +1,9 @@
 import type { PublishedScreener, ScreenerResult } from "@/types";
 
-const apiUrl = import.meta.env.VITE_API_URL;
-
-export const fetchPublishedScreener = async (publishedScreenerId: string): Promise<PublishedScreener> => {
-  const url = apiUrl + "/published/screener/" + publishedScreenerId;
+export const fetchPublishedScreener = async (
+  publishedScreenerId: string
+): Promise<PublishedScreener> => {
+  const url = `/api/published/screener/${publishedScreenerId}`;
   try {
     const response = await fetch(url, {
       method: "GET",
@@ -23,9 +23,11 @@ export const fetchPublishedScreener = async (publishedScreenerId: string): Promi
   }
 };
 
-
-export const evaluatePublishedScreener = async (publishedScreenerId: string, inputData: any): Promise<ScreenerResult> => {
-  const url = apiUrl + "/published/" + publishedScreenerId + "/evaluate";
+export const evaluatePublishedScreener = async (
+  publishedScreenerId: string,
+  inputData: any
+): Promise<ScreenerResult> => {
+  const url = `/published/${publishedScreenerId}/evaluate`;
   try {
     const response = await fetch(url, {
       method: "POST",
