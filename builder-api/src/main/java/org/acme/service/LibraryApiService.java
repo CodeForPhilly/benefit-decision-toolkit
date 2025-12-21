@@ -1,5 +1,6 @@
 package org.acme.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
@@ -12,6 +13,11 @@ import org.acme.model.domain.EligibilityCheck;
 import org.acme.persistence.StorageService;
 import org.acme.persistence.FirestoreUtils;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -70,8 +76,46 @@ public class LibraryApiService {
          return matches.getFirst();
     }
 
-    public EvaluationResult evaluateCheck(CheckConfig checkConfig, String evaluationUrl, Map<String, Object> inputs){
-        return EvaluationResult.TRUE;
+    public EvaluationResult evaluateCheck(CheckConfig checkConfig, String evaluationUrl, Map<String, Object> inputs) throws JsonProcessingException {
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("parameters", checkConfig.getParameters());
+        data.put("situation", inputs);
+        ObjectMapper mapper = new ObjectMapper();
+        String bodyJson = mapper.writeValueAsString(data);
+
+        HttpClient client = HttpClient.newHttpClient();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://library-api-cnsoqyluna-uc.a.run.app/api/v1/checks/age/person-min-age"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(bodyJson))
+                .build();
+
+        try {
+            HttpResponse<String> response =
+                    client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            int statusCode = response.statusCode();
+            if (statusCode != 200){
+                Log.error("Error evaluating library check " + checkConfig.getCheckId());
+                Log.error("Inputs and parameters that caused error:" + bodyJson);
+                return EvaluationResult.UNABLE_TO_DETERMINE;
+            }
+            String body = response.body();
+            Map<String, Object> responseBody = mapper.readValue(
+                    body,
+                    new TypeReference<Map<String, Object>>() {}
+            );
+
+            // TODO: Need a safer way to validate the returned data is in the right format
+            String result = responseBody.get("checkResult").toString();
+            return EvaluationResult.fromStringIgnoreCase(result);
+        }
+        catch (Exception e){
+            Log.error(e);
+            return EvaluationResult.UNABLE_TO_DETERMINE;
+        }
     }
 }
 
