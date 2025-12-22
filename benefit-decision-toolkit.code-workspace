@@ -21,6 +21,12 @@
     // Java settings for API modules
     "java.import.maven.enabled": true,
     "java.compile.nullAnalysis.mode": "automatic",
+    "[java]": {
+      "editor.defaultFormatter": "redhat.java"
+    },
+    "[xml]": {
+      "editor.defaultFormatter": "redhat.vscode-xml"
+    },
 
     // Node.js settings for frontend modules
     "[javascript, typescript]": {
@@ -72,6 +78,7 @@
       // General productivity
       "ms-vscode.vscode-json",
       "redhat.vscode-yaml",
+      "redhat.vscode-xml",
       "ms-vscode.remote-containers",
 
       // Project-specific
