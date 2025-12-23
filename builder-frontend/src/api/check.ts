@@ -2,8 +2,10 @@ import { authFetch } from "@/api/auth";
 
 import type { EligibilityCheck, OptionalBoolean } from "@/types";
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 export const fetchPublicChecks = async (): Promise<EligibilityCheck[]> => {
-  const url = "/api/library-checks";
+  const url = apiUrl + "/library-checks";
   try {
     const response = await authFetch(url, {
       method: "GET",
@@ -27,8 +29,10 @@ export const fetchPublicChecks = async (): Promise<EligibilityCheck[]> => {
 export const fetchCheck = async (
   checkId: string
 ): Promise<EligibilityCheck> => {
-  const checkResource = checkId[0] === "L" ? "library-checks" : "custom-checks";
-  const url = `/api/${checkResource}/${checkId}`;
+  let url = apiUrl + `/custom-checks/${checkId}`;
+  if (checkId.charAt(0) === "L") {
+    url = apiUrl + `/library-checks/${checkId}`;
+  }
 
   try {
     const response = await authFetch(url, {
@@ -51,7 +55,7 @@ export const fetchCheck = async (
 };
 
 export const addCheck = async (check: EligibilityCheck) => {
-  const url = "/api/custom-checks";
+  const url = apiUrl + "/custom-checks";
   try {
     const response = await authFetch(url, {
       method: "POST",
@@ -74,7 +78,7 @@ export const addCheck = async (check: EligibilityCheck) => {
 };
 
 export const updateCheck = async (check: EligibilityCheck) => {
-  const url = "/api/custom-checks";
+  const url = apiUrl + "/custom-checks";
   try {
     const response = await authFetch(url, {
       method: "PUT",
@@ -97,7 +101,7 @@ export const updateCheck = async (check: EligibilityCheck) => {
 };
 
 export const saveCheckDmn = async (checkId: string, dmnModel: string) => {
-  const url = "/api/save-check-dmn";
+  const url = apiUrl + "/save-check-dmn";
   try {
     const response = await authFetch(url, {
       method: "POST",
@@ -121,7 +125,7 @@ export const validateCheckDmn = async (
   checkId: string,
   dmnModel: string
 ): Promise<string[]> => {
-  const url = "/api/validate-check-dmn";
+  const url = apiUrl + "/validate-check-dmn";
   try {
     const response = await authFetch(url, {
       method: "POST",
@@ -147,7 +151,8 @@ export const validateCheckDmn = async (
 export const fetchUserDefinedChecks = async (
   working: boolean
 ): Promise<EligibilityCheck[]> => {
-  const url = `/api/custom-checks?working=${working}`;
+  const workingQueryParam = working ? "true" : "false";
+  let url: string = apiUrl + `/custom-checks?working=${workingQueryParam}`;
 
   try {
     const response = await authFetch(url, {
@@ -173,7 +178,7 @@ export const evaluateWorkingCheck = async (
   checkConfig: any,
   inputData: Record<string, any>
 ): Promise<OptionalBoolean> => {
-  const url = `/api/decision/working-check?checkId=${checkId}`;
+  const url = apiUrl + `/decision/working-check?checkId=${checkId}`;
   try {
     const response = await authFetch(url, {
       method: "POST",
@@ -198,7 +203,7 @@ export const evaluateWorkingCheck = async (
 export const getRelatedPublishedChecks = async (
   checkId: string
 ): Promise<EligibilityCheck[]> => {
-  const url = `/api/custom-checks/${checkId}/published-check-versions`;
+  const url = apiUrl + `/custom-checks/${checkId}/published-check-versions`;
   try {
     const response = await authFetch(url, {
       method: "GET",
@@ -221,7 +226,7 @@ export const getRelatedPublishedChecks = async (
 export const publishCheck = async (
   checkId: string
 ): Promise<OptionalBoolean> => {
-  const url = `/api/publish-check/${checkId}`;
+  const url = apiUrl + `/publish-check/${checkId}`;
   try {
     const response = await authFetch(url, {
       method: "POST",
@@ -242,7 +247,7 @@ export const publishCheck = async (
 };
 
 export const archiveCheck = async (checkId: string): Promise<void> => {
-  const url = `/api/custom-checks/${checkId}/archive`;
+  const url = apiUrl + `/custom-checks/${checkId}/archive`;
   try {
     const response = await authFetch(url, {
       method: "POST",
