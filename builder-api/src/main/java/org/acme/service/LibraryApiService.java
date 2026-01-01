@@ -76,7 +76,9 @@ public class LibraryApiService {
          return matches.getFirst();
     }
 
-    public EvaluationResult evaluateCheck(CheckConfig checkConfig, String evaluationUrl, Map<String, Object> inputs) throws JsonProcessingException {
+    public EvaluationResult evaluateCheck(CheckConfig checkConfig, Map<String, Object> inputs) throws JsonProcessingException {
+
+        // TODO: Check that checkConfig has required attributes and handle null values
 
         Map<String, Object> data = new HashMap<>();
         data.put("parameters", checkConfig.getParameters());
@@ -87,7 +89,7 @@ public class LibraryApiService {
         HttpClient client = HttpClient.newHttpClient();
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://library-api-cnsoqyluna-uc.a.run.app/api/v1/checks/age/person-min-age"))
+                .uri(URI.create("https://library-api-cnsoqyluna-uc.a.run.app" + checkConfig.getEvaluationUrl()))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(bodyJson))
                 .build();
