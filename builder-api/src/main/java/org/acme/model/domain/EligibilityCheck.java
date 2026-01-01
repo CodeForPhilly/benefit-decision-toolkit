@@ -1,7 +1,6 @@
 package org.acme.model.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.List;
@@ -18,7 +17,7 @@ public class EligibilityCheck {
     private List<ParameterDefinition> parameterDefinitions;
     private String ownerId;
     // API endpoint for evaluating library checks
-    private String path;
+    private String evaluationUrl;
     private Boolean isArchived;
 
     public String getId() {
@@ -93,12 +92,12 @@ public class EligibilityCheck {
         this.inputDefinition = inputDefinition;
     }
 
-    public String getPath() {
-        return path;
+    public String getEvaluationUrl() {
+        return evaluationUrl;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setEvaluationUrl(String evaluationUrl) {
+        this.evaluationUrl = evaluationUrl;
     }
 
     public Boolean getIsArchived() {

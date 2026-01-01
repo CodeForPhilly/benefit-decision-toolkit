@@ -136,9 +136,7 @@ public class DecisionResource {
                 String dmnFilepath = storageService.getCheckDmnModelPath(checkConfig.getCheckId());
                 EvaluationResult evaluationResult;
                 if (isLibraryCheck(checkConfig)){
-
-                    String evaluationUrl = checkConfig.getEvaluationUrl();
-                    evaluationResult = libraryApi.evaluateCheck(checkConfig, evaluationUrl, formData);
+                    evaluationResult = libraryApi.evaluateCheck(checkConfig, formData);
                 } else {
                     Map<String, Object> customFormValues = (Map<String, Object>) formData.get("custom");
                     if (customFormValues == null) {

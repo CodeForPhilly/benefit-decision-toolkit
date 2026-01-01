@@ -1,23 +1,33 @@
-import { onMount, onCleanup, createSignal, createResource, Switch, Match, For, Show } from "solid-js";
+import {
+  onMount,
+  onCleanup,
+  createSignal,
+  createResource,
+  Switch,
+  Match,
+  For,
+  Show,
+} from "solid-js";
 import { useParams } from "@solidjs/router";
 
 import { FormEditor } from "@bpmn-io/form-js-editor";
-import Drawer from '@corvu/drawer' // 'corvu/drawer'
+import Drawer from "@corvu/drawer"; // 'corvu/drawer'
 
 import FilterFormComponentsModule from "./formJsExtensions/FilterFormComponentsModule";
 import CustomFormFieldsModule from "./formJsExtensions/customFormFields";
 
 import { saveFormSchema } from "../../api/screener";
 import { fetchScreenerBenefit } from "../../api/benefit";
-import { extractFormPaths, extractJsonSchemaPaths } from "../../utils/formSchemaUtils";
+import {
+  extractFormPaths,
+  extractJsonSchemaPaths,
+} from "../../utils/formSchemaUtils";
 import Loading from "../Loading";
 
 import type { Benefit, BenefitDetail } from "../../types";
 
-
 import "@bpmn-io/form-js/dist/assets/form-js.css";
 import "@bpmn-io/form-js-editor/dist/assets/form-js-editor.css";
-
 
 function FormEditorView({ project, formSchema, setFormSchema }) {
   const [isUnsaved, setIsUnsaved] = createSignal(false);
@@ -31,7 +41,7 @@ function FormEditorView({ project, formSchema, setFormSchema }) {
       if (!benefitDetails?.length) return [];
       const screenerId = params.projectId;
       return Promise.all(
-        benefitDetails.map(b => fetchScreenerBenefit(screenerId, b.id))
+        benefitDetails.map((b) => fetchScreenerBenefit(screenerId, b.id))
       );
     }
   );
@@ -51,8 +61,8 @@ function FormEditorView({ project, formSchema, setFormSchema }) {
     formEditor = new FormEditor({
       container,
       additionalModules: [
-        FilterFormComponentsModule,
-        CustomFormFieldsModule
+        // FilterFormComponentsModule,
+        CustomFormFieldsModule,
       ],
     });
 
@@ -108,7 +118,10 @@ function FormEditorView({ project, formSchema, setFormSchema }) {
                 </div>
               </Match>
               <Match when={isSaving()}>
-                <div onClick={handleSave} class="btn-default btn-gray cursor-not-allowed">
+                <div
+                  onClick={handleSave}
+                  class="btn-default btn-gray cursor-not-allowed"
+                >
                   Saving...
                 </div>
               </Match>
@@ -126,9 +139,9 @@ function FormEditorView({ project, formSchema, setFormSchema }) {
   );
 }
 
-
 const FormValidationDrawer = ({ formSchema, benefits }) => {
-  const formOutputs = () => formSchema() ? extractFormPaths(formSchema()) : [];
+  const formOutputs = () =>
+    formSchema() ? extractFormPaths(formSchema()) : [];
 
   // Extract expected inputs from all benefits' checks
   const expectedInputs = () => {
@@ -138,7 +151,7 @@ const FormValidationDrawer = ({ formSchema, benefits }) => {
     for (const benefit of allBenefits) {
       for (const check of benefit.checks || []) {
         const paths = extractJsonSchemaPaths(check.inputDefinition);
-        paths.forEach(p => pathSet.add(p));
+        paths.forEach((p) => pathSet.add(p));
       }
     }
     return Array.from(pathSet);
@@ -148,10 +161,10 @@ const FormValidationDrawer = ({ formSchema, benefits }) => {
   const formOutputSet = () => new Set(formOutputs());
 
   const satisfiedInputs = () =>
-    expectedInputs().filter(p => formOutputSet().has(p));
+    expectedInputs().filter((p) => formOutputSet().has(p));
 
   const missingInputs = () =>
-    expectedInputs().filter(p => !formOutputSet().has(p));
+    expectedInputs().filter((p) => !formOutputSet().has(p));
 
   return (
     <Drawer side="right">
@@ -173,7 +186,11 @@ const FormValidationDrawer = ({ formSchema, benefits }) => {
                 fixed inset-0 z-50
                 data-transitioning:transition-colors data-transitioning:duration-500
                 data-transitioning:ease-[cubic-bezier(0.32,0.72,0,1)]"
-              style={{'background-color': `rgb(0 0 0 / ${0.5 * props.openPercentage})`}}
+              style={{
+                "background-color": `rgb(0 0 0 / ${
+                  0.5 * props.openPercentage
+                })`,
+              }}
             />
             <Drawer.Content
               class="
@@ -189,8 +206,17 @@ const FormValidationDrawer = ({ formSchema, benefits }) => {
 
               {/* Form Outputs Section */}
               <div class="mt-4 mr-10 px-4 pb-10">
-                <h3 class="text-lg font-semibold text-gray-700 mb-2">Form Outputs</h3>
-                <For each={formOutputs()} fallback={<p class="text-gray-500 italic text-sm">No form fields defined yet.</p>}>
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">
+                  Form Outputs
+                </h3>
+                <For
+                  each={formOutputs()}
+                  fallback={
+                    <p class="text-gray-500 italic text-sm">
+                      No form fields defined yet.
+                    </p>
+                  }
+                >
                   {(path) => (
                     <div class="py-2 px-3 mb-2 bg-white rounded border border-gray-300 font-mono text-sm">
                       {path}
@@ -201,8 +227,17 @@ const FormValidationDrawer = ({ formSchema, benefits }) => {
 
               {/* Missing Inputs Section */}
               <div class="mt-4 mr-10 px-4">
-                <h3 class="text-lg font-semibold text-red-900 mb-2">Missing Inputs</h3>
-                <For each={missingInputs()} fallback={<p class="text-gray-500 italic text-sm">All required inputs are satisfied!</p>}>
+                <h3 class="text-lg font-semibold text-red-900 mb-2">
+                  Missing Inputs
+                </h3>
+                <For
+                  each={missingInputs()}
+                  fallback={
+                    <p class="text-gray-500 italic text-sm">
+                      All required inputs are satisfied!
+                    </p>
+                  }
+                >
                   {(path) => (
                     <div class="py-2 px-3 mb-2 bg-red-50 rounded border border-red-300 font-mono text-sm text-red-800">
                       {path}
@@ -213,8 +248,17 @@ const FormValidationDrawer = ({ formSchema, benefits }) => {
 
               {/* Satisfied Inputs Section */}
               <div class="mt-4 mr-10 px-4">
-                <h3 class="text-lg font-semibold text-green-900 mb-2">Satisfied Inputs</h3>
-                <For each={satisfiedInputs()} fallback={<p class="text-gray-500 italic text-sm">No inputs satisfied yet.</p>}>
+                <h3 class="text-lg font-semibold text-green-900 mb-2">
+                  Satisfied Inputs
+                </h3>
+                <For
+                  each={satisfiedInputs()}
+                  fallback={
+                    <p class="text-gray-500 italic text-sm">
+                      No inputs satisfied yet.
+                    </p>
+                  }
+                >
                   {(path) => (
                     <div class="py-2 px-3 mb-2 bg-green-50 rounded border border-green-300 font-mono text-sm text-green-800">
                       {path}
@@ -227,7 +271,7 @@ const FormValidationDrawer = ({ formSchema, benefits }) => {
         </>
       )}
     </Drawer>
-  )
-}
+  );
+};
 
 export default FormEditorView;

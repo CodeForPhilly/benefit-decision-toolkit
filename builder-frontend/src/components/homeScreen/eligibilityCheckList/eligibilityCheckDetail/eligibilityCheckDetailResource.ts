@@ -71,7 +71,7 @@ const eligibilityCheckDetailResource = (
     const updatedCheck: EligibilityCheckDetail = {
       ...eligibilityCheck,
       parameterDefinitions: [
-        ...eligibilityCheck.parameterDefinitions,
+        ...(eligibilityCheck.parameterDefinitions || []),
         parameterDef,
       ],
     };
