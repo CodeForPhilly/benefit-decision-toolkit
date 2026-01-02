@@ -50,7 +50,7 @@ jobs:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('builder-api/pom.xml') }}
           restore-keys: |
-            ${{ runner.os }}-maven-
+            ${{ runner.os }}-maven-${{ hashFiles('builder-api/pom.xml') }}
 
       # Configure Workload Identity Federation and generate an access token
       - id: 'auth'
