@@ -22,7 +22,7 @@ jobs:
 
       - name: Create GCP credentials file
         run: |
-          echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' > gcp-key.json
+          echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' > scripts/gcp-key.json
 
       - name: Run script
         working-directory: scripts
@@ -32,4 +32,4 @@ jobs:
           python load-library-metadata.py
 
       - name: Cleanup credentials
-        run: rm gcp-key.json
+        run: rm scripts/gcp-key.json
