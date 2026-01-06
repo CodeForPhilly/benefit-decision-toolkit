@@ -87,9 +87,10 @@ public class LibraryApiService {
         String bodyJson = mapper.writeValueAsString(data);
 
         HttpClient client = HttpClient.newHttpClient();
-
+        String urlEncodedVersion = checkConfig.getCheckVersion().replace('.', '-');
+        String baseUrl = String.format("https://library-api-v%s---library-api-cnsoqyluna-uc.a.run.app", urlEncodedVersion);
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://library-api-cnsoqyluna-uc.a.run.app" + checkConfig.getEvaluationUrl()))
+                .uri(URI.create(baseUrl + checkConfig.getEvaluationUrl()))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(bodyJson))
                 .build();
