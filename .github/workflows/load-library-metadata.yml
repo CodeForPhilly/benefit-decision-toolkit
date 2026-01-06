@@ -32,4 +32,4 @@ jobs:
           python load-library-metadata.py
 
       - name: Cleanup credentials
-        run: rm gcp-key.json
+        run: rm scripts/gcp-key.json
