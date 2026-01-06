@@ -1,0 +1,35 @@
+name: Load Library API Metadata
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        working-directory: scripts
+        run: pip install -r requirements.txt
+
+      - name: Create GCP credentials file
+        run: |
+          echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' > gcp-key.json
+
+      - name: Run script
+        working-directory: scripts
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: gcp-key.json
+        run: |
+          python your_script.py
+
+      - name: Cleanup credentials
+        run: rm gcp-key.json
