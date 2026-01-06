@@ -1,6 +1,22 @@
-import json
 from copy import deepcopy
 import requests
+import firebase_admin
+from firebase_admin import credentials, storage, firestore
+import json
+from datetime import datetime
+
+# -----------------------------------
+# INIT FIREBASE
+# -----------------------------------
+
+cred = credentials.ApplicationDefault()
+
+firebase_admin.initialize_app(cred, {
+    "storageBucket": "benefit-decision-toolkit-play.firebasestorage.app"
+})
+
+db = firestore.client()
+bucket = storage.bucket()
 
 
 # --------------------------------------------
@@ -234,12 +250,49 @@ def transform_situation_format(data):
     return data
 
 
+def save_json_to_storage_and_update_firestore(json_string, firestore_doc_path):
+    """
+    Upload JSON string to Firebase Storage and update Firestore
+    with the storage path or download URL of the uploaded file.
+    """
+
+    # ---------------------
+    # Create filename
+    # Example: exported_2025-02-12_14-30-59.json
+    # ---------------------
+    timestamp = datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")
+    filename = f"LibraryApiSchemaExports/export_{timestamp}.json"
+
+    # ---------------------
+    # Upload to storage
+    # ---------------------
+    blob = bucket.blob(filename)
+    blob.upload_from_string(json_string, content_type="application/json")
+
+    # Get the storage path
+    storage_path = blob.name
+
+    # ---------------------
+    # Update Firestore
+    # ---------------------
+    doc_ref = db.document(firestore_doc_path)
+    doc_ref.set({
+        "latestJsonStoragePath": storage_path,
+        "updatedAt": firestore.SERVER_TIMESTAMP
+    }, merge=True)
+
+    print("Uploaded:", storage_path)
+    print("Firestore updated!")
+
+    return storage_path
+
+
 # --------------------------------------------
 # Load your OpenAPI JSON here
 # --------------------------------------------
 if __name__ == "__main__":
 
-    url = "https://library-api-cnsoqyluna-uc.a.run.app/q/openapi.json"
+    url = "https://library-api-1034049717668.us-central1.run.app/q/openapi.json"
 
     # Send a GET request
     response = requests.get(url)
@@ -260,7 +313,12 @@ if __name__ == "__main__":
         check.pop("inputs")
 
     # Write JSON file using UTF-8 to avoid errors
-    with open("endpoint_inputs.json", "w", encoding="utf-8") as out:
-        json.dump(check_records, out, indent=2, ensure_ascii=False)
+    json_string = json.dumps(check_records, indent=2, ensure_ascii=False)
 
-    print("Output written to endpoint_inputs.json")
+    print("Parsed json")
+    print(json_string)
+
+    save_json_to_storage_and_update_firestore(
+        json_string,
+        firestore_doc_path="system/config"
+    )
