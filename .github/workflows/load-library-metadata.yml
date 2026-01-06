@@ -22,7 +22,7 @@ jobs:
 
       - name: Create GCP credentials file
         run: |
-          echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' > gcp-key.json
+          echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' > scripts/gcp-key.json
 
       - name: Run script
         working-directory: scripts
