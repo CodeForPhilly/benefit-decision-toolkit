@@ -24,26 +24,26 @@ const EligibilityChecksList = () => {
   };
 
   return (
-    <div class="px-12 py-8">
+    <div class="py-8">
       <Show when={initialLoadStatus.loading() || actionInProgress()}>
         <Loading />
       </Show>
-      <div class="text-3xl font-bold mb-2 tracking-wide">
-        Eligibility Checks
-      </div>
-      <div class="text-lg mb-3">
-        Manage your eligibility checks here. Click on a check to view or edit
-        its details.
+      <div class="text-xl font-bold mb-2">Eligibility Checks</div>
+      <div class="text-md mb-3">
+        Manage your custom eligibility checks here. Click on a check to view or
+        edit its details.
       </div>
       <div
-        class="btn-default btn-blue mb-3 mr-1"
+        class="px-4 py-2 w-fit cursor-pointer bg-blue-500
+                rounded-lg shadow-md hover:shadow-lg hover:bg-blue-600
+                font-bold text-sm text-white"
         onClick={() => {
           setAddingNewCheck(true);
         }}
       >
         Create New Check
       </div>
-      <div class="grid gap-4 justify-items-center grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+      <div class="mt-4 grid gap-4 justify-items-center grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
         <For each={checks()}>
           {(check) => (
             <CheckCard

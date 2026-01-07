@@ -6,14 +6,18 @@ import NewScreenerForm from "./NewScreenerForm";
 import MenuIcon from "../icon/MenuIcon";
 
 import {
-  fetchProjects, updateScreener, deleteScreener, createNewScreener,
+  fetchProjects,
+  updateScreener,
+  deleteScreener,
+  createNewScreener,
 } from "@/api/screener";
 import { useAuth } from "@/context/AuthContext";
 
-
 export default function ProjectsList() {
-  const [projectList, { refetch: refetchProjectList }] = createResource(fetchProjects);
-  const [isNewScreenerModalVisible, setIsNewScreenerModalVisible] = createSignal(false);
+  const [projectList, { refetch: refetchProjectList }] =
+    createResource(fetchProjects);
+  const [isNewScreenerModalVisible, setIsNewScreenerModalVisible] =
+    createSignal(false);
   const [isEditModalVisible, setIsEditgModalVisible] = createSignal(false);
   const [editModelData, setEditModalData] = createSignal();
   const navigate = useNavigate();
@@ -67,24 +71,36 @@ export default function ProjectsList() {
   return (
     <>
       <div>
+        <div class="bg-gray-100 rounded-xl p-8 flex flex-col text-sm">
+          <div class="text-xl font-bold">
+            Welcome to the Benefit Decision Toolkit!
+          </div>
+          <div class="pt-2">
+            The Benefit Decision Toolkit is an open-source, civic tech project
+            that aims to provide an easy and affordable platform for building
+            benefit eligibility screening tools.
+          </div>
+
+          <div class="pt-3">
+            Create a new eligibility screener by adding and configuring
+            eligibility checks from our library of pre-built eligibility rules.
+            Or build custom checks that meet your specific needs.
+          </div>
+          <div
+            onClick={() => setIsNewScreenerModalVisible(true)}
+            class="
+                mt-2 px-4 py-2 w-fit cursor-pointer bg-blue-500
+                rounded-lg shadow-md hover:shadow-lg hover:bg-blue-600
+                font-bold text-sm text-white"
+          >
+            Create new screener
+          </div>
+        </div>
         <Show when={projectList} fallback={<div>Loading...</div>}>
-          <div class="flex flex-wrap gap-4 p-4 w-100">
-            <div
-              onClick={() => setIsNewScreenerModalVisible(true)}
-              class="
-                p-4 w-80 h-60 flex justify-center cursor-pointer
-                border-4 border-gray-300 rounded-lg
-                shadow-md hover:shadow-lg hover:bg-gray-200"
-            >
-              <div class="flex items-center text-2xl font-bold">
-                Create new screener
-              </div>
-            </div>
+          <div class="flex flex-wrap gap-4 py-4 w-100">
             <Show when={projectList.loading}>
               <div class="w-80 h-60 flex items-center justify-center border-2 border-gray-300 rounded-lg shadow-md">
-                <div class="text-2xl font-bold">
-                  Loading screeners...
-                </div>
+                <div class="text-2xl font-bold">Loading screeners...</div>
               </div>
             </Show>
             <For each={projectList()}>
@@ -100,15 +116,13 @@ export default function ProjectsList() {
                       class="absolute px-2 top-2 right-2 hover:bg-gray-300 rounded-xl"
                       onClick={(e) => handleProjectMenuClicked(e, item)}
                     >
-                      <MenuIcon/>
+                      <MenuIcon />
                     </div>
                     <div
                       onClick={() => navigateToProject(item)}
                       class="h-60 p-4 flex flex-col justify-center items-center"
                     >
-                      <div class="text-2xl font-bold">
-                        {item.screenerName}
-                      </div>
+                      <div class="text-2xl font-bold">{item.screenerName}</div>
                     </div>
                   </div>
                 )
