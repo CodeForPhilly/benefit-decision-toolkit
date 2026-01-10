@@ -10,9 +10,13 @@ import Values from "../components/Values.astro";
 
 <Layout>
   <Hero />
-  <Overview />
-  <Process />
-  <Values />
+  <div
+    class="md:bg-[url(../assets/backgrounds/bubbles.svg)] bg-center md:mg-size-[150vh] lg:bg-cover bg-no-repeat"
+  >
+    <Overview />
+    <Process />
+    <Values />
+  </div>
   <Projects />
   <Contact />
 </Layout>
