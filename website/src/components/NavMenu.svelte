@@ -9,7 +9,7 @@
 </script>
 
 <nav class="hidden sm:block">
-  <ul class="flex gap-4">
+  <ul class="flex gap-6">
     {#each navLinks as link}
       <li>
         <a
