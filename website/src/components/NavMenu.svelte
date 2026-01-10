@@ -36,7 +36,7 @@
     transition:fade={{ duration: 180, easing: quadOut }}
   >
     <button
-      class="fixed top-9.5 right-3 text-white font-bold border-2 border-white rounded-lg px-2 py-1"
+      class="fixed top-9.5 right-6 text-white font-bold border-2 border-white rounded-lg px-2 py-1"
       onclick={toggleMenu}
       aria-label={menuActive ? "Close navigation menu" : "Open navigation menu"}
       aria-controls="navMenu"
