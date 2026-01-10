@@ -1,26 +1,30 @@
 ---
-import { Content } from "../assets/copy/Hero.md";
+import { render } from "astro:content";
+import { getCollection } from "astro:content";
+const projects = await getCollection("projects");
 ---
 
 <section
   id="projects"
-  class="bg-sky-500/50 bg-[url(../assets/backgrounds/wavy.png)] bg-cover bg-blend-soft-light"
+  class="bg-sky-500/50 bg-[url(../assets/backgrounds/wavy.png)] bg-cover bg-blend-multiply"
 >
   <div class="max-w-[130ch] mx-auto py-12 px-3">
-    <h2 class="font-bold font-serif text-2xl text-center mb-6">
+    <h2 class="font-bold font-serif text-2xl text-center mb-9">
       BDT's Projects
     </h2>
     <ul class="flex flex-col sm:flex-row gap-6 justify-center">
-      <li class="bg-white/50 p-6 rounded-2xl">
-        <div class="prose">
-          <Content />
-        </div>
-      </li>
-      <li class="bg-white/50 p-6 rounded-2xl">
-        <div class="prose">
-          <Content />
-        </div>
-      </li>
+      {
+        projects.map(async (project) => {
+          const { Content } = await render(project);
+          return (
+            <li class="bg-white/50 p-6 rounded-2xl md:w-1/2">
+              <div class="prose">
+                <Content />
+              </div>
+            </li>
+          );
+        })
+      }
     </ul>
   </div>
 </section>
