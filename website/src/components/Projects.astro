@@ -17,7 +17,7 @@ const projects = await getCollection("projects");
         projects.map(async (project) => {
           const { Content } = await render(project);
           return (
-            <li class="bg-white/50 p-6 rounded-2xl w-1/2">
+            <li class="bg-white/50 p-6 rounded-2xl md:w-1/2">
               <div class="prose">
                 <Content />
               </div>
