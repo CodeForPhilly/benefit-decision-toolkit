@@ -8,8 +8,8 @@
   }
 </script>
 
-<nav class="hidden sm:block">
-  <ul class="flex gap-6">
+<nav class="hidden md:block">
+  <ul class="flex gap-6 text-lg">
     {#each navLinks as link}
       <li>
         <a
@@ -23,7 +23,7 @@
   </ul>
 </nav>
 <button
-  class="sm:hidden self-center text-white font-bold border-2 border-white rounded-lg px-2 py-1"
+  class="md:hidden self-center text-white font-bold border-2 border-white rounded-lg px-2 py-1"
   onclick={toggleMenu}
   aria-label={menuActive ? "Close navigation menu" : "Open navigation menu"}
   aria-controls="navMenu"
