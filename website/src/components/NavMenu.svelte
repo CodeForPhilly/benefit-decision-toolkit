@@ -1,5 +1,7 @@
 <script>
+  import { quadOut } from "svelte/easing";
   import navLinks from "../data/navLinks";
+  import { fade } from "svelte/transition";
   let menuActive = $state(false);
   function toggleMenu() {
     menuActive = !menuActive;
@@ -10,7 +12,10 @@
   <ul class="flex gap-4">
     {#each navLinks as link}
       <li>
-        <a class="text-white" href={`${import.meta.env.BASE_URL}${link.path}`}>
+        <a
+          class="text-white font-bold"
+          href={`${import.meta.env.BASE_URL}${link.path}`}
+        >
           {link.title}
         </a>
       </li>
@@ -18,16 +23,24 @@
   </ul>
 </nav>
 <button
-  class="sm:hidden self-center text-white border border-white rounded-lg px-2 py-1"
-  onclick={toggleMenu}>Menu</button
+  class="sm:hidden self-center text-white font-bold border-2 border-white rounded-lg px-2 py-1"
+  onclick={toggleMenu}
+  aria-label={menuActive ? "Close navigation menu" : "Open navigation menu"}
+  aria-controls="navMenu"
+  aria-expanded={menuActive}>Menu</button
 >
 {#if menuActive == true}
   <div
+    id="navMenu"
     class="fixed left-0 top-0 h-screen w-screen flex justify-center items-center bg-sky-500"
+    transition:fade={{ duration: 180, easing: quadOut }}
   >
     <button
-      class="fixed top-10 right-3 text-white border border-white rounded-lg px-2 py-1"
-      onclick={toggleMenu}>Close</button
+      class="fixed top-9.5 right-3 text-white font-bold border-2 border-white rounded-lg px-2 py-1"
+      onclick={toggleMenu}
+      aria-label={menuActive ? "Close navigation menu" : "Open navigation menu"}
+      aria-controls="navMenu"
+      aria-expanded={menuActive}>Close</button
     >
     <ul class="w-fit h-fit flex flex-col gap-4 items-center">
       {#each navLinks as link}
