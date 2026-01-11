@@ -46,22 +46,22 @@ const Preview = ({ project, formSchema }) => {
         <div class="text-lg text-gray-800 text-md font-bold">Form</div>
         <FormRenderer schema={schema} submitForm={handleSubmitForm}/>
       </div>
-      <div class="grid-row-auto">
-        <div class="m-4 p-4 border-2 border-gray-200 rounded">
-          <div class="text-lg text-gray-800 text-md font-bold">Results</div>
-          <div>
+      <div class="flex gap-4 m-4">
+        <div class="flex-1 p-4 border-2 border-gray-200 rounded">
+          <div class="text-lg text-gray-800 font-bold">Results</div>
+          <div class="mb-4">
             <button
-              onClick={handleTest}
+              onClick={handleTest} class="btn-default btn-blue"
             >
               Add as Test
             </button>
           </div>
           <Results inputData={lastInputDataSent} results={results} resultsLoading={resultsLoading}/>
         </div>
-        <div class="m-4 p-4 border-2 border-gray-200 rounded">
+        <div class="flex-1 p-4 border-2 border-gray-200 rounded">
           <div>
             <button
-              onClick={handleTest}
+              onClick={handleTest} class="btn-default btn-blue"
             >
               Run Test
             </button>
