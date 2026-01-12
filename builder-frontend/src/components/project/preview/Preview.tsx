@@ -4,6 +4,7 @@ import FormRenderer from "./FormRenderer";
 import Results from "./Results";
 
 import { evaluateScreener } from "../../../api/screener";
+import { testScreener, getScreenerTestResult } from "@/api/screenerTest";
 
 import { PreviewFormData, ScreenerResult } from "./types";
 
@@ -35,8 +36,21 @@ const Preview = ({ project, formSchema }) => {
     setResultsLoading(false);
   };
 
-  const handleTest = async () => {
+  const handleTest = async (screenerTestData) => {
+    try {
+      await testScreener(screenerTestData);
+    } catch (e) {
+      console.log("Error submitting test screener", e);
+    }
+  }
 
+  const handleTestResult = async (screenerId) => {
+    try{
+      console.log("Clicked!");
+      await getScreenerTestResult(screenerId);
+    } catch (e) {
+      console.log("Error getting test screener result", e);
+    }
   }
 
   return (
@@ -61,7 +75,7 @@ const Preview = ({ project, formSchema }) => {
         <div class="flex-1 p-4 border-2 border-gray-200 rounded">
           <div>
             <button
-              onClick={handleTest} class="btn-default btn-blue"
+              onClick={handleTestResult} class="btn-default btn-blue"
             >
               Run Test
             </button>
