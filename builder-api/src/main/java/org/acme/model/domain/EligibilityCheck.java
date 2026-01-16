@@ -20,6 +20,24 @@ public class EligibilityCheck {
     private String evaluationUrl;
     private Boolean isArchived;
 
+    public EligibilityCheck() {
+    }
+
+    public EligibilityCheck(
+        String name,
+        String module,
+        String description,
+        List<ParameterDefinition> parameterDefinitions,
+        String ownerId
+    ) {
+        this.name = name;
+        this.module = module;
+        this.description = description;
+        this.parameterDefinitions = parameterDefinitions;
+        this.ownerId = ownerId;
+        this.version = "1.0.0";
+    }
+
     public String getId() {
         return this.id;
     }

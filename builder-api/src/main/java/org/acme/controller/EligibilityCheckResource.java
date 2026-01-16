@@ -12,6 +12,8 @@ import org.acme.auth.AuthUtils;
 import org.acme.constants.CheckStatus;
 import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.dto.CheckDmnRequest;
+import org.acme.model.dto.CreateCheckRequest;
+import org.acme.model.dto.UpdateCheckRequest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.StorageService;
 import org.acme.service.DmnService;
@@ -21,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@Path("/api")
+@Path("/api/custom-checks")
 public class EligibilityCheckResource {
 
     @Inject
@@ -33,94 +35,12 @@ public class EligibilityCheckResource {
     @Inject
     DmnService dmnService;
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/save-check-dmn")
-    public Response updateCheckDmn(@Context SecurityIdentity identity, CheckDmnRequest saveDmnRequest){
-        String checkId = saveDmnRequest.id;
-        String dmnModel = saveDmnRequest.dmnModel;
-        if (checkId == null || checkId.isBlank()){
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Error: Missing required data: checkId")
-                    .build();
-        }
-
-        String userId = AuthUtils.getUserId(identity);
-        Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, checkId);
-        if (checkOpt.isEmpty()){
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-
-        EligibilityCheck check = checkOpt.get();
-        if (!check.getOwnerId().equals(userId)){
-            return Response.status(Response.Status.UNAUTHORIZED).build();
-        }
-
-        try {
-            String filePath = storageService.getCheckDmnModelPath(checkId);
-            storageService.writeStringToStorage(filePath, dmnModel, "application/xml");
-            Log.info("Saved DMN model of check " + checkId + " to storage");
-
-            // TODO: Need to figure out if we are allowing DMN versions to be mutable. If so, we need to update a
-            // last_saved field so that we know the check was updated and needs to be recompiled on evaluation
-
-            return Response.ok().build();
-        } catch (Exception e){
-            Log.info(("Failed to save DMN model for check " + checkId));
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/validate-check-dmn")
-    public Response validateCheckDmn(@Context SecurityIdentity identity, CheckDmnRequest validateDmnRequest){
-        String checkId = validateDmnRequest.id;
-        String dmnModel = validateDmnRequest.dmnModel;
-        if (checkId == null || checkId.isBlank()){
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Error: Missing required data: checkId")
-                    .build();
-        }
-
-        String userId = AuthUtils.getUserId(identity);
-        Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, checkId);
-        if (checkOpt.isEmpty()){
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-
-        EligibilityCheck check = checkOpt.get();
-        if (!check.getOwnerId().equals(userId)){
-            return Response.status(Response.Status.UNAUTHORIZED).build();
-        }
-
-        if (dmnModel == null || dmnModel.isBlank()){
-            return Response.ok(Map.of("errors", List.of("DMN Definition cannot be empty"))).build();
-        }
-
-        try {
-            HashMap<String, String> dmnDependenciesMap = new HashMap<String, String>();
-            List<String> validationErrors = dmnService.validateDmnXml(dmnModel, dmnDependenciesMap, check.getName(), check.getName());
-            if (!validationErrors.isEmpty()) {
-                validationErrors = validationErrors.stream()
-                    .map(error -> error.replaceAll("\\(.*?\\)", ""))
-                    .collect(java.util.stream.Collectors.toList());
-
-                return Response.ok(Map.of("errors", validationErrors)).build();
-            }
-
-            return Response.ok(Map.of("errors", List.of())).build();
-        } catch (Exception e){
-            Log.info(("Failed to save DMN model for check " + checkId));
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+    // ========== Collection Endpoints ==========
 
     // By default, returns the most recent versions of all published checks owned by the calling user
     // If the query parameter 'working' is set to true,
     // then all the working check objects owned by the user are returned
     @GET
-    @Path("/custom-checks")
     public Response getCustomChecks(
         @Context SecurityIdentity identity,
         @QueryParam("working") Boolean working
@@ -143,8 +63,34 @@ public class EligibilityCheckResource {
         return Response.ok(checks, MediaType.APPLICATION_JSON).build();
     }
 
+    @POST
+    public Response createCustomCheck(@Context SecurityIdentity identity,
+                                CreateCheckRequest request) {
+        String userId = AuthUtils.getUserId(identity);
+
+        // Build EligibilityCheck from allowed fields only
+        EligibilityCheck newCheck = new EligibilityCheck(
+            request.name,
+            request.module,
+            request.description,
+            request.parameterDefinitions,
+            userId
+        );
+
+        try {
+            eligibilityCheckRepository.saveNewWorkingCustomCheck(newCheck);
+            return Response.ok(newCheck, MediaType.APPLICATION_JSON).build();
+        } catch (Exception e){
+            return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Could not save Check"))
+                    .build();
+        }
+    }
+
+    // ========== Single Resource Endpoints ==========
+
     @GET
-    @Path("/custom-checks/{checkId}")
+    @Path("/{checkId}")
     public Response getCustomCheck(@Context SecurityIdentity identity, @PathParam("checkId") String checkId) {
         String userId = AuthUtils.getUserId(identity);
         if (userId == null) {
@@ -177,46 +123,37 @@ public class EligibilityCheckResource {
         return Response.ok(check, MediaType.APPLICATION_JSON).build();
     }
 
-    @POST
-    @Path("/custom-checks")
-    public Response createCustomCheck(@Context SecurityIdentity identity,
-                                EligibilityCheck newCheck) {
-        String userId = AuthUtils.getUserId(identity);
-
-        //TODO: Add validations for user provided data
-        newCheck.setOwnerId(userId);
-        if (newCheck.getVersion().isEmpty()){
-            newCheck.setVersion("1.0.0");
-        }
-        try {
-            eligibilityCheckRepository.saveNewWorkingCustomCheck(newCheck);
-            return Response.ok(newCheck, MediaType.APPLICATION_JSON).build();
-        } catch (Exception e){
-            return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(Map.of("error", "Could not save Check"))
-                    .build();
-        }
-    }
-
-    @PUT
-    @Path("/custom-checks")
+    @PATCH
+    @Path("/{checkId}")
     public Response updateCustomCheck(@Context SecurityIdentity identity,
-                                EligibilityCheck updateCheck){
-        // Authorization
+                                @PathParam("checkId") String checkId,
+                                UpdateCheckRequest request){
         String userId = AuthUtils.getUserId(identity);
-        if (!userId.equals(updateCheck.getOwnerId())){
-            return Response.status(Response.Status.UNAUTHORIZED).build();
-        }
 
         // Check if the check exists and is not archived
-        Optional<EligibilityCheck> existingCheckOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, updateCheck.getId());
+        Optional<EligibilityCheck> existingCheckOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, checkId);
         if (existingCheckOpt.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
+        EligibilityCheck existingCheck = existingCheckOpt.get();
+
+        // Authorization: verify ownership using existing record (not from request)
+        if (!userId.equals(existingCheck.getOwnerId())){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        // Partial update: only update fields that are provided (non-null)
+        if (request.description != null) {
+            existingCheck.setDescription(request.description);
+        }
+        if (request.parameterDefinitions != null) {
+            existingCheck.setParameterDefinitions(request.parameterDefinitions);
+        }
+
         try {
-            eligibilityCheckRepository.updateWorkingCustomCheck(updateCheck);
-            return Response.ok().entity(updateCheck).build();
+            eligibilityCheckRepository.updateWorkingCustomCheck(existingCheck);
+            return Response.ok().entity(existingCheck).build();
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(Map.of("error", "could not update Check"))
@@ -224,8 +161,87 @@ public class EligibilityCheckResource {
         }
     }
 
+    // ========== Sub-Resource Endpoints: DMN ==========
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{checkId}/dmn")
+    public Response saveCheckDmn(@Context SecurityIdentity identity,
+                                 @PathParam("checkId") String checkId,
+                                 CheckDmnRequest saveDmnRequest){
+        String dmnModel = saveDmnRequest.dmnModel;
+
+        String userId = AuthUtils.getUserId(identity);
+        Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, checkId);
+        if (checkOpt.isEmpty()){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        EligibilityCheck check = checkOpt.get();
+        if (!check.getOwnerId().equals(userId)){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        try {
+            String filePath = storageService.getCheckDmnModelPath(checkId);
+            storageService.writeStringToStorage(filePath, dmnModel, "application/xml");
+            Log.info("Saved DMN model of check " + checkId + " to storage");
+
+            // TODO: Need to figure out if we are allowing DMN versions to be mutable. If so, we need to update a
+            // last_saved field so that we know the check was updated and needs to be recompiled on evaluation
+
+            return Response.ok().build();
+        } catch (Exception e){
+            Log.info(("Failed to save DMN model for check " + checkId));
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @POST
-    @Path("/publish-check/{checkId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{checkId}/dmn/validate")
+    public Response validateCheckDmn(@Context SecurityIdentity identity,
+                                     @PathParam("checkId") String checkId,
+                                     CheckDmnRequest validateDmnRequest){
+        String dmnModel = validateDmnRequest.dmnModel;
+
+        String userId = AuthUtils.getUserId(identity);
+        Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, checkId);
+        if (checkOpt.isEmpty()){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        EligibilityCheck check = checkOpt.get();
+        if (!check.getOwnerId().equals(userId)){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        if (dmnModel == null || dmnModel.isBlank()){
+            return Response.ok(Map.of("errors", List.of("DMN Definition cannot be empty"))).build();
+        }
+
+        try {
+            HashMap<String, String> dmnDependenciesMap = new HashMap<String, String>();
+            List<String> validationErrors = dmnService.validateDmnXml(dmnModel, dmnDependenciesMap, check.getName(), check.getName());
+            if (!validationErrors.isEmpty()) {
+                validationErrors = validationErrors.stream()
+                    .map(error -> error.replaceAll("\\(.*?\\)", ""))
+                    .collect(java.util.stream.Collectors.toList());
+
+                return Response.ok(Map.of("errors", validationErrors)).build();
+            }
+
+            return Response.ok(Map.of("errors", List.of())).build();
+        } catch (Exception e){
+            Log.info(("Failed to validate DMN model for check " + checkId));
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // ========== Sub-Resource Endpoints: Actions ==========
+
+    @POST
+    @Path("/{checkId}/publish")
     public Response publishCustomCheck(@Context SecurityIdentity identity, @PathParam("checkId") String checkId){
 
         String userId = AuthUtils.getUserId(identity);
@@ -292,26 +308,8 @@ public class EligibilityCheckResource {
         return Response.ok(check, MediaType.APPLICATION_JSON).build();
     }
 
-    private String incrementMajorVersion(String version) {
-        int[] v = normalize(version);
-        v[0]++;         // increment major
-        v[1] = 0;       // reset minor
-        v[2] = 0;       // reset patch
-        return v[0] + "." + v[1] + "." + v[2];
-    }
-
-    private int[] normalize(String version) {
-        String[] parts = version.split("\\.");
-        int[] nums = new int[]{0, 0, 0};
-
-        for (int i = 0; i < parts.length && i < 3; i++) {
-            nums[i] = Integer.parseInt(parts[i]);
-        }
-        return nums;
-    }
-
     @POST
-    @Path("/custom-checks/{checkId}/archive")
+    @Path("/{checkId}/archive")
     public Response archiveCustomCheck(@Context SecurityIdentity identity, @PathParam("checkId") String checkId) {
         String userId = AuthUtils.getUserId(identity);
         if (userId == null) {
@@ -346,9 +344,11 @@ public class EligibilityCheckResource {
         }
     }
 
+    // ========== Sub-Resource Endpoints: Related Resources ==========
+
     /* Endpoint for returning all Published Check Versions related to a given Working Eligibility Check */
     @GET
-    @Path("/custom-checks/{checkId}/published-check-versions")
+    @Path("/{checkId}/versions")
     public Response getPublishedVersionsOfWorkingCheck(@Context SecurityIdentity identity, @PathParam("checkId") String checkId){
         String userId = AuthUtils.getUserId(identity);
         Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, checkId);
@@ -363,8 +363,6 @@ public class EligibilityCheckResource {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
 
-        // Update workingCheck so that the incremented version number is saved
-        check.setVersion(incrementMajorVersion(check.getVersion()));
         try {
             List<EligibilityCheck> publishedChecks = eligibilityCheckRepository.getPublishedCheckVersions(check);
 
@@ -374,5 +372,25 @@ public class EligibilityCheckResource {
                     .entity(Map.of("error", "could not update working Check, published check version was not created"))
                     .build();
         }
+    }
+
+    // ========== Private Helper Methods ==========
+
+    private String incrementMajorVersion(String version) {
+        int[] v = normalize(version);
+        v[0]++;         // increment major
+        v[1] = 0;       // reset minor
+        v[2] = 0;       // reset patch
+        return v[0] + "." + v[1] + "." + v[2];
+    }
+
+    private int[] normalize(String version) {
+        String[] parts = version.split("\\.");
+        int[] nums = new int[]{0, 0, 0};
+
+        for (int i = 0; i < parts.length && i < 3; i++) {
+            nums[i] = Integer.parseInt(parts[i]);
+        }
+        return nums;
     }
 }

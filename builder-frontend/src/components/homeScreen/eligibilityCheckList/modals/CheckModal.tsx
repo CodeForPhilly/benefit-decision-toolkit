@@ -1,6 +1,6 @@
 import { createStore } from "solid-js/store";
 
-import type { EligibilityCheck } from "@/types";
+import type { CreateCheckRequest } from "@/types";
 
 type CheckValues = {
   name: string;
@@ -11,7 +11,7 @@ const EditCheckModal = ({
   modalAction,
   closeModal,
 }: {
-  modalAction: (check: EligibilityCheck) => Promise<void>;
+  modalAction: (check: CreateCheckRequest) => Promise<void>;
   closeModal: () => void;
 }) => {
   const [newCheck, setNewCheck] = createStore<CheckValues>({
@@ -84,17 +84,10 @@ const EditCheckModal = ({
                 console.log("Please fill in all fields.");
                 return;
               }
-              const check: EligibilityCheck = {
-                id:
-                  newCheck.module.toLowerCase() +
-                  "-" +
-                  newCheck.name.toLowerCase().replace(/\s+/g, "_"),
+              const check: CreateCheckRequest = {
                 name: newCheck.name,
-                version: "1.0.0",
-
                 module: newCheck.module,
                 description: newCheck.description,
-                inputDefinition: {},
                 parameterDefinitions: [],
               };
               await modalAction(check);
