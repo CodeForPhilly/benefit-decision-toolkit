@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-@Path("/api/screener/{screenerId}/benefit")
+@Path("/api")
 public class CustomBenefitResource {
 
     @Inject
@@ -40,8 +40,11 @@ public class CustomBenefitResource {
     // ========== Collection Endpoints ==========
 
     @GET
-    public Response getCustomBenefits(@Context SecurityIdentity identity,
-                                      @PathParam("screenerId") String screenerId) {
+    @Path("/screener/{screenerId}/benefit")
+    public Response getCustomBenefits(
+        @Context SecurityIdentity identity,
+        @PathParam("screenerId") String screenerId
+    ) {
         String userId = AuthUtils.getUserId(identity);
 
         Optional<Screener> screenerOpt = screenerRepository.getWorkingScreener(screenerId);
@@ -66,10 +69,13 @@ public class CustomBenefitResource {
     }
 
     @POST
+    @Path("/screener/{screenerId}/benefit")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createCustomBenefit(@Context SecurityIdentity identity,
-                                        @PathParam("screenerId") String screenerId,
-                                        CreateCustomBenefitRequest request) {
+    public Response createCustomBenefit(
+        @Context SecurityIdentity identity,
+        @PathParam("screenerId") String screenerId,
+        CreateCustomBenefitRequest request
+    ) {
         String userId = AuthUtils.getUserId(identity);
 
         // Validate request
@@ -121,10 +127,12 @@ public class CustomBenefitResource {
     // ========== Single Resource Endpoints ==========
 
     @GET
-    @Path("/{benefitId}")
-    public Response getCustomBenefit(@Context SecurityIdentity identity,
-                                     @PathParam("screenerId") String screenerId,
-                                     @PathParam("benefitId") String benefitId) {
+    @Path("/screener/{screenerId}/benefit/{benefitId}")
+    public Response getCustomBenefit(
+        @Context SecurityIdentity identity,
+        @PathParam("screenerId") String screenerId,
+        @PathParam("benefitId") String benefitId
+    ) {
         String userId = AuthUtils.getUserId(identity);
         if (!isUserAuthorizedForScreener(userId, screenerId)) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -146,11 +154,13 @@ public class CustomBenefitResource {
 
     @PATCH
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/{benefitId}")
-    public Response updateCustomBenefit(@Context SecurityIdentity identity,
-                                        @PathParam("screenerId") String screenerId,
-                                        @PathParam("benefitId") String benefitId,
-                                        UpdateCustomBenefitRequest request) {
+    @Path("/screener/{screenerId}/benefit/{benefitId}")
+    public Response updateCustomBenefit(
+        @Context SecurityIdentity identity,
+        @PathParam("screenerId") String screenerId,
+        @PathParam("benefitId") String benefitId,
+        UpdateCustomBenefitRequest request
+    ) {
         String userId = AuthUtils.getUserId(identity);
 
         if (!isUserAuthorizedForScreener(userId, screenerId)) {
@@ -210,10 +220,12 @@ public class CustomBenefitResource {
     }
 
     @DELETE
-    @Path("/{benefitId}")
-    public Response deleteCustomBenefit(@Context SecurityIdentity identity,
-                                        @PathParam("screenerId") String screenerId,
-                                        @PathParam("benefitId") String benefitId) {
+    @Path("/screener/{screenerId}/benefit/{benefitId}")
+    public Response deleteCustomBenefit(
+        @Context SecurityIdentity identity,
+        @PathParam("screenerId") String screenerId,
+        @PathParam("benefitId") String benefitId
+    ) {
         try {
             // Check if Screener and Benefit exist
             Optional<Screener> screenerOpt = screenerRepository.getWorkingScreener(screenerId);
@@ -254,11 +266,13 @@ public class CustomBenefitResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/{benefitId}/check")
-    public Response addCheckToBenefit(@Context SecurityIdentity identity,
-                                      @PathParam("screenerId") String screenerId,
-                                      @PathParam("benefitId") String benefitId,
-                                      AddCheckRequest request) {
+    @Path("/screener/{screenerId}/benefit/{benefitId}/check")
+    public Response addCheckToBenefit(
+        @Context SecurityIdentity identity,
+        @PathParam("screenerId") String screenerId,
+        @PathParam("benefitId") String benefitId,
+        AddCheckRequest request
+    ) {
         String userId = AuthUtils.getUserId(identity);
 
         // Validate request
@@ -282,7 +296,7 @@ public class CustomBenefitResource {
             }
 
             // Find the EligibilityCheck - first try user's custom checks, then library checks
-            Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, request.checkId);
+            Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getPublishedCustomCheck(userId, request.checkId);
             if (checkOpt.isEmpty()) {
                 checkOpt = libraryApiMetadataService.getById(request.checkId);
             }
@@ -331,11 +345,13 @@ public class CustomBenefitResource {
     }
 
     @DELETE
-    @Path("/{benefitId}/check/{checkId}")
-    public Response removeCheckFromBenefit(@Context SecurityIdentity identity,
-                                           @PathParam("screenerId") String screenerId,
-                                           @PathParam("benefitId") String benefitId,
-                                           @PathParam("checkId") String checkId) {
+    @Path("/screener/{screenerId}/benefit/{benefitId}/check/{checkId}")
+    public Response removeCheckFromBenefit(
+        @Context SecurityIdentity identity,
+        @PathParam("screenerId") String screenerId,
+        @PathParam("benefitId") String benefitId,
+        @PathParam("checkId") String checkId
+    ) {
         String userId = AuthUtils.getUserId(identity);
 
         if (!isUserAuthorizedForScreener(userId, screenerId)) {
@@ -387,12 +403,14 @@ public class CustomBenefitResource {
 
     @PATCH
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/{benefitId}/check/{checkId}/parameters")
-    public Response updateCheckParameters(@Context SecurityIdentity identity,
-                                          @PathParam("screenerId") String screenerId,
-                                          @PathParam("benefitId") String benefitId,
-                                          @PathParam("checkId") String checkId,
-                                          UpdateCheckParametersRequest request) {
+    @Path("/screener/{screenerId}/benefit/{benefitId}/check/{checkId}/parameters")
+    public Response updateCheckParameters(
+        @Context SecurityIdentity identity,
+        @PathParam("screenerId") String screenerId,
+        @PathParam("benefitId") String benefitId,
+        @PathParam("checkId") String checkId,
+        UpdateCheckParametersRequest request
+    ) {
         String userId = AuthUtils.getUserId(identity);
 
         if (!isUserAuthorizedForScreener(userId, screenerId)) {
@@ -418,23 +436,23 @@ public class CustomBenefitResource {
             }
 
             // Find and update the check with the matching checkId
-            boolean found = false;
-            List<CheckConfig> updatedChecks = new ArrayList<>();
+            Boolean checkUpdated = false;
+            List<CheckConfig> checkListAfterUpdate = new ArrayList<>();
             for (CheckConfig check : checks) {
                 if (check.getCheckId().equals(checkId)) {
                     check.setParameters(request.parameters != null ? request.parameters : new HashMap<>());
-                    found = true;
+                    checkUpdated = true;
                 }
-                updatedChecks.add(check);
+                checkListAfterUpdate.add(check);
             }
 
-            if (!found) {
+            if (!checkUpdated) {
                 return Response.status(Response.Status.NOT_FOUND)
                         .entity(Map.of("error", "Check not found in benefit"))
                         .build();
             }
 
-            benefit.setChecks(updatedChecks);
+            benefit.setChecks(checkListAfterUpdate);
 
             // Save the updated benefit
             screenerRepository.updateCustomBenefit(screenerId, benefit);
