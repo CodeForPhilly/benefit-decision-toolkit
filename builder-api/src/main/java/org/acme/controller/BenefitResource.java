@@ -55,7 +55,8 @@ public class BenefitResource {
 
         Benefit benefit = benefitOpt.get();
 
-        if (!benefit.getPublic() && !benefit.getOwnerId().equals(userId)){
+        // Only the owner can access the benefit
+        if (!benefit.getOwnerId().equals(userId)){
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         return Response.ok(benefit, MediaType.APPLICATION_JSON).build();
@@ -79,7 +80,8 @@ public class BenefitResource {
         }
         Benefit benefit = benefitOpt.get();
 
-        if (!benefit.getPublic() && !benefit.getOwnerId().equals(userId)){
+        // Only the owner can access the benefit's checks
+        if (!benefit.getOwnerId().equals(userId)){
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         List<EligibilityCheck> checks = eligibilityCheckRepository.getChecksInBenefit(benefit);

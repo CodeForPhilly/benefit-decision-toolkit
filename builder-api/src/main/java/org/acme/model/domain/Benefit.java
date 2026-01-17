@@ -1,20 +1,27 @@
 package org.acme.model.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Benefit {
     private String id;
-    private Boolean isActive;
     private String description;
     private String name;
     private List<CheckConfig> checks;
     private String ownerId;
-    @JsonProperty("isPublic")
-    private Boolean isPublic;
+
+    public Benefit() {
+    }
+
+    public Benefit(String id, String name, String description, String ownerId, List<CheckConfig> checks) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.ownerId = ownerId;
+        this.checks = checks;
+    }
 
     public String getId() {
         return id;
@@ -22,14 +29,6 @@ public class Benefit {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public Boolean getActive() {
-        return isActive;
-    }
-
-    public void setActive(Boolean active) {
-        isActive = active;
     }
 
     public String getDescription() {
@@ -62,13 +61,5 @@ public class Benefit {
 
     public void setOwnerId(String ownerId) {
         this.ownerId = ownerId;
-    }
-
-    public Boolean getPublic() {
-        return isPublic;
-    }
-
-    public void setPublic(Boolean aPublic) {
-        isPublic = aPublic;
     }
 }
