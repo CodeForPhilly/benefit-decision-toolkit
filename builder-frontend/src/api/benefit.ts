@@ -104,19 +104,3 @@ export const updateCheckParameters = async (
     throw error;
   }
 };
-
-export const fetchPublicBenefits = async (): Promise<Benefit[]> => {
-  const url = apiUrl + "/benefit";
-  try {
-    const response = await authGet(url);
-
-    if (!response.ok) {
-      throw new Error(`Fetch failed with status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching benefits:", error);
-    throw error; // rethrow so you can handle it in your component if needed
-  }
-};
