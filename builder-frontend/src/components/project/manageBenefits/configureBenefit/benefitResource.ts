@@ -1,17 +1,22 @@
 import { createResource, createEffect, Accessor, createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
 
-import { fetchScreenerBenefit, updateScreenerBenefit } from "@/api/benefit";
+import {
+  fetchScreenerBenefit,
+  addCheckToBenefit,
+  removeCheckFromBenefit,
+  updateCheckParameters
+} from "@/api/benefit";
 
-import type { Benefit, CheckConfig, ParameterValues } from "@/types";
+import type { Benefit, ParameterValues } from "@/types";
 
 interface ScreenerBenefitsResource {
   benefit: Accessor<Benefit>;
   actions: {
-    addCheck: (newCheck: CheckConfig) => void;
-    removeCheck: (indexToRemove: number) => void;
+    addCheck: (checkId: string) => void;
+    removeCheck: (checkId: string) => void;
     updateCheckConfigParams: (
-      indexToUpdate: number,
+      checkId: string,
       parameters: ParameterValues
     ) => void;
   };
@@ -44,51 +49,47 @@ const createScreenerBenefits = (
     }
   });
 
-  // Optimistic update helper
-  const updateBenefit = async (newBenefit: Benefit) => {
+  // Actions
+  const addCheck = async (checkId: string) => {
+    if (!benefit) return;
     setActionInProgress(true);
 
     try {
-      await updateScreenerBenefit(screenerId(), { ...newBenefit });
+      await addCheckToBenefit(screenerId(), benefitId(), checkId);
       await refetch();
     } catch (e) {
-      console.error("Failed to update Benefit", e);
+      console.error("Failed to add check to benefit", e);
     }
     setActionInProgress(false);
   };
 
-  // Actions
-  const addCheck = (newCheck: CheckConfig) => {
+  const removeCheck = async (checkId: string) => {
     if (!benefit) return;
-    const updatedChecks: CheckConfig[] = [...benefit.checks, newCheck];
-    const updatedBenefit: Benefit = { ...benefit, checks: updatedChecks };
-    updateBenefit(updatedBenefit);
-  };
-  const removeCheck = (indexToRemove: number) => {
-    if (!benefit) return;
+    setActionInProgress(true);
 
-    const updatedChecks: CheckConfig[] = benefit.checks.filter(
-      (_, checkIndex) => checkIndex !== indexToRemove
-    );
-    const updatedBenefit: Benefit = { ...benefit, checks: updatedChecks };
-    updateBenefit(updatedBenefit);
+    try {
+      await removeCheckFromBenefit(screenerId(), benefitId(), checkId);
+      await refetch();
+    } catch (e) {
+      console.error("Failed to remove check from benefit", e);
+    }
+    setActionInProgress(false);
   };
-  const updateCheckConfigParams = (
-    indexToUpdate: number,
+
+  const updateCheckConfigParams = async (
+    checkId: string,
     parameters: ParameterValues
   ) => {
     if (!benefit) return;
+    setActionInProgress(true);
 
-    const updatedCheckConfigs: CheckConfig[] = benefit.checks.map(
-      (check, checkIndex) => {
-        if (checkIndex === indexToUpdate) {
-          return { ...check, parameters: parameters };
-        }
-        return check;
-      }
-    );
-    const updatedBenefit: Benefit = { ...benefit, checks: updatedCheckConfigs };
-    updateBenefit(updatedBenefit);
+    try {
+      await updateCheckParameters(screenerId(), benefitId(), checkId, parameters);
+      await refetch();
+    } catch (e) {
+      console.error("Failed to update check parameters", e);
+    }
+    setActionInProgress(false);
   };
 
   return {

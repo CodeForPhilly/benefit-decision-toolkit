@@ -8,6 +8,7 @@ import org.acme.model.domain.EligibilityCheck;
 import org.acme.service.LibraryApiService;
 
 import java.util.List;
+import java.util.Optional;
 
 @Path("/api")
 @Produces(MediaType.APPLICATION_JSON)
@@ -29,8 +30,8 @@ public class LibraryCheckResource {
     @Path("/library-checks/{checkId}")
     public Response getLibraryCheck(@PathParam("checkId") String checkId) {
         if ( checkId != null) {
-            EligibilityCheck check = libraryApiMetadataService.getById(checkId);
-            if (check == null){
+            Optional<EligibilityCheck> check = libraryApiMetadataService.getById(checkId);
+            if (check.isEmpty()){
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
             return Response.ok().entity(check).build();

@@ -1,4 +1,4 @@
-package org.acme.model.dto;
+package org.acme.model.dto.Dmn;
 
 public class DmnModelSummary {
     public String groupId;

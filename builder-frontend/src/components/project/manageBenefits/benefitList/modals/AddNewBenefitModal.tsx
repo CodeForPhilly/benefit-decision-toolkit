@@ -1,6 +1,6 @@
 import { createStore } from "solid-js/store"
 
-import type { BenefitDetail } from "@/types";
+import type { CreateCustomBenefitRequest } from "@/types";
 
 
 type NewBenefitValues = {
@@ -9,7 +9,7 @@ type NewBenefitValues = {
 }
 const AddNewBenefitModal = (
   { addNewBenefit, closeModal }:
-  { addNewBenefit: (benefit: BenefitDetail) => Promise<void>; closeModal: () => void }
+  { addNewBenefit: (benefit: CreateCustomBenefitRequest) => Promise<void>; closeModal: () => void }
 ) => {
   const [newBenefit, setNewBenefit] = createStore<NewBenefitValues>({ name: "", description: "" });
 
@@ -61,11 +61,9 @@ const AddNewBenefitModal = (
                 console.log("Please fill in all fields.");
                 return;
               }
-              const benefitToAdd = {
-                id: crypto.randomUUID(),
+              const benefitToAdd: CreateCustomBenefitRequest = {
                 name: newBenefit.name,
                 description: newBenefit.description,
-                isPublic: false,
               };
               await addNewBenefit(benefitToAdd);
               closeModal();

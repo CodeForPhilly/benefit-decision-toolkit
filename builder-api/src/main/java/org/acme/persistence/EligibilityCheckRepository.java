@@ -8,12 +8,6 @@ import java.util.Optional;
 
 public interface EligibilityCheckRepository {
 
-    List<EligibilityCheck> getPublicChecks();
-
-    Optional<EligibilityCheck> getPublicCheck(String checkId);
-
-    List<EligibilityCheck> getChecksInBenefit(Benefit benefit);
-
     List<EligibilityCheck> getWorkingCustomChecks(String userId);
 
     List<EligibilityCheck> getPublishedCheckVersions(EligibilityCheck workingCustomCheck);
@@ -35,6 +29,4 @@ public interface EligibilityCheckRepository {
     void updateWorkingCustomCheck(EligibilityCheck check) throws Exception;
 
     void updatePublishedCustomCheck(EligibilityCheck check) throws Exception;
-
-    String savePublicCheck(EligibilityCheck check) throws Exception;
 }

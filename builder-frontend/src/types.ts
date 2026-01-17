@@ -8,7 +8,6 @@ export interface BenefitDetail {
   id: string;
   name: string;
   description: string;
-  isPublic: boolean;
 }
 
 export interface Benefit {
@@ -60,6 +59,25 @@ export interface CreateCheckRequest {
 export interface UpdateCheckRequest {
   description?: string;
   parameterDefinitions?: ParameterDefinition[];
+}
+
+// Request types for Custom Benefit API endpoints
+export interface CreateCustomBenefitRequest {
+  name: string;
+  description: string;
+}
+
+export interface UpdateCustomBenefitRequest {
+  name: string;
+  description: string;
+}
+
+export interface AddCheckRequest {
+  checkId: string;
+}
+
+export interface UpdateCheckParametersRequest {
+  parameters: ParameterValues;
 }
 
 // Parameter Types

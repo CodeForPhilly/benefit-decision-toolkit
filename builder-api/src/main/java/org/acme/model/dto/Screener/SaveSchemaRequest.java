@@ -1,4 +1,4 @@
-package org.acme.model.dto;
+package org.acme.model.dto.Screener;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.acme.api.validation.HasSchema;

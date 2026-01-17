@@ -1,4 +1,4 @@
-package org.acme.model.dto;
+package org.acme.model.dto.EligibilityCheck;
 
 import org.acme.model.domain.ParameterDefinition;
 import java.util.List;
