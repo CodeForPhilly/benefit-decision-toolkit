@@ -9,10 +9,10 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.acme.auth.AuthUtils;
 import org.acme.model.domain.*;
-import org.acme.model.dto.AddCheckRequest;
-import org.acme.model.dto.CreateCustomBenefitRequest;
-import org.acme.model.dto.UpdateCheckParametersRequest;
-import org.acme.model.dto.UpdateCustomBenefitRequest;
+import org.acme.model.dto.benefit.AddCheckRequest;
+import org.acme.model.dto.benefit.CreateCustomBenefitRequest;
+import org.acme.model.dto.benefit.UpdateCheckParametersRequest;
+import org.acme.model.dto.benefit.UpdateCustomBenefitRequest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.ScreenerRepository;
 

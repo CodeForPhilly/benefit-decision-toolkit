@@ -1,4 +1,4 @@
-package org.acme.model.dto;
+package org.acme.model.dto.benefit;
 
 import java.util.Map;
 

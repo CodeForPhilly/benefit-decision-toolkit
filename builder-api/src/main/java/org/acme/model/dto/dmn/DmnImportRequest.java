@@ -1,4 +1,4 @@
-package org.acme.model.dto;
+package org.acme.model.dto.dmn;
 
 public class DmnImportRequest {
     public String screenerId;
