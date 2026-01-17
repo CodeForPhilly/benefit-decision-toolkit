@@ -26,7 +26,16 @@ public class Screener {
         this.formSchema = model;
     }
 
-    public Screener(){
+    public Screener() {
+    }
+
+    /* Domain creation for POST */
+    public static Screener create(String ownerId, String screenerName, String description) {
+        Screener s = new Screener();
+        s.ownerId = ownerId;
+        s.screenerName = screenerName;
+
+        return s;
     }
 
     public Map<String, Object> getFormSchema() {
@@ -37,55 +46,55 @@ public class Screener {
         this.formSchema = formSchema;
     }
 
-    public void setOwnerId(String ownerId){
+    public void setOwnerId(String ownerId) {
         this.ownerId = ownerId;
     }
 
-    public String getOwnerId(){
+    public String getOwnerId() {
         return this.ownerId;
     }
 
-    public void setScreenerName(String screenerName){
+    public void setScreenerName(String screenerName) {
         this.screenerName = screenerName;
     }
 
-    public String getScreenerName(){
+    public String getScreenerName() {
         return this.screenerName;
     }
 
-    public void setLastPublishDate(String lastPublishDate){
+    public void setLastPublishDate(String lastPublishDate) {
         this.lastPublishDate = lastPublishDate;
     }
 
-    public void setId(String id){
+    public void setId(String id) {
         this.id = id;
     }
 
-    public String getId(){
+    public String getId() {
         return this.id;
     }
 
-    public String getOrganizationName(){
+    public String getOrganizationName() {
         return this.organizationName;
     }
 
-    public void setOrganizationName(String organizationName){
+    public void setOrganizationName(String organizationName) {
         this.organizationName = organizationName;
     }
 
-    public void setPublishedScreenerId(String publishedScreenerId){
+    public void setPublishedScreenerId(String publishedScreenerId) {
         this.publishedScreenerId = publishedScreenerId;
     }
 
-    public String getPublishedScreenerId(){
+    public String getPublishedScreenerId() {
         return this.publishedScreenerId;
     }
 
-    public void setLastPublishedDate(String lastPublishDate){
+    public void setLastPublishedDate(String lastPublishDate) {
         this.lastPublishDate = lastPublishDate;
     }
 
-    public String getLastPublishDate(){
+    public String getLastPublishDate() {
         return this.lastPublishDate;
     }
 
