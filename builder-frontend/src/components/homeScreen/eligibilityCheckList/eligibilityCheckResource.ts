@@ -1,13 +1,13 @@
 import { createResource, createEffect, Accessor, createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
 
-import type { EligibilityCheck } from "@/types";
+import type { EligibilityCheck, CreateCheckRequest } from "@/types";
 import { addCheck, archiveCheck, fetchUserDefinedChecks } from "@/api/check";
 
 export interface EligibilityCheckResource {
   checks: () => EligibilityCheck[];
   actions: {
-    addNewCheck: (check: EligibilityCheck) => Promise<void>;
+    addNewCheck: (check: CreateCheckRequest) => Promise<void>;
     removeCheck: (checkIdToRemove: string) => Promise<void>;
   };
   actionInProgress: Accessor<boolean>;
@@ -32,7 +32,7 @@ const eligibilityCheckResource = (): EligibilityCheckResource => {
   });
 
   // Actions
-  const addNewCheck = async (check: EligibilityCheck) => {
+  const addNewCheck = async (check: CreateCheckRequest) => {
     setActionInProgress(true);
     try {
       await addCheck(check);
