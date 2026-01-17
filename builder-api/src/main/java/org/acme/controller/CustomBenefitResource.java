@@ -15,6 +15,7 @@ import org.acme.model.dto.benefit.UpdateCheckParametersRequest;
 import org.acme.model.dto.benefit.UpdateCustomBenefitRequest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.ScreenerRepository;
+import org.acme.service.LibraryApiService;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +33,9 @@ public class CustomBenefitResource {
 
     @Inject
     EligibilityCheckRepository eligibilityCheckRepository;
+
+    @Inject
+    LibraryApiService libraryApiMetadataService;  // Inject the singleton bean
 
     // ========== Collection Endpoints ==========
 
@@ -248,39 +252,6 @@ public class CustomBenefitResource {
 
     // ========== Sub-Resource Endpoints: Checks ==========
 
-    @GET
-    @Path("/{benefitId}/check")
-    public Response getCustomBenefitChecks(@Context SecurityIdentity identity,
-                                           @PathParam("screenerId") String screenerId,
-                                           @PathParam("benefitId") String benefitId) {
-        try {
-            String userId = AuthUtils.getUserId(identity);
-
-            Optional<Screener> screenerOpt = screenerRepository.getWorkingScreener(screenerId);
-            if (screenerOpt.isEmpty()) {
-                throw new NotFoundException();
-            }
-            Screener screener = screenerOpt.get();
-
-            if (!isUserAuthorizedForScreener(userId, screener)) {
-                return Response.status(Response.Status.UNAUTHORIZED).build();
-            }
-
-            Optional<Benefit> benefitOpt = screenerRepository.getCustomBenefit(screenerId, benefitId);
-            if (benefitOpt.isEmpty()) {
-                throw new NotFoundException();
-            }
-
-            List<EligibilityCheck> checks = eligibilityCheckRepository.getChecksInBenefit(benefitOpt.get());
-            return Response.ok().entity(checks).build();
-        } catch (Exception e) {
-            Log.error(e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(Map.of("error", "Could not fetch checks"))
-                    .build();
-        }
-    }
-
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{benefitId}/check")
@@ -310,10 +281,10 @@ public class CustomBenefitResource {
                         .build();
             }
 
-            // Find the EligibilityCheck - first try user's custom checks, then public checks
+            // Find the EligibilityCheck - first try user's custom checks, then library checks
             Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, request.checkId);
             if (checkOpt.isEmpty()) {
-                checkOpt = eligibilityCheckRepository.getPublicCheck(request.checkId);
+                checkOpt = libraryApiMetadataService.getById(request.checkId);
             }
 
             if (checkOpt.isEmpty()) {

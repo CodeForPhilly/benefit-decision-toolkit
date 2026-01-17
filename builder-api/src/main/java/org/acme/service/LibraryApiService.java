@@ -90,14 +90,14 @@ public class LibraryApiService {
                 .toList();
     }
 
-    public EligibilityCheck getById(String id) {
+    public Optional<EligibilityCheck> getById(String id) {
          List<EligibilityCheck> matches = checks.stream()
                 .filter(e -> id.equals(e.getId()))
                 .toList();
          if (matches.isEmpty()) {
-             return null;
+             return Optional.empty();
          }
-         return matches.getFirst();
+         return Optional.of(matches.getFirst());
     }
 
     public EvaluationResult evaluateCheck(CheckConfig checkConfig, Map<String, Object> inputs) throws JsonProcessingException {
