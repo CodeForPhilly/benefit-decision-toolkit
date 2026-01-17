@@ -1,4 +1,4 @@
-package org.acme.model.dto;
+package org.acme.model.dto.EligibilityCheck;
 
 import java.util.Map;
 

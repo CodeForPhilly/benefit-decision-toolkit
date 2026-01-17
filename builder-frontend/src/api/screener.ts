@@ -2,7 +2,7 @@ import { env } from "@/config/environment";
 
 import { authDelete, authGet, authPatch, authPost } from "@/api/auth";
 
-import type { BenefitDetail, FormPath, ScreenerResult } from "@/types";
+import type { CreateCustomBenefitRequest, FormPath, ScreenerResult } from "@/types";
 
 const apiUrl = env.apiUrl;
 
@@ -22,7 +22,7 @@ export const fetchProjects = async () => {
   }
 };
 
-export const fetchProject = async (screenerId) => {
+export const fetchProject = async (screenerId: string) => {
   const url = apiUrl + "/screener/" + screenerId;
   try {
     const response = await authGet(url);
@@ -76,8 +76,8 @@ export const updateScreener = async (
   }
 };
 
-export const deleteScreener = async (screenerData) => {
-  const url = apiUrl + "/screener/delete?screenerId=" + screenerData.id;
+export const deleteScreener = async (screenerId: string) => {
+  const url = apiUrl + "/screener/delete?screenerId=" + screenerId;
   try {
     const response = await authDelete(url);
 
@@ -90,7 +90,7 @@ export const deleteScreener = async (screenerData) => {
   }
 };
 
-export const saveFormSchema = async (screenerId: string, schema) => {
+export const saveFormSchema = async (screenerId: string, schema: any) => {
   const requestData: any = {};
   requestData.schema = schema;
   const url = new URL(`${apiUrl}/save-form-schema`);
@@ -122,10 +122,7 @@ export const publishScreener = async (screenerId: string): Promise<void> => {
   }
 };
 
-export const addCustomBenefit = async (
-  screenerId: string,
-  benefit: BenefitDetail,
-) => {
+export const addCustomBenefit = async (screenerId: string, benefit: CreateCustomBenefitRequest) => {
   const url = apiUrl + "/screener/" + screenerId + "/benefit";
   try {
     const response = await authPost(url, benefit);

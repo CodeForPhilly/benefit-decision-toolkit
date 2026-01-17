@@ -12,8 +12,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.acme.auth.AuthUtils;
 import org.acme.constants.CheckStatus;
 import org.acme.model.domain.EligibilityCheck;
-import org.acme.model.dto.CreateCheckRequest;
 import org.acme.model.dto.EligibilityCheck.CheckDmnRequest;
+import org.acme.model.dto.EligibilityCheck.CreateCheckRequest;
 import org.acme.model.dto.EligibilityCheck.EditCheckRequest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.StorageService;
@@ -71,10 +71,10 @@ public class EligibilityCheckResource {
 
         // Build EligibilityCheck from allowed fields only
         EligibilityCheck newCheck = new EligibilityCheck(
-            request.name,
-            request.module,
-            request.description,
-            request.parameterDefinitions,
+            request.name(),
+            request.module(),
+            request.description(),
+            request.parameterDefinitions(),
             userId
         );
 

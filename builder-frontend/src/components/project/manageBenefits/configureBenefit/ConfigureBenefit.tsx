@@ -29,8 +29,8 @@ const ConfigureBenefit = ({
     fetchUserDefinedChecks(false)
   );
 
-  const onRemoveEligibilityCheck = (checkIndexToRemove: number) => {
-    actions.removeCheck(checkIndexToRemove);
+  const onRemoveEligibilityCheck = (checkId: string) => {
+    actions.removeCheck(checkId);
   };
 
   return (
@@ -84,19 +84,19 @@ const ConfigureBenefit = ({
                 )}
                 {benefit().checks.length > 0 && (
                   <For each={benefit().checks}>
-                    {(checkConfig, checkIndex) => {
+                    {(checkConfig) => {
                       return (
                         <SelectedEligibilityCheck
                           checkId={() => checkConfig.checkId}
                           checkConfig={() => checkConfig}
                           onRemove={() =>
-                            onRemoveEligibilityCheck(checkIndex())
+                            onRemoveEligibilityCheck(checkConfig.checkId)
                           }
                           updateCheckConfigParams={(
                             newCheckData: ParameterValues
                           ) => {
                             actions.updateCheckConfigParams(
-                              checkIndex(),
+                              checkConfig.checkId,
                               newCheckData
                             );
                           }}
