@@ -122,14 +122,9 @@ public class DecisionResource {
     }
 
     private Map<String, Object> evaluateBenefit(Benefit benefit, Map<String, Object> formData) throws Exception {
-        if (benefit.getPublic()) {
-            // Public benefit, call the Library API to evaluate
-            Map<String, Object> result = new HashMap<>();
-            return result;
-        } else {
-            // Custom benefit, evaluate here in the web app api (as opposed to calling the library api for evaluation)
-            List<EvaluationResult> resultsList = new ArrayList<>();
-            Map<String, Object> checkResults = new HashMap<>();
+        // Evaluate the benefit using its configured checks
+        List<EvaluationResult> resultsList = new ArrayList<>();
+        Map<String, Object> checkResults = new HashMap<>();
 
             int checkNum = 0;
             for (CheckConfig checkConfig : benefit.getChecks()) {
@@ -173,7 +168,6 @@ public class DecisionResource {
                     "check_results", checkResults
                 )
             );
-        }
     }
 
     @POST

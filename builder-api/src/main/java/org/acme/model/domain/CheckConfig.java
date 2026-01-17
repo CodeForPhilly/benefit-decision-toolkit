@@ -18,6 +18,29 @@ public class CheckConfig {
     private JsonNode inputDefinition;
     private List<ParameterDefinition> parameterDefinitions;
 
+    public CheckConfig() {
+    }
+
+    public CheckConfig(
+        String checkId,
+        String checkName,
+        String checkVersion,
+        String checkModule,
+        String evaluationUrl,
+        JsonNode inputDefinition,
+        List<ParameterDefinition> parameterDefinitions,
+        Map<String, Object> parameters
+    ) {
+        this.checkId = checkId;
+        this.checkName = checkName;
+        this.checkVersion = checkVersion;
+        this.checkModule = checkModule;
+        this.evaluationUrl = evaluationUrl;
+        this.inputDefinition = inputDefinition;
+        this.parameterDefinitions = parameterDefinitions;
+        this.parameters = parameters;
+    }
+
     public String getCheckId() {
         return checkId;
     }

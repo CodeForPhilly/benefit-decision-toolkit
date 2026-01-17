@@ -1,6 +1,6 @@
 import { authDelete, authGet, authPost, authPut } from "@/api/auth";
 
-import type { BenefitDetail, ScreenerResult } from "@/types";
+import type { CreateCustomBenefitRequest, ScreenerResult } from "@/types";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -111,10 +111,7 @@ export const publishScreener = async (screenerId: string): Promise<void> => {
   }
 };
 
-export const addCustomBenefit = async (
-  screenerId: string,
-  benefit: BenefitDetail,
-) => {
+export const addCustomBenefit = async (screenerId: string, benefit: CreateCustomBenefitRequest) => {
   const url = apiUrl + "/screener/" + screenerId + "/benefit";
   try {
     const response = await authPost(url, benefit);
