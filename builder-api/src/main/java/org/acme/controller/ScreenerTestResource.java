@@ -13,7 +13,8 @@ public class ScreenerTestResource {
     @PUT
     @Path("/screenerTest")
     public void testScreener(@Context SecurityIdentity identity, ScreenerTest screenerTest) {
-        // Write logic here
+
+        // TODO: WRITE LOGIC HERE
         Log.info(screenerTest);
     }
 

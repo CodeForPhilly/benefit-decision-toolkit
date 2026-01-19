@@ -39,6 +39,7 @@ const Preview = ({ project, formSchema }) => {
   const handleTest = async (screenerTestData) => {
     try {
       await testScreener(screenerTestData);
+      console.log("Clicked!");
     } catch (e) {
       console.log("Error submitting test screener", e);
     }

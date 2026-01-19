@@ -36,6 +36,7 @@ export const testScreener = async (testScreenerData: ScreenerTest) => {
       },
         body: JSON.stringify(testScreenerData),
     });
+    console.log("test inserted(?)");
 
     if (!response.ok) {
       throw new Error(`Update failed with status: ${response.status}`);
