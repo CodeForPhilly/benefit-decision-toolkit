@@ -6,20 +6,16 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 
-import java.util.Map;
-
 // Global error handler for providing extra fields in the request body
 
 @Provider
 public class UnknownFieldExceptionMapper implements ExceptionMapper<UnrecognizedPropertyException> {
 
-    @Override
-    public Response toResponse(UnrecognizedPropertyException e) {
-        return Response.status(Response.Status.BAD_REQUEST)
-                .type(MediaType.APPLICATION_JSON)
-                .entity(Map.of(
-                        "error", true,
-                        "message", "Unknown field " + e.getPropertyName()))
-                .build();
-    }
+  @Override
+  public Response toResponse(UnrecognizedPropertyException e) {
+    return Response.status(Response.Status.BAD_REQUEST)
+        .type(MediaType.APPLICATION_JSON)
+        .entity(ApiError.of("Unknown field '" + e.getPropertyName() + "'"))
+        .build();
+  }
 }
