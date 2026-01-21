@@ -33,7 +33,10 @@ export default function ProjectsList() {
     navigate("/project/" + project.id);
   };
 
-  const handleCreateNewScreener = async (screenerData) => {
+  const handleCreateNewScreener = async (screenerData: {
+    screenerName: string;
+    description?: string | undefined;
+  }) => {
     try {
       const newScreener = await createNewScreener(screenerData);
       navigate(`/project/${newScreener.id}`);
@@ -48,9 +51,12 @@ export default function ProjectsList() {
     setIsEditgModalVisible(true);
   };
 
-  const handleUpdateScreener = async (screenerData) => {
+  const handleUpdateScreener = async (
+    screenerId: string,
+    screenerData: { screenerName: string },
+  ) => {
     try {
-      await updateScreener(screenerData);
+      await updateScreener(screenerId, screenerData);
       refetchProjectList();
       setIsEditgModalVisible(false);
     } catch (e) {

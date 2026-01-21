@@ -1,11 +1,12 @@
 package org.acme.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.logging.Log;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.validation.Validator;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -32,6 +33,7 @@ import org.acme.model.domain.*;
 import org.acme.model.dto.PublishScreenerRequest;
 import org.acme.model.dto.SaveSchemaRequest;
 import org.acme.model.dto.Screener.CreateScreenerRequest;
+import org.acme.model.dto.Screener.EditScreenerRequest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.PublishedScreenerRepository;
 import org.acme.persistence.ScreenerRepository;
@@ -40,6 +42,8 @@ import org.acme.service.DmnService;
 
 @Path("/api")
 public class ScreenerResource {
+
+  @Inject Validator validator;
 
   @Inject ScreenerRepository screenerRepository;
 
@@ -120,21 +124,36 @@ public class ScreenerResource {
     }
   }
 
-  @PUT
+  @PATCH
   @Consumes(MediaType.APPLICATION_JSON)
-  @Path("/screener")
-  public Response updateScreener(@Context SecurityIdentity identity, Screener screener) {
+  @Path("/screener/{screenerId}")
+  public Response updateScreener(
+      @Context SecurityIdentity identity,
+      @PathParam("screenerId") String screenerId,
+      @Valid EditScreenerRequest request) {
     String userId = AuthUtils.getUserId(identity);
-    if (!isUserAuthorizedToAccessScreener(userId, screener.getId()))
-      return Response.status(Response.Status.UNAUTHORIZED).build();
 
-    // add user info to the update data
-    screener.setOwnerId(userId);
+    // Fetch Screener record and confirm user is authorized
+    Optional<Screener> maybeScreener = screenerRepository.getWorkingScreener(screenerId);
+    if (maybeScreener.isEmpty()) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+    Screener screener = maybeScreener.get();
+    if (!isUserAuthorizedToAccessScreenerByScreener(userId, screener)) {
+      return Response.status(Response.Status.UNAUTHORIZED).build();
+    }
+
+    Log.info(request.toString());
+
+    // Update Screener fields from request
+    if (request.screenerName() != null) {
+      screener.setScreenerName(request.screenerName());
+    }
 
     try {
       screenerRepository.updateWorkingScreener(screener);
-
-      return Response.ok().build();
+      return Response.ok(screener, MediaType.APPLICATION_JSON).build();
     } catch (Exception e) {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
           .entity(Map.of("error", "Could not update Screener"))
@@ -146,29 +165,50 @@ public class ScreenerResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @Path("/save-form-schema")
   public Response saveFormSchema(
-      @Context SecurityIdentity identity, SaveSchemaRequest saveSchemaRequest) {
+      @Context SecurityIdentity identity,
+      @QueryParam("screenerId") @NotBlank(message = "Must provide screenerId") String screenerId,
+      @Valid SaveSchemaRequest request) {
 
-    String screenerId = saveSchemaRequest.screenerId;
-    if (screenerId == null || screenerId.isBlank()) {
-      return Response.status(Response.Status.BAD_REQUEST)
-          .entity("Error: Missing required required data in request body: screenerId")
-          .build();
+    Log.info(
+        "schema node = "
+            + (request == null
+                ? "request=null"
+                : request.schema() == null
+                    ? "schema=null"
+                    : request.schema().getNodeType() + " : " + request.schema().toString()));
+
+    var violations = validator.validate(request);
+    if (!violations.isEmpty()) {
+      return Response.status(400).entity(violations.toString()).build();
     }
+
+    // // Make sure request.schema is not null
+    // if (request.schema() == null || request.schema().isNull()) {
+    //   return Response.status(Response.Status.BAD_REQUEST)
+    //       .entity(ApiError.of("schema cannot be null."))
+    //       .build();
+    // }
 
     String userId = AuthUtils.getUserId(identity);
-    if (!isUserAuthorizedToAccessScreener(userId, saveSchemaRequest.screenerId))
-      return Response.status(Response.Status.UNAUTHORIZED).build();
 
-    JsonNode schema = saveSchemaRequest.schema;
-    if (schema == null) {
-      return Response.status(Response.Status.BAD_REQUEST)
-          .entity("Error: Missing required required data in request body: screenerId")
+    // Fetch Screener record and confirm user is authorized
+    Optional<Screener> maybeScreener = screenerRepository.getWorkingScreener(screenerId);
+    if (maybeScreener.isEmpty()) {
+      return Response.status(Response.Status.NOT_FOUND)
+          .entity(Map.of("error", true, "message", "Screener " + screenerId + " cannot be found."))
           .build();
     }
+
+    Screener screener = maybeScreener.get();
+    if (!isUserAuthorizedToAccessScreenerByScreener(userId, screener)) {
+      return Response.status(Response.Status.UNAUTHORIZED)
+          .entity(Map.of("error", true, "message", "Unauthorized access to the screener."))
+          .build();
+    }
+
     try {
       String filePath = storageService.getScreenerWorkingFormSchemaPath(screenerId);
-      storageService.writeJsonToStorage(filePath, schema);
-      Log.info("Saved form schema of screener " + screenerId + " to storage");
+      storageService.writeJsonToStorage(filePath, request.schema());
       return Response.ok().build();
     } catch (Exception e) {
       Log.info(("Failed to save form for screener " + screenerId));
@@ -241,11 +281,7 @@ public class ScreenerResource {
   }
 
   private boolean isUserAuthorizedToAccessScreenerByScreener(String userId, Screener screener) {
-    String ownerId = screener.getOwnerId();
-    if (userId.equals(ownerId)) {
-      return true;
-    }
-    return false;
+    return userId.equals(screener.getOwnerId());
   }
 
   @GET
