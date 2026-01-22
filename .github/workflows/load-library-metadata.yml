@@ -16,20 +16,17 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
-        working-directory: scripts
-        run: pip install -r requirements.txt
-
       - name: Create GCP credentials file
         run: |
-          echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' > scripts/gcp-key.json
+          echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' > bin/library/gcp-key.json
 
-      - name: Run script
-        working-directory: scripts
+      - name: Run sync
+        working-directory: bin/library
         env:
           GOOGLE_APPLICATION_CREDENTIALS: gcp-key.json
+          LIBRARY_API_BASE_URL: https://library-api-1034049717668.us-central1.run.app
         run: |
-          python load-library-metadata.py
+          ./sync-metadata
 
       - name: Cleanup credentials
-        run: rm scripts/gcp-key.json
+        run: rm bin/library/gcp-key.json

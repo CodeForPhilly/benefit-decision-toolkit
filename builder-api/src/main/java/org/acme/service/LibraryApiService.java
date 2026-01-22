@@ -12,6 +12,7 @@ import org.acme.model.domain.CheckConfig;
 import org.acme.model.domain.EligibilityCheck;
 import org.acme.persistence.StorageService;
 import org.acme.persistence.FirestoreUtils;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -25,14 +26,36 @@ import java.util.Optional;
 
 @ApplicationScoped
 public class LibraryApiService {
+    private static final String DEFAULT_LIBRARY_API_URL = "http://localhost:8083";
+
     @Inject
     private StorageService storageService;
 
+    @ConfigProperty(name = "library-api.base-url")
+    Optional<String> libraryApiBaseUrl;
+
     private List<EligibilityCheck> checks;
+    private String effectiveBaseUrl;
+    private boolean useVersionedUrls;
 
     @PostConstruct
     void init() {
         try {
+            // Determine effective base URL
+            effectiveBaseUrl = libraryApiBaseUrl.orElse(DEFAULT_LIBRARY_API_URL);
+
+            // Infer environment from URL - localhost = development, else = production
+            boolean isProduction = !(effectiveBaseUrl.contains("localhost") || effectiveBaseUrl.contains("127.0.0.1"));
+            useVersionedUrls = isProduction;
+
+            Log.info("========================================");
+            Log.info("Library API Configuration");
+            Log.info("========================================");
+            Log.info("Base URL: " + effectiveBaseUrl);
+            Log.info("Mode: " + (isProduction ? "production" : "development"));
+            Log.info("Versioned URLs: " + (useVersionedUrls ? "enabled" : "disabled"));
+            Log.info("========================================");
+
             // Get path of most recent library schema json document
             Optional<Map<String, Object>> configOpt = FirestoreUtils.getFirestoreDocById("system", "config");
             if (configOpt.isEmpty()){
@@ -51,6 +74,7 @@ public class LibraryApiService {
             ObjectMapper mapper = new ObjectMapper();
 
             checks = mapper.readValue(apiSchemaJson, new TypeReference<List<EligibilityCheck>>() {});
+            Log.info("Loaded " + checks.size() + " library checks");
         } catch (Exception e) {
             throw new RuntimeException("Failed to load library api metadata", e);
         }
@@ -87,8 +111,20 @@ public class LibraryApiService {
         String bodyJson = mapper.writeValueAsString(data);
 
         HttpClient client = HttpClient.newHttpClient();
-        String urlEncodedVersion = checkConfig.getCheckVersion().replace('.', '-');
-        String baseUrl = String.format("https://library-api-v%s---library-api-cnsoqyluna-uc.a.run.app", urlEncodedVersion);
+
+        // Determine base URL based on configuration
+        String baseUrl;
+        if (useVersionedUrls) {
+            // Production: Use versioned Cloud Run URLs
+            String urlEncodedVersion = checkConfig.getCheckVersion().replace('.', '-');
+            baseUrl = String.format("https://library-api-v%s---library-api-cnsoqyluna-uc.a.run.app", urlEncodedVersion);
+            Log.debug("Using versioned URL: " + baseUrl);
+        } else {
+            // Development: Use configured base URL directly
+            baseUrl = effectiveBaseUrl;
+            Log.debug("Using base URL: " + baseUrl);
+        }
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl + checkConfig.getEvaluationUrl()))
                 .header("Content-Type", "application/json")

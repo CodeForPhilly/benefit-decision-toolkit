@@ -4,16 +4,51 @@ import firebase_admin
 from firebase_admin import credentials, storage, firestore
 import json
 from datetime import datetime
+import os
+
+# -----------------------------------
+# CONFIGURATION
+# -----------------------------------
+
+# Default to localhost for developer-friendly setup
+DEFAULT_LIBRARY_API_URL = "http://localhost:8083"
+LIBRARY_API_BASE_URL = os.getenv("LIBRARY_API_BASE_URL", DEFAULT_LIBRARY_API_URL)
+
+# Infer production mode from URL (for versioned URL logic)
+IS_PRODUCTION = not ("localhost" in LIBRARY_API_BASE_URL or "127.0.0.1" in LIBRARY_API_BASE_URL)
+
+# Storage bucket defaults - use dev bucket by default
+DEFAULT_DEV_BUCKET = "demo-bdt-dev.appspot.com"
+DEFAULT_PROD_BUCKET = "benefit-decision-toolkit-play.firebasestorage.app"
+STORAGE_BUCKET = os.getenv("GCS_BUCKET_NAME",
+                           DEFAULT_PROD_BUCKET if IS_PRODUCTION else DEFAULT_DEV_BUCKET)
+
+# Log configuration
+print(f"========================================")
+print(f"Library Metadata Sync Configuration")
+print(f"========================================")
+print(f"Mode: {'production' if IS_PRODUCTION else 'development'}")
+print(f"Library API URL: {LIBRARY_API_BASE_URL}")
+print(f"Storage Bucket: {STORAGE_BUCKET}")
+print(f"========================================\n")
 
 # -----------------------------------
 # INIT FIREBASE
 # -----------------------------------
 
+# Point google-cloud-storage SDK at the emulator using the existing Quarkus config variable
+storage_host_override = os.getenv("QUARKUS_GOOGLE_CLOUD_STORAGE_HOST_OVERRIDE")
+if storage_host_override:
+    os.environ["STORAGE_EMULATOR_HOST"] = storage_host_override
+
 cred = credentials.ApplicationDefault()
 
-firebase_admin.initialize_app(cred, {
-    "storageBucket": "benefit-decision-toolkit-play.firebasestorage.app"
-})
+firebase_options = {"storageBucket": STORAGE_BUCKET}
+if not IS_PRODUCTION:
+    # Emulators need an explicit project ID; production gets it from credentials
+    firebase_options["projectId"] = os.getenv("QUARKUS_GOOGLE_CLOUD_PROJECT_ID", "demo-bdt-dev")
+
+firebase_admin.initialize_app(cred, firebase_options)
 
 db = firestore.client()
 bucket = storage.bucket()
@@ -292,7 +327,9 @@ def save_json_to_storage_and_update_firestore(json_string, firestore_doc_path):
 # --------------------------------------------
 if __name__ == "__main__":
 
-    url = "https://library-api-1034049717668.us-central1.run.app/q/openapi.json"
+    url = f"{LIBRARY_API_BASE_URL}/q/openapi.json"
+
+    print(f"Fetching OpenAPI spec from: {url}")
 
     # Send a GET request
     response = requests.get(url)
