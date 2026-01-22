@@ -29,9 +29,8 @@ export default function EditScreenerForm({
       setIsLoading(true);
       const data = {
         screenerName: screenerName(),
-        id: screenerData.id,
       };
-      await handleEditScreener(data);
+      await handleEditScreener(screenerData.id, data);
       if (isActive) setIsLoading(false);
     } catch (e) {
       if (setIsLoading()) {

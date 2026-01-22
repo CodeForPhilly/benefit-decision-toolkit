@@ -46,7 +46,10 @@ export const fetchProject = async (screenerId) => {
   }
 };
 
-export const createNewScreener = async (screenerData) => {
+export const createNewScreener = async (request: {
+  screenerName: string;
+  description?: string;
+}) => {
   const url = apiUrl + "/screener";
   try {
     const response = await authFetch(url, {
@@ -55,7 +58,7 @@ export const createNewScreener = async (screenerData) => {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
-      body: JSON.stringify(screenerData),
+      body: JSON.stringify(request),
     });
 
     if (!response.ok) {
@@ -69,20 +72,25 @@ export const createNewScreener = async (screenerData) => {
   }
 };
 
-export const updateScreener = async (screenerData) => {
-  const url = apiUrl + "/screener";
+export const updateScreener = async (
+  screenerId: string,
+  request: { screenerName: string },
+) => {
+  const url = new URL(`${apiUrl}/screener/${screenerId}`);
+
   try {
-    const response = await authFetch(url, {
-      method: "PUT",
+    const response = await authFetch(url.toString(), {
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
-      body: JSON.stringify(screenerData),
+      body: JSON.stringify(request),
     });
 
     if (!response.ok) {
-      throw new Error(`Update failed with status: ${response.status}`);
+      const err = await response.json();
+      throw new Error(err);
     }
   } catch (error) {
     console.error("Error updating project:", error);
@@ -110,13 +118,14 @@ export const deleteScreener = async (screenerData) => {
   }
 };
 
-export const saveFormSchema = async (screenerId, schema) => {
+export const saveFormSchema = async (screenerId: string, schema) => {
   const requestData: any = {};
-  requestData.screenerId = screenerId;
   requestData.schema = schema;
-  const url = apiUrl + "/save-form-schema";
+  const url = new URL(`${apiUrl}/save-form-schema`);
+  url.searchParams.append("screenerId", screenerId);
+
   try {
-    const response = await authFetch(url, {
+    const response = await authFetch(url.toString(), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -155,7 +164,10 @@ export const publishScreener = async (screenerId: string): Promise<void> => {
   }
 };
 
-export const addCustomBenefit = async (screenerId: string, benefit: BenefitDetail) => {
+export const addCustomBenefit = async (
+  screenerId: string,
+  benefit: BenefitDetail,
+) => {
   const url = apiUrl + "/screener/" + screenerId + "/benefit";
   try {
     const response = await authFetch(url, {
@@ -176,7 +188,10 @@ export const addCustomBenefit = async (screenerId: string, benefit: BenefitDetai
   }
 };
 
-export const removeCustomBenefit = async (screenerId: string, benefitId: string) => {
+export const removeCustomBenefit = async (
+  screenerId: string,
+  benefitId: string,
+) => {
   const url = apiUrl + "/screener/" + screenerId + "/benefit/" + benefitId;
   try {
     const response = await authFetch(url, {
@@ -188,7 +203,9 @@ export const removeCustomBenefit = async (screenerId: string, benefitId: string)
     });
 
     if (!response.ok) {
-      throw new Error(`Delete of benefit failed with status: ${response.status}`);
+      throw new Error(
+        `Delete of benefit failed with status: ${response.status}`,
+      );
     }
   } catch (error) {
     console.error("Error deleting custom benefit:", error);
@@ -196,7 +213,10 @@ export const removeCustomBenefit = async (screenerId: string, benefitId: string)
   }
 };
 
-export const evaluateScreener = async (screenerId: string, inputData: any): Promise<ScreenerResult> => {
+export const evaluateScreener = async (
+  screenerId: string,
+  inputData: any,
+): Promise<ScreenerResult> => {
   const url = apiUrl + "/decision/v2?screenerId=" + screenerId;
   try {
     const response = await authFetch(url, {
@@ -211,7 +231,7 @@ export const evaluateScreener = async (screenerId: string, inputData: any): Prom
     if (!response.ok) {
       throw new Error(`Evaluation failed with status: ${response.status}`);
     }
-    
+
     const data = await response.json();
     return data;
   } catch (error) {
