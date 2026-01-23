@@ -2,6 +2,6 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --font-sans: "Open Sans";
-  --font-serif: "Ramaraja";
+  --font-sans: "Open Sans", sans;
+  --font-serif: "Ramaraja", serif;
 }

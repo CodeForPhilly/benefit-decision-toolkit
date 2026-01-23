@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@astrojs/svelte": "^7.2.3",
+    "@fontsource/open-sans": "^5.2.7",
+    "@fontsource/ramaraja": "^5.2.8",
     "@tailwindcss/vite": "^4.1.17",
     "astro": "^5.15.5",
     "svelte": "^5.45.8",
