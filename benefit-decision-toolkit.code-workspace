@@ -21,11 +21,14 @@
     // Java settings for API modules
     "java.import.maven.enabled": true,
     "java.compile.nullAnalysis.mode": "automatic",
+    "java.format.settings.url": "./.vscode/java.format.xml",
+    "java.format.settings.profile": "Custom",
     "[java]": {
-      "editor.defaultFormatter": "josevseb.google-java-format-for-vs-code",
+      "editor.defaultFormatter": "redhat.java",
     },
-    "java.format.enabled": false,
     "[xml]": {
+      "editor.autoClosingBrackets": "never",
+      "files.trimFinalNewlines": true,
       "editor.defaultFormatter": "redhat.vscode-xml",
     },
 
@@ -70,7 +73,6 @@
       "vscjava.vscode-java-debug",
       "vscjava.vscode-maven",
       "redhat.vscode-quarkus",
-      "josevseb.google-java-format-for-vs-code",
 
       // Frontend development
       "bradlc.vscode-tailwindcss",
