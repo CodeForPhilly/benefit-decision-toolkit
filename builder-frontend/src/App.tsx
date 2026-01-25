@@ -13,17 +13,22 @@ import { Match, Switch } from "solid-js";
 const ProtectedRoute = (props) => {
   const { user, isAuthLoading } = useAuth();
   
+  const userThing = () => {
+    console.log(user())
+    return user();
+  }
+
   // If user is logged in, render the requested component, otherwise redirect to login
   return (
     <Switch>
       <Match when={isAuthLoading()}>
         <Loading />
       </Match>
-      <Match when={user() !== "loading"}>
-        <props.component />
-      </Match>
-      <Match when={user() === "loading"}>
+      <Match when={userThing() === "loading" || userThing() === null}>
         <Navigate href="/login" />
+      </Match>
+      <Match when={userThing() !== "loading"}>
+        <props.component />
       </Match>
     </Switch>
   );
