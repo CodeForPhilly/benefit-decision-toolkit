@@ -11,6 +11,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.acme.auth.AuthUtils;
 import org.acme.model.domain.*;
+import org.acme.model.dto.FormPathsResponse;
 import org.acme.model.dto.PublishScreenerRequest;
 import org.acme.model.dto.SaveSchemaRequest;
 import org.acme.persistence.EligibilityCheckRepository;
@@ -18,7 +19,9 @@ import org.acme.persistence.ScreenerRepository;
 import org.acme.persistence.PublishedScreenerRepository;
 import org.acme.persistence.StorageService;
 import org.acme.service.DmnService;
+import org.acme.service.InputSchemaService;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +44,9 @@ public class ScreenerResource {
 
     @Inject
     DmnService dmnService;
+
+    @Inject
+    InputSchemaService inputSchemaService;
 
     @GET
     @Path("/screeners")
@@ -248,6 +254,40 @@ public class ScreenerResource {
             Log.error(e);
             return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(Map.of("error", "Could not fetch benefits"))
+                    .build();
+        }
+    }
+
+    /**
+     * Returns the list of unique input paths required by all checks in a screener.
+     * This endpoint transforms inputDefinition schemas and extracts paths,
+     * replacing the frontend's transformInputDefinitionSchema and extractJsonSchemaPaths logic.
+     */
+    @GET
+    @Path("/screener/{screenerId}/form-paths")
+    public Response getScreenerFormPaths(@Context SecurityIdentity identity,
+                                         @PathParam("screenerId") String screenerId) {
+        String userId = AuthUtils.getUserId(identity);
+
+        Optional<Screener> screenerOpt = screenerRepository.getWorkingScreener(screenerId);
+        if (screenerOpt.isEmpty()) {
+            throw new NotFoundException();
+        }
+        Screener screener = screenerOpt.get();
+
+        if (!isUserAuthorizedToAccessScreenerByScreener(userId, screener)) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        try {
+            List<Benefit> benefits = screenerRepository.getBenefitsInScreener(screener);
+            List<String> paths = new ArrayList<>(inputSchemaService.extractAllInputPaths(benefits));
+            Collections.sort(paths);
+            return Response.ok().entity(new FormPathsResponse(paths)).build();
+        } catch (Exception e) {
+            Log.error(e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Could not extract form paths"))
                     .build();
         }
     }

@@ -20,6 +20,7 @@ import org.acme.persistence.PublishedScreenerRepository;
 import org.acme.persistence.ScreenerRepository;
 import org.acme.persistence.StorageService;
 import org.acme.service.DmnService;
+import org.acme.service.FormDataTransformer;
 import org.acme.service.LibraryApiService;
 
 import java.util.*;
@@ -66,11 +67,14 @@ public class DecisionResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
+        // Transform form data: convert people object to people array
+        Map<String, Object> transformedData = FormDataTransformer.transformFormData(inputData);
+
         try {
             Map<String, Object> screenerResults = new HashMap<String, Object>();
             for (Benefit benefit : benefits) {
                 // Evaluate benefit
-                Map<String, Object> benefitResults = evaluateBenefit(benefit, inputData);
+                Map<String, Object> benefitResults = evaluateBenefit(benefit, transformedData);
                 screenerResults.put(benefit.getId(), benefitResults);
             }
             return Response.ok().entity(screenerResults).build();
@@ -106,12 +110,15 @@ public class DecisionResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
+        // Transform form data: convert people object to people array
+        Map<String, Object> transformedData = FormDataTransformer.transformFormData(formData);
+
         try {
             Map<String, Object> screenerResults = new HashMap<String, Object>();
             //TODO: consider ways of processing benefits in parallel
             for (Benefit benefit : benefits) {
                 // Evaluate benefit
-                Map<String, Object> benefitResults = evaluateBenefit(benefit, formData);
+                Map<String, Object> benefitResults = evaluateBenefit(benefit, transformedData);
                 screenerResults.put(benefit.getId(), benefitResults);
             }
             return Response.ok().entity(screenerResults).build();

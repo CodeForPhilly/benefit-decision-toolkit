@@ -11,6 +11,7 @@
   "dependencies": {
     "@bpmn-io/form-js": "^1.15.2",
     "@bpmn-io/form-js-editor": "^1.15.2",
+    "@bpmn-io/properties-panel": "^3.36.0",
     "@corvu/drawer": "^0.2.4",
     "@kie-tools-core/editor": "^10.0.0",
     "@kogito-tooling/kie-editors-standalone": "^0.16.0",

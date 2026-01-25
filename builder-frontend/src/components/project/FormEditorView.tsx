@@ -1,48 +1,37 @@
 import {
-  onMount,
-  onCleanup,
-  createSignal,
-  createResource,
-  Switch,
-  Match,
-  For,
-  Show,
+  onCleanup, onMount,
+  createEffect, createSignal, createResource,
+  For, Match, Show, Switch,
 } from "solid-js";
+import toast from "solid-toast";
 import { useParams } from "@solidjs/router";
 
 import { FormEditor } from "@bpmn-io/form-js-editor";
 import Drawer from "@corvu/drawer"; // 'corvu/drawer'
 
-import FilterFormComponentsModule from "./formJsExtensions/FilterFormComponentsModule";
 import CustomFormFieldsModule from "./formJsExtensions/customFormFields";
+import { customKeyModule } from './formJsExtensions/customKeyDropdown/customKeyDropdownProvider';
+import PathOptionsService, { pathOptionsModule } from './formJsExtensions/customKeyDropdown/pathOptionsService';
 
-import { saveFormSchema } from "../../api/screener";
-import { fetchScreenerBenefit } from "../../api/benefit";
-import {
-  extractFormPaths,
-  extractJsonSchemaPaths,
-} from "../../utils/formSchemaUtils";
+import { saveFormSchema, fetchFormPaths } from "../../api/screener";
+import { extractFormPaths } from "../../utils/formSchemaUtils";
 import Loading from "../Loading";
-
-import type { Benefit, BenefitDetail } from "../../types";
 
 import "@bpmn-io/form-js/dist/assets/form-js.css";
 import "@bpmn-io/form-js-editor/dist/assets/form-js-editor.css";
 
-function FormEditorView({ project, formSchema, setFormSchema }) {
+function FormEditorView({ formSchema, setFormSchema }) {
   const [isUnsaved, setIsUnsaved] = createSignal(false);
   const [isSaving, setIsSaving] = createSignal(false);
   const params = useParams();
 
-  // Fetch all benefits with their checks
-  const [benefits] = createResource(
-    () => project()?.benefits,
-    async (benefitDetails: BenefitDetail[]) => {
-      if (!benefitDetails?.length) return [];
-      const screenerId = params.projectId;
-      return Promise.all(
-        benefitDetails.map((b) => fetchScreenerBenefit(screenerId, b.id))
-      );
+  // Fetch form paths from backend (replaces local transformation logic)
+  const [formPaths] = createResource(
+    () => params.projectId,
+    async (screenerId: string) => {
+      if (!screenerId) return [];
+      const response = await fetchFormPaths(screenerId);
+      return response.paths;
     }
   );
 
@@ -52,7 +41,7 @@ function FormEditorView({ project, formSchema, setFormSchema }) {
   let emptySchema = {
     components: [],
     exporter: { name: "form-js (https://demo.bpmn.io)", version: "1.15.0" },
-    id: "Form_1sgem74",
+    id: "BDT Form",
     schemaVersion: 18,
     type: "default",
   };
@@ -63,6 +52,8 @@ function FormEditorView({ project, formSchema, setFormSchema }) {
       additionalModules: [
         // FilterFormComponentsModule,
         CustomFormFieldsModule,
+        pathOptionsModule,
+        customKeyModule
       ],
     });
 
@@ -90,6 +81,47 @@ function FormEditorView({ project, formSchema, setFormSchema }) {
     });
   });
 
+  // Update path options when form paths load from backend
+  createEffect(() => {
+    if (!formEditor || formPaths.loading) return;
+
+    const paths = formPaths() || [];
+    const validPathSet = new Set(paths);
+
+    const pathOptionsService = formEditor.get("pathOptionsService") as PathOptionsService;
+    pathOptionsService.setOptions(
+      paths.map((path) => ({ value: path, label: path }))
+    );
+
+    // Clean up any form fields with keys that are no longer valid options
+    const formFieldRegistry = formEditor.get("formFieldRegistry") as any;
+    const modeling = formEditor.get("modeling") as any;
+
+    if (formFieldRegistry && modeling) {
+      const allFields = formFieldRegistry.getAll();
+      const invalidFields: string[] = [];
+
+      for (const field of allFields) {
+        // If field has a key that's not in valid paths (and not empty), reset it
+        if (field.key && !validPathSet.has(field.key) && field.key !== field.id) {
+          invalidFields.push(field.key);
+          modeling.editFormField(field, 'key', field.id);
+        }
+      }
+
+      // Notify user if we reset any fields
+      if (invalidFields.length > 0) {
+        setIsUnsaved(true);
+        const fieldCount = invalidFields.length;
+        const message = fieldCount === 1
+          ? `1 field had an invalid key "${invalidFields[0]}" and was reset.`
+          : `${fieldCount} fields had invalid keys and were reset: ${invalidFields.join(', ')}`;
+        toast(message, { duration: 5000, icon: '⚠️' });
+        handleSave();
+      }
+    }
+  });
+
   const handleSave = async () => {
     const projectId = params.projectId;
     const schema = formSchema();
@@ -102,7 +134,7 @@ function FormEditorView({ project, formSchema, setFormSchema }) {
 
   return (
     <>
-      <Show when={benefits.loading}>
+      <Show when={formPaths.loading}>
         <Loading />
       </Show>
       <div class="flex flex-row">
@@ -133,29 +165,18 @@ function FormEditorView({ project, formSchema, setFormSchema }) {
             </Switch>
           </div>
         </div>
-        <FormValidationDrawer formSchema={formSchema} benefits={benefits} />
+        <FormValidationDrawer formSchema={formSchema} expectedInputPaths={formPaths} />
       </div>
     </>
   );
 }
 
-const FormValidationDrawer = ({ formSchema, benefits }) => {
+const FormValidationDrawer = ({ formSchema, expectedInputPaths }) => {
   const formOutputs = () =>
     formSchema() ? extractFormPaths(formSchema()) : [];
 
-  // Extract expected inputs from all benefits' checks
-  const expectedInputs = () => {
-    const allBenefits: Benefit[] = benefits() || [];
-    const pathSet = new Set<string>();
-
-    for (const benefit of allBenefits) {
-      for (const check of benefit.checks || []) {
-        const paths = extractJsonSchemaPaths(check.inputDefinition);
-        paths.forEach((p) => pathSet.add(p));
-      }
-    }
-    return Array.from(pathSet);
-  };
+  // Expected inputs come directly from backend API
+  const expectedInputs = () => expectedInputPaths() || [];
 
   // Compute which expected inputs are satisfied vs missing
   const formOutputSet = () => new Set(formOutputs());

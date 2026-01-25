@@ -23,5 +23,12 @@ export default defineConfig({
         target: 'http://localhost:8081',
       },
     },
+  },
+  optimizeDeps: {
+    // Ensure Preact is not pre-bundled separately, avoiding duplicate instances
+    include: ['preact', 'preact/hooks', 'preact/compat']
+  },
+  resolve: {
+    dedupe: ['preact', 'preact/hooks', 'preact/compat']
   }
 });
