@@ -15,6 +15,8 @@ import Drawer from "@corvu/drawer"; // 'corvu/drawer'
 
 import FilterFormComponentsModule from "./formJsExtensions/FilterFormComponentsModule";
 import CustomFormFieldsModule from "./formJsExtensions/customFormFields";
+import { customPathModule } from './formJsExtensions/pathDropdown/pathDropdownComponent';
+import { pathOptionsModule } from './formJsExtensions/pathDropdown/pathOptionsService';
 
 import { saveFormSchema } from "../../api/screener";
 import { fetchScreenerBenefit } from "../../api/benefit";
@@ -63,8 +65,20 @@ function FormEditorView({ project, formSchema, setFormSchema }) {
       additionalModules: [
         // FilterFormComponentsModule,
         CustomFormFieldsModule,
+        pathOptionsModule,
+        customPathModule
       ],
     });
+
+    const pathOptions = formEditor.get('pathOptionsService');
+    pathOptions.setOptions([
+      { value: 'user.firstName', label: 'First Name' },
+      { value: 'user.lastName', label: 'Last Name' },
+      { value: 'user.email', label: 'Email' },
+      { value: 'order.orderNumber', label: 'Order Number' },
+      { value: 'order.total', label: 'Total Amount' }
+    ]);
+
 
     if (formSchema()) {
       formEditor.importSchema(formSchema()).catch((err) => {
