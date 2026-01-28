@@ -12,6 +12,17 @@ processes:
     environment:
       - "QUARKUS_CONSOLE_COLOR=true"
     ready_log_line: "Listening on: http://localhost:"
+  sync-library-metadata:
+    description: Sync library check metadata from library-api to Firebase Storage
+    command: ./bin/library/sync-metadata
+    depends_on:
+      library-api:
+        condition: process_log_ready
+      firebase-emulators:
+        condition: process_log_ready
+    availability:
+      restart: on_failure
+      max_restarts: 1
   builder-api:
     description: This process runs the builder-api in dev mode on port ${QUARKUS_HTTP_PORT}.
     command: quarkus dev -Ddebug=5005
@@ -20,6 +31,8 @@ processes:
       - "QUARKUS_CONSOLE_COLOR=true"
     ready_log_line: "Listening on: http://localhost:"
     depends_on:
+      sync-library-metadata:
+        condition: process_completed_successfully
       firebase-emulators:
         condition: process_log_ready
   builder-frontend:

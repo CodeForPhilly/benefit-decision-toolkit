@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+
+# Load environment from root .env if it exists
+if [ -f "$PROJECT_ROOT/.env" ]; then
+  set -a
+  source "$PROJECT_ROOT/.env"
+  set +a
+fi
+
+# Determine library API URL (defaults to localhost)
+LIBRARY_API_URL="${LIBRARY_API_BASE_URL:-http://localhost:8083}"
+
+# Infer mode from URL
+if [[ "$LIBRARY_API_URL" == *"localhost"* ]] || [[ "$LIBRARY_API_URL" == *"127.0.0.1"* ]]; then
+  MODE="development"
+else
+  MODE="production"
+fi
+
+echo "=========================================="
+echo "Library Metadata Sync"
+echo "=========================================="
+echo "Mode: $MODE"
+echo "Library API: $LIBRARY_API_URL"
+
+if [ "$MODE" = "development" ]; then
+  echo "Target: Firebase Emulators (Firestore + Storage)"
+  echo ""
+  echo "Prerequisites:"
+  echo "  1. Firebase emulators must be running"
+  echo "  2. library-api must be running (quarkus dev)"
+  echo ""
+
+  # Check if Firebase Storage emulator is running
+  if ! curl -s http://localhost:9199 >/dev/null 2>&1; then
+    echo "ERROR: Firebase Storage emulator not responding at localhost:9199"
+    echo "Start emulators with: firebase emulators:start --project demo-bdt-dev --only auth,storage,firestore"
+    exit 1
+  fi
+
+  # Check if library-api is running
+  if ! curl -s "${LIBRARY_API_URL}/q/health" >/dev/null 2>&1; then
+    echo "ERROR: library-api not responding at ${LIBRARY_API_URL}"
+    echo "Start library-api with: cd library-api && quarkus dev"
+    exit 1
+  fi
+
+  # Check if $VENV_DIR is set and activate it
+  if [[ "$VENV_DIR" != "" ]]; then
+    if [ -f "$VENV_DIR/bin/activate" ]; then
+      source "$VENV_DIR/bin/activate"
+      echo "✓ Activated virtual environment at $VENV_DIR"
+    else
+      echo "WARNING: Virtual environment not found at $VENV_DIR"
+    fi
+  fi
+
+  echo "✓ Firebase emulators are running"
+  echo "✓ library-api is running"
+  echo ""
+else
+  echo "Target: Production Firebase"
+  echo ""
+  echo "Prerequisites:"
+  echo "  - Valid Google Cloud credentials (Application Default Credentials)"
+  echo "  - Deployed library-api at: $LIBRARY_API_URL"
+  echo ""
+
+  # Check if we have GCP credentials
+  if ! gcloud auth application-default print-access-token >/dev/null 2>&1; then
+    echo "ERROR: No valid Google Cloud credentials found"
+    echo "Authenticate with: gcloud auth application-default login --project benefit-decision-toolkit-play"
+    exit 1
+  fi
+
+  echo "✓ Google Cloud credentials found"
+  echo ""
+fi
+
+# Run the Python script
+echo "Running metadata sync..."
+pip install -q -r $SCRIPT_DIR/requirements.txt
+python3 "$SCRIPT_DIR/load-library-metadata.py"
+
+echo ""
+echo "=========================================="
+echo "Metadata sync complete!"
+echo "=========================================="
