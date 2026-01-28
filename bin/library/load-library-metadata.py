@@ -41,11 +41,20 @@ storage_host_override = os.getenv("QUARKUS_GOOGLE_CLOUD_STORAGE_HOST_OVERRIDE")
 if storage_host_override:
     os.environ["STORAGE_EMULATOR_HOST"] = storage_host_override
 
-cred = credentials.ApplicationDefault()
-
 firebase_options = {"storageBucket": STORAGE_BUCKET}
-if not IS_PRODUCTION:
-    # Emulators need an explicit project ID; production gets it from credentials
+
+if IS_PRODUCTION:
+    # Production uses Application Default Credentials
+    cred = credentials.ApplicationDefault()
+else:
+    # Emulators don't need real credentials - use anonymous/mock credentials
+    # Set FIRESTORE_EMULATOR_HOST if not already set (standard Firebase emulator env var)
+    if not os.getenv("FIRESTORE_EMULATOR_HOST"):
+        os.environ["FIRESTORE_EMULATOR_HOST"] = "localhost:8080"
+
+    # Use a dummy credential for emulator mode
+    # Firebase Admin SDK accepts None when using emulators with project ID set
+    cred = None
     firebase_options["projectId"] = os.getenv("QUARKUS_GOOGLE_CLOUD_PROJECT_ID", "demo-bdt-dev")
 
 firebase_admin.initialize_app(cred, firebase_options)
