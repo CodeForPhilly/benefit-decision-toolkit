@@ -5,6 +5,17 @@ from firebase_admin import credentials, storage, firestore
 import json
 from datetime import datetime
 import os
+import google.auth.credentials
+
+
+class EmulatorCredentials(credentials.Base):
+    """Mock credentials for use with Firebase emulators."""
+
+    def __init__(self):
+        self._mock_credential = google.auth.credentials.AnonymousCredentials()
+
+    def get_credential(self):
+        return self._mock_credential
 
 # -----------------------------------
 # CONFIGURATION
@@ -41,11 +52,19 @@ storage_host_override = os.getenv("QUARKUS_GOOGLE_CLOUD_STORAGE_HOST_OVERRIDE")
 if storage_host_override:
     os.environ["STORAGE_EMULATOR_HOST"] = storage_host_override
 
-cred = credentials.ApplicationDefault()
-
 firebase_options = {"storageBucket": STORAGE_BUCKET}
-if not IS_PRODUCTION:
-    # Emulators need an explicit project ID; production gets it from credentials
+
+if IS_PRODUCTION:
+    # Production uses Application Default Credentials
+    cred = credentials.ApplicationDefault()
+else:
+    # Emulators don't need real credentials - use anonymous/mock credentials
+    # Set FIRESTORE_EMULATOR_HOST if not already set (standard Firebase emulator env var)
+    if not os.getenv("FIRESTORE_EMULATOR_HOST"):
+        os.environ["FIRESTORE_EMULATOR_HOST"] = "localhost:8080"
+
+    # Use mock credentials for emulator mode
+    cred = EmulatorCredentials()
     firebase_options["projectId"] = os.getenv("QUARKUS_GOOGLE_CLOUD_PROJECT_ID", "demo-bdt-dev")
 
 firebase_admin.initialize_app(cred, firebase_options)

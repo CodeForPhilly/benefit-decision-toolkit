@@ -4,12 +4,13 @@
     "maven@latest",
     "quarkus@latest",
     "jdk21@latest",
-    "firebase-tools@latest",
+    "firebase-tools@14.27.0",
     "google-cloud-sdk@latest",
     "nodejs@22",
     "bruno-cli@latest",
     "process-compose@latest",
-    "python@latest"
+    "python@3.14",
+    "python314Packages.pip@latest"
   ],
   "env_from": ".env",
   "shell": {

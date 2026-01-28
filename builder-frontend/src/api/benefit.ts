@@ -1,8 +1,9 @@
 import { authGet, authPut } from "@/api/auth";
+import { env } from "@/config/environment";
 
 import { Benefit } from "@/types";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = env.apiUrl;
 
 export const fetchScreenerBenefit = async (
   srceenerId: string,

@@ -22,6 +22,10 @@ Try out an [example elegibility screener](https://phillypropertytaxrelief.org/) 
 
 If you are interested in getting involved with the project, check out [our page on the Code For Philly website](https://codeforphilly.org/projects/dmn_benefit_toolbox-including_the_philly_property_tax_relief_screener)
 
+## Testing Pull Requests
+
+Want to test changes from a pull request without setting up a local development environment? See our [Codespaces Testing Guide](docs/testing-prs-with-codespaces.md) for step-by-step instructions.
+
 ## User-Facing Technologies
 
 [Decision Model and Notation (DMN)](https://learn-dmn-in-15-minutes.com/) is used to define the logic of the screener forms.
