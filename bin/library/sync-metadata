@@ -35,19 +35,35 @@ if [ "$MODE" = "development" ]; then
   echo "  2. library-api must be running (quarkus dev)"
   echo ""
 
-  # Check if Firebase Storage emulator is running
-  if ! curl -s http://localhost:9199 >/dev/null 2>&1; then
-    echo "ERROR: Firebase Storage emulator not responding at localhost:9199"
-    echo "Start emulators with: firebase emulators:start --project demo-bdt-dev --only auth,storage,firestore"
-    exit 1
-  fi
+  # Check if Firebase Storage emulator is running (with retries for slow startup)
+  MAX_RETRIES=10
+  RETRY_DELAY=2
+  for i in $(seq 1 $MAX_RETRIES); do
+    if curl -s http://localhost:9199 >/dev/null 2>&1; then
+      break
+    fi
+    if [ $i -eq $MAX_RETRIES ]; then
+      echo "ERROR: Firebase Storage emulator not responding at localhost:9199 after $MAX_RETRIES attempts"
+      echo "Start emulators with: firebase emulators:start --project demo-bdt-dev --only auth,storage,firestore"
+      exit 1
+    fi
+    echo "Waiting for Firebase Storage emulator... (attempt $i/$MAX_RETRIES)"
+    sleep $RETRY_DELAY
+  done
 
-  # Check if library-api is running
-  if ! curl -s "${LIBRARY_API_URL}/q/health" >/dev/null 2>&1; then
-    echo "ERROR: library-api not responding at ${LIBRARY_API_URL}"
-    echo "Start library-api with: cd library-api && quarkus dev"
-    exit 1
-  fi
+  # Check if library-api is running (with retries for slow startup)
+  for i in $(seq 1 $MAX_RETRIES); do
+    if curl -s "${LIBRARY_API_URL}/q/health" >/dev/null 2>&1; then
+      break
+    fi
+    if [ $i -eq $MAX_RETRIES ]; then
+      echo "ERROR: library-api not responding at ${LIBRARY_API_URL} after $MAX_RETRIES attempts"
+      echo "Start library-api with: cd library-api && quarkus dev"
+      exit 1
+    fi
+    echo "Waiting for library-api... (attempt $i/$MAX_RETRIES)"
+    sleep $RETRY_DELAY
+  done
 
   # Check if $VENV_DIR is set and activate it
   if [[ "$VENV_DIR" != "" ]]; then
