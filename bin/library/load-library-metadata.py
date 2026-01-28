@@ -5,6 +5,17 @@ from firebase_admin import credentials, storage, firestore
 import json
 from datetime import datetime
 import os
+import google.auth.credentials
+
+
+class EmulatorCredentials(credentials.Base):
+    """Mock credentials for use with Firebase emulators."""
+
+    def __init__(self):
+        self._mock_credential = google.auth.credentials.AnonymousCredentials()
+
+    def get_credential(self):
+        return self._mock_credential
 
 # -----------------------------------
 # CONFIGURATION
@@ -52,9 +63,8 @@ else:
     if not os.getenv("FIRESTORE_EMULATOR_HOST"):
         os.environ["FIRESTORE_EMULATOR_HOST"] = "localhost:8080"
 
-    # Use a dummy credential for emulator mode
-    # Firebase Admin SDK accepts None when using emulators with project ID set
-    cred = None
+    # Use mock credentials for emulator mode
+    cred = EmulatorCredentials()
     firebase_options["projectId"] = os.getenv("QUARKUS_GOOGLE_CLOUD_PROJECT_ID", "demo-bdt-dev")
 
 firebase_admin.initialize_app(cred, firebase_options)
