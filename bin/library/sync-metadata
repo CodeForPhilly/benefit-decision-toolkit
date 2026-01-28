@@ -42,49 +42,30 @@ if [ "$MODE" = "development" ]; then
 import urllib.request
 import urllib.error
 import sys
-url = '$1'
 try:
-    urllib.request.urlopen(url, timeout=5)
+    urllib.request.urlopen('$1', timeout=5)
     sys.exit(0)
 except urllib.error.HTTPError:
     # Server responded with an error code, but it IS responding
     sys.exit(0)
-except Exception as e:
-    # Connection refused, timeout, etc. - server not running
-    print(f'  DEBUG: {url} -> {type(e).__name__}: {e}', file=sys.stderr)
+except:
     sys.exit(1)
 "
   }
 
-  # Check if Firebase Storage emulator is running (with retries for slow startup)
-  MAX_RETRIES=30
-  RETRY_DELAY=2
-  for i in $(seq 1 $MAX_RETRIES); do
-    if check_url "http://localhost:9199"; then
-      break
-    fi
-    if [ $i -eq $MAX_RETRIES ]; then
-      echo "ERROR: Firebase Storage emulator not responding at localhost:9199 after $MAX_RETRIES attempts"
-      echo "Start emulators with: firebase emulators:start --project demo-bdt-dev --only auth,storage,firestore"
-      exit 1
-    fi
-    echo "Waiting for Firebase Storage emulator... (attempt $i/$MAX_RETRIES)"
-    sleep $RETRY_DELAY
-  done
+  # Check if Firebase Storage emulator is running
+  if ! check_url "http://localhost:9199"; then
+    echo "ERROR: Firebase Storage emulator not responding at localhost:9199"
+    echo "Start emulators with: firebase emulators:start --project demo-bdt-dev --only auth,storage,firestore"
+    exit 1
+  fi
 
-  # Check if library-api is running (with retries for slow startup)
-  for i in $(seq 1 $MAX_RETRIES); do
-    if check_url "${LIBRARY_API_URL}/q/health"; then
-      break
-    fi
-    if [ $i -eq $MAX_RETRIES ]; then
-      echo "ERROR: library-api not responding at ${LIBRARY_API_URL} after $MAX_RETRIES attempts"
-      echo "Start library-api with: cd library-api && quarkus dev"
-      exit 1
-    fi
-    echo "Waiting for library-api... (attempt $i/$MAX_RETRIES)"
-    sleep $RETRY_DELAY
-  done
+  # Check if library-api is running
+  if ! check_url "${LIBRARY_API_URL}/q/health"; then
+    echo "ERROR: library-api not responding at ${LIBRARY_API_URL}"
+    echo "Start library-api with: cd library-api && quarkus dev"
+    exit 1
+  fi
 
   # Check if $VENV_DIR is set and activate it
   if [[ "$VENV_DIR" != "" ]]; then
