@@ -42,20 +42,22 @@ if [ "$MODE" = "development" ]; then
 import urllib.request
 import urllib.error
 import sys
+url = '$1'
 try:
-    urllib.request.urlopen('$1', timeout=5)
+    urllib.request.urlopen(url, timeout=5)
     sys.exit(0)
 except urllib.error.HTTPError:
     # Server responded with an error code, but it IS responding
     sys.exit(0)
-except:
+except Exception as e:
     # Connection refused, timeout, etc. - server not running
+    print(f'  DEBUG: {url} -> {type(e).__name__}: {e}', file=sys.stderr)
     sys.exit(1)
-" 2>/dev/null
+"
   }
 
   # Check if Firebase Storage emulator is running (with retries for slow startup)
-  MAX_RETRIES=10
+  MAX_RETRIES=30
   RETRY_DELAY=2
   for i in $(seq 1 $MAX_RETRIES); do
     if check_url "http://localhost:9199"; then
