@@ -53,9 +53,9 @@ except:
 "
   }
 
-  # Retry settings for race condition between log line and actual readiness
-  MAX_RETRIES=10
-  RETRY_DELAY=1
+  # Retry settings - Codespaces needs more time for services to become ready
+  MAX_RETRIES=30
+  RETRY_DELAY=2
 
   # Check if Firebase Storage emulator is running
   for i in $(seq 1 $MAX_RETRIES); do
