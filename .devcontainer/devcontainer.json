@@ -4,7 +4,8 @@
     "dockerfile": "./Dockerfile",
     "context": ".."
   },
-  "postCreateCommand": "bin/ensure-root-env-file && devbox run setup",
+  "onCreateCommand": "bin/ensure-root-env-file && devbox run setup",
+  "postCreateCommand": "",
   "forwardPorts": [5173, 8081, 8083, 9099, 8080, 9199, 4000],
   "portsAttributes": {
     "5173": { "label": "Frontend", "onAutoForward": "openBrowser" },
