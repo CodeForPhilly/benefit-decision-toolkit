@@ -61,6 +61,7 @@ except Exception as e:
   # Check if Firebase Storage emulator is running
   for i in $(seq 1 $MAX_RETRIES); do
     if check_url "http://localhost:9199"; then
+      echo "Checking if Firebase Storage emulator is ready... ($i/$MAX_RETRIES)"
       break
     fi
     if [ $i -eq $MAX_RETRIES ]; then
@@ -74,6 +75,7 @@ except Exception as e:
   # Check if library-api is running
   for i in $(seq 1 $MAX_RETRIES); do
     if check_url "${LIBRARY_API_URL}/q/health"; then
+      echo "Checking if library-api is ready... ($i/$MAX_RETRIES)"
       break
     fi
     if [ $i -eq $MAX_RETRIES ]; then
