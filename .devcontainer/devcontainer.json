@@ -5,7 +5,7 @@
     "context": ".."
   },
   "onCreateCommand": "bin/ensure-root-env-file && devbox run setup",
-  "postCreateCommand": "",
+  "postStartCommand": "devbox services up --background && echo 'Devbox Services started in background. use `devbox services attach` to view logs.'",
   "forwardPorts": [5173, 8081, 8083, 9099, 8080, 9199, 4000],
   "portsAttributes": {
     "5173": { "label": "Frontend", "onAutoForward": "openBrowser" },
