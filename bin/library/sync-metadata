@@ -48,7 +48,8 @@ try:
 except urllib.error.HTTPError:
     # Server responded with an error code, but it IS responding
     sys.exit(0)
-except:
+except Exception as e:
+    print(f'DEBUG: {type(e).__name__}: {e}')
     sys.exit(1)
 "
   }
