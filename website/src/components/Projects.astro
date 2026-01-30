@@ -18,7 +18,7 @@ const projects = await getCollection("projects");
           const { Content } = await render(project);
           return (
             <li class="bg-white/50 p-6 rounded-2xl md:w-1/2">
-              <div class="prose">
+              <div class="prose prose-a:font-semibold">
                 <Content />
               </div>
             </li>
