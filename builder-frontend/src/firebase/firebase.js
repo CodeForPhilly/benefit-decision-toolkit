@@ -28,7 +28,10 @@ export const auth = getAuth(app);
 // Connect to emulators in development
 if (import.meta.env.MODE === 'development') {
   try {
-    connectAuthEmulator(auth, "http://localhost:9099", { disableWarnings: true });
+    // Use http for localhost, https for remote environments (Codespaces, Gitpod, etc.)
+    const protocol = AUTH_DOMAIN.startsWith('localhost') ? 'http' : 'https';
+    const authEmulatorUrl = `${protocol}://${AUTH_DOMAIN}`;
+    connectAuthEmulator(auth, authEmulatorUrl, { disableWarnings: true });
     console.log("🔧 Connected to Firebase emulators");
   } catch (error) {
     console.log("Emulators already connected or not available");

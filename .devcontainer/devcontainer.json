@@ -24,5 +24,8 @@
       ]
     }
   },
+  "remoteEnv": {
+    "VITE_AUTH_DOMAIN": "${localEnv:CODESPACE_NAME}-9099.${localEnv:GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}"
+  },
   "remoteUser": "devbox"
 }
