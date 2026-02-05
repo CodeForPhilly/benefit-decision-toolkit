@@ -1,2 +1,9 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: "Inter", sans;
+  --font-serif: "Ramaraja", serif;
+  --color-bdt-blue: #1a84d2;
+  --color-bdt-green: #cff7d3;
+}

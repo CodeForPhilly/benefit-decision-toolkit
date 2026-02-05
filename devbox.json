@@ -7,7 +7,9 @@
     "firebase-tools@latest",
     "google-cloud-sdk@latest",
     "nodejs@22",
-    "bruno-cli@latest"
+    "bruno-cli@latest",
+    "process-compose@latest",
+    "python@latest"
   ],
   "env_from": ".env",
   "shell": {

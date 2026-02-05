@@ -1,9 +1,11 @@
 import { authFetch } from "@/api/auth";
 
-import type { EligibilityCheck, OptionalBoolean } from "@/types";
+import type { EligibilityCheck, OptionalBoolean, CreateCheckRequest, UpdateCheckRequest } from "@/types";
+
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export const fetchPublicChecks = async (): Promise<EligibilityCheck[]> => {
-  const url = "/api/library-checks";
+  const url = apiUrl + "/library-checks";
   try {
     const response = await authFetch(url, {
       method: "GET",
@@ -27,8 +29,10 @@ export const fetchPublicChecks = async (): Promise<EligibilityCheck[]> => {
 export const fetchCheck = async (
   checkId: string
 ): Promise<EligibilityCheck> => {
-  const checkResource = checkId[0] === "L" ? "library-checks" : "custom-checks";
-  const url = `/api/${checkResource}/${checkId}`;
+  let url = apiUrl + `/custom-checks/${checkId}`;
+  if (checkId.charAt(0) === "L") {
+    url = apiUrl + `/library-checks/${checkId}`;
+  }
 
   try {
     const response = await authFetch(url, {
@@ -50,8 +54,8 @@ export const fetchCheck = async (
   }
 };
 
-export const addCheck = async (check: EligibilityCheck) => {
-  const url = "/api/custom-checks";
+export const addCheck = async (check: CreateCheckRequest): Promise<EligibilityCheck> => {
+  const url = apiUrl + "/custom-checks";
   try {
     const response = await authFetch(url, {
       method: "POST",
@@ -59,7 +63,12 @@ export const addCheck = async (check: EligibilityCheck) => {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
-      body: JSON.stringify(check),
+      body: JSON.stringify({
+        name: check.name,
+        module: check.module,
+        description: check.description,
+        parameterDefinitions: check.parameterDefinitions,
+      }),
     });
 
     if (!response.ok) {
@@ -73,16 +82,21 @@ export const addCheck = async (check: EligibilityCheck) => {
   }
 };
 
-export const updateCheck = async (check: EligibilityCheck) => {
-  const url = "/api/custom-checks";
+export const updateCheck = async (checkId: string, updates: UpdateCheckRequest): Promise<EligibilityCheck> => {
+  const url = apiUrl + `/custom-checks/${checkId}`;
   try {
+    // Build request body with only non-undefined fields (partial update)
+    const body: UpdateCheckRequest = {};
+    if (updates.description !== undefined) body.description = updates.description;
+    if (updates.parameterDefinitions !== undefined) body.parameterDefinitions = updates.parameterDefinitions;
+
     const response = await authFetch(url, {
-      method: "PUT",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
-      body: JSON.stringify(check),
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
@@ -97,15 +111,15 @@ export const updateCheck = async (check: EligibilityCheck) => {
 };
 
 export const saveCheckDmn = async (checkId: string, dmnModel: string) => {
-  const url = "/api/save-check-dmn";
+  const url = apiUrl + `/custom-checks/${checkId}/dmn`;
   try {
     const response = await authFetch(url, {
-      method: "POST",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
-      body: JSON.stringify({ id: checkId, dmnModel: dmnModel }),
+      body: JSON.stringify({ dmnModel: dmnModel }),
     });
 
     if (!response.ok) {
@@ -121,7 +135,7 @@ export const validateCheckDmn = async (
   checkId: string,
   dmnModel: string
 ): Promise<string[]> => {
-  const url = "/api/validate-check-dmn";
+  const url = apiUrl + `/custom-checks/${checkId}/dmn/validate`;
   try {
     const response = await authFetch(url, {
       method: "POST",
@@ -129,7 +143,7 @@ export const validateCheckDmn = async (
         "Content-Type": "application/json",
         Accept: "application/json",
       },
-      body: JSON.stringify({ id: checkId, dmnModel: dmnModel }),
+      body: JSON.stringify({ dmnModel: dmnModel }),
     });
 
     if (!response.ok) {
@@ -139,7 +153,7 @@ export const validateCheckDmn = async (
     const data = await response.json();
     return data.errors;
   } catch (error) {
-    console.error("Error validation DMN for check:", error);
+    console.error("Error validating DMN for check:", error);
     throw error; // rethrow so you can handle it in your component if needed
   }
 };
@@ -147,7 +161,8 @@ export const validateCheckDmn = async (
 export const fetchUserDefinedChecks = async (
   working: boolean
 ): Promise<EligibilityCheck[]> => {
-  const url = `/api/custom-checks?working=${working}`;
+  const workingQueryParam = working ? "true" : "false";
+  let url: string = apiUrl + `/custom-checks?working=${workingQueryParam}`;
 
   try {
     const response = await authFetch(url, {
@@ -173,7 +188,7 @@ export const evaluateWorkingCheck = async (
   checkConfig: any,
   inputData: Record<string, any>
 ): Promise<OptionalBoolean> => {
-  const url = `/api/decision/working-check?checkId=${checkId}`;
+  const url = apiUrl + `/decision/working-check?checkId=${checkId}`;
   try {
     const response = await authFetch(url, {
       method: "POST",
@@ -198,7 +213,7 @@ export const evaluateWorkingCheck = async (
 export const getRelatedPublishedChecks = async (
   checkId: string
 ): Promise<EligibilityCheck[]> => {
-  const url = `/api/custom-checks/${checkId}/published-check-versions`;
+  const url = apiUrl + `/custom-checks/${checkId}/versions`;
   try {
     const response = await authFetch(url, {
       method: "GET",
@@ -221,7 +236,7 @@ export const getRelatedPublishedChecks = async (
 export const publishCheck = async (
   checkId: string
 ): Promise<OptionalBoolean> => {
-  const url = `/api/publish-check/${checkId}`;
+  const url = apiUrl + `/custom-checks/${checkId}/publish`;
   try {
     const response = await authFetch(url, {
       method: "POST",
@@ -242,7 +257,7 @@ export const publishCheck = async (
 };
 
 export const archiveCheck = async (checkId: string): Promise<void> => {
-  const url = `/api/custom-checks/${checkId}/archive`;
+  const url = apiUrl + `/custom-checks/${checkId}/archive`;
   try {
     const response = await authFetch(url, {
       method: "POST",

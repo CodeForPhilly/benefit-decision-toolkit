@@ -167,6 +167,57 @@ Admin → builder-frontend → builder-api → Firebase (Firestore + Storage)
 - Learn DMN basics: https://learn-dmn-in-15-minutes.com/
 - Access raw XML: Right-click → "Reopen with Text Editor"
 
+### Library Check Metadata Sync
+
+The builder-api needs metadata about available library checks (from library-api). This metadata is stored in Firebase Storage and referenced from Firestore.
+
+**Automatic Sync (Development)**:
+- Runs automatically when you start services via `devbox services up`
+- Syncs from local library-api (http://localhost:8083) to Firebase emulators
+- Happens after library-api starts, before builder-api starts
+- Library checks will then be visible in the builder UI!
+
+**Manual Sync (Development)**:
+```bash
+# Re-sync after making library-api changes
+./scripts/sync-library-metadata.sh
+
+# Then restart builder-api to pick up new metadata
+# (In process-compose UI, restart the builder-api process)
+```
+
+**Production Sync** (maintainers only):
+```bash
+# Set production library-api URL and unset emulator variables
+export LIBRARY_API_BASE_URL=https://library-api-1034049717668.us-central1.run.app
+unset FIRESTORE_EMULATOR_HOST
+unset GCS_BUCKET_NAME
+unset QUARKUS_GOOGLE_CLOUD_STORAGE_HOST_OVERRIDE
+
+# Authenticate with GCP
+gcloud auth application-default login
+
+# Run sync
+./scripts/sync-library-metadata.sh
+```
+
+**How It Works**:
+1. Fetches OpenAPI spec from library-api
+2. Extracts check metadata (inputs, outputs, versions)
+3. Uploads JSON to Firebase Storage
+4. Updates Firestore `system/config` with storage path
+5. builder-api reads this metadata on startup
+
+**Environment Configuration**:
+- **Default**: `http://localhost:8083` (development mode - no config needed)
+- **Production**: Set `LIBRARY_API_BASE_URL` to production Cloud Run URL
+- Environment is inferred from URL pattern (localhost = dev, else = prod)
+
+**Troubleshooting**:
+- **"Firebase Storage emulator not responding"**: Start emulators first (`firebase emulators:start`)
+- **"library-api not responding"**: Start library-api (`cd library-api && quarkus dev`)
+- **Stale metadata in builder-api**: Restart builder-api (reads metadata on startup)
+
 ### Firebase Emulators
 
 The project uses Firebase emulators for local development:

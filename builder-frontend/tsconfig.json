@@ -1,24 +1,30 @@
 {
   "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "outDir": "dist",
+    /* Language and Environment */
     "target": "es5",
-    "module": "esnext",
-    "types": ["vite/client"],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
+
+    /* Modules */
+    "module": "esnext",
     "moduleResolution": "node",
     "paths": {
-      "@/*": ["./src/*"],
-    }
+      "@/*": ["./src/*"]
+    },
+    "types": ["vite/client"],
+
+    /* JavaScript Support */
+    "allowJs": true,
+
+    /* Emit */
+    "outDir": "dist",
+
+    /* Interop Constraints */
+    "allowSyntheticDefaultImports": true,
+
+    /* Type Checking */
+    "strict": true
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src/**/*"]
 }

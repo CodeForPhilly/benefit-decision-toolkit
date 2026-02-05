@@ -49,6 +49,19 @@ export interface EligibilityCheckDetail extends EligibilityCheck {
   dmnModel: string;
 }
 
+// Request types for EligibilityCheck API endpoints
+export interface CreateCheckRequest {
+  name: string;
+  module: string;
+  description: string;
+  parameterDefinitions: ParameterDefinition[];
+}
+
+export interface UpdateCheckRequest {
+  description?: string;
+  parameterDefinitions?: ParameterDefinition[];
+}
+
 // Parameter Types
 export type ParameterDefinition =
   | StringParameter

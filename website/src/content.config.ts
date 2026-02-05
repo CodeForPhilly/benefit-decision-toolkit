@@ -6,12 +6,6 @@ const projects = defineCollection({
     pattern: "**/*.md",
     base: "./src/projects",
   }),
-  schema: ({ image }) =>
-    z.object({
-      index: z.number(),
-      image: image(),
-      imageAlt: z.string(),
-    }),
 });
 
 const members = defineCollection({

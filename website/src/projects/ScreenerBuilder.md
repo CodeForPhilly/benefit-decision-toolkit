@@ -1,9 +1,9 @@
 ---
 index: 2
-image: "../assets/photos/woman-with-laptop.png"
-imageAlt: "Woman with laptop."
 ---
 
 ### Screener Builder
 
-Well, the way they make shows is, they make one show. That show's called a pilot. Then they show that show to the people who make shows, and on the strength of that one show they decide if they're going to make more shows. Some pilots get picked and become television programs. Some don't, become nothing. She starred in one of the ones that became nothing.
+A toolkit designed to simplify and improve the proces of creating online screeners for public benefit eligibility.
+
+<a href="https://github.com/CodeForPhilly/benefit-decision-toolkit" target="_blank">Visit GitHub repository ↗</a>

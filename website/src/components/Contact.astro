@@ -7,14 +7,14 @@ import wedge from "../assets/backgrounds/wedge.svg";
   <div class="max-w-[130ch] mx-auto">
     <div class="flex flex-row">
       <div class="sm:w-2/5 p-6 py-12">
-        <div class="prose">
+        <div class="prose prose-headings:text-left">
           <Content />
         </div>
         <form action="message" class="mt-6">
           <div><label for="name">Name:</label></div>
           <div>
             <input
-              class="my-3 p-3 border-2 border-sky-500 rounded-2xl"
+              class="my-3 p-3 w-full border-2 border-bdt-blue rounded-2xl"
               type="text"
               name="name"
               id="name"
@@ -24,7 +24,7 @@ import wedge from "../assets/backgrounds/wedge.svg";
           <div><label for="name">Email:</label></div>
           <div>
             <input
-              class="my-3 p-3 border-2 border-sky-500 rounded-2xl"
+              class="my-3 p-3 w-full border-2 border-bdt-blue rounded-2xl"
               type="text"
               name="email"
               id="email"
@@ -34,13 +34,13 @@ import wedge from "../assets/backgrounds/wedge.svg";
           <div><label for="name">Message:</label></div>
           <div>
             <textarea
-              class="my-3 p-3 border-2 border-sky-500 rounded-2xl"
+              class="my-3 p-3 w-full h-40 border-2 border-bdt-blue rounded-2xl"
               name="message"
               id="message"
               placeholder="Your message"></textarea>
           </div>
           <input
-            class="px-4 py-2 mt-3 font-serif font-bold bg-green-300 rounded-full text-lg cursor-pointer"
+            class="px-6 py-2 pt-3 mt-3 font-serif bg-bdt-green rounded-full text-xl cursor-pointer"
             type="submit"
             value="Submit"
             size=""
@@ -48,7 +48,7 @@ import wedge from "../assets/backgrounds/wedge.svg";
         </form>
       </div>
       <div
-        class="sm:w-3/5 bg-[url(../assets/photos/man-in-office.png)] bg-cover hidden sm:block"
+        class="sm:w-3/5 bg-[url(../assets/photos/man-in-office.png)] bg-cover bg-center hidden sm:block"
       >
         <img class="h-full relative right-0.5" src={wedge.src} alt="" />
       </div>

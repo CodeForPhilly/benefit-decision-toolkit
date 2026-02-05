@@ -1,0 +1,116 @@
+name: Run E2E Tests
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  PROJECT_ID: 'benefit-decision-toolkit-play'
+  WORKLOAD_IDENTITY_PROVIDER: 'projects/1034049717668/locations/global/workloadIdentityPools/github-actions-google-cloud/providers/github'
+
+jobs:
+  run-e2e-tests:
+    runs-on: 'ubuntu-latest'
+
+    # Add these permissions for Workload Identity Federation
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      # Bootstrapping #
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      # 1) Devbox Setup #
+      - name: 'Create .env file'  # Devbox needs a .env file to exist, even if it's empty
+        run: touch .env
+
+      - name: Rename env files
+        run: |
+          mv builder-frontend/.env.example builder-frontend/.env
+          mv builder-api/.env.example builder-api/.env
+
+      - name: 'Install devbox'  # Setup devbox which includes Node.js, Firebase CLI, and Google Cloud SDK
+        uses: 'jetify-com/devbox-install-action@v0.12.0'
+        with:
+          enable-cache: true
+
+      # 2) Prepare app dependencies #
+      - name: 'Cache Maven dependencies'
+        # Cache Maven dependencies to speed up builds
+        uses: 'actions/cache@v4'
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('builder-api/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-${{ hashFiles('builder-api/pom.xml') }}
+
+      - id: 'auth'  # Configure Workload Identity Federation and generate an access token
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
+          service_account: cicd-build-deploy-api@benefit-decision-toolkit-play.iam.gserviceaccount.com
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: builder-frontend/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('builder-frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install frontend dependencies
+        working-directory: builder-frontend
+        run: devbox run install-builder-frontend-ci
+
+      - name: Load E2E emulator data
+        run: |
+          rm -rf emulator-data
+          cp -r e2e/e2e-emulator-data emulator-data
+
+      # 3) Run App + E2E Test #
+      - name: Run all Devbox services
+        run: devbox services up -b
+        continue-on-error: true
+
+      - name: Install Playwright dependencies
+        run: npm ci
+        working-directory: e2e
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+        working-directory: e2e
+
+      - name: Wait for App to be available
+        uses: nev7n/wait_for_response@v1
+        with:
+          url: 'http://localhost:5173/'
+          responseCode: 200
+          timeout: 90000
+          interval: 1000
+        continue-on-error: true
+
+      - name: Run Playwright tests
+        run: npx playwright test
+        working-directory: e2e
+        continue-on-error: true
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+          retention-days: 30
+
+      # 4) Cleanup #
+      - name: Stop all Devbox services
+        run: devbox services stop
+        continue-on-error: true

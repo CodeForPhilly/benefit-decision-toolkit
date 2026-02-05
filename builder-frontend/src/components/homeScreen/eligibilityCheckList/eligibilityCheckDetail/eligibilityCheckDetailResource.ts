@@ -68,16 +68,15 @@ const eligibilityCheckDetailResource = (
   });
 
   const addParameter = async (parameterDef: ParameterDefinition) => {
-    const updatedCheck: EligibilityCheckDetail = {
-      ...eligibilityCheck,
-      parameterDefinitions: [
-        ...eligibilityCheck.parameterDefinitions,
-        parameterDef,
-      ],
-    };
+    const updatedParameterDefinitions = [
+      ...(eligibilityCheck.parameterDefinitions || []),
+      parameterDef,
+    ];
     setActionInProgress(true);
     try {
-      await updateCheck(updatedCheck);
+      await updateCheck(eligibilityCheck.id, {
+        parameterDefinitions: updatedParameterDefinitions,
+      });
       await refetch();
     } catch (e) {
       console.error("Failed to add parameter", e);
@@ -92,14 +91,12 @@ const eligibilityCheckDetailResource = (
     const updatedParameters = [...eligibilityCheck.parameterDefinitions];
     updatedParameters[parameterIndex] = parameterDef;
     console.log("updatedParameters", updatedParameters);
-    const updatedCheck: EligibilityCheckDetail = {
-      ...eligibilityCheck,
-      parameterDefinitions: updatedParameters,
-    };
 
     setActionInProgress(true);
     try {
-      await updateCheck(updatedCheck);
+      await updateCheck(eligibilityCheck.id, {
+        parameterDefinitions: updatedParameters,
+      });
       await refetch();
     } catch (e) {
       console.error("Failed to update parameter", e);
@@ -110,14 +107,12 @@ const eligibilityCheckDetailResource = (
   const removeParameter = async (parameterIndex: number) => {
     const updatedParameters = [...eligibilityCheck.parameterDefinitions];
     updatedParameters.splice(parameterIndex, 1);
-    const updatedCheck: EligibilityCheckDetail = {
-      ...eligibilityCheck,
-      parameterDefinitions: updatedParameters,
-    };
 
     setActionInProgress(true);
     try {
-      await updateCheck(updatedCheck);
+      await updateCheck(eligibilityCheck.id, {
+        parameterDefinitions: updatedParameters,
+      });
       await refetch();
     } catch (e) {
       console.error("Failed to remove parameter", e);

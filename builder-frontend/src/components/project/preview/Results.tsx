@@ -6,15 +6,15 @@ import checkIcon from "../../../assets/images/checkIcon.svg";
 import questionIcon from "../../../assets/images/questionIcon.svg";
 import xIcon from "../../../assets/images/xIcon.svg";
 
-
-export default function Results(
-  { inputData, results, resultsLoading }:
-  {
-    inputData: Accessor<PreviewFormData>,
-    results: Accessor<ScreenerResult>,
-    resultsLoading: Accessor<boolean>
-  }
-) {
+export default function Results({
+  inputData,
+  results,
+  resultsLoading,
+}: {
+  inputData: Accessor<PreviewFormData>;
+  results: Accessor<ScreenerResult>;
+  resultsLoading: Accessor<boolean>;
+}) {
   return (
     <div class="ml-3">
       <div class="mt-3">
@@ -27,7 +27,9 @@ export default function Results(
                   {([key, value]) => (
                     <tr class="text-md text-gray-700">
                       <td class="px-3 py-2 font-mono font-bold">{key}:</td>
-                      <td class="px-3 py-2 font-mono">{value?.toString() || "--"}</td>
+                      <td class="px-3 py-2 font-mono">
+                        {JSON.stringify(value, null, 2) || "--"}
+                      </td>
                     </tr>
                   )}
                 </For>
@@ -39,7 +41,13 @@ export default function Results(
           <Show when={resultsLoading()}>
             <div class="text-gray-600">Loading results...</div>
           </Show>
-          <Show when={!resultsLoading() && results() && Object.keys(results()).length > 0}>
+          <Show
+            when={
+              !resultsLoading() &&
+              results() &&
+              Object.keys(results()).length > 0
+            }
+          >
             <div class="text-md font-semibold text-gray-600">Benefits</div>
             <div class="p-2">
               <div class="flex flex-col space-y-2">
@@ -59,7 +67,9 @@ export default function Results(
                               Ineligible
                             </span>
                           </Match>
-                          <Match when={benefit.result === "UNABLE_TO_DETERMINE"}>
+                          <Match
+                            when={benefit.result === "UNABLE_TO_DETERMINE"}
+                          >
                             <span class="mb-3 bg-yellow-200 w-fit py-1 px-4 rounded-full font-bold text-gray-800">
                               Need more information
                             </span>
@@ -74,13 +84,29 @@ export default function Results(
                                 {check.name}:{" "}
                                 <Switch>
                                   <Match when={check.result === "TRUE"}>
-                                    <img src={checkIcon} alt="" class="inline w-4" />
+                                    <img
+                                      src={checkIcon}
+                                      alt=""
+                                      class="inline w-4"
+                                    />
                                   </Match>
                                   <Match when={check.result === "FALSE"}>
-                                    <img src={xIcon} alt="" class="inline w-4" />
+                                    <img
+                                      src={xIcon}
+                                      alt=""
+                                      class="inline w-4"
+                                    />
                                   </Match>
-                                  <Match when={check.result === "UNABLE_TO_DETERMINE"}>
-                                    <img src={questionIcon} alt="" class="inline w-4" />
+                                  <Match
+                                    when={
+                                      check.result === "UNABLE_TO_DETERMINE"
+                                    }
+                                  >
+                                    <img
+                                      src={questionIcon}
+                                      alt=""
+                                      class="inline w-4"
+                                    />
                                   </Match>
                                 </Switch>
                               </div>

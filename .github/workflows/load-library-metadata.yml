@@ -1,0 +1,32 @@
+name: Load Library API Metadata
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Create GCP credentials file
+        run: |
+          echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' > bin/library/gcp-key.json
+
+      - name: Run sync
+        working-directory: bin/library
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: gcp-key.json
+          LIBRARY_API_BASE_URL: https://library-api-1034049717668.us-central1.run.app
+        run: |
+          ./sync-metadata
+
+      - name: Cleanup credentials
+        run: rm bin/library/gcp-key.json
