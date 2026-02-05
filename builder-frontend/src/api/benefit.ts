@@ -1,4 +1,5 @@
-import { authFetch, authGet, authPost, authPut } from "@/api/auth";
+import { authFetch } from "@/api/auth";
+import BenefitList from "@/components/project/manageBenefits/benefitList/BenefitList";
 
 import { Benefit } from "@/types";
 
@@ -8,7 +9,12 @@ export const fetchScreenerBenefit = async (
 ): Promise<Benefit> => {
   const url = `/api/screener/${srceenerId}/benefit/${benefitId}`;
   try {
-    const response = await authGet(url);
+    const response = await authFetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);
@@ -27,7 +33,14 @@ export const updateScreenerBenefit = async (
 ): Promise<Benefit> => {
   const url = `/api/screener/${screenerId}/benefit`;
   try {
-    const response = await authPut(url, benefitData);
+    const response = await authFetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(benefitData),
+    });
 
     if (!response.ok) {
       throw new Error(`Update failed with status: ${response.status}`);
@@ -43,7 +56,12 @@ export const updateScreenerBenefit = async (
 export const fetchPublicBenefits = async (): Promise<Benefit[]> => {
   const url = "/api/benefit";
   try {
-    const response = await authGet(url);
+    const response = await authFetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);

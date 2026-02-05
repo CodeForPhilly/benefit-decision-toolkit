@@ -1,11 +1,16 @@
-import { authDelete, authFetch, authGet, authPost, authPut } from "@/api/auth";
+import { authFetch } from "@/api/auth";
 
 import type { BenefitDetail, ScreenerResult } from "@/types";
 
 export const fetchProjects = async () => {
   const url = "/api/screeners";
   try {
-    const response = await authGet(url);
+    const response = await authFetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);
@@ -21,7 +26,12 @@ export const fetchProjects = async () => {
 export const fetchProject = async (screenerId: string) => {
   const url = `/api/screener/${screenerId}`;
   try {
-    const response = await authGet(url);
+    const response = await authFetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);
@@ -37,7 +47,14 @@ export const fetchProject = async (screenerId: string) => {
 export const createNewScreener = async (screenerData) => {
   const url = "/api/screener";
   try {
-    const response = await authPost(url, screenerData);
+    const response = await authFetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(screenerData),
+    });
 
     if (!response.ok) {
       throw new Error(`Post failed with status: ${response.status}`);
@@ -53,7 +70,14 @@ export const createNewScreener = async (screenerData) => {
 export const updateScreener = async (screenerData) => {
   const url = "/api/screener";
   try {
-    const response = await authPut(url, screenerData);
+    const response = await authFetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(screenerData),
+    });
 
     if (!response.ok) {
       throw new Error(`Update failed with status: ${response.status}`);
@@ -67,7 +91,13 @@ export const updateScreener = async (screenerData) => {
 export const deleteScreener = async (screenerData) => {
   const url = "/api/screener/delete?screenerId=" + screenerData.id;
   try {
-    const response = await authDelete(url);
+    const response = await authFetch(url, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
 
     if (!response.ok) {
       throw new Error(`Update failed with status: ${response.status}`);
@@ -84,7 +114,14 @@ export const saveFormSchema = async (screenerId, schema) => {
   requestData.schema = schema;
   const url = "/api/save-form-schema";
   try {
-    const response = await authPost(url, requestData);
+    const response = await authFetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(requestData),
+    });
 
     if (!response.ok) {
       throw new Error(`Post failed with status: ${response.status}`);
@@ -98,7 +135,14 @@ export const saveFormSchema = async (screenerId, schema) => {
 export const publishScreener = async (screenerId: string): Promise<void> => {
   const url = "/api/publish";
   try {
-    const response = await authPost(url, { screenerId });
+    const response = await authFetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ screenerId: screenerId }),
+    });
 
     if (!response.ok) {
       throw new Error(`Submit failed with status: ${response.status}`);
@@ -115,7 +159,14 @@ export const addCustomBenefit = async (
 ) => {
   const url = `/api/screener/${screenerId}/benefit`;
   try {
-    const response = await authPost(url, benefit);
+    const response = await authFetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(benefit),
+    });
 
     if (!response.ok) {
       throw new Error(`Create benefit failed with status: ${response.status}`);
@@ -132,7 +183,13 @@ export const removeCustomBenefit = async (
 ) => {
   const url = `/screener/${screenerId}/benefit/${benefitId}`;
   try {
-    const response = await authDelete(url);
+    const response = await authFetch(url, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
 
     if (!response.ok) {
       throw new Error(
@@ -151,7 +208,14 @@ export const evaluateScreener = async (
 ): Promise<ScreenerResult> => {
   const url = `/api/decision/v2?screenerId=${screenerId}`;
   try {
-    const response = await authPost(url, inputData);
+    const response = await authFetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(inputData),
+    });
 
     if (!response.ok) {
       throw new Error(`Evaluation failed with status: ${response.status}`);
