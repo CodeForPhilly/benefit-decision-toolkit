@@ -2,35 +2,39 @@
   "folders": [
     {
       "name": "🏗️ Builder API",
-      "path": "./builder-api"
+      "path": "./builder-api",
     },
     {
       "name": "📚 Library API",
-      "path": "./library-api"
+      "path": "./library-api",
     },
     {
       "name": "🎨 Builder Frontend",
-      "path": "./builder-frontend"
+      "path": "./builder-frontend",
     },
     {
       "name": "📋 Project Root",
-      "path": "."
-    }
+      "path": ".",
+    },
   ],
   "settings": {
     // Java settings for API modules
     "java.import.maven.enabled": true,
     "java.compile.nullAnalysis.mode": "automatic",
+    "java.format.settings.url": "./.vscode/java.format.xml",
+    "java.format.settings.profile": "Custom",
     "[java]": {
-      "editor.defaultFormatter": "redhat.java"
+      "editor.defaultFormatter": "redhat.java",
     },
     "[xml]": {
-      "editor.defaultFormatter": "redhat.vscode-xml"
+      "editor.autoClosingBrackets": "never",
+      "files.trimFinalNewlines": true,
+      "editor.defaultFormatter": "redhat.vscode-xml",
     },
 
     // Node.js settings for frontend modules
     "[javascript, typescript]": {
-      "editor.defaultFormatter": "esbenp.prettier-vscode"
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
     },
     "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
     "editor.formatOnSave": true,
@@ -43,7 +47,7 @@
     "files.associations": {
       "*.env.example": "properties",
       "devbox.json": "jsonc",
-      "process-compose.yml": "yaml"
+      "process-compose.yml": "yaml",
     },
 
     // Exclude irrelevant folders from search
@@ -51,7 +55,7 @@
       "**/node_modules": true,
       "**/target": true,
       "**/.quarkus": true,
-      "**/dist": true
+      "**/dist": true,
     },
 
     // File watcher excludes for performance
@@ -59,8 +63,8 @@
       "**/node_modules/**": true,
       "**/target/**": true,
       "**/.quarkus/**": true,
-      "**/dist/**": true
-    }
+      "**/dist/**": true,
+    },
   },
   "extensions": {
     "recommendations": [
@@ -82,8 +86,8 @@
       "ms-vscode.remote-containers",
 
       // Project-specific
-      "jetpack-io.devbox"
-    ]
+      "jetpack-io.devbox",
+    ],
   },
   "tasks": {
     "version": "2.0.0",
@@ -94,15 +98,15 @@
         "command": "devbox services up",
         "group": {
           "kind": "build",
-          "isDefault": true
+          "isDefault": true,
         },
         "presentation": {
           "echo": true,
           "reveal": "always",
           "focus": false,
-          "panel": "shared"
+          "panel": "shared",
         },
-        "problemMatcher": []
+        "problemMatcher": [],
       },
       {
         "label": "🔨 Build All APIs",
@@ -111,15 +115,15 @@
         "group": "build",
         "presentation": {
           "echo": true,
-          "reveal": "always"
-        }
+          "reveal": "always",
+        },
       },
       {
         "label": "📦 Install All Frontend Dependencies",
         "type": "shell",
         "command": "cd builder-frontend && npm install",
-        "group": "build"
-      }
-    ]
-  }
+        "group": "build",
+      },
+    ],
+  },
 }
