@@ -15,11 +15,11 @@ interface Props extends JSX.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const Button: Component<ParentProps<Props>> = (props) => {
-  const { type, variant, children, ...rest } = props;
+  const { type, children, ...rest } = props;
   return (
     <button
       type={type || "button"}
-      class={`${styles.button} ${styles[variant || "primary"]} ${props.class || ""}`}
+      class={`${styles.button} ${styles[props.variant || "primary"]} ${props.class || ""}`}
       {...rest}
     >
       {props.children}
