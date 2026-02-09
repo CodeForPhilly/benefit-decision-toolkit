@@ -1,0 +1,41 @@
+@reference "tailwindcss";
+
+.textfield {
+  @apply relative;
+}
+.textfield .textfield-input,
+.textfield-above .textfield-input {
+  @apply border-2 border-slate-400 rounded-sm;
+}
+.textfield:hover .textfield-input,
+.textfield-above:hover .textfield-input {
+  @apply border-slate-500;
+}
+.textfield-above .textfield-input:disabled {
+  @apply bg-slate-200 border-slate-300;
+}
+.textfield-above:has(.textfield-input:disabled) > .textfield-label {
+  @apply text-slate-400;
+}
+.textfield-above {
+  @apply relative;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+.textfield-label {
+  @apply py-2;
+}
+.textfield-above > .textfield-label {
+  @apply absolute top-0 left-0 p-4 text-slate-500 pointer-events-none;
+}
+.textfield-above:has(.textfield-input:focus) {
+  @apply border-slate-800;
+}
+.textfield-above > .textfield-input:focus ~ .textfield-label,
+.textfield-above > .textfield-input:not(:placeholder-shown) ~ .textfield-label {
+  transform: scale(0.8) translateY(-1.5rem);
+  transform-origin: 1rem;
+}
+.textfield-input {
+  @apply w-full p-4 focus:outline-0 text-(--text-strong);
+}
