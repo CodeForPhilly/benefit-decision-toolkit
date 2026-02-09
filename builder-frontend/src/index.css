@@ -3,12 +3,20 @@
   strategy: "class"; /* only generate form-* classes */
 }
 
+:root {
+  --brand: #0daf00;
+  --text-strong: #2d2d2d;
+  --text-weak: #6d6d6d;
+  --bg-green: #f5fef6;
+  --bg-yellow: #fff1c2;
+  --bg-red: #fff6f5;
+}
+
 @layer components {
   .btn-default {
-    @apply
-      inline-block px-6 py-1
+    @apply inline-block px-6 py-1
     border-gray-300 border-2
-      cursor-pointer select-none rounded-md
+      cursor-pointer select-none rounded-md;
   }
   .btn-default.btn-gray {
     @apply bg-white hover:bg-gray-200;
@@ -21,7 +29,7 @@
     @apply bg-yellow-700 hover:bg-yellow-800 text-white;
   }
   .btn-default.btn-blue {
-    @apply bg-sky-600 hover:bg-sky-700 text-white
+    @apply bg-sky-600 hover:bg-sky-700 text-white;
   }
 
   .eligibility-check-table-header {
