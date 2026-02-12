@@ -18,7 +18,7 @@ Why design a screening tool from scratch when your goal is simply to deploy a fu
 
 ## Links
 
-Try out an [example elegibility screener](https://phillypropertytaxrelief.org/) that was built with BDT, and directly interact with the [API of the screener](https://phillypropertytaxrelief.org/q/swagger-ui/)
+Try out an [example eligibility screener](https://phillypropertytaxrelief.org/) that was built with BDT, and directly interact with the [API of the screener](https://phillypropertytaxrelief.org/q/swagger-ui/)
 
 If you are interested in getting involved with the project, check out [our page on the Code For Philly website](https://codeforphilly.org/projects/dmn_benefit_toolbox-including_the_philly_property_tax_relief_screener)
 
