@@ -1,4 +1,5 @@
 import { authGet, authPatch, authPost, authPut } from "@/api/auth";
+import { env } from "@/config/environment";
 
 import type {
   EligibilityCheck,
@@ -7,7 +8,7 @@ import type {
   UpdateCheckRequest,
 } from "@/types";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = env.apiUrl;
 
 export const fetchPublicChecks = async (): Promise<EligibilityCheck[]> => {
   const url = apiUrl + "/library-checks";

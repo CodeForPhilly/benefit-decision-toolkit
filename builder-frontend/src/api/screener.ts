@@ -1,8 +1,9 @@
 import { authDelete, authGet, authPost, authPut } from "@/api/auth";
+import { env } from "@/config/environment";
 
 import type { BenefitDetail, ScreenerResult } from "@/types";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = env.apiUrl;
 
 export const fetchProjects = async () => {
   const url = apiUrl + "/screeners";

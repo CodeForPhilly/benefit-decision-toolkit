@@ -4,7 +4,41 @@
     "dockerfile": "./Dockerfile",
     "context": ".."
   },
-  "postCreateCommand": "bin/ensure-root-env-file && devbox run setup",
+  "onCreateCommand": "bin/ensure-root-env-file && devbox run setup",
+  "postStartCommand": "devbox services up -b && echo 'Frontend will open in browser when ready. Run `devbox services attach` to see the running processes.'",
+  "forwardPorts": [
+    5173,
+    8081,
+    8083,
+    9099,
+    8080,
+    9199,
+    4000
+  ],
+  "portsAttributes": {
+    "5173": {
+      "label": "Frontend",
+      "onAutoForward": "openBrowser"
+    },
+    "8081": {
+      "label": "Builder API"
+    },
+    "8083": {
+      "label": "Library API"
+    },
+    "9099": {
+      "label": "Firebase Auth"
+    },
+    "8080": {
+      "label": "Firestore"
+    },
+    "9199": {
+      "label": "Storage"
+    },
+    "4000": {
+      "label": "Firebase UI"
+    }
+  },
   "customizations": {
     "vscode": {
       "settings": {},

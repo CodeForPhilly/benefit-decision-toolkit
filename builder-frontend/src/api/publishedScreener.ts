@@ -1,6 +1,7 @@
 import type { PublishedScreener, ScreenerResult } from "@/types";
+import { env } from "@/config/environment";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = env.apiUrl;
 
 export const fetchPublishedScreener = async (publishedScreenerId: string): Promise<PublishedScreener> => {
   const url = apiUrl + "/published/screener/" + publishedScreenerId;
