@@ -8,7 +8,7 @@
 
 **Use [DMN](https://www.omg.org/dmn/) and [FEEL](https://docs.camunda.io/docs/components/modeler/feel/what-is-feel/) to create APIs and Screeners for public benefit rules.**
 
-## Motivation TEST
+## Motivation 
 
 Why hire a team of software engineers to codify rules that your benefit experts already know inside and out?
 
