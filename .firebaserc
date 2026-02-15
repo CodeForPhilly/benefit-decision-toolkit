@@ -7,6 +7,9 @@
       "hosting": {
         "builder-frontend": [
           "bdt-builder"
+        ],
+        "bdt-docs": [
+          "bdt-docs"
         ]
       }
     }
