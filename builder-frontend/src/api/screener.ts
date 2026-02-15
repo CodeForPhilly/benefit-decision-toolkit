@@ -9,12 +9,7 @@ const apiUrl = env.apiUrl;
 export const fetchProjects = async () => {
   const url = apiUrl + "/screeners";
   try {
-    const response = await authFetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await authGet(url);
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);
@@ -30,12 +25,7 @@ export const fetchProjects = async () => {
 export const fetchProject = async (screenerId) => {
   const url = apiUrl + "/screener/" + screenerId;
   try {
-    const response = await authFetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await authGet(url);
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);
@@ -51,14 +41,7 @@ export const fetchProject = async (screenerId) => {
 export const createNewScreener = async (screenerData) => {
   const url = apiUrl + "/screener";
   try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(screenerData),
-    });
+    const response = await authPost(url);
 
     if (!response.ok) {
       throw new Error(`Post failed with status: ${response.status}`);
@@ -74,14 +57,7 @@ export const createNewScreener = async (screenerData) => {
 export const updateScreener = async (screenerData) => {
   const url = apiUrl + "/screener";
   try {
-    const response = await authFetch(url, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(screenerData),
-    });
+    const response = await authPut(url);
 
     if (!response.ok) {
       throw new Error(`Update failed with status: ${response.status}`);
@@ -95,13 +71,7 @@ export const updateScreener = async (screenerData) => {
 export const deleteScreener = async (screenerData) => {
   const url = apiUrl + "/screener/delete?screenerId=" + screenerData.id;
   try {
-    const response = await authFetch(url, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-    });
+    const response = await authDelete(url);
 
     if (!response.ok) {
       throw new Error(`Update failed with status: ${response.status}`);
@@ -118,14 +88,7 @@ export const saveFormSchema = async (screenerId, schema) => {
   requestData.schema = schema;
   const url = apiUrl + "/save-form-schema";
   try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(requestData),
-    });
+    const response = await authPost(url);
 
     if (!response.ok) {
       throw new Error(`Post failed with status: ${response.status}`);
@@ -156,14 +119,7 @@ export const addCustomBenefit = async (
 ) => {
   const url = apiUrl + "/screener/" + screenerId + "/benefit";
   try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(benefit),
-    });
+    const response = await authPost(url);
 
     if (!response.ok) {
       throw new Error(`Create benefit failed with status: ${response.status}`);
@@ -180,13 +136,7 @@ export const removeCustomBenefit = async (
 ) => {
   const url = apiUrl + "/screener/" + screenerId + "/benefit/" + benefitId;
   try {
-    const response = await authFetch(url, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-    });
+    const response = await authDelete(url);
 
     if (!response.ok) {
       throw new Error(
@@ -225,14 +175,7 @@ export const evaluateScreener = async (
 ): Promise<ScreenerResult> => {
   const url = apiUrl + "/decision/v2?screenerId=" + screenerId;
   try {
-    const response = await authFetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(inputData),
-    });
+    const response = await authPost(url);
 
     if (!response.ok) {
       throw new Error(`Evaluation failed with status: ${response.status}`);

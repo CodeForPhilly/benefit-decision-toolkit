@@ -13,12 +13,7 @@ const apiUrl = env.apiUrl;
 export const fetchPublicChecks = async (): Promise<EligibilityCheck[]> => {
   const url = apiUrl + "/library-checks";
   try {
-    const response = await authFetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await authGet(url);
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);
@@ -41,12 +36,7 @@ export const fetchCheck = async (
   }
 
   try {
-    const response = await authFetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await authGet(url);
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);
@@ -150,12 +140,7 @@ export const fetchUserDefinedChecks = async (
   let url: string = apiUrl + `/custom-checks?working=${workingQueryParam}`;
 
   try {
-    const response = await authFetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await authGet(url);
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);
@@ -196,12 +181,7 @@ export const getRelatedPublishedChecks = async (
 ): Promise<EligibilityCheck[]> => {
   const url = apiUrl + `/custom-checks/${checkId}/versions`;
   try {
-    const response = await authFetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await authGet(url);
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);
