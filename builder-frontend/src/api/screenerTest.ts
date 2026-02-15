@@ -1,4 +1,4 @@
-import { authFetch } from "@/api/auth";
+import { authFetch, authGet, authPut } from "@/api/auth";
 
 import type { ScreenerTest } from "@/types";
 
@@ -7,12 +7,7 @@ const apiUrl = import.meta.env.VITE_API_URL;
 export const getScreenerTestResult = async (screenerTestId) => {
     const url = apiUrl + "/screenerTest/" + screenerTestId;
   try {
-    const response = await authFetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await authGet(url);
 
     if (!response.ok) {
       throw new Error(`Fetch failed with status: ${response.status}`);
@@ -28,14 +23,7 @@ export const getScreenerTestResult = async (screenerTestId) => {
 export const testScreener = async (testScreenerData: ScreenerTest) => {
   const url = apiUrl + "/screenerTest";
   try {
-    const response = await authFetch(url, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-        body: JSON.stringify(testScreenerData),
-    });
+    const response = await authPut(url, testScreenerData);
     console.log("test inserted(?)");
 
     if (!response.ok) {
