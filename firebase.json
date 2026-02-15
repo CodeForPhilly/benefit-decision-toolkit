@@ -3,17 +3,18 @@
     {
       "target": "builder-frontend",
       "public": "./builder-frontend/dist",
-      "ignore": [
-        "firebase.json",
-        "**/.*",
-        "**/node_modules/**"
-      ],
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "rewrites": [
         {
           "source": "**",
           "destination": "/index.html"
         }
       ]
+    },
+    {
+      "target": "bdt-docs",
+      "public": "./docs/user-docs/site",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
     }
   ],
   "emulators": {
