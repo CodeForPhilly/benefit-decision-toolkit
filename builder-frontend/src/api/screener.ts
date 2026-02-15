@@ -1,5 +1,6 @@
-import { authDelete, authGet, authPost, authPut } from "@/api/auth";
 import { env } from "@/config/environment";
+
+import { authDelete, authGet, authPost, authPut } from "@/api/auth";
 
 import type { BenefitDetail, ScreenerResult } from "@/types";
 
@@ -144,6 +145,26 @@ export const removeCustomBenefit = async (
     }
   } catch (error) {
     console.error("Error deleting custom benefit:", error);
+    throw error;
+  }
+};
+
+export interface FormPathsResponse {
+  paths: string[];
+}
+
+export const fetchFormPaths = async (screenerId: string): Promise<FormPathsResponse> => {
+  const url = apiUrl + "/screener/" + screenerId + "/form-paths";
+  try {
+    const response = await authGet(url);
+
+    if (!response.ok) {
+      throw new Error(`Fetch form paths failed with status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching form paths:", error);
     throw error;
   }
 };

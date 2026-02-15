@@ -9,7 +9,6 @@ import Loading from "../../../Loading";
 
 import type { BenefitDetail } from "@/types";
 
-
 const BenefitList = (
   { screenerId, setBenefitIdToConfigure }:
   { screenerId: Accessor<string>; setBenefitIdToConfigure: Setter<null | string> }

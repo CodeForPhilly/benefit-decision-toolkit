@@ -11,7 +11,7 @@ processes:
     working_dir: library-api/
     environment:
       - "QUARKUS_CONSOLE_COLOR=true"
-    ready_log_line: "Listening on: http://localhost:"
+    ready_log_line: "Listening on: http://"
   sync-library-metadata:
     description: Sync library check metadata from library-api to Firebase Storage
     command: ./bin/library/sync-metadata
@@ -29,7 +29,7 @@ processes:
     working_dir: builder-api/
     environment:
       - "QUARKUS_CONSOLE_COLOR=true"
-    ready_log_line: "Listening on: http://localhost:"
+    ready_log_line: "Listening on: http://"
     depends_on:
       sync-library-metadata:
         condition: process_completed_successfully

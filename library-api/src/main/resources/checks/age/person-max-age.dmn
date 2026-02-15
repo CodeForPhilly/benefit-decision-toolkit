@@ -4,14 +4,14 @@
   <dmn:import id="_17C24D7E-8925-485C-ACD9-E20E3BEEDB86" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
   <dmn:import id="_8C23053A-4DF3-4662-8FF1-67869BCE5AAE" name="Age" namespace="https://kie.apache.org/dmn/_81D401A8-CA81-4F9A-ABCC-532C25768708" locationURI="Age.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
   <dmn:itemDefinition id="_A5566AE8-C4BC-4021-A0F1-EE81B42FE4DA" name="tParameters" isCollection="false">
-    <dmn:itemComponent id="_3EACAE92-B42D-414F-8B34-89764C4CD811" name="maxAge" isCollection="false">
-      <dmn:typeRef>number</dmn:typeRef>
+    <dmn:itemComponent id="_4D83F9CB-C7B7-4815-B666-99E81ED80640" name="personId" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
     </dmn:itemComponent>
     <dmn:itemComponent id="_AFC0A325-9DE8-4FC9-9100-A002D5EA104F" name="asOfDate" isCollection="false">
       <dmn:typeRef>date</dmn:typeRef>
     </dmn:itemComponent>
-    <dmn:itemComponent id="_4D83F9CB-C7B7-4815-B666-99E81ED80640" name="personId" isCollection="false">
-      <dmn:typeRef>string</dmn:typeRef>
+    <dmn:itemComponent id="_3EACAE92-B42D-414F-8B34-89764C4CD811" name="maxAge" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
   <dmn:itemDefinition id="_0D71EA48-4205-46AA-A9AD-F8CACAA46DCA" name="tPerson" isCollection="false">
@@ -77,7 +77,7 @@
   </dmn:decision>
   <dmn:inputData id="_B722FDDE-1413-4731-82EC-5B49261E3D79" name="situation">
     <dmn:extensionElements/>
-    <dmn:variable id="_07C9312E-B180-4C09-BFB5-E5726ACF89D8" name="situation" typeRef="BDT.tSituation"/>
+    <dmn:variable id="_07C9312E-B180-4C09-BFB5-E5726ACF89D8" name="situation" typeRef="tSituation"/>
   </dmn:inputData>
   <dmn:inputData id="_0504B4EF-D5C1-44D2-9CF5-DDFDD6A7C097" name="parameters">
     <dmn:extensionElements/>

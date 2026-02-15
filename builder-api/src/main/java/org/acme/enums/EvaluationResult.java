@@ -1,7 +1,5 @@
 package org.acme.enums;
 
-import java.util.Optional;
-
 public enum EvaluationResult {
     TRUE("TRUE"),
     FALSE("FALSE"),

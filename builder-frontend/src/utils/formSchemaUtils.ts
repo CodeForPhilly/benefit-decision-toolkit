@@ -1,5 +1,3 @@
-import { JSONSchema7 } from "json-schema";
-
 interface FormComponent {
   type: string;
   key?: string;
@@ -45,47 +43,4 @@ export function extractFormPaths(schema: FormSchema): string[] {
 
   traverse(schema.components || []);
   return Array.from(paths);
-}
-
-/**
- * Extracts all property paths from a JSON Schema inputDefinition.
- * Recursively traverses nested objects to build dot-separated paths.
- * Excludes the top-level "parameters" property.
- *
- * @param jsonSchema - The JSON Schema to parse
- * @returns Array of dot-separated paths (e.g., ['custom.is_veteran', 'custom.address.street'])
- */
-export function extractJsonSchemaPaths(jsonSchema: JSONSchema7): string[] {
-  if (!jsonSchema?.properties) {
-    return [];
-  }
-
-  const paths: string[] = [];
-
-  function traverse(schema: any, parentPath: string = '') {
-    if (!schema?.properties) {
-      return;
-    }
-
-    for (const [key, value] of Object.entries(schema.properties)) {
-      // Skip top-level "parameters" property
-      if (parentPath === '' && key === 'parameters') {
-        continue;
-      }
-
-      const currentPath = parentPath ? `${parentPath}.${key}` : key;
-      const propSchema = value as any;
-
-      // If this property has nested properties, recurse into it
-      if (propSchema?.properties) {
-        traverse(propSchema, currentPath);
-      } else {
-        // Leaf property - add the path
-        paths.push(currentPath);
-      }
-    }
-  }
-
-  traverse(jsonSchema);
-  return paths;
 }
