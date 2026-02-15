@@ -128,7 +128,7 @@ export const addCustomBenefit = async (
 ) => {
   const url = apiUrl + "/screener/" + screenerId + "/benefit";
   try {
-    const response = await authPost(url);
+    const response = await authPost(url, benefit);
 
     if (!response.ok) {
       throw new Error(`Create benefit failed with status: ${response.status}`);
@@ -184,7 +184,7 @@ export const evaluateScreener = async (
 ): Promise<ScreenerResult> => {
   const url = apiUrl + "/decision/v2?screenerId=" + screenerId;
   try {
-    const response = await authPost(url);
+    const response = await authPost(url, inputData);
 
     if (!response.ok) {
       throw new Error(`Evaluation failed with status: ${response.status}`);

@@ -30,7 +30,7 @@ export const updateScreenerBenefit = async (
 ): Promise<Benefit> => {
   const url = apiUrl + "/screener/" + screenerId + "/benefit";
   try {
-    const response = await authPut(url);
+    const response = await authPut(url, benefitData);
 
     if (!response.ok) {
       throw new Error(`Update failed with status: ${response.status}`);
