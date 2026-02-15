@@ -41,7 +41,7 @@ export const fetchProject = async (screenerId) => {
 export const createNewScreener = async (screenerData) => {
   const url = apiUrl + "/screener";
   try {
-    const response = await authPost(url);
+    const response = await authPost(url, screenerData);
 
     if (!response.ok) {
       throw new Error(`Post failed with status: ${response.status}`);
@@ -57,7 +57,7 @@ export const createNewScreener = async (screenerData) => {
 export const updateScreener = async (screenerData) => {
   const url = apiUrl + "/screener";
   try {
-    const response = await authPut(url);
+    const response = await authPut(url, screenerData);
 
     if (!response.ok) {
       throw new Error(`Update failed with status: ${response.status}`);
@@ -88,7 +88,7 @@ export const saveFormSchema = async (screenerId, schema) => {
   requestData.schema = schema;
   const url = apiUrl + "/save-form-schema";
   try {
-    const response = await authPost(url);
+    const response = await authPost(url, requestData);
 
     if (!response.ok) {
       throw new Error(`Post failed with status: ${response.status}`);
@@ -119,7 +119,7 @@ export const addCustomBenefit = async (
 ) => {
   const url = apiUrl + "/screener/" + screenerId + "/benefit";
   try {
-    const response = await authPost(url);
+    const response = await authPost(url, benefit);
 
     if (!response.ok) {
       throw new Error(`Create benefit failed with status: ${response.status}`);
@@ -175,7 +175,7 @@ export const evaluateScreener = async (
 ): Promise<ScreenerResult> => {
   const url = apiUrl + "/decision/v2?screenerId=" + screenerId;
   try {
-    const response = await authPost(url);
+    const response = await authPost(url, inputData);
 
     if (!response.ok) {
       throw new Error(`Evaluation failed with status: ${response.status}`);
