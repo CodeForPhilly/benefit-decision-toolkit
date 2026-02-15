@@ -90,6 +90,7 @@ jobs:
           env_vars: |
             QUARKUS_GOOGLE_CLOUD_PROJECT_ID=${{ env.PROJECT_ID }}
             GCS_BUCKET_NAME=${{ env.PROJECT_ID }}.firebasestorage.app
+            LIBRARY_API_BASE_URL=https://library-api-1034049717668.us-central1.run.app
 
       # If required, use the Cloud Run URL output in later steps
       - name: 'Show output'
