@@ -1,20 +1,57 @@
+from __future__ import annotations
+
 from copy import deepcopy
-import requests
+from datetime import datetime
+from typing import Any, TypedDict
+import json
+import os
+
 import firebase_admin
 from firebase_admin import credentials, storage, firestore
-import json
-from datetime import datetime
-import os
+from google.cloud.firestore import Client as FirestoreClient
+from google.cloud.storage import Bucket
 import google.auth.credentials
+import requests
+
+
+# -----------------------------------
+# TYPE DEFINITIONS
+# -----------------------------------
+
+class ParameterDefinition(TypedDict):
+    key: str
+    label: str
+    required: bool
+    type: str
+
+
+class CheckRecord(TypedDict, total=False):
+    id: str
+    evaluationUrl: str
+    method: str
+    name: str
+    module: str
+    version: str
+    inputs: dict[str, Any]
+    parameterDefinitions: list[ParameterDefinition]
+    inputDefinition: dict[str, Any]
+
+
+# Type aliases for clarity
+JsonSchema = dict[str, Any]
+OpenAPIComponents = dict[str, JsonSchema]
+OpenAPIDocument = dict[str, Any]
 
 
 class EmulatorCredentials(credentials.Base):
     """Mock credentials for use with Firebase emulators."""
 
-    def __init__(self):
+    _mock_credential: google.auth.credentials.Credentials
+
+    def __init__(self) -> None:
         self._mock_credential = google.auth.credentials.AnonymousCredentials()
 
-    def get_credential(self):
+    def get_credential(self) -> google.auth.credentials.Credentials:
         return self._mock_credential
 
 # -----------------------------------
@@ -69,8 +106,8 @@ else:
 
 firebase_admin.initialize_app(cred, firebase_options)
 
-db = firestore.client()
-bucket = storage.bucket()
+db: FirestoreClient = firestore.client()
+bucket: Bucket = storage.bucket()
 
 
 # --------------------------------------------
@@ -78,7 +115,8 @@ bucket = storage.bucket()
 # --------------------------------------------
 
 
-def resolve_ref(ref, components):
+def resolve_ref(ref: str, components: OpenAPIComponents) -> JsonSchema:
+    """Resolve a JSON Schema $ref to its target schema."""
     ref_path = ref.replace("#/components/schemas/", "")
     if ref_path not in components:
         return {}
@@ -91,7 +129,7 @@ def resolve_ref(ref, components):
 # --------------------------------------------
 # Recursively expand schemas and resolve $ref
 # --------------------------------------------
-def expand_schema(schema, components):
+def expand_schema(schema: Any, components: OpenAPIComponents) -> Any:
     """Recursively expand all $ref inside a schema node."""
     if not isinstance(schema, dict):
         return schema
@@ -101,7 +139,7 @@ def expand_schema(schema, components):
         target = resolve_ref(schema["$ref"], components)
         return expand_schema(target, components)
 
-    expanded = {}
+    expanded: dict[str, Any] = {}
     for key, value in schema.items():
 
         # Recurse into lists (e.g., 'allOf', 'oneOf')
@@ -120,11 +158,13 @@ def expand_schema(schema, components):
     return expanded
 
 
-def extract_top_level_inputs(schema, components):
+def extract_top_level_inputs(
+    schema: JsonSchema, components: OpenAPIComponents
+) -> dict[str, JsonSchema]:
     """Return only top-level properties of requestBody schema."""
     expanded = expand_schema(schema, components)
 
-    inputs = {}
+    inputs: dict[str, JsonSchema] = {}
     if expanded.get("type") == "object":
         for prop_name, prop_schema in expanded.get("properties", {}).items():
             # Fully expand each property
@@ -135,10 +175,11 @@ def extract_top_level_inputs(schema, components):
 # --------------------------------------------
 # Convert schema to simple {field: type}
 # --------------------------------------------
-def flatten_schema(schema):
-    flat = {}
+def flatten_schema(schema: JsonSchema) -> dict[str, JsonSchema]:
+    """Flatten a nested JSON schema into a flat dictionary with dotted keys."""
+    flat: dict[str, JsonSchema] = {}
 
-    def walk(name, node):
+    def walk(name: str, node: Any) -> None:
         if not isinstance(node, dict):
             return
 
@@ -201,18 +242,19 @@ def flatten_schema(schema):
 # --------------------------------------------
 # Process entire OpenAPI document
 # --------------------------------------------
-def extract_check_records(openapi, version):
-    components = openapi.get("components", {}).get("schemas", {})
-    paths = openapi.get("paths", {})
+def extract_check_records(openapi: OpenAPIDocument, version: str) -> list[CheckRecord]:
+    """Extract check records from an OpenAPI document."""
+    components: OpenAPIComponents = openapi.get("components", {}).get("schemas", {})
+    paths: dict[str, Any] = openapi.get("paths", {})
 
-    output = []
+    output: list[CheckRecord] = []
 
     for path, methods in paths.items():
         # Only process check endpoints
         if "/checks" not in path:
             continue
-        for method, details in methods.items():
-            method = method.upper()
+        for method_key, details in methods.items():
+            method_upper = method_key.upper()
 
             # Split the URL into parts
             segments = path.strip("/").split("/")
@@ -224,12 +266,12 @@ def extract_check_records(openapi, version):
 
             module = "/".join(segments[checks_index + 1:-1])
 
-            id = 'L-' + module + '-' + name + '-' + version
+            check_id = 'L-' + module + '-' + name + '-' + version
 
-            entry = {
-                "id": id,
+            entry: CheckRecord = {
+                "id": check_id,
                 "evaluationUrl": path,
-                "method": method,
+                "method": method_upper,
                 "name": name,
                 "module": module,
                 "version": version,
@@ -239,21 +281,21 @@ def extract_check_records(openapi, version):
             # ----------------------------------------
             # 1. Path or query parameters
             # ----------------------------------------
-            parameters = details.get("parameters", [])
+            parameters: list[dict[str, Any]] = details.get("parameters", [])
             for p in parameters:
-                name = p["name"]
-                dtype = p.get("schema", {}).get("type", "unknown")
-                entry["inputs"][name] = dtype
+                param_name: str = p["name"]
+                dtype: str = p.get("schema", {}).get("type", "unknown")
+                entry["inputs"][param_name] = dtype
 
             # ----------------------------------------
             # 2. Request body parameters
             # ----------------------------------------
             if "requestBody" in details:
-                content = details["requestBody"]["content"]
+                content: dict[str, Any] = details["requestBody"]["content"]
 
                 if "application/json" in content:
 
-                    schema = content["application/json"].get("schema", {})
+                    schema: JsonSchema = content["application/json"].get("schema", {})
                     # Only expand top-level 'parameters' and 'situation'
                     entry["inputs"].update(
                         extract_top_level_inputs(schema, components))
@@ -263,13 +305,18 @@ def extract_check_records(openapi, version):
     return output
 
 
-def transform_parameters(properties_obj):
+def transform_parameters(properties_obj: dict[str, JsonSchema]) -> list[ParameterDefinition]:
     """Convert properties dict to a list of {key, name, type} objects."""
-    transformed = []
+    transformed: list[ParameterDefinition] = []
 
     for key, val in properties_obj.items():
         # Determine the property's type
-        prop_type = val.get("type", "object")  # fallback
+        prop_type: str = val.get("type", "object")  # fallback
+
+        # Check for date format - OpenAPI represents FEEL date as { type: "string", format: "date" }
+        prop_format: str | None = val.get("format")
+        if prop_type == "string" and prop_format == "date":
+            prop_type = "date"
 
         transformed.append({
             "key": key,
@@ -281,15 +328,15 @@ def transform_parameters(properties_obj):
     return transformed
 
 
-def transform_parameters_format(data):
+def transform_parameters_format(data: list[CheckRecord]) -> list[CheckRecord]:
     """Transform all `inputs.parameters.properties` in the provided list."""
     for check in data:
-        inputs = check.get("inputs", {})
-        parameters = inputs.get("parameters")
+        inputs: dict[str, Any] = check.get("inputs", {})
+        parameters: dict[str, Any] | None = inputs.get("parameters")
 
         # Only transform objects that follow the original structure
         if isinstance(parameters, dict) and "properties" in parameters:
-            properties_obj = parameters["properties"]
+            properties_obj: dict[str, JsonSchema] = parameters["properties"]
             new_parameters = transform_parameters(properties_obj)
 
             # Replace object with the transformed list
@@ -297,24 +344,27 @@ def transform_parameters_format(data):
     return data
 
 
-def transform_situation_format(data):
+def transform_situation_format(data: list[CheckRecord]) -> list[CheckRecord]:
     """Transform all `inputs.situation` in the provided list."""
     for check in data:
         check["inputDefinition"] = check["inputs"]["situation"]
     return data
 
 
-def save_json_to_storage_and_update_firestore(json_string, firestore_doc_path):
+def save_json_to_storage_and_update_firestore(
+    json_string: str, firestore_doc_path: str
+) -> str:
     """
     Upload JSON string to Firebase Storage and update Firestore
     with the storage path or download URL of the uploaded file.
     """
+    from datetime import timezone
 
     # ---------------------
     # Create filename
     # Example: exported_2025-02-12_14-30-59.json
     # ---------------------
-    timestamp = datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d_%H-%M-%S")
     filename = f"LibraryApiSchemaExports/export_{timestamp}.json"
 
     # ---------------------
@@ -324,7 +374,7 @@ def save_json_to_storage_and_update_firestore(json_string, firestore_doc_path):
     blob.upload_from_string(json_string, content_type="application/json")
 
     # Get the storage path
-    storage_path = blob.name
+    storage_path: str = blob.name
 
     # ---------------------
     # Update Firestore
@@ -344,32 +394,32 @@ def save_json_to_storage_and_update_firestore(json_string, firestore_doc_path):
 # --------------------------------------------
 # Load your OpenAPI JSON here
 # --------------------------------------------
-if __name__ == "__main__":
-
-    url = f"{LIBRARY_API_BASE_URL}/q/openapi.json"
+def main() -> None:
+    """Main entry point for the library metadata sync script."""
+    url: str = f"{LIBRARY_API_BASE_URL}/q/openapi.json"
 
     print(f"Fetching OpenAPI spec from: {url}")
 
     # Send a GET request
-    response = requests.get(url)
+    response: requests.Response = requests.get(url)
 
     # Raise an error if the request failed
     response.raise_for_status()  # optional, but good practice
 
     # Parse JSON
-    data = response.json()
+    data: OpenAPIDocument = response.json()
 
-    version = data["info"]["version"]
+    version: str = data["info"]["version"]
 
-    check_records = extract_check_records(data, version)
+    check_records: list[CheckRecord] = extract_check_records(data, version)
     check_records = transform_parameters_format(check_records)
     check_records = transform_situation_format(check_records)
 
     for check in check_records:
-        check.pop("inputs")
+        check.pop("inputs")  # type: ignore[misc]
 
     # Write JSON file using UTF-8 to avoid errors
-    json_string = json.dumps(check_records, indent=2, ensure_ascii=False)
+    json_string: str = json.dumps(check_records, indent=2, ensure_ascii=False)
 
     print("Parsed json")
     print(json_string)
@@ -378,3 +428,7 @@ if __name__ == "__main__":
         json_string,
         firestore_doc_path="system/config"
     )
+
+
+if __name__ == "__main__":
+    main()

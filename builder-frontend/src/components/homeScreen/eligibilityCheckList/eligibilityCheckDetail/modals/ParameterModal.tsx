@@ -7,7 +7,7 @@ type ParamValues = {
   key: string;
   label: string;
   required: boolean;
-  type: "string" | "number" | "boolean";
+  type: "string" | "number" | "boolean" | "date";
 }
 const ParameterModal = (
   { actionTitle, modalAction, closeModal, initialData }:
@@ -55,11 +55,12 @@ const ParameterModal = (
           <select
             class="form-input w-full border border-gray-300 rounded px-3 py-2"
             value={newParam.type}
-            onChange={(e) => setNewParam("type", e.currentTarget.value as "string" | "number" | "boolean")}
+            onChange={(e) => setNewParam("type", e.currentTarget.value as "string" | "number" | "boolean" | "date")}
           >
             <option value="string">String</option>
             <option value="number">Number</option>
             <option value="boolean">Boolean</option>
+            <option value="date">Date</option>
           </select>
         </div>
         <div class="mb-4">
