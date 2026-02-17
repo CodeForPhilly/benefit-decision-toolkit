@@ -11,6 +11,7 @@ import type {
   BooleanParameter,
   NumberParameter,
   StringParameter,
+  DateParameter,
 } from "@/types";
 
 const ConfigureCheckModal = ({
@@ -121,6 +122,14 @@ const ParameterInput = ({
         currentValue={() => tempCheck().parameters[parameterKey()]}
       />
     );
+  } else if (parameterType() === "date") {
+    return (
+      <ParameterDateInput
+        onParameterChange={onParameterChange}
+        parameter={parameter as Accessor<DateParameter>}
+        currentValue={() => tempCheck().parameters[parameterKey()]}
+      />
+    );
   }
   return <div>Unsupported parameter type: {parameterType()}</div>;
 };
@@ -222,6 +231,34 @@ const ParameterBooleanInput = ({
           <span class="ml-2 text-gray-500">Not set</span>
         )}
       </div>
+    </div>
+  );
+};
+
+const ParameterDateInput = ({
+  onParameterChange,
+  parameter,
+  currentValue,
+}: {
+  onParameterChange: (value: any) => void;
+  parameter: Accessor<DateParameter>;
+  currentValue: Accessor<any>;
+}) => {
+  return (
+    <div class="pl-2">
+      <div class="mb-2 font-bold">
+        {titleCase(parameter().key)}{" "}
+        {parameter().required && <span class="text-red-600">*</span>}
+      </div>
+      <div class="mb-2">{parameter().label}</div>
+      <input
+        onInput={(e) => {
+          onParameterChange(e.target.value);
+        }}
+        type="date"
+        value={currentValue() ?? ""}
+        class="form-input"
+      />
     </div>
   );
 };

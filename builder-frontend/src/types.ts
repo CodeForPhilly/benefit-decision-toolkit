@@ -68,7 +68,8 @@ export type ParameterDefinition =
   // StringSelectParameter |
   // StringMultiInputParameter |
   | NumberParameter
-  | BooleanParameter;
+  | BooleanParameter
+  | DateParameter;
 interface BaseParameter {
   key: string;
   label: string;
@@ -89,6 +90,9 @@ export interface NumberParameter extends BaseParameter {
 }
 export interface BooleanParameter extends BaseParameter {
   type: "boolean";
+}
+export interface DateParameter extends BaseParameter {
+  type: "date";
 }
 
 /* Screener Evaluation Results */

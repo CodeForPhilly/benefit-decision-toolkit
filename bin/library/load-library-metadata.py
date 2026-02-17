@@ -271,6 +271,11 @@ def transform_parameters(properties_obj):
         # Determine the property's type
         prop_type = val.get("type", "object")  # fallback
 
+        # Check for date format - OpenAPI represents FEEL date as { type: "string", format: "date" }
+        prop_format = val.get("format")
+        if prop_type == "string" and prop_format == "date":
+            prop_type = "date"
+
         transformed.append({
             "key": key,
             "label": key,
