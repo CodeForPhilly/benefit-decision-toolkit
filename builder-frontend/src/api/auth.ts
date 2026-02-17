@@ -17,7 +17,7 @@ export const authFetch =
     // set headers based on method
     if (method === "GET") {
       headers.set("Accept", "application/json");
-    } else if (method === "POST" || method === "PUT") {
+    } else if (method === "POST" || method === "PUT" || method === "PATCH") {
       headers.set("Accept", "application/json");
       headers.set("Content-Type", "application/json");
     }
