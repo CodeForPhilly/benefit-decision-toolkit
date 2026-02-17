@@ -10,14 +10,6 @@ import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
 public class JsonServerExceptionMappers {
 
-  // @ServerExceptionMapper
-  // public Response map(UnrecognizedPropertyException e) {
-  //   return Response.status(Response.Status.BAD_REQUEST)
-  //       .type(MediaType.APPLICATION_JSON)
-  //       .entity(Map.of("error", true, "message", "Unknown fields " + e.getPropertyName()))
-  //       .build();
-  // }
-
   @ServerExceptionMapper
   public Response map(MismatchedInputException e) {
     // e.g. screenerName is object but DTO expects String

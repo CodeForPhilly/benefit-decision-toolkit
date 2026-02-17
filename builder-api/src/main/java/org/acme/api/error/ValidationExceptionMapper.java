@@ -15,10 +15,10 @@ public class ValidationExceptionMapper implements ExceptionMapper<ConstraintViol
   private static final Logger LOG = Logger.getLogger(ValidationExceptionMapper.class);
 
   @Override
-  public Response toResponse(ConstraintViolationException e) {
+  public Response toResponse(ConstraintViolationException exc) {
     // Log all violations (since endpoint method won't run)
     String detail =
-        e.getConstraintViolations().stream()
+        exc.getConstraintViolations().stream()
             .map(
                 v ->
                     v.getPropertyPath()
@@ -32,7 +32,7 @@ public class ValidationExceptionMapper implements ExceptionMapper<ConstraintViol
     LOG.warn("Validation failed: " + detail);
 
     String msg =
-        e.getConstraintViolations().stream()
+        exc.getConstraintViolations().stream()
             .findFirst()
             .map(ConstraintViolation::getMessage)
             .orElse("Validation failed.");
