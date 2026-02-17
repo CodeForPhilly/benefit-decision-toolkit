@@ -1,4 +1,4 @@
-import { Switch, Match, For, Accessor } from "solid-js";
+import { Switch, Match, For, Accessor, Show } from "solid-js";
 
 import type { ScreenerResult, BenefitResult } from "@/types";
 
@@ -6,6 +6,11 @@ import checkIcon from "@/assets/images/checkIcon.svg";
 import questionIcon from "@/assets/images/questionIcon.svg";
 import xIcon from "@/assets/images/xIcon.svg";
 
+function formatParameters(params: Record<string, unknown>): string {
+  return Object.entries(params)
+    .map(([key, value]) => `${key}=${value}`)
+    .join(", ");
+}
 
 export default function EligibilityResults(
   { screenerResult }: { screenerResult: Accessor<ScreenerResult> }
@@ -45,24 +50,36 @@ function BenefitResult({ benefitResult }: { benefitResult: BenefitResult }) {
         <h3 class="font-bold text-lg">{benefitResult.name}</h3>
         <For each={Object.entries(benefitResult.check_results)}>
           {([checkKey, check]) => (
-            <p class="mb-1">
-              <Switch>
-                <Match when={check.result === "TRUE"}>
-                  <img src={checkIcon} alt="" class="inline w-4 mr-2" />
-                </Match>
-                <Match when={check.result === "UNABLE_TO_DETERMINE"}>
-                  <img
-                    src={questionIcon}
-                    alt=""
-                    class="inline w-4 mr-2"
-                  />
-                </Match>
-                <Match when={check.result === "FALSE"}>
-                  <img src={xIcon} alt="" class="inline w-4 mr-2" />
-                </Match>
-              </Switch>
-              <span class="text-xs">{check.name}</span>
-            </p>
+            <div class="flex items-center mb-1">
+              <div class="flex-shrink-0 w-5 mr-2">
+                <Switch>
+                  <Match when={check.result === "TRUE"}>
+                    <img src={checkIcon} alt="" class="w-4" />
+                  </Match>
+                  <Match when={check.result === "UNABLE_TO_DETERMINE"}>
+                    <img src={questionIcon} alt="" class="w-4" />
+                  </Match>
+                  <Match when={check.result === "FALSE"}>
+                    <img src={xIcon} alt="" class="w-4" />
+                  </Match>
+                </Switch>
+              </div>
+              <div class="flex flex-col text-xs">
+                <div>
+                  {check.name}
+                  <Show when={check.module || check.version}>
+                    <span class="text-gray-500 ml-1">
+                      ({[check.module, check.version].filter(Boolean).join(" v")})
+                    </span>
+                  </Show>
+                </div>
+                <Show when={check.parameters && Object.keys(check.parameters).length > 0}>
+                  <div class="text-gray-500">
+                    {formatParameters(check.parameters)}
+                  </div>
+                </Show>
+              </div>
+            </div>
           )}
         </For>
       </div>

@@ -1,3 +1,5 @@
+import type { ParameterValues } from "@/types";
+
 /* Screener Evaluation Results */
 export interface ScreenerResult {
   [key: string]: BenefitResult
@@ -12,6 +14,9 @@ interface BenefitResult {
 interface CheckResult {
   name: string;
   result: OptionalBoolean;
+  module: string;
+  version: string;
+  parameters: ParameterValues;
 }
 type OptionalBoolean = "TRUE" | "FALSE" | "UNABLE_TO_DETERMINE";
 

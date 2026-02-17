@@ -106,9 +106,12 @@ export interface BenefitResult {
     [key: string]: CheckResult;
   };
 }
-interface CheckResult {
+export interface CheckResult {
   name: string;
   result: OptionalBoolean;
+  module: string;
+  version: string;
+  parameters: ParameterValues;
 }
 export type OptionalBoolean = "TRUE" | "FALSE" | "UNABLE_TO_DETERMINE";
 
