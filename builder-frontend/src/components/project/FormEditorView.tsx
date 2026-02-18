@@ -103,7 +103,7 @@ function FormEditorView({ formSchema, setFormSchema }) {
 
       for (const field of allFields) {
         // If field has a key that's not in valid paths (and not empty), reset it
-        if (field.key && !validPathSet.has(field.key) && field.key !== field.id) {
+        if (field.key && !validPathSet.has(field.key) && field.key !== field.id && field.type !== 'expression') {
           invalidFields.push(field.key);
           modeling.editFormField(field, 'key', field.id);
         }
