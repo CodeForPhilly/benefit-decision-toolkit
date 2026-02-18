@@ -1,10 +1,17 @@
 import { Accessor, For, Match, Show, Switch } from "solid-js";
 
 import { PreviewFormData, ScreenerResult } from "./types";
+import type { ParameterValues } from "@/types";
 
 import checkIcon from "../../../assets/images/checkIcon.svg";
 import questionIcon from "../../../assets/images/questionIcon.svg";
 import xIcon from "../../../assets/images/xIcon.svg";
+
+function formatParameters(params: ParameterValues): string {
+  return Object.entries(params)
+    .map(([key, value]) => `${key}=${value}`)
+    .join(", ");
+}
 
 export default function Results({
   inputData,
@@ -80,35 +87,35 @@ export default function Results({
                         <div class="ml-2">
                           <For each={Object.entries(benefit.check_results)}>
                             {([checkKey, check]) => (
-                              <div class="text-md text-gray-700">
-                                {check.name}:{" "}
-                                <Switch>
-                                  <Match when={check.result === "TRUE"}>
-                                    <img
-                                      src={checkIcon}
-                                      alt=""
-                                      class="inline w-4"
-                                    />
-                                  </Match>
-                                  <Match when={check.result === "FALSE"}>
-                                    <img
-                                      src={xIcon}
-                                      alt=""
-                                      class="inline w-4"
-                                    />
-                                  </Match>
-                                  <Match
-                                    when={
-                                      check.result === "UNABLE_TO_DETERMINE"
-                                    }
-                                  >
-                                    <img
-                                      src={questionIcon}
-                                      alt=""
-                                      class="inline w-4"
-                                    />
-                                  </Match>
-                                </Switch>
+                              <div class="flex items-center text-md text-gray-700 mb-1">
+                                <div class="flex-shrink-0 w-5 mr-2">
+                                  <Switch>
+                                    <Match when={check.result === "TRUE"}>
+                                      <img src={checkIcon} alt="" class="w-4" />
+                                    </Match>
+                                    <Match when={check.result === "FALSE"}>
+                                      <img src={xIcon} alt="" class="w-4" />
+                                    </Match>
+                                    <Match when={check.result === "UNABLE_TO_DETERMINE"}>
+                                      <img src={questionIcon} alt="" class="w-4" />
+                                    </Match>
+                                  </Switch>
+                                </div>
+                                <div class="flex flex-col">
+                                  <div>
+                                    {check.name}
+                                    <Show when={check.module || check.version}>
+                                      <span class="text-gray-500 ml-1">
+                                        ({[check.module, check.version].filter(Boolean).join(" v")})
+                                      </span>
+                                    </Show>
+                                  </div>
+                                  <Show when={check.parameters && Object.keys(check.parameters).length > 0}>
+                                    <div class="text-gray-500 text-sm">
+                                      {formatParameters(check.parameters)}
+                                    </div>
+                                  </Show>
+                                </div>
                               </div>
                             )}
                           </For>

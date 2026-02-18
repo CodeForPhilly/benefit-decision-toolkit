@@ -156,7 +156,13 @@ public class DecisionResource {
                 resultsList.add(evaluationResult);
 
                 String uniqueCheckKey = checkConfig.getCheckId() + checkNum;
-                checkResults.put(uniqueCheckKey, Map.of("name", checkConfig.getCheckName(), "result", evaluationResult));
+                Map<String, Object> checkResultMap = new HashMap<>();
+                checkResultMap.put("name", checkConfig.getCheckName());
+                checkResultMap.put("result", evaluationResult);
+                checkResultMap.put("module", checkConfig.getCheckModule() != null ? checkConfig.getCheckModule() : "");
+                checkResultMap.put("version", checkConfig.getCheckVersion() != null ? checkConfig.getCheckVersion() : "");
+                checkResultMap.put("parameters", checkConfig.getParameters() != null ? checkConfig.getParameters() : Map.of());
+                checkResults.put(uniqueCheckKey, checkResultMap);
                 checkNum += 1;
             }
 
