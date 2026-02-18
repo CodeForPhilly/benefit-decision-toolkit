@@ -7,6 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import org.acme.model.domain.Benefit;
 import org.acme.model.domain.CheckConfig;
+import org.acme.model.dto.FormPath;
 
 import java.util.*;
 
@@ -39,6 +40,32 @@ public class InputSchemaService {
         }
 
         return pathSet;
+    }
+
+    /**
+     * Extracts all unique input paths with their types from all benefits in a screener.
+     *
+     * @param benefits List of benefits containing checks with inputDefinitions
+     * @return Map of unique dot-separated paths to their JSON Schema types
+     */
+    public Map<String, String> extractAllInputPathsWithTypes(List<Benefit> benefits) {
+        Map<String, String> pathTypeMap = new HashMap<>();
+
+        for (Benefit benefit : benefits) {
+            List<CheckConfig> checks = benefit.getChecks();
+            if (checks == null) continue;
+
+            for (CheckConfig check : checks) {
+                JsonNode transformedSchema = transformInputDefinitionSchema(check);
+                List<FormPath> formPaths = extractJsonSchemaPathsWithTypes(transformedSchema);
+                for (FormPath formPath : formPaths) {
+                    // If the same path exists with different types, keep the first one found
+                    pathTypeMap.putIfAbsent(formPath.getPath(), formPath.getType());
+                }
+            }
+        }
+
+        return pathTypeMap;
     }
 
     /**
@@ -113,6 +140,22 @@ public class InputSchemaService {
         return traverseSchema(jsonSchema, "");
     }
 
+    /**
+     * Extracts all property paths with their types from a JSON Schema inputDefinition.
+     * Recursively traverses nested objects to build dot-separated paths with type info.
+     * Excludes the top-level "parameters" property and "id" properties.
+     *
+     * @param jsonSchema The JSON Schema to parse
+     * @return List of FormPath objects containing path and type
+     */
+    public List<FormPath> extractJsonSchemaPathsWithTypes(JsonNode jsonSchema) {
+        if (jsonSchema == null || !jsonSchema.has("properties")) {
+            return new ArrayList<>();
+        }
+
+        return traverseSchemaWithTypes(jsonSchema, "");
+    }
+
     private List<String> traverseSchema(JsonNode schema, String parentPath) {
         List<String> paths = new ArrayList<>();
 
@@ -161,10 +204,86 @@ public class InputSchemaService {
         return paths;
     }
 
+    private List<FormPath> traverseSchemaWithTypes(JsonNode schema, String parentPath) {
+        List<FormPath> formPaths = new ArrayList<>();
+
+        if (schema == null || !schema.has("properties")) {
+            return formPaths;
+        }
+
+        JsonNode propertiesJsonNode = schema.get("properties");
+        Iterator<Map.Entry<String, JsonNode>> nestedProperties = propertiesJsonNode.properties().iterator();
+
+        while (nestedProperties.hasNext()) {
+            Map.Entry<String, JsonNode> currentProperty = nestedProperties.next();
+            String propKey = currentProperty.getKey();
+            JsonNode propValue = currentProperty.getValue();
+
+            // Skip top-level "parameters" property
+            if (parentPath.isEmpty() && "parameters".equals(propKey)) {
+                continue;
+            }
+
+            // Skip "id" properties
+            if ("id".equals(propKey)) {
+                continue;
+            }
+
+            String currentPath = parentPath.isEmpty() ? propKey : parentPath + "." + propKey;
+
+            // If this property has nested properties, recurse into it
+            if (propValue.has("properties")) {
+                formPaths.addAll(traverseSchemaWithTypes(propValue, currentPath));
+            } else if ("array".equals(getType(propValue)) && propValue.has("items")) {
+                // Handle arrays - recurse into items schema with the current path
+                JsonNode itemsSchema = propValue.get("items");
+                if (itemsSchema.has("properties")) {
+                    formPaths.addAll(traverseSchemaWithTypes(itemsSchema, currentPath));
+                } else {
+                    // Array of primitives - add the path with the items type
+                    String itemType = getType(itemsSchema);
+                    formPaths.add(new FormPath(currentPath, "array:" + (itemType != null ? itemType : "any")));
+                }
+            } else {
+                // Leaf property - add the path with its type
+                String type = getEffectiveType(propValue);
+                formPaths.add(new FormPath(currentPath, type));
+            }
+        }
+
+        return formPaths;
+    }
+
     private String getType(JsonNode schema) {
         if (schema == null || !schema.has("type")) {
             return null;
         }
         return schema.get("type").asText();
+    }
+
+    /**
+     * Determines the effective type of a JSON Schema property, considering format hints.
+     * For example, a string with format "date" returns "date" instead of "string".
+     */
+    private String getEffectiveType(JsonNode schema) {
+        if (schema == null) {
+            return "any";
+        }
+
+        String type = getType(schema);
+        if (type == null) {
+            return "any";
+        }
+
+        // Check for format hints that provide more specific type info
+        if ("string".equals(type) && schema.has("format")) {
+            String format = schema.get("format").asText();
+            // Common date/time formats
+            if ("date".equals(format) || "date-time".equals(format) || "time".equals(format)) {
+                return format;
+            }
+        }
+
+        return type;
     }
 }

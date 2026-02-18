@@ -13,6 +13,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.acme.auth.AuthUtils;
 import org.acme.model.domain.*;
+import org.acme.model.dto.FormPath;
 import org.acme.model.dto.FormPathsResponse;
 import org.acme.model.dto.PublishScreenerRequest;
 import org.acme.model.dto.SaveSchemaRequest;
@@ -23,7 +24,6 @@ import org.acme.persistence.StorageService;
 import org.acme.service.DmnService;
 import org.acme.service.InputSchemaService;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -284,9 +284,15 @@ public class ScreenerResource {
 
     try {
       List<Benefit> benefits = screenerRepository.getBenefitsInScreener(screener);
-      List<String> paths = new ArrayList<>(inputSchemaService.extractAllInputPaths(benefits));
-      Collections.sort(paths);
-      return Response.ok().entity(new FormPathsResponse(paths)).build();
+      Map<String, String> pathTypeMap = inputSchemaService.extractAllInputPathsWithTypes(benefits);
+
+      // Convert to sorted list of FormPath objects
+      List<FormPath> formPaths = pathTypeMap.entrySet().stream()
+          .sorted(Map.Entry.comparingByKey())
+          .map(entry -> new FormPath(entry.getKey(), entry.getValue()))
+          .toList();
+
+      return Response.ok().entity(new FormPathsResponse(formPaths)).build();
     } catch (Exception e) {
       Log.error(e);
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

@@ -158,8 +158,13 @@ export const removeCustomBenefit = async (
   }
 };
 
+export interface FormPath {
+  path: string;
+  type: string;
+}
+
 export interface FormPathsResponse {
-  paths: string[];
+  paths: FormPath[];
 }
 
 export const fetchFormPaths = async (screenerId: string): Promise<FormPathsResponse> => {

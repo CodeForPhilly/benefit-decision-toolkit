@@ -11,9 +11,9 @@ import Drawer from "@corvu/drawer"; // 'corvu/drawer'
 
 import CustomFormFieldsModule from "./formJsExtensions/customFormFields";
 import { customKeyModule } from './formJsExtensions/customKeyDropdown/customKeyDropdownProvider';
-import PathOptionsService, { pathOptionsModule } from './formJsExtensions/customKeyDropdown/pathOptionsService';
+import PathOptionsService, { pathOptionsModule, type PathOption } from './formJsExtensions/customKeyDropdown/pathOptionsService';
 
-import { saveFormSchema, fetchFormPaths } from "../../api/screener";
+import { saveFormSchema, fetchFormPaths, type FormPath } from "../../api/screener";
 import { extractFormPaths } from "../../utils/formSchemaUtils";
 import Loading from "../Loading";
 
@@ -72,6 +72,24 @@ function FormEditorView({ formSchema, setFormSchema }) {
       setFormSchema(e.schema);
     });
 
+    // Set default key to field ID when a new form field is added
+    const eventBus = formEditor.get("eventBus") as any;
+    const modeling = formEditor.get("modeling") as any;
+    eventBus.on("formField.add", (event: { formField: any }) => {
+      const field = event.formField;
+      
+      console.log(field);
+      // Only set key if the field supports keys and doesn't already have one set
+      // Skip group components as they don't use keys
+      if (field && field.id && field.type !== 'group' && field.type !== 'default') {
+        console.log(field);
+        // Use setTimeout to ensure the field is fully added before modifying
+        setTimeout(() => {
+          modeling.editFormField(field, 'key', field.id);
+        }, 0);
+      }
+    });
+
     onCleanup(() => {
       if (formEditor) {
         formEditor.destroy();
@@ -85,13 +103,16 @@ function FormEditorView({ formSchema, setFormSchema }) {
   createEffect(() => {
     if (!formEditor || formPaths.loading) return;
 
-    const paths = formPaths() || [];
-    const validPathSet = new Set(paths);
+    const formPathsData = formPaths() || [];
+    const validPathSet = new Set(formPathsData.map(fp => fp.path));
 
     const pathOptionsService = formEditor.get("pathOptionsService") as PathOptionsService;
-    pathOptionsService.setOptions(
-      paths.map((path) => ({ value: path, label: path }))
-    );
+    const options: PathOption[] = formPathsData.map((fp) => ({
+      value: fp.path,
+      label: fp.path,
+      type: fp.type
+    }));
+    pathOptionsService.setOptions(options);
 
     // Clean up any form fields with keys that are no longer valid options
     const formFieldRegistry = formEditor.get("formFieldRegistry") as any;
@@ -175,17 +196,17 @@ const FormValidationDrawer = ({ formSchema, expectedInputPaths }) => {
   const formOutputs = () =>
     formSchema() ? extractFormPaths(formSchema()) : [];
 
-  // Expected inputs come directly from backend API
-  const expectedInputs = () => expectedInputPaths() || [];
+  // Expected inputs come directly from backend API as FormPath objects
+  const expectedInputs = (): FormPath[] => expectedInputPaths() || [];
 
   // Compute which expected inputs are satisfied vs missing
   const formOutputSet = () => new Set(formOutputs());
 
-  const satisfiedInputs = () =>
-    expectedInputs().filter((p) => formOutputSet().has(p));
+  const satisfiedInputs = (): FormPath[] =>
+    expectedInputs().filter((fp: FormPath) => formOutputSet().has(fp.path));
 
-  const missingInputs = () =>
-    expectedInputs().filter((p) => !formOutputSet().has(p));
+  const missingInputs = (): FormPath[] =>
+    expectedInputs().filter((fp: FormPath) => !formOutputSet().has(fp.path));
 
   return (
     <Drawer side="right">
@@ -259,9 +280,9 @@ const FormValidationDrawer = ({ formSchema, expectedInputPaths }) => {
                     </p>
                   }
                 >
-                  {(path) => (
-                    <div class="py-2 px-3 mb-2 bg-red-50 rounded border border-red-300 font-mono text-sm text-red-800">
-                      {path}
+                  {(formPath) => (
+                    <div class="py-2 px-3 mb-2 bg-red-50 rounded border border-red-300 text-sm text-red-800">
+                      <div class="font-mono">{formPath.path} ({formPath.type})</div>
                     </div>
                   )}
                 </For>
@@ -280,9 +301,9 @@ const FormValidationDrawer = ({ formSchema, expectedInputPaths }) => {
                     </p>
                   }
                 >
-                  {(path) => (
-                    <div class="py-2 px-3 mb-2 bg-green-50 rounded border border-green-300 font-mono text-sm text-green-800">
-                      {path}
+                  {(formPath) => (
+                    <div class="py-2 px-3 mb-2 bg-green-50 rounded border border-green-300 text-sm text-green-800">
+                      <div class="font-mono">{formPath.path} ({formPath.type})</div>
                     </div>
                   )}
                 </For>
