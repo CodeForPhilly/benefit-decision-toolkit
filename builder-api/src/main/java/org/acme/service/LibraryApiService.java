@@ -148,8 +148,11 @@ public class LibraryApiService {
             );
 
             // TODO: Need a safer way to validate the returned data is in the right format
-            String result = responseBody.get("checkResult").toString();
-            return EvaluationResult.fromStringIgnoreCase(result);
+            Object result = responseBody.get("checkResult");
+            if (result == null) {
+                return EvaluationResult.UNABLE_TO_DETERMINE;
+            }
+            return EvaluationResult.fromStringIgnoreCase(result.toString());
         }
         catch (Exception e){
             Log.error(e);
@@ -157,4 +160,3 @@ public class LibraryApiService {
         }
     }
 }
-

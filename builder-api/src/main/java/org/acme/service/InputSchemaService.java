@@ -42,15 +42,13 @@ public class InputSchemaService {
     }
 
     /**
-     * Transforms a CheckConfig's inputDefinition JSON Schema by converting the `people`
-     * array property into an object with personId-keyed properties nested under it.
-     *
-     * Example:
-     *   Input:  { people: { type: "array", items: { properties: { dateOfBirth: ... } } } }
-     *   Output: { people: { type: "object", properties: { [personId]: { properties: { dateOfBirth: ... } } } } }
+     * Transforms a CheckConfig's inputDefinition JSON Schema by applying all schema transformations.
+     * Currently applies:
+     * 1. People transformation: converts people array to object keyed by personId
+     * 2. Enrollments transformation: moves enrollments under people.{personId}.enrollments
      *
      * @param checkConfig The CheckConfig containing inputDefinition and parameters
-     * @return A new JsonNode with `people` transformed to an object with personId-keyed properties
+     * @return A new JsonNode with all transformations applied
      */
     public JsonNode transformInputDefinitionSchema(CheckConfig checkConfig) {
         JsonNode inputDefinition = checkConfig.getInputDefinition();
@@ -59,26 +57,49 @@ public class InputSchemaService {
             return inputDefinition != null ? inputDefinition.deepCopy() : objectMapper.createObjectNode();
         }
 
-        JsonNode properties = inputDefinition.get("properties");
-        JsonNode peopleProperty = properties.get("people");
-        boolean hasPeopleProperty = peopleProperty != null;
-
         // Extract personId from parameters
         Map<String, Object> parameters = checkConfig.getParameters();
         String personId = parameters != null ? (String) parameters.get("personId") : null;
 
-        // If people property exists but no personId, return original (can't transform)
-        if (hasPeopleProperty && (personId == null || personId.isEmpty())) {
-            return inputDefinition.deepCopy();
+        // Apply each transformation in sequence
+        JsonNode schema = inputDefinition.deepCopy();
+        schema = transformPeopleSchema(schema, personId);
+        schema = transformEnrollmentsSchema(schema, personId);
+
+        return schema;
+    }
+
+    /**
+     * Transforms the `people` array property into an object with personId-keyed properties.
+     *
+     * Example:
+     *   Input:  { people: { type: "array", items: { properties: { dateOfBirth: ... } } } }
+     *   Output: { people: { type: "object", properties: { [personId]: { properties: { dateOfBirth: ... } } } } }
+     *
+     * @param schema The JSON Schema to transform
+     * @param personId The personId to use as the key under people
+     * @return A new JsonNode with `people` transformed, or the original if no transformation needed
+     */
+    public JsonNode transformPeopleSchema(JsonNode schema, String personId) {
+        if (schema == null || !schema.has("properties")) {
+            return schema != null ? schema.deepCopy() : objectMapper.createObjectNode();
         }
 
+        JsonNode properties = schema.get("properties");
+        JsonNode peopleProperty = properties.get("people");
+
         // If no people property, return a copy of the original schema
-        if (!hasPeopleProperty) {
-            return inputDefinition.deepCopy();
+        if (peopleProperty == null) {
+            return schema.deepCopy();
+        }
+
+        // If people property exists but no personId, return original (can't transform)
+        if (personId == null || personId.isEmpty()) {
+            return schema.deepCopy();
         }
 
         // Deep clone the schema to avoid mutations
-        ObjectNode transformedSchema = inputDefinition.deepCopy();
+        ObjectNode transformedSchema = schema.deepCopy();
         ObjectNode transformedProperties = (ObjectNode) transformedSchema.get("properties");
 
         // Get the items schema from the people array
@@ -94,6 +115,92 @@ public class InputSchemaService {
 
         newPeopleSchema.set("properties", newPeopleProperties);
         transformedProperties.set("people", newPeopleSchema);
+        return transformedSchema;
+    }
+
+    /**
+     * Transforms the `enrollments` array property by moving it under people.{personId}.enrollments
+     * as an array of strings (benefit names).
+     *
+     * Example:
+     *   Input:  { enrollments: { type: "array", items: { properties: { personId: ..., benefit: ... } } } }
+     *   Output: { people: { type: "object", properties: { [personId]: { properties: { enrollments: { type: "array", items: { type: "string" } } } } } } }
+     *
+     * @param schema The JSON Schema to transform
+     * @param personId The personId to use as the key under people
+     * @return A new JsonNode with `enrollments` transformed, or the original if no transformation needed
+     */
+    public JsonNode transformEnrollmentsSchema(JsonNode schema, String personId) {
+        if (schema == null || !schema.has("properties")) {
+            return schema != null ? schema.deepCopy() : objectMapper.createObjectNode();
+        }
+
+        JsonNode properties = schema.get("properties");
+        JsonNode enrollmentsProperty = properties.get("enrollments");
+
+        // If no enrollments property, return a copy of the original schema
+        if (enrollmentsProperty == null) {
+            return schema.deepCopy();
+        }
+
+        // If enrollments property exists but no personId, return original (can't transform)
+        if (personId == null || personId.isEmpty()) {
+            return schema.deepCopy();
+        }
+
+        // Deep clone the schema to avoid mutations
+        ObjectNode transformedSchema = schema.deepCopy();
+        ObjectNode transformedProperties = (ObjectNode) transformedSchema.get("properties");
+
+        // Remove the top-level enrollments property
+        transformedProperties.remove("enrollments");
+
+        // Create enrollments schema as array of strings
+        ObjectNode enrollmentsSchema = objectMapper.createObjectNode();
+        enrollmentsSchema.put("type", "array");
+        ObjectNode itemsSchema = objectMapper.createObjectNode();
+        itemsSchema.put("type", "string");
+        enrollmentsSchema.set("items", itemsSchema);
+
+        // Get or create the people property
+        JsonNode existingPeople = transformedProperties.get("people");
+        ObjectNode peopleSchema;
+        ObjectNode peopleProps;
+
+        if (existingPeople != null && existingPeople.has("properties")) {
+            // People already exists (from transformPeopleSchema)
+            peopleSchema = (ObjectNode) existingPeople;
+            peopleProps = (ObjectNode) peopleSchema.get("properties");
+        } else {
+            // Create new people structure
+            peopleSchema = objectMapper.createObjectNode();
+            peopleSchema.put("type", "object");
+            peopleProps = objectMapper.createObjectNode();
+            peopleSchema.set("properties", peopleProps);
+            transformedProperties.set("people", peopleSchema);
+        }
+
+        // Get or create the personId property under people
+        JsonNode existingPersonId = peopleProps.get(personId);
+        ObjectNode personIdSchema;
+        ObjectNode personIdProps;
+
+        if (existingPersonId != null && existingPersonId.has("properties")) {
+            // PersonId already exists
+            personIdSchema = (ObjectNode) existingPersonId;
+            personIdProps = (ObjectNode) personIdSchema.get("properties");
+        } else {
+            // Create new personId structure
+            personIdSchema = objectMapper.createObjectNode();
+            personIdSchema.put("type", "object");
+            personIdProps = objectMapper.createObjectNode();
+            personIdSchema.set("properties", personIdProps);
+            peopleProps.set(personId, personIdSchema);
+        }
+
+        // Add enrollments under the personId
+        personIdProps.set("enrollments", enrollmentsSchema);
+
         return transformedSchema;
     }
 

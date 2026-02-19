@@ -72,6 +72,22 @@ function FormEditorView({ formSchema, setFormSchema }) {
       setFormSchema(e.schema);
     });
 
+    // Set default key to field ID when a new form field is added
+    const eventBus = formEditor.get("eventBus") as any;
+    const modeling = formEditor.get("modeling") as any;
+    eventBus.on("formField.add", (event: { formField: any }) => {
+      const field = event.formField;
+
+      // Only set key if the field supports keys and doesn't already have one set
+      // Skip group components as they don't use keys
+      if (field && field.id && field.type !== 'group' && field.type !== 'default') {
+        // Use setTimeout to ensure the field is fully added before modifying
+        setTimeout(() => {
+          modeling.editFormField(field, 'key', field.id);
+        }, 0);
+      }
+    });
+
     onCleanup(() => {
       if (formEditor) {
         formEditor.destroy();
@@ -103,7 +119,13 @@ function FormEditorView({ formSchema, setFormSchema }) {
 
       for (const field of allFields) {
         // If field has a key that's not in valid paths (and not empty), reset it
-        if (field.key && !validPathSet.has(field.key) && field.key !== field.id) {
+        // Skip for expressions, which can have custom-defined keys
+        if (
+          field.key &&
+          !validPathSet.has(field.key) &&
+          field.key !== field.id &&
+          field.type !== 'expression'
+        ) {
           invalidFields.push(field.key);
           modeling.editFormField(field, 'key', field.id);
         }

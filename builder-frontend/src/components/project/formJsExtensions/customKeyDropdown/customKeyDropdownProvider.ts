@@ -36,6 +36,12 @@ class CustomKeyDropdownProvider {
         );
       }
 
+      // For Expression components, keep the original free-text key input
+      // (expression keys store computed results, not form input paths)
+      if (field.type === 'expression') {
+        return groups;
+      }
+
       const curKeyEntry = generalGroup.entries.find((entry: any) => entry.id === 'key');
       // Only replace the Key input with dropdown if it exists
       if (curKeyEntry) {
