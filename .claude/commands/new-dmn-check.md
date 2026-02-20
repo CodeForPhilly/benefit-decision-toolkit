@@ -47,12 +47,13 @@ If a match is found, warn the user and stop. The name must be globally unique.
 - The model's own `namespace` attribute is a fresh UUID URI: `https://kie.apache.org/dmn/_{UUID}`.
 - BDT namespace is always: `https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79`
 - BDT `locationURI`: use `../BDT.dmn` for checks directly in `checks/{category}/` (one level deep). Use `../../BDT.dmn` if nested deeper.
-- Category base module `locationURI`: `{Category}.dmn` (same directory, relative).
+- Category base module import is **mandatory** — always import `{Category}.dmn` (same directory) even if no types from it are referenced. This establishes the category association.
 - Decision Service name: exactly `{CheckName}Service`.
 - Decision Service output type: `BDT.tCheckResponse`.
 - The output decision must be named `checkResult` with `typeRef="boolean"`.
 - `tParameters` item definition includes all check-specific parameters.
 - `tSituation` item definition includes only the fields the check actually reads (keep it minimal — don't copy BDT's full tSituation).
+- If a `tSituation` field is itself a complex type (e.g. `simpleChecks`), define a **local** version of that nested type containing only the specific properties this check uses. Reference the local type, not the BDT one. Example: if the check reads only `situation.simpleChecks.ownerOccupant`, define a local `tSimpleChecks` with just `ownerOccupant: boolean`, and use `typeRef="tSimpleChecks"` in `tSituation` (not `BDT.tSimpleChecks`).
 
 ### Template A — Simple Literal Expression
 
@@ -71,6 +72,7 @@ Based on `person-enrolled-in-benefit.dmn`:
     xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
     xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
     xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79"
+    xmlns:included2="{CATEGORY_MODULE_NAMESPACE_URI}"
     id="_{DEFINITIONS_UUID}"
     name="{CheckName}"
     typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/"
@@ -81,7 +83,11 @@ Based on `person-enrolled-in-benefit.dmn`:
       namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79"
       locationURI="../BDT.dmn"
       importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
-  <!-- Add category base module import here if needed (e.g. Enrollment.dmn, Age.dmn) -->
+  <!-- Always import the category base module, even if no types from it are referenced -->
+  <dmn:import id="_{IMPORT_CATEGORY_UUID}" name="{Category}"
+      namespace="{CATEGORY_MODULE_NAMESPACE_URI}"
+      locationURI="{Category}.dmn"
+      importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
 
   <dmn:itemDefinition id="_{TPARAMS_UUID}" name="tParameters" isCollection="false">
     <!-- One dmn:itemComponent per parameter -->
@@ -137,10 +143,82 @@ Based on `person-enrolled-in-benefit.dmn`:
           </kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
+      <!-- Decision service: width sized to fit "{CheckName}Service" label (approx 12px/char + margin).
+           Upper half (y=106 to y=206) holds output decisions; lower half is encapsulated area.
+           Inputs always go BELOW the service box. -->
+      <dmndi:DMNShape id="dmnshape-drg-_{DS_UUID}" dmnElementRef="_{DS_UUID}" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="{DS_X}" y="106" width="{DS_WIDTH}" height="199"/>
+        <dmndi:DMNLabel/>
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="{DS_X}" y="206"/>
+          <di:waypoint x="{DS_X_RIGHT}" y="206"/>
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <!-- checkResult: 88×50, centered horizontally within the service box.
+           y=147 leaves a 41px gap below the service box top (y=106) for the service name label. -->
+      <dmndi:DMNShape id="dmnshape-drg-_{DECISION_UUID}" dmnElementRef="_{DECISION_UUID}" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="{DECISION_X}" y="147" width="88" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <!-- Input nodes: 100×50 each, at y=336 (below service box which ends at y=305).
+           Center them horizontally under the service box. -->
+      <dmndi:DMNShape id="dmnshape-drg-_{SITUATION_INPUT_UUID}" dmnElementRef="_{SITUATION_INPUT_UUID}" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="{SITUATION_X}" y="336" width="100" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_{PARAMS_INPUT_UUID}" dmnElementRef="_{PARAMS_INPUT_UUID}" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="{PARAMS_X}" y="336" width="100" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <!-- Edges: FROM center of input (x+50, y+25) → TO bottom-center of checkResult (DECISION_X+44, 181) -->
+      <dmndi:DMNEdge id="dmnedge-drg-_{IR1_UUID}-AUTO-TARGET" dmnElementRef="_{IR1_UUID}">
+        <di:waypoint x="{SITUATION_CENTER_X}" y="361"/>
+        <di:waypoint x="{DECISION_CENTER_X}" y="197"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_{IR2_UUID}-AUTO-TARGET" dmnElementRef="_{IR2_UUID}">
+        <di:waypoint x="{PARAMS_CENTER_X}" y="361"/>
+        <di:waypoint x="{DECISION_CENTER_X}" y="197"/>
+      </dmndi:DMNEdge>
     </dmndi:DMNDiagram>
   </dmndi:DMNDI>
 </dmn:definitions>
 ```
+
+**DMNDI layout coordinate guide** (fill in the placeholders above):
+- `{DS_WIDTH}` — approximately `max(200, len("{CheckName}Service") * 12 + 40)`; round to nearest 10
+- `{DS_X}` — choose so the service box is centered around x≈310; e.g. `310 - DS_WIDTH/2`
+- `{DS_X_RIGHT}` — `DS_X + DS_WIDTH`
+- `{DECISION_X}` — `DS_X + (DS_WIDTH - 88) / 2` (horizontally centers the 88px decision inside the service box); y is always **147** — this leaves a 41px gap below the service box top (y=106) so the service name label doesn't overlap the decision node
+- `{DECISION_CENTER_X}` — `DECISION_X + 44`
+- `{SITUATION_X}` — `DS_X` (align with left edge of service box)
+- `{PARAMS_X}` — `DS_X + DS_WIDTH - 100` (align with right edge of service box) or spaced evenly
+- `{SITUATION_CENTER_X}` — `SITUATION_X + 50`
+- `{PARAMS_CENTER_X}` — `PARAMS_X + 50`
+
+**DMNDI rules** (always enforce):
+- Input nodes (`situation`, `parameters`) must be at a higher y-value than the service box (i.e. below it visually). Use y=336 when the service box occupies y=106–305.
+- Edge waypoints go FROM the center of the input node (x+50, 361) TO the bottom-center of `checkResult` (DECISION_CENTER_X, 181).
+- Do **not** add `DMNShape` entries for BKMs or decisions imported from BDT or the category module unless they are directly called (via `dmn:knowledgeRequirement`) by this check. Unused imported elements clutter the diagram.
 
 ### Template B — Context Chain
 
@@ -289,5 +367,7 @@ After writing all files, print:
 5. **No circular imports** — checks import BDT.dmn and their category base module only; they must not import other checks.
 6. **BDT import path** — relative to the check file: `../BDT.dmn` for `checks/{category}/` files.
 7. **Fresh UUIDs** — generate a new UUID v4 for every `id` attribute. Never reuse UUIDs from example files.
-8. **tSituation is local and minimal** — define only the `situation` fields this check actually reads. Do not copy BDT's full tSituation definition.
+8. **tSituation is local and minimal** — define only the `situation` fields this check actually reads. Do not copy BDT's full tSituation definition. If a field's type is itself complex (e.g. `simpleChecks`), define a local version of that nested type too, containing only the specific properties used. Never reference BDT's version of a nested type (e.g. `BDT.tSimpleChecks`) when a local minimal definition suffices.
 9. **Output decision named `checkResult`** — the boolean output decision must always be named `checkResult`.
+10. **Always import the category base module** — every check must import its category's base module DMN (e.g. `Residence.dmn`, `Age.dmn`), even if no types or BKMs from it are used in this check.
+11. **DMNDI: inputs below, no unused imported shapes** — input nodes must always be placed below the decision service box (higher y). Never add `DMNShape` entries for BKMs or elements from imported modules unless they are explicitly called by a `dmn:knowledgeRequirement` in this check.
