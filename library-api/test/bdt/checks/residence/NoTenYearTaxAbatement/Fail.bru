@@ -1,0 +1,26 @@
+meta {
+  name: Fail
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/checks/residence/no-ten-year-tax-abatement
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "simpleChecks": {
+        "tenYearTaxAbatement": true
+      }
+    }
+  }
+}
+
+assert {
+  res.body.checkResult: eq false
+  res.status: eq 200
+}

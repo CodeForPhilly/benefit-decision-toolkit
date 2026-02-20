@@ -1,0 +1,27 @@
+meta {
+  name: Pass
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/checks/residence/lives-in-philadelphia-pa
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "simpleChecks": {
+        "livesInPhiladelphiaPa": true
+      }
+    },
+    "parameters": {}
+  }
+}
+
+assert {
+  res.body.checkResult: eq true
+  res.status: eq 200
+}
