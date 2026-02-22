@@ -1,13 +1,13 @@
 import { createStore } from "solid-js/store"
 
-import type { ParameterDefinition } from "@/types";
+import type { ParameterDefinition, ParameterType } from "@/types";
 
 
 type ParamValues = {
   key: string;
   label: string;
   required: boolean;
-  type: "string" | "number" | "boolean" | "date";
+  type: ParameterType;
 }
 const ParameterModal = (
   { actionTitle, modalAction, closeModal, initialData }:
@@ -55,12 +55,13 @@ const ParameterModal = (
           <select
             class="form-input w-full border border-gray-300 rounded px-3 py-2"
             value={newParam.type}
-            onChange={(e) => setNewParam("type", e.currentTarget.value as "string" | "number" | "boolean" | "date")}
+            onChange={(e) => setNewParam("type", e.currentTarget.value as ParameterType)}
           >
             <option value="string">String</option>
             <option value="number">Number</option>
             <option value="boolean">Boolean</option>
             <option value="date">Date</option>
+            <option value="array">String List</option>
           </select>
         </div>
         <div class="mb-4">

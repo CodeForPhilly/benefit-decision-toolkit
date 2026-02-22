@@ -1,17 +1,13 @@
-import { Accessor, For } from "solid-js";
+import { Accessor, For, createSignal } from "solid-js";
 import { createStore, SetStoreFunction } from "solid-js/store";
 
 import { titleCase } from "@/utils/title_case";
 
 import type {
   CheckConfig,
-  EligibilityCheck,
   ParameterDefinition,
   ParameterValues,
   BooleanParameter,
-  NumberParameter,
-  StringParameter,
-  DateParameter,
 } from "@/types";
 
 const ConfigureCheckModal = ({
@@ -57,11 +53,19 @@ const ConfigureCheckModal = ({
               <For each={checkConfig().parameterDefinitions}>
                 {(parameter) => {
                   return (
-                    <ParameterInput
-                      tempCheck={() => tempCheck}
-                      setTempCheck={setTempCheck}
-                      parameter={() => parameter}
-                    />
+                    <div class="pl-2">
+                      <div class="mb-2 font-bold">
+                        {titleCase(parameter.key)}{" "}
+                        {parameter.required && <span class="text-red-600">*</span>}
+                      </div>
+                      <div class="pl-2">
+                        <ParameterInput
+                          tempCheck={() => tempCheck}
+                          setTempCheck={setTempCheck}
+                          parameter={() => parameter}
+                        />
+                      </div>
+                    </div>
                   );
                 }}
               </For>
@@ -102,7 +106,6 @@ const ParameterInput = ({
     return (
       <ParameterNumberInput
         onParameterChange={onParameterChange}
-        parameter={parameter as Accessor<NumberParameter>}
         currentValue={() => tempCheck().parameters[parameterKey()]}
       />
     );
@@ -110,7 +113,6 @@ const ParameterInput = ({
     return (
       <ParameterStringInput
         onParameterChange={onParameterChange}
-        parameter={parameter as Accessor<StringParameter>}
         currentValue={() => tempCheck().parameters[parameterKey()]}
       />
     );
@@ -126,8 +128,15 @@ const ParameterInput = ({
     return (
       <ParameterDateInput
         onParameterChange={onParameterChange}
-        parameter={parameter as Accessor<DateParameter>}
         currentValue={() => tempCheck().parameters[parameterKey()]}
+      />
+    );
+  } else if (parameterType() === "array") {
+    /* TODO: Support arrays of other types besides String */
+    return (
+      <ParameterMultiStringInput
+        onParameterChange={onParameterChange}
+        currentValue={() => tempCheck().parameters[parameterKey()] as string[] | undefined}
       />
     );
   }
@@ -136,57 +145,43 @@ const ParameterInput = ({
 
 const ParameterNumberInput = ({
   onParameterChange,
-  parameter,
   currentValue,
 }: {
   onParameterChange: (value: any) => void;
-  parameter: Accessor<NumberParameter>;
   currentValue: Accessor<any>;
 }) => {
   return (
-    <div class="pl-2">
-      <div class="mb-2 font-bold">
-        {titleCase(parameter().key)}{" "}
-        {parameter().required && <span class="text-red-600">*</span>}
-      </div>
-      <div class="mb-2">{parameter().label}</div>
+    <>
       <input
         onInput={(e) => {
           onParameterChange(Number(e.target.value));
         }}
         value={currentValue()}
         type="number"
-        class="form-input"
+        class="form-input-custom"
       />
-    </div>
+    </>
   );
 };
 
 const ParameterStringInput = ({
   onParameterChange,
-  parameter,
   currentValue,
 }: {
   onParameterChange: (value: any) => void;
-  parameter: Accessor<StringParameter>;
   currentValue: Accessor<any>;
 }) => {
   return (
-    <div class="pl-2">
-      <div class="mb-2 font-bold">
-        {titleCase(parameter().key)}{" "}
-        {parameter().required && <span class="text-red-600">*</span>}
-      </div>
-      <div class="mb-2">{parameter().label}</div>
+    <>
       <input
         onInput={(e) => {
           onParameterChange(e.target.value);
         }}
         type="text"
         value={currentValue() ?? ""}
-        class="form-input"
+        class="form-input-custom"
       />
-    </div>
+    </>
   );
 };
 
@@ -200,12 +195,7 @@ const ParameterBooleanInput = ({
   currentValue: Accessor<any>;
 }) => {
   return (
-    <div class="pl-2">
-      <div class="mb-2 font-bold">
-        {titleCase(parameter().key)}{" "}
-        {parameter().required && <span class="text-red-600">*</span>}
-      </div>
-      <div class="mb-2">{parameter().label}</div>
+    <>
       <div class="flex items-center gap-4">
         <div class="flex items-center gap-2">
           <input
@@ -231,35 +221,96 @@ const ParameterBooleanInput = ({
           <span class="ml-2 text-gray-500">Not set</span>
         )}
       </div>
-    </div>
+    </>
   );
 };
 
 const ParameterDateInput = ({
   onParameterChange,
-  parameter,
   currentValue,
 }: {
   onParameterChange: (value: any) => void;
-  parameter: Accessor<DateParameter>;
   currentValue: Accessor<any>;
 }) => {
   return (
-    <div class="pl-2">
-      <div class="mb-2 font-bold">
-        {titleCase(parameter().key)}{" "}
-        {parameter().required && <span class="text-red-600">*</span>}
-      </div>
-      <div class="mb-2">{parameter().label}</div>
+    <>
       <input
         onInput={(e) => {
           onParameterChange(e.target.value);
         }}
         type="date"
         value={currentValue() ?? ""}
-        class="form-input"
+        class="form-input-custom"
       />
-    </div>
+    </>
+  );
+};
+
+const ParameterMultiStringInput = ({
+  onParameterChange,
+  currentValue,
+}: {
+  onParameterChange: (value: string[]) => void;
+  currentValue: Accessor<string[] | undefined>;
+}) => {
+  const [inputValue, setInputValue] = createSignal("");
+
+  const values = () => currentValue() ?? [];
+
+  const addValue = () => {
+    const trimmed = inputValue().trim();
+    if (trimmed && !values().includes(trimmed)) {
+      onParameterChange([...values(), trimmed]);
+      setInputValue("");
+    }
+  };
+
+  const removeValue = (index: number) => {
+    onParameterChange(values().filter((_, i) => i !== index));
+  };
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addValue();
+    }
+  };
+
+  return (
+    <>
+      {/* Chip display */}
+      <div class="flex flex-wrap gap-2 mb-2">
+        <For each={values()}>
+          {(value, index) => (
+            <span class="inline-flex items-center gap-1 px-2 py-1 bg-sky-100 text-sky-800 rounded-full text-sm">
+              {value}
+              <button
+                type="button"
+                onClick={() => removeValue(index())}
+                class="hover:text-red-600 cursor-pointer"
+              >
+                &times;
+              </button>
+            </span>
+          )}
+        </For>
+      </div>
+
+      {/* Input for adding new values */}
+      <div class="flex gap-2">
+        <input
+          type="text"
+          value={inputValue()}
+          onInput={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Type and press Enter to add"
+          class="form-input-custom flex-1"
+        />
+        <div onClick={addValue} class="btn-default btn-blue">
+          Add
+        </div>
+      </div>
+    </>
   );
 };
 
