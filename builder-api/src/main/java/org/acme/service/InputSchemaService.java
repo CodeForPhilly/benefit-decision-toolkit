@@ -7,6 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import org.acme.model.domain.Benefit;
 import org.acme.model.domain.CheckConfig;
+import org.acme.model.domain.FormPath;
 
 import java.util.*;
 
@@ -24,8 +25,8 @@ public class InputSchemaService {
      * @param benefits List of benefits containing checks with inputDefinitions
      * @return Set of unique dot-separated paths (e.g., "people.applicant.dateOfBirth")
      */
-    public Set<String> extractAllInputPaths(List<Benefit> benefits) {
-        Set<String> pathSet = new HashSet<>();
+    public Set<FormPath> extractAllInputPaths(List<Benefit> benefits) {
+        Set<FormPath> pathSet = new HashSet<>();
 
         for (Benefit benefit : benefits) {
             List<CheckConfig> checks = benefit.getChecks();
@@ -33,7 +34,7 @@ public class InputSchemaService {
 
             for (CheckConfig check : checks) {
                 JsonNode transformedSchema = transformInputDefinitionSchema(check);
-                List<String> paths = extractJsonSchemaPaths(transformedSchema);
+                List<FormPath> paths = extractJsonSchemaPaths(transformedSchema);
                 pathSet.addAll(paths);
             }
         }
@@ -261,7 +262,7 @@ public class InputSchemaService {
      * @param jsonSchema The JSON Schema to parse
      * @return List of dot-separated paths (e.g., ["people.applicant.dateOfBirth", "income"])
      */
-    public List<String> extractJsonSchemaPaths(JsonNode jsonSchema) {
+    public List<FormPath> extractJsonSchemaPaths(JsonNode jsonSchema) {
         if (jsonSchema == null || !jsonSchema.has("properties")) {
             return new ArrayList<>();
         }
@@ -269,11 +270,11 @@ public class InputSchemaService {
         return traverseSchema(jsonSchema, "");
     }
 
-    private List<String> traverseSchema(JsonNode schema, String parentPath) {
-        List<String> paths = new ArrayList<>();
+    private List<FormPath> traverseSchema(JsonNode schema, String parentPath) {
+        List<FormPath> formPaths = new ArrayList<>();
 
         if (schema == null || !schema.has("properties")) {
-            return paths;
+            return formPaths;
         }
 
         JsonNode propertiesJsonNode = schema.get("properties");
@@ -295,26 +296,54 @@ public class InputSchemaService {
             }
 
             String currentPath = parentPath.isEmpty() ? propKey : parentPath + "." + propKey;
+            String currentType = getEffectiveType(propValue);
 
             // If this property has nested properties, recurse into it
             if (propValue.has("properties")) {
-                paths.addAll(traverseSchema(propValue, currentPath));
-            } else if ("array".equals(getType(propValue)) && propValue.has("items")) {
+                formPaths.addAll(traverseSchema(propValue, currentPath));
+            } else if ("array".equals(currentType) && propValue.has("items")) {
                 // Handle arrays - recurse into items schema with the current path
                 JsonNode itemsSchema = propValue.get("items");
                 if (itemsSchema.has("properties")) {
-                    paths.addAll(traverseSchema(itemsSchema, currentPath));
+                    formPaths.addAll(traverseSchema(itemsSchema, currentPath));
                 } else {
                     // Array of primitives - add the path
-                    paths.add(currentPath);
+                    String itemType = getType(itemsSchema);
+                    formPaths.add(new FormPath(currentPath, "array:" + (itemType != null ? itemType : "any")));
                 }
             } else {
                 // Leaf property - add the path
-                paths.add(currentPath);
+                formPaths.add(new FormPath(currentPath, currentType));
             }
         }
 
-        return paths;
+        return formPaths;
+    }
+
+    /**
+     * Determines the effective type of a JSON Schema property, considering format hints.
+     * For example, a string with format "date" returns "date" instead of "string".
+     */
+    private String getEffectiveType(JsonNode schema) {
+        if (schema == null) {
+            return "any";
+        }
+
+        String type = getType(schema);
+        if (type == null) {
+            return "any";
+        }
+
+        // Check for format hints that provide more specific type info
+        if (type.equals("string") && schema.has("format")) {
+            String format = schema.get("format").asText();
+            // Common date/time formats
+            if ("date".equals(format) || "date-time".equals(format) || "time".equals(format)) {
+                return format;
+            }
+        }
+
+        return type;
     }
 
     private String getType(JsonNode schema) {

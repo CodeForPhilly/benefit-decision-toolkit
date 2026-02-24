@@ -3,6 +3,7 @@ package org.acme.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.acme.model.domain.CheckConfig;
+import org.acme.model.domain.FormPath;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -548,10 +549,10 @@ public class InputSchemaServiceTest {
             """;
         JsonNode schema = objectMapper.readTree(schemaJson);
 
-        List<String> paths = service.extractJsonSchemaPaths(schema);
+        List<FormPath> paths = service.extractJsonSchemaPaths(schema);
 
-        assertTrue(paths.contains("people.applicant.dateOfBirth"));
-        assertTrue(paths.contains("people.applicant.enrollments"));
+        assertTrue(paths.contains(new FormPath("people.applicant.dateOfBirth", "string")));
+        assertTrue(paths.contains(new FormPath("people.applicant.enrollments", "array")));
         assertEquals(2, paths.size());
     }
 
@@ -581,9 +582,9 @@ public class InputSchemaServiceTest {
             """;
         JsonNode schema = objectMapper.readTree(schemaJson);
 
-        List<String> paths = service.extractJsonSchemaPaths(schema);
+        List<FormPath> paths = service.extractJsonSchemaPaths(schema);
 
-        assertTrue(paths.contains("people.applicant.enrollments"));
+        assertTrue(paths.contains(new FormPath("people.applicant.enrollments", "array")));
         assertEquals(1, paths.size());
     }
 

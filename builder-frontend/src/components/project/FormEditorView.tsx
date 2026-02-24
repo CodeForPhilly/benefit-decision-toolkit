@@ -2,6 +2,7 @@ import {
   onCleanup, onMount,
   createEffect, createSignal, createResource,
   For, Match, Show, Switch,
+  Accessor,
 } from "solid-js";
 import toast from "solid-toast";
 import { useParams } from "@solidjs/router";
@@ -19,6 +20,7 @@ import Loading from "../Loading";
 
 import "@bpmn-io/form-js/dist/assets/form-js.css";
 import "@bpmn-io/form-js-editor/dist/assets/form-js-editor.css";
+import { FormPath } from "@/types";
 
 function FormEditorView({ formSchema, setFormSchema }) {
   const [isUnsaved, setIsUnsaved] = createSignal(false);
@@ -26,7 +28,7 @@ function FormEditorView({ formSchema, setFormSchema }) {
   const params = useParams();
 
   // Fetch form paths from backend (replaces local transformation logic)
-  const [formPaths] = createResource(
+  const [formPaths] = createResource<FormPath[]>(
     () => params.projectId,
     async (screenerId: string) => {
       if (!screenerId) return [];
@@ -101,12 +103,14 @@ function FormEditorView({ formSchema, setFormSchema }) {
   createEffect(() => {
     if (!formEditor || formPaths.loading) return;
 
-    const paths = formPaths() || [];
-    const validPathSet = new Set(paths);
+    const currentFormPaths: FormPath[] = formPaths() || [];
+    const validPathSet = new Set(currentFormPaths.map((formPath: FormPath) => formPath.path));
 
     const pathOptionsService = formEditor.get("pathOptionsService") as PathOptionsService;
     pathOptionsService.setOptions(
-      paths.map((path) => ({ value: path, label: path }))
+      currentFormPaths.map(
+        (formPath: FormPath) => ({ value: formPath.path, label: formPath.path, type: formPath.type })
+      )
     );
 
     // Clean up any form fields with keys that are no longer valid options
@@ -193,7 +197,10 @@ function FormEditorView({ formSchema, setFormSchema }) {
   );
 }
 
-const FormValidationDrawer = ({ formSchema, expectedInputPaths }) => {
+const FormValidationDrawer = (
+  { formSchema, expectedInputPaths }:
+  {formSchema: any, expectedInputPaths: Accessor<FormPath[]>}
+) => {
   const formOutputs = () =>
     formSchema() ? extractFormPaths(formSchema()) : [];
 
@@ -204,10 +211,10 @@ const FormValidationDrawer = ({ formSchema, expectedInputPaths }) => {
   const formOutputSet = () => new Set(formOutputs());
 
   const satisfiedInputs = () =>
-    expectedInputs().filter((p) => formOutputSet().has(p));
+    expectedInputs().filter((formPath) => formOutputSet().has(formPath.path));
 
   const missingInputs = () =>
-    expectedInputs().filter((p) => !formOutputSet().has(p));
+    expectedInputs().filter((formPath) => !formOutputSet().has(formPath.path));
 
   return (
     <Drawer side="right">
@@ -281,9 +288,9 @@ const FormValidationDrawer = ({ formSchema, expectedInputPaths }) => {
                     </p>
                   }
                 >
-                  {(path) => (
+                  {(formPath) => (
                     <div class="py-2 px-3 mb-2 bg-red-50 rounded border border-red-300 font-mono text-sm text-red-800">
-                      {path}
+                      {formPath.path} ({formPath.type})
                     </div>
                   )}
                 </For>
@@ -302,9 +309,9 @@ const FormValidationDrawer = ({ formSchema, expectedInputPaths }) => {
                     </p>
                   }
                 >
-                  {(path) => (
+                  {(formPath) => (
                     <div class="py-2 px-3 mb-2 bg-green-50 rounded border border-green-300 font-mono text-sm text-green-800">
-                      {path}
+                      {formPath.path} ({formPath.type})
                     </div>
                   )}
                 </For>

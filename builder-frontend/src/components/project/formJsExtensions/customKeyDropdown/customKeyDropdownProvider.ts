@@ -1,6 +1,5 @@
 import SelectEntry from './bpmn-io-dependencies';
 
-
 /**
  * Custom properties provider that replaces the path entry
  */
@@ -73,8 +72,13 @@ function CustomKeyDropdown(props: any) {
     // Get current field's key so it won't be disabled in the dropdown
     const currentKey = field.key || '';
 
+    // Get the component type to filter compatible options
+    const componentType = field.type || '';
+
+    console.log(componentType);
+
     // Get options from the injected service, passing current key to exclude from disabling
-    const options = pathOptionsService?.getOptions(currentKey) || [];
+    const options = pathOptionsService?.getOptions(currentKey, componentType) || [];
 
     // Add empty option
     return [{ value: field.id, label: '(none)' }, ...options];
