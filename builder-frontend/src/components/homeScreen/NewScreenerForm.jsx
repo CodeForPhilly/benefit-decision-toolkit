@@ -40,7 +40,7 @@ export default function NewScreenerForm({
             X
           </div>
         </div>
-        <div className="mt-12 text-3xl font-bold w-80">
+        <div class="mt-12 text-3xl font-bold w-80">
           What is the name of your screener?
         </div>
         <form onSubmit={handleSubmit}>
@@ -48,14 +48,16 @@ export default function NewScreenerForm({
             <label>Screener Name:</label>
             <input
               type="text"
+              id="new-screener-name"
               ref={(el) => (nameInput = el)}
-              className="p-1 border-1 border-gray-400 w-90"
-            ></input>
+              class="form-input-custom"
+            />
           </div>
           <button
             type="submit"
+            id="new-screener-submit"
             disabled={isLoading()}
-            className="mt-3 py-2 px-4 text-white rounded bg-gray-800 disabled:opacity-50"
+            class="mt-3 py-2 px-4 text-white rounded bg-gray-800 disabled:opacity-50"
           >
             Create
           </button>

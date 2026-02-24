@@ -31,11 +31,6 @@ jobs:
       - name: 'Create .env file'  # Devbox needs a .env file to exist, even if it's empty
         run: touch .env
 
-      - name: Rename env files
-        run: |
-          mv builder-frontend/.env.example builder-frontend/.env
-          mv builder-api/.env.example builder-api/.env
-
       - name: 'Install devbox'  # Setup devbox which includes Node.js, Firebase CLI, and Google Cloud SDK
         uses: 'jetify-com/devbox-install-action@v0.12.0'
         with:
@@ -70,6 +65,11 @@ jobs:
       - name: Install frontend dependencies
         working-directory: builder-frontend
         run: devbox run install-builder-frontend-ci
+
+      - name: Load ENV files from examples
+        run: |
+          mv builder-frontend/.env.example builder-frontend/.env
+          mv builder-api/.env.example builder-api/.env
 
       - name: Load E2E emulator data
         run: |

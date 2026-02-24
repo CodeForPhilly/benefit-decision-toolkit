@@ -21,7 +21,7 @@ const BenefitList = (
 
   return (
     <div class="p-5">
-      <div class="text-3xl font-bold mb-2 tracking-wide">
+      <div id="manage-benefits-title" class="text-3xl font-bold mb-2 tracking-wide">
         Manage Benefits
       </div>
       <div class="text-lg mb-3">
@@ -32,7 +32,7 @@ const BenefitList = (
         class="btn-default btn-blue mb-3 mr-1"
         onClick={() => {setAddingNewBenefit(true)}}
       >
-        Create New Benefit
+        Create new benefit
       </div>
       {/* <div
         class="btn-default btn-blue mb-3"

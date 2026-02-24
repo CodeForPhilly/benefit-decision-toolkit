@@ -140,7 +140,7 @@ const EligibilityCheckRow = ({
   onAdd: (check: EligibilityCheck) => void;
 }) => {
   return (
-    <tr>
+    <tr id={"check-row_" + check.name}>
       <td class="eligibility-check-table-cell border-top">
         <div class="btn-default btn-blue" onClick={() => onAdd(check)}>
           Add

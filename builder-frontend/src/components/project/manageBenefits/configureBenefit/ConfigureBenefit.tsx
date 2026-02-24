@@ -87,7 +87,6 @@ const ConfigureBenefit = ({
                     {(checkConfig, checkIndex) => {
                       return (
                         <SelectedEligibilityCheck
-                          checkId={() => checkConfig.checkId}
                           checkConfig={() => checkConfig}
                           onRemove={() =>
                             onRemoveEligibilityCheck(checkIndex())
