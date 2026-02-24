@@ -171,6 +171,9 @@ public class KieDmnService implements DmnService {
         Map<String, Object> inputs,
         Map<String, Object> parameters
     ) throws Exception {
+        Log.info(inputs);
+        Log.info(parameters);
+
         Log.info("Evaluating Simple DMN: " + dmnFilePath + " Model: " + dmnModelName);
 
         Optional<String> dmnXmlOpt = storageService.getStringFromStorage(dmnFilePath);

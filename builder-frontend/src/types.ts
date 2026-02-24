@@ -63,10 +63,10 @@ export interface UpdateCheckRequest {
 }
 
 // Parameter Types
+export type ParameterType = "string" | "number" | "boolean" | "date" | "array";
 export type ParameterDefinition =
   | StringParameter
-  // StringSelectParameter |
-  // StringMultiInputParameter |
+  | StringMultiInputParameter
   | NumberParameter
   | BooleanParameter
   | DateParameter;
@@ -75,13 +75,9 @@ interface BaseParameter {
   label: string;
   required: boolean;
 }
-// export interface StringSelectParameter extends BaseParameter {
-//   type: "select";
-//   options?: string;
-// }
-// export interface StringMultiInputParameter extends BaseParameter {
-//   type: "multi_input_string";
-// }
+export interface StringMultiInputParameter extends BaseParameter {
+  type: "array";
+}
 export interface StringParameter extends BaseParameter {
   type: "string";
 }
