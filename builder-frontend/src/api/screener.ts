@@ -2,7 +2,7 @@ import { env } from "@/config/environment";
 
 import { authDelete, authGet, authPatch, authPost } from "@/api/auth";
 
-import type { BenefitDetail, ScreenerResult } from "@/types";
+import type { BenefitDetail, FormPath, ScreenerResult } from "@/types";
 
 const apiUrl = env.apiUrl;
 
@@ -159,7 +159,7 @@ export const removeCustomBenefit = async (
 };
 
 export interface FormPathsResponse {
-  paths: string[];
+  paths: FormPath[];
 }
 
 export const fetchFormPaths = async (screenerId: string): Promise<FormPathsResponse> => {

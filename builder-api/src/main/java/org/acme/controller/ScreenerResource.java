@@ -25,6 +25,7 @@ import org.acme.service.InputSchemaService;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -284,8 +285,13 @@ public class ScreenerResource {
 
     try {
       List<Benefit> benefits = screenerRepository.getBenefitsInScreener(screener);
-      List<String> paths = new ArrayList<>(inputSchemaService.extractAllInputPaths(benefits));
-      Collections.sort(paths);
+      List<FormPath> paths = new ArrayList<>(inputSchemaService.extractAllInputPaths(benefits));
+      Collections.sort(paths, new Comparator<FormPath>() {
+        public int compare(FormPath fp1, FormPath fp2) {
+          // compare two instance of `Score` and return `int` as result.
+          return fp1.getPath().compareTo(fp2.getPath());
+        }
+      });
       return Response.ok().entity(new FormPathsResponse(paths)).build();
     } catch (Exception e) {
       Log.error(e);

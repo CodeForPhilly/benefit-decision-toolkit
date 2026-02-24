@@ -125,3 +125,9 @@ export interface PublishedScreener {
   screenerName: string;
   formSchema: any;
 }
+
+// Selectable Form Path in the Form Editor view
+export interface FormPath {
+  path: string;
+  type: string;
+}
