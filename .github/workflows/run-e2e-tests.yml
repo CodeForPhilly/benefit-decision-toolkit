@@ -35,14 +35,16 @@ jobs:
         with:
           node-version: lts/*
 
-      # 1) Devbox Setup #
-      - name: Setup devbox
-        uses: ./.github/actions/devbox-setup
-
-      - name: Rename env files
+      - name: Load ENV files from examples
         run: |
           mv builder-frontend/.env.example builder-frontend/.env
           mv builder-api/.env.example builder-api/.env
+          mv library-api/.env.example library-api/.env
+          mv .env.example .env
+
+      # 1) Devbox Setup #
+      - name: Setup devbox
+        uses: ./.github/actions/devbox-setup
 
       # 2) Prepare app dependencies #
       - name: "Cache Maven dependencies"
@@ -82,7 +84,6 @@ jobs:
       # 3) Run App + E2E Test #
       - name: Run all Devbox services
         run: devbox services up -b
-        continue-on-error: true
 
       - name: Install Playwright dependencies
         run: npm ci
@@ -99,12 +100,10 @@ jobs:
           responseCode: 200
           timeout: 90000
           interval: 1000
-        continue-on-error: true
 
       - name: Run Playwright tests
         run: npx playwright test
         working-directory: e2e
-        continue-on-error: true
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
@@ -113,7 +112,14 @@ jobs:
           path: e2e/playwright-report/
           retention-days: 30
 
+      - name: Upload process logs on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: process-logs
+          path: logs/
+          retention-days: 30
+
       # 4) Cleanup #
       - name: Stop all Devbox services
         run: devbox services stop
-        continue-on-error: true

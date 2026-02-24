@@ -52,7 +52,7 @@ export default function Publish({ project, refetchProject }) {
       <div class="px-8 py-4 w-xl border-1 shadow-sm border-gray-200">
         <div class="text-xl">{screenerName()}</div>
         <div class="mt-4 flex flex-col gap-2">
-          <div class=" flex gap-4">
+          <div id="screener-url-info" class="flex gap-4">
             <div class="text-sm font-bold">Screener URL:</div>
             {isPublished() ? (
               <a href={screenerUrl()} target="_blank" rel="noopener noreferrer">
@@ -62,7 +62,7 @@ export default function Publish({ project, refetchProject }) {
               <a>Publish screener to create public url.</a>
             )}
           </div>
-          <div class="flex gap-4">
+          <div id="screener-last-published-info" class="flex gap-4">
             <div class="text-sm font-bold">Last Published Date:</div>
             {lastPublishDate() ? (
               <div>{formattedDate(lastPublishDate())}</div>
@@ -73,6 +73,7 @@ export default function Publish({ project, refetchProject }) {
         </div>
         <div class="mt-4 flex flex-col gap-2">
           <button
+            id="publish-screener-button"
             onClick={handlePublish}
             class="w-80 bg-gray-800 font-bold text-gray-50 rounded px-4 py-2 hover:bg-gray-700 disabled:opacity-50"
             disabled={isLoading()}

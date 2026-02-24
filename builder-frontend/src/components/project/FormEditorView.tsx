@@ -168,7 +168,7 @@ function FormEditorView({ formSchema, setFormSchema }) {
           <div class="h-full" ref={(el) => (container = el)} />
         </div>
         <div class="flex-1 border-l-4 border-l-gray-200">
-          <div class="flex flex-col p-10 gap-4 place-items-center">
+          <div id="form-editor-save_container" class="flex flex-col p-10 gap-4 place-items-center">
             <Switch>
               <Match when={isUnsaved()}>
                 <div onClick={handleSave} class="btn-default btn-yellow">

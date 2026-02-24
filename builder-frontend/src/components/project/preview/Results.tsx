@@ -24,7 +24,7 @@ export default function Results({
 }) {
   return (
     <div class="ml-3">
-      <div class="mt-3">
+      <div id="screener-input-data" class="mt-3">
         {inputData() && (
           <>
             <div class="text-md font-semibold text-gray-600">Inputs</div>
@@ -44,7 +44,7 @@ export default function Results({
             </div>
           </>
         )}
-        <div class="mt-3">
+        <div id="screener-results" class="mt-3">
           <Show when={resultsLoading()}>
             <div class="text-gray-600">Loading results...</div>
           </Show>
@@ -59,9 +59,9 @@ export default function Results({
             <div class="p-2">
               <div class="flex flex-col space-y-2">
                 <For each={Object.entries(results())}>
-                  {([benefitKey, benefit]) => (
+                  {([benefitKey, benefit], benefitResultIdx) => (
                     <div class="border-2 border-gray-200 rounded p-3">
-                      <div class="text-md font-medium text-gray-800">
+                      <div id={"benefit-result-title_" + benefitResultIdx()} class="text-md font-medium text-gray-800">
                         {benefit.name}:{" "}
                         <Switch>
                           <Match when={benefit.result === "TRUE"}>

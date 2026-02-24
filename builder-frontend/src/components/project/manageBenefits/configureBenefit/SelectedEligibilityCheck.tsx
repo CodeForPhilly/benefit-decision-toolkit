@@ -10,18 +10,11 @@ import type {
   ParameterValues,
 } from "@/types";
 
-interface ParameterWithConfiguredValue {
-  parameter: ParameterDefinition;
-  value: string | number | boolean | string[] | undefined;
-}
-
 const SelectedEligibilityCheck = ({
-  checkId,
   checkConfig,
   onRemove,
   updateCheckConfigParams,
 }: {
-  checkId: Accessor<string>;
   checkConfig: Accessor<CheckConfig>;
   updateCheckConfigParams: (newCheckData: ParameterValues) => void;
   onRemove: () => void | null;
