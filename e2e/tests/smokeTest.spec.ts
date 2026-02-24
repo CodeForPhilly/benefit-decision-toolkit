@@ -1,22 +1,12 @@
 import { test, expect } from '@playwright/test';
 
+import { authLogin } from './authLogin';
+import { resetDb } from './firestore';
+
 test.describe('Smoke Tests', () => {
-  test.beforeEach(async ({ page }) => {
-    /* Auntenticate before each Test */
-
-    // Navigate to login page
-    await page.goto('/login');
-
-    // Fill in credentials (using Firebase emulator test user)
-    await page.locator('#email').fill('test@example.com');
-    await page.locator('#password').fill('testpassword123');
-
-    // Click sign in button
-    await page.getByRole('button', { name: 'Sign In' }).click();
-
-    // Wait for navigation to home page after successful login
-    await expect(page).toHaveURL('/');
-  });
+  test.beforeEach("Clear Emulator DB (before)", resetDb);
+  test.beforeEach("Login", authLogin);
+  test.afterEach("Clear Emulator DB (after)", resetDb);
 
   test('user can view landing page after login', async ({ page }) => {
     // Authentication done by beforeEach(...) hook

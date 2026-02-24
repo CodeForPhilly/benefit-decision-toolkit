@@ -75,7 +75,7 @@ const ConfigureBenefit = ({
                 Selected eligibility checks for {benefit().name}
               </div>
 
-              <div class="px-4">
+              <div class="px-4" id="selected-eligibility-checks_container">
                 {benefit() && benefit().checks.length === 0 && (
                   <div class="text-gray-500">
                     No eligibility checks selected. Use the checkboxes to add
@@ -84,10 +84,9 @@ const ConfigureBenefit = ({
                 )}
                 {benefit().checks.length > 0 && (
                   <For each={benefit().checks}>
-                    {(checkConfig) => {
+                    {(checkConfig, checkConfigIndex) => {
                       return (
                         <SelectedEligibilityCheck
-                          checkId={() => checkConfig.checkId}
                           checkConfig={() => checkConfig}
                           onRemove={() =>
                             onRemoveEligibilityCheck(checkConfig.checkId)

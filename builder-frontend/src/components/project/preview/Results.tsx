@@ -24,7 +24,7 @@ export default function Results({
 }) {
   return (
     <div class="ml-3">
-      <div class="mt-3">
+      <div id="screener-input-data" class="mt-3">
         {inputData() && (
           <>
             <div class="text-md font-semibold text-gray-600">Inputs</div>
@@ -44,7 +44,7 @@ export default function Results({
             </div>
           </>
         )}
-        <div class="mt-3">
+        <div id="screener-results" class="mt-3">
           <Show when={resultsLoading()}>
             <div class="text-gray-600">Loading results...</div>
           </Show>

@@ -39,11 +39,6 @@ jobs:
       - name: Setup devbox
         uses: ./.github/actions/devbox-setup
 
-      - name: Rename env files
-        run: |
-          mv builder-frontend/.env.example builder-frontend/.env
-          mv builder-api/.env.example builder-api/.env
-
       # 2) Prepare app dependencies #
       - name: "Cache Maven dependencies"
         # Cache Maven dependencies to speed up builds
@@ -73,6 +68,11 @@ jobs:
       - name: Install frontend dependencies
         working-directory: builder-frontend
         run: devbox run install-builder-frontend-ci
+
+      - name: Load ENV files from examples
+        run: |
+          mv builder-frontend/.env.example builder-frontend/.env
+          mv builder-api/.env.example builder-api/.env
 
       - name: Load E2E emulator data
         run: |
