@@ -23,10 +23,10 @@ public class InputSchemaService {
      * Extracts all unique input paths from all benefits in a screener.
      *
      * @param benefits List of benefits containing checks with inputDefinitions
-     * @return Set of unique dot-separated paths (e.g., "people.applicant.dateOfBirth")
+     * @return List of unique FormPath objects
      */
-    public Set<FormPath> extractAllInputPaths(List<Benefit> benefits) {
-        Set<FormPath> pathSet = new HashSet<>();
+    public List<FormPath> extractUniqueInputPaths(List<Benefit> benefits) {
+        Map<String, String> pathTypeMap = new HashMap<>();
 
         for (Benefit benefit : benefits) {
             List<CheckConfig> checks = benefit.getChecks();
@@ -34,12 +34,18 @@ public class InputSchemaService {
 
             for (CheckConfig check : checks) {
                 JsonNode transformedSchema = transformInputDefinitionSchema(check);
-                List<FormPath> paths = extractJsonSchemaPaths(transformedSchema);
-                pathSet.addAll(paths);
+                List<FormPath> checkFormPaths = extractJsonSchemaPaths(transformedSchema);
+                for (FormPath checkFormPath : checkFormPaths) {
+                    // If the same path exists with different types, keep the first one found
+                    pathTypeMap.putIfAbsent(checkFormPath.getPath(), checkFormPath.getType());
+                }
             }
         }
 
-        return pathSet;
+        // Convert to sorted list of FormPath objects
+        return pathTypeMap.entrySet().stream()
+            .map(entry -> new FormPath(entry.getKey(), entry.getValue()))
+            .toList();
     }
 
     /**

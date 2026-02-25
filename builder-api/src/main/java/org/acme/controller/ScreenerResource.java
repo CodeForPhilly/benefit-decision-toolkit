@@ -285,7 +285,7 @@ public class ScreenerResource {
 
     try {
       List<Benefit> benefits = screenerRepository.getBenefitsInScreener(screener);
-      List<FormPath> paths = new ArrayList<>(inputSchemaService.extractAllInputPaths(benefits));
+      List<FormPath> paths = new ArrayList<>(inputSchemaService.extractUniqueInputPaths(benefits));
       Collections.sort(paths, new Comparator<FormPath>() {
         public int compare(FormPath fp1, FormPath fp2) {
           // compare two instance of `Score` and return `int` as result.
