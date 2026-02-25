@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{host}}/checks/residence/lives-in-philadelphia-pa
+  url: {{host}}/checks/residence/owner-occupant
   body: json
   auth: inherit
 }
@@ -14,7 +14,7 @@ body:json {
   {
     "situation": {
       "simpleChecks": {
-        "livesInPhiladelphiaPa": null
+        "ownerOccupant": null
       }
     }
   }

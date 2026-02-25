@@ -34,7 +34,7 @@
       <dmn:requiredInput href="#_222EBF53-16BF-4A13-A424-0AD32C90100D"/>
     </dmn:informationRequirement>
     <dmn:literalExpression id="_EC3D9380-90FD-4FE1-9640-F713DE0BD846">
-      <dmn:text>if situation.enrollments != null and parameters.personId != null and parameters.benefit != null then
+      <dmn:text>if situation.enrollments != null and count(situation.enrollments) &gt; 0 and parameters.personId != null and parameters.benefit != null then
   some enrollment in situation.enrollments satisfies enrollment.personId = parameters.personId and enrollment.benefit = parameters.benefit
 else
   null</dmn:text>

@@ -1,0 +1,38 @@
+meta {
+  name: DOB is null
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/checks/age/person-max-age
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "people": [
+        {
+          "id": "p1",
+          "dateOfBirth": null
+        }
+      ]
+    },
+    "parameters": {
+      "personId": "p1",
+      "asOfDate": "2025-12-31",
+      "maxAge": 5
+    }
+  }
+}
+
+assert {
+  res.body.checkResult: eq null
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -51,21 +51,24 @@
     </dmn:knowledgeRequirement>
     <dmn:context id="_C560A975-EACF-4A78-BF08-B4FBFEA471F1">
       <dmn:contextEntry>
-        <dmn:variable id="_B735F297-2C49-4509-B412-5FED1DF65560" name="dateOfBirth" typeRef="boolean"/>
+        <dmn:variable id="_532E57ED-E10E-4BC6-84D9-F84A6C8EA69B" name="dateOfBirth" typeRef="date"/>
         <dmn:literalExpression id="_CB89C8C7-F4D0-4877-9B6A-8DFDFA996508">
           <dmn:text>situation.people[id = parameters.personId].dateOfBirth[1]</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_4C114FA3-6647-4F5F-8974-69B3F3497E1A" name="age" typeRef="boolean"/>
+        <dmn:variable id="_26B7AA40-8BF7-441E-9A12-D28B8690773E" name="age" typeRef="number"/>
         <dmn:literalExpression id="_E266DABA-8F13-4B06-858E-E18C9D43882B">
           <dmn:text>Age.as of date(dateOfBirth, parameters.asOfDate)</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_33A0AEB7-F0A7-4144-A9DE-594402406832" name="result" typeRef="boolean"/>
+        <dmn:variable id="_5B0AF08F-05A6-4630-83A0-34261B37CD68" name="result" typeRef="boolean"/>
         <dmn:literalExpression id="_C9DD224E-A946-4361-88CE-986A1502E34B">
-          <dmn:text>age &lt;= parameters.maxAge</dmn:text>
+          <dmn:text>if dateOfBirth != null then
+  age in [0..parameters.maxAge]
+else
+  null</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>

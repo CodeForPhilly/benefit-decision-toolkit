@@ -17,7 +17,7 @@ If either is missing, ask the user for:
 1. **Check name** — PascalCase, globally unique (e.g. `PersonMinIncome`). Derive the file name by converting to kebab-case (e.g. `person-min-income.dmn`) and the service name by appending `Service` (e.g. `PersonMinIncomeService`).
 2. **Category** — existing (`age`, `enrollment`) or a new category name.
 3. **Description** — one sentence describing what eligibility condition is checked.
-4. **Parameters** beyond `situation` — for each: name, FEEL type (`string`, `number`, `date`, `boolean`), and purpose.
+4. **Parameters** beyond `situation` — for each: name, FEEL type (`string`, `number`, `date`, `boolean`), and purpose. If there are none, the `parameters` input will be omitted entirely from the DMN model.
 5. **FEEL logic** — either a FEEL expression or a plain-English description. Describe which `situation` fields are used (e.g. `situation.people`, `situation.enrollments`, `situation.simpleChecks.*`).
 6. **Does the logic need intermediate values?** — Yes → context-chain pattern; No → simple literal expression pattern.
 
@@ -51,7 +51,7 @@ If a match is found, warn the user and stop. The name must be globally unique.
 - Decision Service name: exactly `{CheckName}Service`.
 - Decision Service output type: `BDT.tCheckResponse`.
 - The output decision must be named `checkResult` with `typeRef="boolean"`.
-- `tParameters` item definition includes all check-specific parameters.
+- **Parameters**: if the check needs caller-supplied values, define a `tParameters` item definition and include the `parameters` inputData node, its `dmn:informationRequirement`, and its DMNDI shape/edge. If the check has no parameters, omit all of these entirely — no `tParameters` type, no `parameters` inputData element. This way the generated OpenAPI schema accurately reflects that the endpoint takes only `situation`.
 - `tSituation` item definition includes only the fields the check actually reads (keep it minimal — don't copy BDT's full tSituation).
 - If a `tSituation` field is itself a complex type (e.g. `simpleChecks`), define a **local** version of that nested type containing only the specific properties this check uses. Reference the local type, not the BDT one. Example: if the check reads only `situation.simpleChecks.ownerOccupant`, define a local `tSimpleChecks` with just `ownerOccupant: boolean`, and use `typeRef="tSimpleChecks"` in `tSituation` (not `BDT.tSimpleChecks`).
 
@@ -105,6 +105,7 @@ Based on `person-enrolled-in-benefit.dmn`:
       locationURI="{Category}.dmn"
       importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
 
+  <!-- OMIT the tParameters block entirely if the check has no parameters -->
   <dmn:itemDefinition id="_{TPARAMS_UUID}" name="tParameters" isCollection="false">
     <!-- One dmn:itemComponent per parameter -->
     <dmn:itemComponent id="_{PARAM1_UUID}" name="{paramName}" isCollection="false">
@@ -125,6 +126,7 @@ Based on `person-enrolled-in-benefit.dmn`:
     <dmn:variable id="_{DS_VAR_UUID}" name="{CheckName}Service" typeRef="BDT.tCheckResponse"/>
     <dmn:outputDecision href="#{DECISION_UUID}"/>
     <dmn:inputData href="#{SITUATION_INPUT_UUID}"/>
+    <!-- OMIT the next line if the check has no parameters -->
     <dmn:inputData href="#{PARAMS_INPUT_UUID}"/>
   </dmn:decisionService>
 
@@ -134,6 +136,7 @@ Based on `person-enrolled-in-benefit.dmn`:
     <dmn:informationRequirement id="_{IR1_UUID}">
       <dmn:requiredInput href="#{SITUATION_INPUT_UUID}"/>
     </dmn:informationRequirement>
+    <!-- OMIT the next informationRequirement if the check has no parameters -->
     <dmn:informationRequirement id="_{IR2_UUID}">
       <dmn:requiredInput href="#{PARAMS_INPUT_UUID}"/>
     </dmn:informationRequirement>
@@ -146,6 +149,7 @@ Based on `person-enrolled-in-benefit.dmn`:
     <dmn:extensionElements/>
     <dmn:variable id="_{SITUATION_VAR_UUID}" name="situation" typeRef="tSituation"/>
   </dmn:inputData>
+  <!-- OMIT the next inputData block entirely if the check has no parameters -->
   <dmn:inputData id="_{PARAMS_INPUT_UUID}" name="parameters">
     <dmn:extensionElements/>
     <dmn:variable id="_{PARAMS_VAR_UUID}" name="parameters" typeRef="tParameters"/>
@@ -187,7 +191,8 @@ Based on `person-enrolled-in-benefit.dmn`:
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <!-- Input nodes: 100×50 each, at y=336 (below service box which ends at y=305).
-           Center them horizontally under the service box. -->
+           With two inputs: left-align situation at DS_X, right-align parameters at DS_X+DS_WIDTH-100.
+           With one input (no parameters): center situation at DS_X+(DS_WIDTH-100)/2. -->
       <dmndi:DMNShape id="dmnshape-drg-_{SITUATION_INPUT_UUID}" dmnElementRef="_{SITUATION_INPUT_UUID}" isCollapsed="false">
         <dmndi:DMNStyle>
           <dmndi:FillColor red="255" green="255" blue="255"/>
@@ -197,6 +202,7 @@ Based on `person-enrolled-in-benefit.dmn`:
         <dc:Bounds x="{SITUATION_X}" y="336" width="100" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
+      <!-- OMIT the next DMNShape if the check has no parameters -->
       <dmndi:DMNShape id="dmnshape-drg-_{PARAMS_INPUT_UUID}" dmnElementRef="_{PARAMS_INPUT_UUID}" isCollapsed="false">
         <dmndi:DMNStyle>
           <dmndi:FillColor red="255" green="255" blue="255"/>
@@ -211,6 +217,7 @@ Based on `person-enrolled-in-benefit.dmn`:
         <di:waypoint x="{SITUATION_CENTER_X}" y="361"/>
         <di:waypoint x="{DECISION_CENTER_X}" y="197"/>
       </dmndi:DMNEdge>
+      <!-- OMIT the next DMNEdge if the check has no parameters -->
       <dmndi:DMNEdge id="dmnedge-drg-_{IR2_UUID}-AUTO-TARGET" dmnElementRef="_{IR2_UUID}">
         <di:waypoint x="{PARAMS_CENTER_X}" y="361"/>
         <di:waypoint x="{DECISION_CENTER_X}" y="197"/>
@@ -226,10 +233,10 @@ Based on `person-enrolled-in-benefit.dmn`:
 - `{DS_X_RIGHT}` — `DS_X + DS_WIDTH`
 - `{DECISION_X}` — `DS_X + (DS_WIDTH - 88) / 2` (horizontally centers the 88px decision inside the service box); y is always **147** — this leaves a 41px gap below the service box top (y=106) so the service name label doesn't overlap the decision node
 - `{DECISION_CENTER_X}` — `DECISION_X + 44`
-- `{SITUATION_X}` — `DS_X` (align with left edge of service box)
-- `{PARAMS_X}` — `DS_X + DS_WIDTH - 100` (align with right edge of service box) or spaced evenly
+- `{SITUATION_X}` — with parameters: `DS_X` (left-align); without parameters: `DS_X + (DS_WIDTH - 100) / 2` (center under service box)
+- `{PARAMS_X}` — `DS_X + DS_WIDTH - 100` (right-align with service box); omit if no parameters
 - `{SITUATION_CENTER_X}` — `SITUATION_X + 50`
-- `{PARAMS_CENTER_X}` — `PARAMS_X + 50`
+- `{PARAMS_CENTER_X}` — `PARAMS_X + 50`; omit if no parameters
 
 **DMNDI rules** (always enforce):
 - Input nodes (`situation`, `parameters`) must be at a higher y-value than the service box (i.e. below it visually). Use y=336 when the service box occupies y=106–305.

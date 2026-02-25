@@ -56,8 +56,7 @@ public class OpenAPISchemaPatternTest {
                 path + " should have 'checkResult' in response schema, not 'result'");
             assertTrue(properties.containsKey("situation"),
                 path + " should have 'situation' in response schema");
-            assertTrue(properties.containsKey("parameters"),
-                path + " should have 'parameters' in response schema");
+            // 'parameters' is only present for checks that declare a parameters input in their DMN model
         }
     }
 
@@ -110,8 +109,7 @@ public class OpenAPISchemaPatternTest {
                 path + " example should have 'checkResult', not 'result'");
             assertTrue(exampleValue.containsKey("situation"),
                 path + " example should have 'situation'");
-            assertTrue(exampleValue.containsKey("parameters"),
-                path + " example should have 'parameters'");
+            // 'parameters' is only present for checks that declare a parameters input in their DMN model
         }
     }
 

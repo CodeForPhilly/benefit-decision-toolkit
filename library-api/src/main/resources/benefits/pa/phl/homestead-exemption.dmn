@@ -46,7 +46,7 @@
     <dmn:knowledgeRequirement id="_B1C4EAD9-E6BA-4799-8385-6319E5B1591C">
       <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_3B9E68B5-63FA-437C-AF93-CC12DDD00BC5#_513F29D9-6F29-4B8A-AD8D-F5C339B354DE"/>
     </dmn:knowledgeRequirement>
-    <dmn:knowledgeRequirement id="_BA11966D-CC59-4AF5-9CB6-97FAC7332DDB">
+    <dmn:knowledgeRequirement id="_605AF34B-0BE8-412B-AE98-3275DC1FB191">
       <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_47ECD886-CEBE-47BC-BD4F-06113DCDE5D8#_B514A3B6-6E48-4558-B6AA-CCB4084EA48F"/>
     </dmn:knowledgeRequirement>
     <dmn:knowledgeRequirement id="_B2C3D4E5-F6A7-8901-BCDE-F12345678901">
@@ -57,7 +57,7 @@
     </dmn:knowledgeRequirement>
     <dmn:context id="_C480749B-8802-49B1-BD0F-9A7690C75C6A">
       <dmn:contextEntry>
-        <dmn:variable id="_453973A7-AA27-4C4E-9E40-FE1D802F403C" name="NotAlreadyOnHomestead" typeRef="boolean"/>
+        <dmn:variable id="_BDF053E4-A268-46EF-A240-E0B88FE48922" name="NotAlreadyOnHomestead" typeRef="boolean"/>
         <dmn:invocation id="_B005A993-AB91-41AB-8F4E-CCCBB7F85499">
           <dmn:literalExpression id="_4932AA87-8913-48E2-A33D-E4C0D5A9EDE3">
             <dmn:text>PersonNotEnrolledInBenefit.PersonNotEnrolledInBenefitService</dmn:text>
@@ -72,13 +72,13 @@
             <dmn:parameter id="_3687F80D-9B5B-43AB-B39D-B32BD3210E76" name="parameters" typeRef="PersonNotEnrolledInBenefit.tParameters"/>
             <dmn:context id="_63E3027C-A3F8-4E92-BC11-BC749F712B1F">
               <dmn:contextEntry>
-                <dmn:variable id="_0FFBA815-724D-4A1D-B0C5-0130536B8CBC" name="personId" typeRef="string"/>
+                <dmn:variable id="_B830C929-2141-47EB-ABD0-AFB19651DA84" name="personId" typeRef="string"/>
                 <dmn:literalExpression id="_69711CBE-3EF3-4E55-A76C-98BDBFB0336B">
                   <dmn:text>situation.primaryPersonId</dmn:text>
                 </dmn:literalExpression>
               </dmn:contextEntry>
               <dmn:contextEntry>
-                <dmn:variable id="_94940DD0-2617-467C-9CD0-1605729E9C41" name="benefit" typeRef="string"/>
+                <dmn:variable id="_2C024E8A-58CF-4C7A-889F-FCBE6F4CBA2D" name="benefit" typeRef="string"/>
                 <dmn:literalExpression id="_8BFE79E2-52B9-45D0-B328-D6914079DBD5">
                   <dmn:text>"PhlHomesteadExemption"</dmn:text>
                 </dmn:literalExpression>
@@ -102,7 +102,7 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_065CDEEB-6E4A-4437-AF05-F809A34055AF" name="OwnerOccupant" typeRef="boolean"/>
+        <dmn:variable id="_4B90B7D6-9E92-4712-B592-6A919939322D" name="OwnerOccupant" typeRef="boolean"/>
         <dmn:invocation id="_085D4683-3951-40F5-B01C-0770FCE4348D">
           <dmn:literalExpression id="_8D048B37-1A8A-4110-AD7E-D6711EF7DA9D">
             <dmn:text>OwnerOccupant.OwnerOccupantService</dmn:text>
@@ -112,10 +112,6 @@
             <dmn:literalExpression id="_109F3073-F192-4DD2-BE58-5DFD37E8F475">
               <dmn:text>situation</dmn:text>
             </dmn:literalExpression>
-          </dmn:binding>
-          <dmn:binding>
-            <dmn:parameter id="_0FC17325-65FD-4FB2-80EC-49A6386C4A4F" name="parameters" typeRef="OwnerOccupant.tParameters"/>
-            <dmn:context id="_9C18DB48-93E9-4EF9-9221-702310CED586"/>
           </dmn:binding>
         </dmn:invocation>
       </dmn:contextEntry>

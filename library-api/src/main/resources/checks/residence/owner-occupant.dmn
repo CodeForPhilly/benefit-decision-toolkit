@@ -4,7 +4,6 @@
   <dmn:extensionElements/>
   <dmn:import id="_0C655E91-D712-4D18-93FF-537C4760EA9A" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../BDT.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
   <dmn:import id="_B19919EC-E9D1-4E30-A552-713783BED7A8" name="Residence" namespace="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1" locationURI="Residence.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
-  <dmn:itemDefinition id="_68386E9C-AFB8-4845-9F2A-5A32AA95FC99" name="tParameters" isCollection="false"/>
   <dmn:itemDefinition id="_20BFF2BC-954E-4549-B25D-505AD26C7469" name="tSimpleChecks" isCollection="false">
     <dmn:itemComponent id="_05889468-AB3F-495F-ABDC-513D6654BC24" name="ownerOccupant" isCollection="false">
       <dmn:typeRef>boolean</dmn:typeRef>
@@ -20,16 +19,12 @@
     <dmn:variable id="_1DED25FE-F1DA-4E84-936E-7B976F87C741" name="OwnerOccupantService" typeRef="BDT.tCheckResponse"/>
     <dmn:outputDecision href="#_F3AEC1E2-F89B-4B36-A761-3D7F22B6F6BD"/>
     <dmn:inputData href="#_2790A63A-B2CF-4C54-A985-FC50AB8E0BA4"/>
-    <dmn:inputData href="#_632DDDCE-F170-49C2-8C1F-D673F25209EC"/>
   </dmn:decisionService>
   <dmn:decision id="_F3AEC1E2-F89B-4B36-A761-3D7F22B6F6BD" name="checkResult">
     <dmn:extensionElements/>
     <dmn:variable id="_5F299162-17F9-4490-894F-47957EFA5B36" name="checkResult" typeRef="boolean"/>
     <dmn:informationRequirement id="_8063E944-343C-43A7-81E9-128E2BCE2A71">
       <dmn:requiredInput href="#_2790A63A-B2CF-4C54-A985-FC50AB8E0BA4"/>
-    </dmn:informationRequirement>
-    <dmn:informationRequirement id="_014E8907-C597-46E9-A305-B0A30DF0BDF7">
-      <dmn:requiredInput href="#_632DDDCE-F170-49C2-8C1F-D673F25209EC"/>
     </dmn:informationRequirement>
     <dmn:literalExpression id="_A522A373-A288-432D-8440-0B26E350AA3E">
       <dmn:text>if situation.simpleChecks != null and situation.simpleChecks.ownerOccupant != null then
@@ -41,10 +36,6 @@ else
   <dmn:inputData id="_2790A63A-B2CF-4C54-A985-FC50AB8E0BA4" name="situation">
     <dmn:extensionElements/>
     <dmn:variable id="_33352692-AD3C-4F38-BC19-A9F48DA7982C" name="situation" typeRef="tSituation"/>
-  </dmn:inputData>
-  <dmn:inputData id="_632DDDCE-F170-49C2-8C1F-D673F25209EC" name="parameters">
-    <dmn:extensionElements/>
-    <dmn:variable id="_890BA490-66CD-4C1E-8000-974CFC056E18" name="parameters" typeRef="tParameters"/>
   </dmn:inputData>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_8242937D-A8D6-4739-891A-80679C6737BF" name="DRG">
@@ -79,32 +70,19 @@ else
         <dc:Bounds x="266" y="147" width="88" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
-      <!-- Input data nodes: below the decision service box -->
+      <!-- situation input: below the service box, centered -->
       <dmndi:DMNShape id="dmnshape-drg-_2790A63A-B2CF-4C54-A985-FC50AB8E0BA4" dmnElementRef="_2790A63A-B2CF-4C54-A985-FC50AB8E0BA4" isCollapsed="false">
         <dmndi:DMNStyle>
           <dmndi:FillColor red="255" green="255" blue="255"/>
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="200" y="336" width="100" height="50"/>
+        <dc:Bounds x="260" y="336" width="100" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
-      <dmndi:DMNShape id="dmnshape-drg-_632DDDCE-F170-49C2-8C1F-D673F25209EC" dmnElementRef="_632DDDCE-F170-49C2-8C1F-D673F25209EC" isCollapsed="false">
-        <dmndi:DMNStyle>
-          <dmndi:FillColor red="255" green="255" blue="255"/>
-          <dmndi:StrokeColor red="0" green="0" blue="0"/>
-          <dmndi:FontColor red="0" green="0" blue="0"/>
-        </dmndi:DMNStyle>
-        <dc:Bounds x="320" y="336" width="100" height="50"/>
-        <dmndi:DMNLabel/>
-      </dmndi:DMNShape>
-      <!-- Edges: from input center to bottom-center of checkResult -->
+      <!-- Edge: from situation center to bottom-center of checkResult -->
       <dmndi:DMNEdge id="dmnedge-drg-_8063E944-343C-43A7-81E9-128E2BCE2A71-AUTO-TARGET" dmnElementRef="_8063E944-343C-43A7-81E9-128E2BCE2A71">
-        <di:waypoint x="250" y="361"/>
-        <di:waypoint x="310" y="197"/>
-      </dmndi:DMNEdge>
-      <dmndi:DMNEdge id="dmnedge-drg-_014E8907-C597-46E9-A305-B0A30DF0BDF7-AUTO-TARGET" dmnElementRef="_014E8907-C597-46E9-A305-B0A30DF0BDF7">
-        <di:waypoint x="370" y="361"/>
+        <di:waypoint x="310" y="361"/>
         <di:waypoint x="310" y="197"/>
       </dmndi:DMNEdge>
     </dmndi:DMNDiagram>
