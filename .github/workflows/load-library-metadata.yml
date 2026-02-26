@@ -2,10 +2,20 @@ name: Load Library API Metadata
 
 on:
   workflow_dispatch:
+  workflow_call:
+
+env:
+  PROJECT_ID: benefit-decision-toolkit-play
+  REGION: us-central1
+  SERVICE: benefit-decision-toolkit-play
+  WORKLOAD_IDENTITY_PROVIDER: projects/1034049717668/locations/global/workloadIdentityPools/github-actions-google-cloud/providers/github
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Checkout repo
@@ -30,3 +40,19 @@ jobs:
 
       - name: Cleanup credentials
         run: rm bin/library/gcp-key.json
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: cicd-build-deploy-api@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Restart builder-api with updated library metadata
+        run: |
+          gcloud run deploy builder-api \
+            --image us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/builder-api:latest \
+            --region ${{ env.REGION }}
