@@ -174,13 +174,6 @@ public class ScreenerResource {
       return Response.status(400).entity(violations.toString()).build();
     }
 
-    // // Make sure request.schema is not null
-    // if (request.schema() == null || request.schema().isNull()) {
-    //   return Response.status(Response.Status.BAD_REQUEST)
-    //       .entity(ApiError.of("schema cannot be null."))
-    //       .build();
-    // }
-
     String userId = AuthUtils.getUserId(identity);
 
     // Fetch Screener record and confirm user is authorized
