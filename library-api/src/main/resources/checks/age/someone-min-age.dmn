@@ -66,7 +66,7 @@
       <dmn:contextEntry>
         <dmn:variable id="_146B39B9-D9C7-4B49-B3DC-FEBF2EAB3F73" name="result" typeRef="boolean"/>
         <dmn:literalExpression id="_07F575A5-F4AD-42CF-B384-5CC97169FC27">
-          <dmn:text>count(ages[item &gt;= parameters.minAge]) &gt; 0</dmn:text>
+          <dmn:text>if DOBs = null or count(DOBs) = 0 then null else count(ages[item &gt;= parameters.minAge]) &gt; 0</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>

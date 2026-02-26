@@ -1,11 +1,11 @@
 meta {
-  name: NOT Enrolled in Bogus Benefit
+  name: Enrollments empty
   type: http
-  seq: 1
+  seq: 2
 }
 
 post {
-  url: {{host}}/checks/enrollment/person-not-enrolled-in-benefit
+  url: {{host}}/checks/enrollment/person-enrolled-in-benefit
   body: json
   auth: inherit
 }
@@ -19,10 +19,6 @@ body:json {
         }
       ],
       "enrollments": [
-        {
-          "personId": "p2",
-          "benefit": "bogus"
-        }
       ]
     },
     "parameters": {
@@ -33,7 +29,7 @@ body:json {
 }
 
 assert {
-  res.body.checkResult: eq true
+  res.body.checkResult: eq null
 }
 
 settings {

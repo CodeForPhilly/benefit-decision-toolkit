@@ -1,0 +1,38 @@
+meta {
+  name: Person with Null DOB
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/checks/age/person-min-age
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "people": [
+        {
+          "id": "p1",
+          "dateOfBirth": null
+        }
+      ]
+    },
+    "parameters": {
+      "personId": "p1",
+      "asOfDate": "2024-01-01",
+      "minAge": 4
+    }
+  }
+}
+
+assert {
+  res.body.checkResult: eq null
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

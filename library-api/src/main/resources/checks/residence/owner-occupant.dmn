@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/" xmlns="https://kie.apache.org/dmn/_47ECD886-CEBE-47BC-BD4F-06113DCDE5D8" xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/" xmlns:kie="http://www.drools.org/kie/dmn/1.2" xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1" id="_6A02E6E3-050B-4C19-ABC0-EC947BF633EC" name="OwnerOccupant" typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/" namespace="https://kie.apache.org/dmn/_47ECD886-CEBE-47BC-BD4F-06113DCDE5D8">
+  <dmn:description>Checks that a person owns and occupies their primary residence.</dmn:description>
+  <dmn:extensionElements/>
+  <dmn:import id="_0C655E91-D712-4D18-93FF-537C4760EA9A" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../BDT.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+  <dmn:import id="_B19919EC-E9D1-4E30-A552-713783BED7A8" name="Residence" namespace="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1" locationURI="Residence.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+  <dmn:itemDefinition id="_20BFF2BC-954E-4549-B25D-505AD26C7469" name="tSimpleChecks" isCollection="false">
+    <dmn:itemComponent id="_05889468-AB3F-495F-ABDC-513D6654BC24" name="ownerOccupant" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_19053650-33D0-4ABD-B3FB-46EF15CF8F99" name="tSituation" isCollection="false">
+    <dmn:itemComponent id="_F34C7A26-5DAD-4EAF-BDD6-C5BCC66061B0" name="simpleChecks" isCollection="false">
+      <dmn:typeRef>tSimpleChecks</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:decisionService id="_B514A3B6-6E48-4558-B6AA-CCB4084EA48F" name="OwnerOccupantService">
+    <dmn:extensionElements/>
+    <dmn:variable id="_1DED25FE-F1DA-4E84-936E-7B976F87C741" name="OwnerOccupantService" typeRef="BDT.tCheckResponse"/>
+    <dmn:outputDecision href="#_F3AEC1E2-F89B-4B36-A761-3D7F22B6F6BD"/>
+    <dmn:inputData href="#_2790A63A-B2CF-4C54-A985-FC50AB8E0BA4"/>
+  </dmn:decisionService>
+  <dmn:decision id="_F3AEC1E2-F89B-4B36-A761-3D7F22B6F6BD" name="checkResult">
+    <dmn:extensionElements/>
+    <dmn:variable id="_5F299162-17F9-4490-894F-47957EFA5B36" name="checkResult" typeRef="boolean"/>
+    <dmn:informationRequirement id="_8063E944-343C-43A7-81E9-128E2BCE2A71">
+      <dmn:requiredInput href="#_2790A63A-B2CF-4C54-A985-FC50AB8E0BA4"/>
+    </dmn:informationRequirement>
+    <dmn:literalExpression id="_A522A373-A288-432D-8440-0B26E350AA3E">
+      <dmn:text>if situation.simpleChecks != null and situation.simpleChecks.ownerOccupant != null then
+  situation.simpleChecks.ownerOccupant = true
+else
+  null</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmn:inputData id="_2790A63A-B2CF-4C54-A985-FC50AB8E0BA4" name="situation">
+    <dmn:extensionElements/>
+    <dmn:variable id="_33352692-AD3C-4F38-BC19-A9F48DA7982C" name="situation" typeRef="tSituation"/>
+  </dmn:inputData>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_8242937D-A8D6-4739-891A-80679C6737BF" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_A522A373-A288-432D-8440-0B26E350AA3E">
+            <kie:width>917</kie:width>
+          </kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <!-- Decision service: centered, upper section holds checkResult output decision -->
+      <dmndi:DMNShape id="dmnshape-drg-_B514A3B6-6E48-4558-B6AA-CCB4084EA48F" dmnElementRef="_B514A3B6-6E48-4558-B6AA-CCB4084EA48F" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="200" y="106" width="220" height="199"/>
+        <dmndi:DMNLabel/>
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="200" y="206"/>
+          <di:waypoint x="420" y="206"/>
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <!-- checkResult decision: centered in upper half of service box -->
+      <dmndi:DMNShape id="dmnshape-drg-_F3AEC1E2-F89B-4B36-A761-3D7F22B6F6BD" dmnElementRef="_F3AEC1E2-F89B-4B36-A761-3D7F22B6F6BD" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="266" y="147" width="88" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <!-- situation input: below the service box, centered -->
+      <dmndi:DMNShape id="dmnshape-drg-_2790A63A-B2CF-4C54-A985-FC50AB8E0BA4" dmnElementRef="_2790A63A-B2CF-4C54-A985-FC50AB8E0BA4" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="260" y="336" width="100" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <!-- Edge: from situation center to bottom-center of checkResult -->
+      <dmndi:DMNEdge id="dmnedge-drg-_8063E944-343C-43A7-81E9-128E2BCE2A71-AUTO-TARGET" dmnElementRef="_8063E944-343C-43A7-81E9-128E2BCE2A71">
+        <di:waypoint x="310" y="361"/>
+        <di:waypoint x="310" y="197"/>
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>

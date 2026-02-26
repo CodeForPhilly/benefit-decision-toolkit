@@ -1,0 +1,26 @@
+meta {
+  name: Fail
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/checks/residence/owner-occupant
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "simpleChecks": {
+        "ownerOccupant": false
+      }
+    }
+  }
+}
+
+assert {
+  res.body.checkResult: eq false
+  res.status: eq 200
+}

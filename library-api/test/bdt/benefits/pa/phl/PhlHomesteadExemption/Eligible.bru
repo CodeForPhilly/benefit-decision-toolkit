@@ -1,7 +1,7 @@
 meta {
-  name: Smoke Test
+  name: Eligible
   type: http
-  seq: 1
+  seq: 2
 }
 
 post {
@@ -21,14 +21,16 @@ body:json {
         }
       ],
       "simpleChecks": {
-        "tenYearTaxAbatement": false
+        "tenYearTaxAbatement": false,
+        "ownerOccupant": true,
+        "livesInPhiladelphiaPa": true
       }
     }
   }
 }
 
 assert {
-  res.body.isEligible: eq null
+  res.body.isEligible: eq true
 }
 
 settings {

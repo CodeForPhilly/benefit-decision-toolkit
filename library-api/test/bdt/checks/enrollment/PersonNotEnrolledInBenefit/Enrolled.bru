@@ -1,7 +1,7 @@
 meta {
-  name: NOT Enrolled in Bogus Benefit
+  name: Enrolled
   type: http
-  seq: 1
+  seq: 4
 }
 
 post {
@@ -20,7 +20,7 @@ body:json {
       ],
       "enrollments": [
         {
-          "personId": "p2",
+          "personId": "p1",
           "benefit": "bogus"
         }
       ]
@@ -33,7 +33,7 @@ body:json {
 }
 
 assert {
-  res.body.checkResult: eq true
+  res.body.checkResult: eq false
 }
 
 settings {

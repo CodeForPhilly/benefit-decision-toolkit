@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmn:definitions
+    xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/"
+    xmlns="https://kie.apache.org/dmn/_3A7F1C2D-8E4B-4A91-B5C3-2D6F8A1E4C79"
+    xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/"
+    xmlns:kie="http://www.drools.org/kie/dmn/1.2"
+    xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/"
+    xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
+    xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+    xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79"
+    xmlns:included2="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1"
+    id="_1B4C8E3F-7A2D-4B6E-9A1C-5E2D7F3A9B8C"
+    name="TenYearTaxAbatement"
+    typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/"
+    namespace="https://kie.apache.org/dmn/_3A7F1C2D-8E4B-4A91-B5C3-2D6F8A1E4C79">
+  <dmn:description>Checks that a property has an active 10-year tax abatement.</dmn:description>
+  <dmn:extensionElements/>
+  <dmn:import id="_7C2D5F1A-3B8E-4C4D-8B2E-1F5A9C3D7E4B" name="BDT"
+      namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79"
+      locationURI="../BDT.dmn"
+      importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+  <dmn:import id="_4D8F3A2B-9C1E-4D5E-A3F1-6A2E8D4B1C7F" name="Residence"
+      namespace="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1"
+      locationURI="Residence.dmn"
+      importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+  <dmn:itemDefinition id="_9E1A4C7F-2D3B-4E6F-B4A2-7B3F1E9C2D8A" name="tSimpleChecks" isCollection="false">
+    <dmn:itemComponent id="_2F5B8D3A-7E4C-4F7A-C5B3-8C4A2F6E1D9B" name="tenYearTaxAbatement" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_5A2C6E1D-8F3B-4A8B-D6C4-9D5B3A7F2E1C" name="tSituation" isCollection="false">
+    <dmn:itemComponent id="_8B3D7F2E-1A4C-4B9C-E7D5-1E6C4B8A3F2D" name="simpleChecks" isCollection="false">
+      <dmn:typeRef>tSimpleChecks</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:decisionService id="_3C6E1A4B-4B5D-4CAD-F8E6-2F7D5C9E4A3E" name="TenYearTaxAbatementService">
+    <dmn:extensionElements/>
+    <dmn:variable id="_6D9F4B7C-7C6E-4DBE-A9F7-3A8E6D1B5C4F" name="TenYearTaxAbatementService" typeRef="BDT.tCheckResponse"/>
+    <dmn:outputDecision href="#_1E2A5C8D-9D7F-4ECF-BAAB-4B9F7E2C6D5A"/>
+    <dmn:inputData href="#_BE6EA3B4-4BD4-4C4A-FEEF-8FD4DB6AAB9E"/>
+  </dmn:decisionService>
+  <dmn:decision id="_1E2A5C8D-9D7F-4ECF-BAAB-4B9F7E2C6D5A" name="checkResult">
+    <dmn:extensionElements/>
+    <dmn:variable id="_4F3B6D9E-1EA1-4FD1-CBBC-5CA1AF3D7E6B" name="checkResult" typeRef="boolean"/>
+    <dmn:informationRequirement id="_7A4C8E1F-2FB2-4A2E-DCCD-6DB2BF4E8F7C">
+      <dmn:requiredInput href="#_BE6EA3B4-4BD4-4C4A-FEEF-8FD4DB6AAB9E"/>
+    </dmn:informationRequirement>
+    <dmn:literalExpression id="_AF5D9F2A-3AC3-4B3F-EDDE-7EC3CA5F9A8D">
+      <dmn:text>if situation.simpleChecks != null and situation.simpleChecks.tenYearTaxAbatement != null then
+  situation.simpleChecks.tenYearTaxAbatement = true
+else
+  null</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmn:inputData id="_BE6EA3B4-4BD4-4C4A-FEEF-8FD4DB6AAB9E" name="situation">
+    <dmn:extensionElements/>
+    <dmn:variable id="_CF7FB4C5-5CE5-4D5B-AF1A-9AE5EC7BBC1F" name="situation" typeRef="tSituation"/>
+  </dmn:inputData>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_D181C5D6-6DF6-4E6C-BA2B-ABF6FD8CCD2A" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_AF5D9F2A-3AC3-4B3F-EDDE-7EC3CA5F9A8D">
+            <kie:width>917</kie:width>
+          </kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <!-- Decision service: centered around x=310, width=360 to fit "TenYearTaxAbatementService" label -->
+      <dmndi:DMNShape id="dmnshape-drg-_3C6E1A4B-4B5D-4CAD-F8E6-2F7D5C9E4A3E" dmnElementRef="_3C6E1A4B-4B5D-4CAD-F8E6-2F7D5C9E4A3E" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="130" y="106" width="360" height="199"/>
+        <dmndi:DMNLabel/>
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="130" y="206"/>
+          <di:waypoint x="490" y="206"/>
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <!-- checkResult decision: centered horizontally in service box -->
+      <dmndi:DMNShape id="dmnshape-drg-_1E2A5C8D-9D7F-4ECF-BAAB-4B9F7E2C6D5A" dmnElementRef="_1E2A5C8D-9D7F-4ECF-BAAB-4B9F7E2C6D5A" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="266" y="147" width="88" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <!-- situation input: centered below service box (no parameters) -->
+      <dmndi:DMNShape id="dmnshape-drg-_BE6EA3B4-4BD4-4C4A-FEEF-8FD4DB6AAB9E" dmnElementRef="_BE6EA3B4-4BD4-4C4A-FEEF-8FD4DB6AAB9E" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="260" y="336" width="100" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <!-- Edge: from center of situation to bottom-center of checkResult -->
+      <dmndi:DMNEdge id="dmnedge-drg-_7A4C8E1F-2FB2-4A2E-DCCD-6DB2BF4E8F7C-AUTO-TARGET" dmnElementRef="_7A4C8E1F-2FB2-4A2E-DCCD-6DB2BF4E8F7C">
+        <di:waypoint x="310" y="361"/>
+        <di:waypoint x="310" y="197"/>
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>
