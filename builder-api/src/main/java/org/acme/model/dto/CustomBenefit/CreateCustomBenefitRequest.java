@@ -1,6 +1,8 @@
 package org.acme.model.dto.CustomBenefit;
 
-public class CreateCustomBenefitRequest {
-    public String name;
-    public String description;
-}
+import jakarta.validation.constraints.NotBlank;
+
+public record CreateCustomBenefitRequest(
+    @NotBlank(message = "Custom Benefit name must be provided.") String name,
+    String description
+) {}

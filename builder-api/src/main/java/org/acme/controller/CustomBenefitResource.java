@@ -3,6 +3,7 @@ package org.acme.controller;
 import io.quarkus.logging.Log;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -74,29 +75,22 @@ public class CustomBenefitResource {
     public Response createCustomBenefit(
         @Context SecurityIdentity identity,
         @PathParam("screenerId") String screenerId,
-        CreateCustomBenefitRequest request
+        @Valid CreateCustomBenefitRequest request
     ) {
         String userId = AuthUtils.getUserId(identity);
-
-        // Validate request
-        if (request.name == null || request.name.isBlank()) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(Map.of("error", "Name is required"))
-                    .build();
-        }
 
         // Create new Benefit with server-generated ID
         String newBenefitId = UUID.randomUUID().toString();
         Benefit newBenefit = new Benefit(
             newBenefitId,
-            request.name,
-            request.description,
+            request.name(),
+            request.description(),
             userId,
             Collections.emptyList()
         );
 
         // Create corresponding BenefitDetail
-        BenefitDetail benefitDetail = new BenefitDetail(newBenefitId, request.name, request.description);
+        BenefitDetail benefitDetail = new BenefitDetail(newBenefitId, request.name(), request.description());
 
         try {
             // Check to make sure screener exists
@@ -159,7 +153,7 @@ public class CustomBenefitResource {
         @Context SecurityIdentity identity,
         @PathParam("screenerId") String screenerId,
         @PathParam("benefitId") String benefitId,
-        UpdateCustomBenefitRequest request
+        @Valid UpdateCustomBenefitRequest request
     ) {
         String userId = AuthUtils.getUserId(identity);
 
@@ -271,16 +265,9 @@ public class CustomBenefitResource {
         @Context SecurityIdentity identity,
         @PathParam("screenerId") String screenerId,
         @PathParam("benefitId") String benefitId,
-        AddCheckRequest request
+        @Valid AddCheckRequest request
     ) {
         String userId = AuthUtils.getUserId(identity);
-
-        // Validate request
-        if (request.checkId == null || request.checkId.isBlank()) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(Map.of("error", "checkId is required"))
-                    .build();
-        }
 
         if (!isUserAuthorizedForScreener(userId, screenerId)) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -296,9 +283,11 @@ public class CustomBenefitResource {
             }
 
             // Find the EligibilityCheck - first try user's custom checks, then library checks
-            Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getPublishedCustomCheck(userId, request.checkId);
+            Optional<EligibilityCheck> checkOpt = (
+                eligibilityCheckRepository.getPublishedCustomCheck(userId, request.checkId())
+            );
             if (checkOpt.isEmpty()) {
-                checkOpt = libraryApiMetadataService.getById(request.checkId);
+                checkOpt = libraryApiMetadataService.getById(request.checkId());
             }
 
             if (checkOpt.isEmpty()) {
@@ -440,7 +429,7 @@ public class CustomBenefitResource {
             List<CheckConfig> checkListAfterUpdate = new ArrayList<>();
             for (CheckConfig check : checks) {
                 if (check.getCheckId().equals(checkId)) {
-                    check.setParameters(request.parameters != null ? request.parameters : new HashMap<>());
+                    check.setParameters(request.parameters() != null ? request.parameters() : new HashMap<>());
                     checkUpdated = true;
                 }
                 checkListAfterUpdate.add(check);
