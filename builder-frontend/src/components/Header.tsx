@@ -40,6 +40,7 @@ export default function Header() {
         <Show when={isNotRoot}>
           <HeaderButton buttonText="← Back to Home" onClick={() => navigate("/")} />
         </Show>
+        <HeaderButton buttonText="User Guide" onClick={() => window.open("https://bdt-docs.web.app/", "_blank")}/>
         <HeaderButton buttonText="Logout" onClick={handleLogout} />
       </div>
     </header>
