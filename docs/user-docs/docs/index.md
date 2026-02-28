@@ -2,7 +2,7 @@
 
 ## 1. What Is the Benefit Decision Toolkit?
 
-The **Benefit Decision Toolkit (BDT)** is a low-code platform for building and publishing custom benefit eligibility screeners to the web.
+**Benefit Decision Toolkit (BDT)** is a low-code platform for building and publishing custom benefit eligibility screeners to the web.
 
 Using BDT, organizations can quickly create screeners that help individuals determine whether they may qualify for specific benefits. The platform is designed to be simple, flexible, and accessible, enabling teams to:
 
@@ -33,6 +33,8 @@ The user interface is the form that end users interact with. It:
 - Guides users through the screening questions
 - Displays eligibility results
 
+![An eligibility form for assistance programs. The form asks if the user lives in Philly, their birthday, if they own their house, and which benefits they are enrolled in. The results show that the user is eligible for Food Assistance because they live in Philadelphia, are over 18, and are enrolled in Food Assistance. However, they are ineligible for Heating Assistance because although they are enrolled in Food Assistance and over 18, they do not own their house.](images/example-screener.png)
+
 ### Eligibility Logic (Backend)
 
 The eligibility logic defines how user inputs are evaluated. It:
@@ -42,8 +44,6 @@ The eligibility logic defines how user inputs are evaluated. It:
 - Determines the final eligibility outcome
 
 Together, these components allow organizations to convert benefit requirements into a structured, automated decision experience.
-
-> TODO: Insert example screenshot of a screener
 
 ## Next Steps
 
