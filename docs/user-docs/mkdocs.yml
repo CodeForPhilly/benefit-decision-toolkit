@@ -4,6 +4,6 @@ theme:
   name: material
 
 nav:
-  - Instroduction: index.md
+  - Introduction: index.md
   - User Guide: user-guide.md
   - Custom Checks: custom-checks.md
