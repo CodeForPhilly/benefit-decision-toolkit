@@ -617,10 +617,10 @@ public class InputSchemaServiceTest {
             """;
         JsonNode schema = objectMapper.readTree(schemaJson);
 
-        List<String> paths = service.extractJsonSchemaPaths(schema);
+        List<FormPath> paths = service.extractJsonSchemaPaths(schema);
 
-        assertTrue(paths.contains("people.applicant.dateOfBirth"));
-        assertTrue(paths.contains("people.spouse.dateOfBirth"));
+        assertTrue(paths.contains(new FormPath("people.applicant.dateOfBirth", "string")));
+        assertTrue(paths.contains(new FormPath("people.spouse.dateOfBirth", "string")));
         assertEquals(2, paths.size());
     }
 }
