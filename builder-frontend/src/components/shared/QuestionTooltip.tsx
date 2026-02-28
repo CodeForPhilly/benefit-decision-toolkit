@@ -1,4 +1,4 @@
-import { createSignal, JSX } from "solid-js";
+import { createSignal, JSX, Show } from "solid-js";
 import QuestionMarkIcon from "../icon/QuestionMarkIcon";
 
 interface TooltipProps {
@@ -9,18 +9,18 @@ interface TooltipProps {
 export default function QuestionTooltip(props: TooltipProps) {
   const [isVisible, setIsVisible] = createSignal(false);
   const [position, setPosition] = createSignal<{ x: number, align: 'center' | 'left' | 'right' }>({ x: 0, align: 'center' });
-  
+
   let containerRef: HTMLDivElement | undefined;
 
   const handleMouseEnter = () => {
     if (containerRef) {
       const rect = containerRef.getBoundingClientRect();
       const tooltipWidth = 256; // w-64 is 16rem = 256px
-      
+
       // Calculate potential left and right bounds if centered
       const centerLeft = rect.left + (rect.width / 2) - (tooltipWidth / 2);
       const centerRight = centerLeft + tooltipWidth;
-      
+
       const viewportWidth = window.innerWidth;
       const padding = 16; // 16px safety padding from screen edges
 
@@ -51,14 +51,12 @@ export default function QuestionTooltip(props: TooltipProps) {
       tabIndex={0}
       aria-label="More information"
     >
-      {props.children ? (
-        props.children
-      ) : (
-        <QuestionMarkIcon class="size-5 text-gray-500 hover:text-gray-700 transition-colors" />
-      )}
+      <Show when={props.children} fallback={<QuestionMarkIcon class="size-5 text-gray-500 hover:text-gray-700 transition-colors" />}>
+        {props.children}
+      </Show>
 
-      {isVisible() && (
-        <div 
+      <Show when={isVisible()}>
+        <div
           class={`absolute z-50 w-64 p-3 mt-2 text-sm text-gray-800 bg-white border border-gray-200 rounded-lg shadow-lg top-full pointer-events-none fade-in ${
             position().align === 'center' ? 'left-1/2 -translate-x-1/2' :
             position().align === 'left' ? 'left-0' :
@@ -67,15 +65,15 @@ export default function QuestionTooltip(props: TooltipProps) {
         >
           {props.text}
           {/* Decorative arrow pointing up */}
-          <div 
+          <div
             class={`absolute w-3 h-3 bg-white border-t border-l border-gray-200 rotate-45 -top-[7px] ${
               position().align === 'center' ? 'left-1/2 -translate-x-1/2' :
               position().align === 'left' ? 'left-3' :
               'right-3'
-            }`} 
+            }`}
           />
         </div>
-      )}
+      </Show>
     </div>
   );
 }
