@@ -13,7 +13,7 @@ public class JsonServerExceptionMappers {
 
   @ServerExceptionMapper
   public Response map(MismatchedInputException e) {
-    Log.error(e);
+    Log.warn(e);
     // e.g. screenerName is object but DTO expects String
     String field =
         e.getPath() != null && !e.getPath().isEmpty()
@@ -28,7 +28,7 @@ public class JsonServerExceptionMappers {
 
   @ServerExceptionMapper
   public Response map(JsonParseException e) {
-    Log.error(e);
+    Log.warn(e);
     // malformed JSON like { "schema": }
     return Response.status(Response.Status.BAD_REQUEST)
         .type(MediaType.APPLICATION_JSON)
@@ -38,7 +38,7 @@ public class JsonServerExceptionMappers {
 
   @ServerExceptionMapper
   public Response map(WebApplicationException e) {
-    Log.error(e);
+    Log.warn(e);
     return Response.status(Response.Status.BAD_REQUEST)
         .type(MediaType.APPLICATION_JSON)
         .entity(ApiError.of("Malformed JSON."))
@@ -47,7 +47,7 @@ public class JsonServerExceptionMappers {
 
   @ServerExceptionMapper
   public Response map(JsonMappingException e) {
-    Log.error(e);
+    Log.warn(e);
     // other mapping errors
     return Response.status(Response.Status.BAD_REQUEST)
         .type(MediaType.APPLICATION_JSON)
