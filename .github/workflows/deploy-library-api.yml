@@ -129,3 +129,8 @@ jobs:
           echo "Service URL: ${{ steps.deploy.outputs.url }}"
           echo "Version: v${{ steps.extract_version.outputs.version }}"
           echo "Revision: ${{ env.API_NAME }}-v${{ steps.extract_version.outputs.revision_version }}"
+
+  sync-metadata:
+    needs: deploy
+    uses: ./.github/workflows/load-library-metadata.yml
+    secrets: inherit
