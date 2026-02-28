@@ -3,7 +3,6 @@ import QuestionMarkIcon from "../icon/QuestionMarkIcon";
 
 interface TooltipProps {
   text: string;
-  iconClass?: string;
   children?: JSX.Element;
 }
 
@@ -55,7 +54,7 @@ export default function QuestionTooltip(props: TooltipProps) {
       {props.children ? (
         props.children
       ) : (
-        <QuestionMarkIcon class={`size-5 text-gray-500 hover:text-gray-700 transition-colors ${props.iconClass || ""}`} />
+        <QuestionMarkIcon class="size-5 text-gray-500 hover:text-gray-700 transition-colors" />
       )}
 
       {isVisible() && (
