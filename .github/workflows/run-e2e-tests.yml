@@ -1,17 +1,23 @@
 name: Run E2E Tests
 on:
   push:
-    branches: [ main ]
+    branches: [main]
+    paths:
+      - "builder-frontend/**"
+      - "builder-api/**"
   pull_request:
-    branches: [ main ]
+    branches: [main]
+    paths:
+      - "builder-frontend/**"
+      - "builder-api/**"
 
 env:
-  PROJECT_ID: 'benefit-decision-toolkit-play'
-  WORKLOAD_IDENTITY_PROVIDER: 'projects/1034049717668/locations/global/workloadIdentityPools/github-actions-google-cloud/providers/github'
+  PROJECT_ID: "benefit-decision-toolkit-play"
+  WORKLOAD_IDENTITY_PROVIDER: "projects/1034049717668/locations/global/workloadIdentityPools/github-actions-google-cloud/providers/github"
 
 jobs:
   run-e2e-tests:
-    runs-on: 'ubuntu-latest'
+    runs-on: "ubuntu-latest"
 
     # Add these permissions for Workload Identity Federation
     permissions:
@@ -28,7 +34,7 @@ jobs:
           node-version: lts/*
 
       # 1) Devbox Setup #
-      - name: 'Create .env file'  # Devbox needs a .env file to exist, even if it's empty
+      - name: "Create .env file" # Devbox needs a .env file to exist, even if it's empty
         run: touch .env
 
       - name: Rename env files
@@ -36,26 +42,26 @@ jobs:
           mv builder-frontend/.env.example builder-frontend/.env
           mv builder-api/.env.example builder-api/.env
 
-      - name: 'Install devbox'  # Setup devbox which includes Node.js, Firebase CLI, and Google Cloud SDK
-        uses: 'jetify-com/devbox-install-action@v0.12.0'
+      - name: "Install devbox" # Setup devbox which includes Node.js, Firebase CLI, and Google Cloud SDK
+        uses: "jetify-com/devbox-install-action@v0.12.0"
         with:
           enable-cache: true
 
       # 2) Prepare app dependencies #
-      - name: 'Cache Maven dependencies'
+      - name: "Cache Maven dependencies"
         # Cache Maven dependencies to speed up builds
-        uses: 'actions/cache@v4'
+        uses: "actions/cache@v4"
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('builder-api/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-${{ hashFiles('builder-api/pom.xml') }}
 
-      - id: 'auth'  # Configure Workload Identity Federation and generate an access token
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v2'
+      - id: "auth" # Configure Workload Identity Federation and generate an access token
+        name: "Authenticate to Google Cloud"
+        uses: "google-github-actions/auth@v2"
         with:
-          workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
+          workload_identity_provider: "${{ env.WORKLOAD_IDENTITY_PROVIDER }}"
           service_account: cicd-build-deploy-api@benefit-decision-toolkit-play.iam.gserviceaccount.com
           project_id: ${{ env.PROJECT_ID }}
 
@@ -92,7 +98,7 @@ jobs:
       - name: Wait for App to be available
         uses: nev7n/wait_for_response@v1
         with:
-          url: 'http://localhost:5173/'
+          url: "http://localhost:5173/"
           responseCode: 200
           timeout: 90000
           interval: 1000
