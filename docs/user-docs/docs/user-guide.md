@@ -1,6 +1,6 @@
 # User Guide
 
-This section explains how to create, configure, test, and publish an eligibility screener using the Benefit Decision Toolkit (BDT).
+This guide walks through how to create, configure, test, and publish an eligibility screener using the Benefit Decision Toolkit (BDT).
 
 ---
 
@@ -10,11 +10,15 @@ After signing in, you will land on the **Screeners** view. This page displays al
 
 From here, you can:
 
-- View existing screeners
+- View all of your existing screeners
 - Open and edit a screener
 - Create a new screener project
 
-To begin building a new screener, select **Create New Screener** and provide a descriptive name. The name should clearly reflect the benefit or set of benefits being screened.
+**Creating a new screener**:
+
+Select **Create New Screener** and provide a name for your screener. The name should clearly reflect the benefit or set of benefits being screened (for example, "Philadelphia Senior Benefits" or "Housing Assistance Eligibility").
+
+After the screener is created, you are automatically taken to the **Screener Dashboard**.
 
 > TODO: Add image of Screeners view
 
@@ -22,23 +26,16 @@ To begin building a new screener, select **Create New Screener** and provide a d
 
 ## 2. The Screener Dashboard
 
-When you open a screener project, you are taken to the **Screener Dashboard**.
+When you open a screener project, you are taken to the **Screener Dashboard** — the central workspace for building and managing your screener.
 
-The Dashboard is the central workspace for your screener. From here, you can:
+At the top of the page, the navigation bar contains four tabs representing the main stages of screener development:
 
-- Define eligibility logic
-- Build and edit the frontend form
-- Test the screener
-- Publish the screener
+- **Manage Benefits** — define the eligibility logic for each benefit your screener evaluates
+- **Form Editor** — build the user-facing form that collects applicant information
+- **Preview** — test the screener end-to-end before publishing
+- **Publish** — deploy your screener to a public URL
 
-At the top of the page, the navigation bar contains four primary workflow tabs:
-
-- **Manage Benefits**
-- **Form Editor**
-- **Preview**
-- **Publish**
-
-These tabs represent the main stages of screener development.
+Work through these tabs in order when building a screener for the first time. The eligibility logic you define in **Manage Benefits** informs what inputs the **Form Editor** needs to collect, and both must be complete before **Preview** and **Publish** are meaningful.
 
 > TODO: Add image of Screener Dashboard
 
@@ -48,93 +45,160 @@ These tabs represent the main stages of screener development.
 
 The **Manage Benefits** tab is where you define the eligibility logic used by your screener.
 
-In the BDT platform, a **Benefit** is a configured set of eligibility rules that evaluates whether a user qualifies for a specific program.
+In BDT, a **Benefit** is a named configuration that evaluates whether a user qualifies for a specific program. When a user submits the screener form:
 
-When a user submits information through the screener form:
+1. BDT collects the user's inputs from the form.
+2. Each configured Benefit evaluates those inputs against its eligibility rules.
+3. Each Benefit returns an eligibility result.
+4. The results are displayed to the user on the form's results screen.
 
-1. The screener collects the user’s inputs.
-2. BDT passes those inputs to each configured Benefit.
-3. Each Benefit evaluates its eligibility rules.
-4. The Benefit returns an eligibility result.
-5. The result is displayed to the user on the front-end form.
-
-A single screener can evaluate eligibility for one or multiple benefits. Each benefit’s logic is configured independently within the **Manage Benefits** tab.
-
-This allows a single screener to assess users for multiple related programs while keeping the eligibility rules for each benefit separate and manageable.
+A single screener can evaluate eligibility for one or multiple benefits. Each benefit's logic is defined independently, which allows a screener to assess users for several related programs while keeping the eligibility rules for each benefit separate and manageable.
 
 ### 3.1 Manage Benefits Overview
 
-The **Manage Benefits** tab displays all benefits configured for your screener.
+The **Manage Benefits** tab displays all benefits configured for your screener as a list of cards.
 
-From this page, you can:
+From this view, you can:
 
-- **Create** a new benefit
-- **Edit** an existing benefit
-- **Delete** a benefit
+- **Create** a new benefit by selecting **Create New Benefit** and providing a name and description
+- **Edit** a benefit by selecting **Edit** on its card, which opens the **Configure Benefit** page
+- **Remove** a benefit by selecting **Remove** on its card
 
-Selecting a benefit opens the **Configure Benefit** page, where you define or modify its eligibility rules.
-
-> TODO: Add image of Configure Benefit page
+> TODO: Add image of Manage Benefits view
 
 ---
 
 ## 4. Configuring a Benefit
 
-The **Configure Benefit** page is where you define the rules that determine whether a user qualifies for a specific benefit.
+The **Configure Benefit** page is where you define the rules that determine whether a user qualifies for a specific benefit. You access it by selecting **Edit** on any benefit card.
 
 Each benefit contains one or more **Eligibility Checks**.
 
-> A user is considered **eligible for the benefit only if all eligibility checks evaluate to `True`.**
+> A user is considered **eligible for the benefit only if every eligibility check evaluates to `True`.**
 
----
-
-### What Is an Eligibility Check?
+### 4.1 What Is an Eligibility Check?
 
 An **Eligibility Check** is a reusable rule component that:
 
-- Accepts one or more user inputs (from your form)
+- Accepts one or more inputs (from the screener form or from configured parameters)
 - Evaluates a defined condition
 - Returns a boolean result (`True` or `False`)
 
-You configure each check by selecting a check type and setting its parameters.
+By adding multiple eligibility checks to a benefit, you define the complete set of criteria a user must meet to qualify.
 
-#### Example
+**Example**:
 
-Suppose a benefit requires that applicants:
+Suppose a benefit requires that applicants be at least 65 years old and live in the state of Pennsylvania. You could configure:
 
-- Be at least 65 years old
-- Live in the state of California
+- A **Minimum Age** check with a minimum age parameter of `65`
+- A **State of Residence** check with a state parameter of `Pennsylvania`
 
-You could configure:
+If **both** checks return `True`, the user is eligible for the benefit. If **either** check returns `False`, the user is not eligible.
 
-- A **Person Minimum Age** check with a minimum age of `65`
-- A **State of Residence** check set to `California`
+### 4.2 Adding Eligibility Checks
 
-If **both** checks return `True`, the user is eligible.  
-If **either** check returns `False`, the user is not eligible.
+The left side of the Configure Benefit page displays the list of available eligibility checks. Checks are organized into two categories:
 
-By combining multiple eligibility checks, you define the complete eligibility criteria for a benefit.
+- **Public Checks** — prebuilt checks available to all BDT users
+- **Your Checks** — custom checks that you have created and published
+
+Each row in the list shows the check name, a brief description, and its version. Select **Add** on any row to add that check to the benefit.
+
+Once added, the check appears as a card in the right panel under the benefit's configured checks.
+
+> TODO: Add image of Configure Benefit page showing the check list and selected checks panel
+
+### 4.3 Configuring Check Parameters
+
+Many eligibility checks have **parameters** — configurable values that control how the check evaluates eligibility. Parameters allow the same check logic to be reused across multiple benefits with different thresholds.
+
+**Example**: A **Household Income Limit** check might have a `maximumIncome` parameter. You set it to `20000` for one benefit and `35000` for another. The underlying rule is the same; only the threshold differs.
+
+To configure the parameters for an added check, click on its card in the right panel. A modal will open showing a form with all of that check's configurable parameters.
+
+Fill in the value for each parameter and select **Confirm** to save. Required parameters are marked with a red asterisk (`*`).
+
+> TODO: Add image of Configure Check modal
+
+### 4.4 Removing a Check
+
+To remove an eligibility check from a benefit, select the **X** button in the top-right corner of that check's card in the right panel.
 
 ---
 
-## 5. Adding and Managing Eligibility Checks
+## 5. Building the Form (Form Editor)
 
-On the Configure Benefit page, you will see a list of available eligibility checks.
+The **Form Editor** tab is where you build the user-facing form that collects the information needed to evaluate eligibility.
 
-Checks are organized into two categories:
+The editor provides a visual drag-and-drop canvas powered by Form-JS. You can add, arrange, and configure form fields without writing any code.
 
-- **Public Checks** – Prebuilt checks available to all BDT users
-- **Your Checks** – Custom checks that you have created
+**Saving your work**:
 
-To use a check:
+Select **Save** to persist your form. The save button turns yellow when there are unsaved changes, so you can tell at a glance whether your current edits have been saved.
 
-1. Select the check from the list
-2. Click **Add**
-3. Add values for each of its required configuration parameters
+> TODO: Add image of Form Editor
 
-Once added, the check appears in the benefit’s list of configured checks.
+### 5.1 Connecting Form Fields to Eligibility Checks
 
-> TODO: Add image of check list  
-> TODO: Add image of check parameter configuration
+For the screener to evaluate eligibility correctly, the form must collect all of the inputs that the configured eligibility checks require. Each form field has a **key** that identifies the data it collects — this key must match the input name expected by the corresponding eligibility check.
 
-For information about creating reusable custom checks, see [Custom Checks](custom-checks.md).
+The **Validate Form Outputs** drawer (accessible via a button at the bottom-right of the editor) helps you verify that your form covers all required inputs. It shows:
+
+- **Form Outputs** — a list of all fields currently defined in the form and the data they will collect
+- **Missing Inputs** — inputs required by your eligibility checks that the form does not yet provide (shown in red)
+- **Satisfied Inputs** — required inputs that are already covered by form fields (shown in green)
+
+Use this drawer to identify gaps between your form and your eligibility logic, and resolve any missing inputs before moving to the Preview step.
+
+> TODO: Add image of Validate Form Outputs drawer
+
+---
+
+## 6. Previewing Your Screener
+
+The **Preview** tab provides a live test environment where you can interact with your screener exactly as an end user would, and verify that the eligibility logic produces the correct results.
+
+The preview screen is divided into two sections:
+
+**Form section**:
+
+Displays your screener form as it will appear to end users. Fill in the fields and select **Submit** to run the eligibility evaluation.
+
+**Results section**:
+
+After submitting, the results section displays the outcome for each benefit:
+
+- **Eligible** (green) — all eligibility checks for the benefit returned `True`
+- **Ineligible** (red) — one or more eligibility checks returned `False`
+- **Need more information** (yellow) — one or more checks could not determine eligibility from the inputs provided
+
+Each benefit's result also shows a breakdown of how each individual eligibility check evaluated, including whether it passed, failed, or was unable to determine, and what parameter values were used. This detail is useful for debugging eligibility logic during development.
+
+> Use the Preview tab iteratively as you build your screener to confirm that each benefit evaluates correctly across a range of test inputs.
+
+> TODO: Add image of Preview tab with a sample result
+
+---
+
+## 7. Publishing Your Screener
+
+The **Publish** tab is where you deploy your screener to a publicly accessible URL that you can share with end users.
+
+**To publish your screener**:
+
+Select **Deploy Screener**. BDT will package your current form and eligibility logic and make them available at a public URL. The URL is displayed on the Publish tab after the first deployment.
+
+The Publish tab shows:
+
+- **Screener URL** — the public link where end users can access and submit the screener
+- **Last Published Date** — the date and time of the most recent deployment
+
+> Deploying your screener publishes a snapshot of the current form and benefit configuration. Subsequent edits to the form or eligibility logic are not reflected at the public URL until you deploy again.
+
+If you update your screener after publishing, return to the **Publish** tab and select **Deploy Screener** again to push the updated version to the public URL.
+
+> TODO: Add image of Publish tab showing public URL
+
+---
+
+For information about creating reusable custom eligibility checks, see [Custom Checks](custom-checks.md).
