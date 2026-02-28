@@ -3,6 +3,7 @@ package org.acme.controller;
 import io.quarkus.logging.Log;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -11,9 +12,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.acme.auth.AuthUtils;
 import org.acme.constants.CheckStatus;
 import org.acme.model.domain.EligibilityCheck;
-import org.acme.model.dto.CheckDmnRequest;
 import org.acme.model.dto.CreateCheckRequest;
-import org.acme.model.dto.UpdateCheckRequest;
+import org.acme.model.dto.EligibilityCheck.CheckDmnRequest;
+import org.acme.model.dto.EligibilityCheck.EditCheckRequest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.StorageService;
 import org.acme.service.DmnService;
@@ -124,10 +125,11 @@ public class EligibilityCheckResource {
     }
 
     @PATCH
+    @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{checkId}")
     public Response updateCustomCheck(@Context SecurityIdentity identity,
-                                @PathParam("checkId") String checkId,
-                                UpdateCheckRequest request){
+                                      @PathParam("checkId") String checkId,
+                                      @Valid EditCheckRequest request){
         String userId = AuthUtils.getUserId(identity);
 
         // Check if the check exists and is not archived
@@ -144,11 +146,11 @@ public class EligibilityCheckResource {
         }
 
         // Partial update: only update fields that are provided (non-null)
-        if (request.description != null) {
-            existingCheck.setDescription(request.description);
+        if (request.description() != null) {
+            existingCheck.setDescription(request.description());
         }
-        if (request.parameterDefinitions != null) {
-            existingCheck.setParameterDefinitions(request.parameterDefinitions);
+        if (request.parameterDefinitions() != null) {
+            existingCheck.setParameterDefinitions(request.parameterDefinitions());
         }
 
         try {
@@ -168,8 +170,8 @@ public class EligibilityCheckResource {
     @Path("/{checkId}/dmn")
     public Response saveCheckDmn(@Context SecurityIdentity identity,
                                  @PathParam("checkId") String checkId,
-                                 CheckDmnRequest saveDmnRequest){
-        String dmnModel = saveDmnRequest.dmnModel;
+                                 @Valid CheckDmnRequest saveDmnRequest){
+        String dmnModel = saveDmnRequest.dmnModel();
 
         String userId = AuthUtils.getUserId(identity);
         Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, checkId);
@@ -202,8 +204,8 @@ public class EligibilityCheckResource {
     @Path("/{checkId}/dmn/validate")
     public Response validateCheckDmn(@Context SecurityIdentity identity,
                                      @PathParam("checkId") String checkId,
-                                     CheckDmnRequest validateDmnRequest){
-        String dmnModel = validateDmnRequest.dmnModel;
+                                     @Valid CheckDmnRequest validateDmnRequest){
+        String dmnModel = validateDmnRequest.dmnModel();
 
         String userId = AuthUtils.getUserId(identity);
         Optional<EligibilityCheck> checkOpt = eligibilityCheckRepository.getWorkingCustomCheck(userId, checkId);
