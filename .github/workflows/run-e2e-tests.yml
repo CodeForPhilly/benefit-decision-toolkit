@@ -34,18 +34,13 @@ jobs:
           node-version: lts/*
 
       # 1) Devbox Setup #
-      - name: "Create .env file" # Devbox needs a .env file to exist, even if it's empty
-        run: touch .env
+      - name: Setup devbox
+        uses: ./.github/actions/devbox-setup
 
       - name: Rename env files
         run: |
           mv builder-frontend/.env.example builder-frontend/.env
           mv builder-api/.env.example builder-api/.env
-
-      - name: "Install devbox" # Setup devbox which includes Node.js, Firebase CLI, and Google Cloud SDK
-        uses: "jetify-com/devbox-install-action@v0.12.0"
-        with:
-          enable-cache: true
 
       # 2) Prepare app dependencies #
       - name: "Cache Maven dependencies"
