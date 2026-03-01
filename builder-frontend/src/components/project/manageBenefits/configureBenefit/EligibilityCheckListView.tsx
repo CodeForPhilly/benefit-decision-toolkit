@@ -1,4 +1,4 @@
-import { Accessor, For, Resource, Setter, createSignal } from "solid-js";
+import { Accessor, For, Resource, Setter } from "solid-js";
 
 import { titleCase } from "@/utils/title_case";
 
@@ -47,8 +47,6 @@ const EligibilityCheckListView = ({
   publicChecks: Resource<EligibilityCheck[]>;
   userDefinedChecks: Resource<EligibilityCheck[]>;
 }) => {
-  const [activeTab, setActiveTab] = createSignal("account");
-
   const activeCheckConfig: Accessor<CheckModeConfig> = () =>
     mode() === "public" ? PublicCheckConfig : UserDefinedCheckConfig;
   const activeChecks: Accessor<Resource<EligibilityCheck[]>> = () =>
