@@ -1,8 +1,8 @@
 # Introduction
 
-## 1. What Is the Benefit Decision Toolkit?
+## 1. What Is Benefit Decision Toolkit?
 
-Organizations that connect people to public benefits spend a lot of time helping individuals determine whether they qualify for specific programs. Building custom tools to support this work typically requires software development resources that many program teams do not have. The **Benefit Decision Toolkit (BDT)** addresses this by providing a low-code platform where organizations can build and publish eligibility screeners without writing code.
+Organizations that connect people to public benefits spend a lot of time helping individuals determine whether they qualify for specific programs. Building custom tools to support this work typically requires software development resources that many program teams do not have. **Benefit Decision Toolkit (BDT)** addresses this by providing a low-code platform where organizations can build and publish eligibility screeners without writing code.
 
 BDT provides low-code editors for defining eligibility logic and building a user-facing form. It handles connecting the two and publishing the result to a public URL, giving applicants a way to quickly determine whether they may qualify for a benefit.
 

@@ -1,6 +1,6 @@
 # User Guide
 
-This guide walks through how to create, configure, test, and publish an eligibility screener using the Benefit Decision Toolkit (BDT).
+This guide walks through how to create, configure, test, and publish an eligibility screener using Benefit Decision Toolkit (BDT).
 
 ---
 
