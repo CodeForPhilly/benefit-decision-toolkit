@@ -5,11 +5,13 @@ on:
     paths:
       - "builder-frontend/**"
       - "builder-api/**"
+      - "library-api/**"
   pull_request:
     branches: [main]
     paths:
       - "builder-frontend/**"
       - "builder-api/**"
+      - "library-api/**"
 
 env:
   PROJECT_ID: "benefit-decision-toolkit-play"

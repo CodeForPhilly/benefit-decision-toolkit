@@ -1,8 +1,16 @@
 name: Run API Tests
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "builder-api/**"
+      - "library-api/**"
   pull_request:
     branches: [main]
+    paths:
+      - "builder-api/**"
+      - "library-api/**"
 
 jobs:
   builder-api-tests:
