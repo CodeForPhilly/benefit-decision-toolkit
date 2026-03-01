@@ -3,19 +3,22 @@
   strategy: "class"; /* only generate form-* classes */
 }
 
+body {
+   @apply
+      text-gray-800
+}
 @layer components {
   .btn-default {
     @apply
-      inline-block px-6 py-1
-    border-gray-300 border-2
-      cursor-pointer select-none rounded-md
+      inline-block px-5 py-1
+      cursor-pointer select-none !rounded-md text-sm font-semibold
   }
   .btn-default.btn-gray {
-    @apply bg-white hover:bg-gray-200;
+    @apply border-gray-300 border-2 bg-white hover:bg-gray-200 text-gray-800;
     /* @apply bg-white hover:bg-gray-200 hover:scale-500 transition-all duration-1000; */
   }
   .btn-default.btn-red {
-    @apply bg-red-800 hover:bg-red-900 text-white;
+    @apply border-gray-300 border-2 border-red-400 text-red-500 hover:bg-red-200 hover:text-red-700;
   }
   .btn-default.btn-yellow {
     @apply bg-yellow-700 hover:bg-yellow-800 text-white;
