@@ -72,54 +72,37 @@ const EligibilityCheckListView = ({
   return (
     <>
       <div class="p-4">
-        <div class="flex items-center mb-2">
+        <div class="flex justify-between items-center mb-2">
           <div class="text-2xl font-bold">{activeCheckConfig().title}</div>
           <div class="grid w-full grid-cols-2 items-center justify-center rounded-md bg-muted bg-gray-100 p-1 text-gray-500 mb-2 w-xs">
-        <button
-          onClick={() => setActiveTab("account")}
-          class={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 rounded ${
-            activeTab() === "account"
-              ? "bg-white text-gray-950 shadow-sm"
-              : "hover:bg-gray-200"
-          }`}
-        >
-          Public Checks
-        </button>
-        <button
-          onClick={() => setActiveTab("password")}
-          class={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 rounded ${
-            activeTab() === "password"
-              ? "bg-white text-gray-950 shadow-sm"
-              : "hover:bg-gray-200"
-          }`}
-        >
-          Custom Checks
-        </button>
-      </div>
-
-          <div class="ml-auto flex gap-2">
-                 <div class="border-b border-gray-200">
-        <nav class="-mb-px flex space-x-4" aria-label="Tabs">
-         
-        </nav>
-      </div>
-            <For
-              each={
-                [PublicCheckConfig, UserDefinedCheckConfig] as CheckModeConfig[]
+            <button
+              onClick={() =>
+                mode() === "public"
+                  ? setMode("user-defined")
+                  : setMode("public")
               }
+              class={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 rounded ${
+                mode() === "public"
+                  ? "bg-white text-gray-950 shadow-sm"
+                  : "hover:bg-gray-200"
+              }`}
             >
-              {(modeOption) => (
-                <button
-                  class={`btn-default ${
-                    mode() === modeOption.mode ? "btn-blue" : "btn-gray"
-                  }`}
-                  onClick={() => setMode(modeOption.mode)}
-                  title={modeOption.buttonTitle}
-                >
-                  {modeOption.buttonTitle}
-                </button>
-              )}
-            </For>
+              Public Checks
+            </button>
+            <button
+              onClick={() =>
+                mode() === "public"
+                  ? setMode("user-defined")
+                  : setMode("public")
+              }
+              class={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 rounded ${
+                mode() === "user-defined"
+                  ? "bg-white text-gray-950 shadow-sm"
+                  : "hover:bg-gray-200"
+              }`}
+            >
+              Custom Checks
+            </button>
           </div>
         </div>
         <div>{activeCheckConfig().description}</div>

@@ -56,7 +56,9 @@ const ConfigureCheckModal = ({
                     <div class="pl-2">
                       <div class="mb-2 font-bold">
                         {titleCase(parameter.key)}{" "}
-                        {parameter.required && <span class="text-red-600">*</span>}
+                        {parameter.required && (
+                          <span class="text-red-600">*</span>
+                        )}
                       </div>
                       <div class="pl-2">
                         <ParameterInput
@@ -73,13 +75,16 @@ const ConfigureCheckModal = ({
           </div>
         )}
 
-        <div class="flex justify-end space-x-2">
-          <div class="btn-default btn-gray" onClick={closeModal}>
+        <div class="flex justify-end gap-2 space-x-2">
+          <button class="btn-default btn-gray !text-sm" onClick={closeModal}>
             Cancel
-          </div>
-          <div class="btn-default btn-blue" onClick={confirmAndClose}>
+          </button>
+          <button
+            class="btn-default btn-blue !text-sm"
+            onClick={confirmAndClose}
+          >
             Confirm
-          </div>
+          </button>
         </div>
       </div>
     </div>
@@ -136,7 +141,9 @@ const ParameterInput = ({
     return (
       <ParameterMultiStringInput
         onParameterChange={onParameterChange}
-        currentValue={() => tempCheck().parameters[parameterKey()] as string[] | undefined}
+        currentValue={() =>
+          tempCheck().parameters[parameterKey()] as string[] | undefined
+        }
       />
     );
   }
