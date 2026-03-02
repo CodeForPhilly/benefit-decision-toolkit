@@ -2,6 +2,7 @@ package org.acme.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.acme.model.domain.CheckConfig;
 import org.acme.model.domain.FormPath;
 import org.junit.jupiter.api.BeforeEach;
@@ -551,8 +552,8 @@ public class InputSchemaServiceTest {
 
         List<FormPath> paths = service.extractJsonSchemaPaths(schema);
 
-        assertTrue(paths.contains(new FormPath("people.applicant.dateOfBirth", "string")));
-        assertTrue(paths.contains(new FormPath("people.applicant.enrollments", "array")));
+        assertTrue(paths.contains(new FormPath("people.applicant.dateOfBirth", "date")));
+        assertTrue(paths.contains(new FormPath("people.applicant.enrollments", "array:string")));
         assertEquals(2, paths.size());
     }
 
@@ -584,7 +585,7 @@ public class InputSchemaServiceTest {
 
         List<FormPath> paths = service.extractJsonSchemaPaths(schema);
 
-        assertTrue(paths.contains(new FormPath("people.applicant.enrollments", "array")));
+        assertTrue(paths.contains(new FormPath("people.applicant.enrollments", "array:string")));
         assertEquals(1, paths.size());
     }
 
@@ -619,8 +620,8 @@ public class InputSchemaServiceTest {
 
         List<FormPath> paths = service.extractJsonSchemaPaths(schema);
 
-        assertTrue(paths.contains(new FormPath("people.applicant.dateOfBirth", "string")));
-        assertTrue(paths.contains(new FormPath("people.spouse.dateOfBirth", "string")));
+        assertTrue(paths.contains(new FormPath("people.applicant.dateOfBirth", "date")));
+        assertTrue(paths.contains(new FormPath("people.spouse.dateOfBirth", "date")));
         assertEquals(2, paths.size());
     }
 }

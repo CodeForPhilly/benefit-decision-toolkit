@@ -29,15 +29,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-        # Devbox needs a .env file to exist, even if it's empty
-      - name: 'Create .env file'
-        run: touch .env
-
-      # Setup devbox which includes Node.js, Firebase CLI, and Google Cloud SDK
-      - name: 'Install devbox'
-        uses: 'jetify-com/devbox-install-action@v0.12.0'
-        with:
-          enable-cache: true
+      - name: 'Setup devbox'
+        uses: ./.github/actions/devbox-setup
 
       # Configure Workload Identity Federation and generate an access token
       - id: 'auth'
