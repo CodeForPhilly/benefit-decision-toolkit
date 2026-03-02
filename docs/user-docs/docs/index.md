@@ -16,6 +16,8 @@ An **eligibility screener** is a web-based form that:
 2. Evaluates that information against defined eligibility rules
 3. Displays eligibility results based on the evaluation
 
+![An eligibility form for assistance programs. The form asks if the user lives in Philly, their birthday, if they own their house, and which benefits they are enrolled in. The results show that the user is eligible for Food Assistance because they live in Philadelphia, are over 18, and are enrolled in Food Assistance. However, they are ineligible for Heating Assistance because although they are enrolled in Food Assistance and over 18, they do not own their house.](images/example-screener.png)
+
 Each screener has two primary components that work together:
 
 ### 2.1 User Interface
@@ -27,8 +29,6 @@ The user interface is the form that end users interact with. It collects the inf
 The eligibility logic defines how user inputs are evaluated. It applies the benefit eligibility rules and determines the final eligibility outcome for each benefit the screener covers.
 
 BDT allows you to configure both the user interface form and back-end eligibility logic in low-code editors and then publishes them together as a single, accessible URL.
-
-> TODO: Insert example screenshot of a published screener
 
 ---
 
