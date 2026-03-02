@@ -1,12 +1,14 @@
 # User Guide
 
-This guide walks through how to create, configure, test, and publish an eligibility screener using the Benefit Decision Toolkit (BDT).
+This guide walks through how to create, configure, test, and publish an eligibility screener using Benefit Decision Toolkit (BDT).
 
 ---
 
 ## 1. Screener Projects
 
 After signing in, you will land on the **Screeners** view. This page displays all of your existing screener projects and serves as your starting point for creating and managing screeners.
+
+![Benefit Decision Toolkit homepage featuring a welcome message and an option to create a new screener. The page includes a navigation bar with options for 'Screeners' and 'Eligibility checks'. There is also a card labeled 'Food & Heating Assistance' with a menu option indicated by three dots.](images/screener-dashboard.png)
 
 From here, you can:
 
@@ -19,8 +21,6 @@ From here, you can:
 Select **Create New Screener** and provide a name for your screener. The name should clearly reflect the benefit or set of benefits being screened (for example, "Philadelphia Senior Benefits" or "Housing Assistance Eligibility").
 
 After the screener is created, you are automatically taken to the **Screener Dashboard**.
-
-> TODO: Add image of Screeners view
 
 ---
 
@@ -36,8 +36,6 @@ At the top of the page, the navigation bar contains four tabs representing the m
 - **Publish** — deploy your screener to a public URL
 
 Work through these tabs in order when building a screener for the first time. The eligibility logic you define in **Manage Benefits** informs what inputs the **Form Editor** needs to collect, and both must be complete before **Preview** and **Publish** are meaningful.
-
-> TODO: Add image of Screener Dashboard
 
 ---
 
@@ -58,19 +56,21 @@ A single screener can evaluate eligibility for one or multiple benefits. Each be
 
 The **Manage Benefits** tab displays all benefits configured for your screener as a list of cards.
 
+![Manage Benefits page of the Benefit Decision Toolkit. The page allows users to define and organize benefits available in their screener, with each benefit having associated eligibility checks. There is a 'Create New Benefit' button at the top. Two benefits are listed: Food Assistance, described as 'Help with affording groceries,' and Heating Assistance, described as 'Discount on PGW bill.' Each benefit has 'Edit' and 'Remove' buttons for managing the entries. The navigation bar at the top includes links to Food & Heating Assistance, Manage Benefits, Form Editor, Preview, and Publish.](images/manage-benefits.png)
+
 From this view, you can:
 
 - **Create** a new benefit by selecting **Create New Benefit** and providing a name and description
 - **Edit** a benefit by selecting **Edit** on its card, which opens the **Configure Benefit** page
 - **Remove** a benefit by selecting **Remove** on its card
 
-> TODO: Add image of Manage Benefits view
-
 ---
 
 ## 4. Configuring a Benefit
 
 The **Configure Benefit** page is where you define the rules that determine whether a user qualifies for a specific benefit. You access it by selecting **Edit** on any benefit card.
+
+![Configure Benefit: Food Assistance page of the Benefit Decision Toolkit. The page allows users to browse and select pre-built eligibility checks to add to the Food Assistance benefit. The interface includes tabs for 'Public checks' and 'Your checks.' The table lists several checks with columns for 'Add,' 'Check Name,' 'Description,' and 'Version.' The checks listed are 'Someone-min-age,' 'Person-min-age,' 'Person-max-age,' 'Owner-occupant,' and 'Person-enrolled-in-benefit,' all with version 0.6.0. There is a 'Back' button in the upper right corner, and the navigation bar at the top includes links to 'Food & Heating Assistance,' 'Manage Benefits,' 'Form Editor,' 'Preview,' and 'Publish.](images/configure-benefit-1.png)
 
 Each benefit contains one or more **Eligibility Checks**.
 
@@ -106,7 +106,7 @@ Each row in the list shows the check name, a brief description, and its version.
 
 Once added, the check appears as a card in the right panel under the benefit's configured checks.
 
-> TODO: Add image of Configure Benefit page showing the check list and selected checks panel
+![A user interface for selecting eligibility checks related to food assistance, featuring a list of available criteria such as person enrolled in benefit, person not enrolled in benefit, lives in Philadelphia Pennsylvania, no ten year tax abatement, and ten year tax abatement. Below this list, the section titled selected eligibility checks for food assistance shows two criteria already chosen: lives in Philadelphia Pennsylvania, and person minimum age with parameters including person ID as applicant, as of date February 28 2026, and minimum age of 18.](images/configure-benefit-2.png)
 
 ### 4.3 Configuring Check Parameters
 
@@ -118,7 +118,7 @@ To configure the parameters for an added check, click on its card in the right p
 
 Fill in the value for each parameter and select **Confirm** to save. Required parameters are marked with a red asterisk (`*`).
 
-> TODO: Add image of Configure Check modal
+![Configure Check: Person-min-age dialog box in the Benefit Decision Toolkit. The dialog box allows users to set parameters for the Person-min-age check. The parameters include PersonId set to 'applicant', AsOfDate set to '02/28/2026', and MinAge set to '18'. The dialog box has Cancel and Confirm buttons at the bottom. The background shows a list of eligibility checks with options to add more checks such as Person-not-enrolled-in-benefit, Lives-in-philadelphia, and Person-min-age with their respective parameters.](images/configure-check.png)
 
 ### 4.4 Removing a Check
 
@@ -132,15 +132,17 @@ The **Form Editor** tab is where you build the user-facing form that collects th
 
 The editor provides a visual drag-and-drop canvas powered by Form-JS. You can add, arrange, and configure form fields without writing any code.
 
+![Screenshot of the Benefit Decision Toolkit interface showing the Form Editor for a food assistance form. The image highlights the 'Checkbox group' component in the 'Selection' section, indicated by a red circle and an arrow pointing to the 'Checkbox group' option. The form includes fields such as 'Do you live in Philly?', 'Enter your birthday', 'Do you own your house?', and a checkbox for 'Select benefit you are enrolled in'. The interface includes tabs for 'Food & Heating Assistance', 'Manage Benefits', 'Form Editor', 'Preview', and 'Publish'. There is also a 'Save' button and an option to 'Validate Form Outputs'.](images/form-editor-components.png)
+
 **Saving your work**:
 
 Select **Save** to persist your form. The save button turns yellow when there are unsaved changes, so you can tell at a glance whether your current edits have been saved.
 
-> TODO: Add image of Form Editor
-
 ### 5.1 Connecting Form Fields to Eligibility Checks
 
 For the screener to evaluate eligibility correctly, the form must collect all of the inputs that the configured eligibility checks require. Each form field has a **key** that identifies the data it collects — this key must match the input name expected by the corresponding eligibility check.
+
+![Screenshot of the Benefit Decision Toolkit's Form Editor interface. The form includes a 'Yes/No' component asking 'Do you live in Philly?' with options for 'Yes' and 'No'. The component settings on the right side show the 'Key' field populated with 'simpleChecks.livesInPhiladelphia' and the 'Field label' field populated with 'Do you live in Philly?'. The form also includes fields for entering a birthday, a question about home ownership, and a checkbox for selecting a benefit. The interface includes various input, selection, and presentation components on the left side for building the form. There is a 'Save' button at the top right and a 'Validate Form Outputs' button at the bottom right.](images/form-editor-parameters.png)
 
 The **Validate Form Outputs** drawer (accessible via a button at the bottom-right of the editor) helps you verify that your form covers all required inputs. It shows:
 
@@ -150,7 +152,7 @@ The **Validate Form Outputs** drawer (accessible via a button at the bottom-righ
 
 Use this drawer to identify gaps between your form and your eligibility logic, and resolve any missing inputs before moving to the Preview step.
 
-> TODO: Add image of Validate Form Outputs drawer
+![A form outputs section that lists the form outputs such as simpleChecks livesInPhiladelphiaPa, people applicant dateOfBirth, simpleChecks ownerOccupant, and people applicant enrollments. Below that, the missing inputs section indicates all required inputs are satisfied. The satisfied inputs section lists and confirms the inputs including people applicant dateOfBirth, people applicant enrollments, simpleChecks livesInPhiladelphiaPa, and simpleChecks ownerOccupant with their respective data types.](images/form-validation.png)
 
 ---
 
@@ -164,6 +166,8 @@ The preview screen is divided into two sections:
 
 Displays your screener form as it will appear to end users. Fill in the fields and select **Submit** to run the eligibility evaluation.
 
+![Screenshot of the Benefit Decision Toolkit's form preview interface. The form includes several questions: 'Do you live in Philly?' with 'Yes' selected, a field to 'Enter your birthday' with the date '02 01 1990' filled in, 'Do you own your house?' with 'Yes' selected, and a checkbox to 'Select benefit you are enrolled in' with 'Food Assistance' selected. Below the form, the 'Results' section shows the 'Inputs'.](images/preview-inputs.png)
+
 **Results section**:
 
 After submitting, the results section displays the outcome for each benefit:
@@ -172,11 +176,11 @@ After submitting, the results section displays the outcome for each benefit:
 - **Ineligible** (red) — one or more eligibility checks returned `False`
 - **Need more information** (yellow) — one or more checks could not determine eligibility from the inputs provided
 
+![Results section of a benefits eligibility tool. The Inputs section shows the following data: simpleChecks: { "livesInPhiladelphiaPa": true, "ownerOccupant": true }, people: { "applicant": { "dateOfBirth": "1990-02-01", "enrollments": [ "Food Assistance" ] } }. The Benefits section shows the following eligibility results: Food Assistance: Eligible, lives-in-philadelphia-pa (residence v0.6.0), person-in-phil-age (age v0.6.0), minAge=18, personId=applicant, asOfDate=2026-02-28. Heating Assistance: Eligible, person-enrolled-in-benefit (enrollment v0.6.0), personId=applicant, benefit=Food Assistance, person-min-age (age v0.6.0), minAge=18, personId=applicant, asOfDate=2026-02-28, owner-occupant (residence v0.6.0).](images/preview-results.png)
+
 Each benefit's result also shows a breakdown of how each individual eligibility check evaluated, including whether it passed, failed, or was unable to determine, and what parameter values were used. This detail is useful for debugging eligibility logic during development.
 
 > Use the Preview tab iteratively as you build your screener to confirm that each benefit evaluates correctly across a range of test inputs.
-
-> TODO: Add image of Preview tab with a sample result
 
 ---
 
@@ -197,7 +201,7 @@ The Publish tab shows:
 
 If you update your screener after publishing, return to the **Publish** tab and select **Deploy Screener** again to push the updated version to the public URL.
 
-> TODO: Add image of Publish tab showing public URL
+![The image shows a form and eligibility results for Food & Heating Assistance. The form asks if the user lives in Philly, with "Yes" selected, and prompts the user to enter their birthday, which is filled in as 2/18/1990. It also asks if the user owns their house, with "No" selected, and allows the user to select the benefit they are enrolled in, with "Food Assistance" chosen. The eligibility results section indicates that the user is eligible for Food Assistance, meeting criteria such as residence in Philadelphia and being at least 18 years old. However, the user is ineligible for Heating Assistance because, although they meet age and enrollment criteria, they do not meet the owner-occupant residence requirement.](images/published-screener.png)
 
 ---
 
