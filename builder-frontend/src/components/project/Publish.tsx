@@ -5,11 +5,23 @@ import { publishScreener } from "../../api/screener";
 export default function Publish({ project, refetchProject }) {
   const [isLoading, setIsLoading] = createSignal(false);
 
-  const screenerName = () => { return project()?.screenerName };
-  const isPublished = () => { return project()?.publishedScreenerId !== null };
-  const lastPublishDate = () => { return project()?.lastPublishDate };
+  const screenerName = () => {
+    return project()?.screenerName;
+  };
+  const isPublished = () => {
+    return project()?.publishedScreenerId !== null;
+  };
+  const lastPublishDate = () => {
+    return project()?.lastPublishDate;
+  };
   const screenerUrl = () => {
-    return window.location.protocol + "//" +window.location.host + "/screener/" + project()?.publishedScreenerId;
+    return (
+      window.location.protocol +
+      "//" +
+      window.location.host +
+      "/screener/" +
+      project()?.publishedScreenerId
+    );
   };
 
   const { projectId } = useParams();
@@ -47,7 +59,7 @@ export default function Publish({ project, refetchProject }) {
                 {screenerUrl()}
               </a>
             ) : (
-              <a>Deploy screener to create public url.</a>
+              <a>Publish screener to create public url.</a>
             )}
           </div>
           <div class="flex gap-4">
@@ -65,12 +77,14 @@ export default function Publish({ project, refetchProject }) {
             class="w-80 bg-gray-800 font-bold text-gray-50 rounded px-4 py-2 hover:bg-gray-700 disabled:opacity-50"
             disabled={isLoading()}
           >
-            Deploy Screener
+            Publish Screener
           </button>
           {lastPublishDate() ? (
-            <div>Deploy current working version to your public screener</div>
+            <div>Publish current working version to your public screener</div>
           ) : (
-            <div>Click to make your screener availble through a public URL</div>
+            <div>
+              Click to make your screener available through a public URL
+            </div>
           )}
         </div>
       </div>
