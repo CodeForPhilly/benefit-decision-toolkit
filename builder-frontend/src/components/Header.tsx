@@ -4,8 +4,13 @@ import { useLocation, useNavigate } from "@solidjs/router";
 import bdtLogo from "../assets/logos/bdt-logo-large-mono-light.svg";
 import { Show } from "solid-js";
 
-
-const HeaderButton = ({ buttonText, onClick }: { buttonText: string; onClick: () => void }) => {
+const HeaderButton = ({
+  buttonText,
+  onClick,
+}: {
+  buttonText: string;
+  onClick: () => void;
+}) => {
   return (
     <div
       onClick={onClick}
@@ -17,7 +22,7 @@ const HeaderButton = ({ buttonText, onClick }: { buttonText: string; onClick: ()
       {buttonText}
     </div>
   );
-}
+};
 
 export default function Header() {
   const { logout } = useAuth();
@@ -34,13 +39,24 @@ export default function Header() {
   return (
     <header class="bg-gray-200 min-h-24 h-24 px-4 flex items-center justify-between border-b-2 border-gray-300">
       <div class="flex items-center space-x-6">
-        <img src={bdtLogo} alt="" class="w-36" />
+        <img
+          src={bdtLogo}
+          alt="BDT logo"
+          class="w-36 cursor-pointer"
+          onClick={() => navigate("/")}
+        />
       </div>
       <div class="flex items-center h-full">
         <Show when={isNotRoot}>
-          <HeaderButton buttonText="← Back to Home" onClick={() => navigate("/")} />
+          <HeaderButton
+            buttonText="← Back to Home"
+            onClick={() => navigate("/")}
+          />
         </Show>
-        <HeaderButton buttonText="User Guide" onClick={() => window.open("https://bdt-docs.web.app/", "_blank")}/>
+        <HeaderButton
+          buttonText="User Guide"
+          onClick={() => window.open("https://bdt-docs.web.app/", "_blank")}
+        />
         <HeaderButton buttonText="Logout" onClick={handleLogout} />
       </div>
     </header>
