@@ -32,7 +32,7 @@
 {#if menuActive == true}
   <div
     id="navMenu"
-    class="fixed left-0 top-0 h-screen w-screen flex justify-center items-center bg-sky-500"
+    class="fixed left-0 top-0 h-screen w-screen flex justify-center items-center bg-bdt-blue"
     transition:fade={{ duration: 180, easing: quadOut }}
   >
     <button
