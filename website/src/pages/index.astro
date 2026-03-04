@@ -4,19 +4,13 @@ import Hero from "../components/Hero.astro";
 import Overview from "../components/Overview.astro";
 import Projects from "../components/Projects.astro";
 import Contact from "../components/Contact.astro";
-import Process from "../components/Process.astro";
-import Values from "../components/Values.astro";
+import Volunteer from "../components/Volunteer.astro";
 ---
 
 <Layout>
   <Hero />
-  <div
-    class="md:bg-[url(../assets/backgrounds/bubbles.svg)] bg-center md:mg-size-[150vh] lg:bg-cover bg-no-repeat"
-  >
-    <Overview />
-    <Process />
-    <Values />
-  </div>
+  <Overview />
   <Projects />
+  <Volunteer />
   <Contact />
 </Layout>
