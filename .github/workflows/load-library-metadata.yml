@@ -2,10 +2,19 @@ name: Load Library API Metadata
 
 on:
   workflow_dispatch:
+  workflow_call:
+
+env:
+  PROJECT_ID: benefit-decision-toolkit-play
+  REGION: us-central1
+  WORKLOAD_IDENTITY_PROVIDER: projects/1034049717668/locations/global/workloadIdentityPools/github-actions-google-cloud/providers/github
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Checkout repo
@@ -16,7 +25,8 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Create GCP credentials file
+      # use a specific service account for sync script
+      - name: Create GCP credentials file (for sync script)
         run: |
           echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' > bin/library/gcp-key.json
 
@@ -30,3 +40,20 @@ jobs:
 
       - name: Cleanup credentials
         run: rm bin/library/gcp-key.json
+
+      # Use a different service account with permissions to restart builder-api
+      - name: Authenticate to Google Cloud (for restarting builder-api)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: cicd-build-deploy-api@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Restart builder-api with updated library metadata
+        run: |
+          gcloud run services update builder-api \
+            --region ${{ env.REGION }} \
+            --update-env-vars LIBRARY_SYNC_TIMESTAMP=$(date -u +%Y%m%dT%H%M%SZ)
