@@ -26,8 +26,9 @@ const ConfigureBenefit = ({
     createSignal<EligibilityCheckListMode>("public");
   const [publicChecks] = createResource<EligibilityCheck[]>(fetchPublicChecks);
   const [userDefinedChecks] = createResource<EligibilityCheck[]>(() =>
-    fetchUserDefinedChecks(false)
+    fetchUserDefinedChecks(false),
   );
+  const [selectedCheck, setSelectedCheck] = createSignal<EligibilityCheck>();
 
   const onRemoveEligibilityCheck = (checkIndexToRemove: number) => {
     actions.removeCheck(checkIndexToRemove);
@@ -40,9 +41,9 @@ const ConfigureBenefit = ({
       </Show>
 
       <Show when={benefit().id !== undefined && !initialLoadStatus.loading()}>
-        <div class="p-5">
-          <div class="flex mb-4">
-            <div class="text-3xl font-bold tracking-wide">
+        <div class="h-full flex flex-col">
+          <div class="flex py-3 pl-5 border-gray-200 border-b-2">
+            <div class="text-xl font-bold tracking-wide">
               Configure Benefit:{" "}
               {benefit() ? benefit().name : "No Benefit Found"}
             </div>
@@ -57,10 +58,10 @@ const ConfigureBenefit = ({
               </div>
             </div>
           </div>
-          <div class="flex gap-4 flex-col 2xl:flex-row">
+          <div class="flex flex-row flex-1 min-h-0">
             <div
               id="eligibility-check-list"
-              class="flex-3 border-2 border-gray-200 rounded-lg h-min"
+              class="w-sm border-r-2 border-gray-200"
             >
               <EligibilityCheckListView
                 mode={checkListMode}
@@ -70,8 +71,21 @@ const ConfigureBenefit = ({
                 addCheck={actions.addCheck}
               />
             </div>
-            <div id="selected-eligibility-checks" class="flex-2">
-              <div class="px-4 pb-4 text-2xl font-bold">
+            <div id="configure-eligibility-check" class="flex-grow bg-stone-50">
+              {
+                // When no check is selected
+                <>
+                  <Show when={!selectedCheck()}>
+                    <div>No check selected</div>
+                  </Show>
+                  <Show when={selectedCheck()}>
+                    <div>Check selected</div>
+                  </Show>
+                </>
+              }
+            </div>
+            <div id="selected-eligibility-checks" class="w-sm overflow-y-auto">
+              <div class="p-4 text-xl font-bold">
                 Selected eligibility checks for {benefit().name}
               </div>
 
@@ -93,11 +107,11 @@ const ConfigureBenefit = ({
                             onRemoveEligibilityCheck(checkIndex())
                           }
                           updateCheckConfigParams={(
-                            newCheckData: ParameterValues
+                            newCheckData: ParameterValues,
                           ) => {
                             actions.updateCheckConfigParams(
                               checkIndex(),
-                              newCheckData
+                              newCheckData,
                             );
                           }}
                         />

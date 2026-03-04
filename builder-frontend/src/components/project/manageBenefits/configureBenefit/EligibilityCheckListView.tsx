@@ -19,7 +19,7 @@ const PublicCheckConfig: CheckModeConfig = {
 };
 const UserDefinedCheckConfig: CheckModeConfig = {
   mode: "user-defined",
-  title: "User defined eligibility checks",
+  title: "Custom eligibility checks",
   description:
     "Browse and select your own custom checks to add to your benefit.",
   buttonTitle: "Your checks",
@@ -68,11 +68,12 @@ const EligibilityCheckListView = ({
   };
 
   return (
-    <>
-      <div class="p-4">
-        <div class="flex justify-between items-center mb-2">
-          <div class="text-2xl font-bold">{activeCheckConfig().title}</div>
-          <div class="grid w-full grid-cols-2 items-center justify-center rounded-md bg-muted bg-gray-100 p-1 text-gray-500 mb-2 w-xs">
+    <div class="h-full flex flex-col">
+      <div class="p-4 border-b border-gray-200">
+        <div class="flex flex-col gap-2 justify-between mb-2">
+          <div class="text-xl font-bold">Check Library</div>
+          <div>{activeCheckConfig().description}</div>
+          <div class="grid grid-cols-2 items-center justify-center rounded-md bg-muted bg-gray-100 p-1 text-gray-500 mb-2 w-3xs">
             <button
               onClick={() =>
                 mode() === "public"
@@ -85,7 +86,7 @@ const EligibilityCheckListView = ({
                   : "hover:bg-gray-200"
               }`}
             >
-              Public Checks
+              Public
             </button>
             <button
               onClick={() =>
@@ -99,47 +100,53 @@ const EligibilityCheckListView = ({
                   : "hover:bg-gray-200"
               }`}
             >
-              Custom Checks
+              Custom
             </button>
           </div>
         </div>
-        <div>{activeCheckConfig().description}</div>
+        <input
+          class="border-2 rounded-lg p-1 mt-2 border-gray-100 "
+          placeholder="Search"
+        ></input>
       </div>
-      <table class="table-auto w-full mt-4 border-collapse">
-        <thead>
-          <tr>
-            <th class="eligibility-check-table-header">Add</th>
-            <th class="eligibility-check-table-header">Check Name</th>
-            <th class="eligibility-check-table-header">Description</th>
-            <th class="eligibility-check-table-header">Version</th>
-          </tr>
-        </thead>
-        <tbody>
-          {activeChecks().loading && (
-            <tr>
-              <td colSpan={3} class="p-4 font-bold text-center">
-                Loading checks...
-              </td>
-            </tr>
+      <div class="flex-1 min-h-0 overflow-y-auto p-4 grid gap-3 content-start">
+        <For each={activeChecks()()}>
+          {(check) => (
+            <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+              <div class="p-4">
+                <div class="flex items-start justify-between gap-2 mb-1">
+                  <span class="text-sm font-semibold text-gray-900">
+                    {check.name}
+                  </span>
+                  <span class="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full whitespace-nowrap">
+                    {check.module || "General"}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 line-clamp-2">
+                  {check.description ||
+                    "Determines eligibility based on predefined criteria."}
+                </p>
+                <div class="flex flex-wrap gap-1 mt-2">
+                  {check.parameterDefinitions?.length > 0 ? (
+                    check.parameterDefinitions
+                      .slice(0, 3)
+                      .map((param) => (
+                        <span class="text-xs border border-gray-200 text-gray-600 px-2 py-0.5 rounded-full">
+                          {param.label}
+                        </span>
+                      ))
+                  ) : (
+                    <span class="text-xs border border-gray-200 text-gray-600 px-2 py-0.5 rounded-full">
+                      eligibility check
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
           )}
-          {activeChecks()() && activeChecks()().length === 0 && (
-            <tr>
-              <td colSpan={3} class="p-4 font-bold text-center text-gray-600">
-                No checks available.
-              </td>
-            </tr>
-          )}
-          <For each={activeChecks()()}>
-            {(check) => (
-              <EligibilityCheckRow
-                check={check}
-                onAdd={() => onAddEligibilityCheck(check)}
-              />
-            )}
-          </For>
-        </tbody>
-      </table>
-    </>
+        </For>
+      </div>
+    </div>
   );
 };
 
