@@ -1,7 +1,7 @@
 meta {
-  name: Smoke Test
+  name: Ineligible
   type: http
-  seq: 1
+  seq: 3
 }
 
 post {
@@ -14,7 +14,8 @@ body:json {
   {
     "situation": {
       "simpleChecks": {
-        "ownerOccupant": true
+        "ownerOccupant": true,
+        "livesInPhiladelphiaPa": false
       },
       "primaryPersonId": "p1",
       "people": [
@@ -50,7 +51,7 @@ body:json {
 }
 
 assert {
-  res.body.isEligible: eq null
+  res.body.isEligible: eq false
 }
 
 settings {
