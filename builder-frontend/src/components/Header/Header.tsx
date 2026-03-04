@@ -1,4 +1,4 @@
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import { useLocation, useNavigate } from "@solidjs/router";
 
 import bdtLogo from "../assets/logos/bdt-logo-large-mono-light.svg";
