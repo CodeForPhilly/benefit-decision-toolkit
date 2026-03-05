@@ -7,13 +7,13 @@ import {
   removeCustomBenefit,
 } from "@/api/screener";
 
-import type { BenefitDetail, ScreenerBenefits } from "@/types";
+import type { BenefitDetail, CreateCustomBenefitRequest, ScreenerBenefits } from "@/types";
 
 
 export interface ScreenerBenefitsResource {
   screenerBenefits: () => BenefitDetail[];
   actions: {
-    addNewBenefit: (benefit: BenefitDetail) => Promise<void>;
+    addNewBenefit: (benefit: CreateCustomBenefitRequest) => Promise<void>;
     removeBenefit: (benefitIdToRemove: string) => Promise<void>;
     // copyPublicBenefit: (benefitId: string) => Promise<void>;
   };
@@ -41,7 +41,7 @@ const createScreenerBenefits = (screenerId: Accessor<string>): ScreenerBenefitsR
   });
 
   // Actions
-  const addNewBenefit = async (benefit: BenefitDetail) => {
+  const addNewBenefit = async (benefit: CreateCustomBenefitRequest) => {
     setActionInProgress(true);
     try {
       await addCustomBenefit(screenerId(), benefit);

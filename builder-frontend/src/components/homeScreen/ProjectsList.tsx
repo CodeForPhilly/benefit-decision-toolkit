@@ -66,7 +66,7 @@ export default function ProjectsList() {
 
   const handleDeleteScreener = async (screenerData) => {
     try {
-      await deleteScreener(screenerData);
+      await deleteScreener(screenerData.id);
       refetchProjectList();
       setIsEditgModalVisible(false);
     } catch (e) {

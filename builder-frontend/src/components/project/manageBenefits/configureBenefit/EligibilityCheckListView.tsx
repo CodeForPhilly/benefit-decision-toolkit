@@ -2,7 +2,7 @@ import { Accessor, For, Resource, Setter } from "solid-js";
 
 import { titleCase } from "@/utils/title_case";
 
-import type { CheckConfig, EligibilityCheck } from "@/types";
+import type { EligibilityCheck } from "@/types";
 
 export type EligibilityCheckListMode = "user-defined" | "public";
 interface CheckModeConfig {
@@ -41,7 +41,7 @@ const EligibilityCheckListView = ({
   publicChecks,
   userDefinedChecks,
 }: {
-  addCheck: (newCheck: CheckConfig) => void;
+  addCheck: (checkId: string) => void;
   mode: Accessor<EligibilityCheckListMode>;
   setMode: Setter<EligibilityCheckListMode>;
   publicChecks: Resource<EligibilityCheck[]>;
@@ -53,18 +53,8 @@ const EligibilityCheckListView = ({
     mode() === "public" ? publicChecks : userDefinedChecks;
 
   const onAddEligibilityCheck = (check: EligibilityCheck) => {
-    const checkConfig: CheckConfig = {
-      checkId: check.id,
-      checkName: check.name,
-      checkVersion: check.version,
-      checkModule: check.module,
-      checkDescription: check.description,
-      evaluationUrl: check.evaluationUrl,
-      parameters: {},
-      parameterDefinitions: check.parameterDefinitions,
-      inputDefinition: check.inputDefinition,
-    };
-    addCheck(checkConfig);
+    // Only pass the checkId - the server will create the CheckConfig snapshot
+    addCheck(check.id);
   };
 
   return (
