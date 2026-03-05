@@ -1,3 +1,3 @@
-## The Future of Benefit Tools
+## Simplifying Benefit Eligibility Logic
 
-Empowering individuals and organizations by simplifying access to public benefit eligibility information through intuitive, low-code decision-making tools.
+Benefit Decision Toolkit simplifies the management of eligibility rules and screeners so benefit anlysts can create useful tools with less dependence on expensive software.

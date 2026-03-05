@@ -1,5 +1,5 @@
 ## What We Do
 
-Benefit Decision Toolkit is a project focused on making it easier for people to access benefits without confusion. At its core, the toolkit supports two key roles: Benefit Navigators, who speak directly with clients to understand their needs, and Benefit Analysts, who review and validate information to ensure the right support is delivered.
+BDT bridges the gap between complex public benefit requirements and individual needs by creating easy to use, lower cost decision making tools that streamline eligibility assessments.
 
-We envision a world where organizations and governments can streamline benefits access for people in need through collaborative, open-source software tools.
+Our screener builder app gives benefit analysts superpowers while cutting costs for organizations. We build our solutions on industry-standard open source tools which enable our users to avoid vendor lock-in.
