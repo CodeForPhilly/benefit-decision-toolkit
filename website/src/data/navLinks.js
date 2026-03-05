@@ -8,10 +8,6 @@ export default [
     path: "/#overview",
   },
   {
-    title: "Values",
-    path: "/#values",
-  },
-  {
     title: "Projects",
     path: "/#projects",
   },

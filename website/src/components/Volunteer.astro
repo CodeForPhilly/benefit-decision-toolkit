@@ -1,0 +1,22 @@
+---
+import { Image } from "astro:assets";
+import { Content } from "../assets/copy/Volunteer.md";
+import cfpLogo from "../assets/logos/cfp-logo.png";
+---
+
+<div
+  class="md:bg-[url(../assets/backgrounds/bubbles.svg)] bg-center md:mg-size-[150vh] lg:bg-cover bg-no-repeat"
+>
+  <section id="overview">
+    <div class="max-w-[85ch] mx-auto py-12 px-3 prose prose-a:font-semibold">
+      <Content />
+      <div class="flex flex-col items-center">
+        <Image src={cfpLogo} alt="Code For Philly logo" />
+        <a
+          href="https://codeforphilly.org/projects/dmn_benefit_toolbox-including_the_philly_property_tax_relief_screener"
+          target="_blank">Code For Philly ↗</a
+        >
+      </div>
+    </div>
+  </section>
+</div>
