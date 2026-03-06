@@ -1,34 +1,18 @@
 @import "tailwindcss";
 
-.account-menu-wrapper {
-  position: relative;
-  display: inline-block;
+.header-user-email {
+  width: 75%;
+  overflow-wrap: break-word;
+  @apply mt-2;
 }
 
-.account-menu-toggle {
-  @apply px-4 py-3 font-bold text-gray-700 rounded-sm;
+.header-menu ul {
+  @apply p-0;
 }
-.account-menu-toggle:hover {
-  @apply bg-gray-300 cursor-pointer;
-}
-
-.account-menu-panel {
-  position: absolute;
-  top: 100%;
-  left: 0;
+.header-menu-item {
   width: 100%;
-
-  z-index: 1000;
-
-  background-color: white;
-  padding: 0.5rem;
-  margin-top: 0.5rem;
-  @apply border-1 border-black rounded-sm;
+  @apply p-2 rounded-sm list-none;
 }
-
-.account-menu-item {
-  @apply p-2 rounded-sm;
-}
-.account-menu-item:hover {
+.header-menu-item:hover {
   @apply bg-slate-200 cursor-pointer;
 }
