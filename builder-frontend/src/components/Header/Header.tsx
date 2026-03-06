@@ -33,7 +33,13 @@ interface MenuProps {
 }
 
 const HeaderMenu: Component<MenuProps> = (props) => {
-  const menuItems = [{ label: "Logout", onClick: props.logout }];
+  const menuItems: { label: string; onClick: () => void }[] = [
+    {
+      label: "User Guide",
+      onClick: () => window.open("https://bdt-docs.web.app/", "_blank"),
+    },
+    { label: "Logout", onClick: props.logout },
+  ];
 
   return (
     <div class="header-menu">
@@ -86,10 +92,7 @@ export default function Header() {
             onClick={() => navigate("/")}
           />
         </Show>
-        <HeaderButton
-          buttonText="User Guide"
-          onClick={() => window.open("https://bdt-docs.web.app/", "_blank")}
-        />
+
         <HamburgerMenu>
           <HamburgerMenu.Button>
             <div>Open menu</div>
