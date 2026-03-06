@@ -17,7 +17,8 @@ export default function QuestionTooltip(props: TooltipProps) {
   const [position, setPosition] = createSignal<{
     x: number;
     align: TooltipAlignment;
-  }>({ x: 0, align: TooltipAlignment.Center });
+    containerWidth: number;
+  }>({ x: 0, align: TooltipAlignment.Center, containerWidth: 0 });
 
   let containerRef: HTMLDivElement | undefined;
 
@@ -44,7 +45,7 @@ export default function QuestionTooltip(props: TooltipProps) {
     if (containerRef) {
       const rect = containerRef.getBoundingClientRect();
       const align = determineAlignment(rect);
-      setPosition({ x: 0, align });
+      setPosition({ x: 0, align, containerWidth: rect.width });
     }
     setIsVisible(true);
   };
@@ -87,10 +88,15 @@ export default function QuestionTooltip(props: TooltipProps) {
             class={`absolute w-3 h-3 bg-white border-t border-l border-gray-200 rotate-45 -top-[7px] ${
               position().align === TooltipAlignment.Center
                 ? "left-1/2 -translate-x-1/2"
-                : position().align === TooltipAlignment.Left
-                  ? "left-3"
-                  : "right-3"
+                : ""
             }`}
+            style={
+              position().align === TooltipAlignment.Left
+                ? { left: `${position().containerWidth / 2 - 6}px` }
+                : position().align === TooltipAlignment.Right
+                  ? { right: `${position().containerWidth / 2 - 6}px` }
+                  : {}
+            }
           />
         </div>
       </Show>
