@@ -1,9 +1,9 @@
 import { useAuth } from "../../context/AuthContext";
 import { useLocation, useNavigate } from "@solidjs/router";
+import { Component, For, Show } from "solid-js";
 
 import bdtLogo from "@/assets/logos/bdt-logo-large-mono-light.svg";
-import { Show } from "solid-js";
-import { AccountMenu } from "@/components/Header/AccountMenu";
+import { HamburgerMenu } from "@/components/shared/HamburgerMenu";
 
 import "./Header.css";
 
@@ -27,8 +27,38 @@ const HeaderButton = ({
   );
 };
 
+interface MenuProps {
+  userEmail: string;
+  logout: () => void;
+}
+
+const HeaderMenu: Component<MenuProps> = (props) => {
+  const menuItems = [{ label: "Logout", onClick: props.logout }];
+
+  return (
+    <div class="header-menu">
+      <div class="header-user-email" title={props.userEmail}>
+        Welcome {props.userEmail}
+      </div>
+      <hr />
+      <ul>
+        <For each={menuItems}>
+          {(menuItem) => (
+            <li class="header-menu-item" onClick={menuItem.onClick}>
+              {menuItem.label}
+            </li>
+          )}
+        </For>
+      </ul>
+    </div>
+  );
+};
+
 export default function Header() {
-  const { logout } = useAuth();
+  const auth = useAuth();
+  const userEmail = auth.user().email;
+  const { logout } = auth;
+
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -60,7 +90,14 @@ export default function Header() {
           buttonText="User Guide"
           onClick={() => window.open("https://bdt-docs.web.app/", "_blank")}
         />
-        <AccountMenu />
+        <HamburgerMenu>
+          <HamburgerMenu.Button>
+            <div>Open menu</div>
+          </HamburgerMenu.Button>
+          <HamburgerMenu.Panel>
+            <HeaderMenu userEmail={userEmail} logout={handleLogout} />
+          </HamburgerMenu.Panel>
+        </HamburgerMenu>
       </div>
     </header>
   );

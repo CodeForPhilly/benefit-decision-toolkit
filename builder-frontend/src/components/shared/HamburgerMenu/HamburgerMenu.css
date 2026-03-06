@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+.menu-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.menu-toggle {
+  @apply px-4 py-3 font-bold text-gray-700 rounded-sm;
+}
+.menu-toggle:hover {
+  @apply bg-gray-300 cursor-pointer;
+}
+
+.menu-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 25%;
+  height: 100%;
+
+  z-index: 1000;
+
+  background-color: white;
+  padding: 0.5rem;
+  filter: drop-shadow(-25px -5px 25px #aaa);
+
+  @apply rounded-sm;
+  /* @apply border-1 border-black; */
+}
+
+.menu-item {
+  width: 100%;
+  @apply p-2 rounded-sm list-none;
+}
+.menu-item:hover {
+  @apply bg-slate-200 cursor-pointer;
+}
