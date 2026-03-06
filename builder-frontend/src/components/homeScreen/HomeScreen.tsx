@@ -2,14 +2,14 @@ import { Accessor, createSignal, Match, Switch } from "solid-js";
 
 import EligibilityChecksList from "./eligibilityCheckList/EligibilityChecksList";
 import ProjectsList from "./ProjectsList";
-import Header from "../Header";
+import Header from "../Header/Header";
 
 import BdtNavbar, { NavbarProps } from "@/components/shared/BdtNavbar";
 0;
 
 const HomeScreen = () => {
   const [screenMode, setScreenMode] = createSignal<"screeners" | "checks">(
-    "screeners"
+    "screeners",
   );
 
   const navbarDefs: Accessor<NavbarProps> = () => {
