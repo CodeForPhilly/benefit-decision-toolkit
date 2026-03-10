@@ -73,8 +73,13 @@ export default function QuestionTooltip(props: TooltipProps) {
       class="relative inline-flex items-center justify-center cursor-help"
       onMouseEnter={show}
       onMouseLeave={hide}
-      onFocus={show}
-      onBlur={hide}
+      onFocusIn={show}
+      onFocusOut={(e: FocusEvent) => {
+        // Only hide if focus is leaving the entire tooltip container
+        if (!containerRef?.contains(e.relatedTarget as Node)) {
+          hide();
+        }
+      }}
       tabIndex={0}
       aria-label="More information"
     >
@@ -91,8 +96,6 @@ export default function QuestionTooltip(props: TooltipProps) {
                 ? "left-0"
                 : "right-0"
           }`}
-          onMouseEnter={show}
-          onMouseLeave={hide}
         >
           {props.children}
           {/* Decorative arrow pointing up */}
