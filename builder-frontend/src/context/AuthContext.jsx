@@ -15,6 +15,8 @@ import {
 } from "firebase/auth";
 
 import { auth } from "../firebase/firebase";
+import { authGet } from "@/api/auth";
+import { getAccountHooks } from "@/api/account";
 
 const AuthContext = createContext();
 const googleProvider = new GoogleAuthProvider();
@@ -41,7 +43,20 @@ export function AuthProvider(props) {
   };
 
   const register = async (email, password) => {
-    return createUserWithEmailAndPassword(auth, email, password);
+    return createUserWithEmailAndPassword(auth, email, password).then(
+      (userCredential) => {
+        // Call "account creation hook" API endpoint here?
+        console.log("***** after account creation hook *****");
+        getAccountHooks().then(
+          () => {
+            console.log("Successfully hooked the account.");
+          },
+          (error) => {
+            console.log("Error hooking the account", error);
+          },
+        );
+      },
+    );
   };
 
   const loginWithGoogle = async () => {
