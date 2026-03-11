@@ -47,7 +47,7 @@ benefit-decision-toolkit/
 └── process-compose.yml   # Multi-service orchestration for local dev
 ```
 
-**Important**: `library-api` uses **Java 17 + Quarkus 2.16.10** (required for Kogito), while `builder-api` uses **Java 21 + Quarkus 3.23.0**. Do not mix them up.
+**Important**: `library-api` targets **Java 17 bytecode + Quarkus 2.16.10** (required for Kogito), while `builder-api` uses **Java 21 + Quarkus 3.23.0**. Devbox provides JDK 21 for both — Maven compiles `library-api` with `--release 17` automatically.
 
 ---
 
@@ -63,7 +63,7 @@ This is also a great way to test changes from a pull request — see the [Codesp
 
 ### Option 2: Devbox (Recommended for Local Development)
 
-[Devbox](https://www.jetify.com/docs/devbox/) manages all project dependencies (Java 17, Java 21, Maven, Node.js 22, Firebase Tools, Bruno, etc.) using Nix, ensuring a consistent environment across machines.
+[Devbox](https://www.jetify.com/docs/devbox/) manages all project dependencies (JDK 21, Maven, Node.js 22, Firebase Tools, Bruno, etc.) using Nix, ensuring a consistent environment across machines. A single JDK 21 covers both services — Maven handles the Java 17 target for `library-api` automatically via `--release 17`.
 
 ```bash
 # Install Devbox + Nix and run one-time setup
@@ -81,7 +81,7 @@ Open the project in VS Code, install the `Dev Containers` extension, and run **"
 
 ### Option 4: DIY (Not Recommended)
 
-Manually install the dependencies listed in `devbox.json` (JDK 17, JDK 21, Maven, Node.js 22, Firebase Tools 14.27.0, Bruno, process-compose), then run:
+Manually install the dependencies listed in `devbox.json` (JDK 21, Maven, Node.js 22, Firebase Tools 14.27.0, Bruno, process-compose), then run:
 
 ```bash
 bin/setup
@@ -131,6 +131,7 @@ cd builder-frontend && npm run dev
 | Service | URL |
 |---|---|
 | builder-frontend | http://localhost:5173 |
+| builder-api | http://localhost:8081 |
 | library-api | http://localhost:8083 |
 | library-api Swagger UI | http://localhost:8083/q/swagger-ui |
 | Firebase Emulator UI | http://localhost:4000 |
