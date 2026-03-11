@@ -2,16 +2,17 @@
 import { render } from "astro:content";
 import { getCollection } from "astro:content";
 const projects = await getCollection("projects");
+import { Content } from "../assets/text/Projects.md";
 ---
 
 <section
   id="projects"
-  class="bg-bdt-blue/60 bg-[url(../assets/backgrounds/wavy.png)] bg-cover bg-blend-multiply"
+  class="bg-bdt-blue/60 bg-[url(../assets/backgrounds/wavy.webp)] bg-cover bg-blend-multiply"
 >
   <div class="max-w-[130ch] mx-auto py-12 px-3">
-    <h2 class="font-bold font-serif text-2xl text-center mb-9">
-      BDT's Projects
-    </h2>
+    <div class="max-w-[85ch] mx-auto pb-9 prose">
+      <Content />
+    </div>
     <ul class="flex flex-col sm:flex-row gap-6 justify-center">
       {
         projects.map(async (project) => {

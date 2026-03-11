@@ -4,21 +4,8 @@ import { glob } from "astro/loaders";
 const projects = defineCollection({
   loader: glob({
     pattern: "**/*.md",
-    base: "./src/projects",
+    base: "./src/assets/text/projects",
   }),
 });
 
-const members = defineCollection({
-  loader: glob({
-    pattern: "**/*.md",
-    base: "./src/members",
-  }),
-  schema: ({ image }) =>
-    z.object({
-      index: z.number(),
-      image: image(),
-      imageAlt: z.string(),
-    }),
-});
-
-export const collections = { projects, members };
+export const collections = { projects };
