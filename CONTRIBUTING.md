@@ -53,39 +53,7 @@ benefit-decision-toolkit/
 
 ## Development Environment Setup
 
-There are three ways to set up your environment. **Devbox is recommended** for local development.
-
-### Option 1: GitHub Codespaces (Easiest)
-
-No local installation required. Click the badge in the [README](README.md) to open a cloud-based development environment. Wait a few minutes for the first-time build to complete.
-
-This is also a great way to test changes from a pull request — see the [Codespaces Testing Guide](docs/testing-prs-with-codespaces.md).
-
-### Option 2: Devbox (Recommended for Local Development)
-
-[Devbox](https://www.jetify.com/docs/devbox/) manages all project dependencies (JDK 21, Maven, Node.js 22, Firebase Tools, Bruno, etc.) using Nix, ensuring a consistent environment across machines. A single JDK 21 covers both services — Maven handles the Java 17 target for `library-api` automatically via `--release 17`.
-
-```bash
-# Install Devbox + Nix and run one-time setup
-bin/install-devbox && devbox run setup
-```
-
-**Tips**:
-- Install the [Devbox direnv integration](https://www.jetify.com/docs/devbox/ide-configuration/direnv) to auto-activate the Devbox shell when you `cd` into the project
-- VS Code users: install the [Devbox + Direnv extensions](https://www.jetify.com/docs/devbox/ide-configuration/vscode)
-- Customize your shell by editing `.devboxrc` (not committed to git)
-
-### Option 3: Devcontainer (VS Code)
-
-Open the project in VS Code, install the `Dev Containers` extension, and run **"Dev Containers: Open Folder in Container..."** from the command palette. The container includes the full Devbox environment. Expect a longer first-time build.
-
-### Option 4: DIY (Not Recommended)
-
-Manually install the dependencies listed in `devbox.json` (JDK 21, Maven, Node.js 22, Firebase Tools 14.27.0, Bruno, process-compose), then run:
-
-```bash
-bin/setup
-```
+See the [README](README.md#development-setup) for full setup instructions covering Codespaces, Devbox, Devcontainer, and DIY options.
 
 ---
 
