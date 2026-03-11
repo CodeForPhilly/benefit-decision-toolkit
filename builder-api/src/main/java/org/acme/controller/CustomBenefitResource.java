@@ -300,8 +300,9 @@ public class CustomBenefitResource {
             Benefit benefit = benefitOpt.get();
 
             // Create CheckConfig snapshot from the EligibilityCheck
+            String newCheckConfigId = UUID.randomUUID().toString();
             CheckConfig checkConfig = new CheckConfig(
-                check.getId(),
+                newCheckConfigId,
                 check.getName(),
                 check.getVersion(),
                 check.getModule(),
