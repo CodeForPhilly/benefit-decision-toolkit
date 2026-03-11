@@ -48,7 +48,20 @@ public class LocationService {
         return query(column, filters, "=");
     }
 
+    private static final java.util.Set<String> ALLOWED_COLUMNS = java.util.Set.of(
+            "zipCode", "countyName", "stateAbbreviation", "stateName"
+    );
+
     private static List<String> query(String column, Map<String, Object> filters, String operator) {
+        if (!ALLOWED_COLUMNS.contains(column)) {
+            throw new IllegalArgumentException("Invalid column: " + column);
+        }
+        for (String key : filters.keySet()) {
+            if (!ALLOWED_COLUMNS.contains(key)) {
+                throw new IllegalArgumentException("Invalid filter key: " + key);
+            }
+        }
+
         List<String> results = new ArrayList<>();
 
         StringBuilder sql = new StringBuilder("SELECT DISTINCT ").append(column).append(" FROM locations WHERE ");
