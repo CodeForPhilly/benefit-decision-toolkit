@@ -1,3 +1,55 @@
+import type { JSONSchema7 } from "json-schema";
+
+export interface InputPath {
+  path: string;
+  type: string;
+}
+
+/**
+ * Recursively flattens a JSONSchema7 inputDefinition into dot-separated
+ * { path, type } pairs. Types match the keys used in TYPE_COMPATIBILITY
+ * (e.g. "string", "number", "boolean", "date", "date-time", "array:string").
+ *
+ * @param schema - The JSONSchema7 inputDefinition from a CheckConfig
+ * @returns Array of { path, type } pairs for every leaf field
+ */
+export function extractInputPaths(schema: JSONSchema7 | undefined): InputPath[] {
+  if (!schema) return [];
+
+  const results: InputPath[] = [];
+
+  function resolveLeafType(node: JSONSchema7): string {
+    const type = Array.isArray(node.type) ? node.type[0] : node.type;
+    if (type === "string") {
+      if (node.format === "date") return "date";
+      if (node.format === "date-time") return "date-time";
+      if (node.format === "time") return "time";
+    }
+    return (type as string) || "string";
+  }
+
+  function traverse(node: JSONSchema7, prefix: string) {
+    if (node.type === "object" && node.properties) {
+      for (const [key, value] of Object.entries(node.properties)) {
+        if (typeof value === "boolean") continue;
+        traverse(value, prefix ? `${prefix}.${key}` : key);
+      }
+    } else if (node.type === "array") {
+      const items = node.items;
+      let itemType = "string";
+      if (items && typeof items !== "boolean" && !Array.isArray(items)) {
+        itemType = resolveLeafType(items as JSONSchema7);
+      }
+      if (prefix) results.push({ path: prefix, type: `array:${itemType}` });
+    } else {
+      if (prefix) results.push({ path: prefix, type: resolveLeafType(node) });
+    }
+  }
+
+  traverse(schema, "");
+  return results;
+}
+
 interface FormComponent {
   type: string;
   key?: string;

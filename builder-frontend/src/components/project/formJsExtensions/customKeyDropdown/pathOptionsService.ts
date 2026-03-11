@@ -5,7 +5,7 @@ interface PathOption {
   disabled?: boolean;
 }
 
-const TYPE_COMPATIBILITY: Record<string, string[]> = {
+export const TYPE_COMPATIBILITY: Record<string, string[]> = {
   // String types
   'string': ['textfield', 'textarea', 'select', 'radio', 'checklist', 'taglist'],
   // Number types
@@ -24,6 +24,29 @@ const TYPE_COMPATIBILITY: Record<string, string[]> = {
   // Fallback for any/unknown types - compatible with all
   'any': ['textfield', 'textarea', 'number', 'checkbox', 'select', 'radio', 'checklist', 'taglist', 'datetime', 'yes_no'],
 };
+
+/** Human-readable labels for Form-JS component types. */
+export const COMPONENT_TYPE_LABELS: Record<string, string> = {
+  textfield: "Text field",
+  textarea: "Text area",
+  number: "Number",
+  checkbox: "Checkbox",
+  yes_no: "Yes / No",
+  radio: "Radio buttons",
+  select: "Dropdown",
+  checklist: "Checklist",
+  taglist: "Tag list",
+  datetime: "Date picker",
+};
+
+/**
+ * Returns the compatible Form-JS component types for a given JSON Schema type,
+ * as human-readable labels.
+ */
+export function compatibleComponentLabels(schemaType: string): string[] {
+  const componentTypes = TYPE_COMPATIBILITY[schemaType] ?? [];
+  return componentTypes.map((t) => COMPONENT_TYPE_LABELS[t] ?? t);
+}
 
 interface EventBus {
   fire(event: string, payload: { options: PathOption[] }): void;

@@ -3,6 +3,8 @@ import { Accessor, createSignal, For, Show } from "solid-js";
 import ConfigureCheckModal from "./modals/ConfigureCheckModal";
 
 import { titleCase } from "@/utils/title_case";
+import { extractInputPaths } from "@/utils/formSchemaUtils";
+import { compatibleComponentLabels } from "@/components/project/formJsExtensions/customKeyDropdown/pathOptionsService";
 
 import type {
   CheckConfig,
@@ -60,9 +62,24 @@ const SelectedEligibilityCheck = ({
         <div class="pl-2 [&:has(+div)]:mb-2">
           {checkConfig().checkDescription}
         </div>
-        {
-          // Place to display information about expected inputs for check
-        }
+        <Show when={extractInputPaths(checkConfig().inputDefinition).length > 0}>
+          <div class="[&:has(+div)]:mb-2">
+            <div class="text-lg font-bold pl-2">Required Form Inputs</div>
+            <For each={extractInputPaths(checkConfig().inputDefinition)}>
+              {(input) => (
+                <div class="pl-4 py-1">
+                  <div class="flex gap-2 items-baseline">
+                    <div class="font-mono text-sm">{input.path}</div>
+                    <div class="text-xs text-gray-500">({input.type})</div>
+                  </div>
+                  <div class="text-xs text-gray-400 pl-2">
+                    Use: {compatibleComponentLabels(input.type).join(", ")}
+                  </div>
+                </div>
+              )}
+            </For>
+          </div>
+        </Show>
         {checkConfig().parameterDefinitions &&
           checkConfig().parameterDefinitions.length > 0 && (
             <div class="[&:has(+div)]:mb-2">

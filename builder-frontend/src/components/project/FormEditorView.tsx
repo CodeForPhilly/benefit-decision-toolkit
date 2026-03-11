@@ -12,7 +12,7 @@ import Drawer from "@corvu/drawer"; // 'corvu/drawer'
 
 import CustomFormFieldsModule from "./formJsExtensions/customFormFields";
 import { customKeyModule } from './formJsExtensions/customKeyDropdown/customKeyDropdownProvider';
-import PathOptionsService, { pathOptionsModule } from './formJsExtensions/customKeyDropdown/pathOptionsService';
+import PathOptionsService, { compatibleComponentLabels, pathOptionsModule } from './formJsExtensions/customKeyDropdown/pathOptionsService';
 
 import { saveFormSchema, fetchFormPaths } from "../../api/screener";
 import { extractFormPaths } from "../../utils/formSchemaUtils";
@@ -226,8 +226,18 @@ const FormValidationDrawer = (
               my-auto rounded-lg
               text-lg font-medium transition-all duration-100 "
           >
-            <div class="btn-default btn-gray shadow-[0_0_10px_rgba(0,0,0,0.4)]">
-              Validate Form Outputs
+            <div class="btn-default btn-gray shadow-[0_0_10px_rgba(0,0,0,0.4)] flex items-center gap-2">
+              Required Inputs
+              <Show when={missingInputs().length > 0}>
+                <span class="bg-red-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
+                  {missingInputs().length}
+                </span>
+              </Show>
+              <Show when={missingInputs().length === 0 && expectedInputs().length > 0}>
+                <span class="bg-green-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
+                  ✓
+                </span>
+              </Show>
             </div>
           </Drawer.Trigger>
           <Drawer.Portal>
@@ -251,7 +261,7 @@ const FormValidationDrawer = (
                 data-transitioning:ease-[cubic-bezier(0.32,0.72,0,1)] overflow-y-scroll"
             >
               <Drawer.Label class="pt-5 mr-10 text-center text-xl font-bold">
-                Form Validation
+                Required Inputs
               </Drawer.Label>
 
               {/* Form Outputs Section */}
@@ -289,8 +299,11 @@ const FormValidationDrawer = (
                   }
                 >
                   {(formPath) => (
-                    <div class="py-2 px-3 mb-2 bg-red-50 rounded border border-red-300 font-mono text-sm text-red-800">
-                      {formPath.path} ({formPath.type})
+                    <div class="py-2 px-3 mb-2 bg-red-50 rounded border border-red-300 text-red-800">
+                      <div class="font-mono text-sm">{formPath.path}</div>
+                      <div class="text-xs text-red-600 mt-0.5">
+                        Use: {compatibleComponentLabels(formPath.type).join(", ")}
+                      </div>
                     </div>
                   )}
                 </For>
