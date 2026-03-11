@@ -8,11 +8,10 @@ import toast from "solid-toast";
 import { useParams } from "@solidjs/router";
 
 import { FormEditor } from "@bpmn-io/form-js-editor";
-import Drawer from "@corvu/drawer"; // 'corvu/drawer'
 
 import CustomFormFieldsModule from "./formJsExtensions/customFormFields";
 import { customKeyModule } from './formJsExtensions/customKeyDropdown/customKeyDropdownProvider';
-import PathOptionsService, { compatibleComponentLabels, pathOptionsModule } from './formJsExtensions/customKeyDropdown/pathOptionsService';
+import PathOptionsService, { compatibleComponentLabels, pathOptionsModule, TYPE_COMPATIBILITY } from './formJsExtensions/customKeyDropdown/pathOptionsService';
 
 import { saveFormSchema, fetchFormPaths } from "../../api/screener";
 import { extractFormPaths } from "../../utils/formSchemaUtils";
@@ -25,6 +24,7 @@ import { FormPath } from "@/types";
 function FormEditorView({ formSchema, setFormSchema }) {
   const [isUnsaved, setIsUnsaved] = createSignal(false);
   const [isSaving, setIsSaving] = createSignal(false);
+  const [highlightedTypes, setHighlightedTypes] = createSignal<string[]>([]);
   const params = useParams();
 
   // Fetch form paths from backend (replaces local transformation logic)
@@ -148,6 +148,42 @@ function FormEditorView({ formSchema, setFormSchema }) {
     }
   });
 
+  // Highlight compatible palette fields when an input pill is hovered/pinned
+  const STYLE_ID = 'bdt-palette-highlight';
+  onCleanup(() => document.getElementById(STYLE_ID)?.remove());
+  createEffect(() => {
+    const types = highlightedTypes();
+    if (types.length === 0) {
+      const el = document.getElementById(STYLE_ID);
+      if (el) el.textContent = '';
+      return;
+    }
+
+    let styleEl = document.getElementById(STYLE_ID) as HTMLStyleElement | null;
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = STYLE_ID;
+      document.head.appendChild(styleEl);
+    }
+
+    const compatibleSelectors = types
+      .map((t) => `.fjs-palette-field[data-field-type='${t}']`)
+      .join(', ');
+
+    styleEl.textContent = `
+      .fjs-palette-field {
+        opacity: 0.2;
+        transition: opacity 0.15s ease;
+      }
+      ${compatibleSelectors} {
+        opacity: 1 !important;
+        outline: 2px solid #0ea5e9;
+        outline-offset: 1px;
+        border-radius: 4px;
+      }
+    `;
+  });
+
   const handleSave = async () => {
     const projectId = params.projectId;
     const schema = formSchema();
@@ -163,12 +199,10 @@ function FormEditorView({ formSchema, setFormSchema }) {
       <Show when={formPaths.loading}>
         <Loading />
       </Show>
-      <div class="flex flex-row">
-        <div class="flex-8 overflow-auto">
-          <div class="h-full" ref={(el) => (container = el)} />
-        </div>
-        <div class="flex-1 border-l-4 border-l-gray-200">
-          <div class="flex flex-col p-10 gap-4 place-items-center">
+      <div class="flex flex-col min-h-0 flex-1">
+        <div class="flex items-start gap-4 px-4 py-3 border-b-4 border-gray-200 bg-gray-50">
+          <InputsPanel formSchema={formSchema} expectedInputPaths={formPaths} setHighlightedTypes={setHighlightedTypes} />
+          <div class="shrink-0 pt-1">
             <Switch>
               <Match when={isUnsaved()}>
                 <div onClick={handleSave} class="btn-default btn-yellow">
@@ -176,10 +210,7 @@ function FormEditorView({ formSchema, setFormSchema }) {
                 </div>
               </Match>
               <Match when={isSaving()}>
-                <div
-                  onClick={handleSave}
-                  class="btn-default btn-gray cursor-not-allowed"
-                >
+                <div onClick={handleSave} class="btn-default btn-gray cursor-not-allowed">
                   Saving...
                 </div>
               </Match>
@@ -191,149 +222,126 @@ function FormEditorView({ formSchema, setFormSchema }) {
             </Switch>
           </div>
         </div>
-        <FormValidationDrawer formSchema={formSchema} expectedInputPaths={formPaths} />
+        <div class="flex-1 overflow-auto min-h-0">
+          <div class="h-full" ref={(el) => (container = el)} />
+        </div>
       </div>
     </>
   );
 }
 
-const FormValidationDrawer = (
-  { formSchema, expectedInputPaths }:
-  {formSchema: any, expectedInputPaths: Accessor<FormPath[]>}
-) => {
-  const formOutputs = () =>
-    formSchema() ? extractFormPaths(formSchema()) : [];
+const InputsPanel = ({
+  formSchema,
+  expectedInputPaths,
+  setHighlightedTypes,
+}: {
+  formSchema: any;
+  expectedInputPaths: Accessor<FormPath[]>;
+  setHighlightedTypes: (types: string[]) => void;
+}) => {
+  const [hoveredPath, setHoveredPath] = createSignal<string | null>(null);
+  const [pinnedPath, setPinnedPath] = createSignal<string | null>(null);
 
-  // Expected inputs come directly from backend API
+  const formOutputSet = () =>
+    new Set(formSchema() ? extractFormPaths(formSchema()) : []);
+
   const expectedInputs = () => expectedInputPaths() || [];
-
-  // Compute which expected inputs are satisfied vs missing
-  const formOutputSet = () => new Set(formOutputs());
-
-  const satisfiedInputs = () =>
-    expectedInputs().filter((formPath) => formOutputSet().has(formPath.path));
-
   const missingInputs = () =>
-    expectedInputs().filter((formPath) => !formOutputSet().has(formPath.path));
+    expectedInputs().filter((p) => !formOutputSet().has(p.path));
+  const mappedInputs = () =>
+    expectedInputs().filter((p) => formOutputSet().has(p.path));
+
+  // Hover takes precedence over pin; pin persists after mouse leave
+  createEffect(() => {
+    const activePath = hoveredPath() ?? pinnedPath();
+    if (!activePath) {
+      setHighlightedTypes([]);
+      return;
+    }
+    const formPath = expectedInputs().find((p) => p.path === activePath);
+    setHighlightedTypes(formPath ? (TYPE_COMPATIBILITY[formPath.type] ?? []) : []);
+  });
+
+  const handleMouseEnter = (path: string) => setHoveredPath(path);
+  const handleMouseLeave = () => setHoveredPath(null);
+  const handleClick = (path: string) =>
+    setPinnedPath((p) => (p === path ? null : path));
 
   return (
-    <Drawer side="right">
-      {(props) => (
-        <>
-          <Drawer.Trigger
-            class="
-              fixed bottom-5 right-5
-              my-auto rounded-lg
-              text-lg font-medium transition-all duration-100 "
-          >
-            <div class="btn-default btn-gray shadow-[0_0_10px_rgba(0,0,0,0.4)] flex items-center gap-2">
-              Required Inputs
-              <Show when={missingInputs().length > 0}>
-                <span class="bg-red-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
-                  {missingInputs().length}
-                </span>
-              </Show>
-              <Show when={missingInputs().length === 0 && expectedInputs().length > 0}>
-                <span class="bg-green-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
-                  ✓
-                </span>
-              </Show>
-            </div>
-          </Drawer.Trigger>
-          <Drawer.Portal>
-            <Drawer.Overlay
-              class="
-                fixed inset-0 z-50
-                data-transitioning:transition-colors data-transitioning:duration-500
-                data-transitioning:ease-[cubic-bezier(0.32,0.72,0,1)]"
-              style={{
-                "background-color": `rgb(0 0 0 / ${
-                  0.5 * props.openPercentage
-                })`,
-              }}
-            />
-            <Drawer.Content
-              class="
-                fixed flex flex-col md:select-none
-                -right-10 bottom-0 z-50 px-5 h-full max-w-[500px] min-w-[500px]
-                bg-gray-100 border-l-4 border-gray-400 rounded-l-lg
-                data-transitioning:transition-transform data-transitioning:duration-500
-                data-transitioning:ease-[cubic-bezier(0.32,0.72,0,1)] overflow-y-scroll"
-            >
-              <Drawer.Label class="pt-5 mr-10 text-center text-xl font-bold">
-                Required Inputs
-              </Drawer.Label>
+    <div class="flex items-center gap-3 flex-1 min-w-0">
+      <span class="shrink-0 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+        Form Inputs
+      </span>
 
-              {/* Form Outputs Section */}
-              <div class="mt-4 mr-10 px-4 pb-10">
-                <h3 class="text-lg font-semibold text-gray-700 mb-2">
-                  Form Outputs
-                </h3>
-                <For
-                  each={formOutputs()}
-                  fallback={
-                    <p class="text-gray-500 italic text-sm">
-                      No form fields defined yet.
-                    </p>
-                  }
-                >
-                  {(path) => (
-                    <div class="py-2 px-3 mb-2 bg-white rounded border border-gray-300 font-mono text-sm">
-                      {path}
-                    </div>
-                  )}
-                </For>
-              </div>
+      <Show when={expectedInputs().length === 0}>
+        <span class="text-gray-400 italic text-sm">
+          No benefits configured. Add benefits to see required inputs.
+        </span>
+      </Show>
 
-              {/* Missing Inputs Section */}
-              <div class="mt-4 mr-10 px-4">
-                <h3 class="text-lg font-semibold text-red-900 mb-2">
-                  Missing Inputs
-                </h3>
-                <For
-                  each={missingInputs()}
-                  fallback={
-                    <p class="text-gray-500 italic text-sm">
-                      All required inputs are satisfied!
-                    </p>
-                  }
+      <Show when={expectedInputs().length > 0}>
+        <div class="flex items-center gap-2 overflow-x-auto flex-1 py-0.5 no-scrollbar">
+          <For each={missingInputs()}>
+            {(formPath) => (
+              <div class="group relative shrink-0">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={pinnedPath() === formPath.path}
+                  aria-label={`${formPath.path}: not yet mapped. Needs ${compatibleComponentLabels(formPath.type).join(" or ")}.`}
+                  class={`flex items-center gap-1.5 px-2 py-1 rounded-md border border-red-300 bg-red-50 text-red-800 text-xs font-mono cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-sky-500${pinnedPath() === formPath.path ? ' ring-2 ring-offset-1 ring-red-400' : ''}`}
+                  onMouseEnter={() => handleMouseEnter(formPath.path)}
+                  onMouseLeave={handleMouseLeave}
+                  onFocus={() => handleMouseEnter(formPath.path)}
+                  onBlur={handleMouseLeave}
+                  onClick={() => handleClick(formPath.path)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(formPath.path); } }}
                 >
-                  {(formPath) => (
-                    <div class="py-2 px-3 mb-2 bg-red-50 rounded border border-red-300 text-red-800">
-                      <div class="font-mono text-sm">{formPath.path}</div>
-                      <div class="text-xs text-red-600 mt-0.5">
-                        Use: {compatibleComponentLabels(formPath.type).join(", ")}
-                      </div>
-                    </div>
-                  )}
-                </For>
-              </div>
-
-              {/* Satisfied Inputs Section */}
-              <div class="mt-4 mr-10 px-4">
-                <h3 class="text-lg font-semibold text-green-900 mb-2">
-                  Satisfied Inputs
-                </h3>
-                <For
-                  each={satisfiedInputs()}
-                  fallback={
-                    <p class="text-gray-500 italic text-sm">
-                      No inputs satisfied yet.
-                    </p>
-                  }
+                  <span aria-hidden="true" class="text-red-400 font-sans">✗</span>
+                  {formPath.path}
+                  <span aria-hidden="true" class="text-red-300 font-sans text-[10px] leading-none">ⓘ</span>
+                </div>
+                <div
+                  role="tooltip"
+                  class="absolute bottom-full left-0 mb-2 px-2 py-1.5 bg-gray-800 text-white text-xs rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity pointer-events-none z-10"
                 >
-                  {(formPath) => (
-                    <div class="py-2 px-3 mb-2 bg-green-50 rounded border border-green-300 font-mono text-sm text-green-800">
-                      {formPath.path} ({formPath.type})
-                    </div>
-                  )}
-                </For>
+                  Use: {compatibleComponentLabels(formPath.type).join(", ")}
+                </div>
               </div>
-            </Drawer.Content>
-          </Drawer.Portal>
-        </>
-      )}
-    </Drawer>
+            )}
+          </For>
+          <For each={mappedInputs()}>
+            {(formPath) => (
+              <div class="group relative shrink-0">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={pinnedPath() === formPath.path}
+                  aria-label={`${formPath.path}: mapped. Compatible with ${compatibleComponentLabels(formPath.type).join(" or ")}.`}
+                  class={`flex items-center gap-1.5 px-2 py-1 rounded-md border border-green-300 bg-green-50 text-green-800 text-xs font-mono cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-sky-500${pinnedPath() === formPath.path ? ' ring-2 ring-offset-1 ring-green-400' : ''}`}
+                  onMouseEnter={() => handleMouseEnter(formPath.path)}
+                  onMouseLeave={handleMouseLeave}
+                  onFocus={() => handleMouseEnter(formPath.path)}
+                  onBlur={handleMouseLeave}
+                  onClick={() => handleClick(formPath.path)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(formPath.path); } }}
+                >
+                  <span aria-hidden="true" class="text-green-600 font-sans">✓</span>
+                  {formPath.path}
+                  <span aria-hidden="true" class="text-green-400 font-sans text-[10px] leading-none">ⓘ</span>
+                </div>
+                <div
+                  role="tooltip"
+                  class="absolute bottom-full left-0 mb-2 px-2 py-1.5 bg-gray-800 text-white text-xs rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity pointer-events-none z-10"
+                >
+                  Use: {compatibleComponentLabels(formPath.type).join(", ")}
+                </div>
+              </div>
+            )}
+          </For>
+        </div>
+      </Show>
+    </div>
   );
 };
 

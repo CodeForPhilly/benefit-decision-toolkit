@@ -118,7 +118,6 @@ export default class PathOptionsService {
    */
   getOptions(currentFieldKey?: string, componentType?: string): PathOption[] {
     const usedKeys = this.getUsedKeys();
-    console.log(this.pathOptions);
 
     return this.pathOptions
       .filter(option => {

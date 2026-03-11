@@ -19,7 +19,9 @@ export function extractInputPaths(schema: JSONSchema7 | undefined): InputPath[] 
   const results: InputPath[] = [];
 
   function resolveLeafType(node: JSONSchema7): string {
-    const type = Array.isArray(node.type) ? node.type[0] : node.type;
+    const type = Array.isArray(node.type)
+      ? node.type.find((t) => t !== "null") ?? node.type[0]
+      : node.type;
     if (type === "string") {
       if (node.format === "date") return "date";
       if (node.format === "date-time") return "date-time";
