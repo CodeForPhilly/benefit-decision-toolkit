@@ -696,7 +696,7 @@ These are strictly enforced and violations will cause runtime errors:
 
 ### Bruno (Latest)
 
-- API testing tool (replaces Thunder Client, Postman)
+- API testing tool
 - Collection-based organization
 - Environment management
 - CLI for CI/CD: `bru run`
