@@ -11,12 +11,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 @Unremovable
 @ApplicationScoped
 public class LocationService {
+
+    private static final Logger LOG = Logger.getLogger(LocationService.class.getName());
 
     @Inject
     AgroalDataSource dataSource;
@@ -30,73 +34,50 @@ public class LocationService {
      * Trailing periods are stripped so abbreviations like "Mont." match "Montgomery".
      */
     public static List<String> lookupFuzzy(String column, Map<String, Object> filters) {
-        Map<String, Object> normalised = new java.util.LinkedHashMap<>();
+        Map<String, Object> patterns = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : filters.entrySet()) {
             String raw = entry.getValue().toString().trim();
             // Strip trailing period so "Mont." becomes "Mont%" for LIKE matching
             String pattern = raw.endsWith(".") ? raw.substring(0, raw.length() - 1) + "%" : raw + "%";
-            normalised.put(entry.getKey(), pattern);
+            patterns.put(entry.getKey(), pattern);
         }
-        return lookupWithOperator(column, normalised, "LIKE ? COLLATE NOCASE");
+        return query(column, patterns, "LIKE");
     }
 
     public static List<String> lookup(String column, Map<String, Object> filters) {
-        return lookupWithOperator(column, filters, "= ? COLLATE NOCASE");
+        return query(column, filters, "=");
     }
 
-    private static List<String> lookupWithOperator(String column, Map<String, Object> filters, String operator) {
+    private static List<String> query(String column, Map<String, Object> filters, String operator) {
         List<String> results = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT DISTINCT ").append(column).append(" FROM locations WHERE ");
 
-        // construct WHERE clause; assume everything is ANDed together
+        StringBuilder sql = new StringBuilder("SELECT DISTINCT ").append(column).append(" FROM locations WHERE ");
         boolean first = true;
         for (String key : filters.keySet()) {
-            if (!first) {
-                sql.append(" AND ");
-            }
-            sql.append(key).append(" ").append(operator);
+            if (!first) sql.append(" AND ");
+            sql.append(key).append(" ").append(operator).append(" ? COLLATE NOCASE");
             first = false;
         }
 
         LocationService service = Arc.container().instance(LocationService.class).get();
 
-        Connection connection = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
+        try (Connection connection = service.getDbConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql.toString())) {
 
-        try {
-            connection = service.getDbConnection();
-            pstmt = connection.prepareStatement(sql.toString());
-
-            // Set the values dynamically
             int index = 1;
             for (Object value : filters.values()) {
-                String stringValue = value.toString().trim(); // db only has strings
-                pstmt.setString(index++, stringValue);
+                pstmt.setString(index++, value.toString().trim());
             }
 
-            rs = pstmt.executeQuery();
-
-            while(rs.next()) {
-                String thisString = rs.getString(column);
-                results.add(thisString);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    results.add(rs.getString(column));
+                }
             }
+
         } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            LOG.severe("Location lookup failed for column=" + column + " filters=" + filters + ": " + e.getMessage());
+            throw new RuntimeException("Location lookup failed", e);
         }
 
         return results;
