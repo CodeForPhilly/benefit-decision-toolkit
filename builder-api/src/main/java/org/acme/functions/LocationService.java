@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 @Unremovable
@@ -21,11 +22,14 @@ import java.util.logging.Logger;
 public class LocationService {
 
     private static final Logger LOG = Logger.getLogger(LocationService.class.getName());
+    private static final Set<String> ALLOWED_COLUMNS = Set.of(
+            "zipCode", "countyName", "countyFips", "stateAbbreviation"
+    );
 
     @Inject
     AgroalDataSource dataSource;
 
-    public Connection getDbConnection() throws SQLException {
+    Connection getDbConnection() throws SQLException {
         return dataSource.getConnection();
     }
 
@@ -37,7 +41,6 @@ public class LocationService {
         Map<String, Object> patterns = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : filters.entrySet()) {
             String raw = entry.getValue().toString().trim();
-            // Strip trailing period so "Mont." becomes "Mont%" for LIKE matching
             String pattern = raw.endsWith(".") ? raw.substring(0, raw.length() - 1) + "%" : raw + "%";
             patterns.put(entry.getKey(), pattern);
         }
@@ -48,13 +51,12 @@ public class LocationService {
         return query(column, filters, "=");
     }
 
-    private static final java.util.Set<String> ALLOWED_COLUMNS = java.util.Set.of(
-            "zipCode", "countyName", "stateAbbreviation", "stateName"
-    );
-
     private static List<String> query(String column, Map<String, Object> filters, String operator) {
         if (!ALLOWED_COLUMNS.contains(column)) {
             throw new IllegalArgumentException("Invalid column: " + column);
+        }
+        if (filters.isEmpty()) {
+            throw new IllegalArgumentException("filters must not be empty");
         }
         for (String key : filters.keySet()) {
             if (!ALLOWED_COLUMNS.contains(key)) {
