@@ -25,7 +25,7 @@ import { FormPath } from "@/types";
 function FormEditorView({ formSchema, setFormSchema }) {
   const [isUnsaved, setIsUnsaved] = createSignal(false);
   const [isSaving, setIsSaving] = createSignal(false);
-  const [highlightedTypes, setHighlightedTypes] = createSignal<string[]>([]);
+  const [highlightedTypes, setHighlightedTypes] = createSignal<string[]>([], { equals: false });
   const params = useParams();
 
   // Fetch form paths from backend (replaces local transformation logic)
@@ -330,29 +330,30 @@ const InputsPanel = ({
   const missingInputs = () => expectedInputs().filter((p) => !formOutputSet().has(p.path));
   const mappedInputs = () => expectedInputs().filter((p) => formOutputSet().has(p.path));
 
-  // Hover takes precedence over pin; pin persists after mouse leave
-  createEffect(() => {
-    const activePath = hoveredPath() ?? pinnedPath();
-    if (!activePath) {
-      setHighlightedTypes([]);
-      return;
-    }
-    const formPath = expectedInputs().find((p) => p.path === activePath);
-    setHighlightedTypes(formPath ? (TYPE_COMPATIBILITY[formPath.type] ?? []) : []);
-  });
+  const highlight = (activePath: string | null) => {
+    const fp = activePath ? expectedInputs().find((p) => p.path === activePath) : null;
+    setHighlightedTypes(fp ? (TYPE_COMPATIBILITY[fp.type] ?? []) : []);
+  };
 
   const handleShowTooltip = (path: string, pos: TooltipPosition) => {
     setTooltipState({ path, ...pos });
     setHoveredPath(path);
+    highlight(path);
   };
 
   const handleHideTooltip = () => {
     setTooltipState(null);
     setHoveredPath(null);
+    // Restore highlight from pinned pill (if any) when hover ends
+    highlight(pinnedPath());
   };
 
-  const handleClick = (path: string) =>
-    setPinnedPath((p) => (p === path ? null : path));
+  const handleClick = (path: string) => {
+    const newPin = pinnedPath() === path ? null : path;
+    setPinnedPath(newPin);
+    // Hover takes precedence; otherwise drive highlight from the new pin state
+    highlight(hoveredPath() ?? newPin);
+  };
 
   const tooltipLabel = () => {
     const state = tooltipState();
