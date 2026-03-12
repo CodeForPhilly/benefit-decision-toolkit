@@ -75,8 +75,6 @@ function CustomKeyDropdown(props: any) {
     // Get the component type to filter compatible options
     const componentType = field.type || '';
 
-    console.log(componentType);
-
     // Get options from the injected service, passing current key to exclude from disabling
     const options = pathOptionsService?.getOptions(currentKey, componentType) || [];
 
