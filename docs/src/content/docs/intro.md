@@ -1,4 +1,7 @@
-# Introduction
+---
+title: Introduction
+description: Introduction
+---
 
 ## 1. What Is Benefit Decision Toolkit?
 
@@ -16,7 +19,7 @@ An **eligibility screener** is a web-based form that:
 2. Evaluates that information against defined eligibility rules
 3. Displays eligibility results based on the evaluation
 
-![An eligibility form for assistance programs. The form asks if the user lives in Philly, their birthday, if they own their house, and which benefits they are enrolled in. The results show that the user is eligible for Food Assistance because they live in Philadelphia, are over 18, and are enrolled in Food Assistance. However, they are ineligible for Heating Assistance because although they are enrolled in Food Assistance and over 18, they do not own their house.](images/example-screener.png)
+![An eligibility form for assistance programs. The form asks if the user lives in Philly, their birthday, if they own their house, and which benefits they are enrolled in. The results show that the user is eligible for Food Assistance because they live in Philadelphia, are over 18, and are enrolled in Food Assistance. However, they are ineligible for Heating Assistance because although they are enrolled in Food Assistance and over 18, they do not own their house.](../../assets/screenshots/example-screener.png)
 
 Each screener has two primary components that work together:
 
@@ -51,11 +54,3 @@ A user is eligible for a benefit only if all of its eligibility rules evaluate t
 An **Eligibility Check** is a reusable rule component that evaluates one aspect of eligibility — for example, whether an applicant meets a minimum age threshold or falls within an income limit. Each benefit is composed of one or more eligibility checks.
 
 BDT provides a library of **public checks** covering common eligibility criteria. If the public checks do not meet your needs, you can also create **custom checks** using a built-in DMN decision editor.
-
----
-
-## Next Steps
-
-- The [User Guide](user-guide.md) walks through the full process of creating, configuring, and publishing a screener — from setting up benefits and eligibility logic to building the form and deploying to a public URL.
-
-- The [Custom Checks](custom-checks.md) guide covers how to build reusable custom eligibility checks when the public check library does not cover your use case.

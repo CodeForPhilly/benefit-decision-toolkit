@@ -13,7 +13,7 @@
     },
     {
       "target": "bdt-docs",
-      "public": "./docs/user-docs/site",
+      "public": "./docs/dist",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
     }
   ],
