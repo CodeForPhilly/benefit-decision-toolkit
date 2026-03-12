@@ -4,6 +4,7 @@ import {
   For, Match, Show, Switch,
   Accessor,
 } from "solid-js";
+import { Portal } from "solid-js/web";
 import toast from "solid-toast";
 import { useParams } from "@solidjs/router";
 
@@ -71,7 +72,7 @@ function FormEditorView({ formSchema, setFormSchema }) {
 
     formEditor.on("changed", (e) => {
       setIsUnsaved(true);
-      setFormSchema(e.schema);
+      setFormSchema({ ...e.schema });
     });
 
     // Set default key to field ID when a new form field is added
@@ -149,40 +150,9 @@ function FormEditorView({ formSchema, setFormSchema }) {
   });
 
   // Highlight compatible palette fields when an input pill is hovered/pinned
-  const STYLE_ID = 'bdt-palette-highlight';
-  onCleanup(() => document.getElementById(STYLE_ID)?.remove());
-  createEffect(() => {
-    const types = highlightedTypes();
-    if (types.length === 0) {
-      const el = document.getElementById(STYLE_ID);
-      if (el) el.textContent = '';
-      return;
-    }
-
-    let styleEl = document.getElementById(STYLE_ID) as HTMLStyleElement | null;
-    if (!styleEl) {
-      styleEl = document.createElement('style');
-      styleEl.id = STYLE_ID;
-      document.head.appendChild(styleEl);
-    }
-
-    const compatibleSelectors = types
-      .map((t) => `.fjs-palette-field[data-field-type='${t}']`)
-      .join(', ');
-
-    styleEl.textContent = `
-      .fjs-palette-field {
-        opacity: 0.2;
-        transition: opacity 0.15s ease;
-      }
-      ${compatibleSelectors} {
-        opacity: 1 !important;
-        outline: 2px solid #0ea5e9;
-        outline-offset: 1px;
-        border-radius: 4px;
-      }
-    `;
-  });
+  const PALETTE_STYLE_ID = 'bdt-palette-highlight';
+  onCleanup(() => document.getElementById(PALETTE_STYLE_ID)?.remove());
+  createEffect(() => updatePaletteHighlight(highlightedTypes(), PALETTE_STYLE_ID));
 
   const handleSave = async () => {
     const projectId = params.projectId;
@@ -230,6 +200,116 @@ function FormEditorView({ formSchema, setFormSchema }) {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Palette highlight helper (module-level, no reactive dependencies)
+// ---------------------------------------------------------------------------
+
+function updatePaletteHighlight(types: string[], styleId: string) {
+  let styleEl = document.getElementById(styleId) as HTMLStyleElement | null;
+  if (types.length === 0) {
+    if (styleEl) styleEl.textContent = '';
+    return;
+  }
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = styleId;
+    document.head.appendChild(styleEl);
+  }
+  const compatibleSelectors = types
+    .map((t) => `.fjs-palette-field[data-field-type='${t}']`)
+    .join(', ');
+  styleEl.textContent = `
+    .fjs-palette-field {
+      opacity: 0.2;
+      transition: opacity 0.15s ease;
+    }
+    ${compatibleSelectors} {
+      opacity: 1 !important;
+      outline: 2px solid #0ea5e9;
+      outline-offset: 1px;
+      border-radius: 4px;
+    }
+  `;
+}
+
+// ---------------------------------------------------------------------------
+// InputPill — shared pill component for missing and mapped inputs
+// ---------------------------------------------------------------------------
+
+type TooltipPosition = { x: number; y: number };
+
+const InputPill = ({
+  formPath,
+  status,
+  isPinned,
+  onShowTooltip,
+  onHideTooltip,
+  onClick,
+}: {
+  formPath: FormPath;
+  status: 'missing' | 'mapped';
+  isPinned: boolean;
+  onShowTooltip: (path: string, pos: TooltipPosition) => void;
+  onHideTooltip: () => void;
+  onClick: (path: string) => void;
+}) => {
+  const isMissing = status === 'missing';
+
+  const pillClass = () => [
+    'flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs font-mono',
+    'cursor-pointer select-none',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-sky-500',
+    isMissing
+      ? 'border-red-300 bg-red-50 text-red-800'
+      : 'border-green-300 bg-green-50 text-green-800',
+    isPinned
+      ? isMissing ? 'ring-2 ring-offset-1 ring-red-400' : 'ring-2 ring-offset-1 ring-green-400'
+      : '',
+  ].filter(Boolean).join(' ');
+
+  const ariaLabel = isMissing
+    ? `${formPath.path}: not yet mapped. Needs ${compatibleComponentLabels(formPath.type).join(' or ')}.`
+    : `${formPath.path}: mapped. Compatible with ${compatibleComponentLabels(formPath.type).join(' or ')}.`;
+
+  const handleInteract = (e: MouseEvent | FocusEvent) => {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    onShowTooltip(formPath.path, { x: rect.left, y: rect.top });
+  };
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      aria-pressed={isPinned}
+      aria-label={ariaLabel}
+      class={pillClass()}
+      onMouseEnter={handleInteract}
+      onMouseLeave={onHideTooltip}
+      onFocus={handleInteract}
+      onBlur={onHideTooltip}
+      onClick={() => onClick(formPath.path)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick(formPath.path);
+        }
+      }}
+    >
+      <span aria-hidden="true" class={isMissing ? 'text-red-400 font-sans' : 'text-green-600 font-sans'}>
+        {isMissing ? '✗' : '✓'}
+      </span>
+      {formPath.path}
+      <span aria-hidden="true" class={isMissing ? 'text-red-300 font-sans text-[10px] leading-none' : 'text-green-400 font-sans text-[10px] leading-none'}>
+        ⓘ
+      </span>
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// InputsPanel
+// ---------------------------------------------------------------------------
+
 const InputsPanel = ({
   formSchema,
   expectedInputPaths,
@@ -241,15 +321,14 @@ const InputsPanel = ({
 }) => {
   const [hoveredPath, setHoveredPath] = createSignal<string | null>(null);
   const [pinnedPath, setPinnedPath] = createSignal<string | null>(null);
+  const [tooltipState, setTooltipState] = createSignal<{ path: string; x: number; y: number } | null>(null);
 
   const formOutputSet = () =>
     new Set(formSchema() ? extractFormPaths(formSchema()) : []);
 
   const expectedInputs = () => expectedInputPaths() || [];
-  const missingInputs = () =>
-    expectedInputs().filter((p) => !formOutputSet().has(p.path));
-  const mappedInputs = () =>
-    expectedInputs().filter((p) => formOutputSet().has(p.path));
+  const missingInputs = () => expectedInputs().filter((p) => !formOutputSet().has(p.path));
+  const mappedInputs = () => expectedInputs().filter((p) => formOutputSet().has(p.path));
 
   // Hover takes precedence over pin; pin persists after mouse leave
   createEffect(() => {
@@ -262,10 +341,25 @@ const InputsPanel = ({
     setHighlightedTypes(formPath ? (TYPE_COMPATIBILITY[formPath.type] ?? []) : []);
   });
 
-  const handleMouseEnter = (path: string) => setHoveredPath(path);
-  const handleMouseLeave = () => setHoveredPath(null);
+  const handleShowTooltip = (path: string, pos: TooltipPosition) => {
+    setTooltipState({ path, ...pos });
+    setHoveredPath(path);
+  };
+
+  const handleHideTooltip = () => {
+    setTooltipState(null);
+    setHoveredPath(null);
+  };
+
   const handleClick = (path: string) =>
     setPinnedPath((p) => (p === path ? null : path));
+
+  const tooltipLabel = () => {
+    const state = tooltipState();
+    if (!state) return '';
+    const fp = expectedInputs().find((p) => p.path === state.path);
+    return fp ? `Use: ${compatibleComponentLabels(fp.type).join(', ')}` : '';
+  };
 
   return (
     <div class="flex items-center gap-3 flex-1 min-w-0">
@@ -280,66 +374,52 @@ const InputsPanel = ({
       </Show>
 
       <Show when={expectedInputs().length > 0}>
-        <div class="flex items-center gap-2 overflow-x-auto flex-1 py-0.5 no-scrollbar">
+        {/* py-1.5 and px-0.5 give the pinned ring enough room to avoid clipping */}
+        <div class="flex items-center gap-2 overflow-x-auto flex-1 py-1.5 px-0.5 no-scrollbar">
           <For each={missingInputs()}>
             {(formPath) => (
-              <div class="group relative shrink-0">
-                <div
-                  role="button"
-                  tabIndex={0}
-                  aria-pressed={pinnedPath() === formPath.path}
-                  aria-label={`${formPath.path}: not yet mapped. Needs ${compatibleComponentLabels(formPath.type).join(" or ")}.`}
-                  class={`flex items-center gap-1.5 px-2 py-1 rounded-md border border-red-300 bg-red-50 text-red-800 text-xs font-mono cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-sky-500${pinnedPath() === formPath.path ? ' ring-2 ring-offset-1 ring-red-400' : ''}`}
-                  onMouseEnter={() => handleMouseEnter(formPath.path)}
-                  onMouseLeave={handleMouseLeave}
-                  onFocus={() => handleMouseEnter(formPath.path)}
-                  onBlur={handleMouseLeave}
-                  onClick={() => handleClick(formPath.path)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(formPath.path); } }}
-                >
-                  <span aria-hidden="true" class="text-red-400 font-sans">✗</span>
-                  {formPath.path}
-                  <span aria-hidden="true" class="text-red-300 font-sans text-[10px] leading-none">ⓘ</span>
-                </div>
-                <div
-                  role="tooltip"
-                  class="absolute bottom-full left-0 mb-2 px-2 py-1.5 bg-gray-800 text-white text-xs rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity pointer-events-none z-10"
-                >
-                  Use: {compatibleComponentLabels(formPath.type).join(", ")}
-                </div>
-              </div>
+              <InputPill
+                formPath={formPath}
+                status="missing"
+                isPinned={pinnedPath() === formPath.path}
+                onShowTooltip={handleShowTooltip}
+                onHideTooltip={handleHideTooltip}
+                onClick={handleClick}
+              />
             )}
           </For>
           <For each={mappedInputs()}>
             {(formPath) => (
-              <div class="group relative shrink-0">
-                <div
-                  role="button"
-                  tabIndex={0}
-                  aria-pressed={pinnedPath() === formPath.path}
-                  aria-label={`${formPath.path}: mapped. Compatible with ${compatibleComponentLabels(formPath.type).join(" or ")}.`}
-                  class={`flex items-center gap-1.5 px-2 py-1 rounded-md border border-green-300 bg-green-50 text-green-800 text-xs font-mono cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-sky-500${pinnedPath() === formPath.path ? ' ring-2 ring-offset-1 ring-green-400' : ''}`}
-                  onMouseEnter={() => handleMouseEnter(formPath.path)}
-                  onMouseLeave={handleMouseLeave}
-                  onFocus={() => handleMouseEnter(formPath.path)}
-                  onBlur={handleMouseLeave}
-                  onClick={() => handleClick(formPath.path)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(formPath.path); } }}
-                >
-                  <span aria-hidden="true" class="text-green-600 font-sans">✓</span>
-                  {formPath.path}
-                  <span aria-hidden="true" class="text-green-400 font-sans text-[10px] leading-none">ⓘ</span>
-                </div>
-                <div
-                  role="tooltip"
-                  class="absolute bottom-full left-0 mb-2 px-2 py-1.5 bg-gray-800 text-white text-xs rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity pointer-events-none z-10"
-                >
-                  Use: {compatibleComponentLabels(formPath.type).join(", ")}
-                </div>
-              </div>
+              <InputPill
+                formPath={formPath}
+                status="mapped"
+                isPinned={pinnedPath() === formPath.path}
+                onShowTooltip={handleShowTooltip}
+                onHideTooltip={handleHideTooltip}
+                onClick={handleClick}
+              />
             )}
           </For>
         </div>
+      </Show>
+
+      {/* Tooltip rendered via Portal to escape the overflow-x:auto clipping context */}
+      <Show when={tooltipState() !== null}>
+        <Portal>
+          <div
+            role="tooltip"
+            style={{
+              position: 'fixed',
+              left: `${tooltipState()?.x ?? 0}px`,
+              top: `${(tooltipState()?.y ?? 0) - 8}px`,
+              transform: 'translateY(-100%)',
+              'z-index': '9999',
+            }}
+            class="px-2 py-1.5 bg-gray-800 text-white text-xs rounded-md whitespace-nowrap pointer-events-none"
+          >
+            {tooltipLabel()}
+          </div>
+        </Portal>
       </Show>
     </div>
   );
