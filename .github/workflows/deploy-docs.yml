@@ -26,15 +26,9 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20" # Adjust version as needed
-
-      - name: Cache Node.js dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('docs/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: docs/package-lock.json
 
       - name: Install dependencies
         working-directory: docs
