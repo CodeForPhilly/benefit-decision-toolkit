@@ -1,9 +1,0 @@
-site_name: Benefits Decision Toolkit
-
-theme:
-  name: material
-
-nav:
-  - Introduction: index.md
-  - User Guide: user-guide.md
-  - Custom Checks: custom-checks.md

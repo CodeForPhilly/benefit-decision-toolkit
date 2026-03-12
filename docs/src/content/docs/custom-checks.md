@@ -1,4 +1,7 @@
-# Custom Eligibility Checks
+---
+title: Custom Eligibility Checks
+description: Custom Eligibility Checks
+---
 
 ## 1. What Are Custom Eligibility Checks?
 
