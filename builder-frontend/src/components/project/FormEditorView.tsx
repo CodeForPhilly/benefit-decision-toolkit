@@ -256,11 +256,6 @@ const InputPill = (props: {
     isMissing()
       ? `border-red-300 ${props.isPinned ? 'bg-red-100' : 'bg-red-50'} text-red-800`
       : `border-green-300 ${props.isPinned ? 'bg-green-100' : 'bg-green-50'} text-green-800`,
-    props.isPinned
-      ? isMissing()
-        ? 'ring-2 ring-offset-1 ring-red-400 shadow-md shadow-red-400/50'
-        : 'ring-2 ring-offset-1 ring-green-400 shadow-md shadow-green-400/50'
-      : '',
   ].filter(Boolean).join(' ');
 
   const ariaLabel = () => isMissing()
