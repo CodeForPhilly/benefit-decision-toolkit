@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - "docs/**"
+      - ".github/workflows/deploy-docs.yml"
+  workflow_dispatch:
 
 env:
   PROJECT_ID: "benefit-decision-toolkit-play"
