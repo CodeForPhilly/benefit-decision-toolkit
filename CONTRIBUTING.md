@@ -219,7 +219,7 @@ cd builder-frontend && npx prettier --write "src/**/*.{ts,tsx,js,jsx}"
 
 ### Java (builder-api, library-api)
 
-Follow standard Java conventions. There is no automated style enforcement beyond what Maven provides, so match the style of the surrounding code.
+Follow standard Java conventions. The project includes a VS Code Java formatter config at `.vscode/java.format.xml` — if you use VS Code with the Java extension, this will be picked up automatically. Otherwise, match the style of the surrounding code.
 
 ### DMN Files
 
@@ -244,7 +244,7 @@ Follow standard Java conventions. There is no automated style enforcement beyond
 
 ## Working with DMN Files
 
-DMN (Decision Model and Notation) is the core of this project. If you're new to DMN, start here:
+DMN (Decision Model and Notation) is the core technology used for eligibility logic in this project. If you're new to DMN, start here:
 - [Learn DMN in 15 minutes](https://learn-dmn-in-15-minutes.com/)
 - [DMN Editor for VS Code](https://marketplace.visualstudio.com/items?itemName=kie-group.dmn-vscode-extension) (strongly recommended)
 
@@ -263,6 +263,8 @@ Benefits represent specific programs (e.g., SNAP, property tax relief). They def
 ### Adding a Reusable Check
 
 Checks are reusable decision logic that can be shared across multiple benefits.
+
+> **Tip**: Use the `/new-dmn-check` Claude Code (CC) command to generate the boilerplate DMN file and Bruno test stubs automatically.
 
 1. Create a DMN file: `library-api/src/main/resources/checks/{category}/{check-name}.dmn`
 2. Define a Decision Service named `{CheckName}Service`
@@ -319,16 +321,12 @@ Deploy automatically to Firebase Hosting on push to `main`.
 
 ### Production Library Metadata Sync (Manual)
 
-If you need to sync library metadata to production outside of a `library-api` deployment:
+If you need to sync library metadata to production outside of a `library-api` deployment, trigger the **"Load Library API Metadata"** GitHub Actions workflow manually:
 
-```bash
-export LIBRARY_API_BASE_URL=https://library-api-1034049717668.us-central1.run.app
-unset FIRESTORE_EMULATOR_HOST
-unset GCS_BUCKET_NAME
-unset QUARKUS_GOOGLE_CLOUD_STORAGE_HOST_OVERRIDE
-gcloud auth application-default login
-./bin/library/sync-metadata
-```
+1. Go to [Actions → Load Library API Metadata](../../actions/workflows/load-library-metadata.yml)
+2. Click **Run workflow** → **Run workflow**
+
+This is the recommended approach — it handles GCP authentication, runs the sync script against the production library-api, and automatically restarts `builder-api` to pick up the new metadata.
 
 ---
 
