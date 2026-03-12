@@ -10,7 +10,11 @@ import wedge from "../assets/backgrounds/wedge.svg";
         <div class="prose prose-headings:text-left">
           <Content />
         </div>
-        <form action="message" class="mt-6">
+        <form
+          action="https://formspree.io/f/xlgpngrj"
+          method="post"
+          class="mt-6"
+        >
           <div><label for="name">Name:</label></div>
           <div>
             <input
@@ -21,17 +25,17 @@ import wedge from "../assets/backgrounds/wedge.svg";
               placeholder="John Doe"
             />
           </div>
-          <div><label for="name">Email:</label></div>
+          <div><label for="email">Email:</label></div>
           <div>
             <input
               class="my-3 p-3 w-full border-2 border-bdt-blue rounded-2xl"
-              type="text"
+              type="email"
               name="email"
               id="email"
               placeholder="johndoe@example.com"
             />
           </div>
-          <div><label for="name">Message:</label></div>
+          <div><label for="message">Message:</label></div>
           <div>
             <textarea
               class="my-3 p-3 w-full h-40 border-2 border-bdt-blue rounded-2xl"
