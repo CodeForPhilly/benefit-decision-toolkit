@@ -238,14 +238,7 @@ function updatePaletteHighlight(types: string[], styleId: string) {
 
 type TooltipPosition = { x: number; y: number };
 
-const InputPill = ({
-  formPath,
-  status,
-  isPinned,
-  onShowTooltip,
-  onHideTooltip,
-  onClick,
-}: {
+const InputPill = (props: {
   formPath: FormPath;
   status: 'missing' | 'mapped';
   isPinned: boolean;
@@ -253,55 +246,56 @@ const InputPill = ({
   onHideTooltip: () => void;
   onClick: (path: string) => void;
 }) => {
-  const isMissing = status === 'missing';
+  // Derive isMissing from props (not destructured) so status stays reactive
+  const isMissing = () => props.status === 'missing';
 
   const pillClass = () => [
     'flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs font-mono',
     'cursor-pointer select-none',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-sky-500',
-    isMissing
-      ? `border-red-300 ${isPinned ? 'bg-red-100' : 'bg-red-50'} text-red-800`
-      : `border-green-300 ${isPinned ? 'bg-green-100' : 'bg-green-50'} text-green-800`,
-    isPinned
-      ? isMissing
+    isMissing()
+      ? `border-red-300 ${props.isPinned ? 'bg-red-100' : 'bg-red-50'} text-red-800`
+      : `border-green-300 ${props.isPinned ? 'bg-green-100' : 'bg-green-50'} text-green-800`,
+    props.isPinned
+      ? isMissing()
         ? 'ring-2 ring-offset-1 ring-red-400 shadow-md shadow-red-400/50'
         : 'ring-2 ring-offset-1 ring-green-400 shadow-md shadow-green-400/50'
       : '',
   ].filter(Boolean).join(' ');
 
-  const ariaLabel = isMissing
-    ? `${formPath.path}: not yet mapped. Needs ${compatibleComponentLabels(formPath.type).join(' or ')}.`
-    : `${formPath.path}: mapped. Compatible with ${compatibleComponentLabels(formPath.type).join(' or ')}.`;
+  const ariaLabel = () => isMissing()
+    ? `${props.formPath.path}: not yet mapped. Needs ${compatibleComponentLabels(props.formPath.type).join(' or ')}.`
+    : `${props.formPath.path}: mapped. Compatible with ${compatibleComponentLabels(props.formPath.type).join(' or ')}.`;
 
   const handleInteract = (e: MouseEvent | FocusEvent) => {
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    onShowTooltip(formPath.path, { x: rect.left, y: rect.top });
+    props.onShowTooltip(props.formPath.path, { x: rect.left, y: rect.top });
   };
 
   return (
     <div
       role="button"
       tabIndex={0}
-      aria-pressed={isPinned}
-      aria-label={ariaLabel}
+      aria-pressed={props.isPinned}
+      aria-label={ariaLabel()}
       class={pillClass()}
       onMouseEnter={handleInteract}
-      onMouseLeave={onHideTooltip}
+      onMouseLeave={props.onHideTooltip}
       onFocus={handleInteract}
-      onBlur={onHideTooltip}
-      onClick={() => onClick(formPath.path)}
+      onBlur={props.onHideTooltip}
+      onClick={() => props.onClick(props.formPath.path)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          onClick(formPath.path);
+          props.onClick(props.formPath.path);
         }
       }}
     >
-      <span aria-hidden="true" class={isMissing ? 'text-red-400 font-sans' : 'text-green-600 font-sans'}>
-        {isMissing ? '✗' : '✓'}
+      <span aria-hidden="true" class={isMissing() ? 'text-red-400 font-sans' : 'text-green-600 font-sans'}>
+        {isMissing() ? '✗' : '✓'}
       </span>
-      {formPath.path}
-      <span aria-hidden="true" class={isMissing ? 'text-red-300 font-sans text-[10px] leading-none' : 'text-green-400 font-sans text-[10px] leading-none'}>
+      {props.formPath.path}
+      <span aria-hidden="true" class={isMissing() ? 'text-red-300 font-sans text-[10px] leading-none' : 'text-green-400 font-sans text-[10px] leading-none'}>
         ⓘ
       </span>
     </div>
