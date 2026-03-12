@@ -260,8 +260,8 @@ const InputPill = ({
     'cursor-pointer select-none',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-sky-500',
     isMissing
-      ? `${isPinned ? 'border-red-500' : 'border-red-300'} bg-red-50 text-red-800`
-      : `${isPinned ? 'border-green-500' : 'border-green-300'} bg-green-50 text-green-800`,
+      ? `border-red-300 ${isPinned ? 'bg-red-100' : 'bg-red-50'} text-red-800`
+      : `border-green-300 ${isPinned ? 'bg-green-100' : 'bg-green-50'} text-green-800`,
     isPinned
       ? isMissing
         ? 'ring-2 ring-offset-1 ring-red-400 shadow-md shadow-red-400/50'
