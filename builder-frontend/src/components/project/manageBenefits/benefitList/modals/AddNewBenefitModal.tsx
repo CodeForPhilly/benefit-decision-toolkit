@@ -29,7 +29,8 @@ const AddNewBenefitModal = (
           <label class="block font-bold mb-2">Name:</label>
           <input
             type="text"
-            class="w-full border border-gray-300 rounded px-3 py-2"
+            id="new-benefit-name"
+            class="w-full border-2 border-gray-400 rounded px-3 py-2"
             value={newBenefit.name}
             onInput={(e) => setNewBenefit("name", e.currentTarget.value)}
             placeholder="Enter benefit name"
@@ -38,7 +39,8 @@ const AddNewBenefitModal = (
         <div class="mb-4">
           <label class="block font-bold mb-2">Description:</label>
           <textarea
-            class="w-full border border-gray-300 rounded px-3 py-2"
+            id="new-benefit-description"
+            class="w-full border-2 border-gray-400 rounded px-3 py-2"
             value={newBenefit.description}
             onInput={(e) => setNewBenefit("description", e.currentTarget.value)}
             placeholder="Enter benefit description"
@@ -56,6 +58,7 @@ const AddNewBenefitModal = (
           </div>
           <div
             class={"btn-default bg-sky-600 text-white " + addButtonClasses()}
+            id="new-benefit-submit"
             onClick={async () => {
               if (isAddDisabled()) {
                 console.log("Please fill in all fields.");
