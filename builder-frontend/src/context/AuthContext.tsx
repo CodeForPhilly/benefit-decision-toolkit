@@ -15,7 +15,6 @@ import {
 } from "firebase/auth";
 
 import { auth } from "../firebase/firebase";
-import { authGet } from "@/api/auth";
 import { getAccountHooks } from "@/api/account";
 
 const AuthContext = createContext();
@@ -24,6 +23,7 @@ const googleProvider = new GoogleAuthProvider();
 export function AuthProvider(props) {
   const [user, setUser] = createSignal("loading");
   const [isAuthLoading, setIsAuthLoading] = createSignal(true);
+  const [isProvisioningAccount, setIsProvisioningAccount] = createSignal(false);
   let unsubscribe;
 
   onMount(() => {
@@ -43,25 +43,45 @@ export function AuthProvider(props) {
   };
 
   const register = async (email, password) => {
+    setIsProvisioningAccount(true);
     return createUserWithEmailAndPassword(auth, email, password).then(
       (userCredential) => {
-        // Call "account creation hook" API endpoint here?
-        console.log("***** after account creation hook *****");
-        getAccountHooks().then(
-          () => {
-            console.log("Successfully hooked the account.");
-          },
-          (error) => {
-            console.log("Error hooking the account", error);
-          },
-        );
+        getAccountHooks()
+          .then(
+            () => {
+              console.log("Successfully hooked the account.");
+            },
+            (error) => {
+              console.log("Error hooking the account", error);
+            },
+          )
+          .finally(() => {
+            setIsProvisioningAccount(false);
+          });
       },
     );
   };
 
   const loginWithGoogle = async () => {
     try {
-      return signInWithPopup(auth, googleProvider);
+      return signInWithPopup(auth, googleProvider).then((userCredential) => {
+        const { operationType } = userCredential;
+        if (operationType === "link" || operationType === "reauthenticate") {
+          setIsProvisioningAccount(true);
+          getAccountHooks()
+            .then(
+              () => {
+                console.log("Successfully hooked the account.");
+              },
+              (error) => {
+                console.log("Error hooking the account", error);
+              },
+            )
+            .finally(() => {
+              setIsProvisioningAccount(false);
+            });
+        }
+      });
     } catch (error) {
       console.error("Google sign-in error:", error.message);
     }
@@ -73,7 +93,15 @@ export function AuthProvider(props) {
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthLoading, login, register, loginWithGoogle, logout }}
+      value={{
+        user,
+        isAuthLoading,
+        isProvisioningAccount,
+        login,
+        register,
+        loginWithGoogle,
+        logout,
+      }}
     >
       {props.children}
     </AuthContext.Provider>

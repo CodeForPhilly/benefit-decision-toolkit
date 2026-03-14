@@ -1,19 +1,18 @@
 import { env } from "@/config/environment";
 
-import { authGet } from "@/api/auth";
+import { authPost } from "@/api/auth";
 
 const apiUrl = env.apiUrl;
 
 export const getAccountHooks = async () => {
-  const searchParams = new URLSearchParams([
-    ["action", "add example screener"],
-  ]);
-  const accountHookUrl = new URL(
-    `${apiUrl}/account-hooks?${searchParams.toString()}`,
-  );
+  const accountHookUrl = new URL(`${apiUrl}/account-hooks`);
+
+  const hooksToCall = ["add example screener"];
 
   try {
-    const response = await authGet(accountHookUrl.toString());
+    const response = await authPost(accountHookUrl.toString(), {
+      hooks: hooksToCall,
+    });
 
     if (!response.ok) {
       throw new Error(`Account hooks failed with status: ${response.status}`);
