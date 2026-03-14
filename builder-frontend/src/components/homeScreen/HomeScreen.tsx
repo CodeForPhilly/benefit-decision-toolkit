@@ -11,6 +11,14 @@ const HomeScreen = () => {
     "screeners",
   );
 
+  const handleTestHook = () => {
+    getAccountHooks().then((result) => {
+      if (result.success) {
+        console.log(result);
+      }
+    });
+  };
+
   const navbarDefs: Accessor<NavbarProps> = () => {
     return {
       tabDefs: [
@@ -23,6 +31,11 @@ const HomeScreen = () => {
           key: "checks",
           label: "Eligibility checks",
           onClick: () => setScreenMode("checks"),
+        },
+        {
+          key: "testAccountHooks",
+          label: "Test Account Hooks",
+          onClick: handleTestHook,
         },
       ],
       activeTabKey: () => screenMode(),
