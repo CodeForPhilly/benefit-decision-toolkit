@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "description": "Input schema template for person-max-age check. Verifies a person's age is at or below a maximum threshold.",
+  "properties": {
+    "situation": {
+      "type": "object",
+      "properties": {
+        "people": {
+          "type": "object",
+          "properties": {
+            "{personId}": {
+              "type": "object",
+              "description": "A person whose age will be checked",
+              "properties": {
+                "dateOfBirth": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "The person's date of birth in ISO 8601 format (YYYY-MM-DD)"
+                }
+              },
+              "required": ["dateOfBirth"]
+            }
+          }
+        }
+      },
+      "required": ["people"]
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Check parameters",
+      "properties": {
+        "personId": {
+          "type": "string",
+          "description": "ID of the person to check (must match a key in situation.people)"
+        },
+        "maxAge": {
+          "type": "number",
+          "description": "The maximum age allowed (in years, inclusive)"
+        },
+        "asOfDate": {
+          "type": "string",
+          "format": "date",
+          "description": "The date to calculate age as of (defaults to today if not provided)"
+        }
+      },
+      "required": ["personId", "maxAge"]
+    }
+  },
+  "required": ["situation", "parameters"]
+}

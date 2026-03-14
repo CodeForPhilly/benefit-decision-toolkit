@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "description": "Input schema template for lives-in-philadelphia-pa check. Verifies a person lives in Philadelphia, PA.",
+  "properties": {
+    "situation": {
+      "type": "object",
+      "properties": {
+        "simpleChecks": {
+          "type": "object",
+          "description": "Pre-computed simple boolean checks",
+          "properties": {
+            "livesInPhiladelphiaPa": {
+              "type": "boolean",
+              "description": "Whether the person lives in Philadelphia, PA"
+            }
+          },
+          "required": ["livesInPhiladelphiaPa"]
+        }
+      },
+      "required": ["simpleChecks"]
+    }
+  },
+  "required": ["situation"]
+}
