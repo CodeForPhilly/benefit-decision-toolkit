@@ -1,4 +1,7 @@
 package org.acme.model.dto.Auth;
 
-public record AccountHookResponse(String action, boolean success) {
+import java.util.Map;
+
+public record AccountHookResponse(Boolean success,
+        Map<String, Boolean> actions) {
 };
