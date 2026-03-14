@@ -15,15 +15,13 @@ public class JsonServerExceptionMappers {
   public Response map(MismatchedInputException e) {
     Log.warn(e);
     // e.g. screenerName is object but DTO expects String
-    String field =
-        e.getPath() != null && !e.getPath().isEmpty()
-            ? e.getPath().get(e.getPath().size() - 1).getFieldName()
-            : "request body";
+    String field = e.getPath() != null && !e.getPath().isEmpty()
+        ? e.getPath().get(e.getPath().size() - 1).getFieldName()
+        : "request body";
 
     return Response.status(Response.Status.BAD_REQUEST)
         .type(MediaType.APPLICATION_JSON)
-        .entity(ApiError.of("Invalid type for field '" + field + "'."))
-        .build();
+        .entity(ApiError.of("Invalid type for field '" + field + "'.")).build();
   }
 
   @ServerExceptionMapper
@@ -32,16 +30,16 @@ public class JsonServerExceptionMappers {
     // malformed JSON like { "schema": }
     return Response.status(Response.Status.BAD_REQUEST)
         .type(MediaType.APPLICATION_JSON)
-        .entity(ApiError.of("Malformed JSON."))
-        .build();
+        .entity(ApiError.of("JsonParseException: Malformed JSON.")).build();
   }
 
   @ServerExceptionMapper
   public Response map(WebApplicationException e) {
+    Log.info("Some malformed JSON");
     Log.warn(e);
     return Response.status(Response.Status.BAD_REQUEST)
         .type(MediaType.APPLICATION_JSON)
-        .entity(ApiError.of("Malformed JSON."))
+        .entity(ApiError.of("WebApplicationException: Malformed JSON."))
         .build();
   }
 
@@ -51,7 +49,6 @@ public class JsonServerExceptionMappers {
     // other mapping errors
     return Response.status(Response.Status.BAD_REQUEST)
         .type(MediaType.APPLICATION_JSON)
-        .entity(ApiError.of("Invalid request body."))
-        .build();
+        .entity(ApiError.of("Invalid request body.")).build();
   }
 }
