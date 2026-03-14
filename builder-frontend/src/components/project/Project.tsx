@@ -2,7 +2,7 @@ import { createSignal, createResource, Accessor } from "solid-js";
 import { useParams } from "@solidjs/router";
 
 import FormEditorView from "./FormEditorView";
-import Header from "../Header";
+import Header from "../Header/Header";
 import Loading from "../Loading";
 import ManageBenefits from "./manageBenefits/ManageBenefits";
 import Preview from "./preview/Preview";
@@ -10,7 +10,6 @@ import Publish from "./Publish";
 
 import { fetchProject } from "@/api/screener";
 import BdtNavbar, { NavbarProps } from "@/components/shared/BdtNavbar";
-
 
 type TabOption = "manageBenefits" | "formEditor" | "preview" | "publish";
 
@@ -34,16 +33,32 @@ function Project() {
     // including a dummy signal 'forceUpdate' that can be unique for
     // each call to the refetch
     () => [params.projectId, forceUpdate()],
-    fetchAndCacheProject
+    fetchAndCacheProject,
   );
 
   const navbarDefs: Accessor<NavbarProps> = () => {
     return {
       tabDefs: [
-        { key: "manageBenefits", label: "Manage Benefits", onClick: () => setActiveTab("manageBenefits") },
-        { key: "formEditor", label: "Form Editor", onClick: () => setActiveTab("formEditor") },
-        { key: "preview", label: "Preview", onClick: () => setActiveTab("preview") },
-        { key: "publish", label: "Publish", onClick: () => setActiveTab("publish") },
+        {
+          key: "manageBenefits",
+          label: "Manage Benefits",
+          onClick: () => setActiveTab("manageBenefits"),
+        },
+        {
+          key: "formEditor",
+          label: "Form Editor",
+          onClick: () => setActiveTab("formEditor"),
+        },
+        {
+          key: "preview",
+          label: "Preview",
+          onClick: () => setActiveTab("preview"),
+        },
+        {
+          key: "publish",
+          label: "Publish",
+          onClick: () => setActiveTab("publish"),
+        },
       ],
       activeTabKey: () => activeTab(),
       titleDef: { label: project().screenerName },
@@ -52,9 +67,9 @@ function Project() {
 
   return (
     <div class="h-screen flex flex-col">
-      <Header/>
+      <Header />
       {project.loading ? (
-        <Loading/>
+        <Loading />
       ) : (
         <>
           <BdtNavbar navProps={navbarDefs} />
@@ -64,11 +79,9 @@ function Project() {
               setFormSchema={setFormSchema}
             />
           )}
-          {activeTab() == "manageBenefits" && (
-            <ManageBenefits />
-          )}
+          {activeTab() == "manageBenefits" && <ManageBenefits />}
           {activeTab() == "preview" && (
-            <Preview project={project} formSchema={formSchema}/>
+            <Preview project={project} formSchema={formSchema} />
           )}
           {activeTab() == "publish" && (
             <Publish
