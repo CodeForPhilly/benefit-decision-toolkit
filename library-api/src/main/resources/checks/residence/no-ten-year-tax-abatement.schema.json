@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "description": "Input schema template for no-ten-year-tax-abatement check. Verifies a property does NOT have an active 10-year tax abatement.",
+  "properties": {
+    "situation": {
+      "type": "object",
+      "properties": {
+        "simpleChecks": {
+          "type": "object",
+          "description": "Pre-computed simple boolean checks",
+          "properties": {
+            "tenYearTaxAbatement": {
+              "type": "boolean",
+              "description": "Whether the property has an active 10-year tax abatement (check passes if false)"
+            }
+          },
+          "required": ["tenYearTaxAbatement"]
+        }
+      },
+      "required": ["simpleChecks"]
+    }
+  },
+  "required": ["situation"]
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "description": "Input schema template for owner-occupant check. Verifies a person owns and occupies their primary residence.",
+  "properties": {
+    "situation": {
+      "type": "object",
+      "properties": {
+        "simpleChecks": {
+          "type": "object",
+          "description": "Pre-computed simple boolean checks",
+          "properties": {
+            "ownerOccupant": {
+              "type": "boolean",
+              "description": "Whether the person owns and occupies their primary residence"
+            }
+          },
+          "required": ["ownerOccupant"]
+        }
+      },
+      "required": ["simpleChecks"]
+    }
+  },
+  "required": ["situation"]
+}

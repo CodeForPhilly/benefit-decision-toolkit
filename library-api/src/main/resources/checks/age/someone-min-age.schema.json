@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "description": "Input schema template for someone-min-age check. Verifies at least one person from a list meets a minimum age requirement.",
+  "properties": {
+    "situation": {
+      "type": "object",
+      "properties": {
+        "people": {
+          "type": "object",
+          "properties": {
+            "{peopleIds}": {
+              "type": "object",
+              "description": "A person who may be checked for the minimum age requirement. Each entry in the peopleIds array creates a key here.",
+              "properties": {
+                "dateOfBirth": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "The person's date of birth in ISO 8601 format (YYYY-MM-DD)"
+                }
+              },
+              "required": ["dateOfBirth"]
+            }
+          }
+        }
+      },
+      "required": ["people"]
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Check parameters",
+      "properties": {
+        "peopleIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of person IDs to check (at least one must meet the age requirement). Each ID corresponds to a key under situation.people."
+        },
+        "minAge": {
+          "type": "number",
+          "description": "The minimum age required (in years)"
+        },
+        "asOfDate": {
+          "type": "string",
+          "format": "date",
+          "description": "The date to calculate age as of (defaults to today if not provided)"
+        }
+      },
+      "required": ["peopleIds", "minAge"]
+    }
+  },
+  "required": ["situation", "parameters"]
+}

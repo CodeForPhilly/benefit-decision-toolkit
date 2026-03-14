@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "description": "Input schema template for person-not-enrolled-in-benefit check. Verifies a person is NOT currently enrolled in a specified benefit program.",
+  "properties": {
+    "situation": {
+      "type": "object",
+      "properties": {
+        "people": {
+          "type": "object",
+          "properties": {
+            "{personId}": {
+              "type": "object",
+              "description": "A person whose benefit enrollment will be checked",
+              "properties": {
+                "enrollments": {
+                  "type": "array",
+                  "description": "List of benefit programs this person is enrolled in",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": ["people"]
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Check parameters",
+      "properties": {
+        "personId": {
+          "type": "string",
+          "description": "ID of the person to check enrollment for"
+        },
+        "benefit": {
+          "type": "string",
+          "description": "The benefit program ID to verify non-enrollment"
+        }
+      },
+      "required": ["personId", "benefit"]
+    }
+  },
+  "required": ["situation", "parameters"]
+}
