@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "description": "Input schema for Philadelphia Homestead Exemption benefit eligibility check.",
+  "properties": {
+    "situation": {
+      "type": "object",
+      "description": "The household situation to evaluate",
+      "properties": {
+        "people": {
+          "type": "object",
+          "description": "Household members keyed by person ID",
+          "properties": {
+            "{personId}": {
+              "type": "object",
+              "description": "A person in the household",
+              "properties": {
+                "dateOfBirth": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "The person's date of birth in ISO 8601 format (YYYY-MM-DD)"
+                },
+                "enrollments": {
+                  "type": "array",
+                  "description": "Benefits this person is enrolled in",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "simpleChecks": {
+          "type": "object",
+          "description": "Pre-computed boolean checks",
+          "properties": {
+            "ownerOccupant": {
+              "type": "boolean",
+              "description": "Whether the person owns and occupies their primary residence"
+            },
+            "livesInPhiladelphiaPa": {
+              "type": "boolean",
+              "description": "Whether the person lives in Philadelphia, PA"
+            },
+            "tenYearTaxAbatement": {
+              "type": "boolean",
+              "description": "Whether the property has a 10-year tax abatement"
+            }
+          },
+          "required": ["ownerOccupant", "livesInPhiladelphiaPa", "tenYearTaxAbatement"]
+        }
+      },
+      "required": ["people", "simpleChecks"]
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Check parameters",
+      "properties": {
+        "personId": {
+          "type": "string",
+          "description": "ID of the primary person to evaluate for eligibility"
+        }
+      },
+      "required": ["personId"]
+    }
+  },
+  "required": ["situation", "parameters"]
+}

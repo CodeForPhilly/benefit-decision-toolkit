@@ -376,7 +376,7 @@ public class SchemaTemplateTransformerTest {
             assertTrue(SchemaTemplateTransformer.hasPlaceholders(schema));
 
             Set<String> placeholders = SchemaTemplateTransformer.extractPlaceholders(schema);
-            assertTrue(placeholders.contains("person"));
+            assertTrue(placeholders.contains("personId"));
         }
     }
 
