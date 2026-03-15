@@ -303,6 +303,7 @@ public class CustomBenefitResource {
             String newCheckConfigId = UUID.randomUUID().toString();
             CheckConfig checkConfig = new CheckConfig(
                 newCheckConfigId,
+                check.getId(),
                 check.getName(),
                 check.getVersion(),
                 check.getModule(),

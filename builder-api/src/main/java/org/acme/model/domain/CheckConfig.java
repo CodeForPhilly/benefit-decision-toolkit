@@ -9,6 +9,8 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CheckConfig {
     private String checkId;
+    // original checkId of the check this was cloned from
+    private String sourceCheckId;
     private String checkName;
     private String checkVersion;
     private String checkModule;
@@ -23,6 +25,7 @@ public class CheckConfig {
 
     public CheckConfig(
         String checkId,
+        String sourceCheckId,
         String checkName,
         String checkVersion,
         String checkModule,
@@ -32,6 +35,7 @@ public class CheckConfig {
         Map<String, Object> parameters
     ) {
         this.checkId = checkId;
+        this.sourceCheckId = sourceCheckId;
         this.checkName = checkName;
         this.checkVersion = checkVersion;
         this.checkModule = checkModule;
@@ -103,5 +107,13 @@ public class CheckConfig {
 
     public void setCheckModule(String checkModule) {
         this.checkModule = checkModule;
+    }
+
+    public String getSourceCheckId() {
+        return sourceCheckId;
+    }
+
+    public void setSourceCheckId(String sourceCheckId) {
+        this.sourceCheckId = sourceCheckId;
     }
 }
