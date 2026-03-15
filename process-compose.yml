@@ -5,6 +5,7 @@ processes:
     description: This process runs the local firebase emulators used in the project.
     command: firebase emulators:start --project demo-bdt-dev --only auth,storage,firestore --import ./emulator-data --export-on-exit
     ready_log_line: "All emulators ready!"
+    log_location: ./logs/firebase-emulators.log
   library-api:
     description: This process runs the library-api in dev mode on port ${QUARKUS_HTTP_PORT}.
     command: quarkus dev -Ddebug=false
@@ -12,6 +13,7 @@ processes:
     environment:
       - "QUARKUS_CONSOLE_COLOR=true"
     ready_log_line: "Listening on: http://"
+    log_location: ./logs/library-api.log
   sync-library-metadata:
     description: Sync library check metadata from library-api to Firebase Storage
     command: ./bin/library/sync-metadata
@@ -23,6 +25,7 @@ processes:
     availability:
       restart: on_failure
       max_restarts: 1
+    log_location: ./logs/sync-library-metadata.log
   builder-api:
     description: This process runs the builder-api in dev mode on port ${QUARKUS_HTTP_PORT}.
     command: quarkus dev -Ddebug=5005
@@ -35,6 +38,7 @@ processes:
         condition: process_completed_successfully
       firebase-emulators:
         condition: process_log_ready
+    log_location: ./logs/builder-api.log
   builder-frontend:
     description: This process runs the builder-frontend in dev mode.
     command: npm run dev -- --host
@@ -42,3 +46,4 @@ processes:
     depends_on:
       builder-api:
         condition: process_log_ready
+    log_location: ./logs/builder-frontend.log
