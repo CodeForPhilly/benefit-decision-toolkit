@@ -240,7 +240,6 @@ public class DecisionResource {
     }
 
     private boolean isLibraryCheck(CheckConfig checkConfig){
-        Character libraryCheckPrefix = 'L';
-        return libraryCheckPrefix.equals(checkConfig.getCheckId().charAt(0));
+        return checkConfig.getEvaluationUrl() != null && !checkConfig.getEvaluationUrl().isBlank();
     }
 }
