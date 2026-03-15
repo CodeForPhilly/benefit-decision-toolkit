@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/" xmlns="https://kie.apache.org/dmn/_3B9E68B5-63FA-437C-AF93-CC12DDD00BC5" xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/" xmlns:kie="http://www.drools.org/kie/dmn/1.2" xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_CB10DDEF-33B4-43C5-AD7D-55A06060FF2A" xmlns:included3="https://kie.apache.org/dmn/_6E9D53A6-E99A-4060-9E3E-1AE12EAB5465" id="_0CD4579A-343D-4BD4-84B6-8D5B1D689301" name="PersonNotEnrolledInBenefit" typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/" namespace="https://kie.apache.org/dmn/_3B9E68B5-63FA-437C-AF93-CC12DDD00BC5">
+<dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/" xmlns="https://kie.apache.org/dmn/_3B9E68B5-63FA-437C-AF93-CC12DDD00BC5" xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/" xmlns:kie="http://www.drools.org/kie/dmn/1.2" xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_CB10DDEF-33B4-43C5-AD7D-55A06060FF2A" id="_0CD4579A-343D-4BD4-84B6-8D5B1D689301" name="PersonNotEnrolledInBenefit" typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/" namespace="https://kie.apache.org/dmn/_3B9E68B5-63FA-437C-AF93-CC12DDD00BC5">
   <dmn:description>Verify that a specified person is not currently enrolled in a specified benefit program.</dmn:description>
   <dmn:extensionElements/>
   <dmn:import id="_A5176FD4-2B34-4376-960D-940C73696AC2" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../BDT.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
   <dmn:import id="_05A46526-821A-4DD2-8D07-E951C63EF179" name="PersonEnrolledInBenefit" namespace="https://kie.apache.org/dmn/_CB10DDEF-33B4-43C5-AD7D-55A06060FF2A" locationURI="person-enrolled-in-benefit.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
-  <dmn:import id="_DEAC915D-D543-440D-AF2D-079D3693AB04" name="Enrollment" namespace="https://kie.apache.org/dmn/_6E9D53A6-E99A-4060-9E3E-1AE12EAB5465" locationURI="Enrollment.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
   <dmn:itemDefinition id="_E01F9604-7400-47EE-8B13-A09DC85E8328" name="tParameters" isCollection="false">
     <dmn:itemComponent id="_084FC722-4916-4274-B7E9-06A9061C40C1" name="personId" isCollection="false">
       <dmn:typeRef>string</dmn:typeRef>
@@ -14,8 +13,8 @@
     </dmn:itemComponent>
   </dmn:itemDefinition>
   <dmn:itemDefinition id="_D9C0D296-8694-4FC2-8A0F-39B5EDCB75D5" name="tSituation" isCollection="false">
-    <dmn:itemComponent id="_357DE36C-149D-4B5C-AEA1-B8779AB39A16" name="enrollments" isCollection="false">
-      <dmn:typeRef>Enrollment.tEnrollmentList</dmn:typeRef>
+    <dmn:itemComponent id="_3A50C5E5-DA22-4544-9F5C-44B68BB8BEED" name="people" isCollection="false">
+      <dmn:typeRef>Any</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
   <dmn:decisionService id="_513F29D9-6F29-4B8A-AD8D-F5C339B354DE" name="PersonNotEnrolledInBenefitService">
@@ -54,7 +53,7 @@
       <di:extension>
         <kie:ComponentsWidthsExtension>
           <kie:ComponentWidths dmnElementRef="_2B3B6102-36EE-4DC3-9592-BD4E8DABD7F8">
-            <kie:width>553</kie:width>
+            <kie:width>510</kie:width>
           </kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>

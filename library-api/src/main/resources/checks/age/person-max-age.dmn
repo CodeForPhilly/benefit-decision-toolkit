@@ -14,20 +14,9 @@
       <dmn:typeRef>number</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
-  <dmn:itemDefinition id="_0D71EA48-4205-46AA-A9AD-F8CACAA46DCA" name="tPerson" isCollection="false">
-    <dmn:itemComponent id="_86173707-A8D7-445B-98CE-F4290D8759FF" name="id" isCollection="false">
-      <dmn:typeRef>string</dmn:typeRef>
-    </dmn:itemComponent>
-    <dmn:itemComponent id="_B3435252-7AD9-4DA1-9146-30AA875309DB" name="dateOfBirth" isCollection="false">
-      <dmn:typeRef>date</dmn:typeRef>
-    </dmn:itemComponent>
-  </dmn:itemDefinition>
-  <dmn:itemDefinition id="_060708CA-ABE7-4539-B875-B27DF041CD57" name="tPersonList" isCollection="true">
-    <dmn:typeRef>tPerson</dmn:typeRef>
-  </dmn:itemDefinition>
   <dmn:itemDefinition id="_C2397C76-AF05-46B5-A22F-56B4FC974408" name="tSituation" isCollection="false">
     <dmn:itemComponent id="_C04C0B57-7407-4B63-B7A3-4B66F11EEC68" name="people" isCollection="false">
-      <dmn:typeRef>tPersonList</dmn:typeRef>
+      <dmn:typeRef>Any</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
   <dmn:decisionService id="_50AFC26A-F5B6-498A-B58F-BDC38F8BE4C9" name="PersonMaxAgeService">
@@ -49,11 +38,14 @@
     <dmn:knowledgeRequirement id="_041CFF33-AE14-4D19-89D5-A0F7C18EC227">
       <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_81D401A8-CA81-4F9A-ABCC-532C25768708#_1919D943-09A4-4D5C-98A0-2B8377862E4C"/>
     </dmn:knowledgeRequirement>
-    <dmn:context id="_C560A975-EACF-4A78-BF08-B4FBFEA471F1">
+    <dmn:context id="_C560A975-EACF-4A78-BF08-B4FBFEA471F1" typeRef="boolean">
       <dmn:contextEntry>
         <dmn:variable id="_532E57ED-E10E-4BC6-84D9-F84A6C8EA69B" name="dateOfBirth" typeRef="date"/>
         <dmn:literalExpression id="_CB89C8C7-F4D0-4877-9B6A-8DFDFA996508">
-          <dmn:text>situation.people[id = parameters.personId].dateOfBirth[1]</dmn:text>
+          <dmn:text>if parameters.personId != null then
+  get value(situation.people, parameters.personId).dateOfBirth
+else
+  null</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>
@@ -155,7 +147,7 @@ else
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="97" y="161" width="100" height="50"/>
+        <dc:Bounds x="85" y="148" width="100" height="50"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_AA093E8F-6D25-46E9-8EF3-F20052C8D666-AUTO-TARGET" dmnElementRef="_AA093E8F-6D25-46E9-8EF3-F20052C8D666">
@@ -167,7 +159,7 @@ else
         <di:waypoint x="390" y="198"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_041CFF33-AE14-4D19-89D5-A0F7C18EC227-AUTO-TARGET" dmnElementRef="_041CFF33-AE14-4D19-89D5-A0F7C18EC227">
-        <di:waypoint x="147" y="186"/>
+        <di:waypoint x="135" y="173"/>
         <di:waypoint x="390" y="148"/>
       </dmndi:DMNEdge>
     </dmndi:DMNDiagram>

@@ -13,17 +13,14 @@ post {
 body:json {
   {
     "situation": {
-      "people": [
-        {
-          "id": "p1"
+      "people": {
+        "p1": {
+          "enrollments": ["different_benefit"]
+        },
+        "p2": {
+          "enrollments": ["bogus"]
         }
-      ],
-      "enrollments": [
-        {
-          "personId": "p2",
-          "benefit": "bogus"
-        }
-      ]
+      }
     },
     "parameters": {
       "personId": "p1",

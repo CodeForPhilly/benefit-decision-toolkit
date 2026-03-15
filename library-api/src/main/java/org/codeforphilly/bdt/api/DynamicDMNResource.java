@@ -108,6 +108,8 @@ public class DynamicDMNResource {
                     .build();
         }
 
+        log.warn("made it far");
+
         // 4. Evaluate the decision service
         DMNResult dmnResult;
         try {
@@ -115,6 +117,7 @@ public class DynamicDMNResource {
                     DMNJSONUtils.ctx(decision, variables, serviceName),
                     serviceName
             );
+            log.warn(dmnResult.toString());
         } catch (Exception e) {
             log.error("Error evaluating decision service: {}/{}", modelName, serviceName, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
