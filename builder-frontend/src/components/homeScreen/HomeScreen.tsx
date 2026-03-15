@@ -5,21 +5,11 @@ import ProjectsList from "./ProjectsList";
 import Header from "../Header/Header";
 
 import BdtNavbar, { NavbarProps } from "@/components/shared/BdtNavbar";
-import { getAccountHooks } from "@/api/account";
-0;
 
 const HomeScreen = () => {
   const [screenMode, setScreenMode] = createSignal<"screeners" | "checks">(
     "screeners",
   );
-
-  const handleTestHook = () => {
-    getAccountHooks().then((result) => {
-      if (result.success) {
-        console.log(result);
-      }
-    });
-  };
 
   const navbarDefs: Accessor<NavbarProps> = () => {
     return {
@@ -33,11 +23,6 @@ const HomeScreen = () => {
           key: "checks",
           label: "Eligibility checks",
           onClick: () => setScreenMode("checks"),
-        },
-        {
-          key: "testAccountHooks",
-          label: "Test Account Hooks",
-          onClick: handleTestHook,
         },
       ],
       activeTabKey: () => screenMode(),
