@@ -1,6 +1,7 @@
 import { createSignal } from "solid-js";
 import { useParams } from "@solidjs/router";
 import { publishScreener } from "../../api/screener";
+import Tooltip from "../shared/Tooltip";
 
 export default function Publish({ project, refetchProject }) {
   const [isLoading, setIsLoading] = createSignal(false);
@@ -72,14 +73,30 @@ export default function Publish({ project, refetchProject }) {
           </div>
         </div>
         <div class="mt-4 flex flex-col gap-2">
-          <button
-            id="publish-screener-button"
-            onClick={handlePublish}
-            class="w-80 bg-gray-800 font-bold text-gray-50 rounded px-4 py-2 hover:bg-gray-700 disabled:opacity-50"
-            disabled={isLoading()}
-          >
-            Publish Screener
-          </button>
+          <div class="flex flex-row gap-2 items-center">
+            <button
+              id="publish-screener-button"
+              onClick={handlePublish}
+              class="w-80 bg-gray-800 font-bold text-gray-50 rounded px-4 py-2 hover:bg-gray-700 disabled:opacity-50"
+              disabled={isLoading()}
+            >
+              Publish Screener
+            </button>
+            <Tooltip>
+              <p>
+                The Publish tab is where you deploy your screener to a publicly
+                accessible URL that you can share with end users.
+              </p>
+              <p>
+                <a
+                  href="https://bdt-docs.web.app/user-guide/#7-publishing-your-screener"
+                  target="_blank"
+                >
+                  Read about publishing your screener in the docs
+                </a>
+              </p>
+            </Tooltip>
+          </div>
           {lastPublishDate() ? (
             <div>Publish current working version to your public screener</div>
           ) : (
