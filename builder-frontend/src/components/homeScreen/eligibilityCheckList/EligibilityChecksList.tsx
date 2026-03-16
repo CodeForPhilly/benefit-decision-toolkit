@@ -7,6 +7,7 @@ import eligibilityCheckResource from "./eligibilityCheckResource";
 
 import type { EligibilityCheck } from "@/types";
 import ConfirmationModal from "@/components/shared/ConfirmationModal";
+import Tooltip from "@/components/shared/Tooltip";
 
 const EligibilityChecksList = () => {
   const { checks, actions, actionInProgress, initialLoadStatus } =
@@ -16,7 +17,7 @@ const EligibilityChecksList = () => {
   const [addingNewCheck, setAddingNewCheck] = createSignal<boolean>(false);
 
   const [checkIdToRemove, setCheckIdToRemove] = createSignal<null | string>(
-    null
+    null,
   );
 
   const navigateToCheck = (check: EligibilityCheck) => {
@@ -28,7 +29,21 @@ const EligibilityChecksList = () => {
       <Show when={initialLoadStatus.loading() || actionInProgress()}>
         <Loading />
       </Show>
-      <div class="text-xl font-bold mb-2">Eligibility Checks</div>
+      <div class="flex flex-row gap-2 items-baseline">
+        <div class="text-xl font-bold mb-2">Eligibility Checks</div>
+        <Tooltip>
+          <p>
+            If the public checks do not cover a requirement specific to your use
+            case, BDT allows you to build your own reusable custom eligibility
+            checks.
+          </p>
+          <p>
+            <a href="https://bdt-docs.web.app/custom-checks/" target="_blank">
+              Read about custom eligibility checks in the docs
+            </a>
+          </p>
+        </Tooltip>
+      </div>
       <div class="text-md mb-3">
         Manage your custom eligibility checks here. Click on a check to view or
         edit its details.
