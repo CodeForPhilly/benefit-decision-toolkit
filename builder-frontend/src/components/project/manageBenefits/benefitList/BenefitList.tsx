@@ -8,29 +8,58 @@ import screenerBenefitResource from "./screenerBenefitsResource";
 import Loading from "../../../Loading";
 
 import type { BenefitDetail } from "@/types";
+import Tooltip from "@/components/shared/Tooltip";
 
-const BenefitList = (
-  { screenerId, setBenefitIdToConfigure }:
-  { screenerId: Accessor<string>; setBenefitIdToConfigure: Setter<null | string> }
-) => {
-  const { screenerBenefits, actions, actionInProgress, initialLoadStatus } = screenerBenefitResource(screenerId);
+const BenefitList = ({
+  screenerId,
+  setBenefitIdToConfigure,
+}: {
+  screenerId: Accessor<string>;
+  setBenefitIdToConfigure: Setter<null | string>;
+}) => {
+  const { screenerBenefits, actions, actionInProgress, initialLoadStatus } =
+    screenerBenefitResource(screenerId);
 
   const [addingNewBenefit, setAddingNewBenefit] = createSignal<boolean>(false);
-  const [selectExistingBenefitModal, setSelectExistingBenefitModal] = createSignal<boolean>(false);
-  const [benefitIdToRemove, setBenefitIdToRemove] = createSignal<null | string>(null);
+  const [selectExistingBenefitModal, setSelectExistingBenefitModal] =
+    createSignal<boolean>(false);
+  const [benefitIdToRemove, setBenefitIdToRemove] = createSignal<null | string>(
+    null,
+  );
 
   return (
     <div class="p-5">
-      <div id="manage-benefits-title" class="text-3xl font-bold mb-2 tracking-wide">
-        Manage Benefits
+      <div class="flex flex-row gap-2 items-baseline">
+        <div
+          id="manage-benefits-title"
+          class="text-3xl font-bold mb-2 tracking-wide"
+        >
+          Manage Benefits
+        </div>
+        <Tooltip>
+          <p>
+            The Manage Benefits tab is where you define the eligibility logic
+            used by your screener.
+          </p>
+          <p>
+            <a
+              href="https://bdt-docs.web.app/user-guide/#3-defining-eligibility-logic-manage-benefits"
+              target="_blank"
+            >
+              Read about defining dligibility logic in the docs
+            </a>
+          </p>
+        </Tooltip>
       </div>
       <div class="text-lg mb-3">
-        Define and organize the benefits available in your screener.
-        Each benefit can have associated eligibility checks.
+        Define and organize the benefits available in your screener. Each
+        benefit can have associated eligibility checks.
       </div>
       <div
         class="btn-default btn-blue mb-3 mr-1"
-        onClick={() => {setAddingNewBenefit(true)}}
+        onClick={() => {
+          setAddingNewBenefit(true);
+        }}
       >
         Create new benefit
       </div>
@@ -46,9 +75,14 @@ const BenefitList = (
           grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
       >
         <Show when={initialLoadStatus.loading() || actionInProgress()}>
-          <Loading/>
+          <Loading />
         </Show>
-        <Show when={!initialLoadStatus.loading() && (screenerBenefits() === null || screenerBenefits().length === 0)}>
+        <Show
+          when={
+            !initialLoadStatus.loading() &&
+            (screenerBenefits() === null || screenerBenefits().length === 0)
+          }
+        >
           <div class="w-full flex text-gray-600 font-bold">
             No benefits found. Please add a new benefit.
           </div>
@@ -65,13 +99,12 @@ const BenefitList = (
           }}
         </For>
       </div>
-      {
-        addingNewBenefit() &&
+      {addingNewBenefit() && (
         <AddNewBenefitModal
           closeModal={() => setAddingNewBenefit(false)}
           addNewBenefit={actions.addNewBenefit}
         />
-      }
+      )}
       {/* {
         selectExistingBenefitModal() &&
         <SelectExistingBenefitModal
@@ -79,27 +112,27 @@ const BenefitList = (
           copyPublicBenefit={actions.copyPublicBenefit}
         />
       } */}
-      {
-        benefitIdToRemove() !== null &&
+      {benefitIdToRemove() !== null && (
         <ConfirmationModal
           confirmationTitle="Remove Benefit"
           confirmationText="Are you sure you want to remove this benefit? This action cannot be undone."
-          callback={() => actions.removeBenefit(benefitIdToRemove()) }
-          closeModal={() => setBenefitIdToRemove(null) }
+          callback={() => actions.removeBenefit(benefitIdToRemove())}
+          closeModal={() => setBenefitIdToRemove(null)}
         />
-      }
+      )}
     </div>
-  )
+  );
 };
 
-const BenefitCard = (
-  { benefit, setBenefitIdToConfigure, setBenefitIdToRemove }:
-  {
-    benefit: BenefitDetail,
-    setBenefitIdToConfigure: Setter<string>,
-    setBenefitIdToRemove: Setter<string>
-  }
-) => {
+const BenefitCard = ({
+  benefit,
+  setBenefitIdToConfigure,
+  setBenefitIdToRemove,
+}: {
+  benefit: BenefitDetail;
+  setBenefitIdToConfigure: Setter<string>;
+  setBenefitIdToRemove: Setter<string>;
+}) => {
   return (
     <div class="w-full flex">
       <div
@@ -111,9 +144,7 @@ const BenefitCard = (
           id={"benefit-card-details-" + benefit.id}
           class="p-4 border-bottom border-gray-300 flex-1"
         >
-          <div class="text-2xl mb-2 font-bold">
-            {benefit.name}
-          </div>
+          <div class="text-2xl mb-2 font-bold">{benefit.name}</div>
           <div>
             <span class="font-bold">Description:</span> {benefit.description}
           </div>
@@ -124,13 +155,17 @@ const BenefitCard = (
         >
           <div
             class="btn-default btn-gray"
-            onClick={() => { setBenefitIdToConfigure(benefit.id); } }
+            onClick={() => {
+              setBenefitIdToConfigure(benefit.id);
+            }}
           >
             Edit
           </div>
           <div
             class="btn-default btn-red"
-            onClick={() => { setBenefitIdToRemove(benefit.id); } }
+            onClick={() => {
+              setBenefitIdToRemove(benefit.id);
+            }}
           >
             Remove
           </div>
@@ -138,6 +173,6 @@ const BenefitCard = (
       </div>
     </div>
   );
-}
+};
 
 export default BenefitList;
