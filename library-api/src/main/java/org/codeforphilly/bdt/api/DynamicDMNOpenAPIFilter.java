@@ -28,6 +28,12 @@ import java.util.logging.Logger;
  * This creates specific paths like /api/v1/checks/age/PersonMinAge instead of a single
  * parameterized path, making the API more discoverable and providing proper type examples.
  *
+ * <p>Schema sources (in order of preference):
+ * <ol>
+ *   <li>.schema.json files alongside DMN files (flattened via SchemaTemplateTransformer)</li>
+ *   <li>Auto-generated dmnDefinitions.json from Kogito</li>
+ * </ol>
+ *
  * Note: This is registered via mp.openapi.filter in application.properties, not as a CDI bean.
  */
 public class DynamicDMNOpenAPIFilter implements OASFilter {
@@ -36,6 +42,7 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
 
     private ModelRegistry modelRegistry;
     private DMNSchemaResolver schemaResolver;
+    private SchemaFileLoader schemaFileLoader;
 
     @Override
     public void filterOpenAPI(OpenAPI openAPI) {
@@ -47,6 +54,9 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
         }
         if (schemaResolver == null) {
             schemaResolver = CDI.current().select(DMNSchemaResolver.class).get();
+        }
+        if (schemaFileLoader == null) {
+            schemaFileLoader = CDI.current().select(SchemaFileLoader.class).get();
         }
 
         // Ensure components exist
@@ -225,6 +235,18 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
             schema.items(convertJsonNodeToSchema(node.get("items")));
         }
 
+        // Handle additionalProperties (for dynamic keys like {personId})
+        if (node.has("additionalProperties")) {
+            com.fasterxml.jackson.databind.JsonNode additionalProps = node.get("additionalProperties");
+            if (additionalProps.isBoolean()) {
+                // additionalProperties: true/false
+                schema.additionalPropertiesBoolean(additionalProps.asBoolean());
+            } else if (additionalProps.isObject()) {
+                // additionalProperties: { type: "object", properties: {...} }
+                schema.additionalPropertiesSchema(convertJsonNodeToSchema(additionalProps));
+            }
+        }
+
         // Handle required fields
         if (node.has("required")) {
             com.fasterxml.jackson.databind.JsonNode required = node.get("required");
@@ -291,8 +313,37 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
         Content content = OASFactory.createContent();
         MediaType mediaType = OASFactory.createMediaType();
 
-        // Set schema reference if available
-        if (inputRef != null) {
+        // Prefer .schema.json file if it exists
+        com.fasterxml.jackson.databind.JsonNode schemaJsonFile = schemaFileLoader.loadFlattenedSchema(model.getPath());
+        com.fasterxml.jackson.databind.JsonNode originalSchema = schemaFileLoader.loadOriginalSchema(model.getPath());
+
+        if (schemaJsonFile != null) {
+            // Use the flattened schema from .schema.json file
+            Schema schema = convertJsonNodeToSchema(schemaJsonFile);
+            mediaType.schema(schema);
+
+            // Generate example from the schema file
+            Map<String, Object> exampleData = schemaFileLoader.generateExample(model.getPath());
+            if (!exampleData.isEmpty()) {
+                Example example = OASFactory.createExample();
+                example.value(convertToOpenAPIValue(exampleData));
+                mediaType.addExample("Example request", example);
+            }
+
+            // Add the original templated schema as x-template-schema extension
+            if (originalSchema != null) {
+                try {
+                    // Convert JsonNode to a Map for the extension
+                    Object templateSchemaMap = OBJECT_MAPPER.convertValue(originalSchema, Object.class);
+                    mediaType.addExtension("x-template-schema", templateSchemaMap);
+                } catch (Exception e) {
+                    LOG.warning("Failed to add x-template-schema extension: " + e.getMessage());
+                }
+            }
+
+            LOG.fine("Using .schema.json for request body: " + model.getPath());
+        } else if (inputRef != null) {
+            // Fall back to dmnDefinitions.json schema
             Schema schema = OASFactory.createSchema();
             schema.ref(inputRef);
             mediaType.schema(schema);
