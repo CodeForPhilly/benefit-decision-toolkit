@@ -172,6 +172,23 @@ def extract_top_level_inputs(
     return inputs
 
 
+def extract_top_level_inputs_from_template(
+    template_schema: JsonSchema,
+) -> dict[str, JsonSchema]:
+    """
+    Extract top-level properties from an x-template-schema.
+
+    The x-template-schema is a self-contained JSON Schema that doesn't
+    use $ref - all types are already inlined. It also contains richer
+    metadata like descriptions and template placeholders (e.g., {personId}).
+    """
+    inputs: dict[str, JsonSchema] = {}
+    if template_schema.get("type") == "object":
+        for prop_name, prop_schema in template_schema.get("properties", {}).items():
+            inputs[prop_name] = prop_schema
+    return inputs
+
+
 # --------------------------------------------
 # Convert schema to simple {field: type}
 # --------------------------------------------
@@ -288,26 +305,46 @@ def extract_check_records(openapi: OpenAPIDocument, version: str) -> list[CheckR
                 entry["inputs"][param_name] = dtype
 
             # ----------------------------------------
-            # 2. Request body parameters
+            # 2. Request body - prefer x-template-schema if available
             # ----------------------------------------
             if "requestBody" in details:
                 content: dict[str, Any] = details["requestBody"]["content"]
 
                 if "application/json" in content:
+                    json_content = content["application/json"]
 
-                    schema: JsonSchema = content["application/json"].get("schema", {})
-                    # Only expand top-level 'parameters' and 'situation'
-                    entry["inputs"].update(
-                        extract_top_level_inputs(schema, components))
+                    # Prefer x-template-schema as the source of truth
+                    if "x-template-schema" in json_content:
+                        template_schema: JsonSchema = json_content["x-template-schema"]
+                        entry["inputs"] = extract_top_level_inputs_from_template(template_schema)
+                    else:
+                        # Fall back to regular schema with $ref resolution
+                        schema: JsonSchema = json_content.get("schema", {})
+                        entry["inputs"].update(
+                            extract_top_level_inputs(schema, components))
 
                     output.append(entry)
 
     return output
 
 
-def transform_parameters(properties_obj: dict[str, JsonSchema]) -> list[ParameterDefinition]:
-    """Convert properties dict to a list of {key, name, type} objects."""
+def transform_parameters(
+    properties_obj: dict[str, JsonSchema],
+    required_list: list[str] | None = None
+) -> list[ParameterDefinition]:
+    """
+    Convert properties dict to a list of ParameterDefinition objects.
+
+    When using x-template-schema, we have access to richer metadata:
+    - description: Human-readable description of the parameter
+    - required: List of required field names from parent schema
+
+    Args:
+        properties_obj: The properties dict from the schema
+        required_list: Optional list of required field names
+    """
     transformed: list[ParameterDefinition] = []
+    required_set: set[str] = set(required_list) if required_list else set()
 
     for key, val in properties_obj.items():
         # Determine the property's type
@@ -318,10 +355,13 @@ def transform_parameters(properties_obj: dict[str, JsonSchema]) -> list[Paramete
         if prop_type == "string" and prop_format == "date":
             prop_type = "date"
 
+        # Use description from schema if available, otherwise fall back to key
+        label: str = val.get("description", key)
+
         transformed.append({
             "key": key,
-            "label": key,
-            "required": False,
+            "label": label,
+            "required": key in required_set,
             "type": prop_type
         })
 
@@ -329,15 +369,16 @@ def transform_parameters(properties_obj: dict[str, JsonSchema]) -> list[Paramete
 
 
 def transform_parameters_format(data: list[CheckRecord]) -> list[CheckRecord]:
-    """Transform all `inputs.parameters.properties` in the provided list."""
+    """Transform all `inputs.parameters` in the provided list to parameterDefinitions."""
     for check in data:
         inputs: dict[str, Any] = check.get("inputs", {})
         parameters: dict[str, Any] | None = inputs.get("parameters")
 
-        # Only transform objects that follow the original structure
+        # Only transform objects that follow the expected structure
         if isinstance(parameters, dict) and "properties" in parameters:
             properties_obj: dict[str, JsonSchema] = parameters["properties"]
-            new_parameters = transform_parameters(properties_obj)
+            required_list: list[str] | None = parameters.get("required")
+            new_parameters = transform_parameters(properties_obj, required_list)
 
             # Replace object with the transformed list
             check["parameterDefinitions"] = new_parameters
@@ -345,9 +386,20 @@ def transform_parameters_format(data: list[CheckRecord]) -> list[CheckRecord]:
 
 
 def transform_situation_format(data: list[CheckRecord]) -> list[CheckRecord]:
-    """Transform all `inputs.situation` in the provided list."""
+    """
+    Transform all `inputs.situation` in the provided list to inputDefinition.
+
+    When using x-template-schema as the source, the situation schema contains:
+    - Rich property descriptions
+    - Template placeholders like {personId} for dynamic keys
+    - Proper required field arrays
+    - Nested type definitions
+    """
     for check in data:
-        check["inputDefinition"] = check["inputs"]["situation"]
+        inputs: dict[str, Any] = check.get("inputs", {})
+        situation = inputs.get("situation")
+        if situation is not None:
+            check["inputDefinition"] = situation
     return data
 
 
