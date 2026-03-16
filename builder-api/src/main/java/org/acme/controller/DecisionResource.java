@@ -111,14 +111,14 @@ public class DecisionResource {
         }
 
         // Transform form data: convert people object to people array
-        Map<String, Object> transformedData = FormDataTransformer.transformFormData(formData);
+        // Map<String, Object> transformedData = FormDataTransformer.transformFormData(formData);
 
         try {
             Map<String, Object> screenerResults = new HashMap<String, Object>();
             //TODO: consider ways of processing benefits in parallel
             for (Benefit benefit : benefits) {
                 // Evaluate benefit
-                Map<String, Object> benefitResults = evaluateBenefit(benefit, transformedData);
+                Map<String, Object> benefitResults = evaluateBenefit(benefit, formData);
                 screenerResults.put(benefit.getId(), benefitResults);
             }
             return Response.ok().entity(screenerResults).build();
