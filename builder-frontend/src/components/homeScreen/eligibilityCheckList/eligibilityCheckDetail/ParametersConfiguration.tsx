@@ -4,6 +4,7 @@ import ParameterModal from "./modals/ParameterModal";
 
 import ConfirmationModal from "@/components/shared/ConfirmationModal";
 import type { EligibilityCheck, ParameterDefinition } from "@/types";
+import Tooltip from "@/components/shared/Tooltip";
 
 const ParametersConfiguration = ({
   eligibilityCheck,
@@ -15,7 +16,7 @@ const ParametersConfiguration = ({
   addParameter: (parameter: ParameterDefinition) => Promise<void>;
   editParameter: (
     parameterIndex: number,
-    parameter: ParameterDefinition
+    parameter: ParameterDefinition,
   ) => Promise<void>;
   removeParameter: (parameterIndex: number) => Promise<void>;
 }) => {
@@ -34,8 +35,24 @@ const ParametersConfiguration = ({
 
   return (
     <div class="p-12">
-      <div class="text-3xl font-bold tracking-wide mb-2">
-        {eligibilityCheck().name}
+      <div class="flex flex-row gap-2 items-baseline">
+        <div class="text-3xl font-bold tracking-wide mb-2">
+          {eligibilityCheck().name}
+        </div>
+        <Tooltip>
+          <p>
+            When you open a custom check, you are taken to the Custom Check
+            Editor.
+          </p>
+          <p>
+            <a
+              href="https://bdt-docs.web.app/custom-checks/#4-the-custom-check-editor"
+              target="_blank"
+            >
+              Read about the custom check editor in the docs
+            </a>
+          </p>
+        </Tooltip>
       </div>
       <p class="text-xl mb-4">{eligibilityCheck().description}</p>
       <div class="p-2">
