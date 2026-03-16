@@ -135,7 +135,6 @@ public class DecisionResource {
 
             int checkNum = 0;
             for (CheckConfig checkConfig : benefit.getChecks()) {
-                String dmnFilepath = storageService.getCheckDmnModelPath(checkConfig.getCheckId());
                 EvaluationResult evaluationResult;
                 if (isLibraryCheck(checkConfig)){
                     evaluationResult = libraryApi.evaluateCheck(checkConfig, formData);
@@ -144,6 +143,8 @@ public class DecisionResource {
                     if (customFormValues == null) {
                         customFormValues = new HashMap<String, Object>();
                     }
+                    String sourceCheckId = checkConfig.getSourceCheckId() != null ? checkConfig.getSourceCheckId() : checkConfig.getCheckId();
+                    String dmnFilepath = storageService.getCheckDmnModelPath(sourceCheckId);
                     evaluationResult = dmnService.evaluateDmn(
                         dmnFilepath, checkConfig.getCheckName(), customFormValues, checkConfig.getParameters()
                     );
