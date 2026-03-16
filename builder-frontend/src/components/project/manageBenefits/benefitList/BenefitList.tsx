@@ -46,7 +46,7 @@ const BenefitList = ({
               href="https://bdt-docs.web.app/user-guide/#3-defining-eligibility-logic-manage-benefits"
               target="_blank"
             >
-              Read about defining dligibility logic in the docs
+              Read about defining elegibility logic in the docs
             </a>
           </p>
         </Tooltip>
