@@ -7,7 +7,6 @@ import svelte from "@astrojs/svelte";
 // https://astro.build/config
 export default defineConfig({
   vite: { plugins: [tailwindcss()] },
-  site: "https://codeforphilly.github.io",
-  base: "/benefit-decision-toolkit",
+  site: "https://bdtoolkit.org",
   integrations: [svelte()],
 });
