@@ -59,6 +59,7 @@ export interface CreateCheckRequest {
 export interface UpdateCheckRequest {
   description?: string;
   parameterDefinitions?: ParameterDefinition[];
+  inputDefinition?: JSONSchema7;
 }
 
 // Request types for Custom Benefit API endpoints
@@ -144,4 +145,37 @@ export interface PublishedScreener {
 export interface FormPath {
   path: string;
   type: string;
+}
+
+// Input Schema Editor Types
+export interface InputSchemaEditorState {
+  situation: SituationSchemaConfig;
+  parameters: ParameterSchemaProperty[];
+}
+
+export interface SituationSchemaConfig {
+  people: PeopleSchemaConfig;
+  simpleChecks: string[]; // List of boolean flag keys the check needs
+}
+
+export interface PeopleSchemaConfig {
+  // List of person keys with their individual property configurations
+  keys: PeopleKeyDefinition[];
+}
+
+export interface PeopleKeyDefinition {
+  // The key value - either a static string like "client" or a parameter reference like "personId" (without braces)
+  value: string;
+  // Whether this references a parameter (true) or is a static string (false)
+  isParameterReference: boolean;
+  // Which properties this specific person key requires
+  includeDateOfBirth: boolean;
+  includeEnrollments: boolean;
+}
+
+export interface ParameterSchemaProperty {
+  key: string;
+  type: ParameterType;
+  required: boolean;
+  description?: string;
 }

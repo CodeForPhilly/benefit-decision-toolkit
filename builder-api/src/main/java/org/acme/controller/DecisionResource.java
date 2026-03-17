@@ -139,14 +139,14 @@ public class DecisionResource {
                 if (isLibraryCheck(checkConfig)){
                     evaluationResult = libraryApi.evaluateCheck(checkConfig, formData);
                 } else {
-                    Map<String, Object> customFormValues = (Map<String, Object>) formData.get("custom");
-                    if (customFormValues == null) {
-                        customFormValues = new HashMap<String, Object>();
-                    }
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("parameters", checkConfig.getParameters());
+                    data.put("situation", formData);
+
                     String sourceCheckId = checkConfig.getSourceCheckId() != null ? checkConfig.getSourceCheckId() : checkConfig.getCheckId();
                     String dmnFilepath = storageService.getCheckDmnModelPath(sourceCheckId);
                     evaluationResult = dmnService.evaluateDmn(
-                        dmnFilepath, checkConfig.getCheckName(), customFormValues, checkConfig.getParameters()
+                        dmnFilepath, checkConfig.getCheckName(), data, checkConfig.getParameters()
                     );
                 }
                 resultsList.add(evaluationResult);
@@ -209,6 +209,18 @@ public class DecisionResource {
                 .build();
         }
         EligibilityCheck check = checkOpt.get();
+
+        /*
+{
+  "situation": {
+    "people": {
+      "client": {
+        "dateOfBirth": "2026-01-01"
+      }
+    }
+  }
+}
+*/
 
         try {
             String dmnFilepath = storageService.getCheckDmnModelPath(check.getId());

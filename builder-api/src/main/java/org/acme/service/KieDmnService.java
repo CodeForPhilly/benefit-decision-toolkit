@@ -195,6 +195,9 @@ public class KieDmnService implements DmnService {
             context.set(input.getKey(), input.getValue());
         }
         context.set("parameters", parameters);
+        Log.info(context.toString());
+        
+        
         DMNResult dmnResult = dmnRuntime.evaluateAll(dmnModel, context);
 
         // Collect and interpret results
@@ -207,6 +210,8 @@ public class KieDmnService implements DmnService {
         if (decisionResults.size() > 1) {
             throw new RuntimeException("Multiple decision results from DMN evaluation");
         }
+
+        Log.info(decisionResults.toString());
 
         // Assuming single decision result for a Simple DMN
         DMNDecisionResult decisionResult = decisionResults.get(0);

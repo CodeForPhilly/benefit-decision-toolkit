@@ -11,19 +11,19 @@ import EligibilityCheckTest from "./checkTesting/EligibilityCheckTest";
 import PublishCheck from "./PublishCheck";
 
 import eligibilityCheckDetailResource from "./eligibilityCheckDetailResource";
-import ParametersConfiguration from "./ParametersConfiguration";
+import InputSchemaEditor from "./inputSchemaEditor/InputSchemaEditor";
 
 import ErrorDisplayModal from "@/components/shared/ErrorModal";
 import BdtNavbar, { NavbarProps } from "@/components/shared/BdtNavbar";
 
 
-type CheckDetailScreenMode = "paramConfig" | "dmnDefinition" | "testing" | "publish";
+type CheckDetailScreenMode = "inputSchema" | "dmnDefinition" | "testing" | "publish";
 
 const EligibilityCheckDetail = () => {
   const { checkId } = useParams();
 
   const [currentDmnModel, setCurrentDmnModel] = createSignal<string>("");
-  const [screenMode, setScreenMode] = createSignal<CheckDetailScreenMode>("paramConfig");
+  const [screenMode, setScreenMode] = createSignal<CheckDetailScreenMode>("inputSchema");
 
   const [validationErrors, setValidationErrors] = createSignal<string[]>([]);
   const [showingErrorModal, setShowingErrorModal] = createSignal<boolean>(false);
@@ -48,7 +48,7 @@ const EligibilityCheckDetail = () => {
   const navbarDefs: Accessor<NavbarProps> = () => {
     return {
       tabDefs: [
-        { key: "paramConfig", label: "Parameter Configuration", onClick: () => setScreenMode("paramConfig") },
+        { key: "inputSchema", label: "Input Schema", onClick: () => setScreenMode("inputSchema") },
         { key: "dmnDefinition", label: "DMN Definition", onClick: () => setScreenMode("dmnDefinition") },
         { key: "testing", label: "Testing", onClick: () => setScreenMode("testing") },
         { key: "publish", label: "Publish", onClick: () => setScreenMode("publish") },
@@ -68,12 +68,10 @@ const EligibilityCheckDetail = () => {
       <BdtNavbar navProps={navbarDefs} />
       <Show when={ eligibilityCheck().id !== undefined && !initialLoadStatus.loading() }>
         <Switch>
-          <Match when={screenMode() === "paramConfig"}>
-            <ParametersConfiguration
+          <Match when={screenMode() === "inputSchema"}>
+            <InputSchemaEditor
               eligibilityCheck={eligibilityCheck}
-              addParameter={actions.addParameter}
-              editParameter={actions.updateParameter}
-              removeParameter={actions.removeParameter}
+              onSave={actions.updateInputSchema}
             />
           </Match>
           <Match when={screenMode() === "dmnDefinition"}>

@@ -152,6 +152,9 @@ public class EligibilityCheckResource {
         if (request.parameterDefinitions() != null) {
             existingCheck.setParameterDefinitions(request.parameterDefinitions());
         }
+        if (request.inputDefinition() != null) {
+            existingCheck.setInputDefinition(request.inputDefinition());
+        }
 
         try {
             eligibilityCheckRepository.updateWorkingCustomCheck(existingCheck);

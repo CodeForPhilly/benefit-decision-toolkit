@@ -11,6 +11,7 @@ import {
   validateCheckDmn,
 } from "@/api/check";
 
+import type { JSONSchema7 } from "json-schema";
 import type {
   CheckConfig,
   EligibilityCheckDetail,
@@ -27,6 +28,7 @@ export interface EligibilityCheckDetailResource {
       parameterDef: ParameterDefinition
     ) => Promise<void>;
     removeParameter: (parameterIndex: number) => Promise<void>;
+    updateInputSchema: (schema: JSONSchema7) => Promise<void>;
     saveDmnModel: (dmnString: string) => Promise<void>;
     validateDmnModel: (dmnString: string) => Promise<string[]>;
     testEligibility: (
@@ -120,6 +122,21 @@ const eligibilityCheckDetailResource = (
     setActionInProgress(false);
   };
 
+  const updateInputSchema = async (schema: JSONSchema7) => {
+    setActionInProgress(true);
+    try {
+      await updateCheck(eligibilityCheck.id, {
+        inputDefinition: schema,
+      });
+      toast.success("Input schema saved successfully.");
+      await refetch();
+    } catch (e) {
+      console.error("Failed to save input schema", e);
+      toast.error("Failed to save input schema.");
+    }
+    setActionInProgress(false);
+  };
+
   const saveDmnModel = async (dmnString: string) => {
     setActionInProgress(true);
     try {
@@ -185,6 +202,7 @@ const eligibilityCheckDetailResource = (
       addParameter,
       updateParameter,
       removeParameter,
+      updateInputSchema,
       saveDmnModel,
       validateDmnModel,
       testEligibility,

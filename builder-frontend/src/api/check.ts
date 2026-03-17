@@ -85,6 +85,8 @@ export const updateCheck = async (
       body.description = updates.description;
     if (updates.parameterDefinitions !== undefined)
       body.parameterDefinitions = updates.parameterDefinitions;
+    if (updates.inputDefinition !== undefined)
+      body.inputDefinition = updates.inputDefinition;
 
     const response = await authPatch(url, body);
 

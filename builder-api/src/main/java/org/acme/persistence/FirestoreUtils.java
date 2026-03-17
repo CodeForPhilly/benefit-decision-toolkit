@@ -201,7 +201,7 @@ public class FirestoreUtils {
         try {
             WriteResult result = db.collection(collectionName)
                     .document(docId)
-                    .set(data, SetOptions.merge())
+                    .set(data)
                     .get();
             Log.info("Document " + docId + " updated at " + result.getUpdateTime());
 
