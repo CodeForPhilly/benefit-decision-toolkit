@@ -270,18 +270,6 @@ public class EligibilityCheckResource {
                     .build();
         }
 
-        // Extract input schema from DMN
-        try {
-            String workingDmn = workingDmnOpt.get();
-            HashMap<String, String> dmnDependenciesMap = new HashMap<String, String>();
-            JsonNode inputSchema = dmnService.extractInputSchema(workingDmn, dmnDependenciesMap, check.getName());
-            check.setInputDefinition(inputSchema);
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(Map.of("error", "Failed to extract input schema for check " + check.getId()))
-                    .build();
-        }
-
         // Update workingCheck so that the incremented version number is saved
         check.setVersion(incrementMajorVersion(check.getVersion()));
         try {

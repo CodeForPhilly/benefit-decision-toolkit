@@ -1,6 +1,8 @@
 package org.acme.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import org.acme.model.domain.Benefit;
@@ -106,7 +108,12 @@ public class InputSchemaService {
                 continue;
             }
 
-            String currentPath = parentPath.isEmpty() ? propKey : parentPath + "." + propKey;
+            String currentPath = "";
+            if (propKey.equals("situation")) {
+                currentPath = parentPath;
+            } else {
+                currentPath = parentPath.isEmpty() ? propKey : parentPath + "." + propKey;
+            }
             String currentType = getEffectiveType(propValue);
 
             // If this property has nested properties, recurse into it

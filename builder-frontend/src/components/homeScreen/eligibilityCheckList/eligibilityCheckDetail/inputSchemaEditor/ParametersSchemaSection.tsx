@@ -1,9 +1,9 @@
 import { For, Index } from "solid-js";
-import type { ParameterSchemaProperty, ParameterType } from "@/types";
+import type { ParameterDefinition, ParameterType } from "@/types";
 
 interface ParametersSchemaSectionProps {
-  parameters: ParameterSchemaProperty[];
-  onChange: (parameters: ParameterSchemaProperty[]) => void;
+  parameters: ParameterDefinition[];
+  onChange: (parameters: ParameterDefinition[]) => void;
 }
 
 const PARAMETER_TYPES: { value: ParameterType; label: string }[] = [
@@ -17,7 +17,7 @@ const PARAMETER_TYPES: { value: ParameterType; label: string }[] = [
 const ParametersSchemaSection = (props: ParametersSchemaSectionProps) => {
   const handleParameterChange = (
     index: number,
-    field: keyof ParameterSchemaProperty,
+    field: keyof ParameterDefinition,
     value: string | boolean
   ) => {
     const newParams = [...props.parameters];
@@ -31,7 +31,7 @@ const ParametersSchemaSection = (props: ParametersSchemaSectionProps) => {
   const addParameter = () => {
     props.onChange([
       ...props.parameters,
-      { key: "", type: "string", required: true },
+      { key: "", label: "", type: "string", required: true },
     ]);
   };
 
@@ -41,7 +41,7 @@ const ParametersSchemaSection = (props: ParametersSchemaSectionProps) => {
   };
 
   return (
-    <div class="border border-gray-300 rounded-lg p-4 mb-6">
+    <div class="border border-gray-300 rounded-lg p-4 mb-6 flex-1">
       <h3 class="text-lg font-semibold mb-4">Parameters Schema</h3>
       <p class="text-sm text-gray-600 mb-4">
         Define the parameters your check accepts. These are passed in the <code class="bg-gray-100 px-1 rounded">parameters</code> input.
@@ -50,12 +50,7 @@ const ParametersSchemaSection = (props: ParametersSchemaSectionProps) => {
       {props.parameters.length > 0 && (
         <div class="mb-4">
           {/* Header row */}
-          <div class="flex items-center gap-4 mb-2 text-sm font-medium text-gray-600">
-            <div class="w-48">Key</div>
-            <div class="w-32">Type</div>
-            <div class="w-24">Required</div>
-            <div class="w-8"></div>
-          </div>
+
 
           {/* Parameter rows */}
           <div class="space-y-2">
@@ -69,14 +64,14 @@ const ParametersSchemaSection = (props: ParametersSchemaSectionProps) => {
                       handleParameterChange(index, "key", e.currentTarget.value)
                     }
                     placeholder="parameterKey"
-                    class="form-input border border-gray-300 rounded px-3 py-1.5 w-48"
+                    class="form-input border border-gray-300 rounded flex-2"
                   />
                   <select
                     value={param().type}
                     onChange={(e) =>
                       handleParameterChange(index, "type", e.currentTarget.value as ParameterType)
                     }
-                    class="form-select border border-gray-300 rounded px-3 py-1.5 w-32"
+                    class="form-select border border-gray-300 rounded flex-2"
                   >
                     <For each={PARAMETER_TYPES}>
                       {(typeOption) => (
@@ -84,8 +79,8 @@ const ParametersSchemaSection = (props: ParametersSchemaSectionProps) => {
                       )}
                     </For>
                   </select>
-                  <div class="w-24 flex items-center">
-                    <label class="flex items-center gap-2 cursor-pointer">
+                  <div class="w-24 flex items-center flex-1">
+                    <label class="items-center cursor-pointer">
                       <input
                         type="checkbox"
                         checked={param().required}
@@ -94,13 +89,13 @@ const ParametersSchemaSection = (props: ParametersSchemaSectionProps) => {
                         }
                         class="form-checkbox h-4 w-4 text-sky-600"
                       />
-                      <span class="text-sm">Yes</span>
+                      <span class="text-sm ml-2">Required</span>
                     </label>
                   </div>
                   <button
                     type="button"
                     onClick={() => removeParameter(index)}
-                    class="text-red-500 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50 w-8"
+                    class="text-red-500 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50 w-8 flex-1"
                     title="Remove"
                   >
                     X

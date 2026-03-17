@@ -28,7 +28,7 @@ export interface EligibilityCheckDetailResource {
       parameterDef: ParameterDefinition
     ) => Promise<void>;
     removeParameter: (parameterIndex: number) => Promise<void>;
-    updateInputSchema: (schema: JSONSchema7) => Promise<void>;
+    updateInputSchema: (schema: JSONSchema7, parameters: ParameterDefinition[]) => Promise<void>;
     saveDmnModel: (dmnString: string) => Promise<void>;
     validateDmnModel: (dmnString: string) => Promise<string[]>;
     testEligibility: (
@@ -122,11 +122,12 @@ const eligibilityCheckDetailResource = (
     setActionInProgress(false);
   };
 
-  const updateInputSchema = async (schema: JSONSchema7) => {
+  const updateInputSchema = async (schema: JSONSchema7, parameters: ParameterDefinition[]) => {
     setActionInProgress(true);
     try {
       await updateCheck(eligibilityCheck.id, {
         inputDefinition: schema,
+        parameterDefinitions: parameters
       });
       toast.success("Input schema saved successfully.");
       await refetch();

@@ -2,10 +2,9 @@ import type { JSONSchema7 } from "json-schema";
 import type {
   InputSchemaEditorState,
   SituationSchemaConfig,
-  PeopleSchemaConfig,
-  ParameterSchemaProperty,
   ParameterType,
   PeopleKeyDefinition,
+  ParameterDefinition,
 } from "@/types";
 
 // Default empty state for the editor
@@ -170,7 +169,7 @@ const buildSituationSchema = (config: SituationSchemaConfig): JSONSchema7 => {
 
 // Build the parameters portion of the schema
 const buildParametersSchema = (
-  parameters: ParameterSchemaProperty[]
+  parameters: ParameterDefinition[]
 ): JSONSchema7 => {
   const properties: Record<string, JSONSchema7> = {};
   const required: string[] = [];
@@ -197,7 +196,7 @@ const buildParametersSchema = (
 
 // Parse an existing JSON Schema back into editor state
 export const parseJsonSchemaToEditorState = (
-  schema: JSONSchema7 | undefined | null
+  schema: JSONSchema7 | undefined | null,
 ): InputSchemaEditorState => {
   if (!schema || typeof schema !== "object") {
     return getDefaultEditorState();
@@ -269,6 +268,7 @@ export const parseJsonSchemaToEditorState = (
     if (paramProps) {
       state.parameters = Object.entries(paramProps).map(([key, propSchema]) => ({
         key,
+        label: key,
         type: jsonSchemaTypeToParameterType(propSchema as JSONSchema7),
         required: requiredParams.includes(key),
         description: (propSchema as JSONSchema7).description,

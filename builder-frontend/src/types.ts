@@ -93,6 +93,7 @@ interface BaseParameter {
   key: string;
   label: string;
   required: boolean;
+  description?: string;
 }
 export interface StringMultiInputParameter extends BaseParameter {
   type: "array";
@@ -150,7 +151,7 @@ export interface FormPath {
 // Input Schema Editor Types
 export interface InputSchemaEditorState {
   situation: SituationSchemaConfig;
-  parameters: ParameterSchemaProperty[];
+  parameters: ParameterDefinition[];
 }
 
 export interface SituationSchemaConfig {
@@ -171,11 +172,4 @@ export interface PeopleKeyDefinition {
   // Which properties this specific person key requires
   includeDateOfBirth: boolean;
   includeEnrollments: boolean;
-}
-
-export interface ParameterSchemaProperty {
-  key: string;
-  type: ParameterType;
-  required: boolean;
-  description?: string;
 }

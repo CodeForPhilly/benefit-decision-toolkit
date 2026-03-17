@@ -11,12 +11,12 @@ import {
   validateEditorState,
 } from "./schemaUtils";
 
-import type { EligibilityCheck, InputSchemaEditorState, SituationSchemaConfig, ParameterSchemaProperty } from "@/types";
+import type { EligibilityCheck, InputSchemaEditorState, SituationSchemaConfig, ParameterDefinition } from "@/types";
 import Tooltip from "@/components/shared/Tooltip";
 
 interface InputSchemaEditorProps {
   eligibilityCheck: Accessor<EligibilityCheck>;
-  onSave: (schema: JSONSchema7) => Promise<void>;
+  onSave: (schema: JSONSchema7, parameterDefinitions: ParameterDefinition[]) => Promise<void>;
 }
 
 const InputSchemaEditor = (props: InputSchemaEditorProps) => {
@@ -45,7 +45,7 @@ const InputSchemaEditor = (props: InputSchemaEditorProps) => {
     setValidationErrors([]);
   };
 
-  const handleParametersChange = (parameters: ParameterSchemaProperty[]) => {
+  const handleParametersChange = (parameters: ParameterDefinition[]) => {
     setEditorState("parameters", parameters);
     setValidationErrors([]);
   };
@@ -64,7 +64,7 @@ const InputSchemaEditor = (props: InputSchemaEditorProps) => {
     // Save
     setIsSaving(true);
     try {
-      await props.onSave(schema);
+      await props.onSave(schema, editorState.parameters);
       setValidationErrors([]);
       // Allow the effect to reload fresh data from server after save
       setInitialLoadComplete(false);
@@ -82,8 +82,8 @@ const InputSchemaEditor = (props: InputSchemaEditorProps) => {
   };
 
   return (
-    <div class="p-6 max-w-4xl">
-      <div class="flex flex-row gap-2 items-baseline mb-6">
+    <div class="p-6">
+      <div class="flex flex-row gap-2 items-baseline mb-3">
         <h2 class="text-2xl font-bold">{props.eligibilityCheck().name}</h2>
         <Tooltip>
           <p>
@@ -103,8 +103,6 @@ const InputSchemaEditor = (props: InputSchemaEditorProps) => {
         </Tooltip>
       </div>
 
-      <p class="text-gray-600 mb-6">{props.eligibilityCheck().description}</p>
-
       {/* Validation Errors */}
       <Show when={validationErrors().length > 0}>
         <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
@@ -117,18 +115,20 @@ const InputSchemaEditor = (props: InputSchemaEditorProps) => {
         </div>
       </Show>
 
-      {/* Situation Schema Section */}
-      <SituationSchemaSection
-        config={editorState.situation}
-        parameters={editorState.parameters}
-        onChange={handleSituationChange}
-      />
+      <div class="flex xl:flex-row flex-col gap-4">
+        {/* Situation Schema Section */}
+        <SituationSchemaSection
+          config={editorState.situation}
+          parameters={editorState.parameters}
+          onChange={handleSituationChange}
+        />
 
-      {/* Parameters Schema Section */}
-      <ParametersSchemaSection
-        parameters={editorState.parameters}
-        onChange={handleParametersChange}
-      />
+        {/* Parameters Schema Section */}
+        <ParametersSchemaSection
+          parameters={editorState.parameters}
+          onChange={handleParametersChange}
+        />
+      </div>
 
       {/* Actions */}
       <div class="flex items-center gap-4 mt-6">

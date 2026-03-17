@@ -1,10 +1,10 @@
 import { For, Index, Show } from "solid-js";
-import type { SituationSchemaConfig, PeopleKeyDefinition, ParameterSchemaProperty } from "@/types";
+import type { SituationSchemaConfig, PeopleKeyDefinition, ParameterDefinition } from "@/types";
 import { createDefaultPeopleKey } from "./schemaUtils";
 
 interface SituationSchemaSectionProps {
   config: SituationSchemaConfig;
-  parameters: ParameterSchemaProperty[];
+  parameters: ParameterDefinition[];
   onChange: (config: SituationSchemaConfig) => void;
 }
 
@@ -71,7 +71,7 @@ const SituationSchemaSection = (props: SituationSchemaSectionProps) => {
   };
 
   return (
-    <div class="border border-gray-300 rounded-lg p-4 mb-6">
+    <div class="border border-gray-300 rounded-lg p-4 mb-6 flex-1">
       <h3 class="text-lg font-semibold mb-4">Situation Schema</h3>
       <p class="text-sm text-gray-600 mb-4">
         Define which parts of the situation data your check needs access to.
