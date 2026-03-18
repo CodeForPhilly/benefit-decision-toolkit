@@ -12,10 +12,7 @@
   <ul class="flex gap-6 text-lg">
     {#each navLinks as link}
       <li>
-        <a
-          class="text-white font-bold"
-          href={`${import.meta.env.BASE_URL}${link.path}`}
-        >
+        <a class="text-white font-bold" href={link.path}>
           {link.title}
         </a>
       </li>
@@ -47,7 +44,7 @@
         <li>
           <a
             class="text-white text-3xl font-bold font-serif"
-            href={`${import.meta.env.BASE_URL}${link.path}`}
+            href={link.path}
             onclick={toggleMenu}
           >
             {link.title}
