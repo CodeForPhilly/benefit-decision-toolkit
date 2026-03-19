@@ -5,5 +5,6 @@
   --font-sans: "Inter", sans;
   --font-serif: "Ramaraja", serif;
   --color-bdt-blue: #1876ba;
-  --color-bdt-green: #cff7d3;
+  --color-bdt-green-light: #cff7d3;
+  --color-bdt-green-dark: #16561d;
 }
