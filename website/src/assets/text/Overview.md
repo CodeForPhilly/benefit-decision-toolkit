@@ -1,5 +1,5 @@
 ## What We Do
 
-BDT bridges the gap between complex public benefit requirements and individual needs by helping you create lower cost decision-making tools to streamline eligibility assessments.
+Our mission is to provide free, intuitive tools that help organizations build benefit eligibility screeners for the communities they serve.
 
-Our screener builder is completely open-source, giving you superpowers without vendor lock-in.
+With the open‑source BDT web app, you can create and maintain benefit screeners easily, without needing technical expertise or relying on costly software vendors.
