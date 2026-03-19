@@ -15,7 +15,7 @@ import wedge from "../assets/backgrounds/wedge.svg";
           method="post"
           class="mt-6"
         >
-          <div><label for="name">Name:</label></div>
+          <div><label for="name" class="font-semibold">Name</label></div>
           <div>
             <input
               class="my-3 p-3 w-full border-2 border-bdt-blue rounded-2xl"
@@ -23,9 +23,10 @@ import wedge from "../assets/backgrounds/wedge.svg";
               name="name"
               id="name"
               placeholder="John Doe"
+              required
             />
           </div>
-          <div><label for="email">Email:</label></div>
+          <div><label for="email" class="font-semibold">Email</label></div>
           <div>
             <input
               class="my-3 p-3 w-full border-2 border-bdt-blue rounded-2xl"
@@ -33,15 +34,17 @@ import wedge from "../assets/backgrounds/wedge.svg";
               name="email"
               id="email"
               placeholder="johndoe@example.com"
+              required
             />
           </div>
-          <div><label for="message">Message:</label></div>
+          <div><label for="message" class="font-semibold">Message</label></div>
           <div>
             <textarea
               class="my-3 p-3 w-full h-40 border-2 border-bdt-blue rounded-2xl"
               name="message"
               id="message"
-              placeholder="Your message"></textarea>
+              placeholder="Your message"
+              required></textarea>
           </div>
           <input
             class="px-6 py-2 pt-3.5 mt-3 font-serif bg-bdt-green rounded-full text-xl font-bold cursor-pointer"
