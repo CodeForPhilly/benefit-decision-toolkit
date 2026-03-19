@@ -2,4 +2,4 @@
 
 Our mission is to provide free, intuitive tools that help organizations build benefit eligibility screeners for the communities they serve.
 
-With the open‑source BDT web app, you can create and maintain benefit screeners easily, without needing technical expertise or relying on costly software vendors.
+With our open‑source screener builder app, you can easily create and maintain benefit screeners, without needing coding expertise or relying on costly software vendors.
