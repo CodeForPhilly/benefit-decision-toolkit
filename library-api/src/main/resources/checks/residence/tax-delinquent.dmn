@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmn:definitions
+    xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/"
+    xmlns="https://kie.apache.org/dmn/_F26CE0F4-1FF7-404A-9EF3-788224C69FE5"
+    xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/"
+    xmlns:kie="http://www.drools.org/kie/dmn/1.2"
+    xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/"
+    xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
+    xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+    xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79"
+    xmlns:included2="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1"
+    id="_5FA6D636-B06D-466E-A580-73F9D11999D7"
+    name="TaxDelinquent"
+    typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/"
+    namespace="https://kie.apache.org/dmn/_F26CE0F4-1FF7-404A-9EF3-788224C69FE5">
+  <dmn:description>Checks whether the property owner has delinquent taxes.</dmn:description>
+  <dmn:extensionElements/>
+  <dmn:import id="_5CC41E8A-DDE8-4102-8E2E-D1E988CA4EB5" name="BDT"
+      namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79"
+      locationURI="../BDT.dmn"
+      importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+  <dmn:import id="_F834A1B5-5186-4122-8DB1-0A21699EE86B" name="Residence"
+      namespace="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1"
+      locationURI="Residence.dmn"
+      importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+  <dmn:itemDefinition id="_49FCA0D5-0B51-4390-9CB6-6DC5E35A4761" name="tSimpleChecks" isCollection="false">
+    <dmn:itemComponent id="_7A1A8CC7-2108-490A-95A1-1AA19C7E937D" name="taxDelinquent" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_9427B5B5-0BE5-4617-9D6B-07D59240433B" name="tSituation" isCollection="false">
+    <dmn:itemComponent id="_1A2CC650-C64F-40AC-82DC-50994805CE53" name="simpleChecks" isCollection="false">
+      <dmn:typeRef>tSimpleChecks</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:decisionService id="_C41C2468-7290-4E8E-895F-8D0F648C6E26" name="TaxDelinquentService">
+    <dmn:extensionElements/>
+    <dmn:variable id="_5B39FF18-4AA5-42FD-8928-B6FAB73FD206" name="TaxDelinquentService" typeRef="BDT.tCheckResponse"/>
+    <dmn:outputDecision href="#_76277271-E005-4934-8D0F-5C4433255927"/>
+    <dmn:inputData href="#_828BBBD1-BA7A-488F-A5A6-C00779022AFA"/>
+  </dmn:decisionService>
+  <dmn:decision id="_76277271-E005-4934-8D0F-5C4433255927" name="checkResult">
+    <dmn:extensionElements/>
+    <dmn:variable id="_2F37315B-D351-4659-AE85-285F44535669" name="checkResult" typeRef="boolean"/>
+    <dmn:informationRequirement id="_07BEBD90-1E94-4896-BD69-9777D3F2A582">
+      <dmn:requiredInput href="#_828BBBD1-BA7A-488F-A5A6-C00779022AFA"/>
+    </dmn:informationRequirement>
+    <dmn:literalExpression id="_28B95B89-9C86-4487-86E1-D33FA6BD82DA">
+      <dmn:text>if situation.simpleChecks != null and situation.simpleChecks.taxDelinquent != null then
+  situation.simpleChecks.taxDelinquent = true
+else
+  null</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmn:inputData id="_828BBBD1-BA7A-488F-A5A6-C00779022AFA" name="situation">
+    <dmn:extensionElements/>
+    <dmn:variable id="_0C7450FD-92FB-4B23-AE1E-8561C0E0CD4F" name="situation" typeRef="tSituation"/>
+  </dmn:inputData>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_78DD76C8-4DE4-4BEA-8B95-3ED0760FF2F6" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_28B95B89-9C86-4487-86E1-D33FA6BD82DA">
+            <kie:width>917</kie:width>
+          </kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="dmnshape-drg-_C41C2468-7290-4E8E-895F-8D0F648C6E26" dmnElementRef="_C41C2468-7290-4E8E-895F-8D0F648C6E26" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="170" y="106" width="280" height="199"/>
+        <dmndi:DMNLabel/>
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="170" y="206"/>
+          <di:waypoint x="450" y="206"/>
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_76277271-E005-4934-8D0F-5C4433255927" dmnElementRef="_76277271-E005-4934-8D0F-5C4433255927" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="266" y="147" width="88" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_828BBBD1-BA7A-488F-A5A6-C00779022AFA" dmnElementRef="_828BBBD1-BA7A-488F-A5A6-C00779022AFA" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="260" y="336" width="100" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="dmnedge-drg-_07BEBD90-1E94-4896-BD69-9777D3F2A582-AUTO-TARGET" dmnElementRef="_07BEBD90-1E94-4896-BD69-9777D3F2A582">
+        <di:waypoint x="310" y="361"/>
+        <di:waypoint x="310" y="197"/>
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>

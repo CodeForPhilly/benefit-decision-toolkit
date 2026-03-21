@@ -1,0 +1,26 @@
+meta {
+  name: Null
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/checks/residence/tax-delinquent
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "simpleChecks": {
+        "taxDelinquent": null
+      }
+    }
+  }
+}
+
+assert {
+  res.body.checkResult: eq null
+  res.status: eq 200
+}

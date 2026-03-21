@@ -95,6 +95,9 @@
     <dmn:itemComponent id="_9B8E011F-DFED-4C8C-853A-4DDD715C807A" name="livesInPhiladelphiaPa" isCollection="false">
       <dmn:typeRef>boolean</dmn:typeRef>
     </dmn:itemComponent>
+    <dmn:itemComponent id="_587DCE99-9448-4BE2-BBAC-8E1946049A23" name="taxDelinquent" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
   </dmn:itemDefinition>
   <dmn:businessKnowledgeModel id="_04036CBE-BE0E-44C8-9A49-01D01F005E6F" name="age as of date">
     <dmn:extensionElements/>
