@@ -1,0 +1,26 @@
+meta {
+  name: Pass
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/checks/residence/tax-delinquent
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "simpleChecks": {
+        "taxDelinquent": true
+      }
+    }
+  }
+}
+
+assert {
+  res.body.checkResult: eq true
+  res.status: eq 200
+}
