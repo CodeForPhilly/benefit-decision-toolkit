@@ -1,0 +1,39 @@
+meta {
+  name: Eligible
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/benefits/pa/phl/owner-occupied-payment-agreement
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "enrollments": [
+        {
+          "personId": "p1",
+          "benefit": "PhlHomesteadExemption"
+        }
+      ],
+      "simpleChecks": {
+        "livesInPhiladelphiaPa": true,
+        "ownerOccupant": true,
+        "taxDelinquent": true
+      }
+    }
+  }
+}
+
+assert {
+  res.body.isEligible: eq true
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
