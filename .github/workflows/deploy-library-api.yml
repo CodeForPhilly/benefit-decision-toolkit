@@ -125,5 +125,8 @@ jobs:
 
   sync-metadata:
     needs: deploy
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/load-library-metadata.yml
     secrets: inherit
