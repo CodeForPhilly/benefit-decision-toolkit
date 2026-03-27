@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+
+# Export Firestore and Storage data from running emulators
+# in a portable JSON format that can be used to seed other environments (including production).
+# Assumes that all the firestore and storage data in the emulators exactly comprises the data needed for the example screener.
+#
+# Usage: bin/export-emulator-data
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+
+source "$SCRIPT_DIR/functions"
+
+# Load environment from root .env if it exists
+if [ -f "$PROJECT_ROOT/.env" ]; then
+  set -a
+  source "$PROJECT_ROOT/.env"
+  set +a
+fi
+
+OUTPUT_DIR="$PROJECT_ROOT/seed-data/example-screener"
+
+echo "=========================================="
+echo "Example Screener Data Export"
+echo "=========================================="
+echo "Output: $OUTPUT_DIR"
+echo ""
+echo "Prerequisites:"
+echo "  - Firebase emulators must be running"
+echo "  - Assumes all data in the emulators pertains to the example screener"
+echo ""
+
+# Helper function to check URL using Python
+check_url() {
+  python3 -c "
+import urllib.request
+import urllib.error
+import sys
+try:
+    urllib.request.urlopen('$1', timeout=5)
+    sys.exit(0)
+except urllib.error.HTTPError:
+    sys.exit(0)
+except Exception as e:
+    print(f'DEBUG: {type(e).__name__}: {e}')
+    sys.exit(1)
+"
+}
+
+# Check if Firebase emulators are running
+MAX_RETRIES=5
+RETRY_DELAY=2
+
+for i in $(seq 1 $MAX_RETRIES); do
+  if check_url "http://localhost:9199"; then
+    break
+  fi
+  if [ $i -eq $MAX_RETRIES ]; then
+    print_error "Firebase Storage emulator not responding at localhost:9199"
+    exit 1
+  fi
+  echo "Waiting for emulators... ($i/$MAX_RETRIES)"
+  sleep $RETRY_DELAY
+done
+
+for i in $(seq 1 $MAX_RETRIES); do
+  if check_url "http://localhost:8080"; then
+    break
+  fi
+  if [ $i -eq $MAX_RETRIES ]; then
+    print_error "Firebase Firestore emulator not responding at localhost:8080"
+    exit 1
+  fi
+  echo "Waiting for emulators... ($i/$MAX_RETRIES)"
+  sleep $RETRY_DELAY
+done
+
+print_success "Firebase emulators are running"
+echo ""
+
+if [[ "$VENV_DIR" != "" ]]; then
+  if [ -f "$VENV_DIR/bin/activate" ]; then
+    source "$VENV_DIR/bin/activate"
+    print_status "Activated virtual environment at $VENV_DIR"
+  fi
+fi
+
+pip install -q -r "$SCRIPT_DIR/library/requirements.txt"
+
+print_status "Exporting emulator data..."
+python3 "$SCRIPT_DIR/export-emulator-data.py" "$OUTPUT_DIR" \
+  --skip-storage-prefix "LibraryApiSchemaExports/"
+
+echo ""
+echo "=========================================="
+print_success "Export complete! Data saved to $OUTPUT_DIR"
+echo "=========================================="
