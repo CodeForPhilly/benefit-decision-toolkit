@@ -6,6 +6,7 @@ import bdtLogo from "@/assets/logos/bdt-logo-large-mono-light.svg";
 import { HamburgerMenu } from "@/components/shared/HamburgerMenu";
 
 import "./Header.css";
+import { Menu } from "lucide-solid";
 
 const HeaderButton = ({
   buttonText,
@@ -29,6 +30,7 @@ const HeaderButton = ({
 
 interface MenuProps {
   userEmail: string;
+  displayName: string | null;
   logout: () => void;
 }
 
@@ -44,7 +46,7 @@ const HeaderMenu: Component<MenuProps> = (props) => {
   return (
     <div class="header-menu">
       <div class="header-user-email" title={props.userEmail}>
-        Welcome {props.userEmail}
+        Welcome {props.displayName} {props.userEmail}
       </div>
       <hr />
       <ul>
@@ -63,6 +65,7 @@ const HeaderMenu: Component<MenuProps> = (props) => {
 export default function Header() {
   const auth = useAuth();
   const userEmail = auth.user().email;
+  const displayName = auth.user().displayName;
   const { logout } = auth;
 
   const navigate = useNavigate();
@@ -95,10 +98,14 @@ export default function Header() {
 
         <HamburgerMenu>
           <HamburgerMenu.Button>
-            <div>Open menu</div>
+            <Menu />
           </HamburgerMenu.Button>
           <HamburgerMenu.Panel>
-            <HeaderMenu userEmail={userEmail} logout={handleLogout} />
+            <HeaderMenu
+              userEmail={userEmail}
+              displayName={displayName}
+              logout={handleLogout}
+            />
           </HamburgerMenu.Panel>
         </HamburgerMenu>
       </div>

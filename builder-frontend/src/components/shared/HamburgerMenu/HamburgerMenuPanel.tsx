@@ -1,5 +1,6 @@
 import { Component, JSX, Show } from "solid-js";
 import { useHamburgerMenuContext } from "./HamburgerMenuWrapper";
+import { X } from "lucide-solid";
 
 interface Props {
   children: JSX.Element;
@@ -10,8 +11,12 @@ export const HamburgerMenuPanel: Component<Props> = (props) => {
     <Show when={showMenu()}>
       <div>
         <div class="menu-panel">
-          <button type="button" onClick={() => setShowMenu(false)}>
-            X Close menu
+          <button
+            class="menu-toggle"
+            type="button"
+            onClick={() => setShowMenu(false)}
+          >
+            <X />
           </button>
           {props.children}
         </div>
