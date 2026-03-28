@@ -10,9 +10,27 @@ export default defineConfig({
       description:
         "User guide for the Benefit Decision Toolkit screener builder app",
       sidebar: [
-        { label: "Introduction", slug: "intro" },
-        { label: "User Guide", slug: "user-guide" },
-        { label: "Custom Checks", slug: "custom-checks" },
+        {
+          label: "User",
+          items: [
+            { label: "Introduction", slug: "user/intro" },
+            { label: "User Guide", slug: "user/user-guide" },
+            { label: "Custom Checks", slug: "user/custom-checks" },
+          ],
+        },
+        {
+          label: "Developer",
+          items: [
+            {
+              label: "Testing PRs with Codespaces",
+              slug: "dev/testing-prs-with-codespaces",
+            },
+            {
+              label: "Input Definition Transformation",
+              slug: "dev/input-definition-transformation",
+            },
+          ],
+        },
       ],
     }),
   ],
