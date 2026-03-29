@@ -5,7 +5,8 @@ import {
   fetchScreenerBenefit,
   addCheckToBenefit,
   removeCheckFromBenefit,
-  updateCheckParameters
+  updateCheckParameters,
+  updateCheckAlias
 } from "@/api/benefit";
 
 import type { Benefit, ParameterValues } from "@/types";
@@ -18,6 +19,10 @@ interface ScreenerBenefitsResource {
     updateCheckConfigParams: (
       checkId: string,
       parameters: ParameterValues
+    ) => void;
+    updateCheckConfigAlias: (
+      checkId: string,
+      aliasName: string | null
     ) => void;
   };
   actionInProgress: Accessor<boolean>;
@@ -92,12 +97,29 @@ const createScreenerBenefits = (
     setActionInProgress(false);
   };
 
+  const updateCheckConfigAlias = async (
+    checkId: string,
+    aliasName: string | null
+  ) => {
+    if (!benefit) return;
+    setActionInProgress(true);
+
+    try {
+      await updateCheckAlias(screenerId(), benefitId(), checkId, aliasName);
+      await refetch();
+    } catch (e) {
+      console.error("Failed to update check alias", e);
+    }
+    setActionInProgress(false);
+  };
+
   return {
     benefit: () => benefit,
     actions: {
       addCheck,
       removeCheck,
       updateCheckConfigParams,
+      updateCheckConfigAlias,
     },
     actionInProgress,
     initialLoadStatus: {

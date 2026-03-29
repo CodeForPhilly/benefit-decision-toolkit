@@ -102,14 +102,23 @@ export default function Results({
                                   </Switch>
                                 </div>
                                 <div class="flex flex-col">
-                                  <div>
-                                    {check.name}
-                                    <Show when={check.module || check.version}>
-                                      <span class="text-gray-500 ml-1">
-                                        ({[check.module, check.version].filter(Boolean).join(" v")})
+                                  <Show when={check.aliasName} fallback={
+                                    <div>
+                                      {check.name}
+                                      <Show when={check.module || check.version}>
+                                        <span class="text-gray-500 ml-1">
+                                          ({[check.module, check.version].filter(Boolean).join(", v")})
+                                        </span>
+                                      </Show>
+                                    </div>
+                                  }>
+                                    <div>
+                                      {check.aliasName}
+                                      <span class="text-gray-500 text-sm ml-1">
+                                        ({check.name}, {[check.module, check.version].filter(Boolean).join(", v")})
                                       </span>
-                                    </Show>
-                                  </div>
+                                    </div>
+                                  </Show>
                                   <Show when={check.parameters && Object.keys(check.parameters).length > 0}>
                                     <div class="text-gray-500 text-sm">
                                       {formatParameters(check.parameters)}

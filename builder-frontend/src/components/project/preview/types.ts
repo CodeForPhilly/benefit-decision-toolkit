@@ -13,6 +13,7 @@ interface BenefitResult {
 }
 interface CheckResult {
   name: string;
+  aliasName?: string;
   result: OptionalBoolean;
   module: string;
   version: string;

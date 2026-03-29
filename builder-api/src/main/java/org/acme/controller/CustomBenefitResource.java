@@ -12,6 +12,7 @@ import org.acme.auth.AuthUtils;
 import org.acme.model.domain.*;
 import org.acme.model.dto.CustomBenefit.AddCheckRequest;
 import org.acme.model.dto.CustomBenefit.CreateCustomBenefitRequest;
+import org.acme.model.dto.CustomBenefit.UpdateCheckAliasRequest;
 import org.acme.model.dto.CustomBenefit.UpdateCheckParametersRequest;
 import org.acme.model.dto.CustomBenefit.UpdateCustomBenefitRequest;
 import org.acme.persistence.EligibilityCheckRepository;
@@ -453,6 +454,71 @@ public class CustomBenefitResource {
             Log.error(e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(Map.of("error", "Could not update check parameters"))
+                    .build();
+        }
+    }
+
+    @PATCH
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/screener/{screenerId}/benefit/{benefitId}/check/{checkId}/alias")
+    public Response updateCheckAlias(
+        @Context SecurityIdentity identity,
+        @PathParam("screenerId") String screenerId,
+        @PathParam("benefitId") String benefitId,
+        @PathParam("checkId") String checkId,
+        UpdateCheckAliasRequest request
+    ) {
+        String userId = AuthUtils.getUserId(identity);
+
+        if (!isUserAuthorizedForScreener(userId, screenerId)) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        try {
+            // Get the benefit
+            Optional<Benefit> benefitOpt = screenerRepository.getCustomBenefit(screenerId, benefitId);
+            if (benefitOpt.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity(Map.of("error", "Benefit not found"))
+                        .build();
+            }
+
+            Benefit benefit = benefitOpt.get();
+            List<CheckConfig> checks = benefit.getChecks();
+
+            if (checks == null || checks.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity(Map.of("error", "Check not found in benefit"))
+                        .build();
+            }
+
+            // Find and update the check with the matching checkId
+            Boolean checkUpdated = false;
+            List<CheckConfig> checkListAfterUpdate = new ArrayList<>();
+            for (CheckConfig check : checks) {
+                if (check.getCheckId().equals(checkId)) {
+                    check.setAliasName(request.aliasName());
+                    checkUpdated = true;
+                }
+                checkListAfterUpdate.add(check);
+            }
+
+            if (!checkUpdated) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity(Map.of("error", "Check not found in benefit"))
+                        .build();
+            }
+
+            benefit.setChecks(checkListAfterUpdate);
+
+            // Save the updated benefit
+            screenerRepository.updateCustomBenefit(screenerId, benefit);
+
+            return Response.ok().build();
+        } catch (Exception e) {
+            Log.error(e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Could not update check alias"))
                     .build();
         }
     }
