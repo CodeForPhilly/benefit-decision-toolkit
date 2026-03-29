@@ -70,7 +70,9 @@ function BenefitResult({ benefitResult }: { benefitResult: BenefitResult }) {
               </div>
               <div class="flex flex-col text-xs">
                 <div>
-                  {check.name}
+                  // {check.name}
+                <Show when={check.aliasName} fallback={<div>{check.name}</div>}></Show>
+                  <div>{check.aliasName}</div>
                   <Show when={check.module || check.version}>
                     <span class="text-gray-500 ml-1">
                       (
@@ -93,26 +95,6 @@ function BenefitResult({ benefitResult }: { benefitResult: BenefitResult }) {
           )}
         </For>
       </div>
-      {/* {benefit.info && (
-        <div class="[&:has(+div)]:mb-4">
-          <h4 class="font-bold mb-1 text-sm">Overview</h4>
-          <p class="text-xs">{benefit.info}</p>
-        </div>
-      )}
-      {benefit.appLink && (
-        <div class="[&:has(+div)]:mb-4">
-          <a href={benefit.appLink} target="_blank">
-            <p
-              class="
-                px-5 py-2 rounded-lg select-none
-                rounded-lg font-bold text-white w-fit text-sm
-                bg-green-600 hover:bg-green-700 transition-colors"
-            >
-              Apply Now
-            </p>
-          </a>
-        </div>
-      )} */}
     </article>
   );
 }

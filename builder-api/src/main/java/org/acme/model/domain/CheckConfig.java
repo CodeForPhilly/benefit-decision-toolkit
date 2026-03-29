@@ -19,6 +19,8 @@ public class CheckConfig {
     private String evaluationUrl;
     private JsonNode inputDefinition;
     private List<ParameterDefinition> parameterDefinitions;
+    // optional alias name for this check instance
+    private String aliasName;
 
     public CheckConfig() {
     }
@@ -115,5 +117,13 @@ public class CheckConfig {
 
     public void setSourceCheckId(String sourceCheckId) {
         this.sourceCheckId = sourceCheckId;
+    }
+
+    public String getAliasName() {
+        return aliasName;
+    }
+
+    public void setAliasName(String aliasName) {
+        this.aliasName = aliasName;
     }
 }
