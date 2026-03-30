@@ -2,7 +2,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useLocation, useNavigate } from "@solidjs/router";
 import { Component, For, Show } from "solid-js";
 
-import bdtLogo from "@/assets/logos/bdt-logo-large-mono-light.svg";
+import bdtLogo from "@/assets/logos/bdt-logo-small-mono-light.svg";
 import { HamburgerMenu } from "@/components/shared/HamburgerMenu";
 
 import "./Header.css";
@@ -19,7 +19,7 @@ const HeaderButton = ({
     <div
       onClick={onClick}
       class="
-        px-4 py-3 text-md font-bold text-gray-700 rounded-md
+        px-4 py-2 text-md font-bold text-gray-700 rounded-md
         flex items-center
         hover:bg-gray-300 cursor-pointer select-none"
     >
@@ -79,12 +79,12 @@ export default function Header() {
   };
 
   return (
-    <header class="bg-gray-200 min-h-24 h-24 px-4 flex items-center justify-between border-b-2 border-gray-300">
+    <header class="bg-gray-200 min-h-12 h-12 px-4 flex items-center justify-between border-b-2 border-gray-300">
       <div class="flex items-center space-x-6">
         <img
           src={bdtLogo}
           alt="BDT logo"
-          class="w-36 cursor-pointer"
+          class="w-18 cursor-pointer"
           onClick={() => navigate("/")}
         />
       </div>
