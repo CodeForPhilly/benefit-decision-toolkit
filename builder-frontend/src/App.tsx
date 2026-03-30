@@ -33,7 +33,6 @@ const MainLayout = (props: ParentProps) => {
       </Match>
       <Match when={user()}>
         <Header />
-        <ANavBar items={navbarItems} />
         {props.children}
       </Match>
     </Switch>

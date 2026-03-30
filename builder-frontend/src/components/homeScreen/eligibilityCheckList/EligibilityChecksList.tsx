@@ -8,6 +8,7 @@ import eligibilityCheckResource from "./eligibilityCheckResource";
 import type { EligibilityCheck } from "@/types";
 import ConfirmationModal from "@/components/shared/ConfirmationModal";
 import Tooltip from "@/components/shared/Tooltip";
+import { Title } from "@solidjs/meta";
 
 const EligibilityChecksList = () => {
   const { checks, actions, actionInProgress, initialLoadStatus } =
@@ -26,6 +27,7 @@ const EligibilityChecksList = () => {
 
   return (
     <div>
+      <Title>BDT - Custom Checks</Title>
       <Show when={initialLoadStatus.loading() || actionInProgress()}>
         <Loading />
       </Show>
