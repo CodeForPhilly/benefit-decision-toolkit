@@ -19,7 +19,7 @@ const HeaderButton = ({
     <div
       onClick={onClick}
       class="
-        px-4 py-3 text-md font-bold text-gray-700 rounded-md
+        px-4 py-2 text-md font-bold text-gray-700 rounded-md
         flex items-center
         hover:bg-gray-300 cursor-pointer select-none"
     >
