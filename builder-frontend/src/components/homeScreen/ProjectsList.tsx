@@ -79,12 +79,12 @@ export default function ProjectsList() {
       <div>
         <div class="bg-gray-100 rounded-xl p-8 flex flex-col text-sm">
           <div class="text-xl font-bold">
-            Welcome to the Benefit Decision Toolkit!
+            Welcome to Benefit Decision Toolkit!
           </div>
           <div class="pt-2">
-            The Benefit Decision Toolkit is an open-source, civic tech project
-            that aims to provide an easy and affordable platform for building
-            benefit eligibility screening tools.
+            Benefit Decision Toolkit is an open-source, civic tech project that
+            aims to provide an easy and affordable platform for building benefit
+            eligibility screening tools.
           </div>
 
           <div class="pt-3">
