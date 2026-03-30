@@ -82,7 +82,7 @@ export default function Header() {
     <header class="bg-gray-200 min-h-12 h-12 px-4 flex items-center justify-between border-b-2 border-gray-300">
       <div class="flex items-center space-x-6">
         <img
-          src={bdtLogo}
+          src="/logos/bdt-logo-small-mono-light.svg"
           alt="BDT logo"
           class="w-18 cursor-pointer"
           onClick={() => navigate("/")}

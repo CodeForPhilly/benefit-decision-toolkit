@@ -18,11 +18,6 @@ import EligibilityChecksList from "@/components/homeScreen/eligibilityCheckList/
 const MainLayout = (props: ParentProps) => {
   const { user, isAuthLoading } = useAuth();
 
-  const userThing = () => {
-    console.log(user());
-    return user();
-  };
-
   const navbarItems = [
     { label: "Projects", href: "/projects" },
     { label: "Eligibility checks", href: "/check" },
