@@ -12,6 +12,7 @@ import {
   createNewScreener,
 } from "@/api/screener";
 import { useAuth } from "@/context/AuthContext";
+import { Title } from "@solidjs/meta";
 
 export default function ProjectsList() {
   const [projectList, { refetch: refetchProjectList }] =
@@ -30,7 +31,7 @@ export default function ProjectsList() {
   });
 
   const navigateToProject = (project) => {
-    navigate("/project/" + project.id);
+    navigate("/projects/" + project.id);
   };
 
   const handleCreateNewScreener = async (screenerData: {
@@ -39,7 +40,7 @@ export default function ProjectsList() {
   }) => {
     try {
       const newScreener = await createNewScreener(screenerData);
-      navigate(`/project/${newScreener.id}`);
+      navigate(`/projects/${newScreener.id}`);
     } catch (e) {
       console.log("Error creating screener", e);
     }
@@ -77,6 +78,7 @@ export default function ProjectsList() {
   return (
     <>
       <div>
+        <Title>BDT - Projects List</Title>
         <div class="bg-gray-100 rounded-xl p-8 flex flex-col text-sm">
           <div class="text-xl font-bold">
             Welcome to Benefit Decision Toolkit!
@@ -103,7 +105,7 @@ export default function ProjectsList() {
           </div>
         </div>
         <Show when={projectList} fallback={<div>Loading...</div>}>
-          <div class="flex flex-wrap gap-4 py-4 w-100">
+          <div class="flex flex-wrap gap-4 py-4">
             <Show when={projectList.loading}>
               <div class="w-80 h-60 flex items-center justify-center border-2 border-gray-300 rounded-lg shadow-md">
                 <div class="text-2xl font-bold">Loading screeners...</div>

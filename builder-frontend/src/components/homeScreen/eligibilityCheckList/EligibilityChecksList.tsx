@@ -25,7 +25,7 @@ const EligibilityChecksList = () => {
   };
 
   return (
-    <div class="py-8">
+    <div>
       <Show when={initialLoadStatus.loading() || actionInProgress()}>
         <Loading />
       </Show>

@@ -32,19 +32,15 @@ const HomeScreen = () => {
   };
 
   return (
-    <div>
-      <Header />
-      <BdtNavbar navProps={navbarDefs} />
-      <div class="px-12 py-8 text-gray-700">
-        <Switch>
+    <div class="px-12 py-8 text-gray-700">
+      {/* <Switch>
           <Match when={screenMode() === "screeners"}>
             <ProjectsList />
           </Match>
           <Match when={screenMode() === "checks"}>
             <EligibilityChecksList />
           </Match>
-        </Switch>
-      </div>
+        </Switch> */}
     </div>
   );
 };

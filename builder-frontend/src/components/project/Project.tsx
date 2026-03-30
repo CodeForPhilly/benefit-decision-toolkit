@@ -67,7 +67,6 @@ function Project() {
 
   return (
     <div class="h-screen flex flex-col">
-      <Header />
       {project.loading ? (
         <Loading />
       ) : (
