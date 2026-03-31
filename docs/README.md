@@ -1,49 +1,19 @@
-# Starlight Starter Kit: Basics
+# BDT Docs
 
-[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
+How to contribute to the docs
 
-```
-npm create astro@latest -- --template starlight
-```
+## Setup
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+`cd docs/`
 
-## 🚀 Project Structure
+`npm install`
 
-Inside of your Astro + Starlight project, you'll see the following folders and files:
+`npm run dev`
 
-```
-.
-├── public/
-├── src/
-│   ├── assets/
-│   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
-```
+## Docs Pages
 
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
+Each page in the docs is a markdown file located at content/docs/...
 
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
+To edit a docs page, simply edit the markdown file.
 
-Static assets, like favicons, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
+To add a docs page, add a markdown file in the appropriate directory (`user/` for user-facing pages or `dev/` for developer-facing pages). The file must include [frontmatter](https://www.markdownlang.com/advanced/frontmatter.html) with `title` and `description` fields. In `astro.config.mjs`, add an item to the sidebar in the appropriate location to add your page to the sidebar.
