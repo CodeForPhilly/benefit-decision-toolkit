@@ -5,12 +5,12 @@ import { CircleX } from "lucide-solid";
 import styles from "./Modal.module.css";
 
 interface Props {
-  show: Accessor<boolean>;
+  show: boolean;
   onClose: () => void;
 }
 export const Modal: Component<ParentProps<Props>> = (props) => {
   return (
-    <Show when={props.show()}>
+    <Show when={props.show}>
       <Portal>
         <div class={styles["modal-wrapper"]} onClick={() => props.onClose()}>
           <div

@@ -6,9 +6,10 @@ import CheckModal from "./modals/CheckModal";
 import eligibilityCheckResource from "./eligibilityCheckResource";
 
 import type { EligibilityCheck } from "@/types";
-import ConfirmationModal from "@/components/shared/ConfirmationModal";
 import Tooltip from "@/components/shared/Tooltip";
 import { Title } from "@solidjs/meta";
+import { Modal } from "@/components/shared/Modal";
+import { ArchiveCheck } from "@/components/homeScreen/eligibilityCheckList/modals/ArchiveCheck";
 
 const EligibilityChecksList = () => {
   const { checks, actions, actionInProgress, initialLoadStatus } =
@@ -54,12 +55,16 @@ const EligibilityChecksList = () => {
         class="px-4 py-2 w-fit cursor-pointer bg-blue-500
                 rounded-lg shadow-md hover:shadow-lg hover:bg-blue-600
                 font-bold text-sm text-white"
-        onClick={() => {
-          setAddingNewCheck(true);
-        }}
+        onClick={() => setAddingNewCheck(true)}
       >
         Create New Check
       </div>
+      <Modal show={addingNewCheck()} onClose={() => setAddingNewCheck(false)}>
+        <CheckModal
+          onAddCheck={actions.addNewCheck}
+          onClose={() => setAddingNewCheck(false)}
+        />
+      </Modal>
       <div class="mt-4 grid gap-4 justify-items-center grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
         <For each={checks()}>
           {(check) => (
@@ -71,20 +76,19 @@ const EligibilityChecksList = () => {
           )}
         </For>
       </div>
-      {addingNewCheck() && (
-        <CheckModal
-          closeModal={() => setAddingNewCheck(false)}
-          modalAction={actions.addNewCheck}
-        />
-      )}
-      {checkIdToRemove() && (
-        <ConfirmationModal
-          confirmationTitle="Archive Check"
-          confirmationText="Are you sure you want to archive this Eligibility Check? This action cannot be undone."
-          callback={() => actions.removeCheck(checkIdToRemove()!)}
-          closeModal={() => setCheckIdToRemove(null)}
-        />
-      )}
+      <Modal
+        show={checkIdToRemove() !== null}
+        onClose={() => setCheckIdToRemove(null)}
+      >
+        <Show when={checkIdToRemove()}>
+          {(checkId) => (
+            <ArchiveCheck
+              onArchive={() => actions.removeCheck(checkId())}
+              onCancel={() => setCheckIdToRemove(null)}
+            />
+          )}
+        </Show>
+      </Modal>
     </div>
   );
 };

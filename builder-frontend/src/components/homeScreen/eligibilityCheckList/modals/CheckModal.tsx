@@ -1,19 +1,20 @@
 import { createStore } from "solid-js/store";
 
 import type { CreateCheckRequest } from "@/types";
+import { JSX } from "solid-js";
 
 type CheckValues = {
   name: string;
   module: string;
   description: string;
 };
-const EditCheckModal = ({
-  modalAction,
-  closeModal,
-}: {
-  modalAction: (check: CreateCheckRequest) => Promise<void>;
-  closeModal: () => void;
-}) => {
+
+interface Props {
+  onAddCheck: (check: CreateCheckRequest) => Promise<void>;
+  onClose: () => void;
+}
+
+const EditCheckModal = (props: Props) => {
   const [newCheck, setNewCheck] = createStore<CheckValues>({
     name: "",
     module: "",
@@ -34,10 +35,32 @@ const EditCheckModal = ({
       : "hover:bg-sky-700";
   };
 
+  const handleAddCheck: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (
+    e,
+  ) => {
+    e.preventDefault();
+    if (isAddDisabled()) {
+      console.log("Please fill in all fields.");
+      return;
+    }
+    const check: CreateCheckRequest = {
+      name: newCheck.name,
+      module: newCheck.module,
+      description: newCheck.description,
+      parameterDefinitions: [],
+    };
+    try {
+      await props.onAddCheck(check);
+      props.onClose();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
-    <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div class="bg-white px-12 py-8 rounded-xl max-w-140 w-1/2 min-w-80 min-h-96">
-        <div class="text-2xl font-bold mb-4">Create New Check</div>
+    <div>
+      <div class="text-2xl font-bold mb-4">Create New Check</div>
+      <form onSubmit={handleAddCheck}>
         <div class="mb-4">
           <label class="block font-bold mb-2">Name:</label>
           <input
@@ -68,36 +91,14 @@ const EditCheckModal = ({
             rows={4}
           />
         </div>
-        <div class="flex justify-end space-x-2">
-          <div
-            class="btn-default hover:bg-gray-200"
-            onClick={() => {
-              closeModal();
-            }}
-          >
-            Cancel
-          </div>
-          <div
-            class={"btn-default bg-sky-600 text-white " + addButtonClasses()}
-            onClick={async () => {
-              if (isAddDisabled()) {
-                console.log("Please fill in all fields.");
-                return;
-              }
-              const check: CreateCheckRequest = {
-                name: newCheck.name,
-                module: newCheck.module,
-                description: newCheck.description,
-                parameterDefinitions: [],
-              };
-              await modalAction(check);
-              closeModal();
-            }}
-          >
-            Add Check
-          </div>
-        </div>
-      </div>
+
+        <button
+          type="submit"
+          class={"btn-default bg-sky-600 text-white " + addButtonClasses()}
+        >
+          Add Check
+        </button>
+      </form>
     </div>
   );
 };
