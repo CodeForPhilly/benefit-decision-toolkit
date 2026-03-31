@@ -2,6 +2,7 @@ import { createSignal, JSX } from "solid-js";
 import TrashIcon from "../icon/TrashIcon";
 import DeleteConfirmation from "./DeleteConfirmation";
 import { Modal } from "@/components/shared/Modal";
+import { Button } from "@/components/shared/Button";
 
 export interface EditModalData {
   screenerId: string;
@@ -68,13 +69,9 @@ export default function EditScreenerForm(props: Props) {
               class="p-1 border-1 border-gray-400 w-90"
             ></input>
           </div>
-          <button
-            type="submit"
-            disabled={isLoading()}
-            class="mt-3 py-2 px-4 text-white rounded bg-gray-800 disabled:opacity-50"
-          >
+          <Button variant="secondary" type="submit" disabled={isLoading()}>
             Update
-          </button>
+          </Button>
         </div>
       </form>
 
@@ -82,13 +79,13 @@ export default function EditScreenerForm(props: Props) {
         <hr class="w-100 border-t border-gray-300" />
       </div>
 
-      <button
+      <Button
+        variant="outline-danger"
         type="button"
         onClick={() => setIsConfirmationVisible(true)}
-        class="text-red-400 flex border-2 border-red-400 rounded px-3 py-1"
       >
         <TrashIcon /> Delete Screener
-      </button>
+      </Button>
       <Modal
         show={isConfirmationVisible()}
         onClose={() => setIsConfirmationVisible(false)}

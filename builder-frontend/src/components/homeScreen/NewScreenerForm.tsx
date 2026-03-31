@@ -1,4 +1,5 @@
 import { createNewScreener } from "@/api/screener";
+import { Button } from "@/components/shared/Button";
 import { useNavigate } from "@solidjs/router";
 import { createSignal, onCleanup } from "solid-js";
 
@@ -36,12 +37,12 @@ export default function NewScreenerForm({}) {
 
   return (
     <div>
-      <div className="text-2xl">Create a screener</div>
+      <div class="text-2xl">Create a screener</div>
       <div class="mt-12 text-3xl font-bold">
         What is the name of your screener?
       </div>
       <form onSubmit={handleSubmit}>
-        <div className="mt-8 flex flex-col">
+        <div class="mt-8 flex flex-col">
           <label>Screener Name:</label>
           <input
             type="text"
@@ -50,14 +51,14 @@ export default function NewScreenerForm({}) {
             class="form-input-custom"
           />
         </div>
-        <button
+        <Button
           type="submit"
+          variant="secondary"
           id="new-screener-submit"
           disabled={isLoading()}
-          class="mt-3 py-2 px-4 text-white rounded bg-gray-800 disabled:opacity-50"
         >
           Create
-        </button>
+        </Button>
       </form>
     </div>
   );

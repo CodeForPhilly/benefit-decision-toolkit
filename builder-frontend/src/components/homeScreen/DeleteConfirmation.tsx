@@ -1,3 +1,4 @@
+import { Button } from "@/components/shared/Button";
 import TrashIcon from "../icon/TrashIcon";
 
 interface Props {
@@ -16,20 +17,20 @@ export default function DeleteConfirmation(props: Props) {
         Once deleted, all associated data will be deleted and cant be recovered.
       </div>
       <div class="flex w-full justify-end gap-4 mt-8">
-        <button
+        <Button
+          variant="outline-secondary"
           onClick={() => props.onCancel()}
           type="button"
-          class="border-2 border-gray-400 text-gray-500 rounded px-3 py-1 hover:bg-gray-100"
         >
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="outline-danger"
           onClick={() => props.onDelete()}
           type="button"
-          class="text-red-400 flex border-2 border-red-400 rounded px-3 py-1 hover:bg-red-100"
         >
           <TrashIcon /> Delete Screener
-        </button>
+        </Button>
       </div>
     </div>
   );

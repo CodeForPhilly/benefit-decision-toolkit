@@ -10,6 +10,7 @@ import Tooltip from "@/components/shared/Tooltip";
 import { Title } from "@solidjs/meta";
 import { Modal } from "@/components/shared/Modal";
 import { ArchiveCheck } from "@/components/homeScreen/eligibilityCheckList/modals/ArchiveCheck";
+import { Button } from "@/components/shared/Button";
 
 const EligibilityChecksList = () => {
   const { checks, actions, actionInProgress, initialLoadStatus } =
@@ -123,22 +124,22 @@ const CheckCard = ({
           id={"benefit-card-actions-" + eligibilityCheck.id}
           class="p-4 flex justify-end space-x-2"
         >
-          <div
-            class="btn-default btn-gray"
+          <Button
+            variant="outline-secondary"
             onClick={() => {
               navigateToCheck(eligibilityCheck);
             }}
           >
             Edit
-          </div>
-          <div
-            class="btn-default btn-red"
+          </Button>
+          <Button
+            variant="outline-danger"
             onClick={() => {
               setCheckIdToRemove(eligibilityCheck.id);
             }}
           >
             Archive
-          </div>
+          </Button>
         </div>
       </div>
     </div>

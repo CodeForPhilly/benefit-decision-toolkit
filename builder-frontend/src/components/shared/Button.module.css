@@ -24,7 +24,7 @@
   @apply border-(--text-strong) bg-(--text-strong) text-white;
 }
 .secondary:not([disabled]):hover {
-  @apply brightness-130;
+  @apply brightness-200;
 }
 .outline-secondary {
   @apply border-(--text-strong) bg-white text-(--text-strong);

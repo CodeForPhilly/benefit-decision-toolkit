@@ -1,3 +1,5 @@
+import { Button } from "@/components/shared/Button";
+
 interface Props {
   onCancel: () => void;
   onArchive: () => Promise<void>;
@@ -12,18 +14,18 @@ export const ArchiveCheck = (props: Props) => {
         cannot be undone.
       </div>
       <div class="flex justify-end space-x-2">
-        <div class="btn-default hover:bg-gray-200" onClick={props.onCancel}>
+        <Button variant="outline-secondary" onClick={props.onCancel}>
           Cancel
-        </div>
-        <div
-          class="btn-default bg-sky-600 hover:bg-sky-700 text-white"
+        </Button>
+        <Button
+          variant="outline-danger"
           onClick={() => {
             props.onArchive();
             props.onCancel();
           }}
         >
           Confirm
-        </div>
+        </Button>
       </div>
     </div>
   );
