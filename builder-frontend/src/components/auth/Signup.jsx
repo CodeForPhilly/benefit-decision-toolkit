@@ -65,7 +65,7 @@ export default function Signup({ toggleMode }) {
           Email
         </label>
         <input
-          className="w-100 border-1 border-gray-200 bg-gray-100 p-2"
+          className="border-1 border-gray-200 bg-gray-100 p-2"
           type="email"
           id="email"
           placeholder="Enter your email"
@@ -78,7 +78,7 @@ export default function Signup({ toggleMode }) {
           Password
         </label>
         <input
-          className="w-100 border-1 border-gray-200 bg-gray-100 p-2"
+          className="border-1 border-gray-200 bg-gray-100 p-2"
           type="password"
           placeholder="Password"
           id="password"
@@ -91,7 +91,7 @@ export default function Signup({ toggleMode }) {
           Confirm Password
         </label>
         <input
-          className="w-100 border-1 border-gray-200 bg-gray-100 p-2"
+          className="border-1 border-gray-200 bg-gray-100 p-2"
           type="password"
           placeholder="Repeat Password"
           id="password"
