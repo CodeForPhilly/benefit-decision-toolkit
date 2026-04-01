@@ -1,7 +1,13 @@
 import {
-  onCleanup, onMount,
-  createEffect, createSignal, createResource,
-  For, Match, Show, Switch,
+  onCleanup,
+  onMount,
+  createEffect,
+  createSignal,
+  createResource,
+  For,
+  Match,
+  Show,
+  Switch,
   Accessor,
 } from "solid-js";
 import toast from "solid-toast";
@@ -11,8 +17,10 @@ import { FormEditor } from "@bpmn-io/form-js-editor";
 import Drawer from "@corvu/drawer"; // 'corvu/drawer'
 
 import CustomFormFieldsModule from "./formJsExtensions/customFormFields";
-import { customKeyModule } from './formJsExtensions/customKeyDropdown/customKeyDropdownProvider';
-import PathOptionsService, { pathOptionsModule } from './formJsExtensions/customKeyDropdown/pathOptionsService';
+import { customKeyModule } from "./formJsExtensions/customKeyDropdown/customKeyDropdownProvider";
+import PathOptionsService, {
+  pathOptionsModule,
+} from "./formJsExtensions/customKeyDropdown/pathOptionsService";
 
 import { saveFormSchema, fetchFormPaths } from "../../api/screener";
 import { extractFormPaths } from "../../utils/formSchemaUtils";
@@ -34,7 +42,7 @@ function FormEditorView({ formSchema, setFormSchema }) {
       if (!screenerId) return [];
       const response = await fetchFormPaths(screenerId);
       return response.paths;
-    }
+    },
   );
 
   let timeoutId;
@@ -55,7 +63,7 @@ function FormEditorView({ formSchema, setFormSchema }) {
         // FilterFormComponentsModule,
         CustomFormFieldsModule,
         pathOptionsModule,
-        customKeyModule
+        customKeyModule,
       ],
     });
 
@@ -82,10 +90,15 @@ function FormEditorView({ formSchema, setFormSchema }) {
 
       // Only set key if the field supports keys and doesn't already have one set
       // Skip group components as they don't use keys
-      if (field && field.id && field.type !== 'group' && field.type !== 'default') {
+      if (
+        field &&
+        field.id &&
+        field.type !== "group" &&
+        field.type !== "default"
+      ) {
         // Use setTimeout to ensure the field is fully added before modifying
         setTimeout(() => {
-          modeling.editFormField(field, 'key', field.id);
+          modeling.editFormField(field, "key", field.id);
         }, 0);
       }
     });
@@ -104,13 +117,19 @@ function FormEditorView({ formSchema, setFormSchema }) {
     if (!formEditor || formPaths.loading) return;
 
     const currentFormPaths: FormPath[] = formPaths() || [];
-    const validPathSet = new Set(currentFormPaths.map((formPath: FormPath) => formPath.path));
+    const validPathSet = new Set(
+      currentFormPaths.map((formPath: FormPath) => formPath.path),
+    );
 
-    const pathOptionsService = formEditor.get("pathOptionsService") as PathOptionsService;
+    const pathOptionsService = formEditor.get(
+      "pathOptionsService",
+    ) as PathOptionsService;
     pathOptionsService.setOptions(
-      currentFormPaths.map(
-        (formPath: FormPath) => ({ value: formPath.path, label: formPath.path, type: formPath.type })
-      )
+      currentFormPaths.map((formPath: FormPath) => ({
+        value: formPath.path,
+        label: formPath.path,
+        type: formPath.type,
+      })),
     );
 
     // Clean up any form fields with keys that are no longer valid options
@@ -128,10 +147,10 @@ function FormEditorView({ formSchema, setFormSchema }) {
           field.key &&
           !validPathSet.has(field.key) &&
           field.key !== field.id &&
-          field.type !== 'expression'
+          field.type !== "expression"
         ) {
           invalidFields.push(field.key);
-          modeling.editFormField(field, 'key', field.id);
+          modeling.editFormField(field, "key", field.id);
         }
       }
 
@@ -139,10 +158,11 @@ function FormEditorView({ formSchema, setFormSchema }) {
       if (invalidFields.length > 0) {
         setIsUnsaved(true);
         const fieldCount = invalidFields.length;
-        const message = fieldCount === 1
-          ? `1 field had an invalid key "${invalidFields[0]}" and was reset.`
-          : `${fieldCount} fields had invalid keys and were reset: ${invalidFields.join(', ')}`;
-        toast(message, { duration: 5000, icon: '⚠️' });
+        const message =
+          fieldCount === 1
+            ? `1 field had an invalid key "${invalidFields[0]}" and was reset.`
+            : `${fieldCount} fields had invalid keys and were reset: ${invalidFields.join(", ")}`;
+        toast(message, { duration: 5000, icon: "⚠️" });
         handleSave();
       }
     }
@@ -167,40 +187,50 @@ function FormEditorView({ formSchema, setFormSchema }) {
         <div class="flex-8 overflow-auto">
           <div class="h-full" ref={(el) => (container = el)} />
         </div>
-        <div class="flex-1 border-l-4 border-l-gray-200">
-          <div id="form-editor-save_container" class="flex flex-col p-10 gap-4 place-items-center">
-            <Switch>
-              <Match when={isUnsaved()}>
-                <div onClick={handleSave} class="btn-default btn-yellow">
-                  Save
-                </div>
-              </Match>
-              <Match when={isSaving()}>
-                <div
-                  onClick={handleSave}
-                  class="btn-default btn-gray cursor-not-allowed"
-                >
-                  Saving...
-                </div>
-              </Match>
-              <Match when={!isUnsaved() && !isSaving()}>
-                <div onClick={handleSave} class="btn-default btn-blue">
-                  Save
-                </div>
-              </Match>
-            </Switch>
-          </div>
-        </div>
-        <FormValidationDrawer formSchema={formSchema} expectedInputPaths={formPaths} />
+        <FormValidationDrawer
+          formSchema={formSchema}
+          expectedInputPaths={formPaths}
+        />
+      </div>
+      <div id="form-editor-save_container" class="fixed bottom-20 right-5 z-40">
+        <Switch>
+          <Match when={isUnsaved()}>
+            <div
+              onClick={handleSave}
+              class="btn-default btn-yellow shadow-[0_0_10px_rgba(0,0,0,0.4)]"
+            >
+              Save
+            </div>
+          </Match>
+          <Match when={isSaving()}>
+            <div
+              onClick={handleSave}
+              class="btn-default btn-gray cursor-not-allowed shadow-[0_0_10px_rgba(0,0,0,0.4)]"
+            >
+              Saving...
+            </div>
+          </Match>
+          <Match when={!isUnsaved() && !isSaving()}>
+            <div
+              onClick={handleSave}
+              class="btn-default btn-blue shadow-[0_0_10px_rgba(0,0,0,0.4)]"
+            >
+              Save
+            </div>
+          </Match>
+        </Switch>
       </div>
     </>
   );
 }
 
-const FormValidationDrawer = (
-  { formSchema, expectedInputPaths }:
-  {formSchema: any, expectedInputPaths: Accessor<FormPath[]>}
-) => {
+const FormValidationDrawer = ({
+  formSchema,
+  expectedInputPaths,
+}: {
+  formSchema: any;
+  expectedInputPaths: Accessor<FormPath[]>;
+}) => {
   const formOutputs = () =>
     formSchema() ? extractFormPaths(formSchema()) : [];
 
