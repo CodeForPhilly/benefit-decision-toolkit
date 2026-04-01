@@ -1,4 +1,4 @@
-import { createSignal, JSX } from "solid-js";
+import { createSignal, For, JSX } from "solid-js";
 
 import { Button } from "@/components/shared/Button";
 import Form from "@/components/shared/Form";
@@ -63,6 +63,9 @@ export const ComponentLibrary = () => {
       <div>
         <ModalForm />
       </div>
+      <div>
+        <SelectComponent />
+      </div>
     </div>
   );
 };
@@ -81,7 +84,7 @@ const ModalForm = () => {
       <Button variant="primary" onClick={() => setShowModal(true)}>
         Open modal with form
       </Button>
-      <Modal show={showModal} onClose={() => setShowModal(false)}>
+      <Modal show={showModal()} onClose={() => setShowModal(false)}>
         <h1>Enter the required information in the form</h1>
         <Form onSubmit={handleSubmitForm}>
           <Form.LabelAbove
@@ -97,5 +100,25 @@ const ModalForm = () => {
         </Form>
       </Modal>
     </>
+  );
+};
+
+const SelectComponent = () => {
+  const dataTypes: { label: string; value: string }[] = [
+    { label: "String", value: "string" },
+    { label: "Number", value: "number" },
+    { label: "Boolean", value: "boolean" },
+  ];
+
+  return (
+    <Form>
+      <Form.Select id="component-lib-select" label="Pick an option">
+        <For each={dataTypes}>
+          {(dataType) => {
+            return <option value={dataType.value}>{dataType.label}</option>;
+          }}
+        </For>
+      </Form.Select>
+    </Form>
   );
 };

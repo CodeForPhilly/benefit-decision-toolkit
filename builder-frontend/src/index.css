@@ -4,7 +4,7 @@
 }
 
 :root {
-  --brand: #0daf00;
+  --brand: var(--color-sky-600);
   --text-strong: #2d2d2d;
   --text-weak: #6d6d6d;
   --bg-green: #f5fef6;
