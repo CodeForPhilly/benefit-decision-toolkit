@@ -20,14 +20,18 @@ const HomeScreen = () => {
           label: "Screeners",
           onClick: () => setScreenMode("screeners"),
         },
-        {
-          key: "checks",
-          label: "Eligibility checks",
-          onClick: () => setScreenMode("checks"),
-        },
       ],
       activeTabKey: () => screenMode(),
       titleDef: null,
+      menuDef: {
+        items: [
+          {
+            key: "checks",
+            label: "Eligibility Checks",
+            onClick: () => setScreenMode("checks"),
+          },
+        ],
+      },
     };
   };
 
