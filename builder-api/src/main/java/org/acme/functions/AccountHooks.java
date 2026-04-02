@@ -4,24 +4,18 @@ import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.acme.model.domain.Screener;
-import org.acme.persistence.ScreenerRepository;
+import org.acme.service.ExampleScreenerImportService;
 
 @ApplicationScoped
 public class AccountHooks {
     @Inject
-    ScreenerRepository screenerRepository;
+    ExampleScreenerImportService exampleScreenerImportService;
 
     public Boolean addExampleScreenerToAccount(String userId) {
         try {
             Log.info("Running ADD_EXAMPLE_SCREENER hook for user: " + userId);
-            String screenerName = "Example screener - Philly Property Tax Relief";
-            String screenerDescription = "Example description";
-            Screener exampleScreener = Screener
-                    .create(userId, screenerName, screenerDescription);
-
-            String screenerId = screenerRepository
-                    .saveNewWorkingScreener(exampleScreener);
+            String screenerId = exampleScreenerImportService.importForUser(userId);
+            Log.info("Imported example screener " + screenerId + " for user " + userId);
             return true;
         } catch (Exception e) {
             Log.error(
