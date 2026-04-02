@@ -28,6 +28,8 @@ export interface CheckConfig {
   parameters: ParameterValues;
   inputDefinition: JSONSchema7;
   parameterDefinitions: ParameterDefinition[];
+  // Optional user-defined alias for display purposes
+  aliasName?: string;
 }
 export interface ParameterValues {
   [key: string]: string | number | boolean | string[];
@@ -122,6 +124,7 @@ export interface BenefitResult {
 }
 export interface CheckResult {
   name: string;
+  aliasName?: string;
   result: OptionalBoolean;
   module: string;
   version: string;
