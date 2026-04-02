@@ -26,7 +26,7 @@ export default defineConfig({
   },
   optimizeDeps: {
     // Ensure Preact is not pre-bundled separately, avoiding duplicate instances
-    include: ['preact', 'preact/hooks', 'preact/compat', 'lucide-solid']
+    include: ['preact', 'preact/hooks', 'preact/compat']
   },
   resolve: {
     dedupe: ['preact', 'preact/hooks', 'preact/compat']
