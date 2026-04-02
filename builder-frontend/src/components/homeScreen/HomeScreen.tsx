@@ -5,7 +5,6 @@ import ProjectsList from "./ProjectsList";
 import Header from "../Header/Header";
 
 import BdtNavbar, { NavbarProps } from "@/components/shared/BdtNavbar";
-0;
 
 const HomeScreen = () => {
   const [screenMode, setScreenMode] = createSignal<"screeners" | "checks">(
