@@ -1,127 +1,159 @@
-import { createStore } from "solid-js/store"
-
-import type { ParameterDefinition, ParameterType } from "@/types";
-
+import { createSignal, JSX } from "solid-js";
+import type { ParameterDefinition } from "@/types";
+import Form from "@/components/shared/Form";
+import { Button } from "@/components/shared/Button";
 
 type ParamValues = {
   key: string;
   label: string;
-  required: boolean;
-  type: ParameterType;
-}
-const ParameterModal = (
-  { actionTitle, modalAction, closeModal, initialData }:
-  { actionTitle: string, modalAction: (parameter: ParameterDefinition) => Promise<void>; closeModal: () => void, initialData?: ParamValues }
-) => {
-  const [newParam, setNewParam] = createStore<ParamValues>(initialData || { key: "", type: "string", label: "", required: undefined });
+  type: string;
+  required: string;
+};
 
-  // Styling for the Add button based on whether fields are filled
-  const isAddDisabled = () => {
-    return (
-      newParam.key.trim() === "" ||
-      newParam.label.trim() === ""
-    );
-  }
-  const addButtonClasses = () => {
-    return isAddDisabled() ? "opacity-50 cursor-not-allowed" : "hover:bg-sky-700";
-  }
+interface Props {
+  actionTitle: string;
+  modalAction: (parameter: ParameterDefinition) => Promise<void>;
+  closeModal: () => void;
+  initialData?: ParamValues;
+}
+
+/**
+ * Predicate determining whether a `value` is a valid `ParameterType`.
+ * Narrows `value`'s type from `string` to `ParameterType`
+ * for the compiler. Returns a boolean at runtime.
+ */
+const isParameterType = (
+  value: string,
+): value is ParameterDefinition["type"] => {
+  const parameterTypes = [
+    "string",
+    "number",
+    "boolean",
+    "date",
+    "array",
+  ] as const satisfies readonly ParameterDefinition["type"][];
+  return parameterTypes.includes(value as ParameterDefinition["type"]);
+};
+
+const emptyError: ParamValues = {
+  key: "",
+  label: "",
+  type: "",
+  required: "",
+};
+
+const parameterTypeOptions: {
+  label: string;
+  value: ParameterDefinition["type"];
+}[] = [
+  { label: "String", value: "string" },
+  { label: "Number", value: "number" },
+  { label: "Boolean", value: "boolean" },
+  { label: "Date", value: "date" },
+  { label: "String List", value: "array" },
+];
+
+const ParameterModal = (props: Props) => {
+  const [error, setError] = createSignal<ParamValues>({ ...emptyError });
+
+  const handleSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (
+    e,
+  ) => {
+    e.preventDefault();
+    setError(() => ({
+      key: "",
+      label: "",
+      required: "",
+      type: "",
+    }));
+
+    const form = new FormData(e.currentTarget);
+    const parameterKey = form.get("parameterKey");
+    const parameterLabel = form.get("parameterLabel");
+    const rawParameterType = form.get("parameterType")?.toString();
+    const parameterRequired = form.get("parameterRequired");
+
+    if (
+      !parameterKey ||
+      !parameterLabel ||
+      !rawParameterType ||
+      !isParameterType(rawParameterType) ||
+      !parameterRequired
+    ) {
+      setError({
+        key: !parameterKey ? "Please enter a value." : "",
+        label: !parameterLabel ? "Please enter a value." : "",
+        type: !rawParameterType ? "Please enter a value." : "",
+        required: !parameterRequired ? "Please enter a value." : "",
+      });
+    } else {
+      const parameter: ParameterDefinition = {
+        key: parameterKey.toString(),
+        label: parameterLabel.toString(),
+        type: rawParameterType,
+        required: parameterRequired === "true",
+      };
+      await props.modalAction(parameter);
+      props.closeModal();
+    }
+  };
 
   return (
     <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div class="bg-white px-12 py-8 rounded-xl max-w-140 w-1/2 min-w-80 min-h-96">
-        <div class="text-2xl font-bold mb-4">{actionTitle}</div>
-        <div class="mb-4">
-          <label class="block font-bold mb-2">Key:</label>
-          <input
-            type="text"
-            class="form-input w-full border border-gray-300 rounded px-3 py-2"
-            value={newParam.key}
-            onInput={(e) => setNewParam("key", e.currentTarget.value)}
+        <div class="text-2xl font-bold mb-4">{props.actionTitle}</div>
+        <Form onSubmit={handleSubmit}>
+          <Form.LabelAbove
             placeholder="Enter parameter key"
-          />
-        </div>
-        <div class="mb-4">
-          <label class="block font-bold mb-2">Label:</label>
-          <input
-            type="text"
-            class="form-input w-full border border-gray-300 rounded px-3 py-2"
-            value={newParam.label}
-            onInput={(e) => setNewParam("label", e.currentTarget.value)}
+            htmlFor="parameterKey"
+          >
+            <Form.TextInput value={props.initialData?.key || ""} />
+          </Form.LabelAbove>
+          <Form.FormError>{error().key}</Form.FormError>
+
+          <Form.LabelAbove
             placeholder="Enter parameter label"
-          />
-        </div>
-        <div class="mb-4">
-          <label class="block font-bold mb-2">Type:</label>
-          <select
-            class="form-input w-full border border-gray-300 rounded px-3 py-2"
-            value={newParam.type}
-            onChange={(e) => setNewParam("type", e.currentTarget.value as ParameterType)}
+            htmlFor="parameterLabel"
           >
-            <option value="string">String</option>
-            <option value="number">Number</option>
-            <option value="boolean">Boolean</option>
-            <option value="date">Date</option>
-            <option value="array">String List</option>
-          </select>
-        </div>
-        <div class="mb-4">
-          <label class="block font-bold mb-2">Required:</label>
-          <div class="flex items-center gap-3">
-            <div class="flex items-center gap-2">
-              <input
-                type="radio"
-                name={`param-required`}
-                checked={newParam.required === true}
-                onInput={() => setNewParam("required", true)}
-                class="form-radio"
-              />
-              True
-            </div>
-            <div class="flex items-center gap-2">
-              <input
-                type="radio"
-                name={`param-required`}
-                checked={newParam.required === false}
-                onInput={() => setNewParam("required", false)}
-                class="form-radio"
-              />
-              False
-            </div>
-            {
-              newParam.required === undefined &&
-              <span class="ml-2 text-gray-500">Not set</span>
-            }
-          </div>
-        </div>
-        <div class="flex justify-end space-x-2">
-          <div
-            class="btn-default hover:bg-gray-200"
-            onClick={() => { closeModal(); }}
+            <Form.TextInput value={props.initialData?.label || ""} />
+          </Form.LabelAbove>
+          <Form.FormError>{error().label}</Form.FormError>
+
+          <Form.Select
+            id="parameterType"
+            label="Type"
+            value={props.initialData?.type || ""}
+            options={parameterTypeOptions}
           >
-            Cancel
-          </div>
-          <div
-            class={"btn-default bg-sky-600 text-white " + addButtonClasses()}
-            onClick={async () => {
-              if (isAddDisabled()) {
-                console.log("Please fill in all fields.");
-                return;
-              }
-              const parameter: ParameterDefinition = {
-                key: newParam.key,
-                label: newParam.label,
-                type: newParam.type,
-                required: newParam.required
-              };
-              await modalAction(parameter);
-              closeModal();
-            }}
+            <option value="" disabled>
+              Select a type
+            </option>
+          </Form.Select>
+          <Form.FormError>{error().type}</Form.FormError>
+
+          <Form.FormWrapper
+            value={props.initialData?.required ? "true" : "false"}
+            htmlFor="parameterRequired"
           >
-            {actionTitle}
+            <div>Required</div>
+            <Form.Radio value="true">True</Form.Radio>
+            <Form.Radio value="false">False</Form.Radio>
+          </Form.FormWrapper>
+          <Form.FormError>{error().required}</Form.FormError>
+
+          <div class="flex gap-2">
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={props.closeModal}
+            >
+              Cancel
+            </Button>
+            <Button type="submit">{props.actionTitle}</Button>
           </div>
-        </div>
+        </Form>
       </div>
     </div>
   );
-}
+};
 export default ParameterModal;

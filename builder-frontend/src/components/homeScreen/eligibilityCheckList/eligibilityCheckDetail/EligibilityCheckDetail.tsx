@@ -84,7 +84,6 @@ const EligibilityCheckDetail = () => {
       <Show when={initialLoadStatus.loading() || actionInProgress()}>
         <Loading />
       </Show>
-      <Header />
 
       <BdtNavbar navProps={navbarDefs} />
       <Show

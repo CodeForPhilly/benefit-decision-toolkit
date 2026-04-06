@@ -1,4 +1,4 @@
-import type { JSONSchema7 } from 'json-schema';
+import type { JSONSchema7 } from "json-schema";
 
 /* Types for managing benefits in a project */
 export interface ScreenerBenefits {
@@ -82,32 +82,12 @@ export interface UpdateCheckParametersRequest {
 
 // Parameter Types
 export type ParameterType = "string" | "number" | "boolean" | "date" | "array";
-export type ParameterDefinition =
-  | StringParameter
-  | StringMultiInputParameter
-  | NumberParameter
-  | BooleanParameter
-  | DateParameter;
-interface BaseParameter {
+export type ParameterDefinition = {
   key: string;
   label: string;
+  type: "string" | "number" | "boolean" | "date" | "array";
   required: boolean;
-}
-export interface StringMultiInputParameter extends BaseParameter {
-  type: "array";
-}
-export interface StringParameter extends BaseParameter {
-  type: "string";
-}
-export interface NumberParameter extends BaseParameter {
-  type: "number";
-}
-export interface BooleanParameter extends BaseParameter {
-  type: "boolean";
-}
-export interface DateParameter extends BaseParameter {
-  type: "date";
-}
+};
 
 /* Screener Evaluation Results */
 export interface ScreenerResult {
