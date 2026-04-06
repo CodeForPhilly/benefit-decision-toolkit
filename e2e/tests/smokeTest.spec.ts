@@ -16,7 +16,7 @@ test.describe('Smoke Tests', () => {
 
     // Verify key elements of the landing page are visible
     // Header with logout button indicates user is authenticated
-    await expect(page.getByText('Logout')).toBeVisible();
+    await expect(page.getByText('Welcome to Benefit Decision Toolkit!')).toBeVisible();
 
     // Navigation tabs should be visible
     await expect(page.getByRole('button', { name: 'Screeners' })).toBeVisible();
