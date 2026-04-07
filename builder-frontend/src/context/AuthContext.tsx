@@ -12,10 +12,11 @@ import {
   createUserWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
+  getAdditionalUserInfo,
 } from "firebase/auth";
 
 import { auth } from "../firebase/firebase";
-import { getAccountHooks } from "@/api/account";
+import { runAccountHooks } from "@/api/account";
 
 const AuthContext = createContext();
 const googleProvider = new GoogleAuthProvider();
@@ -46,7 +47,7 @@ export function AuthProvider(props) {
     setIsProvisioningAccount(true);
     return createUserWithEmailAndPassword(auth, email, password).then(
       (userCredential) => {
-        getAccountHooks()
+        return runAccountHooks()
           .then(
             () => {
               console.log("Successfully hooked the account.");
@@ -65,10 +66,11 @@ export function AuthProvider(props) {
   const loginWithGoogle = async () => {
     try {
       return signInWithPopup(auth, googleProvider).then((userCredential) => {
-        const { operationType } = userCredential;
-        if (operationType === "link" || operationType === "reauthenticate") {
+        const isSignUp =
+          getAdditionalUserInfo(userCredential)?.isNewUser || false;
+        if (isSignUp) {
           setIsProvisioningAccount(true);
-          getAccountHooks()
+          runAccountHooks()
             .then(
               () => {
                 console.log("Successfully hooked the account.");

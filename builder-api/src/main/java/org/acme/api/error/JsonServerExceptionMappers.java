@@ -29,17 +29,15 @@ public class JsonServerExceptionMappers {
     Log.warn(e);
     // malformed JSON like { "schema": }
     return Response.status(Response.Status.BAD_REQUEST)
-        .type(MediaType.APPLICATION_JSON)
-        .entity(ApiError.of("JsonParseException: Malformed JSON.")).build();
+        .type(MediaType.APPLICATION_JSON).entity(ApiError.of("Malformed JSON."))
+        .build();
   }
 
   @ServerExceptionMapper
   public Response map(WebApplicationException e) {
-    Log.info("Some malformed JSON");
     Log.warn(e);
     return Response.status(Response.Status.BAD_REQUEST)
-        .type(MediaType.APPLICATION_JSON)
-        .entity(ApiError.of("WebApplicationException: Malformed JSON."))
+        .type(MediaType.APPLICATION_JSON).entity(ApiError.of("Malformed JSON."))
         .build();
   }
 

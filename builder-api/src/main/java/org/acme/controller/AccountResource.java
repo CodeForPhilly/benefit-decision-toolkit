@@ -2,7 +2,6 @@ package org.acme.controller;
 
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.inject.Inject;
-import jakarta.validation.Validator;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 
@@ -22,13 +21,11 @@ import org.acme.model.dto.Auth.AccountHookResponse;
 public class AccountResource {
 
     @Inject
-    Validator validator;
-
-    @Inject
     AccountHooks accountHooks;
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/account-hooks")
     public Response accountHooks(@Context SecurityIdentity identity,
             AccountHookRequest request) {
@@ -51,13 +48,16 @@ public class AccountResource {
 
         // Run each action's function and determine whether successful
         Map<String, Boolean> hookResults = hooks.stream()
-                .collect(Collectors.toMap(s -> s.toString(), s -> {
+                .collect(Collectors.toMap(s -> s.getLabel(), s -> {
                     Predicate<String> fn = hooksMap.get(s);
                     return fn.test(userId);
                 }));
 
-        AccountHookResponse responseBody = new AccountHookResponse(true,
-                hookResults);
+        Boolean allHooksSuccess = hookResults.values().stream()
+                .allMatch(Boolean::booleanValue);
+
+        AccountHookResponse responseBody = new AccountHookResponse(
+                allHooksSuccess, hookResults);
 
         return Response.ok(responseBody).build();
     }

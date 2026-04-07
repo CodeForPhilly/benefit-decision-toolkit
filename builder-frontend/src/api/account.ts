@@ -4,7 +4,7 @@ import { authPost } from "@/api/auth";
 
 const apiUrl = env.apiUrl;
 
-export const getAccountHooks = async () => {
+export const runAccountHooks = async () => {
   const accountHookUrl = new URL(`${apiUrl}/account-hooks`);
 
   const hooksToCall = ["add example screener"];

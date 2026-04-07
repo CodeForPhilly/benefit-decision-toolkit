@@ -207,6 +207,7 @@ public class ExampleScreenerImportService {
             try {
                 eligibilityCheckRepository.saveNewPublishedCustomCheck(importedCheck);
             } catch (Exception e) {
+                Log.info(e);
                 eligibilityCheckRepository.updatePublishedCustomCheck(importedCheck);
             }
         }
