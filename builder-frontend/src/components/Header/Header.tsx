@@ -1,8 +1,7 @@
 import { useAuth } from "../../context/AuthContext";
 import { useLocation, useNavigate } from "@solidjs/router";
-import { Component, For, Show } from "solid-js";
+import { Component, createMemo, For, Show } from "solid-js";
 
-import bdtLogo from "@/assets/logos/bdt-logo-small-mono-light.svg";
 import { HamburgerMenu } from "@/components/shared/HamburgerMenu";
 
 import "./Header.css";
@@ -35,7 +34,12 @@ interface MenuProps {
 }
 
 const HeaderMenu: Component<MenuProps> = (props) => {
+  const navigate = useNavigate();
   const menuItems: { label: string; onClick: () => void }[] = [
+    {
+      label: "Custom Checks",
+      onClick: () => navigate("/check"),
+    },
     {
       label: "User Guide",
       onClick: () => window.open("https://bdt-docs.web.app/", "_blank"),
@@ -71,7 +75,9 @@ export default function Header() {
   const navigate = useNavigate();
 
   const location = useLocation();
-  const isNotRoot = location.pathname !== "/";
+  const isNotRoot = createMemo(
+    () => location.pathname !== "/" && location.pathname !== "/projects",
+  );
 
   const handleLogout = () => {
     logout();
@@ -82,14 +88,14 @@ export default function Header() {
     <header class="bg-gray-200 min-h-12 h-12 px-4 flex items-center justify-between border-b-2 border-gray-300">
       <div class="flex items-center space-x-6">
         <img
-          src={bdtLogo}
+          src="/logos/bdt-logo-small-mono-light.svg"
           alt="BDT logo"
           class="w-18 cursor-pointer"
           onClick={() => navigate("/")}
         />
       </div>
       <div class="flex items-center h-full">
-        <Show when={isNotRoot}>
+        <Show when={isNotRoot()}>
           <HeaderButton
             buttonText="← Back to Home"
             onClick={() => navigate("/")}

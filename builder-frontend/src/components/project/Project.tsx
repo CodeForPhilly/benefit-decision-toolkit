@@ -2,7 +2,6 @@ import { createSignal, createResource, Accessor } from "solid-js";
 import { useParams } from "@solidjs/router";
 
 import FormEditorView from "./FormEditorView";
-import Header from "../Header/Header";
 import Loading from "../Loading";
 import ManageBenefits from "./manageBenefits/ManageBenefits";
 import Preview from "./preview/Preview";
@@ -10,6 +9,7 @@ import Publish from "./Publish";
 
 import { fetchProject } from "@/api/screener";
 import BdtNavbar, { NavbarProps } from "@/components/shared/BdtNavbar";
+import { Title } from "@solidjs/meta";
 
 type TabOption = "manageBenefits" | "formEditor" | "preview" | "publish";
 
@@ -67,11 +67,11 @@ function Project() {
 
   return (
     <div class="h-screen flex flex-col">
-      <Header />
       {project.loading ? (
         <Loading />
       ) : (
         <>
+          <Title>BDT - {project().screenerName}</Title>
           <BdtNavbar navProps={navbarDefs} />
           {activeTab() == "formEditor" && (
             <FormEditorView

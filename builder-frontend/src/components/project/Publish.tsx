@@ -2,6 +2,7 @@ import { createSignal } from "solid-js";
 import { useParams } from "@solidjs/router";
 import { publishScreener } from "../../api/screener";
 import Tooltip from "../shared/Tooltip";
+import { Button } from "@/components/shared/Button";
 
 export default function Publish({ project, refetchProject }) {
   const [isLoading, setIsLoading] = createSignal(false);
@@ -74,14 +75,14 @@ export default function Publish({ project, refetchProject }) {
         </div>
         <div class="mt-4 flex flex-col gap-2">
           <div class="flex flex-row gap-2 items-center">
-            <button
+            <Button
+              variant="secondary"
               id="publish-screener-button"
               onClick={handlePublish}
-              class="w-80 bg-gray-800 font-bold text-gray-50 rounded px-4 py-2 hover:bg-gray-700 disabled:opacity-50"
               disabled={isLoading()}
             >
               Publish Screener
-            </button>
+            </Button>
             <Tooltip>
               <p>
                 The Publish tab is where you deploy your screener to a publicly

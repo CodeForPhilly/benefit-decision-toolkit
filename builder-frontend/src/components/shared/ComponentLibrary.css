@@ -1,0 +1,12 @@
+@reference 'tailwindcss';
+
+.library-wrapper > * {
+  @apply p-5;
+}
+.library-wrapper > *:nth-child(even) {
+  @apply bg-amber-100;
+}
+
+.my-button {
+  @apply border-1 border-red-500;
+}

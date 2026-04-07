@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+.header {
+  @apply bg-gray-200 min-h-24 h-24 px-4 flex items-center justify-between border-b-2 border-gray-300;
+}
+.logout-btn,
+.back-to-home {
+  @apply px-4 py-3 font-bold text-gray-700 rounded-md flex items-center cursor-pointer select-none no-underline;
+}
+.logout-btn:hover,
+.back-to-home:hover {
+  @apply bg-gray-300 text-gray-700;
+}
