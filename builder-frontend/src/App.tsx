@@ -16,7 +16,7 @@ import ProjectsList from "@/components/homeScreen/ProjectsList";
 import EligibilityChecksList from "@/components/homeScreen/eligibilityCheckList/EligibilityChecksList";
 
 const MainLayout = (props: ParentProps) => {
-  const { user, isAuthLoading } = useAuth();
+  const { user, isAuthLoading, isProvisioningAccount } = useAuth();
 
   const navbarItems = [
     { label: "Projects", href: "/projects" },
@@ -25,7 +25,7 @@ const MainLayout = (props: ParentProps) => {
 
   return (
     <Switch>
-      <Match when={isAuthLoading()}>
+      <Match when={isAuthLoading() || isProvisioningAccount()}>
         <Loading />
       </Match>
       <Match when={user() === null}>
