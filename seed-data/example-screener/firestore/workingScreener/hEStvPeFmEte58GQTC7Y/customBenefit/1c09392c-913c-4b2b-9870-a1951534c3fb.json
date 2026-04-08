@@ -1,7 +1,11 @@
 {
-  "id": "28e9825d-c0a4-4bb6-ba66-39009c2419bb",
+  "ownerId": "i7d0OHGyzho27saJ48BFa77NmDeL",
+  "description": "desc",
+  "name": "OOPA",
   "checks": [
     {
+      "evaluationUrl": "/api/v1/checks/residence/tax-delinquent",
+      "checkVersion": "0.7.1",
       "inputDefinition": {
         "properties": {
           "simpleChecks": {
@@ -15,15 +19,15 @@
         },
         "type": "object"
       },
-      "evaluationUrl": "/api/v1/checks/residence/tax-delinquent",
-      "sourceCheckId": "L-residence-tax-delinquent-0.7.1",
+      "checkId": "c4a9f028-9617-4c3a-8617-1ffdae6b3ebe",
       "parameters": {},
-      "checkModule": "residence",
-      "checkId": "24484715-2a87-4ca3-a075-e7c1e44d4f0d",
       "checkName": "tax-delinquent",
-      "checkVersion": "0.7.1"
+      "checkModule": "residence",
+      "sourceCheckId": "L-residence-tax-delinquent-0.7.1"
     },
     {
+      "evaluationUrl": "/api/v1/checks/residence/lives-in-philadelphia-pa",
+      "checkVersion": "0.7.1",
       "inputDefinition": {
         "properties": {
           "simpleChecks": {
@@ -37,15 +41,15 @@
         },
         "type": "object"
       },
-      "evaluationUrl": "/api/v1/checks/residence/lives-in-philadelphia-pa",
-      "sourceCheckId": "L-residence-lives-in-philadelphia-pa-0.7.1",
+      "checkId": "2b330906-4c65-4209-acf8-8b404b1614e7",
       "parameters": {},
-      "checkModule": "residence",
-      "checkId": "47f84e46-01fb-4f21-bfbf-d3f84301efa2",
       "checkName": "lives-in-philadelphia-pa",
-      "checkVersion": "0.7.1"
+      "checkModule": "residence",
+      "sourceCheckId": "L-residence-lives-in-philadelphia-pa-0.7.1"
     },
     {
+      "evaluationUrl": "/api/v1/checks/residence/owner-occupant",
+      "checkVersion": "0.7.1",
       "inputDefinition": {
         "properties": {
           "simpleChecks": {
@@ -59,52 +63,48 @@
         },
         "type": "object"
       },
-      "evaluationUrl": "/api/v1/checks/residence/owner-occupant",
-      "sourceCheckId": "L-residence-owner-occupant-0.7.1",
+      "checkId": "daff8d3a-02e1-42d1-a8cc-173acc24c4fb",
       "parameters": {},
-      "checkModule": "residence",
-      "checkId": "10787de2-6181-4944-8d36-906ee002a40a",
       "checkName": "owner-occupant",
-      "checkVersion": "0.7.1"
+      "checkModule": "residence",
+      "sourceCheckId": "L-residence-owner-occupant-0.7.1"
     },
     {
+      "checkVersion": "2.0.0",
+      "parameterDefinitions": [
+        {
+          "label": "P 1",
+          "key": "p1",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "checkId": "751cc016-6e24-4d0c-b4f3-83b6ca9afe3f",
       "inputDefinition": {
         "properties": {
           "custom": {
             "properties": {
               "testinput": {}
             },
+            "type": "object",
             "required": [
               "testinput"
-            ],
-            "type": "object"
+            ]
           }
         },
+        "type": "object",
         "required": [
           "custom"
-        ],
-        "type": "object"
+        ]
       },
-      "parameterDefinitions": [
-        {
-          "key": "p1",
-          "label": "P 1",
-          "type": "string",
-          "required": true
-        }
-      ],
-      "sourceCheckId": "P-DkL76BPgxDwaUKvtHIHEfil3HPh9-testchecks-test-2.0.0",
+      "checkName": "test",
+      "checkModule": "testchecks",
       "parameters": {
         "p1": "blah"
       },
-      "checkModule": "testchecks",
-      "checkId": "274d7b05-4469-4bca-bea1-65d97957973d",
-      "checkName": "test",
-      "checkVersion": "2.0.0"
+      "sourceCheckId": "P-i7d0OHGyzho27saJ48BFa77NmDeL-testchecks-test-2.0.0"
     }
   ],
-  "ownerId": "DkL76BPgxDwaUKvtHIHEfil3HPh9",
-  "name": "OOPA",
-  "description": "desc",
-  "_id": "28e9825d-c0a4-4bb6-ba66-39009c2419bb"
+  "id": "1c09392c-913c-4b2b-9870-a1951534c3fb",
+  "_id": "1c09392c-913c-4b2b-9870-a1951534c3fb"
 }

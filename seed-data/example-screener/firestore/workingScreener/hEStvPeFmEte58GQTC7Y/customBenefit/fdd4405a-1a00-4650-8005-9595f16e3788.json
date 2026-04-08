@@ -1,0 +1,120 @@
+{
+  "ownerId": "i7d0OHGyzho27saJ48BFa77NmDeL",
+  "description": "If you own your primary residence, you are eligible for the Homestead Exemption on your Real Estate Tax. The Homestead Exemption reduces the taxable portion of your property’s assessed value.\n\nWith this exemption, the property’s assessed value is reduced by $100,000. Most homeowners will save about $1,399 a year on their Real Estate Tax bill starting in 2025.\n\nmore info:\nhttps://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/",
+  "name": "Homestead Exemption",
+  "checks": [
+    {
+      "evaluationUrl": "/api/v1/checks/enrollment/person-not-enrolled-in-benefit",
+      "checkVersion": "0.7.1",
+      "inputDefinition": {
+        "properties": {
+          "enrollments": {
+            "items": {
+              "properties": {
+                "personId": {
+                  "type": "string"
+                },
+                "benefit": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "checkId": "7621168e-e456-4690-a8bc-f081753c9535",
+      "parameterDefinitions": [
+        {
+          "label": "personId",
+          "key": "personId",
+          "type": "string",
+          "required": false
+        },
+        {
+          "label": "benefit",
+          "key": "benefit",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "checkName": "person-not-enrolled-in-benefit",
+      "checkModule": "enrollment",
+      "parameters": {
+        "personId": "client",
+        "benefit": "PhlHomesteadExemption"
+      },
+      "sourceCheckId": "L-enrollment-person-not-enrolled-in-benefit-0.7.1"
+    },
+    {
+      "evaluationUrl": "/api/v1/checks/residence/owner-occupant",
+      "checkVersion": "0.7.1",
+      "inputDefinition": {
+        "properties": {
+          "simpleChecks": {
+            "properties": {
+              "ownerOccupant": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "checkId": "d6376311-49d2-44d8-bed3-4cb619df68f0",
+      "parameters": {},
+      "checkName": "owner-occupant",
+      "checkModule": "residence",
+      "sourceCheckId": "L-residence-owner-occupant-0.7.1"
+    },
+    {
+      "evaluationUrl": "/api/v1/checks/residence/lives-in-philadelphia-pa",
+      "checkVersion": "0.7.1",
+      "inputDefinition": {
+        "properties": {
+          "simpleChecks": {
+            "properties": {
+              "livesInPhiladelphiaPa": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "checkId": "352e984a-5dfc-46fe-9518-0bf61a0defeb",
+      "parameters": {},
+      "checkName": "lives-in-philadelphia-pa",
+      "checkModule": "residence",
+      "sourceCheckId": "L-residence-lives-in-philadelphia-pa-0.7.1"
+    },
+    {
+      "evaluationUrl": "/api/v1/checks/residence/no-ten-year-tax-abatement",
+      "checkVersion": "0.7.1",
+      "inputDefinition": {
+        "properties": {
+          "simpleChecks": {
+            "properties": {
+              "tenYearTaxAbatement": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "checkId": "658fc9f2-4789-45f6-a2d2-e851e0d85c58",
+      "parameters": {},
+      "checkName": "no-ten-year-tax-abatement",
+      "checkModule": "residence",
+      "sourceCheckId": "L-residence-no-ten-year-tax-abatement-0.7.1"
+    }
+  ],
+  "id": "fdd4405a-1a00-4650-8005-9595f16e3788",
+  "_id": "fdd4405a-1a00-4650-8005-9595f16e3788"
+}
