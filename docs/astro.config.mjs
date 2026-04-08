@@ -29,6 +29,10 @@ export default defineConfig({
               label: "Input Definition Transformation",
               slug: "dev/input-definition-transformation",
             },
+            {
+              label: "Editing the Example Screener",
+              slug: "dev/editing-example-screener",
+            },
           ],
         },
       ],
