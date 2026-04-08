@@ -1,0 +1,110 @@
+{
+  "id": "28e9825d-c0a4-4bb6-ba66-39009c2419bb",
+  "checks": [
+    {
+      "inputDefinition": {
+        "properties": {
+          "simpleChecks": {
+            "properties": {
+              "taxDelinquent": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "evaluationUrl": "/api/v1/checks/residence/tax-delinquent",
+      "sourceCheckId": "L-residence-tax-delinquent-0.7.1",
+      "parameters": {},
+      "checkModule": "residence",
+      "checkId": "24484715-2a87-4ca3-a075-e7c1e44d4f0d",
+      "checkName": "tax-delinquent",
+      "checkVersion": "0.7.1"
+    },
+    {
+      "inputDefinition": {
+        "properties": {
+          "simpleChecks": {
+            "properties": {
+              "livesInPhiladelphiaPa": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "evaluationUrl": "/api/v1/checks/residence/lives-in-philadelphia-pa",
+      "sourceCheckId": "L-residence-lives-in-philadelphia-pa-0.7.1",
+      "parameters": {},
+      "checkModule": "residence",
+      "checkId": "47f84e46-01fb-4f21-bfbf-d3f84301efa2",
+      "checkName": "lives-in-philadelphia-pa",
+      "checkVersion": "0.7.1"
+    },
+    {
+      "inputDefinition": {
+        "properties": {
+          "simpleChecks": {
+            "properties": {
+              "ownerOccupant": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "evaluationUrl": "/api/v1/checks/residence/owner-occupant",
+      "sourceCheckId": "L-residence-owner-occupant-0.7.1",
+      "parameters": {},
+      "checkModule": "residence",
+      "checkId": "10787de2-6181-4944-8d36-906ee002a40a",
+      "checkName": "owner-occupant",
+      "checkVersion": "0.7.1"
+    },
+    {
+      "inputDefinition": {
+        "properties": {
+          "custom": {
+            "properties": {
+              "testinput": {}
+            },
+            "required": [
+              "testinput"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "custom"
+        ],
+        "type": "object"
+      },
+      "parameterDefinitions": [
+        {
+          "key": "p1",
+          "label": "P 1",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "sourceCheckId": "P-DkL76BPgxDwaUKvtHIHEfil3HPh9-testchecks-test-2.0.0",
+      "parameters": {
+        "p1": "blah"
+      },
+      "checkModule": "testchecks",
+      "checkId": "274d7b05-4469-4bca-bea1-65d97957973d",
+      "checkName": "test",
+      "checkVersion": "2.0.0"
+    }
+  ],
+  "ownerId": "DkL76BPgxDwaUKvtHIHEfil3HPh9",
+  "name": "OOPA",
+  "description": "desc",
+  "_id": "28e9825d-c0a4-4bb6-ba66-39009c2419bb"
+}

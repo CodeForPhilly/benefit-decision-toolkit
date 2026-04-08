@@ -1,0 +1,120 @@
+{
+  "id": "fab544ea-63b9-478a-a835-5cfe0376b4fb",
+  "checks": [
+    {
+      "inputDefinition": {
+        "properties": {
+          "enrollments": {
+            "type": "array",
+            "items": {
+              "properties": {
+                "personId": {
+                  "type": "string"
+                },
+                "benefit": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "parameterDefinitions": [
+        {
+          "key": "personId",
+          "label": "personId",
+          "type": "string",
+          "required": false
+        },
+        {
+          "key": "benefit",
+          "label": "benefit",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "evaluationUrl": "/api/v1/checks/enrollment/person-not-enrolled-in-benefit",
+      "sourceCheckId": "L-enrollment-person-not-enrolled-in-benefit-0.7.1",
+      "parameters": {
+        "personId": "client",
+        "benefit": "PhlHomesteadExemption"
+      },
+      "checkModule": "enrollment",
+      "checkId": "074f38bb-8fd2-4aea-bcae-3695902f5559",
+      "checkName": "person-not-enrolled-in-benefit",
+      "checkVersion": "0.7.1"
+    },
+    {
+      "inputDefinition": {
+        "properties": {
+          "simpleChecks": {
+            "properties": {
+              "ownerOccupant": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "evaluationUrl": "/api/v1/checks/residence/owner-occupant",
+      "sourceCheckId": "L-residence-owner-occupant-0.7.1",
+      "parameters": {},
+      "checkModule": "residence",
+      "checkId": "10f89f2d-8e24-4aaf-83a9-e66ad8a65a77",
+      "checkName": "owner-occupant",
+      "checkVersion": "0.7.1"
+    },
+    {
+      "inputDefinition": {
+        "properties": {
+          "simpleChecks": {
+            "properties": {
+              "livesInPhiladelphiaPa": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "evaluationUrl": "/api/v1/checks/residence/lives-in-philadelphia-pa",
+      "sourceCheckId": "L-residence-lives-in-philadelphia-pa-0.7.1",
+      "parameters": {},
+      "checkModule": "residence",
+      "checkId": "58242bfe-130b-4d5c-baf6-e286ff70d522",
+      "checkName": "lives-in-philadelphia-pa",
+      "checkVersion": "0.7.1"
+    },
+    {
+      "inputDefinition": {
+        "properties": {
+          "simpleChecks": {
+            "properties": {
+              "tenYearTaxAbatement": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "evaluationUrl": "/api/v1/checks/residence/no-ten-year-tax-abatement",
+      "sourceCheckId": "L-residence-no-ten-year-tax-abatement-0.7.1",
+      "parameters": {},
+      "checkModule": "residence",
+      "checkId": "25b3ef8b-53f4-4159-ad66-d05d6c376f18",
+      "checkName": "no-ten-year-tax-abatement",
+      "checkVersion": "0.7.1"
+    }
+  ],
+  "ownerId": "DkL76BPgxDwaUKvtHIHEfil3HPh9",
+  "name": "Homestead Exemption",
+  "description": "If you own your primary residence, you are eligible for the Homestead Exemption on your Real Estate Tax. The Homestead Exemption reduces the taxable portion of your property’s assessed value.\n\nWith this exemption, the property’s assessed value is reduced by $100,000. Most homeowners will save about $1,399 a year on their Real Estate Tax bill starting in 2025.\n\nmore info:\nhttps://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/",
+  "_id": "fab544ea-63b9-478a-a835-5cfe0376b4fb"
+}
