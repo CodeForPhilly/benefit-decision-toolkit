@@ -16,7 +16,12 @@ import org.acme.persistence.StorageService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -33,6 +38,8 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class ExampleScreenerImportService {
+    private static final String BUNDLED_SEED_ROOT = "seed-data/example-screener";
+    private static final String BUNDLED_SEED_MANIFEST = BUNDLED_SEED_ROOT + "/manifest.json";
 
     private final ScreenerRepository screenerRepository;
     private final EligibilityCheckRepository eligibilityCheckRepository;
@@ -54,53 +61,64 @@ public class ExampleScreenerImportService {
         this.objectMapper = new ObjectMapper();
     }
 
-    public String importForUser(String userId) throws Exception {
-        Path seedRoot = resolveSeedRoot();
-        SeedData seedData = loadSeedData(seedRoot);
+    public List<String> importForUser(String userId) throws Exception {
+        SeedRoot seedRoot = resolveSeedRoot();
+        try (seedRoot) {
+            SeedData seedData = loadSeedData(seedRoot.path());
 
-        Map<String, String> importedCustomCheckIds = importReferencedCustomChecks(seedData, userId);
+            Map<String, String> importedCustomCheckIds = importReferencedCustomChecks(seedData, userId);
+            List<String> importedScreenerIds = new ArrayList<>();
 
-        List<Benefit> importedBenefits = new ArrayList<>();
-        List<BenefitDetail> importedBenefitDetails = new ArrayList<>();
-        for (Benefit seedBenefit : seedData.benefits()) {
-            Benefit importedBenefit = cloneBenefit(seedBenefit, userId, importedCustomCheckIds);
-            importedBenefits.add(importedBenefit);
-            importedBenefitDetails.add(new BenefitDetail(
-                importedBenefit.getId(),
-                importedBenefit.getName(),
-                importedBenefit.getDescription()
-            ));
+            for (SeedScreenerData seedScreener : seedData.screeners()) {
+                List<Benefit> importedBenefits = new ArrayList<>();
+                List<BenefitDetail> importedBenefitDetails = new ArrayList<>();
+                for (Benefit seedBenefit : seedScreener.benefits()) {
+                    Benefit importedBenefit = cloneBenefit(seedBenefit, userId, importedCustomCheckIds);
+                    importedBenefits.add(importedBenefit);
+                    importedBenefitDetails.add(new BenefitDetail(
+                        importedBenefit.getId(),
+                        importedBenefit.getName(),
+                        importedBenefit.getDescription()
+                    ));
+                }
+
+                Screener importedScreener = new Screener();
+                importedScreener.setOwnerId(userId);
+                importedScreener.setScreenerName(seedScreener.screener().getScreenerName());
+                importedScreener.setBenefits(importedBenefitDetails);
+
+                String newScreenerId = screenerRepository.saveNewWorkingScreener(importedScreener);
+                importedScreener.setId(newScreenerId);
+
+                for (Benefit importedBenefit : importedBenefits) {
+                    screenerRepository.saveNewCustomBenefit(newScreenerId, importedBenefit);
+                }
+
+                if (seedScreener.formSchema() != null) {
+                    String formPath = storageService.getScreenerWorkingFormSchemaPath(newScreenerId);
+                    storageService.writeJsonToStorage(formPath, seedScreener.formSchema());
+                }
+
+                importedScreenerIds.add(newScreenerId);
+                Log.info("Imported example screener " + newScreenerId + " for user " + userId);
+            }
+
+            return importedScreenerIds;
         }
-
-        Screener importedScreener = new Screener();
-        importedScreener.setOwnerId(userId);
-        importedScreener.setScreenerName(seedData.screener().getScreenerName());
-        importedScreener.setBenefits(importedBenefitDetails);
-
-        String newScreenerId = screenerRepository.saveNewWorkingScreener(importedScreener);
-        importedScreener.setId(newScreenerId);
-
-        for (Benefit importedBenefit : importedBenefits) {
-            screenerRepository.saveNewCustomBenefit(newScreenerId, importedBenefit);
-        }
-
-        String formPath = storageService.getScreenerWorkingFormSchemaPath(newScreenerId);
-        storageService.writeJsonToStorage(formPath, seedData.formSchema());
-
-        Log.info("Imported example screener " + newScreenerId + " for user " + userId);
-        return newScreenerId;
     }
 
     private Map<String, String> importReferencedCustomChecks(SeedData seedData, String userId) throws Exception {
         Set<String> referencedCustomCheckIds = new LinkedHashSet<>();
-        for (Benefit benefit : seedData.benefits()) {
-            if (benefit.getChecks() == null) {
-                continue;
-            }
-            for (CheckConfig checkConfig : benefit.getChecks()) {
-                String sourceCheckId = resolveSourceCheckId(checkConfig);
-                if (sourceCheckId != null && !isLibraryCheckId(sourceCheckId)) {
-                    referencedCustomCheckIds.add(sourceCheckId);
+        for (SeedScreenerData seedScreener : seedData.screeners()) {
+            for (Benefit benefit : seedScreener.benefits()) {
+                if (benefit.getChecks() == null) {
+                    continue;
+                }
+                for (CheckConfig checkConfig : benefit.getChecks()) {
+                    String sourceCheckId = resolveSourceCheckId(checkConfig);
+                    if (sourceCheckId != null && !isLibraryCheckId(sourceCheckId)) {
+                        referencedCustomCheckIds.add(sourceCheckId);
+                    }
                 }
             }
         }
@@ -287,32 +305,42 @@ public class ExampleScreenerImportService {
     private SeedData loadSeedData(Path seedRoot) throws IOException {
         Path workingScreenersDir = seedRoot.resolve("firestore").resolve("workingScreener");
         List<Path> screenerFiles = listJsonFiles(workingScreenersDir);
-        if (screenerFiles.size() != 1) {
-            throw new IllegalStateException("Expected exactly one working screener seed document, found " + screenerFiles.size());
+        if (screenerFiles.isEmpty()) {
+            throw new IllegalStateException("Expected at least one working screener seed document");
         }
 
-        Path screenerFile = screenerFiles.get(0);
-        Screener screener = readJsonFile(screenerFile, Screener.class);
-        String screenerDocId = stripExtension(screenerFile.getFileName().toString());
+        List<SeedScreenerData> screeners = new ArrayList<>();
+        for (Path screenerFile : screenerFiles) {
+            Screener screener = readJsonFile(screenerFile, Screener.class);
+            String screenerDocId = stripExtension(screenerFile.getFileName().toString());
 
-        Path benefitsDir = workingScreenersDir.resolve(screenerDocId).resolve("customBenefit");
-        List<Benefit> benefits = new ArrayList<>();
-        for (Path benefitFile : listJsonFiles(benefitsDir)) {
-            benefits.add(readJsonFile(benefitFile, Benefit.class));
+            Path benefitsDir = workingScreenersDir.resolve(screenerDocId).resolve("customBenefit");
+            List<Benefit> benefits = new ArrayList<>();
+            for (Path benefitFile : listJsonFiles(benefitsDir)) {
+                benefits.add(readJsonFile(benefitFile, Benefit.class));
+            }
+
+            screeners.add(new SeedScreenerData(
+                screener,
+                benefits,
+                loadFormSchema(seedRoot, screenerDocId)
+            ));
         }
-
-        JsonNode formSchema = objectMapper.readTree(
-            Files.readString(seedRoot.resolve("storage").resolve("form").resolve("working").resolve(screenerDocId + ".json"))
-        );
 
         return new SeedData(
-            screener,
-            benefits,
-            formSchema,
+            screeners,
             loadChecks(seedRoot.resolve("firestore").resolve("workingCustomCheck")),
             loadChecks(seedRoot.resolve("firestore").resolve("publishedCustomCheck")),
             loadDmnFiles(seedRoot.resolve("storage").resolve("check"))
         );
+    }
+
+    private JsonNode loadFormSchema(Path seedRoot, String screenerDocId) throws IOException {
+        Path formSchemaPath = seedRoot.resolve("storage").resolve("form").resolve("working").resolve(screenerDocId + ".json");
+        if (!Files.isRegularFile(formSchemaPath)) {
+            return null;
+        }
+        return objectMapper.readTree(Files.readString(formSchemaPath));
     }
 
     private Map<String, EligibilityCheck> loadChecks(Path checksDir) throws IOException {
@@ -374,24 +402,56 @@ public class ExampleScreenerImportService {
         }
     }
 
-    private Path resolveSeedRoot() {
-        List<Path> candidates = new ArrayList<>();
-        configuredSeedPath
+    private SeedRoot resolveSeedRoot() {
+        Optional<Path> configuredPath = configuredSeedPath
             .map(String::trim)
             .filter(path -> !path.isBlank())
-            .map(Paths::get)
-            .ifPresent(candidates::add);
-        candidates.add(Paths.get("seed-data", "example-screener"));
-        candidates.add(Paths.get("..", "seed-data", "example-screener"));
+            .map(Paths::get);
 
-        for (Path candidate : candidates) {
-            Path absoluteCandidate = candidate.toAbsolutePath().normalize();
+        if (configuredPath.isPresent()) {
+            Path absoluteCandidate = configuredPath.get().toAbsolutePath().normalize();
             if (Files.isDirectory(absoluteCandidate)) {
-                return absoluteCandidate;
+                return new SeedRoot(absoluteCandidate, null);
             }
         }
 
-        throw new IllegalStateException("Could not find example screener seed data in any expected location");
+        try {
+            return resolveBundledSeedRoot();
+        } catch (IOException | URISyntaxException e) {
+            throw new IllegalStateException("Could not load bundled example screener seed data", e);
+        }
+    }
+
+    private SeedRoot resolveBundledSeedRoot() throws IOException, URISyntaxException {
+        var manifestUrl = ExampleScreenerImportService.class.getClassLoader().getResource(BUNDLED_SEED_MANIFEST);
+        if (manifestUrl == null) {
+            throw new IllegalStateException(
+                "Could not find bundled example screener seed data at classpath:" + BUNDLED_SEED_ROOT
+            );
+        }
+
+        URI manifestUri = manifestUrl.toURI();
+        if ("jar".equalsIgnoreCase(manifestUri.getScheme())) {
+            String manifestUriString = manifestUri.toString();
+            int archiveSeparatorIndex = manifestUriString.indexOf("!/");
+            if (archiveSeparatorIndex < 0) {
+                throw new IllegalStateException("Unexpected jar resource URI for bundled seed data: " + manifestUri);
+            }
+
+            URI archiveUri = URI.create(manifestUriString.substring(0, archiveSeparatorIndex));
+            FileSystem fileSystem = getOrCreateFileSystem(archiveUri);
+            return new SeedRoot(fileSystem.getPath("/" + BUNDLED_SEED_ROOT), fileSystem);
+        }
+
+        return new SeedRoot(Paths.get(manifestUri).getParent(), null);
+    }
+
+    private FileSystem getOrCreateFileSystem(URI archiveUri) throws IOException {
+        try {
+            return FileSystems.getFileSystem(archiveUri);
+        } catch (FileSystemNotFoundException ignored) {
+            return FileSystems.newFileSystem(archiveUri, Collections.emptyMap());
+        }
     }
 
     private String buildWorkingCheckId(String ownerId, String module, String name) {
@@ -411,16 +471,29 @@ public class ExampleScreenerImportService {
     }
 
     private record SeedData(
-        Screener screener,
-        List<Benefit> benefits,
-        JsonNode formSchema,
+        List<SeedScreenerData> screeners,
         Map<String, EligibilityCheck> workingCustomChecks,
         Map<String, EligibilityCheck> publishedCustomChecks,
         Map<String, String> dmnByCheckId
+    ) {}
+
+    private record SeedScreenerData(
+        Screener screener,
+        List<Benefit> benefits,
+        JsonNode formSchema
     ) {}
 
     private record SeedCustomCheckVersions(
         EligibilityCheck workingCheck,
         EligibilityCheck publishedCheck
     ) {}
+
+    private record SeedRoot(Path path, FileSystem fileSystem) implements AutoCloseable {
+        @Override
+        public void close() throws IOException {
+            if (fileSystem != null && fileSystem.isOpen()) {
+                fileSystem.close();
+            }
+        }
+    }
 }
