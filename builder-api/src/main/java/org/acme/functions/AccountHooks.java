@@ -14,8 +14,8 @@ public class AccountHooks {
     public Boolean addExampleScreenerToAccount(String userId) {
         try {
             Log.info("Running ADD_EXAMPLE_SCREENER hook for user: " + userId);
-            String screenerId = exampleScreenerImportService.importForUser(userId);
-            Log.info("Imported example screener " + screenerId + " for user " + userId);
+            var screenerIds = exampleScreenerImportService.importForUser(userId);
+            Log.info("Imported example screeners " + screenerIds + " for user " + userId);
             return true;
         } catch (Exception e) {
             Log.error(

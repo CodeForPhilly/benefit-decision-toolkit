@@ -24,3 +24,20 @@ export const runAccountHooks = async () => {
     throw error; // rethrow so you can handle it in your component if needed
   }
 };
+
+export const exportExampleScreener = async () => {
+  const url = new URL(`${apiUrl}/account/export-example-screener`);
+
+  try {
+    const response = await authPost(url.toString());
+
+    if (!response.ok) {
+      return { success: false };
+    }
+    const data = (await response.json()) as { success: boolean };
+    return data;
+  } catch (err) {
+    console.error("Error calling account hooks:", err);
+    return { success: false };
+  }
+};
