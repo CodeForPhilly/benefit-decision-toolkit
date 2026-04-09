@@ -32,7 +32,7 @@ public class AccountResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/account-hooks")
+    @Path("/account/hooks")
     public Response accountHooks(@Context SecurityIdentity identity,
             AccountHookRequest request) {
 
@@ -76,7 +76,7 @@ public class AccountResource {
 
         if (userId == null) {
             return Response.status(Response.Status.UNAUTHORIZED)
-                .entity(new ApiError(true, "Unauthorized.")).build();
+                    .entity(new ApiError(true, "Unauthorized.")).build();
         }
 
         if (LaunchMode.current() != LaunchMode.DEVELOPMENT) {
@@ -84,19 +84,30 @@ public class AccountResource {
         }
 
         try {
-            ExampleScreenerExportService.ExportSummary summary = exampleScreenerExportService.exportForUser(userId);
-            return Response.ok(Map.of(
-                "success", true,
-                "outputPath", summary.outputPath(),
-                "screenerCount", summary.screenerCount(),
-                "firestoreDocuments", summary.firestoreDocuments(),
-                "storageFiles", summary.storageFiles()
-            )).build();
+            ExampleScreenerExportService.ExportSummary summary = exampleScreenerExportService
+                    .exportForUser(userId);
+            return Response.ok(
+                    Map.of(
+                            "success",
+                            true,
+                            "outputPath",
+                            summary.outputPath(),
+                            "screenerCount",
+                            summary.screenerCount(),
+                            "firestoreDocuments",
+                            summary.firestoreDocuments(),
+                            "storageFiles",
+                            summary.storageFiles()))
+                    .build();
         } catch (Exception e) {
-            Log.error("Failed to export example screener seed data for user " + userId, e);
-            return Response.serverError()
-                .entity(new ApiError(true, "Failed to export example screener seed data."))
-                .build();
+            Log.error(
+                    "Failed to export example screener seed data for user "
+                            + userId,
+                    e);
+            return Response.serverError().entity(
+                    new ApiError(true,
+                            "Failed to export example screener seed data."))
+                    .build();
         }
     }
 }
