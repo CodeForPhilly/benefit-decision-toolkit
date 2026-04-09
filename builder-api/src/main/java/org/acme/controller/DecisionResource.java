@@ -154,6 +154,7 @@ public class DecisionResource {
                 String uniqueCheckKey = checkConfig.getCheckId() + checkNum;
                 Map<String, Object> checkResultMap = new HashMap<>();
                 checkResultMap.put("name", checkConfig.getCheckName());
+                checkResultMap.put("aliasName", checkConfig.getAliasName());
                 checkResultMap.put("result", evaluationResult);
                 checkResultMap.put("module", checkConfig.getCheckModule() != null ? checkConfig.getCheckModule() : "");
                 checkResultMap.put("version", checkConfig.getCheckVersion() != null ? checkConfig.getCheckVersion() : "");

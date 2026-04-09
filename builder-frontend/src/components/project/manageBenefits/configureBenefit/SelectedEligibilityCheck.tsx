@@ -1,6 +1,7 @@
 import { Accessor, createSignal, For, Show } from "solid-js";
 
 import ConfigureCheckModal from "./modals/ConfigureCheckModal";
+import EditAliasModal from "./modals/EditAliasModal";
 
 import { titleCase } from "@/utils/title_case";
 
@@ -9,18 +10,25 @@ import type {
   ParameterDefinition,
   ParameterValues,
 } from "@/types";
+import { PencilIcon } from "lucide-solid";
 
 const SelectedEligibilityCheck = ({
   checkConfig,
   onRemove,
   updateCheckConfigParams,
+  updateCheckConfigAlias,
 }: {
   checkConfig: Accessor<CheckConfig>;
   updateCheckConfigParams: (newCheckData: ParameterValues) => void;
+  updateCheckConfigAlias: (aliasName: string | null) => void;
   onRemove: () => void | null;
 }) => {
   const [configuringCheckModalOpen, setConfiguringCheckModalOpen] =
     createSignal(false);
+  const [editAliasModalOpen, setEditAliasModalOpen] = createSignal(false);
+
+  const displayName = () =>
+    checkConfig().aliasName || checkConfig().checkName;
 
   const unfilledRequiredParameters = () => {
     return [];
@@ -47,9 +55,25 @@ const SelectedEligibilityCheck = ({
             X
           </div>
         </Show>
-        <div class="text-xl font-bold mb-2">
-          {titleCase(checkConfig().checkName)} - {checkConfig().checkVersion}
+        <div class="text-xl font-bold mb-2 flex items-center gap-2">
+          <span>{titleCase(displayName())}</span>
+          <span class="text-gray-500">- {checkConfig().checkVersion}</span>
+          <div
+            class="text-sm text-gray-500 hover:text-gray-700 hover:rounded-2xl p-2 hover:bg-gray-400"
+            onClick={(e) => {
+              e.stopPropagation();
+              setEditAliasModalOpen(true);
+            }}
+            title="Edit alias"
+          >
+            <PencilIcon size={16}/>
+          </div>
         </div>
+        <Show when={checkConfig().aliasName}>
+          <div class="text-sm text-gray-500 mb-1">
+            Original: {checkConfig().checkName}
+          </div>
+        </Show>
         <div class="pl-2 [&:has(+div)]:mb-2">
           {checkConfig().checkDescription}
         </div>
@@ -94,6 +118,16 @@ const SelectedEligibilityCheck = ({
           updateCheckConfigParams={updateCheckConfigParams}
           closeModal={() => {
             setConfiguringCheckModalOpen(false);
+          }}
+        />
+      )}
+
+      {editAliasModalOpen() && (
+        <EditAliasModal
+          checkConfig={checkConfig}
+          updateCheckConfigAlias={updateCheckConfigAlias}
+          closeModal={() => {
+            setEditAliasModalOpen(false);
           }}
         />
       )}
