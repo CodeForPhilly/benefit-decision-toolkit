@@ -1,0 +1,155 @@
+{
+  "name": "OOPA",
+  "id": "473aaa64-e8eb-40fe-b971-2287cce2e484",
+  "description": "desc",
+  "ownerId": "KGG2R7S1joMGnNlTOC60kvCLrjkD",
+  "checks": [
+    {
+      "inputDefinition": {
+        "properties": {
+          "simpleChecks": {
+            "properties": {
+              "taxDelinquent": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "parameters": {},
+      "checkId": "5191bdd4-1473-44e0-9e6f-85c2f8109eab",
+      "checkVersion": "0.7.1",
+      "checkModule": "residence",
+      "evaluationUrl": "/api/v1/checks/residence/tax-delinquent",
+      "sourceCheckId": "L-residence-tax-delinquent-0.7.1",
+      "checkName": "tax-delinquent"
+    },
+    {
+      "inputDefinition": {
+        "properties": {
+          "simpleChecks": {
+            "properties": {
+              "livesInPhiladelphiaPa": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "parameters": {},
+      "checkId": "a8f2e9c2-ff49-46c0-9c84-dda734c1f086",
+      "checkVersion": "0.7.1",
+      "checkModule": "residence",
+      "evaluationUrl": "/api/v1/checks/residence/lives-in-philadelphia-pa",
+      "sourceCheckId": "L-residence-lives-in-philadelphia-pa-0.7.1",
+      "checkName": "lives-in-philadelphia-pa"
+    },
+    {
+      "inputDefinition": {
+        "properties": {
+          "simpleChecks": {
+            "properties": {
+              "ownerOccupant": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "parameters": {},
+      "checkId": "c477bf2e-a948-47fe-a25a-cbd8c62de809",
+      "checkVersion": "0.7.1",
+      "checkModule": "residence",
+      "evaluationUrl": "/api/v1/checks/residence/owner-occupant",
+      "sourceCheckId": "L-residence-owner-occupant-0.7.1",
+      "checkName": "owner-occupant"
+    },
+    {
+      "inputDefinition": {
+        "required": [
+          "custom"
+        ],
+        "properties": {
+          "custom": {
+            "required": [
+              "testinput"
+            ],
+            "properties": {
+              "testinput": {}
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "checkId": "053a75d4-60b9-4576-8f55-00c1fb5fc381",
+      "checkVersion": "2.0.0",
+      "parameterDefinitions": [
+        {
+          "required": true,
+          "type": "string",
+          "label": "P 1",
+          "key": "p1"
+        }
+      ],
+      "checkModule": "testchecks",
+      "parameters": {
+        "p1": "blah"
+      },
+      "sourceCheckId": "P-KGG2R7S1joMGnNlTOC60kvCLrjkD-testchecks-test-2.0.0",
+      "checkName": "test"
+    },
+    {
+      "inputDefinition": {
+        "properties": {
+          "enrollments": {
+            "items": {
+              "properties": {
+                "benefit": {
+                  "type": "string"
+                },
+                "personId": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "parameters": {
+        "benefit": "oopa",
+        "personId": "client"
+      },
+      "checkId": "10037692-5af3-4e82-b0c1-32b3c5335511",
+      "checkVersion": "0.7.1",
+      "parameterDefinitions": [
+        {
+          "required": false,
+          "type": "string",
+          "label": "personId",
+          "key": "personId"
+        },
+        {
+          "required": false,
+          "type": "string",
+          "label": "benefit",
+          "key": "benefit"
+        }
+      ],
+      "checkModule": "enrollment",
+      "evaluationUrl": "/api/v1/checks/enrollment/person-not-enrolled-in-benefit",
+      "sourceCheckId": "L-enrollment-person-not-enrolled-in-benefit-0.7.1",
+      "checkName": "person-not-enrolled-in-benefit"
+    }
+  ],
+  "_id": "473aaa64-e8eb-40fe-b971-2287cce2e484"
+}

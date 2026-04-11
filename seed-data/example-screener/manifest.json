@@ -1,8 +1,8 @@
 {
-  "exportedAt": "2026-04-08T03:42:19.210460+00:00Z",
+  "exportedAt": "2026-04-11T16:03:32.133772+00:00Z",
   "source": "firebase-emulators",
   "projectId": "demo-bdt-dev",
   "storageBucket": "demo-bdt-dev.appspot.com",
-  "firestoreDocuments": 4,
-  "storageFiles": 3
+  "firestoreDocuments": 6,
+  "storageFiles": 5
 }

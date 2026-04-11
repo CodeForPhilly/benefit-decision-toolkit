@@ -1,0 +1,146 @@
+{
+  "name": "Homestead Exemption",
+  "id": "65f73934-becd-4a91-b035-6379e760f027",
+  "description": "If you own your primary residence, you are eligible for the Homestead Exemption on your Real Estate Tax. The Homestead Exemption reduces the taxable portion of your property’s assessed value.\n\nWith this exemption, the property’s assessed value is reduced by $100,000. Most homeowners will save about $1,399 a year on their Real Estate Tax bill starting in 2025.\n\nmore info:\nhttps://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/",
+  "ownerId": "KGG2R7S1joMGnNlTOC60kvCLrjkD",
+  "checks": [
+    {
+      "inputDefinition": {
+        "properties": {
+          "enrollments": {
+            "items": {
+              "properties": {
+                "benefit": {
+                  "type": "string"
+                },
+                "personId": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "parameters": {
+        "benefit": "PhlHomesteadExemption",
+        "personId": "client"
+      },
+      "checkId": "39710485-d93b-4c31-a5a5-620c0a5c1ae3",
+      "checkVersion": "0.7.1",
+      "parameterDefinitions": [
+        {
+          "required": false,
+          "type": "string",
+          "label": "personId",
+          "key": "personId"
+        },
+        {
+          "required": false,
+          "type": "string",
+          "label": "benefit",
+          "key": "benefit"
+        }
+      ],
+      "checkModule": "enrollment",
+      "evaluationUrl": "/api/v1/checks/enrollment/person-not-enrolled-in-benefit",
+      "sourceCheckId": "L-enrollment-person-not-enrolled-in-benefit-0.7.1",
+      "checkName": "person-not-enrolled-in-benefit"
+    },
+    {
+      "inputDefinition": {
+        "properties": {
+          "simpleChecks": {
+            "properties": {
+              "ownerOccupant": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "parameters": {},
+      "checkId": "3c5c564e-e972-4838-aefd-bffc4d885938",
+      "checkVersion": "0.7.1",
+      "checkModule": "residence",
+      "evaluationUrl": "/api/v1/checks/residence/owner-occupant",
+      "sourceCheckId": "L-residence-owner-occupant-0.7.1",
+      "checkName": "owner-occupant"
+    },
+    {
+      "inputDefinition": {
+        "properties": {
+          "simpleChecks": {
+            "properties": {
+              "livesInPhiladelphiaPa": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "parameters": {},
+      "checkId": "f2baa69d-7f89-4038-8aa5-b15e93ae0ea6",
+      "checkVersion": "0.7.1",
+      "checkModule": "residence",
+      "evaluationUrl": "/api/v1/checks/residence/lives-in-philadelphia-pa",
+      "sourceCheckId": "L-residence-lives-in-philadelphia-pa-0.7.1",
+      "checkName": "lives-in-philadelphia-pa"
+    },
+    {
+      "inputDefinition": {
+        "properties": {
+          "simpleChecks": {
+            "properties": {
+              "tenYearTaxAbatement": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "parameters": {},
+      "checkId": "f09e33da-3de0-4496-850f-8eab0fb249ad",
+      "checkVersion": "0.7.1",
+      "checkModule": "residence",
+      "evaluationUrl": "/api/v1/checks/residence/no-ten-year-tax-abatement",
+      "sourceCheckId": "L-residence-no-ten-year-tax-abatement-0.7.1",
+      "checkName": "no-ten-year-tax-abatement"
+    },
+    {
+      "inputDefinition": {
+        "required": [
+          "custom"
+        ],
+        "properties": {
+          "custom": {
+            "required": [
+              "anyEnrollments"
+            ],
+            "properties": {
+              "anyEnrollments": {}
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "checkId": "b19e8299-2ef5-4a63-be08-74dbc1c1eb54",
+      "checkVersion": "2.0.0",
+      "parameterDefinitions": [],
+      "checkModule": "general",
+      "parameters": {},
+      "sourceCheckId": "P-KGG2R7S1joMGnNlTOC60kvCLrjkD-general-propertyTaxReliefInputs-2.0.0",
+      "checkName": "propertyTaxReliefInputs"
+    }
+  ],
+  "_id": "65f73934-becd-4a91-b035-6379e760f027"
+}

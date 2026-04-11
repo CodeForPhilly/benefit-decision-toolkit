@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/" xmlns="https://kiegroup.org/dmn/_2C9D502E-D64B-4B40-974D-077B31114005" xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/" xmlns:kie="http://www.drools.org/kie/dmn/1.2" xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" id="_44689BDB-C48C-4712-8DC6-A91A62C8E196" name="162B8066-E4D2-4FEC-BE8E-B4D9EDA3C3B7" typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/" namespace="https://kiegroup.org/dmn/_2C9D502E-D64B-4B40-974D-077B31114005">
+  <dmn:extensionElements/>
+  <dmn:inputData id="_7850A409-A51E-4757-89B1-71AC0F2DD942" name="anyEnrollments">
+    <dmn:extensionElements/>
+    <dmn:variable id="_57EB6F9A-6C87-4A3F-994F-02B3211C1162" name="anyEnrollments" typeRef="boolean"/>
+  </dmn:inputData>
+  <dmn:decision id="_B718C6F3-7F63-495E-AFC9-9891F32A40EA" name="propertyTaxReliefInputs">
+    <dmn:extensionElements/>
+    <dmn:variable id="_0E476A21-D36A-49E7-BF39-AC0D098B520D" name="propertyTaxReliefInputs" typeRef="boolean"/>
+    <dmn:literalExpression id="_DB0C23D2-488C-4180-BD0F-7D37E1CB7E0B">
+      <dmn:text>true</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_88D25084-B4B9-42F6-9049-744837B7182E" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_DB0C23D2-488C-4180-BD0F-7D37E1CB7E0B">
+            <kie:width>300</kie:width>
+          </kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="dmnshape-drg-_7850A409-A51E-4757-89B1-71AC0F2DD942" dmnElementRef="_7850A409-A51E-4757-89B1-71AC0F2DD942" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="862" y="409" width="100" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_B718C6F3-7F63-495E-AFC9-9891F32A40EA" dmnElementRef="_B718C6F3-7F63-495E-AFC9-9891F32A40EA" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="837" y="243" width="160" height="50"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>
