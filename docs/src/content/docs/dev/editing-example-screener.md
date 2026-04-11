@@ -108,4 +108,6 @@ If the Firebase emulators don't shut down gracefully (e.g., due to a Codespace i
 
 ### Codespace idle timeout
 
-Codespaces will stop after a period of inactivity. Interacting with the web app alone may not count as activity. If you're making a long editing session, occasionally interact with the VS Code terminal to keep the Codespace alive. You might also want to run the `bin/export-example-screener` script periodicially to ensure you can pick up where you left off when restarting the Codespace later.
+Codespaces will stop after a period of inactivity (default: 30 minutes). Interacting with the web app alone may not count as activity. If you're making a long editing session, occasionally interact with the VS Code terminal to keep the Codespace alive. You might also want to run the `bin/export-example-screener` script periodically to ensure you can pick up where you left off when restarting the Codespace later.
+
+To increase the default idle timeout, go to [github.com/settings/codespaces](https://github.com/settings/codespaces) and change the **Default idle timeout** setting (maximum: 240 minutes).
