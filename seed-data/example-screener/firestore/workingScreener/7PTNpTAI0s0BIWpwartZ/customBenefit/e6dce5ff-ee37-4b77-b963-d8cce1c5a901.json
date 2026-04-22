@@ -1,0 +1,120 @@
+{
+  "description": "desc",
+  "ownerId": "6PKRB6xfvdTPIHe9DEvxt7iO5GGV",
+  "name": "OOPA",
+  "id": "e6dce5ff-ee37-4b77-b963-d8cce1c5a901",
+  "checks": [
+    {
+      "checkName": "lives-in-philadelphia-pa",
+      "evaluationUrl": "/api/v1/checks/residence/lives-in-philadelphia-pa",
+      "checkId": "e1b478c2-dc8f-4e60-80af-89c4bf506820",
+      "sourceCheckId": "L-residence-lives-in-philadelphia-pa-0.7.1",
+      "checkModule": "residence",
+      "checkVersion": "0.7.1",
+      "inputDefinition": {
+        "type": "object",
+        "properties": {
+          "simpleChecks": {
+            "type": "object",
+            "properties": {
+              "livesInPhiladelphiaPa": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "parameters": {}
+    },
+    {
+      "checkName": "owner-occupant",
+      "evaluationUrl": "/api/v1/checks/residence/owner-occupant",
+      "checkId": "f94e4bca-26a3-4d0d-b50f-6e94c792065a",
+      "sourceCheckId": "L-residence-owner-occupant-0.7.1",
+      "checkModule": "residence",
+      "checkVersion": "0.7.1",
+      "inputDefinition": {
+        "type": "object",
+        "properties": {
+          "simpleChecks": {
+            "type": "object",
+            "properties": {
+              "ownerOccupant": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "parameters": {}
+    },
+    {
+      "checkName": "person-not-enrolled-in-benefit",
+      "evaluationUrl": "/api/v1/checks/enrollment/person-not-enrolled-in-benefit",
+      "checkId": "58c5fc8a-4a5d-4857-b324-2f8cb592d428",
+      "parameterDefinitions": [
+        {
+          "type": "string",
+          "key": "personId",
+          "label": "personId",
+          "required": false
+        },
+        {
+          "type": "string",
+          "key": "benefit",
+          "label": "benefit",
+          "required": false
+        }
+      ],
+      "sourceCheckId": "L-enrollment-person-not-enrolled-in-benefit-0.7.1",
+      "checkModule": "enrollment",
+      "checkVersion": "0.7.1",
+      "inputDefinition": {
+        "type": "object",
+        "properties": {
+          "enrollments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "benefit": {
+                  "type": "string"
+                },
+                "personId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": {
+        "benefit": "oopa",
+        "personId": "client"
+      }
+    },
+    {
+      "checkName": "tax-delinquent",
+      "evaluationUrl": "/api/v1/checks/residence/tax-delinquent",
+      "checkId": "a120810c-9e55-48e6-9ea5-232276117123",
+      "sourceCheckId": "L-residence-tax-delinquent-0.7.1",
+      "checkModule": "residence",
+      "checkVersion": "0.7.1",
+      "inputDefinition": {
+        "type": "object",
+        "properties": {
+          "simpleChecks": {
+            "type": "object",
+            "properties": {
+              "taxDelinquent": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "parameters": {}
+    }
+  ],
+  "_id": "e6dce5ff-ee37-4b77-b963-d8cce1c5a901"
+}
