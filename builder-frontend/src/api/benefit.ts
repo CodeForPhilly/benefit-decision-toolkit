@@ -97,3 +97,21 @@ export const updateCheckParameters = async (
     throw error;
   }
 };
+
+export const updateCheckAlias = async (
+  screenerId: string,
+  benefitId: string,
+  checkId: string,
+  aliasName: string | null
+): Promise<void> => {
+  const url = apiUrl + "/screener/" + screenerId + "/benefit/" + benefitId + "/check/" + checkId + "/alias";
+  try {
+    const response = await authPatch(url.toString(), { aliasName });
+    if (!response.ok) {
+      throw new Error(`Update alias failed with status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error updating check alias:", error);
+    throw error;
+  }
+};
