@@ -138,7 +138,7 @@ export default function ProjectsList() {
               };
               return (
                 item && (
-                  <div
+                  <article
                     class="
                       w-80 h-60 relative cursor-pointer
                       border-2 border-gray-300 rounded-lg
@@ -157,7 +157,7 @@ export default function ProjectsList() {
                     >
                       <div class="text-2xl font-bold">{item.screenerName}</div>
                     </div>
-                  </div>
+                  </article>
                 )
               );
             }}
