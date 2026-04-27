@@ -85,12 +85,12 @@ export default function Login({ toggleMode }) {
         Sign In
       </button>
 
-      <div className="text-gray-600 pt-4 text-center" onClick={toggleMode}>
+      <button className="text-gray-600 pt-4 text-center" onClick={toggleMode}>
         Don't have an account?&nbsp;
         <span className="text-gray-700 font-bold hover:underline hover:cursor-pointer">
           Sign Up
         </span>
-      </div>
+      </button>
       <div className="h-4 text-center">
         {error() && <p style={{ color: "red" }}>{error()}</p>}
       </div>

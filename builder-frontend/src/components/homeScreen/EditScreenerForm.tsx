@@ -63,7 +63,7 @@ export default function EditScreenerForm(props: Props) {
   return (
     <div>
       <Form onSubmit={handleSubmit}>
-        <div class="text-xl font-bold">Edit screener</div>
+        <h2 class="text-xl font-bold">Edit screener</h2>
 
         <Form.LabelAbove placeholder="Screener name" htmlFor="screenerName">
           <Form.TextInput value={props.modalData.screenerName} />

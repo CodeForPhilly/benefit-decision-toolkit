@@ -90,7 +90,7 @@ export default function ProjectsList() {
   };
 
   return (
-    <div>
+    <>
       <Title>BDT - Projects List</Title>
       <div class="bg-gray-100 rounded-xl p-8 flex flex-col text-sm">
         <div class="text-xl font-bold">
@@ -107,7 +107,7 @@ export default function ProjectsList() {
           eligibility checks from our library of pre-built eligibility rules. Or
           build custom checks that meet your specific needs.
         </div>
-        <div
+        <button
           onClick={() => setIsNewScreenerModalVisible(true)}
           class="
                 mt-2 px-4 py-2 w-fit cursor-pointer bg-blue-500
@@ -115,7 +115,7 @@ export default function ProjectsList() {
                 font-bold text-sm text-white"
         >
           Create new screener
-        </div>
+        </button>
         <Modal
           show={isNewScreenerModalVisible()}
           onClose={() => setIsNewScreenerModalVisible(false)}
@@ -138,7 +138,7 @@ export default function ProjectsList() {
               };
               return (
                 item && (
-                  <div
+                  <article
                     class="
                       w-80 h-60 relative cursor-pointer
                       border-2 border-gray-300 rounded-lg
@@ -157,7 +157,7 @@ export default function ProjectsList() {
                     >
                       <div class="text-2xl font-bold">{item.screenerName}</div>
                     </div>
-                  </div>
+                  </article>
                 )
               );
             }}
@@ -178,6 +178,6 @@ export default function ProjectsList() {
           </Modal>
         </div>
       </Show>
-    </div>
+    </>
   );
 }

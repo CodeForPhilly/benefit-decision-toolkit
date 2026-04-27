@@ -52,14 +52,14 @@ const EligibilityChecksList = () => {
         Manage your custom eligibility checks here. Click on a check to view or
         edit its details.
       </div>
-      <div
+      <button
         class="px-4 py-2 w-fit cursor-pointer bg-blue-500
                 rounded-lg shadow-md hover:shadow-lg hover:bg-blue-600
                 font-bold text-sm text-white"
         onClick={() => setAddingNewCheck(true)}
       >
         Create New Check
-      </div>
+      </button>
       <Modal show={addingNewCheck()} onClose={() => setAddingNewCheck(false)}>
         <CheckModal
           onAddCheck={actions.addNewCheck}

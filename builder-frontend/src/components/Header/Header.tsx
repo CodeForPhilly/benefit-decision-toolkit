@@ -15,7 +15,7 @@ const HeaderButton = ({
   onClick: () => void;
 }) => {
   return (
-    <div
+    <button
       onClick={onClick}
       class="
         px-4 py-2 text-md font-bold text-gray-700 rounded-md
@@ -23,7 +23,7 @@ const HeaderButton = ({
         hover:bg-gray-300 cursor-pointer select-none"
     >
       {buttonText}
-    </div>
+    </button>
   );
 };
 
@@ -48,10 +48,10 @@ const HeaderMenu: Component<MenuProps> = (props) => {
   ];
 
   return (
-    <div class="header-menu">
-      <div class="header-user-email" title={props.userEmail}>
+    <section class="header-menu">
+      <h2 class="header-user-email" title={props.userEmail}>
         Welcome {props.displayName} {props.userEmail}
-      </div>
+      </h2>
       <hr />
       <ul>
         <For each={menuItems}>
@@ -62,7 +62,7 @@ const HeaderMenu: Component<MenuProps> = (props) => {
           )}
         </For>
       </ul>
-    </div>
+    </section>
   );
 };
 

@@ -3,9 +3,9 @@ import { Accessor, createSignal } from "solid-js";
 
 const HomeScreen = () => {
   return (
-    <div class="p-2 text-gray-700">
+    <main class="p-2 text-gray-700">
       <ProjectsList />
-    </div>
+    </main>
   );
 };
 export default HomeScreen;
