@@ -8,13 +8,13 @@ interface Props {
 }
 const ANavBar: Component<Props> = (props) => {
   return (
-    <div class="flex border-b border-gray-300">
+    <nav class="flex border-b border-gray-300">
       {props.items.map(({ label, href }) => (
         <A href={href} class="navbarlink">
           {label}
         </A>
       ))}
-    </div>
+    </nav>
   );
 };
 
