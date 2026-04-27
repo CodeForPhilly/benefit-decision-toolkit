@@ -10,9 +10,9 @@ interface Props {
 export default function DeleteConfirmation(props: Props) {
   return (
     <div>
-      <div class="text-xl font-bold">
+      <h2 class="text-xl font-bold">
         Are you sure you would like to delete {props.screenerName}?
-      </div>
+      </h2>
       <div class="pt-8 text-md">
         Once deleted, all associated data will be deleted and cant be recovered.
       </div>
