@@ -107,7 +107,7 @@ export default function ProjectsList() {
           eligibility checks from our library of pre-built eligibility rules. Or
           build custom checks that meet your specific needs.
         </div>
-        <div
+        <button
           onClick={() => setIsNewScreenerModalVisible(true)}
           class="
                 mt-2 px-4 py-2 w-fit cursor-pointer bg-blue-500
@@ -115,7 +115,7 @@ export default function ProjectsList() {
                 font-bold text-sm text-white"
         >
           Create new screener
-        </div>
+        </button>
         <Modal
           show={isNewScreenerModalVisible()}
           onClose={() => setIsNewScreenerModalVisible(false)}
