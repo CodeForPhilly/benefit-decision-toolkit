@@ -195,28 +195,28 @@ function FormEditorView({ formSchema, setFormSchema }) {
       <div id="form-editor-save_container" class="fixed bottom-20 right-5 z-40">
         <Switch>
           <Match when={isUnsaved()}>
-            <div
+            <button
               onClick={handleSave}
               class="btn-default btn-yellow shadow-[0_0_10px_rgba(0,0,0,0.4)]"
             >
               Save
-            </div>
+            </button>
           </Match>
           <Match when={isSaving()}>
-            <div
+            <button
               onClick={handleSave}
               class="btn-default btn-gray cursor-not-allowed shadow-[0_0_10px_rgba(0,0,0,0.4)]"
             >
               Saving...
-            </div>
+            </button>
           </Match>
           <Match when={!isUnsaved() && !isSaving()}>
-            <div
+            <button
               onClick={handleSave}
               class="btn-default btn-blue shadow-[0_0_10px_rgba(0,0,0,0.4)]"
             >
               Save
-            </div>
+            </button>
           </Match>
         </Switch>
       </div>
