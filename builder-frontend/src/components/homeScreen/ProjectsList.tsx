@@ -90,7 +90,7 @@ export default function ProjectsList() {
   };
 
   return (
-    <div>
+    <>
       <Title>BDT - Projects List</Title>
       <div class="bg-gray-100 rounded-xl p-8 flex flex-col text-sm">
         <div class="text-xl font-bold">
@@ -178,6 +178,6 @@ export default function ProjectsList() {
           </Modal>
         </div>
       </Show>
-    </div>
+    </>
   );
 }
