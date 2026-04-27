@@ -18,9 +18,9 @@ const BdtNavbar = ({ navProps }: { navProps: Accessor<NavbarProps> }) => {
   return (
     <nav class="flex border-b border-gray-300">
       <Show when={navProps().titleDef !== null}>
-        <div class="py-2 px-4 font-bold text-gray-700 cursor-default">
+        <span class="py-2 px-4 font-bold text-gray-700 cursor-default">
           {navProps().titleDef!.label}
-        </div>
+        </span>
       </Show>
       {navProps().tabDefs.map((tab) => (
         <button
