@@ -14,17 +14,17 @@ const ErrorDisplayModal = ({
       <div class="bg-white px-12 py-8 rounded-xl max-w-140 w-1/2 min-w-80">
         <h2 class="text-2xl font-bold mb-4">{title}</h2>
         <div class="mb-4 max-h-96 overflow-y-auto">
-          <div class="flex flex-col gap-2 font-mono">
+          <ul class="flex flex-col gap-2 font-mono">
             <For each={errors}>
               {(error, errorIndex) => (
                 <>
-                  <div class="bg-gray-200 p-3 flex flex-col font-mono">
+                  <li class="bg-gray-200 p-3 flex flex-col font-mono">
                     {error}
-                  </div>
+                  </li>
                 </>
               )}
             </For>
-          </div>
+          </ul>
         </div>
 
         <div class="flex justify-end space-x-2">
