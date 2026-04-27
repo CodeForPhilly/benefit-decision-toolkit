@@ -15,7 +15,7 @@ const HeaderButton = ({
   onClick: () => void;
 }) => {
   return (
-    <div
+    <button
       onClick={onClick}
       class="
         px-4 py-2 text-md font-bold text-gray-700 rounded-md
@@ -23,7 +23,7 @@ const HeaderButton = ({
         hover:bg-gray-300 cursor-pointer select-none"
     >
       {buttonText}
-    </div>
+    </button>
   );
 };
 
