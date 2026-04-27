@@ -28,14 +28,14 @@ const ErrorDisplayModal = ({
         </div>
 
         <div class="flex justify-end space-x-2">
-          <div
+          <button
             class="btn-default hover:bg-gray-200"
             onClick={() => {
               closeModal();
             }}
           >
             Close
-          </div>
+          </button>
         </div>
       </div>
     </div>
