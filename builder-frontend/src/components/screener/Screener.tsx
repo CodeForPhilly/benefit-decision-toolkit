@@ -38,16 +38,16 @@ export default function Screener() {
         {screener.loading && <Loading />}
         {screener() && (
           <div class="flex flex-col lg:flex-row">
-            <div class="flex-1 overflow-y-auto p-4">
+            <section class="flex-1 overflow-y-auto p-4">
               <FormRenderer
                 schema={screener()?.formSchema || {}}
                 submitForm={submitForm}
               />
-            </div>
+            </section>
             <Show when={screenerResult()}>
-              <div class="flex-1 overflow-y-auto p-4">
+              <section class="flex-1 overflow-y-auto p-4">
                 <EligibilityResults screenerResult={screenerResult} />
-              </div>
+              </section>
             </Show>
           </div>
         )}
