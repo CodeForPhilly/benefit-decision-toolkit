@@ -59,7 +59,7 @@ function App() {
       <Route path="/screener/:publishedScreenerId" component={Screener} />
       <Route
         path="*"
-        component={() => <div class="p-4">404 - Page Not Found</div>}
+        component={() => <main class="p-4">404 - Page Not Found</main>}
       />
     </Router>
   );
