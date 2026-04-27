@@ -12,15 +12,19 @@ function formatParameters(params: Record<string, unknown>): string {
     .join(", ");
 }
 
-export default function EligibilityResults(
-  { screenerResult }: { screenerResult: Accessor<ScreenerResult> }
-) {
+export default function EligibilityResults({
+  screenerResult,
+}: {
+  screenerResult: Accessor<ScreenerResult>;
+}) {
   console.log(screenerResult());
   return (
     <div class="my-2 mx-12">
       <h2 class="text-gray-600 font-bold">Eligibility Results</h2>
       <For each={Object.entries(screenerResult())}>
-        {([benefitKey, benefitResult]) => <BenefitResult benefitResult={benefitResult}/>}
+        {([benefitKey, benefitResult]) => (
+          <BenefitResult benefitResult={benefitResult} />
+        )}
       </For>
     </div>
   );
@@ -28,7 +32,7 @@ export default function EligibilityResults(
 
 function BenefitResult({ benefitResult }: { benefitResult: BenefitResult }) {
   return (
-    <div class="border-gray-500 border p-5 my-4 rounded-lg shadow-md">
+    <article class="border-gray-500 border p-5 my-4 rounded-lg shadow-md">
       <Switch>
         <Match when={benefitResult.result === "TRUE"}>
           <p class="mb-3 bg-green-200 w-fit py-1 px-6 rounded-full font-bold text-gray-800 text-sm">
@@ -69,11 +73,17 @@ function BenefitResult({ benefitResult }: { benefitResult: BenefitResult }) {
                   {check.name}
                   <Show when={check.module || check.version}>
                     <span class="text-gray-500 ml-1">
-                      ({[check.module, check.version].filter(Boolean).join(" v")})
+                      (
+                      {[check.module, check.version].filter(Boolean).join(" v")}
+                      )
                     </span>
                   </Show>
                 </div>
-                <Show when={check.parameters && Object.keys(check.parameters).length > 0}>
+                <Show
+                  when={
+                    check.parameters && Object.keys(check.parameters).length > 0
+                  }
+                >
                   <div class="text-gray-500">
                     {formatParameters(check.parameters)}
                   </div>
@@ -103,6 +113,6 @@ function BenefitResult({ benefitResult }: { benefitResult: BenefitResult }) {
           </a>
         </div>
       )} */}
-    </div>
+    </article>
   );
 }
