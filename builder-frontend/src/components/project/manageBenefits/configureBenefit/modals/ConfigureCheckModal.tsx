@@ -313,9 +313,9 @@ const ParameterMultiStringInput = ({
           placeholder="Type and press Enter to add"
           class="form-input-custom flex-1"
         />
-        <div onClick={addValue} class="btn-default btn-blue">
+        <button onClick={addValue} class="btn-default btn-blue">
           Add
-        </div>
+        </button>
       </div>
     </>
   );
