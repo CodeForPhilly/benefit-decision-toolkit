@@ -33,25 +33,23 @@ export default function Screener() {
   };
 
   return (
-    <>
-      <main class="mt-4">
-        {screener.loading && <Loading />}
-        {screener() && (
-          <div class="flex flex-col lg:flex-row">
+    <main class="mt-4">
+      {screener.loading && <Loading />}
+      {screener() && (
+        <div class="flex flex-col lg:flex-row">
+          <section class="flex-1 overflow-y-auto p-4">
+            <FormRenderer
+              schema={screener()?.formSchema || {}}
+              submitForm={submitForm}
+            />
+          </section>
+          <Show when={screenerResult()}>
             <section class="flex-1 overflow-y-auto p-4">
-              <FormRenderer
-                schema={screener()?.formSchema || {}}
-                submitForm={submitForm}
-              />
+              <EligibilityResults screenerResult={screenerResult} />
             </section>
-            <Show when={screenerResult()}>
-              <section class="flex-1 overflow-y-auto p-4">
-                <EligibilityResults screenerResult={screenerResult} />
-              </section>
-            </Show>
-          </div>
-        )}
-      </main>
-    </>
+          </Show>
+        </div>
+      )}
+    </main>
   );
 }
