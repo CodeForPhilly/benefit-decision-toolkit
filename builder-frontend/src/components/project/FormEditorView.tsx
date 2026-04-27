@@ -256,9 +256,9 @@ const FormValidationDrawer = ({
               my-auto rounded-lg
               text-lg font-medium transition-all duration-100 "
           >
-            <div class="btn-default btn-gray shadow-[0_0_10px_rgba(0,0,0,0.4)]">
+            <button class="btn-default btn-gray shadow-[0_0_10px_rgba(0,0,0,0.4)]">
               Validate Form Outputs
-            </div>
+            </button>
           </Drawer.Trigger>
           <Drawer.Portal>
             <Drawer.Overlay
