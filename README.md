@@ -24,7 +24,7 @@ If you are interested in getting involved with the project, check out [our page 
 
 ## Testing Pull Requests
 
-Want to test changes from a pull request without setting up a local development environment? See our [Codespaces Testing Guide](docs/testing-prs-with-codespaces.md) for step-by-step instructions.
+Want to test changes from a pull request without setting up a local development environment? See our [Codespaces Testing Guide](docs/src/content/docs/dev/testing-prs-with-codespaces.md) for step-by-step instructions.
 
 ## User-Facing Technologies
 
