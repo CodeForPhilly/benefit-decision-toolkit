@@ -18,6 +18,7 @@ import requests
 # TYPE DEFINITIONS
 # -----------------------------------
 
+
 class ParameterDefinition(TypedDict):
     key: str
     label: str
@@ -30,6 +31,7 @@ class CheckRecord(TypedDict, total=False):
     evaluationUrl: str
     method: str
     name: str
+    description: str
     module: str
     version: str
     inputs: dict[str, Any]
@@ -54,6 +56,7 @@ class EmulatorCredentials(credentials.Base):
     def get_credential(self) -> google.auth.credentials.Credentials:
         return self._mock_credential
 
+
 # -----------------------------------
 # CONFIGURATION
 # -----------------------------------
@@ -63,13 +66,16 @@ DEFAULT_LIBRARY_API_URL = "http://localhost:8083"
 LIBRARY_API_BASE_URL = os.getenv("LIBRARY_API_BASE_URL", DEFAULT_LIBRARY_API_URL)
 
 # Infer production mode from URL (for versioned URL logic)
-IS_PRODUCTION = not ("localhost" in LIBRARY_API_BASE_URL or "127.0.0.1" in LIBRARY_API_BASE_URL)
+IS_PRODUCTION = not (
+    "localhost" in LIBRARY_API_BASE_URL or "127.0.0.1" in LIBRARY_API_BASE_URL
+)
 
 # Storage bucket defaults - use dev bucket by default
 DEFAULT_DEV_BUCKET = "demo-bdt-dev.appspot.com"
 DEFAULT_PROD_BUCKET = "benefit-decision-toolkit-play.firebasestorage.app"
-STORAGE_BUCKET = os.getenv("GCS_BUCKET_NAME",
-                           DEFAULT_PROD_BUCKET if IS_PRODUCTION else DEFAULT_DEV_BUCKET)
+STORAGE_BUCKET = os.getenv(
+    "GCS_BUCKET_NAME", DEFAULT_PROD_BUCKET if IS_PRODUCTION else DEFAULT_DEV_BUCKET
+)
 
 # Log configuration
 print(f"========================================")
@@ -102,7 +108,9 @@ else:
 
     # Use mock credentials for emulator mode
     cred = EmulatorCredentials()
-    firebase_options["projectId"] = os.getenv("QUARKUS_GOOGLE_CLOUD_PROJECT_ID", "demo-bdt-dev")
+    firebase_options["projectId"] = os.getenv(
+        "QUARKUS_GOOGLE_CLOUD_PROJECT_ID", "demo-bdt-dev"
+    )
 
 firebase_admin.initialize_app(cred, firebase_options)
 
@@ -141,7 +149,6 @@ def expand_schema(schema: Any, components: OpenAPIComponents) -> Any:
 
     expanded: dict[str, Any] = {}
     for key, value in schema.items():
-
         # Recurse into lists (e.g., 'allOf', 'oneOf')
         if isinstance(value, list):
             expanded[key] = [expand_schema(v, components) for v in value]
@@ -189,9 +196,7 @@ def flatten_schema(schema: JsonSchema) -> dict[str, JsonSchema]:
         # Primitive types
         # ---------------------------------
         if node_type in ("string", "number", "integer", "boolean"):
-            flat[name] = {
-                "type": node_type
-            }
+            flat[name] = {"type": node_type}
             return
 
         # ---------------------------------
@@ -201,10 +206,7 @@ def flatten_schema(schema: JsonSchema) -> dict[str, JsonSchema]:
             props = node.get("properties", {})
 
             # Create schema entry for this object
-            flat[name] = {
-                "type": "object",
-                "properties": {}
-            }
+            flat[name] = {"type": "object", "properties": {}}
 
             # Add detailed properties
             for p_name, p_schema in props.items():
@@ -223,10 +225,7 @@ def flatten_schema(schema: JsonSchema) -> dict[str, JsonSchema]:
             items = node.get("items", {})
 
             # Create array schema entry
-            flat[name] = {
-                "type": "array",
-                "items": items
-            }
+            flat[name] = {"type": "array", "items": items}
 
             # Flatten item structure using name[]
             walk(name + "[]", items)
@@ -264,18 +263,19 @@ def extract_check_records(openapi: OpenAPIDocument, version: str) -> list[CheckR
 
             name = segments[-1]
 
-            module = "/".join(segments[checks_index + 1:-1])
+            module = "/".join(segments[checks_index + 1 : -1])
 
-            check_id = 'L-' + module + '-' + name + '-' + version
+            check_id = "L-" + module + "-" + name + "-" + version
 
             entry: CheckRecord = {
                 "id": check_id,
                 "evaluationUrl": path,
                 "method": method_upper,
                 "name": name,
+                "description": details.get("description", ""),
                 "module": module,
                 "version": version,
-                "inputs": {}
+                "inputs": {},
             }
 
             # ----------------------------------------
@@ -294,18 +294,18 @@ def extract_check_records(openapi: OpenAPIDocument, version: str) -> list[CheckR
                 content: dict[str, Any] = details["requestBody"]["content"]
 
                 if "application/json" in content:
-
                     schema: JsonSchema = content["application/json"].get("schema", {})
                     # Only expand top-level 'parameters' and 'situation'
-                    entry["inputs"].update(
-                        extract_top_level_inputs(schema, components))
+                    entry["inputs"].update(extract_top_level_inputs(schema, components))
 
                     output.append(entry)
 
     return output
 
 
-def transform_parameters(properties_obj: dict[str, JsonSchema]) -> list[ParameterDefinition]:
+def transform_parameters(
+    properties_obj: dict[str, JsonSchema],
+) -> list[ParameterDefinition]:
     """Convert properties dict to a list of {key, name, type} objects."""
     transformed: list[ParameterDefinition] = []
 
@@ -318,12 +318,9 @@ def transform_parameters(properties_obj: dict[str, JsonSchema]) -> list[Paramete
         if prop_type == "string" and prop_format == "date":
             prop_type = "date"
 
-        transformed.append({
-            "key": key,
-            "label": key,
-            "required": False,
-            "type": prop_type
-        })
+        transformed.append(
+            {"key": key, "label": key, "required": False, "type": prop_type}
+        )
 
     return transformed
 
@@ -380,10 +377,13 @@ def save_json_to_storage_and_update_firestore(
     # Update Firestore
     # ---------------------
     doc_ref = db.document(firestore_doc_path)
-    doc_ref.set({
-        "latestJsonStoragePath": storage_path,
-        "updatedAt": firestore.SERVER_TIMESTAMP
-    }, merge=True)
+    doc_ref.set(
+        {
+            "latestJsonStoragePath": storage_path,
+            "updatedAt": firestore.SERVER_TIMESTAMP,
+        },
+        merge=True,
+    )
 
     print("Uploaded:", storage_path)
     print("Firestore updated!")
@@ -425,8 +425,7 @@ def main() -> None:
     print(json_string)
 
     save_json_to_storage_and_update_firestore(
-        json_string,
-        firestore_doc_path="system/config"
+        json_string, firestore_doc_path="system/config"
     )
 
 
