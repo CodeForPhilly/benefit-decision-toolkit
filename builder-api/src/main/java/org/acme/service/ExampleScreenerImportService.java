@@ -39,7 +39,8 @@ import java.util.UUID;
 @ApplicationScoped
 public class ExampleScreenerImportService {
     private static final String BUNDLED_SEED_ROOT = "seed-data/example-screener";
-    private static final String BUNDLED_SEED_MANIFEST = BUNDLED_SEED_ROOT + "/manifest.json";
+    private static final String BUNDLED_SEED_MANIFEST = BUNDLED_SEED_ROOT
+            + "/manifest.json";
 
     private final ScreenerRepository screenerRepository;
     private final EligibilityCheckRepository eligibilityCheckRepository;
@@ -48,12 +49,10 @@ public class ExampleScreenerImportService {
     private final ObjectMapper objectMapper;
 
     @Inject
-    public ExampleScreenerImportService(
-        ScreenerRepository screenerRepository,
-        EligibilityCheckRepository eligibilityCheckRepository,
-        StorageService storageService,
-        @ConfigProperty(name = "example-screener.seed-path") Optional<String> configuredSeedPath
-    ) {
+    public ExampleScreenerImportService(ScreenerRepository screenerRepository,
+            EligibilityCheckRepository eligibilityCheckRepository,
+            StorageService storageService, @ConfigProperty(
+                    name = "example-screener.seed-path") Optional<String> configuredSeedPath) {
         this.screenerRepository = screenerRepository;
         this.eligibilityCheckRepository = eligibilityCheckRepository;
         this.storageService = storageService;
@@ -66,48 +65,62 @@ public class ExampleScreenerImportService {
         try (seedRoot) {
             SeedData seedData = loadSeedData(seedRoot.path());
 
-            Map<String, String> importedCustomCheckIds = importReferencedCustomChecks(seedData, userId);
+            Map<String, String> importedCustomCheckIds = importReferencedCustomChecks(
+                    seedData,
+                    userId);
             List<String> importedScreenerIds = new ArrayList<>();
 
             for (SeedScreenerData seedScreener : seedData.screeners()) {
                 List<Benefit> importedBenefits = new ArrayList<>();
                 List<BenefitDetail> importedBenefitDetails = new ArrayList<>();
                 for (Benefit seedBenefit : seedScreener.benefits()) {
-                    Benefit importedBenefit = cloneBenefit(seedBenefit, userId, importedCustomCheckIds);
+                    Benefit importedBenefit = cloneBenefit(
+                            seedBenefit,
+                            userId,
+                            importedCustomCheckIds);
                     importedBenefits.add(importedBenefit);
-                    importedBenefitDetails.add(new BenefitDetail(
-                        importedBenefit.getId(),
-                        importedBenefit.getName(),
-                        importedBenefit.getDescription()
-                    ));
+                    importedBenefitDetails.add(
+                            new BenefitDetail(importedBenefit.getId(),
+                                    importedBenefit.getName(),
+                                    importedBenefit.getDescription()));
                 }
 
                 Screener importedScreener = new Screener();
                 importedScreener.setOwnerId(userId);
-                importedScreener.setScreenerName(seedScreener.screener().getScreenerName());
+                importedScreener.setScreenerName(
+                        seedScreener.screener().getScreenerName());
                 importedScreener.setBenefits(importedBenefitDetails);
 
-                String newScreenerId = screenerRepository.saveNewWorkingScreener(importedScreener);
+                String newScreenerId = screenerRepository
+                        .saveNewWorkingScreener(importedScreener);
                 importedScreener.setId(newScreenerId);
 
                 for (Benefit importedBenefit : importedBenefits) {
-                    screenerRepository.saveNewCustomBenefit(newScreenerId, importedBenefit);
+                    screenerRepository.saveNewCustomBenefit(
+                            newScreenerId,
+                            importedBenefit);
                 }
 
                 if (seedScreener.formSchema() != null) {
-                    String formPath = storageService.getScreenerWorkingFormSchemaPath(newScreenerId);
-                    storageService.writeJsonToStorage(formPath, seedScreener.formSchema());
+                    String formPath = storageService
+                            .getScreenerWorkingFormSchemaPath(newScreenerId);
+                    storageService.writeJsonToStorage(
+                            formPath,
+                            seedScreener.formSchema());
                 }
 
                 importedScreenerIds.add(newScreenerId);
-                Log.info("Imported example screener " + newScreenerId + " for user " + userId);
+                Log.info(
+                        "Imported example screener " + newScreenerId
+                                + " for user " + userId);
             }
 
             return importedScreenerIds;
         }
     }
 
-    private Map<String, String> importReferencedCustomChecks(SeedData seedData, String userId) throws Exception {
+    private Map<String, String> importReferencedCustomChecks(SeedData seedData,
+            String userId) throws Exception {
         Set<String> referencedCustomCheckIds = new LinkedHashSet<>();
         for (SeedScreenerData seedScreener : seedData.screeners()) {
             for (Benefit benefit : seedScreener.benefits()) {
@@ -116,7 +129,8 @@ public class ExampleScreenerImportService {
                 }
                 for (CheckConfig checkConfig : benefit.getChecks()) {
                     String sourceCheckId = resolveSourceCheckId(checkConfig);
-                    if (sourceCheckId != null && !isLibraryCheckId(sourceCheckId)) {
+                    if (sourceCheckId != null
+                            && !isLibraryCheckId(sourceCheckId)) {
                         referencedCustomCheckIds.add(sourceCheckId);
                     }
                 }
@@ -125,74 +139,85 @@ public class ExampleScreenerImportService {
 
         Map<String, String> remappedCheckIds = new HashMap<>();
         for (String seedSourceCheckId : referencedCustomCheckIds) {
-            SeedCustomCheckVersions seedCustomCheckVersions = findSeedCustomCheckVersions(seedData, seedSourceCheckId);
+            SeedCustomCheckVersions seedCustomCheckVersions = findSeedCustomCheckVersions(
+                    seedData,
+                    seedSourceCheckId);
 
             if (seedCustomCheckVersions.workingCheck() != null) {
                 String newWorkingId = upsertWorkingCustomCheck(
-                    userId,
-                    seedCustomCheckVersions.workingCheck(),
-                    seedData.dmnByCheckId()
-                );
-                remappedCheckIds.put(seedCustomCheckVersions.workingCheck().getId(), newWorkingId);
+                        userId,
+                        seedCustomCheckVersions.workingCheck(),
+                        seedData.dmnByCheckId());
+                remappedCheckIds.put(
+                        seedCustomCheckVersions.workingCheck().getId(),
+                        newWorkingId);
             }
 
             if (seedCustomCheckVersions.publishedCheck() != null) {
                 String newPublishedId = upsertPublishedCustomCheck(
-                    userId,
-                    seedCustomCheckVersions.publishedCheck(),
-                    seedData.dmnByCheckId()
-                );
-                remappedCheckIds.put(seedCustomCheckVersions.publishedCheck().getId(), newPublishedId);
+                        userId,
+                        seedCustomCheckVersions.publishedCheck(),
+                        seedData.dmnByCheckId());
+                remappedCheckIds.put(
+                        seedCustomCheckVersions.publishedCheck().getId(),
+                        newPublishedId);
             }
 
             if (!remappedCheckIds.containsKey(seedSourceCheckId)) {
-                throw new IllegalStateException("No imported check mapping found for seed check " + seedSourceCheckId);
+                throw new IllegalStateException(
+                        "No imported check mapping found for seed check "
+                                + seedSourceCheckId);
             }
         }
 
         return remappedCheckIds;
     }
 
-    private SeedCustomCheckVersions findSeedCustomCheckVersions(SeedData seedData, String seedSourceCheckId) {
-        EligibilityCheck referencedCheck = seedData.workingCustomChecks().get(seedSourceCheckId);
+    private SeedCustomCheckVersions findSeedCustomCheckVersions(
+            SeedData seedData, String seedSourceCheckId) {
+        EligibilityCheck referencedCheck = seedData.workingCustomChecks()
+                .get(seedSourceCheckId);
         if (referencedCheck == null) {
-            referencedCheck = seedData.publishedCustomChecks().get(seedSourceCheckId);
+            referencedCheck = seedData.publishedCustomChecks()
+                    .get(seedSourceCheckId);
         }
         if (referencedCheck == null) {
-            throw new IllegalStateException("Missing seed custom check for referenced id " + seedSourceCheckId);
+            throw new IllegalStateException(
+                    "Missing seed custom check for referenced id "
+                            + seedSourceCheckId);
         }
 
         String seedWorkingId = buildWorkingCheckId(
-            referencedCheck.getOwnerId(),
-            referencedCheck.getModule(),
-            referencedCheck.getName()
-        );
+                referencedCheck.getOwnerId(),
+                referencedCheck.getModule(),
+                referencedCheck.getName());
         String seedPublishedId = buildPublishedCheckId(
-            referencedCheck.getOwnerId(),
-            referencedCheck.getModule(),
-            referencedCheck.getName(),
-            referencedCheck.getVersion()
-        );
+                referencedCheck.getOwnerId(),
+                referencedCheck.getModule(),
+                referencedCheck.getName(),
+                referencedCheck.getVersion());
 
         return new SeedCustomCheckVersions(
-            seedData.workingCustomChecks().get(seedWorkingId),
-            seedData.publishedCustomChecks().get(seedPublishedId)
-        );
+                seedData.workingCustomChecks().get(seedWorkingId),
+                seedData.publishedCustomChecks().get(seedPublishedId));
     }
 
-    private String upsertWorkingCustomCheck(
-        String userId,
-        EligibilityCheck seedCheck,
-        Map<String, String> dmnByCheckId
-    ) throws Exception {
+    private String upsertWorkingCustomCheck(String userId,
+            EligibilityCheck seedCheck, Map<String, String> dmnByCheckId)
+            throws Exception {
         EligibilityCheck importedCheck = cloneEligibilityCheck(seedCheck);
         importedCheck.setOwnerId(userId);
         importedCheck.setIsArchived(false);
 
-        String newWorkingId = buildWorkingCheckId(userId, importedCheck.getModule(), importedCheck.getName());
+        String newWorkingId = buildWorkingCheckId(
+                userId,
+                importedCheck.getModule(),
+                importedCheck.getName());
         importedCheck.setId(newWorkingId);
 
-        if (eligibilityCheckRepository.getWorkingCustomCheck(userId, newWorkingId, true).isPresent()) {
+        if (eligibilityCheckRepository
+                .getWorkingCustomCheck(userId, newWorkingId, true)
+                .isPresent()) {
             eligibilityCheckRepository.updateWorkingCustomCheck(importedCheck);
         } else {
             eligibilityCheckRepository.saveNewWorkingCustomCheck(importedCheck);
@@ -202,31 +227,32 @@ public class ExampleScreenerImportService {
         return newWorkingId;
     }
 
-    private String upsertPublishedCustomCheck(
-        String userId,
-        EligibilityCheck seedCheck,
-        Map<String, String> dmnByCheckId
-    ) throws Exception {
+    private String upsertPublishedCustomCheck(String userId,
+            EligibilityCheck seedCheck, Map<String, String> dmnByCheckId)
+            throws Exception {
         EligibilityCheck importedCheck = cloneEligibilityCheck(seedCheck);
         importedCheck.setOwnerId(userId);
         importedCheck.setIsArchived(false);
 
         String newPublishedId = buildPublishedCheckId(
-            userId,
-            importedCheck.getModule(),
-            importedCheck.getName(),
-            importedCheck.getVersion()
-        );
+                userId,
+                importedCheck.getModule(),
+                importedCheck.getName(),
+                importedCheck.getVersion());
         importedCheck.setId(newPublishedId);
 
-        if (eligibilityCheckRepository.getPublishedCustomCheck(userId, newPublishedId).isPresent()) {
-            eligibilityCheckRepository.updatePublishedCustomCheck(importedCheck);
+        if (eligibilityCheckRepository
+                .getPublishedCustomCheck(userId, newPublishedId).isPresent()) {
+            eligibilityCheckRepository
+                    .updatePublishedCustomCheck(importedCheck);
         } else {
             try {
-                eligibilityCheckRepository.saveNewPublishedCustomCheck(importedCheck);
+                eligibilityCheckRepository
+                        .saveNewPublishedCustomCheck(importedCheck);
             } catch (Exception e) {
                 Log.info(e);
-                eligibilityCheckRepository.updatePublishedCustomCheck(importedCheck);
+                eligibilityCheckRepository
+                        .updatePublishedCustomCheck(importedCheck);
             }
         }
 
@@ -234,38 +260,47 @@ public class ExampleScreenerImportService {
         return newPublishedId;
     }
 
-    private void writeCheckDmn(String newCheckId, EligibilityCheck seedCheck, Map<String, String> dmnByCheckId) throws Exception {
+    private void writeCheckDmn(String newCheckId, EligibilityCheck seedCheck,
+            Map<String, String> dmnByCheckId) throws Exception {
         String dmnModel = dmnByCheckId.get(seedCheck.getId());
-        if ((dmnModel == null || dmnModel.isBlank()) && seedCheck.getDmnModel() != null) {
+        if ((dmnModel == null || dmnModel.isBlank())
+                && seedCheck.getDmnModel() != null) {
             dmnModel = seedCheck.getDmnModel();
         }
         if (dmnModel == null || dmnModel.isBlank()) {
-            throw new IllegalStateException("Missing DMN model for seed check " + seedCheck.getId());
+            throw new IllegalStateException(
+                    "Missing DMN model for seed check " + seedCheck.getId());
         }
 
         storageService.writeStringToStorage(
-            storageService.getCheckDmnModelPath(newCheckId),
-            dmnModel,
-            "application/xml"
-        );
+                storageService.getCheckDmnModelPath(newCheckId),
+                dmnModel,
+                "application/xml");
     }
 
-    private Benefit cloneBenefit(Benefit seedBenefit, String userId, Map<String, String> importedCustomCheckIds) {
-        Benefit importedBenefit = objectMapper.convertValue(seedBenefit, Benefit.class);
+    private Benefit cloneBenefit(Benefit seedBenefit, String userId,
+            Map<String, String> importedCustomCheckIds) {
+        Benefit importedBenefit = objectMapper
+                .convertValue(seedBenefit, Benefit.class);
         importedBenefit.setId(UUID.randomUUID().toString());
         importedBenefit.setOwnerId(userId);
-        importedBenefit.setChecks(remapCheckConfigs(seedBenefit.getChecks(), importedCustomCheckIds));
+        importedBenefit.setChecks(
+                remapCheckConfigs(
+                        seedBenefit.getChecks(),
+                        importedCustomCheckIds));
         return importedBenefit;
     }
 
-    private List<CheckConfig> remapCheckConfigs(List<CheckConfig> seedChecks, Map<String, String> importedCustomCheckIds) {
+    private List<CheckConfig> remapCheckConfigs(List<CheckConfig> seedChecks,
+            Map<String, String> importedCustomCheckIds) {
         if (seedChecks == null || seedChecks.isEmpty()) {
             return Collections.emptyList();
         }
 
         List<CheckConfig> importedChecks = new ArrayList<>();
         for (CheckConfig seedCheck : seedChecks) {
-            CheckConfig importedCheck = objectMapper.convertValue(seedCheck, CheckConfig.class);
+            CheckConfig importedCheck = objectMapper
+                    .convertValue(seedCheck, CheckConfig.class);
             importedCheck.setCheckId(UUID.randomUUID().toString());
 
             String sourceCheckId = resolveSourceCheckId(seedCheck);
@@ -273,9 +308,12 @@ public class ExampleScreenerImportService {
                 if (isLibraryCheckId(sourceCheckId)) {
                     importedCheck.setSourceCheckId(sourceCheckId);
                 } else {
-                    String remappedSourceCheckId = importedCustomCheckIds.get(sourceCheckId);
+                    String remappedSourceCheckId = importedCustomCheckIds
+                            .get(sourceCheckId);
                     if (remappedSourceCheckId == null) {
-                        throw new IllegalStateException("Missing imported custom check id for " + sourceCheckId);
+                        throw new IllegalStateException(
+                                "Missing imported custom check id for "
+                                        + sourceCheckId);
                     }
                     importedCheck.setSourceCheckId(remappedSourceCheckId);
                 }
@@ -292,7 +330,8 @@ public class ExampleScreenerImportService {
     }
 
     private String resolveSourceCheckId(CheckConfig checkConfig) {
-        if (checkConfig.getSourceCheckId() != null && !checkConfig.getSourceCheckId().isBlank()) {
+        if (checkConfig.getSourceCheckId() != null
+                && !checkConfig.getSourceCheckId().isBlank()) {
             return checkConfig.getSourceCheckId();
         }
         return checkConfig.getCheckId();
@@ -303,54 +342,61 @@ public class ExampleScreenerImportService {
     }
 
     private SeedData loadSeedData(Path seedRoot) throws IOException {
-        Path workingScreenersDir = seedRoot.resolve("firestore").resolve("workingScreener");
+        Path workingScreenersDir = seedRoot.resolve("firestore")
+                .resolve("workingScreener");
         List<Path> screenerFiles = listJsonFiles(workingScreenersDir);
         if (screenerFiles.isEmpty()) {
-            throw new IllegalStateException("Expected at least one working screener seed document");
+            throw new IllegalStateException(
+                    "Expected at least one working screener seed document");
         }
 
         List<SeedScreenerData> screeners = new ArrayList<>();
         for (Path screenerFile : screenerFiles) {
             Screener screener = readJsonFile(screenerFile, Screener.class);
-            String screenerDocId = stripExtension(screenerFile.getFileName().toString());
+            String screenerDocId = stripExtension(
+                    screenerFile.getFileName().toString());
 
-            Path benefitsDir = workingScreenersDir.resolve(screenerDocId).resolve("customBenefit");
+            Path benefitsDir = workingScreenersDir.resolve(screenerDocId)
+                    .resolve("customBenefit");
             List<Benefit> benefits = new ArrayList<>();
             for (Path benefitFile : listJsonFiles(benefitsDir)) {
                 benefits.add(readJsonFile(benefitFile, Benefit.class));
             }
 
-            screeners.add(new SeedScreenerData(
-                screener,
-                benefits,
-                loadFormSchema(seedRoot, screenerDocId)
-            ));
+            screeners.add(
+                    new SeedScreenerData(screener, benefits,
+                            loadFormSchema(seedRoot, screenerDocId)));
         }
 
-        return new SeedData(
-            screeners,
-            loadChecks(seedRoot.resolve("firestore").resolve("workingCustomCheck")),
-            loadChecks(seedRoot.resolve("firestore").resolve("publishedCustomCheck")),
-            loadDmnFiles(seedRoot.resolve("storage").resolve("check"))
-        );
+        return new SeedData(screeners, loadChecks(
+                seedRoot.resolve("firestore").resolve("workingCustomCheck")),
+                loadChecks(
+                        seedRoot.resolve("firestore")
+                                .resolve("publishedCustomCheck")),
+                loadDmnFiles(seedRoot.resolve("storage").resolve("check")));
     }
 
-    private JsonNode loadFormSchema(Path seedRoot, String screenerDocId) throws IOException {
-        Path formSchemaPath = seedRoot.resolve("storage").resolve("form").resolve("working").resolve(screenerDocId + ".json");
+    private JsonNode loadFormSchema(Path seedRoot, String screenerDocId)
+            throws IOException {
+        Path formSchemaPath = seedRoot.resolve("storage").resolve("form")
+                .resolve("working").resolve(screenerDocId + ".json");
         if (!Files.isRegularFile(formSchemaPath)) {
             return null;
         }
         return objectMapper.readTree(Files.readString(formSchemaPath));
     }
 
-    private Map<String, EligibilityCheck> loadChecks(Path checksDir) throws IOException {
+    private Map<String, EligibilityCheck> loadChecks(Path checksDir)
+            throws IOException {
         Map<String, EligibilityCheck> checksById = new LinkedHashMap<>();
         if (!Files.isDirectory(checksDir)) {
             return checksById;
         }
 
         for (Path checkFile : listJsonFiles(checksDir)) {
-            EligibilityCheck check = readJsonFile(checkFile, EligibilityCheck.class);
+            EligibilityCheck check = readJsonFile(
+                    checkFile,
+                    EligibilityCheck.class);
             checksById.put(check.getId(), check);
         }
         return checksById;
@@ -363,17 +409,22 @@ public class ExampleScreenerImportService {
         }
 
         try (var stream = Files.list(dmnDir)) {
-            stream
-                .filter(Files::isRegularFile)
-                .filter(path -> path.getFileName().toString().endsWith(".dmn"))
-                .sorted(Comparator.comparing(path -> path.getFileName().toString()))
-                .forEach(path -> {
-                    try {
-                        dmnByCheckId.put(stripExtension(path.getFileName().toString()), Files.readString(path));
-                    } catch (IOException e) {
-                        throw new RuntimeException("Failed to read DMN file " + path, e);
-                    }
-                });
+            stream.filter(Files::isRegularFile).filter(
+                    path -> path.getFileName().toString().endsWith(".dmn"))
+                    .sorted(
+                            Comparator.comparing(
+                                    path -> path.getFileName().toString()))
+                    .forEach(path -> {
+                        try {
+                            dmnByCheckId.put(
+                                    stripExtension(
+                                            path.getFileName().toString()),
+                                    Files.readString(path));
+                        } catch (IOException e) {
+                            throw new RuntimeException(
+                                    "Failed to read DMN file " + path, e);
+                        }
+                    });
         } catch (RuntimeException e) {
             if (e.getCause() instanceof IOException ioException) {
                 throw ioException;
@@ -394,22 +445,22 @@ public class ExampleScreenerImportService {
         }
 
         try (var stream = Files.list(directory)) {
-            return stream
-                .filter(Files::isRegularFile)
-                .filter(path -> path.getFileName().toString().endsWith(".json"))
-                .sorted(Comparator.comparing(path -> path.getFileName().toString()))
-                .toList();
+            return stream.filter(Files::isRegularFile).filter(
+                    path -> path.getFileName().toString().endsWith(".json"))
+                    .sorted(
+                            Comparator.comparing(
+                                    path -> path.getFileName().toString()))
+                    .toList();
         }
     }
 
     private SeedRoot resolveSeedRoot() {
-        Optional<Path> configuredPath = configuredSeedPath
-            .map(String::trim)
-            .filter(path -> !path.isBlank())
-            .map(Paths::get);
+        Optional<Path> configuredPath = configuredSeedPath.map(String::trim)
+                .filter(path -> !path.isBlank()).map(Paths::get);
 
         if (configuredPath.isPresent()) {
-            Path absoluteCandidate = configuredPath.get().toAbsolutePath().normalize();
+            Path absoluteCandidate = configuredPath.get().toAbsolutePath()
+                    .normalize();
             if (Files.isDirectory(absoluteCandidate)) {
                 return new SeedRoot(absoluteCandidate, null);
             }
@@ -418,16 +469,19 @@ public class ExampleScreenerImportService {
         try {
             return resolveBundledSeedRoot();
         } catch (IOException | URISyntaxException e) {
-            throw new IllegalStateException("Could not load bundled example screener seed data", e);
+            throw new IllegalStateException(
+                    "Could not load bundled example screener seed data", e);
         }
     }
 
-    private SeedRoot resolveBundledSeedRoot() throws IOException, URISyntaxException {
-        var manifestUrl = ExampleScreenerImportService.class.getClassLoader().getResource(BUNDLED_SEED_MANIFEST);
+    private SeedRoot resolveBundledSeedRoot()
+            throws IOException, URISyntaxException {
+        var manifestUrl = ExampleScreenerImportService.class.getClassLoader()
+                .getResource(BUNDLED_SEED_MANIFEST);
         if (manifestUrl == null) {
             throw new IllegalStateException(
-                "Could not find bundled example screener seed data at classpath:" + BUNDLED_SEED_ROOT
-            );
+                    "Could not find bundled example screener seed data at classpath:"
+                            + BUNDLED_SEED_ROOT);
         }
 
         URI manifestUri = manifestUrl.toURI();
@@ -435,30 +489,38 @@ public class ExampleScreenerImportService {
             String manifestUriString = manifestUri.toString();
             int archiveSeparatorIndex = manifestUriString.indexOf("!/");
             if (archiveSeparatorIndex < 0) {
-                throw new IllegalStateException("Unexpected jar resource URI for bundled seed data: " + manifestUri);
+                throw new IllegalStateException(
+                        "Unexpected jar resource URI for bundled seed data: "
+                                + manifestUri);
             }
 
-            URI archiveUri = URI.create(manifestUriString.substring(0, archiveSeparatorIndex));
+            URI archiveUri = URI.create(
+                    manifestUriString.substring(0, archiveSeparatorIndex));
             FileSystem fileSystem = getOrCreateFileSystem(archiveUri);
-            return new SeedRoot(fileSystem.getPath("/" + BUNDLED_SEED_ROOT), fileSystem);
+            return new SeedRoot(fileSystem.getPath("/" + BUNDLED_SEED_ROOT),
+                    fileSystem);
         }
 
         return new SeedRoot(Paths.get(manifestUri).getParent(), null);
     }
 
-    private FileSystem getOrCreateFileSystem(URI archiveUri) throws IOException {
+    private FileSystem getOrCreateFileSystem(URI archiveUri)
+            throws IOException {
         try {
             return FileSystems.getFileSystem(archiveUri);
         } catch (FileSystemNotFoundException ignored) {
-            return FileSystems.newFileSystem(archiveUri, Collections.emptyMap());
+            return FileSystems
+                    .newFileSystem(archiveUri, Collections.emptyMap());
         }
     }
 
-    private String buildWorkingCheckId(String ownerId, String module, String name) {
+    private String buildWorkingCheckId(String ownerId, String module,
+            String name) {
         return "W-" + ownerId + "-" + module + "-" + name;
     }
 
-    private String buildPublishedCheckId(String ownerId, String module, String name, String version) {
+    private String buildPublishedCheckId(String ownerId, String module,
+            String name, String version) {
         return "P-" + ownerId + "-" + module + "-" + name + "-" + version;
     }
 
@@ -470,25 +532,22 @@ public class ExampleScreenerImportService {
         return filename.substring(0, extensionIndex);
     }
 
-    private record SeedData(
-        List<SeedScreenerData> screeners,
-        Map<String, EligibilityCheck> workingCustomChecks,
-        Map<String, EligibilityCheck> publishedCustomChecks,
-        Map<String, String> dmnByCheckId
-    ) {}
+    private record SeedData(List<SeedScreenerData> screeners,
+            Map<String, EligibilityCheck> workingCustomChecks,
+            Map<String, EligibilityCheck> publishedCustomChecks,
+            Map<String, String> dmnByCheckId) {
+    }
 
-    private record SeedScreenerData(
-        Screener screener,
-        List<Benefit> benefits,
-        JsonNode formSchema
-    ) {}
+    private record SeedScreenerData(Screener screener, List<Benefit> benefits,
+            JsonNode formSchema) {
+    }
 
-    private record SeedCustomCheckVersions(
-        EligibilityCheck workingCheck,
-        EligibilityCheck publishedCheck
-    ) {}
+    private record SeedCustomCheckVersions(EligibilityCheck workingCheck,
+            EligibilityCheck publishedCheck) {
+    }
 
-    private record SeedRoot(Path path, FileSystem fileSystem) implements AutoCloseable {
+    private record SeedRoot(Path path, FileSystem fileSystem)
+            implements AutoCloseable {
         @Override
         public void close() throws IOException {
             if (fileSystem != null && fileSystem.isOpen()) {
