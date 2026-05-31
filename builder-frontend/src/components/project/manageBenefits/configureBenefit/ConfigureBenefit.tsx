@@ -116,6 +116,14 @@ const ConfigureBenefit = ({
                               newCheckData,
                             );
                           }}
+                          updateCheckConfigAlias={(
+                            aliasName: string | null,
+                          ) => {
+                            actions.updateCheckConfigAlias(
+                              checkConfig.checkId,
+                              aliasName,
+                            );
+                          }}
                         />
                       );
                     }}
