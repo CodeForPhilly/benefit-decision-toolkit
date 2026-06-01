@@ -1,6 +1,17 @@
 ---
 import { getCollection } from "astro:content";
 const team = await getCollection("team");
+const teamSorted: typeof team = [];
+team.forEach((teamMember) => {
+  if (teamMember.data.role.includes("Co-Lead")) {
+    teamSorted.push(teamMember);
+  }
+});
+team.forEach((teamMember) => {
+  if (!teamMember.data.role.includes("Co-Lead")) {
+    teamSorted.push(teamMember);
+  }
+});
 import { Image } from "astro:assets";
 ---
 
@@ -9,7 +20,7 @@ import { Image } from "astro:assets";
     <h2 class="mb-6">Meet The Team</h2>
     <ul class="flex flex-wrap gap-x-6 gap-y-12 justify-center">
       {
-        team.map(async (teamMember) => {
+        teamSorted.map(async (teamMember) => {
           return (
             <li class="w-60">
               <div class="text-center flex flex-col gap-3">
