@@ -1,16 +1,6 @@
 import { useAuth } from "../../context/AuthContext";
 import { useLocation, useNavigate } from "@solidjs/router";
-import {
-  Component,
-  createMemo,
-  createSignal,
-  DEV,
-  For,
-  JSX,
-  Match,
-  Show,
-  Switch,
-} from "solid-js";
+import { Component, createMemo, createSignal, DEV, For, Show } from "solid-js";
 
 import { HamburgerMenu } from "@/components/shared/HamburgerMenu";
 
@@ -18,7 +8,7 @@ import "./Header.css";
 import { Menu } from "lucide-solid";
 import { Button } from "@/components/shared/Button";
 import { Modal } from "@/components/shared/Modal";
-import { exportExampleScreener } from "@/api/account";
+import { ExportExampleScreener } from "@/components/Header/ExportExampleScreener";
 
 const HeaderButton = ({
   buttonText,
@@ -49,8 +39,6 @@ interface MenuProps {
 const HeaderMenu: Component<MenuProps> = (props) => {
   const navigate = useNavigate();
   const [showExportMenu, setShowExportMenu] = createSignal(false);
-  const [exportingMessage, setExportingMessage] = createSignal("");
-  const [isExportingExample, setIsExportingExample] = createSignal(false);
 
   const menuItems: { label: string; onClick: () => void }[] = [
     {
@@ -64,20 +52,6 @@ const HeaderMenu: Component<MenuProps> = (props) => {
     { label: "Logout", onClick: props.logout },
   ];
 
-  const handleExportExampleScreener: JSX.EventHandler<
-    HTMLButtonElement,
-    MouseEvent
-  > = async (e) => {
-    setIsExportingExample(true);
-    setExportingMessage("");
-    const result = await exportExampleScreener();
-    if (!result.success) {
-      setExportingMessage("An error occurred exporting.");
-    } else {
-      setExportingMessage("Successfully exported screeners.");
-    }
-    setIsExportingExample(false);
-  };
   return (
     <div class="header-menu">
       <div class="header-user-email" title={props.userEmail}>
@@ -98,17 +72,7 @@ const HeaderMenu: Component<MenuProps> = (props) => {
           Export Example Screener
         </Button>
         <Modal show={showExportMenu()} onClose={() => setShowExportMenu(false)}>
-          <div>Ready to save changes to the example screener?</div>
-          <Button variant="secondary" onClick={() => setShowExportMenu(false)}>
-            Cancel
-          </Button>
-          <Switch>
-            <Match when={!isExportingExample()}>
-              <Button onClick={handleExportExampleScreener}>Export</Button>
-            </Match>
-            <Match when={isExportingExample()}>Waiting for export</Match>
-          </Switch>
-          <div>{exportingMessage()}</div>
+          <ExportExampleScreener setShowExportMenu={setShowExportMenu} />
         </Modal>
       </Show>
     </div>

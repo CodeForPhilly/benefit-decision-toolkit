@@ -1,0 +1,15 @@
+{
+  "benefits" : [ {
+    "name" : "OOPA",
+    "description" : "desc",
+    "id" : "b481f008-5ed6-4d5f-a0d1-a08733ab91f9"
+  }, {
+    "name" : "Homestead Exemption",
+    "description" : "If you own your primary residence, you are eligible for the Homestead Exemption on your Real Estate Tax. The Homestead Exemption reduces the taxable portion of your property’s assessed value.\n\nWith this exemption, the property’s assessed value is reduced by $100,000. Most homeowners will save about $1,399 a year on their Real Estate Tax bill starting in 2025.\n\nmore info:\nhttps://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/",
+    "id" : "ea6688ae-0a00-4e3e-a0d6-73d8e8be7cba"
+  } ],
+  "id" : "Am3FMS6ID2keNa82MbPh",
+  "ownerId" : "uwx3W7vaM6GUk9RaBsf5WIyRErjr",
+  "screenerName" : "Example - Philly Property Tax Relief",
+  "_id" : "Am3FMS6ID2keNa82MbPh"
+}

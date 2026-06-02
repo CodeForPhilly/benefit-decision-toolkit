@@ -4,6 +4,8 @@ import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import java.util.List;
+
 import org.acme.service.ExampleScreenerImportService;
 
 @ApplicationScoped
@@ -14,8 +16,11 @@ public class AccountHooks {
     public Boolean addExampleScreenerToAccount(String userId) {
         try {
             Log.info("Running ADD_EXAMPLE_SCREENER hook for user: " + userId);
-            var screenerIds = exampleScreenerImportService.importForUser(userId);
-            Log.info("Imported example screeners " + screenerIds + " for user " + userId);
+            List<String> screenerIds = exampleScreenerImportService
+                    .importForUser(userId);
+            Log.info(
+                    "Imported example screeners " + screenerIds + " for user "
+                            + userId);
             return true;
         } catch (Exception e) {
             Log.error(

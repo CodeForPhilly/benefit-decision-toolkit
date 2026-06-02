@@ -2,7 +2,10 @@ package org.acme.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+
 import io.quarkus.logging.Log;
+import io.quarkus.runtime.LaunchMode;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.acme.model.domain.Benefit;
@@ -10,23 +13,21 @@ import org.acme.model.domain.BenefitDetail;
 import org.acme.model.domain.CheckConfig;
 import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.domain.Screener;
+import org.acme.model.dto.ExampleScreener.Manifest;
+import org.acme.model.dto.ExampleScreener.ScreenerManifest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.ScreenerRepository;
 import org.acme.persistence.StorageService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.FileSystems;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -38,14 +39,11 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class ExampleScreenerImportService {
-    private static final String BUNDLED_SEED_ROOT = "seed-data/example-screener";
-    private static final String BUNDLED_SEED_MANIFEST = BUNDLED_SEED_ROOT
-            + "/manifest.json";
+    private static final String BUNDLED_SEED_MANIFEST = "seed-data/example-screener/manifest.json";
 
     private final ScreenerRepository screenerRepository;
     private final EligibilityCheckRepository eligibilityCheckRepository;
     private final StorageService storageService;
-    private final Optional<String> configuredSeedPath;
     private final ObjectMapper objectMapper;
 
     @Inject
@@ -56,67 +54,63 @@ public class ExampleScreenerImportService {
         this.screenerRepository = screenerRepository;
         this.eligibilityCheckRepository = eligibilityCheckRepository;
         this.storageService = storageService;
-        this.configuredSeedPath = configuredSeedPath;
         this.objectMapper = new ObjectMapper();
     }
 
     public List<String> importForUser(String userId) throws Exception {
-        SeedRoot seedRoot = resolveSeedRoot();
-        try (seedRoot) {
-            SeedData seedData = loadSeedData(seedRoot.path());
+        Manifest manifest = readJsonRes(BUNDLED_SEED_MANIFEST, Manifest.class);
+        SeedData seedData = loadSeedData(manifest);
 
-            Map<String, String> importedCustomCheckIds = importReferencedCustomChecks(
-                    seedData,
-                    userId);
-            List<String> importedScreenerIds = new ArrayList<>();
+        Map<String, String> importedCustomCheckIds = importReferencedCustomChecks(
+                seedData,
+                userId);
+        List<String> importedScreenerIds = new ArrayList<>();
 
-            for (SeedScreenerData seedScreener : seedData.screeners()) {
-                List<Benefit> importedBenefits = new ArrayList<>();
-                List<BenefitDetail> importedBenefitDetails = new ArrayList<>();
-                for (Benefit seedBenefit : seedScreener.benefits()) {
-                    Benefit importedBenefit = cloneBenefit(
-                            seedBenefit,
-                            userId,
-                            importedCustomCheckIds);
-                    importedBenefits.add(importedBenefit);
-                    importedBenefitDetails.add(
-                            new BenefitDetail(importedBenefit.getId(),
-                                    importedBenefit.getName(),
-                                    importedBenefit.getDescription()));
-                }
-
-                Screener importedScreener = new Screener();
-                importedScreener.setOwnerId(userId);
-                importedScreener.setScreenerName(
-                        seedScreener.screener().getScreenerName());
-                importedScreener.setBenefits(importedBenefitDetails);
-
-                String newScreenerId = screenerRepository
-                        .saveNewWorkingScreener(importedScreener);
-                importedScreener.setId(newScreenerId);
-
-                for (Benefit importedBenefit : importedBenefits) {
-                    screenerRepository.saveNewCustomBenefit(
-                            newScreenerId,
-                            importedBenefit);
-                }
-
-                if (seedScreener.formSchema() != null) {
-                    String formPath = storageService
-                            .getScreenerWorkingFormSchemaPath(newScreenerId);
-                    storageService.writeJsonToStorage(
-                            formPath,
-                            seedScreener.formSchema());
-                }
-
-                importedScreenerIds.add(newScreenerId);
-                Log.info(
-                        "Imported example screener " + newScreenerId
-                                + " for user " + userId);
+        for (SeedScreenerData seedScreener : seedData.screeners()) {
+            List<Benefit> importedBenefits = new ArrayList<>();
+            List<BenefitDetail> importedBenefitDetails = new ArrayList<>();
+            for (Benefit seedBenefit : seedScreener.benefits()) {
+                Benefit importedBenefit = cloneBenefit(
+                        seedBenefit,
+                        userId,
+                        importedCustomCheckIds);
+                importedBenefits.add(importedBenefit);
+                importedBenefitDetails.add(
+                        new BenefitDetail(importedBenefit.getId(),
+                                importedBenefit.getName(),
+                                importedBenefit.getDescription()));
             }
 
-            return importedScreenerIds;
+            Screener importedScreener = new Screener();
+            importedScreener.setOwnerId(userId);
+            importedScreener
+                    .setScreenerName(seedScreener.screener().getScreenerName());
+            importedScreener.setBenefits(importedBenefitDetails);
+
+            String newScreenerId = screenerRepository
+                    .saveNewWorkingScreener(importedScreener);
+            importedScreener.setId(newScreenerId);
+
+            for (Benefit importedBenefit : importedBenefits) {
+                screenerRepository
+                        .saveNewCustomBenefit(newScreenerId, importedBenefit);
+            }
+
+            if (seedScreener.formSchema() != null) {
+                String formPath = storageService
+                        .getScreenerWorkingFormSchemaPath(newScreenerId);
+                storageService.writeJsonToStorage(
+                        formPath,
+                        seedScreener.formSchema());
+            }
+
+            importedScreenerIds.add(newScreenerId);
+            Log.info(
+                    "Imported example screener " + newScreenerId + " for user "
+                            + userId);
         }
+
+        return importedScreenerIds;
     }
 
     private Map<String, String> importReferencedCustomChecks(SeedData seedData,
@@ -341,176 +335,87 @@ public class ExampleScreenerImportService {
         return checkId != null && checkId.startsWith("L");
     }
 
-    private SeedData loadSeedData(Path seedRoot) throws IOException {
-        Path workingScreenersDir = seedRoot.resolve("firestore")
-                .resolve("workingScreener");
-        List<Path> screenerFiles = listJsonFiles(workingScreenersDir);
-        if (screenerFiles.isEmpty()) {
-            throw new IllegalStateException(
-                    "Expected at least one working screener seed document");
-        }
+    private SeedData loadSeedData(Manifest manifest) throws IOException {
+        List<ScreenerManifest> screenerFiles = manifest.screeners();
 
         List<SeedScreenerData> screeners = new ArrayList<>();
-        for (Path screenerFile : screenerFiles) {
-            Screener screener = readJsonFile(screenerFile, Screener.class);
-            String screenerDocId = stripExtension(
-                    screenerFile.getFileName().toString());
+        for (ScreenerManifest screenerManifest : screenerFiles) {
+            String screenerPath = screenerManifest.screenerPath();
+            Screener screener = readJsonRes(screenerPath, Screener.class);
 
-            Path benefitsDir = workingScreenersDir.resolve(screenerDocId)
-                    .resolve("customBenefit");
+            List<String> benefitsFiles = screenerManifest.benefits();
             List<Benefit> benefits = new ArrayList<>();
-            for (Path benefitFile : listJsonFiles(benefitsDir)) {
-                benefits.add(readJsonFile(benefitFile, Benefit.class));
+            for (String benefitPath : benefitsFiles) {
+                benefits.add(readJsonRes(benefitPath, Benefit.class));
             }
 
-            screeners.add(
-                    new SeedScreenerData(screener, benefits,
-                            loadFormSchema(seedRoot, screenerDocId)));
+            JsonNode formSchema = screenerManifest.formSchema().length() > 0
+                    ? loadFormSchema(screenerManifest.formSchema())
+                    : JsonNodeFactory.instance.objectNode();
+
+            screeners.add(new SeedScreenerData(screener, benefits, formSchema));
         }
 
-        return new SeedData(screeners, loadChecks(
-                seedRoot.resolve("firestore").resolve("workingCustomCheck")),
-                loadChecks(
-                        seedRoot.resolve("firestore")
-                                .resolve("publishedCustomCheck")),
-                loadDmnFiles(seedRoot.resolve("storage").resolve("check")));
+        return new SeedData(screeners,
+                loadChecks(manifest.workingCustomChecks()),
+                loadChecks(manifest.publishedCustomChecks()),
+                loadDmnFiles(manifest.dmnPaths()));
     }
 
-    private JsonNode loadFormSchema(Path seedRoot, String screenerDocId)
-            throws IOException {
-        Path formSchemaPath = seedRoot.resolve("storage").resolve("form")
-                .resolve("working").resolve(screenerDocId + ".json");
-        if (!Files.isRegularFile(formSchemaPath)) {
-            return null;
-        }
-        return objectMapper.readTree(Files.readString(formSchemaPath));
+    private JsonNode loadFormSchema(String formPath) {
+        return readJsonRes(formPath, JsonNode.class);
     }
 
-    private Map<String, EligibilityCheck> loadChecks(Path checksDir)
-            throws IOException {
+    private Map<String, EligibilityCheck> loadChecks(List<String> checksPaths) {
         Map<String, EligibilityCheck> checksById = new LinkedHashMap<>();
-        if (!Files.isDirectory(checksDir)) {
-            return checksById;
-        }
 
-        for (Path checkFile : listJsonFiles(checksDir)) {
-            EligibilityCheck check = readJsonFile(
-                    checkFile,
+        for (String checkPath : checksPaths) {
+            EligibilityCheck check = readJsonRes(
+                    checkPath,
                     EligibilityCheck.class);
             checksById.put(check.getId(), check);
         }
         return checksById;
     }
 
-    private Map<String, String> loadDmnFiles(Path dmnDir) throws IOException {
+    private Map<String, String> loadDmnFiles(List<String> dmnPaths) {
         Map<String, String> dmnByCheckId = new HashMap<>();
-        if (!Files.isDirectory(dmnDir)) {
-            return dmnByCheckId;
-        }
 
-        try (var stream = Files.list(dmnDir)) {
-            stream.filter(Files::isRegularFile).filter(
-                    path -> path.getFileName().toString().endsWith(".dmn"))
-                    .sorted(
-                            Comparator.comparing(
-                                    path -> path.getFileName().toString()))
-                    .forEach(path -> {
-                        try {
-                            dmnByCheckId.put(
-                                    stripExtension(
-                                            path.getFileName().toString()),
-                                    Files.readString(path));
-                        } catch (IOException e) {
-                            throw new RuntimeException(
-                                    "Failed to read DMN file " + path, e);
-                        }
-                    });
-        } catch (RuntimeException e) {
-            if (e.getCause() instanceof IOException ioException) {
-                throw ioException;
+        dmnPaths.stream().forEach(path -> {
+            try {
+                InputStream stream = getPathStream(path);
+                String contents = new String(stream.readAllBytes(),
+                        StandardCharsets.UTF_8);
+                dmnByCheckId.put(stripExtension(getIdFromPath(path)), contents);
+            } catch (IOException exception) {
+                Log.info("Error reading DMN file: " + path);
             }
-            throw e;
-        }
+        });
 
         return dmnByCheckId;
     }
 
-    private <T> T readJsonFile(Path path, Class<T> clazz) throws IOException {
-        return objectMapper.readValue(Files.readString(path), clazz);
-    }
-
-    private List<Path> listJsonFiles(Path directory) throws IOException {
-        if (!Files.isDirectory(directory)) {
-            return Collections.emptyList();
-        }
-
-        try (var stream = Files.list(directory)) {
-            return stream.filter(Files::isRegularFile).filter(
-                    path -> path.getFileName().toString().endsWith(".json"))
-                    .sorted(
-                            Comparator.comparing(
-                                    path -> path.getFileName().toString()))
-                    .toList();
-        }
-    }
-
-    private SeedRoot resolveSeedRoot() {
-        Optional<Path> configuredPath = configuredSeedPath.map(String::trim)
-                .filter(path -> !path.isBlank()).map(Paths::get);
-
-        if (configuredPath.isPresent()) {
-            Path absoluteCandidate = configuredPath.get().toAbsolutePath()
-                    .normalize();
-            if (Files.isDirectory(absoluteCandidate)) {
-                return new SeedRoot(absoluteCandidate, null);
-            }
-        }
-
+    private <T> T readJsonRes(String path, Class<T> clazz) {
         try {
-            return resolveBundledSeedRoot();
-        } catch (IOException | URISyntaxException e) {
-            throw new IllegalStateException(
-                    "Could not load bundled example screener seed data", e);
+            InputStream stream = getPathStream(path);
+            return objectMapper.readValue(stream, clazz);
+        } catch (IOException exception) {
+            Log.info("Failed to read resource: " + path);
+            throw new IllegalStateException(exception);
         }
     }
 
-    private SeedRoot resolveBundledSeedRoot()
-            throws IOException, URISyntaxException {
-        var manifestUrl = ExampleScreenerImportService.class.getClassLoader()
-                .getResource(BUNDLED_SEED_MANIFEST);
-        if (manifestUrl == null) {
-            throw new IllegalStateException(
-                    "Could not find bundled example screener seed data at classpath:"
-                            + BUNDLED_SEED_ROOT);
-        }
-
-        URI manifestUri = manifestUrl.toURI();
-        if ("jar".equalsIgnoreCase(manifestUri.getScheme())) {
-            String manifestUriString = manifestUri.toString();
-            int archiveSeparatorIndex = manifestUriString.indexOf("!/");
-            if (archiveSeparatorIndex < 0) {
-                throw new IllegalStateException(
-                        "Unexpected jar resource URI for bundled seed data: "
-                                + manifestUri);
-            }
-
-            URI archiveUri = URI.create(
-                    manifestUriString.substring(0, archiveSeparatorIndex));
-            FileSystem fileSystem = getOrCreateFileSystem(archiveUri);
-            return new SeedRoot(fileSystem.getPath("/" + BUNDLED_SEED_ROOT),
-                    fileSystem);
-        }
-
-        return new SeedRoot(Paths.get(manifestUri).getParent(), null);
-    }
-
-    private FileSystem getOrCreateFileSystem(URI archiveUri)
-            throws IOException {
+    private InputStream getPathStream(String path) throws IOException {
         try {
-            return FileSystems.getFileSystem(archiveUri);
-        } catch (FileSystemNotFoundException ignored) {
-            return FileSystems
-                    .newFileSystem(archiveUri, Collections.emptyMap());
+            if (LaunchMode.current() == LaunchMode.DEVELOPMENT) {
+                return Files.newInputStream(
+                        Path.of("src", "main", "resources").resolve(path));
+            } else {
+                return Thread.currentThread().getContextClassLoader()
+                        .getResourceAsStream(path);
+            }
+        } catch (IOException exception) {
+            throw new IOException("Could not find: " + path);
         }
     }
 
@@ -522,6 +427,10 @@ public class ExampleScreenerImportService {
     private String buildPublishedCheckId(String ownerId, String module,
             String name, String version) {
         return "P-" + ownerId + "-" + module + "-" + name + "-" + version;
+    }
+
+    private String getIdFromPath(String path) {
+        return stripExtension(Paths.get(path).getFileName().toString());
     }
 
     private String stripExtension(String filename) {
@@ -544,15 +453,5 @@ public class ExampleScreenerImportService {
 
     private record SeedCustomCheckVersions(EligibilityCheck workingCheck,
             EligibilityCheck publishedCheck) {
-    }
-
-    private record SeedRoot(Path path, FileSystem fileSystem)
-            implements AutoCloseable {
-        @Override
-        public void close() throws IOException {
-            if (fileSystem != null && fileSystem.isOpen()) {
-                fileSystem.close();
-            }
-        }
     }
 }

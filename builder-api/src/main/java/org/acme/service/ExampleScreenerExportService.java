@@ -2,12 +2,12 @@ package org.acme.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.Timestamp;
-import com.google.firebase.cloud.FirestoreClient;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.acme.constants.CollectionNames;
 import org.acme.constants.FieldNames;
+import org.acme.model.dto.ExampleScreener.ScreenerManifest;
 import org.acme.persistence.FirestoreUtils;
 import org.acme.persistence.StorageService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -61,21 +60,35 @@ public class ExampleScreenerExportService {
                 userId);
 
         int firestoreDocuments = 0;
-        firestoreDocuments += exportScreeners(workingScreeners);
-        firestoreDocuments += exportChecks(
+        ExportScreenerResult exportedScreeners = exportScreeners(
+                workingScreeners);
+        ExportDocumentResult exportedWorkingChecks = exportChecks(
                 CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION,
                 workingCustomChecks);
-        firestoreDocuments += exportChecks(
+        ExportDocumentResult exportedPublishedChecks = exportChecks(
                 CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION,
                 publishedCustomChecks);
+
+        firestoreDocuments += exportedScreeners.numExported()
+                + exportedWorkingChecks.numExported()
+                + exportedPublishedChecks.numExported();
         firestoreDocuments += exportSystemConfig();
 
         int storageFiles = 0;
-        storageFiles += exportScreenerForms(workingScreeners);
-        storageFiles += exportCheckDmns(workingCustomChecks);
-        storageFiles += exportCheckDmns(publishedCustomChecks);
+        ExportDocumentResult exportedWorkingCheckDmns = exportCheckDmns(
+                workingCustomChecks);
+        ExportDocumentResult exportedPublishedCheckDmns = exportCheckDmns(
+                publishedCustomChecks);
 
-        writeManifest(firestoreDocuments, storageFiles);
+        storageFiles += exportedWorkingCheckDmns.numExported()
+                + exportedPublishedCheckDmns.numExported();
+
+        writeManifest(
+                exportedScreeners,
+                exportedWorkingChecks,
+                exportedPublishedChecks,
+                exportedWorkingCheckDmns,
+                exportedPublishedCheckDmns);
 
         Log.info(
                 "Exported Firebase seed data for user " + userId + " to "
@@ -101,28 +114,38 @@ public class ExampleScreenerExportService {
         return documents;
     }
 
-    private int exportScreeners(List<Map<String, Object>> workingScreeners)
-            throws IOException {
-        int firestoreDocuments = 0;
+    private ExportScreenerResult exportScreeners(
+            List<Map<String, Object>> workingScreeners) throws IOException {
+        int numExported = 0;
+        List<ScreenerManifest> screeners = new ArrayList<>();
 
         for (Map<String, Object> screener : workingScreeners) {
             String screenerId = requiredString(
                     screener,
                     FieldNames.ID,
                     CollectionNames.WORKING_SCREENER_COLLECTION);
+            Path screenerPath = EXPORT_ROOT.resolve("firestore")
+                    .resolve("workingScreener").resolve(screenerId + ".json");
             writeJsonFile(
-                    EXPORT_ROOT.resolve("firestore").resolve("workingScreener")
-                            .resolve(screenerId + ".json"),
+                    screenerPath,
                     firestoreDocumentForExport(screener, screenerId));
-            firestoreDocuments++;
+            numExported++;
 
-            firestoreDocuments += exportBenefits(screenerId);
+            ExportDocumentResult exportedBenefits = exportBenefits(screenerId);
+            String exportedFormPath = exportScreenerForm(screenerId);
+
+            numExported += exportedBenefits.numExported();
+
+            screeners.add(
+                    new ScreenerManifest(skipFirstPath(screenerPath).toString(),
+                            exportedBenefits.outputPaths(), exportedFormPath));
         }
 
-        return firestoreDocuments;
+        return new ExportScreenerResult(numExported, screeners);
     }
 
-    private int exportBenefits(String screenerId) throws IOException {
+    private ExportDocumentResult exportBenefits(String screenerId)
+            throws IOException {
         String collectionPath = CollectionNames.WORKING_SCREENER_COLLECTION
                 + "/" + screenerId + "/customBenefit";
         List<Map<String, Object>> benefits = new ArrayList<>(
@@ -134,38 +157,45 @@ public class ExampleScreenerExportService {
                                 FieldNames.ID,
                                 collectionPath)));
 
-        int exportedBenefits = 0;
+        int numExported = 0;
+        List<String> outputPaths = new ArrayList<>();
         for (Map<String, Object> benefit : benefits) {
             String benefitId = requiredString(
                     benefit,
                     FieldNames.ID,
                     collectionPath);
+            Path outputPath = EXPORT_ROOT.resolve("firestore")
+                    .resolve("workingScreener").resolve(screenerId)
+                    .resolve("customBenefit").resolve(benefitId + ".json");
             writeJsonFile(
-                    EXPORT_ROOT.resolve("firestore").resolve("workingScreener")
-                            .resolve(screenerId).resolve("customBenefit")
-                            .resolve(benefitId + ".json"),
+                    outputPath,
                     firestoreDocumentForExport(benefit, benefitId));
-            exportedBenefits++;
+            numExported++;
+            outputPaths.add(skipFirstPath(outputPath).toString());
         }
 
-        return exportedBenefits;
+        return new ExportDocumentResult(numExported, outputPaths);
     }
 
-    private int exportChecks(String collectionName,
+    private ExportDocumentResult exportChecks(String collectionName,
             List<Map<String, Object>> checks) throws IOException {
-        int exportedChecks = 0;
+        int numExported = 0;
+        List<String> checkPaths = new ArrayList<>();
+
         for (Map<String, Object> check : checks) {
             String checkId = requiredString(
                     check,
                     FieldNames.ID,
                     collectionName);
+            Path checkPath = EXPORT_ROOT.resolve("firestore")
+                    .resolve(collectionName).resolve(checkId + ".json");
             writeJsonFile(
-                    EXPORT_ROOT.resolve("firestore").resolve(collectionName)
-                            .resolve(checkId + ".json"),
+                    checkPath,
                     firestoreDocumentForExport(check, checkId));
-            exportedChecks++;
+            numExported++;
+            checkPaths.add(skipFirstPath(checkPath).toString());
         }
-        return exportedChecks;
+        return new ExportDocumentResult(numExported, checkPaths);
     }
 
     private int exportSystemConfig() throws IOException {
@@ -182,36 +212,26 @@ public class ExampleScreenerExportService {
         return 1;
     }
 
-    private int exportScreenerForms(List<Map<String, Object>> workingScreeners)
-            throws IOException {
-        int exportedForms = 0;
+    private String exportScreenerForm(String screenerId) throws IOException {
 
-        for (Map<String, Object> screener : workingScreeners) {
-            String screenerId = requiredString(
-                    screener,
-                    FieldNames.ID,
-                    CollectionNames.WORKING_SCREENER_COLLECTION);
-            Optional<String> formSchema = storageService.getStringFromStorage(
-                    storageService
-                            .getScreenerWorkingFormSchemaPath(screenerId));
+        Optional<String> formSchema = storageService.getStringFromStorage(
+                storageService.getScreenerWorkingFormSchemaPath(screenerId));
 
-            if (formSchema.isEmpty()) {
-                continue;
-            }
-
-            writeStringFile(
-                    EXPORT_ROOT.resolve("storage").resolve("form")
-                            .resolve("working").resolve(screenerId + ".json"),
-                    formSchema.get());
-            exportedForms++;
+        Path formPath = !formSchema.isEmpty()
+                ? EXPORT_ROOT.resolve("storage").resolve("form")
+                        .resolve("working").resolve(screenerId + ".json")
+                : Path.of("");
+        if (!formSchema.isEmpty()) {
+            writeStringFile(formPath, formSchema.get());
         }
 
-        return exportedForms;
+        return skipFirstPath(formPath).toString();
     }
 
-    private int exportCheckDmns(List<Map<String, Object>> checks)
-            throws IOException {
-        int exportedDmns = 0;
+    private ExportDocumentResult exportCheckDmns(
+            List<Map<String, Object>> checks) throws IOException {
+        int numExported = 0;
+        List<String> exportedDmns = new ArrayList<>();
         Set<String> exportedIds = new LinkedHashSet<>();
 
         for (Map<String, Object> check : checks) {
@@ -228,28 +248,35 @@ public class ExampleScreenerExportService {
             if (dmnModel.isEmpty()) {
                 continue;
             }
-
-            writeStringFile(
-                    EXPORT_ROOT.resolve("storage").resolve("check")
-                            .resolve(checkId + ".dmn"),
-                    dmnModel.get());
-            exportedDmns++;
+            Path exportPath = EXPORT_ROOT.resolve("storage").resolve("check")
+                    .resolve(checkId + ".dmn");
+            writeStringFile(exportPath, dmnModel.get());
+            numExported++;
+            exportedDmns.add(skipFirstPath(exportPath).toString());
         }
 
-        return exportedDmns;
+        return new ExportDocumentResult(numExported, exportedDmns);
     }
 
-    private void writeManifest(int firestoreDocuments, int storageFiles)
+    private void writeManifest(ExportScreenerResult exportedScreeners,
+            ExportDocumentResult exportedWorkingChecks,
+            ExportDocumentResult exportedPublishedChecks,
+            ExportDocumentResult exportedWorkingCheckDmns,
+            ExportDocumentResult exportedPublishedCheckDmns)
             throws IOException {
+        List<String> combinedDmnPaths = new ArrayList<>(
+                exportedWorkingCheckDmns.outputPaths());
+        combinedDmnPaths.addAll(exportedPublishedCheckDmns.outputPaths());
+
         Map<String, Object> manifest = new LinkedHashMap<>();
-        manifest.put("exportedAt", Instant.now().toString());
-        manifest.put("source", "builder-api");
+        manifest.put("screeners", exportedScreeners.screeners());
         manifest.put(
-                "projectId",
-                FirestoreClient.getFirestore().getOptions().getProjectId());
-        manifest.put("storageBucket", bucketName);
-        manifest.put("firestoreDocuments", firestoreDocuments);
-        manifest.put("storageFiles", storageFiles);
+                "workingCustomChecks",
+                exportedWorkingChecks.outputPaths());
+        manifest.put(
+                "publishedCustomChecks",
+                exportedPublishedChecks.outputPaths());
+        manifest.put("dmnPaths", combinedDmnPaths);
 
         writeJsonFile(EXPORT_ROOT.resolve("manifest.json"), manifest);
     }
@@ -339,6 +366,22 @@ public class ExampleScreenerExportService {
                     "Missing field '" + fieldName + "' for " + context);
         }
         return stringValue;
+    }
+
+    private Path skipFirstPath(Path path) {
+        int pathCount = path.getNameCount();
+        if (pathCount <= 3) {
+            return path;
+        }
+        return path.subpath(3, path.getNameCount());
+    }
+
+    private record ExportDocumentResult(int numExported,
+            List<String> outputPaths) {
+    }
+
+    private record ExportScreenerResult(int numExported,
+            List<ScreenerManifest> screeners) {
     }
 
     public record ExportSummary(String outputPath, int screenerCount,
