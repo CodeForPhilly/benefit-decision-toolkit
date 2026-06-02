@@ -1,0 +1,52 @@
+---
+import { getCollection } from "astro:content";
+const team = await getCollection("team");
+const teamSorted: typeof team = [];
+team.forEach((teamMember) => {
+  if (teamMember.data.role.includes("Co-Lead")) {
+    teamSorted.push(teamMember);
+  }
+});
+team.forEach((teamMember) => {
+  if (!teamMember.data.role.includes("Co-Lead")) {
+    teamSorted.push(teamMember);
+  }
+});
+import { Image } from "astro:assets";
+---
+
+<section id="team">
+  <div class="max-w-[130ch] mx-auto py-12 px-3">
+    <h2 class="mb-6">Meet The Team</h2>
+    <ul class="flex flex-wrap gap-x-6 gap-y-12 justify-center">
+      {
+        teamSorted.map(async (teamMember) => {
+          return (
+            <li class="w-60">
+              <div class="text-center flex flex-col gap-3">
+                <Image
+                  src={teamMember.data.photo}
+                  alt={teamMember.data.photoAlt}
+                  width={500}
+                  height={500}
+                  class="w-40 mx-auto mb-3 rounded-full border border-bdt-blue/33 p-1"
+                />
+                <h3>{teamMember.data.name}</h3>
+                <p class="font-bold mb-2">{teamMember.data.role}</p>
+                <p>
+                  <a
+                    href={teamMember.data.link}
+                    target="_blank"
+                    class="text-bdt-blue underline"
+                  >
+                    Connect ↗
+                  </a>
+                </p>
+              </div>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</section>

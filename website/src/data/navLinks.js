@@ -15,4 +15,8 @@ export default [
     title: "Contact",
     path: "/#contact",
   },
+  {
+    title: "About",
+    path: "/about",
+  },
 ];
