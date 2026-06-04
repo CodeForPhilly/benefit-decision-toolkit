@@ -411,8 +411,12 @@ public class ExampleScreenerImportService {
                 return Files.newInputStream(
                         Path.of("src", "main", "resources").resolve(path));
             } else {
-                return Thread.currentThread().getContextClassLoader()
-                        .getResourceAsStream(path);
+                InputStream stream = Thread.currentThread()
+                        .getContextClassLoader().getResourceAsStream(path);
+                if (stream == null) {
+                    throw new IOException("Resource not found: " + path);
+                }
+                return stream;
             }
         } catch (IOException exception) {
             throw new IOException("Could not find: " + path);
