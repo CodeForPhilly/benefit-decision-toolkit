@@ -18,8 +18,6 @@ import org.acme.model.dto.ExampleScreener.ScreenerManifest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.ScreenerRepository;
 import org.acme.persistence.StorageService;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -33,7 +31,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -49,8 +46,7 @@ public class ExampleScreenerImportService {
     @Inject
     public ExampleScreenerImportService(ScreenerRepository screenerRepository,
             EligibilityCheckRepository eligibilityCheckRepository,
-            StorageService storageService, @ConfigProperty(
-                    name = "example-screener.seed-path") Optional<String> configuredSeedPath) {
+            StorageService storageService) {
         this.screenerRepository = screenerRepository;
         this.eligibilityCheckRepository = eligibilityCheckRepository;
         this.storageService = storageService;
