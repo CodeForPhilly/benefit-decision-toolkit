@@ -103,6 +103,30 @@
     "evaluationUrl" : "/api/v1/checks/residence/no-ten-year-tax-abatement",
     "checkId" : "f8495889-388c-4b06-935c-cac3f056b68d",
     "parameters" : { }
+  }, {
+    "checkModule" : "general",
+    "checkVersion" : "3.0.0",
+    "inputDefinition" : {
+      "type" : "object",
+      "properties" : {
+        "custom" : {
+          "type" : "object",
+          "properties" : {
+            "anyEnrollments" : { },
+            "homeowner" : { },
+            "equitableInterest" : { },
+            "occupant" : { }
+          },
+          "required" : [ "anyEnrollments", "equitableInterest", "occupant", "homeowner" ]
+        }
+      },
+      "required" : [ "custom" ]
+    },
+    "parameterDefinitions" : [ ],
+    "sourceCheckId" : "P-uwx3W7vaM6GUk9RaBsf5WIyRErjr-general-propertyTaxReliefInputs-3.0.0",
+    "checkName" : "propertyTaxReliefInputs",
+    "checkId" : "ac9b43b1-9cbb-4c59-bba8-4eef78dc41f2",
+    "parameters" : { }
   } ],
   "name" : "Homestead Exemption",
   "description" : "If you own your primary residence, you are eligible for the Homestead Exemption on your Real Estate Tax. The Homestead Exemption reduces the taxable portion of your property’s assessed value.\n\nWith this exemption, the property’s assessed value is reduced by $100,000. Most homeowners will save about $1,399 a year on their Real Estate Tax bill starting in 2025.\n\nmore info:\nhttps://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/",

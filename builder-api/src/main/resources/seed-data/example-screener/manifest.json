@@ -2,9 +2,9 @@
   "screeners" : [ {
     "screenerPath" : "seed-data/example-screener/firestore/workingScreener/Am3FMS6ID2keNa82MbPh.json",
     "benefits" : [ "seed-data/example-screener/firestore/workingScreener/Am3FMS6ID2keNa82MbPh/customBenefit/b481f008-5ed6-4d5f-a0d1-a08733ab91f9.json", "seed-data/example-screener/firestore/workingScreener/Am3FMS6ID2keNa82MbPh/customBenefit/ea6688ae-0a00-4e3e-a0d6-73d8e8be7cba.json" ],
-    "formSchema" : "seed-data/example-screener/storage/form/working/Am3FMS6ID2keNa82MbPh.json"
+    "formSchema" : "seed-data/example-screener/storage/form/working/7PTNpTAI0s0BIWpwartZ.json"
   } ],
-  "workingCustomChecks" : [ "seed-data/example-screener/firestore/workingCustomCheck/W-uwx3W7vaM6GUk9RaBsf5WIyRErjr-testchecks-test.json" ],
-  "publishedCustomChecks" : [ "seed-data/example-screener/firestore/publishedCustomCheck/P-uwx3W7vaM6GUk9RaBsf5WIyRErjr-testchecks-test-2.0.0.json" ],
-  "dmnPaths" : [ "seed-data/example-screener/storage/check/W-uwx3W7vaM6GUk9RaBsf5WIyRErjr-testchecks-test.dmn", "seed-data/example-screener/storage/check/P-uwx3W7vaM6GUk9RaBsf5WIyRErjr-testchecks-test-2.0.0.dmn" ]
+  "workingCustomChecks" : [ "seed-data/example-screener/firestore/workingCustomCheck/W-uwx3W7vaM6GUk9RaBsf5WIyRErjr-testchecks-test.json", "seed-data/example-screener/firestore/workingCustomCheck/W-uwx3W7vaM6GUk9RaBsf5WIyRErjr-general-propertyTaxReliefInputs.json" ],
+  "publishedCustomChecks" : [ "seed-data/example-screener/firestore/publishedCustomCheck/P-uwx3W7vaM6GUk9RaBsf5WIyRErjr-testchecks-test-2.0.0.json", "seed-data/example-screener/firestore/publishedCustomCheck/P-uwx3W7vaM6GUk9RaBsf5WIyRErjr-general-propertyTaxReliefInputs-3.0.0.json" ],
+  "dmnPaths" : [ "seed-data/example-screener/storage/check/W-uwx3W7vaM6GUk9RaBsf5WIyRErjr-testchecks-test.dmn", "seed-data/example-screener/storage/check/P-uwx3W7vaM6GUk9RaBsf5WIyRErjr-testchecks-test-2.0.0.dmn", "seed-data/example-screener/storage/check/W-uwx3W7vaM6GUk9RaBsf5WIyRErjr-general-propertyTaxReliefInputs.dmn", "seed-data/example-screener/storage/check/P-uwx3W7vaM6GUk9RaBsf5WIyRErjr-general-propertyTaxReliefInputs-3.0.0.dmn" ]
 }
