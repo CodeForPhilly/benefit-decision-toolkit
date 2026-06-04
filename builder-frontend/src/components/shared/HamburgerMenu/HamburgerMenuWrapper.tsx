@@ -30,8 +30,20 @@ export const HamburgerMenuWrapper: ParentComponent = (props) => {
   const [showMenu, setShowMenu] = createSignal(false);
 
   const handleClickOutside = (ev: MouseEvent) => {
+    if (!showMenu()) return;
+
     const el = root();
-    if (showMenu() && el && !el.contains(ev.target as Node)) {
+    if (!el) return;
+
+    const path = ev.composedPath();
+
+    const clickedInsideMenu = path.includes(el);
+    const clickedInsideModal = path.some(
+      (node) =>
+        node instanceof HTMLElement && node.hasAttribute("data-modal-root"),
+    );
+
+    if (!clickedInsideMenu && !clickedInsideModal) {
       setShowMenu(false);
     }
   };

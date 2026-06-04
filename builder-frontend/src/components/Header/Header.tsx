@@ -1,11 +1,14 @@
 import { useAuth } from "../../context/AuthContext";
 import { useLocation, useNavigate } from "@solidjs/router";
-import { Component, createMemo, For, Show } from "solid-js";
+import { Component, createMemo, createSignal, DEV, For, Show } from "solid-js";
 
 import { HamburgerMenu } from "@/components/shared/HamburgerMenu";
 
 import "./Header.css";
 import { Menu } from "lucide-solid";
+import { Button } from "@/components/shared/Button";
+import { Modal } from "@/components/shared/Modal";
+import { ExportExampleScreener } from "@/components/Header/ExportExampleScreener";
 
 const HeaderButton = ({
   buttonText,
@@ -35,6 +38,8 @@ interface MenuProps {
 
 const HeaderMenu: Component<MenuProps> = (props) => {
   const navigate = useNavigate();
+  const [showExportMenu, setShowExportMenu] = createSignal(false);
+
   const menuItems: { label: string; onClick: () => void }[] = [
     {
       label: "Custom Checks",
@@ -62,6 +67,14 @@ const HeaderMenu: Component<MenuProps> = (props) => {
           )}
         </For>
       </ul>
+      <Show when={DEV}>
+        <Button onClick={() => setShowExportMenu(true)}>
+          Export Example Screener
+        </Button>
+        <Modal show={showExportMenu()} onClose={() => setShowExportMenu(false)}>
+          <ExportExampleScreener setShowExportMenu={setShowExportMenu} />
+        </Modal>
+      </Show>
     </section>
   );
 };
