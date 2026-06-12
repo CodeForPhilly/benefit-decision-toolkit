@@ -36,15 +36,17 @@ import { Image } from "astro:assets";
                 />
                 <h3>{teamMember.data.name}</h3>
                 <p class="font-bold mb-2">{teamMember.data.role}</p>
-                <p>
-                  <a
-                    href={teamMember.data.link}
-                    target="_blank"
-                    class="text-bdt-blue underline"
-                  >
-                    Connect ↗
-                  </a>
-                </p>
+                {teamMember.data.link && (
+                  <p>
+                    <a
+                      href={teamMember.data.link}
+                      target="_blank"
+                      class="text-bdt-blue underline"
+                    >
+                      Connect ↗
+                    </a>
+                  </p>
+                )}
               </div>
             </li>
           );
