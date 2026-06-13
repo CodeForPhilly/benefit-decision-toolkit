@@ -9,7 +9,9 @@ import NavMenu from "./NavMenu.svelte";
     class="flex flex-row justify-between items-baseline gap-6 max-w-[130ch] mx-auto"
   >
     <div class="w-36">
-      <Image src={logo} alt="BDT logo" />
+      <a href="/">
+        <Image src={logo} alt="BDT logo" />
+      </a>
     </div>
     <NavMenu client:load />
   </div>
