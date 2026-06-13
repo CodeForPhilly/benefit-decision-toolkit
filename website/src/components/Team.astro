@@ -1,6 +1,9 @@
 ---
 import { getCollection } from "astro:content";
-const team = await getCollection("team");
+
+const team = (await getCollection("team")).sort((a, b) =>
+  a.data.name.localeCompare(b.data.name),
+);
 const teamSorted: typeof team = [];
 team.forEach((teamMember) => {
   if (teamMember.data.role.includes("Co-Lead")) {
@@ -33,15 +36,17 @@ import { Image } from "astro:assets";
                 />
                 <h3>{teamMember.data.name}</h3>
                 <p class="font-bold mb-2">{teamMember.data.role}</p>
-                <p>
-                  <a
-                    href={teamMember.data.link}
-                    target="_blank"
-                    class="text-bdt-blue underline"
-                  >
-                    Connect ↗
-                  </a>
-                </p>
+                {teamMember.data.link && (
+                  <p>
+                    <a
+                      href={teamMember.data.link}
+                      target="_blank"
+                      class="text-bdt-blue underline"
+                    >
+                      Connect ↗
+                    </a>
+                  </p>
+                )}
               </div>
             </li>
           );
