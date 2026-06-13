@@ -1,6 +1,32 @@
+---
+const footerLinks = [
+  {
+    title: "Home",
+    path: "/",
+  },
+  {
+    title: "About",
+    path: "/about",
+  },
+  {
+    title: "Contact",
+    path: "/#contact",
+  },
+];
+---
+
 <footer class="py-12 flex flex-col items-center gap-3 bg-bdt-green-light">
   <a class="underline w-fit" href="/#top">Return to top</a>
   <p class="text-3xl! font-serif mt-2">Benefit Decision Toolkit</p>
+  <nav class="flex flex-row gap-4">
+    {
+      footerLinks.map((link) => (
+        <a class="underline w-fit" href={link.path}>
+          {link.title}
+        </a>
+      ))
+    }
+  </nav>
   <p>
     <a class="underline" href="https://codeforphilly.org/" target="_blank"
       >A Code For Philly project</a
