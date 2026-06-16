@@ -1,7 +1,28 @@
 <script>
   import { quadOut } from "svelte/easing";
-  import navLinks from "../data/navLinks";
   import { fade } from "svelte/transition";
+  const headerLinks = [
+    {
+      title: "Home",
+      path: "/#top",
+    },
+    {
+      title: "What We Do",
+      path: "/#overview",
+    },
+    {
+      title: "Projects",
+      path: "/#projects",
+    },
+    {
+      title: "Contact",
+      path: "/#contact",
+    },
+    {
+      title: "About",
+      path: "/about",
+    },
+  ];
   let menuActive = $state(false);
   function toggleMenu() {
     menuActive = !menuActive;
@@ -10,7 +31,7 @@
 
 <nav class="hidden md:block">
   <ul class="flex gap-6 text-lg">
-    {#each navLinks as link}
+    {#each headerLinks as link}
       <li>
         <a class="text-white font-bold" href={link.path}>
           {link.title}
