@@ -61,7 +61,7 @@
       aria-expanded={menuActive}>Close</button
     >
     <ul class="w-fit h-fit flex flex-col gap-4 items-center">
-      {#each navLinks as link}
+      {#each headerLinks as link}
         <li>
           <a
             class="text-white text-3xl font-bold font-serif"
