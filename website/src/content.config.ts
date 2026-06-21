@@ -23,4 +23,15 @@ const team = defineCollection({
     }),
 });
 
-export const collections = { projects, team };
+const roles = defineCollection({
+  loader: glob({
+    pattern: "**/*.md",
+    base: "./src/assets/text/volunteer-roles",
+  }),
+  schema: z.object({
+    title: z.string(),
+    brief: z.string(),
+  }),
+});
+
+export const collections = { projects, team, roles };

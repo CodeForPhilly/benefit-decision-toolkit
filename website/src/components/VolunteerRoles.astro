@@ -1,0 +1,30 @@
+---
+import { getCollection } from "astro:content";
+import { render } from "astro:content";
+const roles = await getCollection("roles");
+---
+
+<div class="flex flex-col gap-6 py-12 px-6 max-w-[130ch] mx-auto">
+  <h2>Volunteer Roles</h2>
+  <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {
+      roles.map(async (role) => {
+        const { Content } = await render(role);
+        return (
+          <li class="bg-bdt-green-light rounded-2xl p-6 min-w-30">
+            <h3>{role.data.title}</h3>
+            <p>{role.data.brief}</p>
+            <details name="roles">
+              <summary class="[&::marker]:content-[''] mx-auto px-4 py-2 mt-6 bg-white w-fit rounded-lg border-bdt-blue border cursor-pointer">
+                <span>Show more</span>
+              </summary>
+              <div class="prose py-6 prose-li:text-black prose-li:marker:text-black">
+                <Content />
+              </div>
+            </details>
+          </li>
+        );
+      })
+    }
+  </ul>
+</div>
