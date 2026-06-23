@@ -1,5 +1,5 @@
 ---
-title: Benefit Analyst
+title: Benefit Analyst (Program Rule Translation)
 brief: You will be the expert in how benefit eligibility rules are written, documented, and applied.
 ---
 
