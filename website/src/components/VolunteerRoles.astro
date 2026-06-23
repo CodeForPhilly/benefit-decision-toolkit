@@ -11,12 +11,13 @@ const roles = await getCollection("roles");
       roles.map(async (role) => {
         const { Content } = await render(role);
         return (
-          <li class="border-2 border-bdt-blue bg-bdt-blue/5 rounded-2xl p-6 min-w-30 h-fit">
+          <li class="border-2 border-bdt-blue bg-bdt-blue/5 rounded-2xl p-6 min-w-30 h-fit role-card">
             <h3>{role.data.title}</h3>
             <p>{role.data.brief}</p>
             <details name="roles">
               <summary class="[&::marker]:content-[''] mx-auto px-4 py-2 mt-6 bg-white w-fit rounded-lg border-bdt-blue border cursor-pointer select-none">
-                <span>Show more</span>
+                <span class="show-more">Show more</span>
+                <span class="show-less hidden">Show less</span>
               </summary>
               <div class="prose py-6 prose-li:text-black prose-li:marker:text-black">
                 <Content />
@@ -28,3 +29,30 @@ const roles = await getCollection("roles");
     }
   </ul>
 </div>
+
+<style>
+  details[open] .show-more {
+    display: none;
+  }
+
+  details[open] .show-less {
+    display: inline;
+  }
+
+  .role-card:has(details[open]) {
+    grid-column: 1 / -1;
+  }
+</style>
+
+<script>
+  document.querySelectorAll(".role-card details").forEach((details) => {
+    details.addEventListener("toggle", () => {
+      if (details.open) {
+        details.closest(".role-card")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    });
+  });
+</script>
