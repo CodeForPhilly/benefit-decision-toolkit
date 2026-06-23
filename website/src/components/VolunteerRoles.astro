@@ -11,11 +11,11 @@ const roles = await getCollection("roles");
       roles.map(async (role) => {
         const { Content } = await render(role);
         return (
-          <li class="bg-bdt-green-light rounded-2xl p-6 min-w-30">
+          <li class="border-2 border-bdt-blue bg-bdt-blue/5 rounded-2xl p-6 min-w-30 h-fit">
             <h3>{role.data.title}</h3>
             <p>{role.data.brief}</p>
             <details name="roles">
-              <summary class="[&::marker]:content-[''] mx-auto px-4 py-2 mt-6 bg-white w-fit rounded-lg border-bdt-blue border cursor-pointer">
+              <summary class="[&::marker]:content-[''] mx-auto px-4 py-2 mt-6 bg-white w-fit rounded-lg border-bdt-blue border cursor-pointer select-none">
                 <span>Show more</span>
               </summary>
               <div class="prose py-6 prose-li:text-black prose-li:marker:text-black">
