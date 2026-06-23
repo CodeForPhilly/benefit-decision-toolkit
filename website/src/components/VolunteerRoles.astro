@@ -45,7 +45,7 @@ const roles = await getCollection("roles");
 </style>
 
 <script>
-  document.querySelectorAll(".role-card details").forEach((details) => {
+  document.querySelectorAll<HTMLDetailsElement>(".role-card details").forEach((details) => {
     details.addEventListener("toggle", () => {
       if (details.open) {
         details.closest(".role-card")?.scrollIntoView({
