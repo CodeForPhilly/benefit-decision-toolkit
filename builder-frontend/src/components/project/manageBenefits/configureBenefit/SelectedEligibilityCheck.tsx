@@ -30,6 +30,19 @@ const SelectedEligibilityCheck = ({
   const displayName = () =>
     checkConfig().aliasName || checkConfig().checkName;
 
+  const isBlankParameterValue = (value: unknown) => {
+    return value === undefined || value === null || value === "";
+  };
+
+  const usesAsOfDateDefault = (parameter: ParameterDefinition) => {
+    return (
+      !!checkConfig().evaluationUrl &&
+      parameter.key === "asOfDate" &&
+      parameter.type === "date" &&
+      isBlankParameterValue(checkConfig().parameters[parameter.key])
+    );
+  };
+
   const unfilledRequiredParameters = () => {
     return [];
   };
@@ -88,7 +101,14 @@ const SelectedEligibilityCheck = ({
                 {(parameter: ParameterDefinition) => {
                   const getLabel = () => {
                     let value = checkConfig().parameters[parameter.key];
-                    return value !== undefined ? (
+                    if (usesAsOfDateDefault(parameter)) {
+                      return (
+                        <span class="text-gray-500">
+                          Uses today's date by default
+                        </span>
+                      );
+                    }
+                    return !isBlankParameterValue(value) ? (
                       value.toString()
                     ) : (
                       <span class="text-yellow-700">Not configured</span>
