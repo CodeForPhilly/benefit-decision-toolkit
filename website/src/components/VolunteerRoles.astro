@@ -4,31 +4,33 @@ import { render } from "astro:content";
 const roles = await getCollection("roles");
 ---
 
-<div class="flex flex-col gap-6 py-12 px-6 max-w-[130ch] mx-auto">
-  <h2>Volunteer Roles</h2>
-  <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {
-      roles.map(async (role) => {
-        const { Content } = await render(role);
-        return (
-          <li class="border-2 border-bdt-blue bg-bdt-blue/5 rounded-2xl p-6 min-w-30 h-fit role-card">
-            <h3>{role.data.title}</h3>
-            <p>{role.data.brief}</p>
-            <details name="roles">
-              <summary class="[&::marker]:content-[''] mx-auto px-4 py-2 mt-6 bg-white w-fit rounded-lg border-bdt-blue border cursor-pointer select-none">
-                <span class="show-more">Show more</span>
-                <span class="show-less hidden">Show less</span>
-              </summary>
-              <div class="prose py-6 prose-li:text-black prose-li:marker:text-black">
-                <Content />
-              </div>
-            </details>
-          </li>
-        );
-      })
-    }
-  </ul>
-</div>
+<section id="volunteer-roles" class="bg-bdt-blue/50">
+  <div class="flex flex-col gap-6 py-12 px-6 max-w-[130ch] mx-auto">
+    <h2>Volunteer Roles</h2>
+    <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {
+        roles.map(async (role) => {
+          const { Content } = await render(role);
+          return (
+            <li class=" bg-white/50 rounded-2xl p-6 min-w-30 h-fit role-card">
+              <h3>{role.data.title}</h3>
+              <p>{role.data.brief}</p>
+              <details name="roles">
+                <summary class="[&::marker]:content-[''] mx-auto px-6 py-2 pt-3.5 mt-6 bg-white w-fit rounded-full border-bdt-blue border-2 cursor-pointer select-none text-sky-700 font-serif text-xl font-bold">
+                  <span class="show-more">Show more</span>
+                  <span class="show-less hidden">Show less</span>
+                </summary>
+                <div class="prose py-6 prose-li:text-black prose-li:marker:text-black">
+                  <Content />
+                </div>
+              </details>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</section>
 
 <style>
   details[open] .show-more {
@@ -45,14 +47,15 @@ const roles = await getCollection("roles");
 </style>
 
 <script>
-  document.querySelectorAll<HTMLDetailsElement>(".role-card details").forEach((details) => {
-    details.addEventListener("toggle", () => {
-      if (details.open) {
-        details.closest(".role-card")?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }
+  document
+    .querySelectorAll<HTMLDetailsElement>(".role-card details")
+    .forEach((details) => {
+      details.addEventListener("toggle", () => {
+        if (details.open) {
+          details.closest(".role-card")?.scrollIntoView({
+            block: "start",
+          });
+        }
+      });
     });
-  });
 </script>
