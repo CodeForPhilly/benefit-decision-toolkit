@@ -12,7 +12,7 @@ const roles = await getCollection("roles");
         roles.map(async (role) => {
           const { Content } = await render(role);
           return (
-            <li class=" bg-white/50 rounded-2xl p-6 min-w-30 h-fit role-card">
+            <li class=" bg-white/50 rounded-2xl p-6 min-w-30 h-fit role-card flex flex-col gap-3">
               <h3>{role.data.title}</h3>
               <p>{role.data.brief}</p>
               <details name="roles">
