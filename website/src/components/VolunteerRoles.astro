@@ -5,14 +5,14 @@ const roles = await getCollection("roles");
 ---
 
 <section id="volunteer-roles" class="bg-bdt-blue/50">
-  <div class="flex flex-col gap-6 py-12 px-6 max-w-[130ch] mx-auto">
+  <div class="flex flex-col gap-6 py-12 sm:px-6 px-3 max-w-[130ch] mx-auto">
     <h2>Volunteer Roles</h2>
-    <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 sm:gap-6 gap-4">
       {
         roles.map(async (role) => {
           const { Content } = await render(role);
           return (
-            <li class=" bg-white/50 rounded-2xl p-6 min-w-30 role-card flex flex-col gap-3 justify-between">
+            <li class=" bg-white/50 rounded-2xl sm:p-6 px-3 py-4 min-w-30 role-card flex flex-col gap-3 justify-between">
               <div class="flex flex-col gap-3">
                 <h3>{role.data.title}</h3>
                 <p>{role.data.brief}</p>
