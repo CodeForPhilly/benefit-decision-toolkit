@@ -43,6 +43,10 @@ const roles = await getCollection("roles");
     display: inline;
   }
 
+  .role-card {
+    scroll-margin-top: 1.5rem;
+  }
+
   .role-card:has(details[open]) {
     grid-column: 1 / -1;
   }
