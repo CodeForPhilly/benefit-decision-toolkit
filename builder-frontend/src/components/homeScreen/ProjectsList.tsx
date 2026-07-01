@@ -108,6 +108,7 @@ export default function ProjectsList() {
           build custom checks that meet your specific needs.
         </div>
         <button
+          data-testid="create-new-screener-button"
           onClick={() => setIsNewScreenerModalVisible(true)}
           class="
                 mt-2 px-4 py-2 w-fit cursor-pointer bg-blue-500
