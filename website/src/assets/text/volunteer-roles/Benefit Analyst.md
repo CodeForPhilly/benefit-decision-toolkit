@@ -1,11 +1,11 @@
 ---
 title: Benefit Analyst (Program Rule Translation)
-brief: Expert in how benefit eligibility rules are written, documented, and applied.
+brief: Apply your understanding of benefit rules to the design and development of our project.
 ---
 
 **Role Description:**
 
-Expert in how benefit eligibility rules are written, documented, and applied. Help create clear patterns and documentation so that the Benefit Toolbox can handle the vast diversity of rules across programs.
+Apply your understanding of benefit rules to the design and development of our project. Help create clear patterns and documentation so that the Benefit Toolbox can handle the vast diversity of rules across programs.
 
 **Key Responsibilities:**
 
