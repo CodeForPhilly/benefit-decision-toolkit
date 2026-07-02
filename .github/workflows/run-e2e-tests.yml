@@ -86,7 +86,7 @@ jobs:
         working-directory: e2e
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: DEBUG=pw:install npx --no-install playwright install --with-deps chromium
         working-directory: e2e
 
       # 3) Run App + E2E Test #
