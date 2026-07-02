@@ -21,12 +21,12 @@ import { Image } from "astro:assets";
 <section id="team">
   <div class="max-w-[130ch] mx-auto py-12 px-3">
     <h2 class="mb-6">Meet The Team</h2>
-    <ul class="flex flex-wrap gap-x-6 gap-y-12 justify-center">
+    <ul class="flex flex-wrap gap-x-9 sm:gap-x-6 sm:gap-y-12 gap-y-9 justify-center">
       {
         teamSorted.map(async (teamMember) => {
           return (
-            <li class="w-60">
-              <div class="text-center flex flex-col gap-3">
+            <li class="sm:w-60 w-30">
+              <div class="text-center flex flex-col sm:gap-3">
                 <Image
                   src={teamMember.data.photo}
                   alt={teamMember.data.photoAlt}
