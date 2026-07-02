@@ -78,6 +78,7 @@ export default function Publish({ project, refetchProject }) {
             <Button
               variant="secondary"
               id="publish-screener-button"
+              data-testid="publish-screener-button"
               onClick={handlePublish}
               disabled={isLoading()}
             >

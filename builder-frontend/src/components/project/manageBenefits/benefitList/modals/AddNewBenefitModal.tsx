@@ -59,6 +59,7 @@ const AddNewBenefitModal = (
           <div
             class={"btn-default bg-sky-600 text-white " + addButtonClasses()}
             id="new-benefit-submit"
+            data-testid="submit-new-benefit-button"
             onClick={async () => {
               if (isAddDisabled()) {
                 console.log("Please fill in all fields.");

@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+
+# Run the Playwright e2e suite against the local dev stack.
+#
+# This script temporarily replaces root emulator-data with the e2e fixture data
+# and restores the previous emulator-data directory before exiting.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+BACKUP_DIR=""
+SERVICES_STARTED=0
+
+cd "$PROJECT_ROOT"
+
+cleanup() {
+  local exit_code=$?
+
+  if [ "$SERVICES_STARTED" -eq 1 ]; then
+    devbox services stop || true
+  fi
+
+  rm -rf emulator-data
+  if [ -n "$BACKUP_DIR" ] && [ -d "$BACKUP_DIR/emulator-data" ]; then
+    mv "$BACKUP_DIR/emulator-data" emulator-data
+    rmdir "$BACKUP_DIR" 2>/dev/null || true
+  fi
+
+  exit "$exit_code"
+}
+
+trap cleanup EXIT
+
+ensure_env_file() {
+  local target="$1"
+  local example="$2"
+
+  if [ ! -f "$target" ]; then
+    cp "$example" "$target"
+  fi
+}
+
+wait_for_url() {
+  local name="$1"
+  local url="$2"
+  local max_attempts="${3:-90}"
+  local attempt=1
+
+  echo "Waiting for $name at $url"
+  while [ "$attempt" -le "$max_attempts" ]; do
+    if curl --silent --show-error --output /dev/null --max-time 2 "$url"; then
+      echo "$name is ready"
+      return 0
+    fi
+
+    sleep 1
+    attempt=$((attempt + 1))
+  done
+
+  echo "Timed out waiting for $name at $url" >&2
+  return 1
+}
+
+if ! command -v devbox >/dev/null 2>&1; then
+  echo "devbox is required. Install it with bin/install-devbox first." >&2
+  exit 1
+fi
+
+ensure_env_file ".env" ".env.example"
+ensure_env_file "builder-frontend/.env" "builder-frontend/.env.example"
+ensure_env_file "builder-api/.env" "builder-api/.env.example"
+ensure_env_file "library-api/.env" "library-api/.env.example"
+
+devbox run install-builder-frontend-ci
+
+devbox services stop || true
+
+if [ -d emulator-data ]; then
+  BACKUP_DIR="$(mktemp -d)"
+  mv emulator-data "$BACKUP_DIR/emulator-data"
+fi
+
+cp -R e2e/e2e-emulator-data emulator-data
+
+devbox services up -b
+SERVICES_STARTED=1
+
+wait_for_url "Firestore emulator" "http://localhost:8080/"
+wait_for_url "Storage emulator" "http://localhost:9199/"
+wait_for_url "Auth emulator" "http://localhost:9099/"
+wait_for_url "Library API" "http://localhost:8083/"
+wait_for_url "builder frontend" "http://localhost:5173/"
+
+(
+  cd e2e
+  npm ci
+  npx playwright install
+  npx playwright test "$@"
+)

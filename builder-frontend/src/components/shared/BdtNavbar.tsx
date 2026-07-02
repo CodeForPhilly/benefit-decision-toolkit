@@ -24,6 +24,7 @@ const BdtNavbar = ({ navProps }: { navProps: Accessor<NavbarProps> }) => {
       </Show>
       {navProps().tabDefs.map((tab) => (
         <button
+          data-testid={`project-tab-${tab.key}`}
           class={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
             navProps().activeTabKey() === tab.key
               ? "border-b border-gray-700 text-gray-700 hover:bg-gray-200"

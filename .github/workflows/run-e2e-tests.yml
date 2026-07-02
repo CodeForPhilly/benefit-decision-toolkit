@@ -81,25 +81,44 @@ jobs:
           rm -rf emulator-data
           cp -r e2e/e2e-emulator-data emulator-data
 
-      # 3) Run App + E2E Test #
-      - name: Run all Devbox services
-        run: devbox services up -b
-
       - name: Install Playwright dependencies
         run: npm ci
         working-directory: e2e
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: DEBUG=pw:install npx --no-install playwright install --with-deps chromium
         working-directory: e2e
 
+      # 3) Run App + E2E Test #
+      - name: Run all Devbox services
+        run: devbox services up -b
+
+      - name: Show service logs
+        if: always()
+        run: |
+          sleep 5
+          ls -la logs || true
+          tail -n 80 logs/firebase-emulators.log || true
+          tail -n 80 logs/library-api.log || true
+          tail -n 80 logs/sync-library-metadata.log || true
+          tail -n 80 logs/builder-api.log || true
+          tail -n 80 logs/builder-frontend.log || true
+
       - name: Wait for App to be available
-        uses: nev7n/wait_for_response@v1
-        with:
-          url: "http://localhost:5173/"
-          responseCode: 200
-          timeout: 90000
-          interval: 1000
+        run: |
+          timeout 90 bash -c '
+            until curl --fail --silent --show-error http://127.0.0.1:5173/ > /dev/null; do
+              echo "Waiting for frontend..."
+              sleep 1
+            done
+          '
+      # - name: Wait for App to be available
+      #   uses: nev7n/wait_for_response@v1
+      #   with:
+      #     url: "http://127.0.0.1:5173/"
+      #     responseCode: 200
+      #     timeout: 90000
+      #     interval: 1000
 
       - name: Run Playwright tests
         run: npx playwright test
