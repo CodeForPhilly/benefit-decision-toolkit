@@ -81,10 +81,6 @@ jobs:
           rm -rf emulator-data
           cp -r e2e/e2e-emulator-data emulator-data
 
-      # 3) Run App + E2E Test #
-      - name: Run all Devbox services
-        run: devbox services up -b
-
       - name: Install Playwright dependencies
         run: npm ci
         working-directory: e2e
@@ -92,6 +88,10 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
         working-directory: e2e
+
+      # 3) Run App + E2E Test #
+      - name: Run all Devbox services
+        run: devbox services up -b
 
       - name: Wait for App to be available
         uses: nev7n/wait_for_response@v1
