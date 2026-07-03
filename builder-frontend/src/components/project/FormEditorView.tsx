@@ -51,7 +51,7 @@ function FormEditorView({ formSchema, setFormSchema }) {
   let emptySchema = {
     components: [],
     exporter: { name: "form-js (https://demo.bpmn.io)", version: "1.15.0" },
-    id: "BDT Form",
+    id: "BDT_Form",
     schemaVersion: 18,
     type: "default",
   };

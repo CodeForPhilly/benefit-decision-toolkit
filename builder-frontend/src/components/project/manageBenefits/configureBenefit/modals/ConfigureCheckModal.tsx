@@ -1,4 +1,4 @@
-import { Accessor, For, createSignal } from "solid-js";
+import { Accessor, For, Show, createSignal } from "solid-js";
 import { createStore, SetStoreFunction } from "solid-js/store";
 
 import { titleCase } from "@/utils/title_case";
@@ -7,7 +7,6 @@ import type {
   CheckConfig,
   ParameterDefinition,
   ParameterValues,
-  BooleanParameter,
 } from "@/types";
 
 const ConfigureCheckModal = ({
@@ -66,6 +65,12 @@ const ConfigureCheckModal = ({
                           setTempCheck={setTempCheck}
                           parameter={() => parameter}
                         />
+                        <Show when={usesAsOfDateDefault(checkConfig(), parameter)}>
+                          <div class="mt-1 text-sm text-gray-500">
+                            Leave blank to use today's date when this screener
+                            is evaluated.
+                          </div>
+                        </Show>
                       </div>
                     </div>
                   );
@@ -88,6 +93,17 @@ const ConfigureCheckModal = ({
         </div>
       </div>
     </div>
+  );
+};
+
+const usesAsOfDateDefault = (
+  checkConfig: CheckConfig,
+  parameter: ParameterDefinition
+) => {
+  return (
+    !!checkConfig.evaluationUrl &&
+    parameter.key === "asOfDate" &&
+    parameter.type === "date"
   );
 };
 
@@ -125,7 +141,7 @@ const ParameterInput = ({
     return (
       <ParameterBooleanInput
         onParameterChange={onParameterChange}
-        parameter={parameter as Accessor<BooleanParameter>}
+        parameter={parameter}
         currentValue={() => tempCheck().parameters[parameterKey()]}
       />
     );
@@ -198,7 +214,7 @@ const ParameterBooleanInput = ({
   currentValue,
 }: {
   onParameterChange: (value: any) => void;
-  parameter: Accessor<BooleanParameter>;
+  parameter: Accessor<ParameterDefinition>;
   currentValue: Accessor<any>;
 }) => {
   return (

@@ -22,6 +22,7 @@ import org.acme.persistence.StorageService;
 import org.acme.service.DmnService;
 import org.acme.service.FormDataTransformer;
 import org.acme.service.LibraryApiService;
+import org.acme.service.LibraryApiService.LibraryCheckEvaluation;
 
 import java.util.*;
 
@@ -136,8 +137,15 @@ public class DecisionResource {
             int checkNum = 0;
             for (CheckConfig checkConfig : benefit.getChecks()) {
                 EvaluationResult evaluationResult;
+                Map<String, Object> effectiveParameters = checkConfig.getParameters() != null
+                    ? new HashMap<>(checkConfig.getParameters())
+                    : new HashMap<>();
+                List<String> defaultedParameters = List.of();
                 if (isLibraryCheck(checkConfig)){
-                    evaluationResult = libraryApi.evaluateCheck(checkConfig, formData);
+                    LibraryCheckEvaluation libraryCheckEvaluation = libraryApi.evaluateCheck(checkConfig, formData);
+                    evaluationResult = libraryCheckEvaluation.result();
+                    effectiveParameters = libraryCheckEvaluation.effectiveParameters();
+                    defaultedParameters = libraryCheckEvaluation.defaultedParameters();
                 } else {
                     Map<String, Object> customFormValues = (Map<String, Object>) formData.get("custom");
                     if (customFormValues == null) {
@@ -159,6 +167,8 @@ public class DecisionResource {
                 checkResultMap.put("module", checkConfig.getCheckModule() != null ? checkConfig.getCheckModule() : "");
                 checkResultMap.put("version", checkConfig.getCheckVersion() != null ? checkConfig.getCheckVersion() : "");
                 checkResultMap.put("parameters", checkConfig.getParameters() != null ? checkConfig.getParameters() : Map.of());
+                checkResultMap.put("effectiveParameters", effectiveParameters);
+                checkResultMap.put("defaultedParameters", defaultedParameters);
                 checkResults.put(uniqueCheckKey, checkResultMap);
                 checkNum += 1;
             }

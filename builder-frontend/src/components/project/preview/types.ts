@@ -18,6 +18,8 @@ interface CheckResult {
   module: string;
   version: string;
   parameters: ParameterValues;
+  effectiveParameters?: ParameterValues;
+  defaultedParameters?: string[];
 }
 type OptionalBoolean = "TRUE" | "FALSE" | "UNABLE_TO_DETERMINE";
 

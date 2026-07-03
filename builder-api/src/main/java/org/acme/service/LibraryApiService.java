@@ -18,6 +18,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,18 @@ import java.util.Optional;
 @ApplicationScoped
 public class LibraryApiService {
     private static final String DEFAULT_LIBRARY_API_URL = "http://localhost:8083";
+    private static final String AS_OF_DATE_PARAMETER = "asOfDate";
+
+    public record LibraryCheckEvaluation(
+        EvaluationResult result,
+        Map<String, Object> effectiveParameters,
+        List<String> defaultedParameters
+    ) {}
+
+    record EffectiveParameters(
+        Map<String, Object> parameters,
+        List<String> defaultedParameters
+    ) {}
 
     @Inject
     private StorageService storageService;
@@ -100,12 +114,13 @@ public class LibraryApiService {
          return Optional.of(matches.getFirst());
     }
 
-    public EvaluationResult evaluateCheck(CheckConfig checkConfig, Map<String, Object> inputs) throws JsonProcessingException {
+    public LibraryCheckEvaluation evaluateCheck(CheckConfig checkConfig, Map<String, Object> inputs) throws JsonProcessingException {
 
         // TODO: Check that checkConfig has required attributes and handle null values
+        EffectiveParameters effectiveParameters = buildEffectiveParameters(checkConfig);
 
         Map<String, Object> data = new HashMap<>();
-        data.put("parameters", checkConfig.getParameters());
+        data.put("parameters", effectiveParameters.parameters());
         data.put("situation", inputs);
         ObjectMapper mapper = new ObjectMapper();
         String bodyJson = mapper.writeValueAsString(data);
@@ -139,7 +154,11 @@ public class LibraryApiService {
             if (statusCode != 200){
                 Log.error("Error evaluating library check " + checkConfig.getCheckId());
                 Log.error("Inputs and parameters that caused error:" + bodyJson);
-                return EvaluationResult.UNABLE_TO_DETERMINE;
+                return new LibraryCheckEvaluation(
+                    EvaluationResult.UNABLE_TO_DETERMINE,
+                    effectiveParameters.parameters(),
+                    effectiveParameters.defaultedParameters()
+                );
             }
             String body = response.body();
             Map<String, Object> responseBody = mapper.readValue(
@@ -150,13 +169,52 @@ public class LibraryApiService {
             // TODO: Need a safer way to validate the returned data is in the right format
             Object result = responseBody.get("checkResult");
             if (result == null) {
-                return EvaluationResult.UNABLE_TO_DETERMINE;
+                return new LibraryCheckEvaluation(
+                    EvaluationResult.UNABLE_TO_DETERMINE,
+                    effectiveParameters.parameters(),
+                    effectiveParameters.defaultedParameters()
+                );
             }
-            return EvaluationResult.fromStringIgnoreCase(result.toString());
+            return new LibraryCheckEvaluation(
+                EvaluationResult.fromStringIgnoreCase(result.toString()),
+                effectiveParameters.parameters(),
+                effectiveParameters.defaultedParameters()
+            );
         }
         catch (Exception e){
             Log.error(e);
-            return EvaluationResult.UNABLE_TO_DETERMINE;
+            return new LibraryCheckEvaluation(
+                EvaluationResult.UNABLE_TO_DETERMINE,
+                effectiveParameters.parameters(),
+                effectiveParameters.defaultedParameters()
+            );
         }
+    }
+
+    EffectiveParameters buildEffectiveParameters(CheckConfig checkConfig) {
+        Map<String, Object> configuredParameters = checkConfig.getParameters() != null
+            ? checkConfig.getParameters()
+            : Map.of();
+        Map<String, Object> parameters = new HashMap<>(configuredParameters);
+        List<String> defaultedParameters = new ArrayList<>();
+
+        if (declaresAsOfDateParameter(checkConfig) && isMissingParameter(parameters.get(AS_OF_DATE_PARAMETER))) {
+            parameters.put(AS_OF_DATE_PARAMETER, LocalDate.now().toString());
+            defaultedParameters.add(AS_OF_DATE_PARAMETER);
+        }
+
+        return new EffectiveParameters(parameters, defaultedParameters);
+    }
+
+    private boolean declaresAsOfDateParameter(CheckConfig checkConfig) {
+        if (checkConfig.getParameterDefinitions() == null) {
+            return false;
+        }
+        return checkConfig.getParameterDefinitions().stream()
+            .anyMatch(parameterDefinition -> AS_OF_DATE_PARAMETER.equals(parameterDefinition.getKey()));
+    }
+
+    private boolean isMissingParameter(Object value) {
+        return value == null || (value instanceof String && ((String) value).isBlank());
     }
 }

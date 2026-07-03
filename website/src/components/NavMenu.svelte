@@ -64,7 +64,7 @@
       {#each headerLinks as link}
         <li>
           <a
-            class="text-white text-3xl font-bold font-serif"
+            class="text-white text-3xl font-serif"
             href={link.path}
             onclick={toggleMenu}
           >

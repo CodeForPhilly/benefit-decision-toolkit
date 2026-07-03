@@ -109,6 +109,8 @@ export interface CheckResult {
   module: string;
   version: string;
   parameters: ParameterValues;
+  effectiveParameters?: ParameterValues;
+  defaultedParameters?: string[];
 }
 export type OptionalBoolean = "TRUE" | "FALSE" | "UNABLE_TO_DETERMINE";
 

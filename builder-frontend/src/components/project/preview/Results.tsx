@@ -7,9 +7,17 @@ import checkIcon from "../../../assets/images/checkIcon.svg";
 import questionIcon from "../../../assets/images/questionIcon.svg";
 import xIcon from "../../../assets/images/xIcon.svg";
 
-function formatParameters(params: ParameterValues): string {
+function formatParameters(
+  params: ParameterValues,
+  defaultedParameters: string[] = []
+): string {
   return Object.entries(params)
-    .map(([key, value]) => `${key}=${value}`)
+    .map(([key, value]) => {
+      const defaultedLabel = defaultedParameters.includes(key)
+        ? " (defaulted to today's date)"
+        : "";
+      return `${key}=${value}${defaultedLabel}`;
+    })
     .join(", ");
 }
 
@@ -119,9 +127,19 @@ export default function Results({
                                       </span>
                                     </div>
                                   </Show>
-                                  <Show when={check.parameters && Object.keys(check.parameters).length > 0}>
+                                  <Show
+                                    when={
+                                      (check.effectiveParameters &&
+                                        Object.keys(check.effectiveParameters).length > 0) ||
+                                      (check.parameters &&
+                                        Object.keys(check.parameters).length > 0)
+                                    }
+                                  >
                                     <div class="text-gray-500 text-sm">
-                                      {formatParameters(check.parameters)}
+                                      {formatParameters(
+                                        check.effectiveParameters ?? check.parameters,
+                                        check.defaultedParameters
+                                      )}
                                     </div>
                                   </Show>
                                 </div>

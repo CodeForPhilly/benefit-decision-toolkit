@@ -61,6 +61,82 @@ body {
   display: none;
 }
 
+.fjs-form-field.fjs-form-field-text :where(h1),
+.fjs-form-field.fjs-form-field-html :where(h1) {
+  display: block;
+  margin: 0.67em 0;
+  font-size: 2em;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.fjs-form-field.fjs-form-field-text :where(h2),
+.fjs-form-field.fjs-form-field-html :where(h2) {
+  display: block;
+  margin: 0.83em 0;
+  font-size: 1.5em;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.fjs-form-field.fjs-form-field-text :where(h3),
+.fjs-form-field.fjs-form-field-html :where(h3) {
+  display: block;
+  margin: 1em 0;
+  font-size: 1.17em;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.fjs-form-field.fjs-form-field-text :where(h4),
+.fjs-form-field.fjs-form-field-html :where(h4) {
+  display: block;
+  margin: 1.33em 0;
+  font-size: 1em;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.fjs-form-field.fjs-form-field-text :where(h5),
+.fjs-form-field.fjs-form-field-html :where(h5) {
+  display: block;
+  margin: 1.67em 0;
+  font-size: 0.83em;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.fjs-form-field.fjs-form-field-text :where(h6),
+.fjs-form-field.fjs-form-field-html :where(h6) {
+  display: block;
+  margin: 2.33em 0;
+  font-size: 0.67em;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.fjs-form-field.fjs-form-field-text :where(ul),
+.fjs-form-field.fjs-form-field-html :where(ul) {
+  display: block;
+  margin: 1em 0;
+  padding-left: 1.5em;
+  list-style-type: disc;
+}
+
+.fjs-form-field.fjs-form-field-text :where(ol),
+.fjs-form-field.fjs-form-field-html :where(ol) {
+  display: block;
+  margin: 1em 0;
+  padding-left: 1.5em;
+  list-style-type: decimal;
+}
+
+.fjs-form-field.fjs-form-field-text :where(li),
+.fjs-form-field.fjs-form-field-html :where(li) {
+  display: list-item;
+  margin: 0.25em 0;
+}
+
 body {
   font-family: "IBM Plex Sans", sans-serif;
 }
