@@ -63,7 +63,7 @@ const createFormWithCheckbox = async (page: Page) => {
     );
     await checkboxComponentLoc.waitFor({ state: "visible" });
     await checkboxComponentLoc.dragTo(
-      page.locator('[data-id="BDT Form"].fjs-drop-container-vertical'),
+      page.locator('[data-id="BDT_Form"].fjs-drop-container-vertical'),
     );
 
     await page

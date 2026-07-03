@@ -1,7 +1,7 @@
-import { TEST_USER_ID, TEST_SCREENER_ID, TEST_BENEFIT_ID } from './config';
-import { createDocument, createSubcollectionDocument } from './firestoreClient';
-import { uploadObject } from './storageClient';
-import { getVersion as getLibraryApiVersion } from './libraryApi';
+import { TEST_USER_ID, TEST_SCREENER_ID, TEST_BENEFIT_ID } from "./config";
+import { createDocument, createSubcollectionDocument } from "./firestoreClient";
+import { uploadObject } from "./storageClient";
+import { getVersion as getLibraryApiVersion } from "./libraryApi";
 
 /** Return type for seedScreener - contains the created screener ID */
 export interface SeededScreener {
@@ -30,8 +30,10 @@ export interface SeededScreenerWithForm extends SeededBenefitWithCheck {
  * @param name - The screener name (default: "Test Screener")
  * @returns The seeded screener ID
  */
-export async function seedScreener(name="Test Screener"): Promise<SeededScreener> {
-  await createDocument('workingScreener', TEST_SCREENER_ID, {
+export async function seedScreener(
+  name = "Test Screener",
+): Promise<SeededScreener> {
+  await createDocument("workingScreener", TEST_SCREENER_ID, {
     screenerName: name,
     ownerId: TEST_USER_ID,
     benefits: [],
@@ -49,12 +51,12 @@ export async function seedScreener(name="Test Screener"): Promise<SeededScreener
  * @returns The seeded screener and benefit IDs
  */
 export async function seedScreenerWithBenefit(
-  screenerName="Test Screener",
-  benefitName="Test Benefit",
-  benefitDescription="Description"
+  screenerName = "Test Screener",
+  benefitName = "Test Benefit",
+  benefitDescription = "Description",
 ): Promise<SeededBenefit> {
   // Create screener with benefit detail in the inline array
-  await createDocument('workingScreener', TEST_SCREENER_ID, {
+  await createDocument("workingScreener", TEST_SCREENER_ID, {
     screenerName,
     ownerId: TEST_USER_ID,
     benefits: [
@@ -62,15 +64,15 @@ export async function seedScreenerWithBenefit(
         id: TEST_BENEFIT_ID,
         name: benefitName,
         description: benefitDescription,
-      }
+      },
     ],
   });
 
   // Create the full benefit in the subcollection
   await createSubcollectionDocument(
-    'workingScreener',
+    "workingScreener",
     TEST_SCREENER_ID,
-    'customBenefit',
+    "customBenefit",
     TEST_BENEFIT_ID,
     {
       id: TEST_BENEFIT_ID,
@@ -78,7 +80,7 @@ export async function seedScreenerWithBenefit(
       name: benefitName,
       description: benefitDescription,
       checks: [],
-    }
+    },
   );
 
   return { screenerId: TEST_SCREENER_ID, benefitId: TEST_BENEFIT_ID };
@@ -93,15 +95,15 @@ export async function seedScreenerWithBenefit(
  * @returns The seeded screener, benefit, and check IDs
  */
 export async function seedScreenerWithConfiguredBenefit(
-  screenerName="Test Screener",
-  benefitName="Test Benefit",
-  benefitDescription="Description"
+  screenerName = "Test Screener",
+  benefitName = "Test Benefit",
+  benefitDescription = "Description",
 ): Promise<SeededBenefitWithCheck> {
   const libraryVersion = await getLibraryApiVersion();
   const checkId = `L-residence-owner-occupant-${libraryVersion}`;
 
   // Create screener with benefit detail
-  await createDocument('workingScreener', TEST_SCREENER_ID, {
+  await createDocument("workingScreener", TEST_SCREENER_ID, {
     screenerName,
     ownerId: TEST_USER_ID,
     benefits: [
@@ -109,15 +111,15 @@ export async function seedScreenerWithConfiguredBenefit(
         id: TEST_BENEFIT_ID,
         name: benefitName,
         description: benefitDescription,
-      }
+      },
     ],
   });
 
   // Create benefit with the owner-occupant check configured
   await createSubcollectionDocument(
-    'workingScreener',
+    "workingScreener",
     TEST_SCREENER_ID,
-    'customBenefit',
+    "customBenefit",
     TEST_BENEFIT_ID,
     {
       id: TEST_BENEFIT_ID,
@@ -137,16 +139,16 @@ export async function seedScreenerWithConfiguredBenefit(
               simpleChecks: {
                 type: "object",
                 properties: {
-                  ownerOccupant: { type: "boolean" }
-                }
-              }
-            }
+                  ownerOccupant: { type: "boolean" },
+                },
+              },
+            },
           },
           parameterDefinitions: [],
           parameters: {},
-        }
+        },
       ],
-    }
+    },
   );
 
   return { screenerId: TEST_SCREENER_ID, benefitId: TEST_BENEFIT_ID, checkId };
@@ -161,33 +163,34 @@ export async function seedScreenerWithConfiguredBenefit(
  * @returns The seeded screener, benefit, check IDs, and form storage path
  */
 export async function seedScreenerWithForm(
-  screenerName="Test Screener",
-  benefitName="Test Benefit",
-  benefitDescription="Description"
+  screenerName = "Test Screener",
+  benefitName = "Test Benefit",
+  benefitDescription = "Description",
 ): Promise<SeededScreenerWithForm> {
-  const { screenerId, benefitId, checkId } = await seedScreenerWithConfiguredBenefit(
-    screenerName,
-    benefitName,
-    benefitDescription
-  );
+  const { screenerId, benefitId, checkId } =
+    await seedScreenerWithConfiguredBenefit(
+      screenerName,
+      benefitName,
+      benefitDescription,
+    );
 
   // Form schema with a checkbox bound to simpleChecks.ownerOccupant
   const formSchema = {
     schemaVersion: 18,
     exporter: {
       name: "@bpmn-io/form-js",
-      version: "1.11.1"
+      version: "1.11.1",
     },
     components: [
       {
         label: "Is owner occupant?",
         type: "checkbox",
         id: "Checkbox_1",
-        key: "simpleChecks.ownerOccupant"
-      }
+        key: "simpleChecks.ownerOccupant",
+      },
     ],
     type: "default",
-    id: "BDT Form"
+    id: "BDT_Form",
   };
 
   const formPath = `form/working/${TEST_SCREENER_ID}.json`;
