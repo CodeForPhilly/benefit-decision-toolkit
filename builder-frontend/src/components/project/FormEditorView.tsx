@@ -196,6 +196,7 @@ function FormEditorView({ formSchema, setFormSchema }) {
         <Switch>
           <Match when={isUnsaved()}>
             <button
+              data-testid="form-editor-save-button"
               onClick={handleSave}
               class="btn-default btn-yellow shadow-[0_0_10px_rgba(0,0,0,0.4)]"
             >
@@ -204,6 +205,7 @@ function FormEditorView({ formSchema, setFormSchema }) {
           </Match>
           <Match when={isSaving()}>
             <button
+              data-testid="form-editor-save-button"
               onClick={handleSave}
               class="btn-default btn-gray cursor-not-allowed shadow-[0_0_10px_rgba(0,0,0,0.4)]"
             >
@@ -212,6 +214,7 @@ function FormEditorView({ formSchema, setFormSchema }) {
           </Match>
           <Match when={!isUnsaved() && !isSaving()}>
             <button
+              data-testid="form-editor-save-button"
               onClick={handleSave}
               class="btn-default btn-blue shadow-[0_0_10px_rgba(0,0,0,0.4)]"
             >

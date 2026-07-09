@@ -44,6 +44,7 @@ export default function NewScreenerForm({}) {
           type="submit"
           variant="secondary"
           id="new-screener-submit"
+          data-testid="submit-new-screener-button"
           disabled={isLoading()}
         >
           Create

@@ -56,6 +56,7 @@ const BenefitList = ({
         benefit can have associated eligibility checks.
       </div>
       <div
+        data-testid="create-new-benefit-button"
         class="btn-default btn-blue mb-3 mr-1"
         onClick={() => {
           setAddingNewBenefit(true);
@@ -154,6 +155,7 @@ const BenefitCard = ({
           class="p-4 flex justify-end space-x-2"
         >
           <div
+            data-testid={`edit-benefit-${benefit.id}`}
             class="btn-default btn-gray"
             onClick={() => {
               setBenefitIdToConfigure(benefit.id);
