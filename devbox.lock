@@ -97,6 +97,10 @@
         }
       }
     },
+    "github:NixOS/nixpkgs/fef9403a3e4d31b0a23f0bacebbec52c248fbb51#playwright-driver.browsers": {
+      "last_modified": "1970-01-01T00:00:00Z",
+      "resolved": "github:NixOS/nixpkgs/fef9403a3e4d31b0a23f0bacebbec52c248fbb51#playwright-driver.browsers"
+    },
     "github:NixOS/nixpkgs/nixpkgs-unstable": {
       "last_modified": "2026-02-08T07:51:33Z",
       "resolved": "github:NixOS/nixpkgs/fef9403a3e4d31b0a23f0bacebbec52c248fbb51?lastModified=1770537093&narHash=sha256-pF1quXG5wsgtyuPOHcLfYg%2Fft%2FQMr8NnX0i6tW2187s%3D"
@@ -235,7 +239,7 @@
     },
     "nodejs@22": {
       "last_modified": "2026-02-06T12:24:04Z",
-      "plugin_version": "0.0.2",
+      "plugin_version": "0.0.4",
       "resolved": "github:NixOS/nixpkgs/ae67888ff7ef9dff69b3cf0cc0fbfbcd3a722abe#nodejs_22",
       "source": "devbox-search",
       "version": "22.22.0",
@@ -448,7 +452,7 @@
     },
     "python@3.14": {
       "last_modified": "2026-01-23T17:20:52Z",
-      "plugin_version": "0.0.4",
+      "plugin_version": "0.0.5",
       "resolved": "github:NixOS/nixpkgs/a1bab9e494f5f4939442a57a58d0449a109593fe#python314",
       "source": "devbox-search",
       "version": "3.14.2",

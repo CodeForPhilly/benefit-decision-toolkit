@@ -335,6 +335,39 @@ for required_command in devbox python3 node npm bru; do
   fi
 done
 
+if [ "${DEVBOX_SHELL_ENABLED:-}" != "1" ]; then
+  echo "This script must run inside this project's Devbox shell (devbox shell / devbox run), not just with devbox on PATH." >&2
+  exit 1
+fi
+
+# Chromium and its OS-level shared libraries come from the playwright-driver.browsers Nix
+# package (see devbox.json) rather than `playwright install --with-deps`, which shells out to
+# apt-get under sudo and blocks non-interactive setup on a password prompt. The pinned nixpkgs
+# revision must keep providing a playwright-driver version matching @playwright/test in
+# e2e/package.json, or Playwright will fail to find the expected browser revision at runtime.
+#
+# Point at this project's own Devbox profile rather than $DEVBOX_PACKAGES_DIR: that env var
+# reflects whichever Devbox profile was last activated in the shell (e.g. a global profile
+# loaded from a developer's shellrc) and isn't reliably repointed at this project by `devbox
+# run`, so it can silently resolve to a profile without our browsers.
+export PLAYWRIGHT_BROWSERS_PATH="$PROJECT_ROOT/.devbox/nix/profile/default"
+export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+export PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=true
+
+found_chromium=0
+for dir in "$PLAYWRIGHT_BROWSERS_PATH"/chromium-*; do
+  if [ -d "$dir" ]; then
+    found_chromium=1
+    break
+  fi
+done
+
+if [ "$found_chromium" -ne 1 ]; then
+  echo "No Playwright chromium browser found under $PLAYWRIGHT_BROWSERS_PATH." >&2
+  echo "Check that playwright-driver.browsers is present in devbox.json and matches the pinned nixpkgs revision." >&2
+  exit 1
+fi
+
 if [ ! -d "$PROJECT_ROOT/e2e/e2e-emulator-data" ]; then
   echo "E2E emulator fixture directory not found: $PROJECT_ROOT/e2e/e2e-emulator-data" >&2
   exit 1
@@ -386,8 +419,6 @@ fi
     echo "The repository-local Playwright executable was not installed by npm ci." >&2
     exit 1
   fi
-
-  ./node_modules/.bin/playwright install --with-deps chromium
 )
 
 open_managed_ports=()
