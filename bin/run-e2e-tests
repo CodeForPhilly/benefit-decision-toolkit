@@ -10,21 +10,266 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 BACKUP_DIR=""
-SERVICES_STARTED=0
+BACKUP_EXPECTED=0
+TEST_DATA_INSTALLED=0
+SERVICES_MAY_BE_RUNNING=0
+MANAGED_APPLICATION_PORTS=(5173 8080 8081 8083 9099 9199)
 
 cd "$PROJECT_ROOT"
 
-cleanup() {
-  local exit_code=$?
+report_recovery_state() {
+  local backup_path=""
 
-  if [ "$SERVICES_STARTED" -eq 1 ]; then
-    devbox services stop || true
+  if [ -n "$BACKUP_DIR" ]; then
+    backup_path="$BACKUP_DIR/emulator-data"
   fi
 
-  rm -rf emulator-data
-  if [ -n "$BACKUP_DIR" ] && [ -d "$BACKUP_DIR/emulator-data" ]; then
-    mv "$BACKUP_DIR/emulator-data" emulator-data
+  echo "E2E cleanup could not safely restore emulator data." >&2
+  if [ -n "$backup_path" ] && [ -e "$backup_path" ]; then
+    echo "Original emulator data backup: $backup_path" >&2
+  else
+    echo "Original emulator data backup is not present." >&2
+  fi
+
+  if [ -e "$PROJECT_ROOT/emulator-data" ] || [ -L "$PROJECT_ROOT/emulator-data" ]; then
+    echo "Current root emulator data remains at: $PROJECT_ROOT/emulator-data" >&2
+  else
+    echo "Current root emulator-data path is absent." >&2
+  fi
+
+  echo "Do not rerun the E2E runner until this recovery state is resolved." >&2
+}
+
+port_has_listener() {
+  local port="$1"
+
+  if [[ ! "$port" =~ ^[0-9]+$ ]] || [ "$port" -lt 1 ] || [ "$port" -gt 65535 ]; then
+    echo "Invalid local port: $port" >&2
+    return 2
+  fi
+
+  python3 - "$port" <<'PY'
+import errno
+import socket
+import sys
+
+port = int(sys.argv[1])
+
+try:
+    with socket.create_connection(("127.0.0.1", port), timeout=0.5):
+        pass
+except ConnectionRefusedError:
+    raise SystemExit(1)
+except socket.timeout as exc:
+    print(
+        f"Timed out while checking local port {port}: {exc}",
+        file=sys.stderr,
+    )
+    raise SystemExit(2)
+except OSError as exc:
+    if exc.errno == errno.ECONNREFUSED:
+        raise SystemExit(1)
+    print(
+        f"Unable to determine whether local port {port} is available: "
+        f"{type(exc).__name__}: {exc}",
+        file=sys.stderr,
+    )
+    raise SystemExit(2)
+
+raise SystemExit(0)
+PY
+}
+
+get_optional_process_compose_port() {
+  local port
+
+  if ! port="$(devbox services pcport 2>/dev/null)"; then
+    return 1
+  fi
+
+  if [[ ! "$port" =~ ^[0-9]+$ ]] || [ "$port" -lt 1 ] || [ "$port" -gt 65535 ]; then
+    echo "Devbox returned an invalid process-compose port: $port" >&2
+    return 2
+  fi
+
+  printf '%s\n' "$port"
+}
+
+wait_for_ports_to_close() {
+  local max_attempts=20
+  local attempt=1
+  local port
+  local port_status
+  local -a open_ports
+
+  while [ "$attempt" -le "$max_attempts" ]; do
+    open_ports=()
+
+    for port in "$@"; do
+      if port_has_listener "$port"; then
+        open_ports+=("$port")
+      else
+        port_status=$?
+        if [ "$port_status" -ne 1 ]; then
+          echo "Unable to confirm that local port $port is closed." >&2
+          return 2
+        fi
+      fi
+    done
+
+    if [ "${#open_ports[@]}" -eq 0 ]; then
+      return 0
+    fi
+
+    if [ "$attempt" -eq "$max_attempts" ]; then
+      echo "Local ports still listening after shutdown: ${open_ports[*]}" >&2
+      return 1
+    fi
+
+    sleep 0.25
+    attempt=$((attempt + 1))
+  done
+}
+
+cleanup() {
+  local exit_code=$?
+  local cleanup_code=0
+  local data_transaction_active=0
+  local restoration_required=0
+  local safe_to_modify_data=1
+  local process_compose_port=""
+  local process_compose_status
+  local port_status
+
+  trap - EXIT
+  set +e
+
+  if [ "$BACKUP_EXPECTED" -eq 1 ]; then
+    restoration_required=1
+  elif [ -n "$BACKUP_DIR" ] && [ -e "$BACKUP_DIR/emulator-data" ]; then
+    restoration_required=1
+  fi
+
+  if [ "$TEST_DATA_INSTALLED" -eq 1 ]; then
+    data_transaction_active=1
+  elif [ "$restoration_required" -eq 1 ]; then
+    data_transaction_active=1
+  fi
+
+  if [ "$SERVICES_MAY_BE_RUNNING" -eq 1 ]; then
+    if process_compose_port="$(get_optional_process_compose_port)"; then
+      if port_has_listener "$process_compose_port"; then
+        if ! devbox services stop; then
+          echo "Failed to stop the E2E service graph during cleanup." >&2
+          cleanup_code=1
+          safe_to_modify_data=0
+        elif ! wait_for_ports_to_close "$process_compose_port" "${MANAGED_APPLICATION_PORTS[@]}"; then
+          echo "Could not confirm complete E2E service graph shutdown during cleanup." >&2
+          cleanup_code=1
+          safe_to_modify_data=0
+        fi
+      else
+        port_status=$?
+        if [ "$port_status" -eq 1 ]; then
+          if ! wait_for_ports_to_close "${MANAGED_APPLICATION_PORTS[@]}"; then
+            echo "Could not confirm that all E2E application services are stopped during cleanup." >&2
+            cleanup_code=1
+            safe_to_modify_data=0
+          fi
+        else
+          cleanup_code=1
+          safe_to_modify_data=0
+        fi
+      fi
+    else
+      process_compose_status=$?
+      if [ "$process_compose_status" -eq 1 ]; then
+        if ! wait_for_ports_to_close "${MANAGED_APPLICATION_PORTS[@]}"; then
+          echo "Could not confirm that all E2E application services are stopped during cleanup." >&2
+          cleanup_code=1
+          safe_to_modify_data=0
+        fi
+      else
+        cleanup_code=1
+        safe_to_modify_data=0
+      fi
+    fi
+  elif [ "$data_transaction_active" -eq 1 ]; then
+    if process_compose_port="$(get_optional_process_compose_port)"; then
+      if ! wait_for_ports_to_close "$process_compose_port" "${MANAGED_APPLICATION_PORTS[@]}"; then
+        echo "Could not confirm that all local service ports are closed before cleanup." >&2
+        cleanup_code=1
+        safe_to_modify_data=0
+      fi
+    else
+      process_compose_status=$?
+      if [ "$process_compose_status" -eq 1 ]; then
+        if ! wait_for_ports_to_close "${MANAGED_APPLICATION_PORTS[@]}"; then
+          echo "Could not confirm that all local service ports are closed before cleanup." >&2
+          cleanup_code=1
+          safe_to_modify_data=0
+        fi
+      else
+        cleanup_code=1
+        safe_to_modify_data=0
+      fi
+    fi
+  fi
+
+  if [ "$safe_to_modify_data" -eq 1 ] && [ "$restoration_required" -eq 1 ]; then
+    if [ -z "$BACKUP_DIR" ] || [ ! -e "$BACKUP_DIR/emulator-data" ]; then
+      echo "Expected original emulator data backup is missing." >&2
+      cleanup_code=1
+      safe_to_modify_data=0
+    fi
+  fi
+
+  if [ "$safe_to_modify_data" -eq 1 ] && [ "$TEST_DATA_INSTALLED" -eq 1 ]; then
+    if ! rm -rf -- "$PROJECT_ROOT/emulator-data"; then
+      echo "Failed to remove E2E emulator data during cleanup." >&2
+      cleanup_code=1
+      safe_to_modify_data=0
+    elif [ -e "$PROJECT_ROOT/emulator-data" ] || [ -L "$PROJECT_ROOT/emulator-data" ]; then
+      echo "E2E emulator data still exists after cleanup removal." >&2
+      cleanup_code=1
+      safe_to_modify_data=0
+    else
+      TEST_DATA_INSTALLED=0
+    fi
+  fi
+
+  if [ "$safe_to_modify_data" -eq 1 ] && [ "$restoration_required" -eq 1 ]; then
+    if [ -z "$BACKUP_DIR" ] || [ ! -e "$BACKUP_DIR/emulator-data" ]; then
+      echo "Expected original emulator data backup is missing." >&2
+      cleanup_code=1
+      safe_to_modify_data=0
+    elif [ -e "$PROJECT_ROOT/emulator-data" ] || [ -L "$PROJECT_ROOT/emulator-data" ]; then
+      echo "Refusing to restore emulator data because the destination already exists." >&2
+      cleanup_code=1
+      safe_to_modify_data=0
+    elif ! mv "$BACKUP_DIR/emulator-data" "$PROJECT_ROOT/emulator-data"; then
+      echo "Failed to restore the original emulator data from $BACKUP_DIR." >&2
+      cleanup_code=1
+      safe_to_modify_data=0
+    elif [ ! -e "$PROJECT_ROOT/emulator-data" ] || [ -e "$BACKUP_DIR/emulator-data" ]; then
+      echo "Emulator data restoration could not be verified." >&2
+      cleanup_code=1
+      safe_to_modify_data=0
+    else
+      BACKUP_EXPECTED=0
+    fi
+  fi
+
+  if [ "$safe_to_modify_data" -eq 0 ]; then
+    report_recovery_state
+  fi
+
+  if [ -n "$BACKUP_DIR" ] && [ -d "$BACKUP_DIR" ]; then
     rmdir "$BACKUP_DIR" 2>/dev/null || true
+  fi
+
+  if [ "$exit_code" -eq 0 ] && [ "$cleanup_code" -ne 0 ]; then
+    exit_code=$cleanup_code
   fi
 
   exit "$exit_code"
@@ -45,25 +290,110 @@ wait_for_url() {
   local name="$1"
   local url="$2"
   local max_attempts="${3:-90}"
-  local attempt=1
 
-  echo "Waiting for $name at $url"
-  while [ "$attempt" -le "$max_attempts" ]; do
-    if curl --silent --show-error --output /dev/null --max-time 2 "$url"; then
-      echo "$name is ready"
-      return 0
-    fi
+  python3 - "$name" "$url" "$max_attempts" <<'PY'
+import sys
+import time
+import urllib.error
+import urllib.request
 
-    sleep 1
-    attempt=$((attempt + 1))
-  done
+name = sys.argv[1]
+url = sys.argv[2]
+max_attempts = int(sys.argv[3])
+last_error = None
 
-  echo "Timed out waiting for $name at $url" >&2
-  return 1
+print(f"Waiting for {name} at {url}")
+
+for attempt in range(1, max_attempts + 1):
+    try:
+        with urllib.request.urlopen(url, timeout=2):
+            pass
+        print(f"{name} is ready")
+        raise SystemExit(0)
+    except urllib.error.HTTPError:
+        print(f"{name} is ready")
+        raise SystemExit(0)
+    except Exception as exc:
+        last_error = exc
+
+    if attempt < max_attempts:
+        time.sleep(1)
+
+message = f"Timed out waiting for {name} at {url}"
+if last_error is not None:
+    message += f": {type(last_error).__name__}: {last_error}"
+
+print(message, file=sys.stderr)
+raise SystemExit(1)
+PY
 }
 
-if ! command -v devbox >/dev/null 2>&1; then
-  echo "devbox is required. Install it with bin/install-devbox first." >&2
+for required_command in devbox python3 node npm bru; do
+  if ! command -v "$required_command" >/dev/null 2>&1; then
+    echo "$required_command is required. Run this script from the Devbox environment." >&2
+    exit 1
+  fi
+done
+
+if [ "${DEVBOX_SHELL_ENABLED:-}" != "1" ]; then
+  echo "This script must run inside this project's Devbox shell (devbox shell / devbox run), not just with devbox on PATH." >&2
+  exit 1
+fi
+
+# Chromium and its OS-level shared libraries come from the playwright-driver.browsers Nix
+# package (see devbox.json) rather than `playwright install --with-deps`, which shells out to
+# apt-get under sudo and blocks non-interactive setup on a password prompt. The pinned nixpkgs
+# revision must keep providing a playwright-driver version matching @playwright/test in
+# e2e/package.json, or Playwright will fail to find the expected browser revision at runtime.
+#
+# Point at this project's own Devbox profile rather than $DEVBOX_PACKAGES_DIR: that env var
+# reflects whichever Devbox profile was last activated in the shell (e.g. a global profile
+# loaded from a developer's shellrc) and isn't reliably repointed at this project by `devbox
+# run`, so it can silently resolve to a profile without our browsers.
+export PLAYWRIGHT_BROWSERS_PATH="$PROJECT_ROOT/.devbox/nix/profile/default"
+export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+export PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=true
+
+found_chromium=0
+for dir in "$PLAYWRIGHT_BROWSERS_PATH"/chromium-*; do
+  if [ -d "$dir" ]; then
+    found_chromium=1
+    break
+  fi
+done
+
+if [ "$found_chromium" -ne 1 ]; then
+  echo "No Playwright chromium browser found under $PLAYWRIGHT_BROWSERS_PATH." >&2
+  echo "Check that playwright-driver.browsers is present in devbox.json and matches the pinned nixpkgs revision." >&2
+  exit 1
+fi
+
+if [ ! -d "$PROJECT_ROOT/e2e/e2e-emulator-data" ]; then
+  echo "E2E emulator fixture directory not found: $PROJECT_ROOT/e2e/e2e-emulator-data" >&2
+  exit 1
+fi
+
+if [ -L "$PROJECT_ROOT/emulator-data" ]; then
+  echo "Refusing to run because $PROJECT_ROOT/emulator-data is a symbolic link." >&2
+  echo "Replace it with a directory or remove it before rerunning." >&2
+  exit 1
+elif [ -e "$PROJECT_ROOT/emulator-data" ] && [ ! -d "$PROJECT_ROOT/emulator-data" ]; then
+  if [ -f "$PROJECT_ROOT/emulator-data" ]; then
+    emulator_data_type="regular file"
+  elif [ -p "$PROJECT_ROOT/emulator-data" ]; then
+    emulator_data_type="named pipe"
+  elif [ -S "$PROJECT_ROOT/emulator-data" ]; then
+    emulator_data_type="socket"
+  elif [ -b "$PROJECT_ROOT/emulator-data" ]; then
+    emulator_data_type="block device"
+  elif [ -c "$PROJECT_ROOT/emulator-data" ]; then
+    emulator_data_type="character device"
+  else
+    emulator_data_type="non-directory path"
+  fi
+
+  echo "Refusing to run because $PROJECT_ROOT/emulator-data is a $emulator_data_type." >&2
+  echo "Replace it with a directory or remove it before rerunning." >&2
   exit 1
 fi
 
@@ -72,29 +402,125 @@ ensure_env_file "builder-frontend/.env" "builder-frontend/.env.example"
 ensure_env_file "builder-api/.env" "builder-api/.env.example"
 ensure_env_file "library-api/.env" "library-api/.env.example"
 
-devbox run install-builder-frontend-ci
-
-devbox services stop || true
-
-if [ -d emulator-data ]; then
-  BACKUP_DIR="$(mktemp -d)"
-  mv emulator-data "$BACKUP_DIR/emulator-data"
+if [ "${DEVBOX_SHELL_ENABLED:-}" = "1" ]; then
+  (
+    cd builder-frontend
+    npm ci
+  )
+else
+  devbox run install-builder-frontend-ci
 fi
 
-cp -R e2e/e2e-emulator-data emulator-data
+(
+  cd e2e
+  npm ci
 
+  if [ ! -x ./node_modules/.bin/playwright ]; then
+    echo "The repository-local Playwright executable was not installed by npm ci." >&2
+    exit 1
+  fi
+)
+
+open_managed_ports=()
+for port in "${MANAGED_APPLICATION_PORTS[@]}"; do
+  if port_has_listener "$port"; then
+    open_managed_ports+=("$port")
+  else
+    port_status=$?
+    if [ "$port_status" -ne 1 ]; then
+      echo "Unable to confirm that required local port $port is available." >&2
+      exit "$port_status"
+    fi
+  fi
+done
+
+process_compose_port=""
+process_compose_running=0
+if process_compose_port="$(get_optional_process_compose_port)"; then
+  if port_has_listener "$process_compose_port"; then
+    process_compose_running=1
+  else
+    port_status=$?
+    if [ "$port_status" -ne 1 ]; then
+      exit "$port_status"
+    fi
+  fi
+else
+  process_compose_status=$?
+  if [ "$process_compose_status" -ne 1 ]; then
+    exit "$process_compose_status"
+  fi
+fi
+
+if [ "$process_compose_running" -eq 1 ]; then
+  devbox services stop
+
+  if wait_for_ports_to_close "$process_compose_port" "${MANAGED_APPLICATION_PORTS[@]}"; then
+    :
+  else
+    port_status=$?
+    echo "Refusing to touch emulator data because not all required local ports are closed." >&2
+    exit "$port_status"
+  fi
+elif [ "${#open_managed_ports[@]}" -ne 0 ]; then
+  echo "Refusing to touch emulator data because required local ports are already in use: ${open_managed_ports[*]}" >&2
+  echo "Stop the processes using those ports before rerunning the E2E runner." >&2
+  exit 1
+elif [ -n "$process_compose_port" ]; then
+  if wait_for_ports_to_close "$process_compose_port" "${MANAGED_APPLICATION_PORTS[@]}"; then
+    :
+  else
+    port_status=$?
+    echo "Refusing to touch emulator data because not all required local ports are closed." >&2
+    exit "$port_status"
+  fi
+elif wait_for_ports_to_close "${MANAGED_APPLICATION_PORTS[@]}"; then
+  :
+else
+  port_status=$?
+  echo "Refusing to touch emulator data because not all required local ports are closed." >&2
+  exit "$port_status"
+fi
+
+if [ -d "$PROJECT_ROOT/emulator-data" ]; then
+  mkdir -p "$PROJECT_ROOT/logs"
+  BACKUP_DIR="$(mktemp -d "$PROJECT_ROOT/logs/e2e-emulator-data.XXXXXX")"
+  echo "Backing up original emulator data to $BACKUP_DIR/emulator-data"
+  mv "$PROJECT_ROOT/emulator-data" "$BACKUP_DIR/emulator-data"
+
+  if [ ! -d "$BACKUP_DIR/emulator-data" ] || [ -e "$PROJECT_ROOT/emulator-data" ]; then
+    echo "Original emulator data backup could not be verified." >&2
+    report_recovery_state
+    exit 1
+  fi
+
+  BACKUP_EXPECTED=1
+fi
+
+if [ -e "$PROJECT_ROOT/emulator-data" ] || [ -L "$PROJECT_ROOT/emulator-data" ]; then
+  echo "Refusing to install E2E fixtures because $PROJECT_ROOT/emulator-data reappeared after backup." >&2
+  exit 1
+fi
+
+TEST_DATA_INSTALLED=1
+cp -R "$PROJECT_ROOT/e2e/e2e-emulator-data" "$PROJECT_ROOT/emulator-data"
+
+SERVICES_MAY_BE_RUNNING=1
 devbox services up -b
-SERVICES_STARTED=1
 
 wait_for_url "Firestore emulator" "http://localhost:8080/"
 wait_for_url "Storage emulator" "http://localhost:9199/"
 wait_for_url "Auth emulator" "http://localhost:9099/"
 wait_for_url "Library API" "http://localhost:8083/"
+
+(
+  cd library-api/test/bdt
+  bru run
+)
+
 wait_for_url "builder frontend" "http://localhost:5173/"
 
 (
   cd e2e
-  npm ci
-  npx playwright install
-  npx playwright test "$@"
+  ./node_modules/.bin/playwright test "$@"
 )

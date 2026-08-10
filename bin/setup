@@ -6,14 +6,70 @@
 set -e # Exit on any error
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+USING_DEVBOX=0
 
 source "$SCRIPT_DIR/functions"
+
+port_has_listener() {
+  local port="$1"
+
+  if [[ ! "$port" =~ ^[0-9]+$ ]] || [ "$port" -lt 1 ] || [ "$port" -gt 65535 ]; then
+    print_error "Invalid local port: $port"
+    return 2
+  fi
+
+  python3 - "$port" <<'PY'
+import errno
+import socket
+import sys
+
+port = int(sys.argv[1])
+
+try:
+    with socket.create_connection(("127.0.0.1", port), timeout=0.5):
+        pass
+except ConnectionRefusedError:
+    raise SystemExit(1)
+except socket.timeout as exc:
+    print(
+        f"Timed out while checking local port {port}: {exc}",
+        file=sys.stderr,
+    )
+    raise SystemExit(2)
+except OSError as exc:
+    if exc.errno == errno.ECONNREFUSED:
+        raise SystemExit(1)
+    print(
+        f"Unable to determine whether local port {port} is available: "
+        f"{type(exc).__name__}: {exc}",
+        file=sys.stderr,
+    )
+    raise SystemExit(2)
+
+raise SystemExit(0)
+PY
+}
+
+get_optional_process_compose_port() {
+  local port
+
+  if ! port="$(devbox services pcport 2>/dev/null)"; then
+    return 1
+  fi
+
+  if [[ ! "$port" =~ ^[0-9]+$ ]] || [ "$port" -lt 1 ] || [ "$port" -gt 65535 ]; then
+    echo "Devbox returned an invalid process-compose port: $port" >&2
+    return 2
+  fi
+
+  printf '%s\n' "$port"
+}
 
 print_status "🚀 Starting Benefit Decision Toolkit Developer Setup..."
 
 echo ""
 
-if [[ "$DEVBOX_SHELL_ENABLED" != "1" ]]; then
+if [[ "${DEVBOX_SHELL_ENABLED:-}" != "1" ]]; then
   if ask_user "This project is configured to use devbox (https://www.jetify.com/devbox) to manage system dependencies. Do you want to use devbox? (default=yes)" "y"; then
     echo ""
     echo "Devbox instructions:"
@@ -28,6 +84,62 @@ if [[ "$DEVBOX_SHELL_ENABLED" != "1" ]]; then
   else
     print_warning "Setup won't use devbox; system dependencies are the developer's responsibility. See devbox.json for the list of dependencies needed."
     sleep 2
+  fi
+else
+  USING_DEVBOX=1
+fi
+
+if [ "$USING_DEVBOX" -eq 1 ]; then
+  if ! command_exists python3; then
+    print_error "python3 not found. Devbox setup requires Python to check the local service state."
+    exit 1
+  fi
+
+  MANAGED_APPLICATION_PORTS=(5173 8080 8081 8083 9099 9199)
+  for port in "${MANAGED_APPLICATION_PORTS[@]}"; do
+    if port_has_listener "$port"; then
+      print_error "Setup cannot run because required local port $port is already in use."
+      echo ""
+      echo "Stop the process using port $port, then rerun:"
+      echo ""
+      echo "  devbox run setup"
+      echo ""
+      echo "Setup verification requires exclusive ownership of the local service ports and emulator data."
+      exit 1
+    else
+      port_status=$?
+      if [ "$port_status" -ne 1 ]; then
+        print_error "Unable to confirm that local port $port is available."
+        exit "$port_status"
+      fi
+    fi
+  done
+
+  process_compose_port=""
+  if process_compose_port="$(get_optional_process_compose_port)"; then
+    if port_has_listener "$process_compose_port"; then
+      print_error "Setup cannot run while this project's local service graph is active on port $process_compose_port."
+      echo ""
+      echo "Stop the local service graph, then rerun setup:"
+      echo ""
+      echo "  devbox services stop"
+      echo "  devbox run setup"
+      echo ""
+      echo "Setup verification requires exclusive ownership of the local service ports and emulator data."
+      exit 1
+    else
+      port_status=$?
+      if [ "$port_status" -ne 1 ]; then
+        print_error "Unable to confirm that the process-compose port is available."
+        exit "$port_status"
+      fi
+    fi
+  else
+    process_compose_status=$?
+    if [ "$process_compose_status" -ne 1 ]; then
+      print_error "Unable to determine a valid process-compose port for this project."
+      exit "$process_compose_status"
+    fi
   fi
 fi
 
@@ -66,8 +178,7 @@ cd ..
 
 print_status "Installing builder-api dependencies..."
 cd builder-api
-# TODO: are the tests important to run here? (one of them was failing for me)
-mvn clean package -DskipTests
+mvn clean package
 print_success "builder-api dependencies installed"
 cd ..
 
@@ -91,6 +202,16 @@ for service in "${SERVICES[@]}"; do
     exit 1
   fi
 done
+
+echo ""
+
+if [ "$USING_DEVBOX" -eq 1 ]; then
+  print_status "🧪 Verifying the complete local development environment..."
+  bin/run-e2e-tests
+  print_success "Complete local development environment verified"
+else
+  print_warning "Skipping full-stack verification because it requires Devbox."
+fi
 
 echo ""
 

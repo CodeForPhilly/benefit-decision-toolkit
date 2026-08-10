@@ -10,7 +10,8 @@
     "bruno-cli@latest",
     "process-compose@latest",
     "python@3.14",
-    "python314Packages.pip@latest"
+    "python314Packages.pip@latest",
+    "github:NixOS/nixpkgs/fef9403a3e4d31b0a23f0bacebbec52c248fbb51#playwright-driver.browsers"
   ],
   "env_from": ".env",
   "shell": {
