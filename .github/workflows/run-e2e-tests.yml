@@ -52,9 +52,9 @@ jobs:
         uses: "actions/cache@v4"
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('builder-api/pom.xml') }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('builder-api/pom.xml', 'library-api/pom.xml') }}
           restore-keys: |
-            ${{ runner.os }}-maven-${{ hashFiles('builder-api/pom.xml') }}
+            ${{ runner.os }}-maven-
 
       - id: "auth" # Configure Workload Identity Federation and generate an access token
         name: "Authenticate to Google Cloud"
@@ -100,23 +100,12 @@ jobs:
       - name: Run all Devbox services
         run: devbox services up -b
 
-      - name: Show service logs
-        if: always()
-        run: |
-          sleep 5
-          ls -la logs || true
-          tail -n 80 logs/firebase-emulators.log || true
-          tail -n 80 logs/library-api.log || true
-          tail -n 80 logs/sync-library-metadata.log || true
-          tail -n 80 logs/builder-api.log || true
-          tail -n 80 logs/builder-frontend.log || true
-
       - name: Wait for App to be available
         run: |
-          timeout 90 bash -c '
-            until curl --fail --silent --show-error http://127.0.0.1:5173/ > /dev/null; do
+          timeout 300 bash -c '
+            until curl --fail --silent http://127.0.0.1:5173/ > /dev/null; do
               echo "Waiting for frontend..."
-              sleep 1
+              sleep 2
             done
           '
       # - name: Wait for App to be available
@@ -130,6 +119,16 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test
         working-directory: e2e
+
+      - name: Show service logs on failure
+        if: failure()
+        run: |
+          ls -la logs || true
+          tail -n 80 logs/firebase-emulators.log || true
+          tail -n 80 logs/library-api.log || true
+          tail -n 80 logs/sync-library-metadata.log || true
+          tail -n 80 logs/builder-api.log || true
+          tail -n 80 logs/builder-frontend.log || true
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
@@ -148,4 +147,5 @@ jobs:
 
       # 4) Cleanup #
       - name: Stop all Devbox services
+        if: always()
         run: devbox services stop

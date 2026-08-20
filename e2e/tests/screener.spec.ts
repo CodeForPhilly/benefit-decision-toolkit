@@ -69,7 +69,9 @@ const createFormWithCheckbox = async (page: Page) => {
     await page
       .locator('[data-title="General"].bio-properties-panel-group-header-title')
       .click();
-    await page.getByLabel("Key").selectOption("simpleChecks.ownerOccupant");
+    const keyCombobox = page.getByRole("combobox", { name: "Key" });
+    await keyCombobox.fill("simpleChecks.ownerOccupant");
+    await keyCombobox.press("Enter");
     await page.getByLabel("Field label").fill("Is owner occupant?");
 
     await page.getByTestId("form-editor-save-button").click();

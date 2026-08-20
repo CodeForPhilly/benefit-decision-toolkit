@@ -75,20 +75,17 @@ function CustomKeyDropdown(props: any) {
     // Get the component type to filter compatible options
     const componentType = field.type || '';
 
-    console.log(componentType);
-
     // Get options from the injected service, passing current key to exclude from disabling
     const options = pathOptionsService?.getOptions(currentKey, componentType) || [];
 
-    // Add empty option
-    return [{ value: field.id, label: '(none)' }, ...options];
+    return options;
   };
 
   return SelectEntry({
     element: field,
     id: id || 'key',
     label: 'Key',
-    description: 'Select the data path for this field',
+    description: 'Enter any key or select a mapped data path',
     getValue,
     setValue,
     getOptions

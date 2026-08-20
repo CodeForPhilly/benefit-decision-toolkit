@@ -138,14 +138,47 @@ function Select(props) {
   const ref = useShowEntryEvent(id);
 
   const [ localValue, setLocalValue ] = useState(value);
+  const [ isOpen, setIsOpen ] = useState(false);
 
-  const handleChangeCallback = ({ target }) => {
-    onChange(target.value);
+  const flatOptions = options.flatMap(option => option.children || [ option ]);
+
+  const handleInput = ({ target }) => {
+    setLocalValue(target.value);
   };
 
-  const handleChange = e => {
-    handleChangeCallback(e);
-    setLocalValue(e.target.value);
+  const commitValue = () => {
+    if (localValue !== value) {
+      onChange(localValue);
+    }
+  };
+
+  const handleBlur = () => {
+    commitValue();
+    setIsOpen(false);
+    onBlur && onBlur();
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      commitValue();
+      setIsOpen(false);
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setIsOpen(true);
+    }
+  };
+
+  const handleFocus = () => {
+    setIsOpen(true);
+    onFocus && onFocus();
+  };
+
+  const selectOption = (option) => {
+    setLocalValue(option.value);
+    onChange(option.value);
+    setIsOpen(false);
   };
 
   useEffect(() => {
@@ -157,45 +190,59 @@ function Select(props) {
   }, [ value ]);
 
   return (html`
-    <div class="bio-properties-panel-select">
+    <div class="bio-properties-panel-textfield" style="position: relative;">
       <label for=${ prefixId(id) } class="bio-properties-panel-label">
         ${label}
       </label>
-      <select
-        ref=${ ref }
-        id=${ prefixId(id) }
-        name=${ id }
-        class="bio-properties-panel-input"
-        onInput=${ handleChange }
-        onFocus=${ onFocus }
-        onBlur=${ onBlur }
-        value=${ localValue }
-        disabled=${ disabled }
-      >
-        ${options.map((option, idx) => {
-          if (option.children) {
-            return (html`
-              <optgroup key=${ idx } label=${ option.label }>
-                ${option.children.map((child, idx) => (html`
-                  <option
-                    key=${ idx }
-                    value=${ child.value }
-                    disabled=${ child.disabled }
-                  >
-                    ${child.label}
-                  </option>`
-                ))}
-              </optgroup>`
-            );
-          }
-
-          return (html`
-            <option key=${ idx } value=${ option.value } disabled=${ option.disabled }>
-              ${option.label}
-            </option>`
-          );
-        })}
-      </select>
+      <div style="display: flex;">
+        <input
+          ref=${ ref }
+          id=${ prefixId(id) }
+          name=${ id }
+          class="bio-properties-panel-input"
+          style="flex: 1; min-width: 0;"
+          type="text"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-controls=${ prefixId(`${id}-options`) }
+          aria-expanded=${ isOpen }
+          onInput=${ handleInput }
+          onKeyDown=${ handleKeyDown }
+          onFocus=${ handleFocus }
+          onBlur=${ handleBlur }
+          value=${ localValue }
+          disabled=${ disabled }
+        />
+        <button
+          type="button"
+          class="bio-properties-panel-input"
+          style="flex: 0 0 32px; margin-left: 4px; padding: 0;"
+          aria-label="Show mapped keys"
+          onMouseDown=${ event => event.preventDefault() }
+          onClick=${ () => setIsOpen(!isOpen) }
+          disabled=${ disabled }
+        >⌄</button>
+      </div>
+      ${isOpen && html`
+        <div
+          id=${ prefixId(`${id}-options`) }
+          role="listbox"
+          style="position: absolute; left: 0; right: 0; z-index: 100; max-height: 220px; overflow-y: auto; background: white; border: 1px solid #ccc; box-shadow: 0 2px 6px rgba(0, 0, 0, .15);"
+        >
+          ${flatOptions.map((option, idx) => html`
+            <button
+              key=${ idx }
+              type="button"
+              role="option"
+              aria-selected=${ option.value === localValue }
+              disabled=${ option.disabled }
+              style="display: block; width: 100%; padding: 6px 8px; border: 0; background: ${option.value === localValue ? '#eee' : 'white'}; text-align: left;"
+              onMouseDown=${ event => event.preventDefault() }
+              onClick=${ () => selectOption(option) }
+            >${option.label}</button>
+          `)}
+        </div>
+      `}
     </div>`
   );
 }
@@ -270,7 +317,6 @@ export default function SelectEntry(props) {
       data-entry-id=${ id }>
       <${Select}
         id=${ id }
-        key=${ element }
         label=${ label }
         value=${ value }
         onChange=${ onChange }
