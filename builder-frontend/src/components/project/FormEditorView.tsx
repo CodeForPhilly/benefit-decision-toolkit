@@ -131,11 +131,20 @@ function FormEditorView({ formSchema, setFormSchema }) {
   const handleSave = async () => {
     const projectId = params.projectId;
     const schema = formSchema();
-    setIsUnsaved(false);
     setIsSaving(true);
-    saveFormSchema(projectId, schema);
     clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => setIsSaving(false), 500);
+
+    try {
+      await saveFormSchema(projectId, schema);
+      setIsUnsaved(false);
+    } catch (error) {
+      // Keep the form marked as unsaved so a failed request is not presented
+      // to the user as a successful save.
+      setIsUnsaved(true);
+      console.error("Failed to save form schema", error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
