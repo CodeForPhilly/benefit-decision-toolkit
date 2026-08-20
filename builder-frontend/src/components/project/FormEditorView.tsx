@@ -10,7 +10,6 @@ import {
   Switch,
   Accessor,
 } from "solid-js";
-import toast from "solid-toast";
 import { useParams } from "@solidjs/router";
 
 import { FormEditor } from "@bpmn-io/form-js-editor";
@@ -117,10 +116,6 @@ function FormEditorView({ formSchema, setFormSchema }) {
     if (!formEditor || formPaths.loading) return;
 
     const currentFormPaths: FormPath[] = formPaths() || [];
-    const validPathSet = new Set(
-      currentFormPaths.map((formPath: FormPath) => formPath.path),
-    );
-
     const pathOptionsService = formEditor.get(
       "pathOptionsService",
     ) as PathOptionsService;
@@ -131,41 +126,6 @@ function FormEditorView({ formSchema, setFormSchema }) {
         type: formPath.type,
       })),
     );
-
-    // Clean up any form fields with keys that are no longer valid options
-    const formFieldRegistry = formEditor.get("formFieldRegistry") as any;
-    const modeling = formEditor.get("modeling") as any;
-
-    if (formFieldRegistry && modeling) {
-      const allFields = formFieldRegistry.getAll();
-      const invalidFields: string[] = [];
-
-      for (const field of allFields) {
-        // If field has a key that's not in valid paths (and not empty), reset it
-        // Skip for expressions, which can have custom-defined keys
-        if (
-          field.key &&
-          !validPathSet.has(field.key) &&
-          field.key !== field.id &&
-          field.type !== "expression"
-        ) {
-          invalidFields.push(field.key);
-          modeling.editFormField(field, "key", field.id);
-        }
-      }
-
-      // Notify user if we reset any fields
-      if (invalidFields.length > 0) {
-        setIsUnsaved(true);
-        const fieldCount = invalidFields.length;
-        const message =
-          fieldCount === 1
-            ? `1 field had an invalid key "${invalidFields[0]}" and was reset.`
-            : `${fieldCount} fields had invalid keys and were reset: ${invalidFields.join(", ")}`;
-        toast(message, { duration: 5000, icon: "⚠️" });
-        handleSave();
-      }
-    }
   });
 
   const handleSave = async () => {
