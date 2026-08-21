@@ -5,10 +5,7 @@ const projects = await getCollection("projects");
 import { Content } from "../assets/text/Projects.md";
 ---
 
-<section
-  id="projects"
-  class="bg-bdt-blue/60 bg-[url(../assets/backgrounds/wavy.webp)] bg-cover bg-blend-multiply"
->
+<section id="projects">
   <div class="max-w-[130ch] mx-auto py-12 px-3">
     <div class="max-w-[85ch] mx-auto pb-9 prose">
       <Content />
@@ -18,7 +15,7 @@ import { Content } from "../assets/text/Projects.md";
         projects.map(async (project) => {
           const { Content } = await render(project);
           return (
-            <li class="bg-white/50 sm:p-6 px-3 py-4 rounded-2xl md:w-1/2">
+            <li class="bg-bg sm:p-6 px-3 py-4 rounded-2xl md:w-1/2">
               <div class="prose prose-a:font-medium prose-img:rounded-2xl">
                 <Content />
               </div>

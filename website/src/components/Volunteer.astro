@@ -4,17 +4,18 @@ import { Content } from "../assets/text/Volunteer.md";
 import cfpLogo from "../assets/logos/cfp-logo.png";
 ---
 
-<div
-  class="md:bg-[url(../assets/backgrounds/bubbles.svg)] bg-center md:mg-size-[150vh] lg:bg-cover bg-no-repeat border-b-bdt-green-light border-b-2 border-t-bdt-green-light border-t-2"
->
+<div>
   <section id="overview">
     <div class="max-w-[85ch] mx-auto py-12 px-3 prose prose-a:font-medium">
       <Content />
-      <div class="flex flex-col items-center">
+      <div
+        class="flex flex-col items-center bg-bg w-fit mx-auto p-6 rounded-lg"
+      >
         <Image src={cfpLogo} alt="Code For Philly logo" />
         <a
+          class="mt-6 w-fit px-6 py-3 bg-button rounded-lg font-serif text-xl shadow-md no-underline"
           href="https://codeforphilly.org/projects/dmn_benefit_toolbox-including_the_philly_property_tax_relief_screener"
-          target="_blank">Code For Philly ↗</a
+          target="_blank">Connect</a
         >
       </div>
     </div>

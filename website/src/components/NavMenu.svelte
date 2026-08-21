@@ -7,20 +7,12 @@
       path: "/#top",
     },
     {
-      title: "What We Do",
-      path: "/#overview",
-    },
-    {
-      title: "Projects",
-      path: "/#projects",
+      title: "About",
+      path: "/about",
     },
     {
       title: "Contact",
       path: "/#contact",
-    },
-    {
-      title: "About",
-      path: "/about",
     },
   ];
   let menuActive = $state(false);

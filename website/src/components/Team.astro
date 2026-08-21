@@ -21,7 +21,9 @@ import { Image } from "astro:assets";
 <section id="team">
   <div class="max-w-[130ch] mx-auto py-12 px-3">
     <h2 class="mb-6">Meet The Team</h2>
-    <ul class="flex flex-wrap gap-x-9 sm:gap-x-6 sm:gap-y-12 gap-y-9 justify-center">
+    <ul
+      class="flex flex-wrap gap-x-9 sm:gap-x-6 sm:gap-y-12 gap-y-9 justify-center"
+    >
       {
         teamSorted.map(async (teamMember) => {
           return (
@@ -41,7 +43,7 @@ import { Image } from "astro:assets";
                     <a
                       href={teamMember.data.link}
                       target="_blank"
-                      class="text-bdt-blue underline"
+                      class="underline"
                     >
                       Connect ↗
                     </a>
