@@ -9,17 +9,20 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/svelte": "^7.2.3",
+    "@astrojs/svelte": "^9.0.1",
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource/open-sans": "^5.2.7",
     "@fontsource/ramaraja": "^5.2.8",
     "@tailwindcss/vite": "^4.1.17",
-    "astro": "^5.15.5",
+    "astro": "^7.2.4",
     "svelte": "^5.45.8",
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.19"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
   }
 }
