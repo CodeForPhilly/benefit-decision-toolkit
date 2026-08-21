@@ -1,24 +1,10 @@
-import { Switch, Match, For, Accessor, Show } from "solid-js";
+import { Switch, Match, For, Accessor } from "solid-js";
 
 import type { ScreenerResult, BenefitResult } from "@/types";
 
 import checkIcon from "@/assets/images/checkIcon.svg";
 import questionIcon from "@/assets/images/questionIcon.svg";
 import xIcon from "@/assets/images/xIcon.svg";
-
-function formatParameters(
-  params: Record<string, unknown>,
-  defaultedParameters: string[] = []
-): string {
-  return Object.entries(params)
-    .map(([key, value]) => {
-      const defaultedLabel = defaultedParameters.includes(key)
-        ? " (defaulted to today's date)"
-        : "";
-      return `${key}=${value}${defaultedLabel}`;
-    })
-    .join(", ");
-}
 
 export default function EligibilityResults({
   screenerResult,
@@ -76,34 +62,7 @@ function BenefitResult({ benefitResult }: { benefitResult: BenefitResult }) {
                   </Match>
                 </Switch>
               </div>
-              <div class="flex flex-col text-xs">
-                <div>
-                  // {check.name}
-                <Show when={check.aliasName} fallback={<div>{check.name}</div>}></Show>
-                  <div>{check.aliasName}</div>
-                  <Show when={check.module || check.version}>
-                    <span class="text-gray-500 ml-1">
-                      (
-                      {[check.module, check.version].filter(Boolean).join(" v")}
-                      )
-                    </span>
-                  </Show>
-                </div>
-                <Show
-                  when={
-                    (check.effectiveParameters &&
-                      Object.keys(check.effectiveParameters).length > 0) ||
-                    (check.parameters && Object.keys(check.parameters).length > 0)
-                  }
-                >
-                  <div class="text-gray-500">
-                    {formatParameters(
-                      check.effectiveParameters ?? check.parameters,
-                      check.defaultedParameters
-                    )}
-                  </div>
-                </Show>
-              </div>
+              <div class="text-xs">{check.aliasName || check.name}</div>
             </div>
           )}
         </For>
