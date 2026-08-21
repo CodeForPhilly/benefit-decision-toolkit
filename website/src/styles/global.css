@@ -2,8 +2,8 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --font-sans: "Inter", sans;
-  --font-serif: "Ramaraja", serif;
+  --font-sans: "Lato", sans;
+  --font-serif: "Crete Round", serif;
   --color-bdt-blue: #1876ba;
   --color-bdt-green-light: #cff7d3;
   --color-bdt-green-dark: #16561d;
