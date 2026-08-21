@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import { render } from "astro:content";
+import ActionButton from "./ActionButton.astro";
 const roles = await getCollection("roles");
 ---
 
@@ -25,14 +26,14 @@ const roles = await getCollection("roles");
                 <div class="prose py-6 prose-li:text-black prose-li:marker:text-black">
                   <Content />
                 </div>
-                <p class="mt-6 w-fit px-6 py-3 bg-button rounded-lg font-serif text-xl shadow-md">
+                <div class="w-fit">
                   <a
                     href="https://codeforphilly.org/projects/dmn_benefit_toolbox-including_the_philly_property_tax_relief_screener"
                     target="_blank"
                   >
-                    Join Our Team
+                    <ActionButton>Join Our Team</ActionButton>
                   </a>
-                </p>
+                </div>
               </details>
             </li>
           );

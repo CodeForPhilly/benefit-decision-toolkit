@@ -1,5 +1,6 @@
 ---
 import { Content } from "../assets/text/Hero.md";
+import ActionButton from "./ActionButton.astro";
 ---
 
 <section id="hero" class="py-6 px-3 bg-white">
@@ -9,12 +10,10 @@ import { Content } from "../assets/text/Hero.md";
     >
       <Content />
     </div>
-    <a href="/#projects">
-      <div
-        class="mt-6 w-fit px-6 py-3 bg-button rounded-lg font-serif text-xl shadow-md"
-      >
-        <span>Learn more</span>
-      </div>
-    </a>
+    <div class="w-fit">
+      <a href="/#projects">
+        <ActionButton>Learn more</ActionButton>
+      </a>
+    </div>
   </div>
 </section>

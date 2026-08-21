@@ -1,5 +1,6 @@
 ---
 import { Content } from "../assets/text/Contact.md";
+import ActionButton from "./ActionButton.astro";
 ---
 
 <section id="contact">
@@ -45,12 +46,12 @@ import { Content } from "../assets/text/Contact.md";
               placeholder="Your message"
               required></textarea>
           </div>
-          <input
-            class="mt-6 w-fit px-6 py-3 bg-button rounded-lg font-serif text-xl shadow-md cursor-pointer"
-            type="submit"
-            value="Submit"
-            size=""
-          />
+          <ActionButton>
+            <span class="invisible">Submit</span>
+            <button class="absolute inset-0 w-full h-full cursor-pointer" type="submit">
+              Submit
+            </button>
+          </ActionButton>
         </form>
       </div>
       <div class="w-1/2 h-180 hidden sm:flex">

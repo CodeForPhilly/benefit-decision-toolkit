@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 import { Content } from "../assets/text/Volunteer.md";
 import cfpLogo from "../assets/logos/cfp-logo.png";
+import ActionButton from "./ActionButton.astro";
 ---
 
 <div>
@@ -12,11 +13,15 @@ import cfpLogo from "../assets/logos/cfp-logo.png";
         class="flex flex-col items-center bg-bg w-fit mx-auto p-6 rounded-lg"
       >
         <Image src={cfpLogo} alt="Code For Philly logo" />
-        <a
-          class="mt-6 w-fit px-6 py-3 bg-button rounded-lg font-serif text-xl shadow-md no-underline"
-          href="https://codeforphilly.org/projects/dmn_benefit_toolbox-including_the_philly_property_tax_relief_screener"
-          target="_blank">Connect</a
-        >
+        <div class="w-fit">
+          <a
+            class="no-underline"
+            href="https://codeforphilly.org/projects/dmn_benefit_toolbox-including_the_philly_property_tax_relief_screener"
+            target="_blank"
+          >
+            <ActionButton>Connect</ActionButton>
+          </a>
+        </div>
       </div>
     </div>
   </section>
