@@ -15,7 +15,7 @@ const roles = await getCollection("roles");
         roles.map(async (role) => {
           const { Content } = await render(role);
           return (
-            <li class=" bg-bg border border-card-border rounded-2xl sm:p-6 px-3 py-4 min-w-30 role-card flex flex-col gap-3 justify-between">
+            <li class=" bg-bg border border-card-border rounded-lg sm:p-6 px-3 py-4 min-w-30 role-card flex flex-col gap-3 justify-between">
               <div class="flex flex-col gap-3">
                 <h3>{role.data.title}</h3>
                 <p>{role.data.brief}</p>

@@ -27,8 +27,7 @@ const SelectedEligibilityCheck = ({
     createSignal(false);
   const [editAliasModalOpen, setEditAliasModalOpen] = createSignal(false);
 
-  const displayName = () =>
-    checkConfig().aliasName || checkConfig().checkName;
+  const displayName = () => checkConfig().aliasName || checkConfig().checkName;
 
   const isBlankParameterValue = (value: unknown) => {
     return value === undefined || value === null || value === "";
@@ -72,14 +71,14 @@ const SelectedEligibilityCheck = ({
           <span>{titleCase(displayName())}</span>
           <span class="text-gray-500">- {checkConfig().checkVersion}</span>
           <div
-            class="text-sm text-gray-500 hover:text-gray-700 hover:rounded-2xl p-2 hover:bg-gray-400"
+            class="text-sm text-gray-500 hover:text-gray-700 hover:rounded-lg p-2 hover:bg-gray-400"
             onClick={(e) => {
               e.stopPropagation();
               setEditAliasModalOpen(true);
             }}
             title="Edit alias"
           >
-            <PencilIcon size={16}/>
+            <PencilIcon size={16} />
           </div>
         </div>
         <Show when={checkConfig().aliasName}>
