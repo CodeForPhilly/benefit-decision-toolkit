@@ -1,6 +1,8 @@
 ---
 import logo from "../assets/logos/bdt-logo-large-mono-dark.svg";
 import { Image } from "astro:assets";
+import cfpIcon from "../assets/icons/cfp-icon.svg";
+import githubIcon from "../assets/icons/github-icon.svg";
 const footerLinks = [
   {
     title: "Home",
@@ -19,30 +21,39 @@ const footerLinks = [
 
 <footer class="py-12 bg-bdt-blue text-white">
   <div
-    class="flex flex-col items-center gap-3 md:flex-row md:gap-24 w-fit mx-auto"
+    class="flex flex-col items-center gap-9 md:flex-row md:gap-24 w-fit mx-auto"
   >
     <div class="w-36">
       <a href="/">
         <Image src={logo} alt="BDT logo" />
       </a>
     </div>
-    <div class="flex flex-col items-center gap-3">
+    <div class="flex flex-col items-center gap-4">
       <nav class="flex flex-row gap-4">
         {
           footerLinks.map((link) => (
-            <a class="font-bold w-fit" href={link.path}>
+            <a class="font-bold w-fit text-lg" href={link.path}>
               {link.title}
             </a>
           ))
         }
       </nav>
-      <p>
+      <div class="flex gap-4">
         <a
-          class="underline font-medium text-white"
-          href="https://codeforphilly.org/"
-          target="_blank">A Code For Philly project</a
+          class="w-6"
+          href="https://codeforphilly.org/projects/dmn_benefit_toolbox-including_the_philly_property_tax_relief_screener"
+          target="_blank"
         >
-      </p>
+          <Image src={cfpIcon} alt="Code For Philly logo" />
+        </a>
+        <a
+          class="w-6"
+          href="https://github.com/CodeForPhilly/benefit-decision-toolkit"
+          target="_blank"
+        >
+          <Image src={githubIcon} alt="Code For Philly logo" />
+        </a>
+      </div>
       <p class="text-sm! text-white!">
         Copyright © Benefit Decision Toolkit 2026
       </p>
