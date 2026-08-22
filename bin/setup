@@ -163,6 +163,8 @@ cd ..
 
 print_status "Finished installing frontend dependencies."
 
+# The backends are packaged without their tests here; bin/run-all-tests runs
+# every suite once at the end of setup.
 print_status "📦 Installing backend dependencies..."
 
 if ! command_exists mvn; then
@@ -172,13 +174,13 @@ fi
 
 print_status "Installing library-api dependencies..."
 cd library-api
-mvn clean package
+mvn clean package -DskipTests
 print_success "library-api dependencies installed"
 cd ..
 
 print_status "Installing builder-api dependencies..."
 cd builder-api
-mvn clean package
+mvn clean package -DskipTests
 print_success "builder-api dependencies installed"
 cd ..
 
@@ -207,10 +209,11 @@ echo ""
 
 if [ "$USING_DEVBOX" -eq 1 ]; then
   print_status "🧪 Verifying the complete local development environment..."
-  bin/run-e2e-tests
+  bin/run-all-tests --fail-fast
   print_success "Complete local development environment verified"
 else
   print_warning "Skipping full-stack verification because it requires Devbox."
+  print_warning "Once the dependencies from devbox.json are installed, run 'bin/run-all-tests' to verify the environment."
 fi
 
 echo ""
@@ -225,7 +228,10 @@ echo "  b. If not using devbox and/or plan to develop against real Firebase serv
 echo "2. Run all main web app services locally in dev mode:"
 echo "  a. With devbox: 'devbox services up'"
 echo "  b. Without devbox: install then run 'process-compose'"
-echo "3. Other things to try:"
+echo "3. Run every test suite:"
+echo "  a. With devbox: 'devbox run test'"
+echo "  b. A single suite: 'devbox run test -- library-api'"
+echo "4. Other things to try:"
 echo "  a. Run 'devbox shell' to load the environment without running services."
 echo "  b. Consider using the direnv integration to load dependencies automatically."
 echo "  c. Consider installing the Devbox and Direnv extensions for VS Code."
