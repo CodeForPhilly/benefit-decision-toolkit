@@ -1,0 +1,282 @@
+#!/usr/bin/env bash
+
+# Run every automated test suite in the repository.
+#
+# Suites run in this order:
+#   1. builder-api  - JVM unit/integration tests (mvn test)
+#   2. library-api  - JVM unit/integration tests (mvn test)
+#   3. e2e          - bin/run-e2e-tests, which boots the full dev stack with
+#                     devbox services and then runs the library-api Bruno
+#                     collection followed by the Playwright suite.
+#
+# The JVM suites run first because they need nothing but Maven, while the e2e
+# suite takes exclusive ownership of the local service ports and swaps the root
+# emulator-data directory for the e2e fixtures.
+#
+# By default every selected suite runs even if an earlier one fails, so a single
+# invocation reports the complete picture; use --fail-fast to stop at the first
+# failure.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+
+source "$SCRIPT_DIR/functions"
+
+cd "$PROJECT_ROOT"
+
+ALL_SUITES=(builder-api library-api e2e)
+FAIL_FAST=0
+
+usage() {
+  cat <<'USAGE'
+Usage: bin/run-all-tests [options] [suite ...]
+
+Runs every automated test suite in the repository. Run it directly or as
+`devbox run test`; when invoked outside the Devbox environment it re-enters
+Devbox on its own.
+
+Suites:
+  builder-api   builder-api JVM tests (mvn test)
+  library-api   library-api JVM tests (mvn test)
+  e2e           full dev stack, library-api Bruno collection, Playwright suite
+
+With no suite arguments, all suites run in the order listed above.
+
+Options:
+  --fail-fast   Stop after the first failing suite (default: run them all)
+  --list        Print the available suite names and exit
+  -h, --help    Show this help and exit
+
+Examples:
+  devbox run test
+  devbox run test -- --fail-fast
+  bin/run-all-tests builder-api library-api
+USAGE
+}
+
+is_known_suite() {
+  local candidate="$1"
+  local suite
+
+  for suite in "${ALL_SUITES[@]}"; do
+    if [ "$suite" = "$candidate" ]; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+SELECTED_SUITES=()
+ORIGINAL_ARGS=("$@")
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+  --fail-fast)
+    FAIL_FAST=1
+    ;;
+  --list)
+    printf '%s\n' "${ALL_SUITES[@]}"
+    exit 0
+    ;;
+  -h | --help)
+    usage
+    exit 0
+    ;;
+  -*)
+    print_error "Unknown option: $1"
+    echo ""
+    usage >&2
+    exit 2
+    ;;
+  *)
+    if ! is_known_suite "$1"; then
+      print_error "Unknown suite: $1"
+      echo ""
+      usage >&2
+      exit 2
+    fi
+    SELECTED_SUITES+=("$1")
+    ;;
+  esac
+  shift
+done
+
+if [ "${#SELECTED_SUITES[@]}" -eq 0 ]; then
+  SELECTED_SUITES=("${ALL_SUITES[@]}")
+fi
+
+suite_selected() {
+  local candidate="$1"
+  local suite
+
+  for suite in "${SELECTED_SUITES[@]}"; do
+    if [ "$suite" = "$candidate" ]; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+# The suites need this project's Devbox environment (Maven, Node, Bruno CLI,
+# the Playwright browsers, process-compose). When invoked from outside it,
+# re-enter through Devbox. `devbox run` cannot start at all until the root .env
+# named by `env_from` exists, so create it from the example first.
+if [ "${DEVBOX_SHELL_ENABLED:-}" != "1" ]; then
+  if ! command_exists devbox; then
+    print_error "devbox not found. Install it with bin/install-devbox, then rerun this script."
+    exit 1
+  fi
+
+  bin/ensure-root-env-file
+
+  print_status "Re-entering the Devbox environment to run the tests..."
+  exec devbox run -- bin/run-all-tests "${ORIGINAL_ARGS[@]}"
+fi
+
+for required_command in mvn; do
+  if ! command_exists "$required_command"; then
+    print_error "$required_command is required but was not found on PATH."
+    exit 1
+  fi
+done
+
+# The JVM suites read component .env files directly, and bin/run-e2e-tests needs
+# the root .env for the Devbox service graph. Create any that are missing from
+# the checked-in examples before the first suite runs.
+bin/ensure-root-env-file
+
+for component in builder-frontend builder-api library-api; do
+  if [ ! -f "$component/.env" ]; then
+    if [ ! -f "$component/.env.example" ]; then
+      print_error "$component/.env.example not found"
+      exit 1
+    fi
+    cp "$component/.env.example" "$component/.env"
+    print_success "✓ Created $component/.env from .env.example"
+  fi
+done
+
+run_builder_api_suite() {
+  (
+    cd builder-api
+    mvn test
+  )
+}
+
+run_library_api_suite() {
+  (
+    cd library-api
+    mvn test
+  )
+}
+
+run_e2e_suite() {
+  bin/run-e2e-tests
+}
+
+RESULT_NAMES=()
+RESULT_STATUSES=()
+RESULT_DURATIONS=()
+FAILED_COUNT=0
+SKIPPED_COUNT=0
+
+format_duration() {
+  local total_seconds="$1"
+
+  printf '%dm%02ds' "$((total_seconds / 60))" "$((total_seconds % 60))"
+}
+
+record_result() {
+  RESULT_NAMES+=("$1")
+  RESULT_STATUSES+=("$2")
+  RESULT_DURATIONS+=("$3")
+}
+
+run_suite() {
+  local name="$1"
+  local runner="$2"
+  local started_at
+  local duration
+
+  if [ "$FAILED_COUNT" -gt 0 ] && [ "$FAIL_FAST" -eq 1 ]; then
+    print_warning "Skipping $name because an earlier suite failed (--fail-fast)"
+    record_result "$name" "skipped" ""
+    SKIPPED_COUNT=$((SKIPPED_COUNT + 1))
+    return 0
+  fi
+
+  echo ""
+  print_status "🧪 Running $name tests..."
+  echo ""
+
+  started_at=$SECONDS
+
+  if "$runner"; then
+    duration="$((SECONDS - started_at))"
+    echo ""
+    print_success "$name tests passed in $(format_duration "$duration")"
+    record_result "$name" "passed" "$duration"
+    return 0
+  fi
+
+  duration="$((SECONDS - started_at))"
+  echo ""
+  print_error "$name tests failed after $(format_duration "$duration")"
+  record_result "$name" "failed" "$duration"
+  FAILED_COUNT=$((FAILED_COUNT + 1))
+  return 0
+}
+
+print_status "Test suites selected: ${SELECTED_SUITES[*]}"
+
+if suite_selected builder-api; then
+  run_suite "builder-api" run_builder_api_suite
+fi
+
+if suite_selected library-api; then
+  run_suite "library-api" run_library_api_suite
+fi
+
+if suite_selected e2e; then
+  run_suite "e2e" run_e2e_suite
+fi
+
+echo ""
+print_status "──────────────────────────────────────────"
+print_status "Test summary"
+print_status "──────────────────────────────────────────"
+
+for index in "${!RESULT_NAMES[@]}"; do
+  name="${RESULT_NAMES[$index]}"
+  status="${RESULT_STATUSES[$index]}"
+  duration="${RESULT_DURATIONS[$index]}"
+
+  case "$status" in
+  passed)
+    print_success "$(printf '%-12s passed  (%s)' "$name" "$(format_duration "$duration")")"
+    ;;
+  failed)
+    print_error "$(printf '%-12s failed  (%s)' "$name" "$(format_duration "$duration")")"
+    ;;
+  *)
+    print_warning "$(printf '%-12s skipped' "$name")"
+    ;;
+  esac
+done
+
+echo ""
+
+if [ "$FAILED_COUNT" -gt 0 ]; then
+  print_error "$FAILED_COUNT test suite(s) failed."
+  exit 1
+fi
+
+if [ "$SKIPPED_COUNT" -gt 0 ]; then
+  print_warning "$SKIPPED_COUNT test suite(s) were skipped."
+fi
+
+print_success "🎉 All selected test suites passed."
