@@ -1,11 +1,9 @@
 ---
 name: new-dmn-check
 description: Create a new DMN eligibility check in library-api — generates the DMN XML and Bruno test files
-argument-hint: "[CheckName] [category]"
-disable-model-invocation: true
 ---
 
-Create a new DMN eligibility check in library-api. Arguments: `$ARGUMENTS` (optional — check name in PascalCase and/or category, e.g. `PersonMinIncome income`).
+Create a new DMN eligibility check in `library-api`. Use `$ARGUMENTS` when the host expands it; otherwise derive the same information from the user's request. Arguments are optional: check name in PascalCase and/or category (for example, `PersonMinIncome income`).
 
 ## Step 1 — Gather Requirements
 
