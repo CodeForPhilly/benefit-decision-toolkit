@@ -20,7 +20,7 @@ import { Image } from "astro:assets";
 
 <section id="team">
   <div class="max-w-[130ch] mx-auto py-12 md:py-18 px-3">
-    <h2 class="mb-6">Meet The Team</h2>
+    <h2 class="mb-9">Meet The Team</h2>
     <ul
       class="flex flex-wrap gap-x-9 sm:gap-x-6 sm:gap-y-12 gap-y-9 justify-center"
     >
@@ -28,16 +28,16 @@ import { Image } from "astro:assets";
         teamSorted.map(async (teamMember) => {
           return (
             <li class="sm:w-60 w-30">
-              <div class="text-center flex flex-col sm:gap-3">
+              <div class="text-center flex flex-col gap-2 sm:gap-3">
                 <Image
                   src={teamMember.data.photo}
                   alt={teamMember.data.photoAlt}
                   width={500}
                   height={500}
-                  class="w-40 mx-auto mb-3 rounded-full border border-bdt-blue/33 p-1"
+                  class="w-40 mx-auto rounded-full border border-bdt-blue/33 p-1 mb-2"
                 />
                 <h3>{teamMember.data.name}</h3>
-                <p class="font-medium mb-2">{teamMember.data.role}</p>
+                <p class="font-medium">{teamMember.data.role}</p>
                 {teamMember.data.link && (
                   <p>
                     <a
