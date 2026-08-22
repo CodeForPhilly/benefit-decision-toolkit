@@ -1,7 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import { Content } from "../assets/text/Volunteer.md";
-import cfpLogo from "../assets/logos/cfp-logo.png";
+import cfpLogo from "../assets/logos/cfp-logo.svg";
 import ActionButton from "./ActionButton.astro";
 ---
 
@@ -17,7 +17,9 @@ import ActionButton from "./ActionButton.astro";
       <div
         class="flex flex-col items-center bg-bg border border-card-border w-fit mx-auto py-6 px-9 mt-12 rounded-lg"
       >
-        <Image src={cfpLogo} alt="Code For Philly logo" />
+        <div class="max-w-36">
+          <Image src={cfpLogo} alt="Code For Philly logo" width="300" />
+        </div>
         <div class="w-fit">
           <a
             class="no-underline"
