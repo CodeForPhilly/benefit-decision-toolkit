@@ -5,10 +5,11 @@
   --font-sans: "Lato", sans;
   --font-serif: "Crete Round", serif;
   --color-bdt-blue: #1876ba;
+  --color-bdt-gradient: #0763ae;
   --color-heading: #2d2d2d;
   --color-btn-t: #92ee99;
   --color-btn-b: #6ce678;
-  --color-bg: #cce6f9;
-  --color-card-border: #9ccdf3;
+  --color-bg: #dceffc;
+  --color-card-border: #b7daf7;
   --color-border-b: #2cd733;
 }
