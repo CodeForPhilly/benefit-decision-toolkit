@@ -15,28 +15,30 @@ const roles = await getCollection("roles");
         roles.map(async (role) => {
           const { Content } = await render(role);
           return (
-            <li class=" bg-bg border border-card-border rounded-lg sm:p-6 px-3 py-4 min-w-30 role-card flex flex-col gap-3 justify-between">
-              <div class="flex flex-col gap-3">
-                <h3>{role.data.title}</h3>
-                <p>{role.data.brief}</p>
+            <li class=" bg-bg border border-card-border rounded-lg sm:p-6 px-3 py-4 min-w-30 role-card flex">
+              <div class="max-w-[65ch] mx-auto flex flex-col gap-3 justify-between">
+                <div class="flex flex-col gap-3">
+                  <h3>{role.data.title}</h3>
+                  <p>{role.data.brief}</p>
+                </div>
+                <details name="roles">
+                  <summary class="[&::marker]:content-[''] mx-auto cursor-pointer select-none text-center font-bold text-heading border border-gray-400 rounded-lg w-fit px-4 py-2 bg-white/30 shadow-lg/5">
+                    <span class="show-more">Show more</span>
+                    <span class="show-less hidden">Show less</span>
+                  </summary>
+                  <div class="prose py-6 prose-li:text-black prose-li:marker:text-black prose-li:text-lg mx-auto">
+                    <Content />
+                  </div>
+                  <div class="w-fit mx-auto">
+                    <a
+                      href="https://codeforphilly.org/projects/dmn_benefit_toolbox-including_the_philly_property_tax_relief_screener"
+                      target="_blank"
+                    >
+                      <ActionButton>Join Our Team</ActionButton>
+                    </a>
+                  </div>
+                </details>
               </div>
-              <details name="roles">
-                <summary class="[&::marker]:content-[''] mx-auto cursor-pointer select-none text-center font-bold text-heading border border-gray-400 rounded-lg w-fit px-4 py-2 bg-white/30 shadow-lg/5">
-                  <span class="show-more">Show more</span>
-                  <span class="show-less hidden">Show less</span>
-                </summary>
-                <div class="prose py-6 prose-li:text-black prose-li:marker:text-black prose-li:text-lg">
-                  <Content />
-                </div>
-                <div class="w-fit">
-                  <a
-                    href="https://codeforphilly.org/projects/dmn_benefit_toolbox-including_the_philly_property_tax_relief_screener"
-                    target="_blank"
-                  >
-                    <ActionButton>Join Our Team</ActionButton>
-                  </a>
-                </div>
-              </details>
             </li>
           );
         })
