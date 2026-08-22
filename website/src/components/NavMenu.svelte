@@ -42,7 +42,7 @@
 {#if menuActive == true}
   <div
     id="navMenu"
-    class="fixed left-0 top-0 h-screen w-screen flex justify-center items-center bg-bdt-blue z-10"
+    class="fixed left-0 top-0 h-screen w-screen flex justify-center items-center bg-linear-to-br from-bdt-blue to-bdt-gradient z-10"
     transition:fade={{ duration: 180, easing: quadOut }}
   >
     <button
