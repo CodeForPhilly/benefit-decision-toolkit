@@ -6,11 +6,14 @@ const projects = defineCollection({
     pattern: "**/*.md",
     base: "./src/assets/text/projects",
   }),
-  schema: z.object({
-    index: z.number(),
-    link: z.string(),
-    btnText: z.string(),
-  }),
+  schema: ({ image }) =>
+    z.object({
+      index: z.number(),
+      link: z.string(),
+      btnText: z.string(),
+      screenshot: image(),
+      screenshotAlt: z.string(),
+    }),
 });
 
 const team = defineCollection({
