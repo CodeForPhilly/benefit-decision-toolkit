@@ -1,7 +1,9 @@
 ---
 import { render } from "astro:content";
 import { getCollection } from "astro:content";
-const projects = await getCollection("projects");
+const projects = (await getCollection("projects")).sort(
+  (a, b) => a.data.index.valueOf() - b.data.index.valueOf(),
+);
 import { Content } from "../assets/text/Projects.md";
 import ActionButton from "./ActionButton.astro";
 ---
