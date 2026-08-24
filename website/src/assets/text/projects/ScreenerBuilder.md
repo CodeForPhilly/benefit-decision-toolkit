@@ -6,6 +6,6 @@ screenshot: ../../screenshots/web-app.png
 screenshotAlt: Screenshot of a benefits management interface with a button labeled create new benefit and two existing benefits named food assistance and heating assistance.
 ---
 
-### Screener Builder
+### Screener Builder Web App
 
 An application designed to simplify and improve the process of creating online screeners for public benefit eligibility.

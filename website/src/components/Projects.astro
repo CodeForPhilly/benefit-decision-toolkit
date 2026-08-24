@@ -16,26 +16,28 @@ import { Image } from "astro:assets";
   <div class="max-w-[85ch] mx-auto pb-9 prose">
     <Content />
   </div>
-  <ul class="flex flex-col sm:flex-row gap-6 justify-center">
+  <ul class="flex flex-col sm:flex-row gap-6">
     {
       projects.map(async (project) => {
         const { Content } = await render(project);
         return (
-          <li class="bg-bg border border-card-border sm:p-6 px-3 py-4 rounded-lg md:w-1/2">
+          <li class="bg-bg border border-card-border sm:p-6 px-3 py-4 rounded-lg md:w-1/2 flex flex-col justify-between gap-6">
             <div class="prose prose-a:font-medium">
               <Content />
             </div>
-            <Image
-              src={project.data.screenshot}
-              alt={project.data.screenshotAlt}
-              width={900}
-              height={650}
-              class="rounded-lg border border-gray-400 mt-6"
-            />
-            <div class="w-fit mx-auto">
-              <a href={project.data.link} target="_blank">
-                <ActionButton>{project.data.btnText}</ActionButton>
-              </a>
+            <div>
+              <Image
+                src={project.data.screenshot}
+                alt={project.data.screenshotAlt}
+                width={900}
+                height={650}
+                class="rounded-lg border border-gray-400"
+              />
+              <div class="w-fit mx-auto">
+                <a href={project.data.link} target="_blank">
+                  <ActionButton>{project.data.btnText}</ActionButton>
+                </a>
+              </div>
             </div>
           </li>
         );
