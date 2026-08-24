@@ -1,11 +1,13 @@
 ---
+import { Image } from "astro:assets";
 import { Content } from "../assets/text/Contact.md";
 import ActionButton from "./ActionButton.astro";
+import photo from "../assets/backgrounds/philly-parkway.jpg";
 ---
 
 <section id="contact" class="max-w-[130ch] mx-auto py-6 md:py-12">
   <div class="flex flex-row">
-    <div class="sm:w-1/2 sm:p-12 px-3 py-6 sm:pr-6">
+    <div class="w-full md:w-1/2 md:p-6 px-3 py-6 md:pr-6">
       <div class="prose prose-headings:text-left">
         <Content />
       </div>
@@ -54,11 +56,15 @@ import ActionButton from "./ActionButton.astro";
         </ActionButton>
       </form>
     </div>
-    <div class="w-1/2 h-180 hidden sm:flex">
-      <div
-        class="w-full m-12 ml-6 bg-[url(../assets/backgrounds/philly-parkway.webp)] bg-cover bg-center justify-center rounded-lg border border-gray-400"
-      >
-      </div>
+    <div
+      class="w-1/2 h-180 hidden md:flex overflow-hidden rounded-lg border border-gray-400 mr-3 md:mr-6"
+    >
+      <Image
+        src={photo}
+        alt="Philadelphia skyline"
+        width={600}
+        class="w-full h-full object-cover"
+      />
     </div>
   </div>
 </section>
