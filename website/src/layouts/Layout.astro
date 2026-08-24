@@ -3,6 +3,11 @@ import "../styles/global.css";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import { Font } from "astro:assets";
+
+const {
+  title = "Benefit Decision Toolkit",
+  description = "Build free, intuitive benefit eligibility screening tools for the communities you serve.",
+} = Astro.props;
 ---
 
 <html lang="en" class="scroll-smooth">
@@ -11,11 +16,8 @@ import { Font } from "astro:assets";
     <link rel="icon" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <title>Benefit Decision Toolkit</title>
-    <meta
-      name="description"
-      content="Benefit Decision Toolkit simplifies the management of eligibility rules and screeners so you can create useful tools quickly and keep the code to a minimum."
-    />
+    <title>{title}</title>
+    <meta name="description" content={description} />
     <Font cssVariable="--font-lato" />
     <Font cssVariable="--font-crete-round" />
   </head>
