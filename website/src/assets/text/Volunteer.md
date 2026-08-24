@@ -1,4 +1,4 @@
-# Build BDT With Us
+## Build BDT With Us
 
 Contributing to BDT is a great way to gain experience working on an open source project with a friendly team!
 
