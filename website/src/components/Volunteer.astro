@@ -5,31 +5,29 @@ import cfpLogo from "../assets/logos/cfp-logo.svg";
 import ActionButton from "./ActionButton.astro";
 ---
 
-<div>
-  <section
-    class="bg-white bg-[url(../assets/backgrounds/check-pattern.webp)] bg-size-[auto_900px]"
-    id="overview"
+<section
+  class="bg-white bg-[url(../assets/backgrounds/check-pattern.webp)] bg-size-[auto_900px]"
+  id="overview"
+>
+  <div
+    class="max-w-[85ch] mx-auto py-12 md:py-18 px-3 prose prose-a:font-medium"
   >
+    <Content />
     <div
-      class="max-w-[85ch] mx-auto py-12 md:py-18 px-3 prose prose-a:font-medium"
+      class="flex flex-col items-center bg-bg border border-card-border w-fit mx-auto py-6 px-9 mt-12 rounded-lg"
     >
-      <Content />
-      <div
-        class="flex flex-col items-center bg-bg border border-card-border w-fit mx-auto py-6 px-9 mt-12 rounded-lg"
-      >
-        <div class="max-w-36">
-          <Image src={cfpLogo} alt="Code For Philly logo" width="300" />
-        </div>
-        <div class="w-fit">
-          <a
-            class="no-underline"
-            href="https://codeforphilly.org/projects/dmn_benefit_toolbox-including_the_philly_property_tax_relief_screener"
-            target="_blank"
-          >
-            <ActionButton>Connect</ActionButton>
-          </a>
-        </div>
+      <div class="max-w-36">
+        <Image src={cfpLogo} alt="Code For Philly logo" width="300" />
+      </div>
+      <div class="w-fit">
+        <a
+          class="no-underline"
+          href="https://codeforphilly.org/projects/dmn_benefit_toolbox-including_the_philly_property_tax_relief_screener"
+          target="_blank"
+        >
+          <ActionButton>Connect</ActionButton>
+        </a>
       </div>
     </div>
-  </section>
-</div>
+  </div>
+</section>
