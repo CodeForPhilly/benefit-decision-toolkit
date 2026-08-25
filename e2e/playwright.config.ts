@@ -12,7 +12,13 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  /* The HTML reporter's default `open: 'on-failure'` starts a report server and
+     blocks on "Press Ctrl+C to quit" whenever a test fails, which hangs any
+     script that wraps this suite (bin/run-e2e-tests, bin/run-all-tests). Keep
+     the report on disk and let developers open it with
+     `npx playwright show-report`, and use the list reporter for terminal
+     output. */
+  reporter: [['list'], ['html', { open: 'never' }]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */

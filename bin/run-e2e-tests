@@ -354,6 +354,13 @@ export PLAYWRIGHT_BROWSERS_PATH="$PROJECT_ROOT/.devbox/nix/profile/default"
 export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 export PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=true
 
+# This script runs unattended and is itself wrapped by bin/run-all-tests, so the
+# HTML reporter must never start its report server and block on "Press Ctrl+C to
+# quit" after a failure. e2e/playwright.config.ts sets `open: 'never'`; this
+# enforces it regardless of the config in use. The report is still written to
+# e2e/playwright-report and can be viewed with `npx playwright show-report`.
+export PW_TEST_HTML_REPORT_OPEN=never
+
 found_chromium=0
 for dir in "$PLAYWRIGHT_BROWSERS_PATH"/chromium-*; do
   if [ -d "$dir" ]; then
@@ -522,5 +529,16 @@ wait_for_url "builder frontend" "http://localhost:5173/"
 
 (
   cd e2e
+
+  set +e
   ./node_modules/.bin/playwright test "$@"
+  playwright_status=$?
+  set -e
+
+  if [ "$playwright_status" -ne 0 ]; then
+    echo "Playwright HTML report: $PROJECT_ROOT/e2e/playwright-report" >&2
+    echo "View it with: (cd e2e && ./node_modules/.bin/playwright show-report)" >&2
+  fi
+
+  exit "$playwright_status"
 )
