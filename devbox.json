@@ -24,7 +24,7 @@
         "bin/setup"
       ],
       "test": [
-        "bin/run-all-tests"
+        "bin/run-all-tests \"$@\""
       ],
       "build-library-api-ci": [
         "cd library-api",
