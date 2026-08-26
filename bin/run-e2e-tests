@@ -14,6 +14,7 @@ BACKUP_EXPECTED=0
 TEST_DATA_INSTALLED=0
 SERVICES_MAY_BE_RUNNING=0
 MANAGED_APPLICATION_PORTS=(5173 8080 8081 8083 9099 9199)
+PRE_EXISTING_FIREBASE_EXPORTS=()
 
 cd "$PROJECT_ROOT"
 
@@ -38,6 +39,60 @@ report_recovery_state() {
   fi
 
   echo "Do not rerun the E2E runner until this recovery state is resolved." >&2
+}
+
+# The emulators run with --export-on-exit (see process-compose.yml). On shutdown
+# the Firebase CLI stages that export in a `firebase-export-<millis>XXXXXX`
+# directory created with a *relative* path, so it lands in the emulator process's
+# working directory - this repository root - and is only moved into place once
+# every emulator has exported successfully. When one of them fails (the usual
+# cause is the stack being torn down before the storage emulator is serving), the
+# staging directory is orphaned in the repo root. Record what was already there so
+# cleanup can remove only what this run leaked.
+snapshot_firebase_export_dirs() {
+  local dir
+
+  PRE_EXISTING_FIREBASE_EXPORTS=()
+
+  while IFS= read -r -d '' dir; do
+    PRE_EXISTING_FIREBASE_EXPORTS+=("$dir")
+  done < <(find "$PROJECT_ROOT" -maxdepth 1 -type d -name 'firebase-export-*' -print0)
+}
+
+remove_leaked_firebase_export_dirs() {
+  local dir
+  local existing
+  local known
+  local -a leaked=()
+
+  while IFS= read -r -d '' dir; do
+    known=0
+
+    if [ "${#PRE_EXISTING_FIREBASE_EXPORTS[@]}" -ne 0 ]; then
+      for existing in "${PRE_EXISTING_FIREBASE_EXPORTS[@]}"; do
+        if [ "$dir" = "$existing" ]; then
+          known=1
+          break
+        fi
+      done
+    fi
+
+    if [ "$known" -eq 0 ]; then
+      leaked+=("$dir")
+    fi
+  done < <(find "$PROJECT_ROOT" -maxdepth 1 -type d -name 'firebase-export-*' -print0)
+
+  if [ "${#leaked[@]}" -eq 0 ]; then
+    return 0
+  fi
+
+  for dir in "${leaked[@]}"; do
+    echo "Removing incomplete emulator export left behind by this run: $dir" >&2
+    if ! rm -rf -- "$dir"; then
+      echo "Failed to remove $dir." >&2
+      return 1
+    fi
+  done
 }
 
 port_has_listener() {
@@ -260,6 +315,12 @@ cleanup() {
     fi
   fi
 
+  if [ "$safe_to_modify_data" -eq 1 ]; then
+    if ! remove_leaked_firebase_export_dirs; then
+      cleanup_code=1
+    fi
+  fi
+
   if [ "$safe_to_modify_data" -eq 0 ]; then
     report_recovery_state
   fi
@@ -403,6 +464,8 @@ elif [ -e "$PROJECT_ROOT/emulator-data" ] && [ ! -d "$PROJECT_ROOT/emulator-data
   echo "Replace it with a directory or remove it before rerunning." >&2
   exit 1
 fi
+
+snapshot_firebase_export_dirs
 
 ensure_env_file ".env" ".env.example"
 ensure_env_file "builder-frontend/.env" "builder-frontend/.env.example"
