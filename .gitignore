@@ -19,6 +19,10 @@ firebase-debug.*.log*
 
 emulator-data/
 
+# Staging directory the Firebase CLI leaves in the repo root when an
+# --export-on-exit run fails part way through (see bin/run-e2e-tests).
+firebase-export-*/
+
 # Runtime data
 pids
 *.pid
