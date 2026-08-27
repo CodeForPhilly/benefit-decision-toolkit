@@ -97,6 +97,34 @@ jobs:
           # Build and tag with version
           docker build -f src/main/docker/Dockerfile.jvm --tag "${DOCKER_TAG_VERSIONED}" --tag "${DOCKER_TAG_LATEST}" .
 
+          # Verify the release image can start before publishing it.
+          CONTAINER_NAME="library-api-smoke"
+          trap 'docker rm --force "${CONTAINER_NAME}" >/dev/null 2>&1 || true' EXIT
+          docker run --detach --name "${CONTAINER_NAME}" --env PORT=8080 --publish 127.0.0.1:8080:8080 "${DOCKER_TAG_VERSIONED}"
+
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8080/q/health/ready >/dev/null; then
+              break
+            fi
+
+            if ! docker inspect --format '{{.State.Running}}' "${CONTAINER_NAME}" | grep --quiet true; then
+              echo "ERROR: Container exited before becoming ready"
+              docker logs "${CONTAINER_NAME}"
+              exit 1
+            fi
+
+            if [[ "${attempt}" -eq 30 ]]; then
+              echo "ERROR: Container did not become ready within 30 seconds"
+              docker logs "${CONTAINER_NAME}"
+              exit 1
+            fi
+
+            sleep 1
+          done
+
+          docker rm --force "${CONTAINER_NAME}"
+          trap - EXIT
+
           # Push both tags
           docker push "${DOCKER_TAG_VERSIONED}"
           docker push "${DOCKER_TAG_LATEST}"
