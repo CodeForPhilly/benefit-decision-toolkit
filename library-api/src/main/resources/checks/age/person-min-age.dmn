@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/" xmlns="https://kie.apache.org/dmn/_C189BB80-C23E-476E-B0BB-DDF4FF7D305A" xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/" xmlns:kie="http://www.drools.org/kie/dmn/1.2" xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_81D401A8-CA81-4F9A-ABCC-532C25768708" id="_54EE8558-2856-4569-A934-82BB9EF5AEA1" name="PersonMinAge" typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/" namespace="https://kie.apache.org/dmn/_C189BB80-C23E-476E-B0BB-DDF4FF7D305A">
+<dmn:definitions xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns="https://kie.apache.org/dmn/_C189BB80-C23E-476E-B0BB-DDF4FF7D305A" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:kie="https://kie.org/dmn/extensions/1.0" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_81D401A8-CA81-4F9A-ABCC-532C25768708" id="_54EE8558-2856-4569-A934-82BB9EF5AEA1" name="PersonMinAge" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_C189BB80-C23E-476E-B0BB-DDF4FF7D305A">
   <dmn:description>Ensure a specified person's age meets a minimum number as of a specified date.</dmn:description>
   <dmn:extensionElements/>
-  <dmn:import id="_A84E0D06-B7CA-4297-8D97-6DDB8583B14C" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../bdt.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
-  <dmn:import id="_6DD043FB-D304-4B57-BBAA-880D467FA1E6" name="Age" namespace="https://kie.apache.org/dmn/_81D401A8-CA81-4F9A-ABCC-532C25768708" locationURI="Age.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+  <dmn:import id="_A84E0D06-B7CA-4297-8D97-6DDB8583B14C" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../bdt.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
+  <dmn:import id="_6DD043FB-D304-4B57-BBAA-880D467FA1E6" name="Age" namespace="https://kie.apache.org/dmn/_81D401A8-CA81-4F9A-ABCC-532C25768708" locationURI="Age.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
   <dmn:itemDefinition id="_A6252498-B6DA-4011-9C0F-1A45D18DFAC3" name="tParameters" isCollection="false">
     <dmn:itemComponent id="_E6E5B081-1550-4DD6-B94E-F2462DDD4F78" name="personId" isCollection="false">
       <dmn:typeRef>string</dmn:typeRef>
@@ -116,11 +116,11 @@ else
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="168" y="91" width="378" height="199"/>
+        <dc:Bounds x="260" y="100" width="280" height="280"/>
         <dmndi:DMNLabel/>
         <dmndi:DMNDecisionServiceDividerLine>
-          <di:waypoint x="168" y="191"/>
-          <di:waypoint x="546" y="191"/>
+          <di:waypoint x="260" y="240"/>
+          <di:waypoint x="540" y="240"/>
         </dmndi:DMNDecisionServiceDividerLine>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_ACEED577-3BAE-4C6D-9F43-297A3A832E81" dmnElementRef="_ACEED577-3BAE-4C6D-9F43-297A3A832E81" isCollapsed="false">
@@ -129,7 +129,7 @@ else
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="283" y="129" width="160" height="50"/>
+        <dc:Bounds x="320" y="130" width="160" height="80"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_7E4E0F8D-FA5D-49EF-8A65-0FEB4B7C0951" dmnElementRef="_7E4E0F8D-FA5D-49EF-8A65-0FEB4B7C0951" isCollapsed="false">
@@ -138,7 +138,7 @@ else
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="226" y="318" width="100" height="50"/>
+        <dc:Bounds x="100" y="480" width="160" height="80"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_F4F5DB0A-F298-4519-9554-44344C6179FE" dmnElementRef="_F4F5DB0A-F298-4519-9554-44344C6179FE" isCollapsed="false">
@@ -147,7 +147,7 @@ else
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="415" y="318" width="98" height="50"/>
+        <dc:Bounds x="320" y="480" width="160" height="80"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_1919D943-09A4-4D5C-98A0-2B8377862E4C" dmnElementRef="included2:_1919D943-09A4-4D5C-98A0-2B8377862E4C" isCollapsed="false">
@@ -156,20 +156,20 @@ else
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="74" y="28.684210526315795" width="118" height="50"/>
+        <dc:Bounds x="540" y="20" width="160" height="80"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_C3219D7A-ABD5-4FCC-B63F-0511B93B9BAE-AUTO-TARGET" dmnElementRef="_C3219D7A-ABD5-4FCC-B63F-0511B93B9BAE">
-        <di:waypoint x="276" y="343"/>
-        <di:waypoint x="363" y="179"/>
+        <di:waypoint x="205.142857" y="480"/>
+        <di:waypoint x="374.857143" y="210"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_4B4ED9D3-EF1A-46AB-9AB6-B5E2C2100C54-AUTO-TARGET" dmnElementRef="_4B4ED9D3-EF1A-46AB-9AB6-B5E2C2100C54">
-        <di:waypoint x="464" y="343"/>
-        <di:waypoint x="363" y="179"/>
+        <di:waypoint x="400" y="480"/>
+        <di:waypoint x="400" y="210"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_8C5EF0F5-8039-48DD-BC32-25CDF2F93E9C" dmnElementRef="_8C5EF0F5-8039-48DD-BC32-25CDF2F93E9C">
-        <di:waypoint x="133" y="53.684210526315795"/>
-        <di:waypoint x="283" y="154"/>
+        <di:waypoint x="540" y="100"/>
+        <di:waypoint x="480" y="130"/>
       </dmndi:DMNEdge>
     </dmndi:DMNDiagram>
   </dmndi:DMNDI>

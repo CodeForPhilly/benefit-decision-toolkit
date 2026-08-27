@@ -11,8 +11,8 @@ import org.kie.dmn.api.core.DMNResult;
 import org.codeforphilly.bdt.api.ModelInfo;
 import org.codeforphilly.bdt.api.ModelRegistry;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 

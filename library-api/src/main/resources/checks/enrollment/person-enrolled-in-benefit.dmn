@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/" xmlns="https://kie.apache.org/dmn/_CB10DDEF-33B4-43C5-AD7D-55A06060FF2A" xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/" xmlns:kie="http://www.drools.org/kie/dmn/1.2" xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:included1="https://kie.apache.org/dmn/_6E9D53A6-E99A-4060-9E3E-1AE12EAB5465" xmlns:included2="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" id="_4836FB2E-EA9A-46D1-B532-C5FD8DCFEDE6" name="PersonEnrolledInBenefit" typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/" namespace="https://kie.apache.org/dmn/_CB10DDEF-33B4-43C5-AD7D-55A06060FF2A">
+<dmn:definitions xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns="https://kie.apache.org/dmn/_CB10DDEF-33B4-43C5-AD7D-55A06060FF2A" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:kie="https://kie.org/dmn/extensions/1.0" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:included1="https://kie.apache.org/dmn/_6E9D53A6-E99A-4060-9E3E-1AE12EAB5465" xmlns:included2="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" id="_4836FB2E-EA9A-46D1-B532-C5FD8DCFEDE6" name="PersonEnrolledInBenefit" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_CB10DDEF-33B4-43C5-AD7D-55A06060FF2A">
   <dmn:description>Verify that a specified person is enrolled in a specified benefit program.</dmn:description>
   <dmn:extensionElements/>
-  <dmn:import id="_222D61DF-1815-4010-AE37-6877961473E5" name="Enrollment" namespace="https://kie.apache.org/dmn/_6E9D53A6-E99A-4060-9E3E-1AE12EAB5465" locationURI="Enrollment.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
-  <dmn:import id="_FFA4D8BE-A021-4476-8526-7D8E448C5203" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../BDT.dmn" importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+  <dmn:import id="_222D61DF-1815-4010-AE37-6877961473E5" name="Enrollment" namespace="https://kie.apache.org/dmn/_6E9D53A6-E99A-4060-9E3E-1AE12EAB5465" locationURI="Enrollment.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
+  <dmn:import id="_FFA4D8BE-A021-4476-8526-7D8E448C5203" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
   <dmn:itemDefinition id="_8567E466-E20E-4F59-9334-E330CBCA5D6C" name="tParameters" isCollection="false">
     <dmn:itemComponent id="_B3CDA42A-A38B-49B5-9739-ACC6D59C3A67" name="personId" isCollection="false">
       <dmn:typeRef>string</dmn:typeRef>
@@ -63,11 +63,11 @@ else
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="253" y="106" width="235" height="199"/>
+        <dc:Bounds x="150" y="100" width="280" height="280"/>
         <dmndi:DMNLabel/>
         <dmndi:DMNDecisionServiceDividerLine>
-          <di:waypoint x="253" y="206"/>
-          <di:waypoint x="488" y="206"/>
+          <di:waypoint x="150" y="240"/>
+          <di:waypoint x="430" y="240"/>
         </dmndi:DMNDecisionServiceDividerLine>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_11496BDA-61EA-44BB-AB63-A5A272ED2472" dmnElementRef="_11496BDA-61EA-44BB-AB63-A5A272ED2472" isCollapsed="false">
@@ -76,7 +76,7 @@ else
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="327" y="147" width="88" height="50"/>
+        <dc:Bounds x="210" y="130" width="160" height="80"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_7E377FA3-246D-4CBF-AE45-3A3AFDB7372B" dmnElementRef="_7E377FA3-246D-4CBF-AE45-3A3AFDB7372B" isCollapsed="false">
@@ -85,7 +85,7 @@ else
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="201" y="336" width="100" height="50"/>
+        <dc:Bounds x="100" y="480" width="160" height="80"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNShape id="dmnshape-drg-_222EBF53-16BF-4A13-A424-0AD32C90100D" dmnElementRef="_222EBF53-16BF-4A13-A424-0AD32C90100D" isCollapsed="false">
@@ -94,16 +94,16 @@ else
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="393" y="336" width="100" height="50"/>
+        <dc:Bounds x="320" y="480" width="160" height="80"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_669BFE51-E50C-444C-853C-D6F45C4869F3-AUTO-TARGET" dmnElementRef="_669BFE51-E50C-444C-853C-D6F45C4869F3">
-        <di:waypoint x="251" y="361"/>
-        <di:waypoint x="371" y="197"/>
+        <di:waypoint x="180" y="520"/>
+        <di:waypoint x="277.428571" y="210"/>
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="dmnedge-drg-_9164FE76-0C6C-4D96-9CBD-5EC2639D22A8-AUTO-TARGET" dmnElementRef="_9164FE76-0C6C-4D96-9CBD-5EC2639D22A8">
-        <di:waypoint x="443" y="361"/>
-        <di:waypoint x="371" y="197"/>
+        <di:waypoint x="400" y="520"/>
+        <di:waypoint x="302.571429" y="210"/>
       </dmndi:DMNEdge>
     </dmndi:DMNDiagram>
   </dmndi:DMNDI>

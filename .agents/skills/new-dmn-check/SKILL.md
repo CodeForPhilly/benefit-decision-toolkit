@@ -1,6 +1,6 @@
 ---
 name: new-dmn-check
-description: Create a new DMN eligibility check in library-api — generates the DMN XML and Bruno test files
+description: Create a DMN 1.6 eligibility check in library-api with KIE Tools 10.2-compatible layout and Bruno tests.
 ---
 
 Create a new DMN eligibility check in `library-api`. Use `$ARGUMENTS` when the host expands it; otherwise derive the same information from the user's request. Arguments are optional: check name in PascalCase and/or category (for example, `PersonMinIncome income`).
@@ -40,6 +40,23 @@ If a match is found, warn the user and stop. The name must be globally unique.
 
 **File path**: `library-api/src/main/resources/checks/{category}/{check-name}.dmn`
 
+### DMN 1.6 namespaces
+
+Generate DMN 1.6 XML with these exact values:
+
+| Prefix/use | Namespace |
+|---|---|
+| `dmn` model and every import's `importType` | `https://www.omg.org/spec/DMN/20240513/MODEL/` |
+| `feel` and `typeLanguage` | `https://www.omg.org/spec/DMN/20240513/FEEL/` |
+| `dmndi` | `https://www.omg.org/spec/DMN/20230324/DMNDI/` |
+| `di` | `http://www.omg.org/spec/DMN/20180521/DI/` |
+| `dc` | `http://www.omg.org/spec/DMN/20180521/DC/` |
+| `kie` | `https://kie.org/dmn/extensions/1.0` |
+
+Do not copy the 20180521 model/FEEL/DMNDI or Drools 1.2 extension
+namespaces from older files or examples. Keep the model's own default
+namespace as its fresh KIE UUID URI.
+
 **Rules**:
 - Generate fresh UUID v4 values for every `id` attribute (format: `_XXXXXXXX-XXXX-4XXX-XXXX-XXXXXXXXXXXX` using uppercase hex). Each UUID must be unique within the file.
 - The model's own `namespace` attribute is a fresh UUID URI: `https://kie.apache.org/dmn/_{UUID}`.
@@ -60,7 +77,7 @@ If the new check is the logical inverse of an **existing** check (e.g. `NoTenYea
 1. Add a third import for the sibling check DMN (e.g. `xmlns:included3="{siblingNamespace}"` and a `<dmn:import>` element).
 2. Add a `<dmn:knowledgeRequirement>` in the `checkResult` decision referencing the sibling's Decision Service id: `href="{siblingNamespace}#{siblingServiceId}"`.
 3. Write the FEEL expression as: `not({SiblingAlias}.{SiblingCheckName}Service(situation: situation))` — or include `parameters: parameters` if the sibling takes parameters.
-4. In DMNDI, add a `<dmndi:DMNShape>` for the imported service (using `dmnElementRef="included3:{siblingServiceId}"`) and a `<dmndi:DMNEdge>` for the knowledge requirement edge. Place the imported service shape above and to the right of the main service box.
+4. In DMNDI, add a collapsed `300×100` `<dmndi:DMNShape isCollapsed="true">` for the imported service (using `dmnElementRef="included3:{siblingServiceId}"`) and a `<dmndi:DMNEdge>` for the knowledge requirement edge. Place the imported service above and alongside the referencing decision, with its divider at `y + 50`.
 5. The sibling check's namespace URI and Decision Service id can be found in its DMN file — read it before generating.
 
 **Example**: `no-ten-year-tax-abatement.dmn` imports `ten-year-tax-abatement.dmn` and evaluates:
@@ -78,30 +95,30 @@ Based on `person-enrolled-in-benefit.dmn`:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <dmn:definitions
-    xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/"
+    xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/"
     xmlns="https://kie.apache.org/dmn/_{MODEL_NAMESPACE_UUID}"
-    xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/"
-    xmlns:kie="http://www.drools.org/kie/dmn/1.2"
-    xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/"
+    xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/"
+    xmlns:kie="https://kie.org/dmn/extensions/1.0"
+    xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/"
     xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
     xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
     xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79"
     xmlns:included2="{CATEGORY_MODULE_NAMESPACE_URI}"
     id="_{DEFINITIONS_UUID}"
     name="{CheckName}"
-    typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/"
+    typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/"
     namespace="https://kie.apache.org/dmn/_{MODEL_NAMESPACE_UUID}">
   <dmn:description>{One sentence description}</dmn:description>
   <dmn:extensionElements/>
   <dmn:import id="_{IMPORT_BDT_UUID}" name="BDT"
       namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79"
       locationURI="../BDT.dmn"
-      importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+      importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
   <!-- Always import the category base module, even if no types from it are referenced -->
   <dmn:import id="_{IMPORT_CATEGORY_UUID}" name="{Category}"
       namespace="{CATEGORY_MODULE_NAMESPACE_URI}"
       locationURI="{Category}.dmn"
-      importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+      importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
 
   <!-- OMIT the tParameters block entirely if the check has no parameters -->
   <dmn:itemDefinition id="_{TPARAMS_UUID}" name="tParameters" isCollection="false">
@@ -161,43 +178,39 @@ Based on `person-enrolled-in-benefit.dmn`:
           </kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
-      <!-- Decision service: width sized to fit "{CheckName}Service" label (approx 12px/char + margin).
-           Upper half (y=106 to y=206) holds output decisions; lower half is encapsulated area.
-           Inputs always go BELOW the service box. -->
+      <!-- Expanded Decision Service: KIE Tools 10.2 minimum is 280×280.
+           Its output decision is in the upper section; inputs go below. -->
       <dmndi:DMNShape id="dmnshape-drg-_{DS_UUID}" dmnElementRef="_{DS_UUID}" isCollapsed="false">
         <dmndi:DMNStyle>
           <dmndi:FillColor red="255" green="255" blue="255"/>
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="{DS_X}" y="106" width="{DS_WIDTH}" height="199"/>
+        <dc:Bounds x="{DS_X}" y="100" width="{DS_WIDTH}" height="280"/>
         <dmndi:DMNLabel/>
         <dmndi:DMNDecisionServiceDividerLine>
-          <di:waypoint x="{DS_X}" y="206"/>
-          <di:waypoint x="{DS_X_RIGHT}" y="206"/>
+          <di:waypoint x="{DS_X}" y="240"/>
+          <di:waypoint x="{DS_X_RIGHT}" y="240"/>
         </dmndi:DMNDecisionServiceDividerLine>
       </dmndi:DMNShape>
-      <!-- checkResult: 88×50, centered horizontally within the service box.
-           y=147 leaves a 41px gap below the service box top (y=106) for the service name label. -->
+      <!-- Ordinary nodes must be at least 160×80 in KIE Tools 10.2. -->
       <dmndi:DMNShape id="dmnshape-drg-_{DECISION_UUID}" dmnElementRef="_{DECISION_UUID}" isCollapsed="false">
         <dmndi:DMNStyle>
           <dmndi:FillColor red="255" green="255" blue="255"/>
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="{DECISION_X}" y="147" width="88" height="50"/>
+        <dc:Bounds x="{DECISION_X}" y="130" width="160" height="80"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
-      <!-- Input nodes: 100×50 each, at y=336 (below service box which ends at y=305).
-           With two inputs: left-align situation at DS_X, right-align parameters at DS_X+DS_WIDTH-100.
-           With one input (no parameters): center situation at DS_X+(DS_WIDTH-100)/2. -->
+      <!-- Input nodes use a lower row, at least 100px below the service box. -->
       <dmndi:DMNShape id="dmnshape-drg-_{SITUATION_INPUT_UUID}" dmnElementRef="_{SITUATION_INPUT_UUID}" isCollapsed="false">
         <dmndi:DMNStyle>
           <dmndi:FillColor red="255" green="255" blue="255"/>
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="{SITUATION_X}" y="336" width="100" height="50"/>
+        <dc:Bounds x="{SITUATION_X}" y="480" width="160" height="80"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <!-- OMIT the next DMNShape if the check has no parameters -->
@@ -207,18 +220,18 @@ Based on `person-enrolled-in-benefit.dmn`:
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="{PARAMS_X}" y="336" width="100" height="50"/>
+        <dc:Bounds x="{PARAMS_X}" y="480" width="160" height="80"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
-      <!-- Edges: FROM center of input (x+50, y+25) → TO bottom-center of checkResult (DECISION_X+44, 181) -->
+      <!-- Recalculate waypoints from the final geometry. Inputs flow upward to checkResult. -->
       <dmndi:DMNEdge id="dmnedge-drg-_{IR1_UUID}-AUTO-TARGET" dmnElementRef="_{IR1_UUID}">
-        <di:waypoint x="{SITUATION_CENTER_X}" y="361"/>
-        <di:waypoint x="{DECISION_CENTER_X}" y="197"/>
+        <di:waypoint x="{SITUATION_CENTER_X}" y="520"/>
+        <di:waypoint x="{SITUATION_TARGET_X}" y="210"/>
       </dmndi:DMNEdge>
       <!-- OMIT the next DMNEdge if the check has no parameters -->
       <dmndi:DMNEdge id="dmnedge-drg-_{IR2_UUID}-AUTO-TARGET" dmnElementRef="_{IR2_UUID}">
-        <di:waypoint x="{PARAMS_CENTER_X}" y="361"/>
-        <di:waypoint x="{DECISION_CENTER_X}" y="197"/>
+        <di:waypoint x="{PARAMS_CENTER_X}" y="520"/>
+        <di:waypoint x="{PARAMS_TARGET_X}" y="210"/>
       </dmndi:DMNEdge>
     </dmndi:DMNDiagram>
   </dmndi:DMNDI>
@@ -226,19 +239,23 @@ Based on `person-enrolled-in-benefit.dmn`:
 ```
 
 **DMNDI layout coordinate guide** (fill in the placeholders above):
-- `{DS_WIDTH}` — approximately `max(200, len("{CheckName}Service") * 12 + 40)`; round to nearest 10
-- `{DS_X}` — choose so the service box is centered around x≈310; e.g. `310 - DS_WIDTH/2`
+- `{DS_WIDTH}` — `max(280, len("{CheckName}Service") * 12 + 40)`; round up to a convenient integer
+- `{DS_X}` — choose a center that leaves room for the complete lower input row and any upper knowledge references
 - `{DS_X_RIGHT}` — `DS_X + DS_WIDTH`
-- `{DECISION_X}` — `DS_X + (DS_WIDTH - 88) / 2` (horizontally centers the 88px decision inside the service box); y is always **147** — this leaves a 41px gap below the service box top (y=106) so the service name label doesn't overlap the decision node
-- `{DECISION_CENTER_X}` — `DECISION_X + 44`
-- `{SITUATION_X}` — with parameters: `DS_X` (left-align); without parameters: `DS_X + (DS_WIDTH - 100) / 2` (center under service box)
-- `{PARAMS_X}` — `DS_X + DS_WIDTH - 100` (right-align with service box); omit if no parameters
-- `{SITUATION_CENTER_X}` — `SITUATION_X + 50`
-- `{PARAMS_CENTER_X}` — `PARAMS_X + 50`; omit if no parameters
+- `{DECISION_X}` — `DS_X + (DS_WIDTH - 160) / 2`; y is **130**
+- Lower-row width for `N` inputs is `N * 160 + (N - 1) * 60`; center that complete row beneath the Decision Service
+- `{SITUATION_CENTER_X}` — `SITUATION_X + 80`
+- `{PARAMS_CENTER_X}` — `PARAMS_X + 80`; omit if no parameters
+- `{SITUATION_TARGET_X}` and `{PARAMS_TARGET_X}` — distinct points on the bottom border of `checkResult`, calculated from the source/target centers so multiple edges do not completely overlap
 
 **DMNDI rules** (always enforce):
-- Input nodes (`situation`, `parameters`) must be at a higher y-value than the service box (i.e. below it visually). Use y=336 when the service box occupies y=106–305.
-- Edge waypoints go FROM the center of the input node (x+50, 361) TO the bottom-center of `checkResult` (DECISION_CENTER_X, 181).
+- Ordinary decisions, input data, and BKMs are at least **160×80**.
+- Expanded Decision Services are at least **280×280**, with the divider at `y + 140`.
+- Imported Decision Services are collapsed: `isCollapsed="true"`, **300×100**, divider at `y + 50`.
+- Input nodes (`situation`, `parameters`) go in the lower row (`y=480` for a service ending at `y=380`).
+- Referenced BKMs and Decision Services go alongside and above the referencing decision: a 160×80 BKM can use `y=20`, and a 300×100 imported service can use `y=0` when the local service starts at `y=100`.
+- If a referenced BKM has its own knowledge requirements, use another dependency tier above it.
+- Recalculate all edge waypoints after layout. The target waypoint must land on the referencing node, never on its enclosing Decision Service.
 - Do **not** add `DMNShape` entries for BKMs or decisions imported from BDT or the category module unless they are directly called (via `dmn:knowledgeRequirement`) by this check. Unused imported elements clutter the diagram.
 
 ### Template B — Context Chain
@@ -407,15 +424,21 @@ Use realistic test data: concrete IDs (e.g. `"p1"`), dates (ISO 8601), and param
 
 ## Step 5 — Run Tests
 
-Run the full test suites to verify the new check integrates correctly.
+Run static validation and the full test suites to verify the new check integrates correctly.
 
-**1. Maven tests** — compile and run the Java test suite:
+**1. Static DMN validation**:
+- Parse the new file as XML.
+- Confirm the DMN 1.6 namespace set from Step 3 and verify that no old 20180521 model/FEEL/DMNDI or Drools 1.2 extension namespace remains.
+- Check every DMNDI shape against the 10.2 minimum sizes, every imported Decision Service's collapsed state and divider, and every edge's source/target reference and final waypoint.
+- Run `git diff --check`.
+
+**2. Maven tests** — compile and run the Java test suite:
 ```bash
-cd library-api && mvn test
+devbox run test -- library-api
 ```
 If tests fail, diagnose the error (most likely a malformed DMN or namespace conflict) and fix the DMN file before proceeding.
 
-**2. Bruno tests** — run the full API test suite (requires the library-api dev server running at `http://localhost:8083`):
+**3. Bruno tests** — run the full API test suite (requires the library-api dev server running at `http://localhost:8083`):
 ```bash
 cd library-api/test/bdt && bru run
 ```
@@ -465,3 +488,6 @@ After all tests pass, print:
 11. **DMNDI: inputs below, no unused imported shapes** — input nodes must always be placed below the decision service box (higher y). Never add `DMNShape` entries for BKMs or elements from imported modules unless they are explicitly called by a `dmn:knowledgeRequirement` in this check.
 12. **Parameterless checks omit `parameters` entirely** — if the check has no caller-supplied parameters, remove `tParameters`, the `parameters` inputData element, its `dmn:informationRequirement`, its DMNDI shape and edge, and the `"parameters"` key from all Bruno test request bodies. An absent `parameters` input in the DMN type system is the correct way to express this; do not use an empty context or null type.
 13. **simpleChecks Null.bru targets the specific field** — when the check reads `situation.simpleChecks.<fieldName>`, the Null test must set that specific boolean field to `null`, not the entire `simpleChecks` object to `null`. Setting the parent object to null tests a different (shallower) branch of the FEEL null guard than is most useful.
+14. **DMN 1.6 only** — use the 20240513 model/FEEL namespaces, 20230324 DMNDI namespace, and KIE extensions 1.0 namespace from Step 3.
+15. **KIE Tools 10.2 geometry** — ordinary nodes are at least 160×80, expanded services at least 280×280, and imported collapsed services exactly 300×100 with correct divider lines.
+16. **Knowledge above, inputs below** — referenced BKMs and Decision Services belong beside/above the referencing decision; ordinary input data belongs below it.

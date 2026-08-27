@@ -1,6 +1,6 @@
 # library-api
 
-This subtree is a Java 17, Quarkus 2.16, Kogito-based service. DMN files under `src/main/resources/` are discovered at build time and exposed through the custom endpoint `POST /api/v1/{resource-path}`.
+This subtree is a Java 21, Quarkus 3.27, Kogito 10.2-based service using DMN 1.6. DMN files under `src/main/resources/` are discovered at build time and exposed through the custom endpoint `POST /api/v1/{resource-path}`.
 
 Read the repository-root `AGENTS.md` as well. Use this file for stable component facts; use the DMN skills for detailed creation procedures and templates.
 
@@ -45,7 +45,7 @@ For creation work, read the matching skill instead of reconstructing these conve
 - Never edit `target/generated-sources/kogito/` or other `target/` content.
 - Editable REST/OpenAPI code lives under `src/main/java/org/codeforphilly/bdt/api/`.
 - Editable custom FEEL functions live under `src/main/java/org/codeforphilly/bdt/functions/`.
-- Preserve compatibility with Java 17 and the versions pinned in `pom.xml`.
+- Preserve compatibility with Java 21 and the versions pinned in `pom.xml`.
 
 ## Testing
 

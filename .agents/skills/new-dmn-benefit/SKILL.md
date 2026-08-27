@@ -1,6 +1,6 @@
 ---
 name: new-dmn-benefit
-description: Create a new DMN benefit in library-api — generates the DMN XML and Bruno test files
+description: Create a DMN 1.6 benefit in library-api with KIE Tools 10.2-compatible layout and Bruno tests.
 ---
 
 Create a new DMN benefit in `library-api`. Use `$ARGUMENTS` when the host expands it; otherwise derive the same information from the user's request. Arguments are optional: benefit name in PascalCase, state, and locality (for example, `PhlHomesteadExemption pa phl`).
@@ -64,6 +64,22 @@ If a match is found, warn the user and stop. The name must be globally unique.
 ## Step 4 — Generate DMN File
 
 **File path**: from Step 2B + kebab-case benefit name + `.dmn`
+
+### DMN 1.6 namespaces
+
+Generate DMN 1.6 XML. Use these exact namespace values; do not copy the
+pre-1.6 values from an older model or editor example:
+
+| Prefix/use | Namespace |
+|---|---|
+| `dmn` model and every import's `importType` | `https://www.omg.org/spec/DMN/20240513/MODEL/` |
+| `feel` and `typeLanguage` | `https://www.omg.org/spec/DMN/20240513/FEEL/` |
+| `dmndi` | `https://www.omg.org/spec/DMN/20230324/DMNDI/` |
+| `di` | `http://www.omg.org/spec/DMN/20180521/DI/` |
+| `dc` | `http://www.omg.org/spec/DMN/20180521/DC/` |
+| `kie` | `https://kie.org/dmn/extensions/1.0` |
+
+Keep the model's own default namespace as its fresh KIE UUID URI.
 
 ### Import path computation
 
@@ -209,36 +225,48 @@ Only `situation` — benefits never have a `parameters` input:
 ### DMNDI layout
 
 Layout the diagram with:
-- Imported check services on the **left** side, stacked vertically (y spacing ~130px between each)
-- Benefit Decision Service box on the **right** side
-- `situation` input below the benefit service box
+- Imported check services in an **upper dependency row**, alongside and a little above the `checks` decision
+- The expanded benefit Decision Service below that dependency row
+- `situation` in a separate lower input row
 - Edges from each imported check service to the `checks` decision
 - Edge from `situation` to `checks` decision
 - Edge from `checks` to `isEligible` decision
 
-**Benefit service box sizing**:
-- Width: `max(359, len("{BenefitName}Service") * 12 + 40)` — round to nearest integer
-- Height: `205` (fixed — matches standard benefit pattern)
-- x: `572` (right-side positioning)
-- y: `133.5` (standard vertical position)
-- Divider line y: `y + 100` (i.e. `233.5`)
+KIE Tools 10.2 clamps shapes smaller than its defaults when a model is opened.
+Always generate geometry at or above these editor defaults:
 
-**Output decisions inside the service box** (both at y=175.5):
-- `checks`: width 100, height 50, x = service box x + 42 (e.g. `614`)
-- `isEligible`: width 100, height 50, x = service box x + service width - 168 (e.g. `763`)
+- Ordinary decisions, inputs, and BKMs: **160×80 minimum**
+- Expanded Decision Service: **280×280 minimum**
+- Collapsed imported Decision Service: **exactly 300×100**, with `isCollapsed="true"`
+- Expanded service divider: `service y + 140`
+- Collapsed service divider: `service y + 50`
 
-**Situation input**: width 100, height 50, centered below service box at y=377
+**Benefit service box**:
+- Width: `max(440, len("{BenefitName}Service") * 12 + 40)`
+- Height: `280`
+- Place it below the dependency row; `y=100` is suitable when direct dependencies end at `y=100`
+- Center it beneath the complete dependency row rather than anchoring it to a fixed x-coordinate
+- Divider line: from `(x, y + 140)` to `(x + width, y + 140)`
 
-**Imported check services** (left side):
-- First check: x=58–142 (varies by label width), y=5
-- Subsequent checks: increment y by ~130
-- Width: approximately `max(200, len("{ServiceName}") * 12 + 40)`, height: 100
-- Each has a divider line at y + 50
+**Output decisions inside the service box**:
+- Both are `160×80` and use `y = service y + 30`
+- For a 440px service, place `checks` at `x + 30` and `isEligible` at `x + 250`
+- For a wider service, retain at least 30px left/right margins and distribute the two decisions evenly
+
+**Situation input**: `160×80`, centered below the service with at least a 100px vertical gap; `y=480` is suitable for a service at `y=100`.
+
+**Imported check services**:
+- Use `300×100`, `isCollapsed="true"`, and a divider at `y + 50`
+- Put direct dependencies in one upper row with at least 60px horizontal gaps
+- Center the complete row over the `checks` decision; keep a normal left canvas margin
+- If a referenced local BKM itself has knowledge requirements, put that BKM in an intermediate row and its own referenced BKMs/services in a row above it
+- Never mark an imported Decision Service expanded unless its child shapes are also represented inside it
 
 **Edges**:
-- Knowledge requirement edges: from right edge of imported service → left edge of `checks` decision
-- Information requirement edge (situation → checks): from center-top of situation → bottom-center of checks
-- Information requirement edge (checks → isEligible): from right edge of checks → left edge of isEligible
+- Recalculate every waypoint after placing shapes; do not retain coordinates from a copied template
+- Knowledge edges run from the referenced BKM/service toward the referencing decision
+- Information edges run upward from the lower input row
+- Terminate each edge on the border of its target node, not on the enclosing Decision Service
 
 **ComponentWidths**: include `<kie:ComponentWidths>` entries for every context, invocation, and literal expression. Use these standard widths:
 - `checks` context: `<kie:width>50</kie:width><kie:width>376</kie:width><kie:width>599</kie:width>`
@@ -406,13 +434,19 @@ settings {
 
 ## Step 6 — Run Tests
 
-**1. Maven tests** — compile and verify the DMN integrates correctly:
+**1. Static DMN validation** — before running the application tests:
+- Parse the new file as XML.
+- Confirm the DMN 1.6 namespace set from Step 4 and verify that no old 20180521 model/FEEL/DMNDI or Drools 1.2 extension namespace remains.
+- Check every DMNDI shape against the 10.2 minimum sizes, every imported Decision Service's collapsed state and divider, and every edge's source/target reference and final waypoint.
+- Run `git diff --check`.
+
+**2. Maven tests** — compile and verify the DMN integrates correctly:
 ```bash
-cd library-api && mvn test
+devbox run test -- library-api
 ```
 If tests fail, diagnose the error (most likely a malformed DMN, missing import, or namespace conflict) and fix the DMN file before proceeding.
 
-**2. Bruno tests** — run the full API test suite (requires the library-api dev server running at `http://localhost:8083`):
+**3. Bruno tests** — run the full API test suite (requires the library-api dev server running at `http://localhost:8083`):
 ```bash
 cd library-api/test/bdt && bru run
 ```
@@ -477,3 +511,6 @@ After all tests pass, print:
 12. **`knowledgeRequirement` for every imported check service** — each check invoked in the `checks` context must have a corresponding `<dmn:knowledgeRequirement>` element with `href="{namespace}#{serviceId}"`.
 13. **Benefits.dmn namespace** — always `https://kie.apache.org/dmn/_9514D95A-63FB-4345-911B-D83E1867F709`. Read this from the file, do not guess.
 14. **BDT.dmn namespace** — always `https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79`.
+15. **DMN 1.6 only** — use the 20240513 model/FEEL namespaces, 20230324 DMNDI namespace, and KIE extensions 1.0 namespace from Step 4.
+16. **KIE Tools 10.2 geometry** — ordinary nodes are at least 160×80, expanded services at least 280×280, and imported collapsed services exactly 300×100 with correct divider lines.
+17. **Knowledge above, inputs below** — referenced BKMs and Decision Services belong beside/above the referencing decision; ordinary input data belongs below it.

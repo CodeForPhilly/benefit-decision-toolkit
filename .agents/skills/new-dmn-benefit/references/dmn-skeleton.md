@@ -3,11 +3,11 @@
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <dmn:definitions
-    xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/"
+    xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/"
     xmlns="https://kie.apache.org/dmn/_{MODEL_NAMESPACE_UUID}"
-    xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/"
-    xmlns:kie="http://www.drools.org/kie/dmn/1.2"
-    xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/"
+    xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/"
+    xmlns:kie="https://kie.org/dmn/extensions/1.0"
+    xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/"
     xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
     xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
     xmlns:included1="{BENEFITS_NAMESPACE}"
@@ -17,7 +17,7 @@
     ...
     id="_{DEFINITIONS_UUID}"
     name="{BenefitName}"
-    typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/"
+    typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/"
     namespace="https://kie.apache.org/dmn/_{MODEL_NAMESPACE_UUID}">
   <dmn:extensionElements/>
 
@@ -25,22 +25,22 @@
   <dmn:import id="_{UUID}" name="Benefits"
       namespace="https://kie.apache.org/dmn/_9514D95A-63FB-4345-911B-D83E1867F709"
       locationURI="{relative path to Benefits.dmn}"
-      importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+      importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
   <!-- One import per selected check -->
   <dmn:import id="_{UUID}" name="{CheckModelName}"
       namespace="{checkNamespace}"
       locationURI="{relative path to check DMN}"
-      importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+      importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
   <!-- BDT import -->
   <dmn:import id="_{UUID}" name="BDT"
       namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79"
       locationURI="{relative path to BDT.dmn}"
-      importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+      importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
   <!-- Category base module imports (only if types are referenced) -->
   <dmn:import id="_{UUID}" name="{CategoryName}"
       namespace="{categoryNamespace}"
       locationURI="{relative path to category base DMN}"
-      importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+      importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
 
   <!-- Type definitions -->
   <dmn:itemDefinition id="_{UUID}" name="tSituation" isCollection="false">
