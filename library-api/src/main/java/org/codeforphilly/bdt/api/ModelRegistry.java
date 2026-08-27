@@ -91,6 +91,18 @@ public class ModelRegistry {
     }
 
     /**
+     * Get the compiled DMN models used by the running application.
+     *
+     * Kogito 10 generates JSON schemas from these runtime models rather than
+     * emitting the legacy aggregate dmnDefinitions.json resource.
+     */
+    List<DMNModel> getDmnModels() {
+        DecisionModels decisionModels = application.get(DecisionModels.class);
+        DMNRuntime dmnRuntime = getDMNRuntime(decisionModels);
+        return dmnRuntime == null ? List.of() : List.copyOf(dmnRuntime.getModels());
+    }
+
+    /**
      * Build the model registry cache.
      * This is called once during @PostConstruct initialization.
      * Scans the classpath for DMN files and builds the model metadata registry.

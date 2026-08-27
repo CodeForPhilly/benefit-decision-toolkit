@@ -36,6 +36,11 @@
       <artifactId>drools-quarkus-decisions</artifactId>
       <version>${kogito.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>kie-dmn-openapi</artifactId>
+      <version>${kogito.version}</version>
+    </dependency>
 
     <!-- Quarkus -->
     <dependency>
