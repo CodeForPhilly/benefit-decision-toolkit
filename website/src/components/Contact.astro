@@ -1,64 +1,70 @@
 ---
+import { Image } from "astro:assets";
 import { Content } from "../assets/text/Contact.md";
+import ActionButton from "./ActionButton.astro";
+import photo from "../assets/backgrounds/philly-parkway.jpg";
 ---
 
-<section id="contact">
-  <div class="max-w-[130ch] mx-auto">
-    <div class="flex flex-row">
-      <div class="sm:w-1/2 sm:p-12 px-3 py-6 sm:pr-6">
-        <div class="prose prose-headings:text-left">
-          <Content />
-        </div>
-        <form
-          action="https://formspree.io/f/xlgpngrj"
-          method="post"
-          class="mt-6"
-        >
-          <div><label for="name" class="font-semibold">Name</label></div>
-          <div>
-            <input
-              class="my-3 p-3 w-full border-2 border-bdt-blue rounded-2xl"
-              type="text"
-              name="name"
-              id="name"
-              placeholder="John Doe"
-              required
-            />
-          </div>
-          <div><label for="email" class="font-semibold">Email</label></div>
-          <div>
-            <input
-              class="my-3 p-3 w-full border-2 border-bdt-blue rounded-2xl"
-              type="email"
-              name="email"
-              id="email"
-              placeholder="johndoe@example.com"
-              required
-            />
-          </div>
-          <div><label for="message" class="font-semibold">Message</label></div>
-          <div>
-            <textarea
-              class="my-3 p-3 w-full h-40 border-2 border-bdt-blue rounded-2xl"
-              name="message"
-              id="message"
-              placeholder="Your message"
-              required></textarea>
-          </div>
+<section id="contact" class="max-w-[130ch] mx-auto py-6 md:py-12">
+  <div class="flex flex-row">
+    <div class="w-full md:w-1/2 md:p-6 px-3 py-6 md:pr-6">
+      <div class="prose prose-headings:text-left">
+        <Content />
+      </div>
+      <form action="https://formspree.io/f/xlgpngrj" method="post" class="mt-6">
+        <div><label for="name" class="font-semibold">Name</label></div>
+        <div>
           <input
-            class="px-6 py-2 pt-3.5 mt-3 font-serif bg-bdt-green-light rounded-full text-xl cursor-pointer"
-            type="submit"
-            value="Submit"
-            size=""
+            class="my-3 p-3 w-full border border-gray-500 rounded-lg"
+            type="text"
+            name="name"
+            id="name"
+            placeholder="John Doe"
+            autocomplete="name"
+            required
           />
-        </form>
-      </div>
-      <div class="w-1/2 h-180 hidden sm:flex">
-        <div
-          class="w-full m-12 ml-6 bg-[url(../assets/backgrounds/man-in-office.webp)] bg-cover bg-center justify-center rounded-2xl"
-        >
         </div>
-      </div>
+        <div><label for="email" class="font-semibold">Email</label></div>
+        <div>
+          <input
+            class="my-3 p-3 w-full border border-gray-500 rounded-lg"
+            type="email"
+            name="email"
+            id="email"
+            placeholder="johndoe@example.com"
+            autocomplete="email"
+            required
+          />
+        </div>
+        <div><label for="message" class="font-semibold">Message</label></div>
+        <div>
+          <textarea
+            class="my-3 p-3 w-full h-40 border border-gray-500 rounded-lg"
+            name="message"
+            id="message"
+            placeholder="Your message"
+            required></textarea>
+        </div>
+        <ActionButton>
+          <span class="invisible">Submit</span>
+          <button
+            class="absolute inset-0 w-full h-full cursor-pointer"
+            type="submit"
+          >
+            Submit
+          </button>
+        </ActionButton>
+      </form>
+    </div>
+    <div
+      class="w-1/2 h-180 hidden md:flex overflow-hidden rounded-lg border border-gray-400 mr-3 md:mr-6"
+    >
+      <Image
+        src={photo}
+        alt="Philadelphia skyline"
+        width={600}
+        class="w-full h-full object-cover"
+      />
     </div>
   </div>
 </section>

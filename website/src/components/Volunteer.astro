@@ -1,22 +1,43 @@
 ---
 import { Image } from "astro:assets";
 import { Content } from "../assets/text/Volunteer.md";
-import cfpLogo from "../assets/logos/cfp-logo.png";
+import cfpLogo from "../assets/logos/cfp-logo.svg";
+import ActionButton from "./ActionButton.astro";
 ---
 
-<div
-  class="md:bg-[url(../assets/backgrounds/bubbles.svg)] bg-center md:mg-size-[150vh] lg:bg-cover bg-no-repeat border-b-bdt-green-light border-b-2 border-t-bdt-green-light border-t-2"
+<section
+  class="relative bg-white bg-[url(../assets/backgrounds/check-pattern.webp)] bg-size-[auto_900px]"
+  id="volunteer"
 >
-  <section id="overview">
-    <div class="max-w-[85ch] mx-auto py-12 px-3 prose prose-a:font-medium">
-      <Content />
-      <div class="flex flex-col items-center">
-        <Image src={cfpLogo} alt="Code For Philly logo" />
+  <div
+    class="pointer-events-none absolute inset-x-0 top-0 h-12 bg-linear-to-b from-white to-transparent"
+    aria-hidden="true"
+  >
+  </div>
+  <div
+    class="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-linear-to-t from-white to-transparent"
+    aria-hidden="true"
+  >
+  </div>
+  <div
+    class="relative z-10 max-w-[85ch] mx-auto py-12 md:py-18 px-3 prose prose-a:font-medium"
+  >
+    <Content />
+    <div
+      class="flex flex-col items-center bg-bg border border-card-border w-fit mx-auto py-6 px-9 mt-12 rounded-lg"
+    >
+      <div class="max-w-36">
+        <Image src={cfpLogo} alt="Code For Philly logo" width="300" />
+      </div>
+      <div class="w-fit">
         <a
+          class="no-underline"
           href="https://codeforphilly.org/projects/dmn_benefit_toolbox-including_the_philly_property_tax_relief_screener"
-          target="_blank">Code For Philly ↗</a
+          target="_blank"
         >
+          <ActionButton>Connect</ActionButton>
+        </a>
       </div>
     </div>
-  </section>
-</div>
+  </div>
+</section>

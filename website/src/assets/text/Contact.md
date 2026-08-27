@@ -1,4 +1,4 @@
-## Reach out to us!
+## Contact
 
 Have a question? Want to get involved?
 

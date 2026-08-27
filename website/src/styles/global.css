@@ -2,9 +2,14 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --font-sans: "Inter", sans;
-  --font-serif: "Ramaraja", serif;
+  --font-sans: "Lato", sans;
+  --font-serif: "Crete Round", serif;
   --color-bdt-blue: #1876ba;
-  --color-bdt-green-light: #cff7d3;
-  --color-bdt-green-dark: #16561d;
+  --color-bdt-gradient: #065ca2;
+  --color-heading: #2d2d2d;
+  --color-btn-t: #92ee99;
+  --color-btn-b: #6ce678;
+  --color-bg: #dceffc;
+  --color-card-border: #b7daf7;
+  --color-border-b: #2cd733;
 }
