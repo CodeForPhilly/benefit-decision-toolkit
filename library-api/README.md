@@ -209,7 +209,7 @@ Pushing the tag triggers GitHub Actions → Docker build → Google Cloud Run de
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | Java | 17 | Runtime |
-| Quarkus | 2.16.10.Final | Framework |
+| Quarkus | 2.16.12.Final | Framework |
 | Kogito | 1.44.1.Final | DMN engine |
 | Maven | 3.8+ | Build tool |
 | DMN | 1.3 | Decision modeling |
