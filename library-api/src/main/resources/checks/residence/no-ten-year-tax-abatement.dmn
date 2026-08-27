@@ -77,25 +77,25 @@
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="120" y="106" width="380" height="199"/>
+        <dc:Bounds x="220" y="100" width="280" height="280"/>
         <dmndi:DMNLabel/>
         <dmndi:DMNDecisionServiceDividerLine>
-          <di:waypoint x="120" y="206"/>
-          <di:waypoint x="500" y="206"/>
+          <di:waypoint x="220" y="240"/>
+          <di:waypoint x="500" y="240"/>
         </dmndi:DMNDecisionServiceDividerLine>
       </dmndi:DMNShape>
       <!-- Imported TenYearTaxAbatementService (referenced via knowledgeRequirement) -->
-      <dmndi:DMNShape id="dmnshape-drg-_3C6E1A4B-4B5D-4CAD-F8E6-2F7D5C9E4A3E" dmnElementRef="included3:_3C6E1A4B-4B5D-4CAD-F8E6-2F7D5C9E4A3E" isCollapsed="false">
+      <dmndi:DMNShape id="dmnshape-drg-_3C6E1A4B-4B5D-4CAD-F8E6-2F7D5C9E4A3E" dmnElementRef="included3:_3C6E1A4B-4B5D-4CAD-F8E6-2F7D5C9E4A3E" isCollapsed="true">
         <dmndi:DMNStyle>
           <dmndi:FillColor red="255" green="255" blue="255"/>
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="550" y="50" width="360" height="100"/>
+        <dc:Bounds x="100" y="0" width="300" height="100"/>
         <dmndi:DMNLabel/>
         <dmndi:DMNDecisionServiceDividerLine>
-          <di:waypoint x="550" y="100"/>
-          <di:waypoint x="910" y="100"/>
+          <di:waypoint x="100" y="50"/>
+          <di:waypoint x="400" y="50"/>
         </dmndi:DMNDecisionServiceDividerLine>
       </dmndi:DMNShape>
       <!-- checkResult decision: centered horizontally in service box -->
@@ -105,7 +105,7 @@
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="266" y="147" width="88" height="50"/>
+        <dc:Bounds x="280" y="130" width="160" height="80"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <!-- situation input: centered below service box (no parameters) -->
@@ -115,18 +115,18 @@
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="260" y="336" width="100" height="50"/>
+        <dc:Bounds x="460" y="480" width="160" height="80"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <!-- Edge: from center of situation to bottom-center of checkResult -->
       <dmndi:DMNEdge id="dmnedge-drg-_4A7D3F1C-9B5E-4B4C-DCCD-8C1D4A7F2B9E-AUTO-TARGET" dmnElementRef="_4A7D3F1C-9B5E-4B4C-DCCD-8C1D4A7F2B9E">
-        <di:waypoint x="310" y="361"/>
-        <di:waypoint x="310" y="197"/>
+        <di:waypoint x="519.428571" y="480"/>
+        <di:waypoint x="380.571429" y="210"/>
       </dmndi:DMNEdge>
       <!-- Edge: from TenYearTaxAbatementService to checkResult (knowledge requirement) -->
       <dmndi:DMNEdge id="dmnedge-drg-_B5E1C8A3-6D2F-4C3D-EDDE-2A9F5C3E1B7D" dmnElementRef="_B5E1C8A3-6D2F-4C3D-EDDE-2A9F5C3E1B7D">
-        <di:waypoint x="730" y="100"/>
-        <di:waypoint x="310" y="172"/>
+        <di:waypoint x="295.833333" y="100"/>
+        <di:waypoint x="323.333333" y="130"/>
       </dmndi:DMNEdge>
     </dmndi:DMNDiagram>
   </dmndi:DMNDI>

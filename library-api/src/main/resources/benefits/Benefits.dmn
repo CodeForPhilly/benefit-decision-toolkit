@@ -24,7 +24,7 @@
           <dmndi:StrokeColor red="0" green="0" blue="0"/>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
-        <dc:Bounds x="155" y="107" width="218" height="50"/>
+        <dc:Bounds x="155" y="107" width="218" height="60"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
     </dmndi:DMNDiagram>
