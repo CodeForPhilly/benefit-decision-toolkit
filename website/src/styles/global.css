@@ -1,9 +1,12 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+@theme inline {
+  --font-sans: var(--font-lato), sans;
+  --font-serif: var(--font-crete-round), serif;
+}
+
 @theme {
-  --font-sans: "Lato", sans;
-  --font-serif: "Crete Round", serif;
   --color-bdt-blue: #1876ba;
   --color-bdt-gradient: #065ca2;
   --color-heading: #2d2d2d;
