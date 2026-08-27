@@ -1,9 +1,9 @@
 package org.codeforphilly.bdt.functions;
 
 import io.quarkus.arc.Arc;
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 import io.quarkus.arc.Unremovable;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import io.agroal.api.AgroalDataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

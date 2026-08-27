@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dmn:definitions
-    xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/"
+    xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/"
     xmlns="https://kie.apache.org/dmn/_F26CE0F4-1FF7-404A-9EF3-788224C69FE5"
-    xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/"
-    xmlns:kie="http://www.drools.org/kie/dmn/1.2"
-    xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/"
+    xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/"
+    xmlns:kie="https://kie.org/dmn/extensions/1.0"
+    xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/"
     xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
     xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
     xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79"
     xmlns:included2="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1"
     id="_5FA6D636-B06D-466E-A580-73F9D11999D7"
     name="TaxDelinquent"
-    typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/"
+    typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/"
     namespace="https://kie.apache.org/dmn/_F26CE0F4-1FF7-404A-9EF3-788224C69FE5">
   <dmn:description>Checks whether the property owner has delinquent taxes.</dmn:description>
   <dmn:extensionElements/>
   <dmn:import id="_5CC41E8A-DDE8-4102-8E2E-D1E988CA4EB5" name="BDT"
       namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79"
       locationURI="../BDT.dmn"
-      importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+      importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
   <dmn:import id="_F834A1B5-5186-4122-8DB1-0A21699EE86B" name="Residence"
       namespace="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1"
       locationURI="Residence.dmn"
-      importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+      importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
   <dmn:itemDefinition id="_49FCA0D5-0B51-4390-9CB6-6DC5E35A4761" name="tSimpleChecks" isCollection="false">
     <dmn:itemComponent id="_7A1A8CC7-2108-490A-95A1-1AA19C7E937D" name="taxDelinquent" isCollection="false">
       <dmn:typeRef>boolean</dmn:typeRef>

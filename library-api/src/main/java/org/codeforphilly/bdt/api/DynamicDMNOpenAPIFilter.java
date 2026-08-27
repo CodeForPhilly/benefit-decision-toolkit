@@ -15,10 +15,11 @@ import org.eclipse.microprofile.openapi.models.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.models.responses.APIResponse;
 import org.eclipse.microprofile.openapi.models.responses.APIResponses;
 
-import javax.enterprise.inject.spi.CDI;
+import jakarta.enterprise.inject.spi.CDI;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -189,7 +190,7 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
         // Handle type
         if (node.has("type")) {
             String type = node.get("type").asText();
-            schema.type(Schema.SchemaType.valueOf(type.toUpperCase()));
+            schema.type(List.of(Schema.SchemaType.valueOf(type.toUpperCase())));
         }
 
         // Handle format
@@ -360,18 +361,18 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
 
     private Schema createFallbackInputSchema() {
         Schema schema = OASFactory.createSchema();
-        schema.type(Schema.SchemaType.OBJECT);
+        schema.type(List.of(Schema.SchemaType.OBJECT));
         schema.description("Generic DMN input");
 
         // Add situation property
         Schema situationSchema = OASFactory.createSchema();
-        situationSchema.type(Schema.SchemaType.OBJECT);
+        situationSchema.type(List.of(Schema.SchemaType.OBJECT));
         situationSchema.description("Situation context");
         schema.addProperty("situation", situationSchema);
 
         // Add parameters property
         Schema parametersSchema = OASFactory.createSchema();
-        parametersSchema.type(Schema.SchemaType.OBJECT);
+        parametersSchema.type(List.of(Schema.SchemaType.OBJECT));
         parametersSchema.description("Decision parameters");
         schema.addProperty("parameters", parametersSchema);
 
@@ -409,7 +410,7 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
      */
     private Schema createDMNContextSchema(ModelInfo model, String inputRef, String outputRef) {
         Schema contextSchema = OASFactory.createSchema();
-        contextSchema.type(Schema.SchemaType.OBJECT);
+        contextSchema.type(List.of(Schema.SchemaType.OBJECT));
         contextSchema.description("DMN evaluation context containing all input and output variables");
 
         // Get the input schema to extract its properties (situation, parameters, etc.)

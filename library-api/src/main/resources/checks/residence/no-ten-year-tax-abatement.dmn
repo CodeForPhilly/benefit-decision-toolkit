@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dmn:definitions
-    xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/"
+    xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/"
     xmlns="https://kie.apache.org/dmn/_F2A8E6C4-3D1B-4F9A-B7E5-1C4D8F2A6B3E"
-    xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/"
-    xmlns:kie="http://www.drools.org/kie/dmn/1.2"
-    xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/"
+    xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/"
+    xmlns:kie="https://kie.org/dmn/extensions/1.0"
+    xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/"
     xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
     xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
     xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79"
@@ -12,22 +12,22 @@
     xmlns:included3="https://kie.apache.org/dmn/_3A7F1C2D-8E4B-4A91-B5C3-2D6F8A1E4C79"
     id="_A1C7D5F3-9B2E-4E8A-C6D4-3F1B7A9E5D2C"
     name="NoTenYearTaxAbatement"
-    typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/"
+    typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/"
     namespace="https://kie.apache.org/dmn/_F2A8E6C4-3D1B-4F9A-B7E5-1C4D8F2A6B3E">
   <dmn:description>Checks that a property does not have an active 10-year tax abatement.</dmn:description>
   <dmn:extensionElements/>
   <dmn:import id="_4E9C1A7D-6F3B-4B5E-D8F2-7A3E1C9D4B6F" name="BDT"
       namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79"
       locationURI="../BDT.dmn"
-      importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+      importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
   <dmn:import id="_B8D3F1C5-2A6E-4C7F-E5A1-9D4B2F8C6E3A" name="Residence"
       namespace="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1"
       locationURI="Residence.dmn"
-      importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+      importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
   <dmn:import id="_7C5A3D9E-4F1B-4A8D-F7C5-2E6A4D8F1C9B" name="TenYearTaxAbatement"
       namespace="https://kie.apache.org/dmn/_3A7F1C2D-8E4B-4A91-B5C3-2D6F8A1E4C79"
       locationURI="ten-year-tax-abatement.dmn"
-      importType="http://www.omg.org/spec/DMN/20180521/MODEL/"/>
+      importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
   <dmn:itemDefinition id="_3F1B7E9D-8C4A-4E6B-A3D7-5B9F2C1D8E4A" name="tSimpleChecks" isCollection="false">
     <dmn:itemComponent id="_9A5D2F1C-7B3E-4F4D-CBBC-1E7D3B5F9A2C" name="tenYearTaxAbatement" isCollection="false">
       <dmn:typeRef>boolean</dmn:typeRef>

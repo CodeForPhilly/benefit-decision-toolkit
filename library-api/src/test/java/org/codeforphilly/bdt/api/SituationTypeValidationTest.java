@@ -7,7 +7,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
@@ -37,7 +37,7 @@ public class SituationTypeValidationTest {
     @Inject
     DMNSchemaResolver schemaResolver;
 
-    private static final String DMN_NAMESPACE = "http://www.omg.org/spec/DMN/20180521/MODEL/";
+    private static final String DMN_NAMESPACE = "https://www.omg.org/spec/DMN/20240513/MODEL/";
     private static final String BDT_NAMESPACE = "https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79";
 
     @Test

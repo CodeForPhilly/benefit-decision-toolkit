@@ -11,9 +11,9 @@ import org.w3c.dom.Element;
 
 import io.quarkus.runtime.Startup;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
@@ -423,7 +423,7 @@ public class ModelRegistry {
             if (root != null) {
                 // Look for <dmn:description> child element
                 org.w3c.dom.NodeList descNodes = root.getElementsByTagNameNS(
-                    "http://www.omg.org/spec/DMN/20180521/MODEL/",
+                    "https://www.omg.org/spec/DMN/20240513/MODEL/",
                     "description"
                 );
                 if (descNodes.getLength() > 0) {
