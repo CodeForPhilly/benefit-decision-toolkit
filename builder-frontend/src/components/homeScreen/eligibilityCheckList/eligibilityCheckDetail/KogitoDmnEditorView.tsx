@@ -1,19 +1,7 @@
-import { onCleanup, onMount, Accessor, Setter } from "solid-js";
+import type { DmnEditorStandaloneApi } from "@kie-tools/dmn-editor-standalone/dist";
+import { Accessor, onCleanup, onMount } from "solid-js";
 
-import * as DmnEditor from "@kogito-tooling/kie-editors-standalone/dist/dmn";
-
-
-/* Utility function to trim starting and ending quotes from XML string */
-const trimXml = (xml: string): string => {
-  const firstChar: string = xml.charAt(0);
-  const lastChar: string = xml.charAt(xml.length - 1);
-
-  if (firstChar === '"' && lastChar === '"') {
-    // Return without starting and ending quotes
-    return xml.slice(1, -1);
-  }
-  return xml;
-};
+import { closeDmnEditor, openDmnEditor, type OpenDmnEditor } from "./dmnEditor";
 
 const KogitoDmnEditorView = ({
   dmnModelToLoad,
@@ -22,47 +10,44 @@ const KogitoDmnEditorView = ({
   dmnModelToLoad: Accessor<string>;
   onDmnModelChange: (dmnModelXml: string) => void;
 }) => {
-  let editorElement: null | Element = null;
-  let editorObject: null | any = null;
-  let saveTimeoutId: null | number = null;
+  let editorElement: HTMLDivElement | undefined;
+  let editorObject: DmnEditorStandaloneApi | undefined;
+  let contentChangeSubscription: ((isDirty: boolean) => void) | undefined;
+  let isDisposed = false;
 
   /* SolidJS Lifecycle */
-  onMount(async () => {
-    initializeEditor();
+  onMount(() => {
+    void import("@kie-tools/dmn-editor-standalone/dist").then(({ open }) => {
+      if (!isDisposed) {
+        initializeEditor(open);
+      }
+    });
   });
   onCleanup(() => {
-    if (editorObject) editorObject.close();
-    if (saveTimeoutId) clearTimeout(saveTimeoutId);
+    isDisposed = true;
+    closeDmnEditor(editorObject, contentChangeSubscription);
   });
 
-  const initializeEditor = async () => {
-    const modelXml: string = dmnModelToLoad();
-    const initialDmnPromise: string = (modelXml) ? trimXml(modelXml): "";
+  const initializeEditor = (openEditor: OpenDmnEditor) => {
+    if (!editorElement) {
+      return;
+    }
 
-    editorObject = DmnEditor.open({
+    const openedEditor = openDmnEditor({
       container: editorElement,
-      initialContent: Promise.resolve(initialDmnPromise),
-      resources: new Map(),
-      readOnly: false,
+      dmnModel: dmnModelToLoad(),
+      onDmnModelChange,
+      openEditor,
     });
-    onDmnModelChange(modelXml);
-
-    editorObject.subscribeToContentChanges(
-      async (_: boolean) => {
-        const xml = await editorObject.getContent();
-        onDmnModelChange(xml);
-      }
-    );
+    editorObject = openedEditor.editor;
+    contentChangeSubscription = openedEditor.contentChangeSubscription;
   };
 
   return (
     <div class="h-full overflow-auto">
-      <div
-        class="h-full"
-        ref={ (el: HTMLDivElement) => (editorElement = el) }
-      />
+      <div class="h-full" ref={(el: HTMLDivElement) => (editorElement = el)} />
     </div>
   );
-}
+};
 
 export default KogitoDmnEditorView;
