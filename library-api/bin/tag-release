@@ -7,6 +7,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LIBRARY_API_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT="$(cd "$LIBRARY_API_DIR/.." && pwd)"
 POM_FILE="$LIBRARY_API_DIR/pom.xml"
 
 # Colors for output
@@ -49,6 +50,19 @@ TAG_NAME="library-api-v${VERSION}"
 print_info "Preparing to tag library-api release: $VERSION"
 echo ""
 
+# Maven is provided by the repository's Devbox environment. Re-enter it when
+# this script is invoked directly from a shell that does not have Maven on PATH.
+if ! command -v mvn > /dev/null 2>&1; then
+    if ! command -v devbox > /dev/null 2>&1; then
+        print_error "Maven (mvn) not found. Install Devbox with $REPO_ROOT/bin/install-devbox, then rerun this script."
+        exit 1
+    fi
+
+    print_info "Maven not found on PATH; re-entering the Devbox environment..."
+    cd "$REPO_ROOT"
+    exec devbox run -- "$SCRIPT_DIR/tag-release" "$@"
+fi
+
 # Check if we're in a git repository
 if ! git rev-parse --git-dir > /dev/null 2>&1; then
     print_error "Not in a git repository"
@@ -74,7 +88,7 @@ print_info "Updating pom.xml version to $VERSION..."
 cd "$LIBRARY_API_DIR"
 
 # Use Maven versions plugin to update project version
-if ! mvn versions:set -DnewVersion="$VERSION" -DgenerateBackupPoms=false > /dev/null 2>&1; then
+if ! mvn -q versions:set -DnewVersion="$VERSION" -DgenerateBackupPoms=false; then
     print_error "Failed to update pom.xml version using Maven"
     exit 1
 fi
