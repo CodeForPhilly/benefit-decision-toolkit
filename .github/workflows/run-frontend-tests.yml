@@ -1,0 +1,35 @@
+name: Run Frontend Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "builder-frontend/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "builder-frontend/**"
+
+jobs:
+  builder-frontend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup devbox
+        uses: ./.github/actions/devbox-setup
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: builder-frontend/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('builder-frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: devbox run install-builder-frontend-ci
+
+      - name: Run builder-frontend tests
+        run: devbox run test-builder-frontend-ci
