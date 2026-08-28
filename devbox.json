@@ -41,6 +41,10 @@
       "build-builder-frontend-ci": [
         "cd builder-frontend",
         "npm run build"
+      ],
+      "test-builder-frontend-ci": [
+        "cd builder-frontend",
+        "npm test"
       ]
     }
   }
