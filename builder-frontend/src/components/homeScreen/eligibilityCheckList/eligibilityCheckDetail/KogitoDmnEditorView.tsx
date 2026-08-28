@@ -17,8 +17,8 @@ const KogitoDmnEditorView = ({
   let isDisposed = false;
 
   const reportEditorError = (error?: unknown) => {
-    console.error("Failed to load the DMN editor", error);
-    toast.error("Could not load the DMN editor. Please reload the page.");
+    console.error("The DMN editor reported an error", error);
+    toast.error("The DMN editor ran into a problem. Please reload the page.");
   };
 
   /* SolidJS Lifecycle */
