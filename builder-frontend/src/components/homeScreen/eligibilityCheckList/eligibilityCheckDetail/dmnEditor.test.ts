@@ -41,12 +41,14 @@ describe("openDmnEditor", () => {
     } as unknown as DmnEditorStandaloneApi;
     const openEditor = vi.fn<OpenDmnEditor>(() => editor);
     const onDmnModelChange = vi.fn();
+    const onError = vi.fn();
     const container = {} as Element;
 
     const openedEditor = openDmnEditor({
       container,
       dmnModel: JSON.stringify(DMN_1_6_XML),
       onDmnModelChange,
+      onError,
       openEditor,
     });
 
@@ -62,6 +64,7 @@ describe("openDmnEditor", () => {
     ).toBe("model.dmn");
     expect(options.readOnly).toBe(false);
     expect(options.resources).toEqual(new Map());
+    expect(options.onError).toBe(onError);
     expect(onDmnModelChange).toHaveBeenCalledWith(DMN_1_6_XML);
     expect(openedEditor.editor).toBe(editor);
     expect(openedEditor.contentChangeSubscription).toBe(contentChangeCallback);
@@ -85,6 +88,7 @@ describe("openDmnEditor", () => {
       container: {} as Element,
       dmnModel: null,
       onDmnModelChange,
+      onError: vi.fn(),
       openEditor,
     });
 
