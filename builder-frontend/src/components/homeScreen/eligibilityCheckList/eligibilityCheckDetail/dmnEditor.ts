@@ -26,11 +26,13 @@ export const openDmnEditor = ({
   container,
   dmnModel,
   onDmnModelChange,
+  onError,
   openEditor,
 }: {
   container: Element;
   dmnModel: string | null | undefined;
   onDmnModelChange: (dmnModelXml: string) => void;
+  onError: () => void;
   openEditor: OpenDmnEditor;
 }): {
   editor: DmnEditorStandaloneApi;
@@ -44,6 +46,7 @@ export const openDmnEditor = ({
       DMN_MODEL_FILE_NAME,
     resources: new Map(),
     readOnly: false,
+    onError,
   });
 
   onDmnModelChange(initialDmnModel);
