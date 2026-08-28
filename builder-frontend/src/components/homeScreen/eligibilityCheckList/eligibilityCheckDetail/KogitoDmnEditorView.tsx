@@ -7,7 +7,7 @@ const KogitoDmnEditorView = ({
   dmnModelToLoad,
   onDmnModelChange,
 }: {
-  dmnModelToLoad: Accessor<string>;
+  dmnModelToLoad: Accessor<string | null | undefined>;
   onDmnModelChange: (dmnModelXml: string) => void;
 }) => {
   let editorElement: HTMLDivElement | undefined;

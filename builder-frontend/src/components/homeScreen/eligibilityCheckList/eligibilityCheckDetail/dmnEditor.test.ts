@@ -20,6 +20,12 @@ describe("normalizeDmnXml", () => {
   it("decodes JSON-encoded DMN XML", () => {
     expect(normalizeDmnXml(JSON.stringify(DMN_1_6_XML))).toBe(DMN_1_6_XML);
   });
+
+  it("returns an empty model when the check has no saved DMN", () => {
+    expect(normalizeDmnXml(null)).toBe("");
+    expect(normalizeDmnXml(undefined)).toBe("");
+    expect(normalizeDmnXml("")).toBe("");
+  });
 });
 
 describe("openDmnEditor", () => {
@@ -66,6 +72,29 @@ describe("openDmnEditor", () => {
         `${DMN_1_6_XML}\n<!-- changed -->`,
       );
     });
+  });
+
+  it("opens an empty editor for a check with no saved DMN", async () => {
+    const editor = {
+      subscribeToContentChanges: vi.fn((callback) => callback),
+    } as unknown as DmnEditorStandaloneApi;
+    const openEditor = vi.fn<OpenDmnEditor>(() => editor);
+    const onDmnModelChange = vi.fn();
+
+    openDmnEditor({
+      container: {} as Element,
+      dmnModel: null,
+      onDmnModelChange,
+      openEditor,
+    });
+
+    const options = openEditor.mock.calls[0]?.[0];
+    expect(options).toBeDefined();
+    if (!options) {
+      throw new Error("Expected the standalone DMN editor to be opened");
+    }
+    await expect(options.initialContent).resolves.toBe("");
+    expect(onDmnModelChange).toHaveBeenCalledWith("");
   });
 
   it("unsubscribes and closes the editor during cleanup", () => {
