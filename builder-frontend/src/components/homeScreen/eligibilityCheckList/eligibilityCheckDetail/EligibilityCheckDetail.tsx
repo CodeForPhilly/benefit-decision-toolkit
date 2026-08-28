@@ -10,6 +10,7 @@ import KogitoDmnEditorView from "./KogitoDmnEditorView";
 import EligibilityCheckTest from "./checkTesting/EligibilityCheckTest";
 import PublishCheck from "./PublishCheck";
 
+import { normalizeDmnXml } from "./dmnEditor";
 import eligibilityCheckDetailResource from "./eligibilityCheckDetailResource";
 import ParametersConfiguration from "./ParametersConfiguration";
 
@@ -37,7 +38,9 @@ const EligibilityCheckDetail = () => {
     eligibilityCheckDetailResource(() => checkId);
 
   const hasDmnModelChanged = (): boolean => {
-    return eligibilityCheck().dmnModel !== currentDmnModel();
+    // The editor is seeded with the normalized model, so compare against the
+    // normalized stored model or a legacy JSON-quoted one always looks dirty.
+    return normalizeDmnXml(eligibilityCheck().dmnModel) !== currentDmnModel();
   };
 
   const validateDmnModel = async (dmnString: string) => {
