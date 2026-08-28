@@ -51,11 +51,20 @@ export const openDmnEditor = ({
 
   onDmnModelChange(initialDmnModel);
 
-  const contentChangeSubscription = editor.subscribeToContentChanges(
-    async () => {
-      onDmnModelChange(await editor.getContent());
-    },
-  );
+  // getContent() is an async round-trip to the editor iframe, so two edits in
+  // quick succession can resolve out of order. Only the newest request wins.
+  let latestContentRequestId = 0;
+  const contentChangeSubscription = editor.subscribeToContentChanges(() => {
+    const contentRequestId = ++latestContentRequestId;
+    void editor
+      .getContent()
+      .then((dmnModelXml) => {
+        if (contentRequestId === latestContentRequestId) {
+          onDmnModelChange(dmnModelXml);
+        }
+      })
+      .catch(onError);
+  });
 
   return { editor, contentChangeSubscription };
 };

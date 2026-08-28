@@ -77,6 +77,43 @@ describe("openDmnEditor", () => {
     });
   });
 
+  it("ignores a content request that resolves after a newer one", async () => {
+    let contentChangeCallback: ((isDirty: boolean) => void) | undefined;
+    const resolvers: ((dmnModelXml: string) => void)[] = [];
+    const editor = {
+      getContent: vi.fn(
+        () => new Promise<string>((resolve) => resolvers.push(resolve)),
+      ),
+      subscribeToContentChanges: vi.fn((callback) => {
+        contentChangeCallback = callback;
+        return callback;
+      }),
+    } as unknown as DmnEditorStandaloneApi;
+    const onDmnModelChange = vi.fn();
+
+    openDmnEditor({
+      container: {} as Element,
+      dmnModel: DMN_1_6_XML,
+      onDmnModelChange,
+      onError: vi.fn(),
+      openEditor: vi.fn<OpenDmnEditor>(() => editor),
+    });
+    onDmnModelChange.mockClear();
+
+    contentChangeCallback?.(true);
+    contentChangeCallback?.(true);
+    expect(resolvers).toHaveLength(2);
+
+    // The newer request resolves first, then the stale one.
+    resolvers[1]?.("newest");
+    resolvers[0]?.("stale");
+
+    await vi.waitFor(() => {
+      expect(onDmnModelChange).toHaveBeenCalledWith("newest");
+    });
+    expect(onDmnModelChange).toHaveBeenCalledOnce();
+  });
+
   it("opens an empty editor for a check with no saved DMN", async () => {
     const editor = {
       subscribeToContentChanges: vi.fn((callback) => callback),
