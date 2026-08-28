@@ -5,7 +5,11 @@ const DMN_MODEL_FILE_NAME = "model.dmn";
 export type OpenDmnEditor =
   typeof import("@kie-tools/dmn-editor-standalone/dist").open;
 
-export const normalizeDmnXml = (xml: string): string => {
+export const normalizeDmnXml = (xml: string | null | undefined): string => {
+  if (!xml) {
+    return "";
+  }
+
   if (!xml.startsWith('"') || !xml.endsWith('"')) {
     return xml;
   }
@@ -25,7 +29,7 @@ export const openDmnEditor = ({
   openEditor,
 }: {
   container: Element;
-  dmnModel: string;
+  dmnModel: string | null | undefined;
   onDmnModelChange: (dmnModelXml: string) => void;
   openEditor: OpenDmnEditor;
 }): {
