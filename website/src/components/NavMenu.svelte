@@ -34,15 +34,18 @@
     {/each}
   </ul>
 </nav>
-<button
-  class="md:hidden self-center p-2"
-  onclick={toggleMenu}
-  aria-label={menuActive ? "Close navigation menu" : "Open navigation menu"}
-  aria-controls="navMenu"
-  aria-expanded={menuActive}
->
-  <img class="w-6 h-6" src={menuIcon} alt="" />
-</button>
+{#if menuActive == false}
+  <button
+    class="md:hidden self-center p-2"
+    transition:fade={{ duration: 180, easing: quadOut }}
+    onclick={toggleMenu}
+    aria-label="Open navigation menu"
+    aria-controls="navMenu"
+    aria-expanded={menuActive}
+  >
+    <img class="w-6 h-6" src={menuIcon} alt="" />
+  </button>
+{/if}
 {#if menuActive == true}
   <div
     id="navMenu"
@@ -52,7 +55,7 @@
     <button
       class="fixed top-9 right-6 p-2"
       onclick={toggleMenu}
-      aria-label={menuActive ? "Close navigation menu" : "Open navigation menu"}
+      aria-label="Close navigation menu"
       aria-controls="navMenu"
       aria-expanded={menuActive}
     >
