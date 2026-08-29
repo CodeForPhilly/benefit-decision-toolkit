@@ -5,6 +5,7 @@ import {
   resetEmulator,
   seedScreener,
   seedScreenerWithBenefit,
+  seedCustomCheckWithParameter,
   seedScreenerWithConfiguredBenefit,
   seedScreenerWithForm,
   TEST_SCREENER_ID,
@@ -130,6 +131,7 @@ test.describe("Screener Builder Tests", () => {
   test("User can configure a Benefit", async ({ page }) => {
     // Seed: screener with benefit exists, but no checks configured
     await seedScreenerWithBenefit();
+    await seedCustomCheckWithParameter();
     await page.goto(`/projects/${TEST_SCREENER_ID}`);
     await navigateToBenefitConfig(page);
 
@@ -144,6 +146,31 @@ test.describe("Screener Builder Tests", () => {
         .locator("#selected-eligibility-checks_container")
         .getByText("Owner-occupant"),
     ).toBeVisible();
+
+    await test.step("Add and configure a parameterized custom check", async () => {
+      await page.getByRole("button", { name: "Custom Checks" }).click();
+      await page.getByTestId("add-check-income_threshold").click();
+
+      const selectedChecks = page.locator(
+        "#selected-eligibility-checks_container",
+      );
+      await selectedChecks
+        .getByText("Income threshold", { exact: true })
+        .click();
+
+      const configureModal = page
+        .getByText("Configure Check: Income threshold", { exact: true })
+        .locator("..");
+      await configureModal.locator('input[type="number"]').fill("50000");
+      await configureModal.getByRole("button", { name: "Confirm" }).click();
+
+      const configuredCheck = selectedChecks
+        .locator("div.mb-4.p-4")
+        .filter({ hasText: "Income threshold" });
+      await expect(
+        configuredCheck.getByText("50000", { exact: true }),
+      ).toBeVisible();
+    });
   });
 
   test("User can create a Screener Form", async ({ page }) => {
