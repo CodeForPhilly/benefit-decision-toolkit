@@ -12,10 +12,12 @@ export { resetEmulator } from './reset';
 export {
   seedScreener,
   seedScreenerWithBenefit,
+  seedCustomCheckWithParameter,
   seedScreenerWithConfiguredBenefit,
   seedScreenerWithForm,
   type SeededScreener,
   type SeededBenefit,
+  type SeededCustomCheck,
   type SeededBenefitWithCheck,
   type SeededScreenerWithForm,
 } from './seeders';
