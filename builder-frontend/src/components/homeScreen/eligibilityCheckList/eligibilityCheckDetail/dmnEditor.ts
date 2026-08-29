@@ -22,6 +22,13 @@ export const normalizeDmnXml = (xml: string | null | undefined): string => {
   }
 };
 
+// The editor is seeded with the normalized model, so compare against the
+// normalized stored model or a legacy JSON-quoted one always looks dirty.
+export const isDmnModelChanged = (
+  storedDmnModel: string | null | undefined,
+  currentDmnModel: string,
+): boolean => normalizeDmnXml(storedDmnModel) !== currentDmnModel;
+
 export const openDmnEditor = ({
   container,
   dmnModel,
