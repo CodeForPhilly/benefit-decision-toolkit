@@ -1,7 +1,12 @@
 import type { DmnEditorStandaloneApi } from "@kie-tools/dmn-editor-standalone/dist";
 import { describe, expect, it, vi } from "vitest";
 
-import { closeDmnEditor, normalizeDmnXml, openDmnEditor } from "./dmnEditor";
+import {
+  closeDmnEditor,
+  isDmnModelChanged,
+  normalizeDmnXml,
+  openDmnEditor,
+} from "./dmnEditor";
 
 type OpenDmnEditor =
   typeof import("@kie-tools/dmn-editor-standalone/dist").open;
@@ -25,6 +30,28 @@ describe("normalizeDmnXml", () => {
     expect(normalizeDmnXml(null)).toBe("");
     expect(normalizeDmnXml(undefined)).toBe("");
     expect(normalizeDmnXml("")).toBe("");
+  });
+});
+
+describe("isDmnModelChanged", () => {
+  it("reports no change when the editor holds the stored model", () => {
+    expect(isDmnModelChanged(DMN_1_6_XML, DMN_1_6_XML)).toBe(false);
+  });
+
+  it("reports no change for a stored model that is JSON-quoted", () => {
+    expect(isDmnModelChanged(JSON.stringify(DMN_1_6_XML), DMN_1_6_XML)).toBe(
+      false,
+    );
+  });
+
+  it("reports no change for a check with no saved DMN", () => {
+    expect(isDmnModelChanged(null, "")).toBe(false);
+  });
+
+  it("reports a change once the model is edited", () => {
+    expect(
+      isDmnModelChanged(DMN_1_6_XML, `${DMN_1_6_XML}\n<!-- edit -->`),
+    ).toBe(true);
   });
 });
 
@@ -112,6 +139,36 @@ describe("openDmnEditor", () => {
       expect(onDmnModelChange).toHaveBeenCalledWith("newest");
     });
     expect(onDmnModelChange).toHaveBeenCalledOnce();
+  });
+
+  it("reports a failed content request through onError", async () => {
+    let contentChangeCallback: ((isDirty: boolean) => void) | undefined;
+    const getContentError = new Error("editor iframe is gone");
+    const editor = {
+      getContent: vi.fn().mockRejectedValue(getContentError),
+      subscribeToContentChanges: vi.fn((callback) => {
+        contentChangeCallback = callback;
+        return callback;
+      }),
+    } as unknown as DmnEditorStandaloneApi;
+    const onDmnModelChange = vi.fn();
+    const onError = vi.fn();
+
+    openDmnEditor({
+      container: {} as Element,
+      dmnModel: DMN_1_6_XML,
+      onDmnModelChange,
+      onError,
+      openEditor: vi.fn<OpenDmnEditor>(() => editor),
+    });
+    onDmnModelChange.mockClear();
+
+    contentChangeCallback?.(true);
+
+    await vi.waitFor(() => {
+      expect(onError).toHaveBeenCalledWith(getContentError);
+    });
+    expect(onDmnModelChange).not.toHaveBeenCalled();
   });
 
   it("opens an empty editor for a check with no saved DMN", async () => {
