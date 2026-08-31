@@ -7,8 +7,39 @@ set -e # Exit on any error
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 USING_DEVBOX=0
+SKIP_TESTS=0
 
 source "$SCRIPT_DIR/functions"
+
+usage() {
+  cat <<'EOF'
+Usage: bin/setup [--skip-tests]
+
+Install and configure the local development environment.
+
+Options:
+  --skip-tests  Skip the test-suite verification after setup.
+  -h, --help    Show this help message.
+EOF
+}
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+  --skip-tests)
+    SKIP_TESTS=1
+    ;;
+  -h | --help)
+    usage
+    exit 0
+    ;;
+  *)
+    print_error "Unknown option: $1"
+    usage >&2
+    exit 2
+    ;;
+  esac
+  shift
+done
 
 port_has_listener() {
   local port="$1"
@@ -89,7 +120,7 @@ else
   USING_DEVBOX=1
 fi
 
-if [ "$USING_DEVBOX" -eq 1 ]; then
+if [ "$USING_DEVBOX" -eq 1 ] && [ "$SKIP_TESTS" -eq 0 ]; then
   if ! command_exists python3; then
     print_error "python3 not found. Devbox setup requires Python to check the local service state."
     exit 1
@@ -207,7 +238,10 @@ done
 
 echo ""
 
-if [ "$USING_DEVBOX" -eq 1 ]; then
+if [ "$SKIP_TESTS" -eq 1 ]; then
+  print_warning "Skipping test-suite verification (--skip-tests)."
+  print_warning "Run 'devbox run test' when you are ready to verify the environment."
+elif [ "$USING_DEVBOX" -eq 1 ]; then
   print_status "🧪 Verifying the complete local development environment..."
   bin/run-all-tests --fail-fast
   print_success "Complete local development environment verified"
