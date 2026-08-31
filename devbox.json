@@ -21,7 +21,7 @@
     ],
     "scripts": {
       "setup": [
-        "bin/setup"
+        "bin/setup \"$@\""
       ],
       "test": [
         "bin/run-all-tests \"$@\""
