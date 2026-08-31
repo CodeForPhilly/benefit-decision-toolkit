@@ -24,6 +24,12 @@ export interface SeededScreenerWithForm extends SeededBenefitWithCheck {
   formPath: string;
 }
 
+/** Return type for seedCustomCheckWithParameter - includes both check IDs */
+export interface SeededCustomCheck {
+  workingCheckId: string;
+  publishedCheckId: string;
+}
+
 /**
  * Seeds an empty screener with no benefits.
  * Use when testing screener creation or benefit addition flows.
@@ -84,6 +90,62 @@ export async function seedScreenerWithBenefit(
   );
 
   return { screenerId: TEST_SCREENER_ID, benefitId: TEST_BENEFIT_ID };
+}
+
+/**
+ * Seeds working and published versions of a custom check with one required parameter.
+ * The working version makes the check visible as active, while the published version
+ * can be added to a benefit.
+ * @returns The seeded working and published check IDs
+ */
+export async function seedCustomCheckWithParameter(): Promise<SeededCustomCheck> {
+  const module = "e2e";
+  const name = "income_threshold";
+  const version = "1.0.0";
+  const workingCheckId = `W-${TEST_USER_ID}-${module}-${name}`;
+  const publishedCheckId = `P-${TEST_USER_ID}-${module}-${name}-${version}`;
+  const parameterDefinitions = [
+    {
+      key: "incomeLimit",
+      label: "Income limit",
+      type: "number",
+      required: true,
+    },
+  ];
+  const inputDefinition = {
+    type: "object",
+    properties: {
+      custom: {
+        type: "object",
+        properties: {
+          householdIncome: { type: "number" },
+        },
+      },
+    },
+  };
+
+  const commonCheckData = {
+    name,
+    module,
+    description: "Checks household income against a configured limit.",
+    version,
+    ownerId: TEST_USER_ID,
+    isArchived: false,
+    inputDefinition,
+    parameterDefinitions,
+  };
+
+  await createDocument("workingCustomCheck", workingCheckId, {
+    ...commonCheckData,
+    id: workingCheckId,
+  });
+  await createDocument("publishedCustomCheck", publishedCheckId, {
+    ...commonCheckData,
+    id: publishedCheckId,
+    datePublished: Date.now(),
+  });
+
+  return { workingCheckId, publishedCheckId };
 }
 
 /**

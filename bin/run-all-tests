@@ -3,15 +3,16 @@
 # Run every automated test suite in the repository.
 #
 # Suites run in this order:
-#   1. builder-api  - JVM unit/integration tests (mvn test)
-#   2. library-api  - JVM unit/integration tests (mvn test)
-#   3. e2e          - bin/run-e2e-tests, which boots the full dev stack with
-#                     devbox services and then runs the library-api Bruno
-#                     collection followed by the Playwright suite.
+#   1. builder-frontend - Vitest unit tests (npm test)
+#   2. builder-api      - JVM unit/integration tests (mvn test)
+#   3. library-api      - JVM unit/integration tests (mvn test)
+#   4. e2e              - bin/run-e2e-tests, which boots the full dev stack with
+#                         devbox services and then runs the library-api Bruno
+#                         collection followed by the Playwright suite.
 #
-# The JVM suites run first because they need nothing but Maven, while the e2e
-# suite takes exclusive ownership of the local service ports and swaps the root
-# emulator-data directory for the e2e fixtures.
+# The unit suites run first because they need nothing but npm and Maven, while
+# the e2e suite takes exclusive ownership of the local service ports and swaps
+# the root emulator-data directory for the e2e fixtures.
 #
 # By default every selected suite runs even if an earlier one fails, so a single
 # invocation reports the complete picture; use --fail-fast to stop at the first
@@ -26,7 +27,7 @@ source "$SCRIPT_DIR/functions"
 
 cd "$PROJECT_ROOT"
 
-ALL_SUITES=(builder-api library-api e2e)
+ALL_SUITES=(builder-frontend builder-api library-api e2e)
 FAIL_FAST=0
 
 usage() {
@@ -38,9 +39,10 @@ Runs every automated test suite in the repository. Run it directly or as
 Devbox on its own.
 
 Suites:
-  builder-api   builder-api JVM tests (mvn test)
-  library-api   library-api JVM tests (mvn test)
-  e2e           full dev stack, library-api Bruno collection, Playwright suite
+  builder-frontend  builder-frontend Vitest tests (npm test)
+  builder-api       builder-api JVM tests (mvn test)
+  library-api       library-api JVM tests (mvn test)
+  e2e               full dev stack, library-api Bruno collection, Playwright suite
 
 With no suite arguments, all suites run in the order listed above.
 
@@ -137,12 +139,20 @@ if [ "${DEVBOX_SHELL_ENABLED:-}" != "1" ]; then
   exec devbox run -- bin/run-all-tests "${ORIGINAL_ARGS[@]}"
 fi
 
-for required_command in mvn; do
-  if ! command_exists "$required_command"; then
-    print_error "$required_command is required but was not found on PATH."
+require_command() {
+  if ! command_exists "$1"; then
+    print_error "$1 is required but was not found on PATH."
     exit 1
   fi
-done
+}
+
+if suite_selected builder-frontend || suite_selected e2e; then
+  require_command npm
+fi
+
+if suite_selected builder-api || suite_selected library-api; then
+  require_command mvn
+fi
 
 # The JVM suites read component .env files directly, and bin/run-e2e-tests needs
 # the root .env for the Devbox service graph. Create any that are missing from
@@ -159,6 +169,17 @@ for component in builder-frontend builder-api library-api; do
     print_success "✓ Created $component/.env from .env.example"
   fi
 done
+
+run_builder_frontend_suite() {
+  (
+    cd builder-frontend
+    if [ ! -d node_modules ]; then
+      print_status "Installing builder-frontend dependencies..."
+      npm install
+    fi
+    npm test
+  )
+}
 
 run_builder_api_suite() {
   (
@@ -233,6 +254,10 @@ run_suite() {
 
 print_status "Test suites selected: ${SELECTED_SUITES[*]}"
 
+if suite_selected builder-frontend; then
+  run_suite "builder-frontend" run_builder_frontend_suite
+fi
+
 if suite_selected builder-api; then
   run_suite "builder-api" run_builder_api_suite
 fi
@@ -257,13 +282,13 @@ for index in "${!RESULT_NAMES[@]}"; do
 
   case "$status" in
   passed)
-    print_success "$(printf '%-12s passed  (%s)' "$name" "$(format_duration "$duration")")"
+    print_success "$(printf '%-16s passed  (%s)' "$name" "$(format_duration "$duration")")"
     ;;
   failed)
-    print_error "$(printf '%-12s failed  (%s)' "$name" "$(format_duration "$duration")")"
+    print_error "$(printf '%-16s failed  (%s)' "$name" "$(format_duration "$duration")")"
     ;;
   *)
-    print_warning "$(printf '%-12s skipped' "$name")"
+    print_warning "$(printf '%-16s skipped' "$name")"
     ;;
   esac
 done

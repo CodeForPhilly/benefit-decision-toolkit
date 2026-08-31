@@ -10,6 +10,7 @@ import KogitoDmnEditorView from "./KogitoDmnEditorView";
 import EligibilityCheckTest from "./checkTesting/EligibilityCheckTest";
 import PublishCheck from "./PublishCheck";
 
+import { isDmnModelChanged } from "./dmnEditor";
 import eligibilityCheckDetailResource from "./eligibilityCheckDetailResource";
 import ParametersConfiguration from "./ParametersConfiguration";
 
@@ -37,7 +38,7 @@ const EligibilityCheckDetail = () => {
     eligibilityCheckDetailResource(() => checkId);
 
   const hasDmnModelChanged = (): boolean => {
-    return eligibilityCheck().dmnModel !== currentDmnModel();
+    return isDmnModelChanged(eligibilityCheck().dmnModel, currentDmnModel());
   };
 
   const validateDmnModel = async (dmnString: string) => {

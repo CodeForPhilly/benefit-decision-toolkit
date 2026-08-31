@@ -14,10 +14,10 @@ This is a monorepo for building and publishing benefit eligibility screeners. Ke
 
 - Preferred one-time setup: `bin/install-devbox && devbox run setup`
 - Start the development stack: `devbox services up`
-- All tests: `devbox run test` (wrapper: `bin/run-all-tests`; accepts `--fail-fast` and suite names `builder-api`, `library-api`, `e2e`)
+- All tests: `devbox run test` (wrapper: `bin/run-all-tests`; accepts `--fail-fast` and suite names `builder-frontend`, `builder-api`, `library-api`, `e2e`)
 - Backend tests: `(cd builder-api && mvn test)`
 - Library tests: `(cd library-api && mvn test)`; DMN API tests require a running library service, then `(cd library-api/test/bdt && bru run)`
-- Frontend build: `(cd builder-frontend && npm run build)`
+- Frontend tests: `(cd builder-frontend && npm test)`; frontend build: `(cd builder-frontend && npm run build)`
 - End-to-end tests: `bin/run-e2e-tests`
 - Docs/website build: run `npm run build` in the relevant directory.
 
