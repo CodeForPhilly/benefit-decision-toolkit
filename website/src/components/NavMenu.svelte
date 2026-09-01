@@ -1,6 +1,8 @@
 <script>
   import { quadOut } from "svelte/easing";
   import { fade } from "svelte/transition";
+  import menuIcon from "../assets/icons/menu-open.svg?url";
+  import closeIcon from "../assets/icons/menu-close.svg?url";
   const headerLinks = [
     {
       title: "Home",
@@ -32,13 +34,18 @@
     {/each}
   </ul>
 </nav>
-<button
-  class="md:hidden self-center text-white font-bold border-2 border-white rounded-lg px-2 py-1"
-  onclick={toggleMenu}
-  aria-label={menuActive ? "Close navigation menu" : "Open navigation menu"}
-  aria-controls="navMenu"
-  aria-expanded={menuActive}>Menu</button
->
+{#if menuActive == false}
+  <button
+    class="md:hidden self-center p-2"
+    transition:fade={{ duration: 180, easing: quadOut }}
+    onclick={toggleMenu}
+    aria-label="Open navigation menu"
+    aria-controls="navMenu"
+    aria-expanded={menuActive}
+  >
+    <img class="w-6 h-6" src={menuIcon} alt="" />
+  </button>
+{/if}
 {#if menuActive == true}
   <div
     id="navMenu"
@@ -46,12 +53,14 @@
     transition:fade={{ duration: 180, easing: quadOut }}
   >
     <button
-      class="fixed top-9.5 right-6 text-white font-bold border-2 border-white rounded-lg px-2 py-1"
+      class="fixed top-9 right-6 p-2"
       onclick={toggleMenu}
-      aria-label={menuActive ? "Close navigation menu" : "Open navigation menu"}
+      aria-label="Close navigation menu"
       aria-controls="navMenu"
-      aria-expanded={menuActive}>Close</button
+      aria-expanded={menuActive}
     >
+      <img class="w-6 h-6" src={closeIcon} alt="" />
+    </button>
     <ul class="w-fit h-fit flex flex-col gap-4 items-center">
       {#each headerLinks as link}
         <li>
