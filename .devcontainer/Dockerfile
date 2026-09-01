@@ -1,4 +1,4 @@
-FROM jetpackio/devbox:latest
+FROM docker.io/jetpackio/devbox:latest
 
 # Installing your devbox project
 WORKDIR /code
@@ -10,6 +10,6 @@ COPY --chown=${DEVBOX_USER}:${DEVBOX_USER} devbox.lock devbox.lock
 COPY --chown=${DEVBOX_USER}:${DEVBOX_USER} .env.example .env
 
 
-RUN devbox run -- echo "Installed Packages." && nix-store --gc && nix-store --optimise
+RUN devbox run -- echo "Installed Packages." && nix-store --gc
 
 RUN devbox shellenv --init-hook >> ~/.profile
