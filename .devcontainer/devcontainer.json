@@ -4,7 +4,7 @@
     "dockerfile": "./Dockerfile",
     "context": ".."
   },
-  "onCreateCommand": "bin/ensure-root-env-file && devbox run setup",
+  "onCreateCommand": "bin/ensure-root-env-file && devbox run setup -- --skip-tests",
   "postStartCommand": "devbox services up -b && echo 'Frontend will open in browser when ready. Run `devbox services attach` to see the running processes.'",
   "forwardPorts": [
     5173,

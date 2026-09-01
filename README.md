@@ -83,6 +83,12 @@ To install devbox (and Nix) and configure your machine for development:
 bin/install-devbox && devbox run setup
 ```
 
+To install and build the dependencies without running the test suites, use:
+
+```bash
+devbox run setup -- --skip-tests
+```
+
 Then, to startup all the services/apps with the default configuration, run:
 
 ```bash
