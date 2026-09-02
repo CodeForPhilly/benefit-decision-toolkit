@@ -17,6 +17,7 @@ import org.acme.model.dto.EligibilityCheck.CreateCheckRequest;
 import org.acme.model.dto.EligibilityCheck.EditCheckRequest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.StorageService;
+import org.acme.service.CustomCheckDmnTemplate;
 import org.acme.service.DmnService;
 
 import java.util.Comparator;
@@ -37,6 +38,9 @@ public class EligibilityCheckResource {
 
     @Inject
     DmnService dmnService;
+
+    @Inject
+    CustomCheckDmnTemplate customCheckDmnTemplate;
 
     // ========== Collection Endpoints ==========
 
@@ -68,7 +72,7 @@ public class EligibilityCheckResource {
 
     @POST
     public Response createCustomCheck(@Context SecurityIdentity identity,
-                                CreateCheckRequest request) {
+                                @Valid CreateCheckRequest request) {
         String userId = AuthUtils.getUserId(identity);
 
         // Build EligibilityCheck from allowed fields only
@@ -79,15 +83,42 @@ public class EligibilityCheckResource {
             request.parameterDefinitions(),
             userId
         );
+        String initialDmnModel = customCheckDmnTemplate.create(request.name(), request.description());
 
+        String checkId;
         try {
-            eligibilityCheckRepository.saveNewWorkingCustomCheck(newCheck);
-            return Response.ok(newCheck, MediaType.APPLICATION_JSON).build();
+            checkId = eligibilityCheckRepository.saveNewWorkingCustomCheck(newCheck);
         } catch (Exception e){
+            Log.error("Could not save new check for user " + userId, e);
             return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(Map.of("error", "Could not save Check"))
                     .build();
         }
+        newCheck.setId(checkId);
+
+        try {
+            storageService.writeStringToStorage(
+                storageService.getCheckDmnModelPath(checkId),
+                initialDmnModel,
+                "application/xml"
+            );
+        } catch (Exception e){
+            // A check without its DMN model is unusable, and its id is derived from the name, so
+            // leaving the document behind would make every retry of the same name collide with it.
+            Log.error("Could not save the DMN model of check " + checkId + ", removing the check", e);
+            try {
+                eligibilityCheckRepository.deleteWorkingCustomCheck(checkId);
+            } catch (Exception deleteFailure){
+                Log.error("Could not remove check " + checkId + " after its DMN model failed to save",
+                        deleteFailure);
+            }
+            return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Could not save Check"))
+                    .build();
+        }
+
+        newCheck.setDmnModel(initialDmnModel);
+        return Response.ok(newCheck, MediaType.APPLICATION_JSON).build();
     }
 
     // ========== Single Resource Endpoints ==========
