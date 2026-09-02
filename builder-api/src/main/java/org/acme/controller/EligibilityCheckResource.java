@@ -17,6 +17,7 @@ import org.acme.model.dto.EligibilityCheck.CreateCheckRequest;
 import org.acme.model.dto.EligibilityCheck.EditCheckRequest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.StorageService;
+import org.acme.service.CustomCheckDmnTemplate;
 import org.acme.service.DmnService;
 
 import java.util.Comparator;
@@ -37,6 +38,9 @@ public class EligibilityCheckResource {
 
     @Inject
     DmnService dmnService;
+
+    @Inject
+    CustomCheckDmnTemplate customCheckDmnTemplate;
 
     // ========== Collection Endpoints ==========
 
@@ -79,9 +83,17 @@ public class EligibilityCheckResource {
             request.parameterDefinitions(),
             userId
         );
+        String initialDmnModel = customCheckDmnTemplate.create(request.name(), request.description());
 
         try {
-            eligibilityCheckRepository.saveNewWorkingCustomCheck(newCheck);
+            String checkId = eligibilityCheckRepository.saveNewWorkingCustomCheck(newCheck);
+            newCheck.setId(checkId);
+            storageService.writeStringToStorage(
+                storageService.getCheckDmnModelPath(checkId),
+                initialDmnModel,
+                "application/xml"
+            );
+            newCheck.setDmnModel(initialDmnModel);
             return Response.ok(newCheck, MediaType.APPLICATION_JSON).build();
         } catch (Exception e){
             return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)

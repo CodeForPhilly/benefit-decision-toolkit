@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.ws.rs.core.Response;
 import org.acme.model.domain.EligibilityCheck;
+import org.acme.model.dto.EligibilityCheck.CreateCheckRequest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.StorageService;
+import org.acme.service.CustomCheckDmnTemplate;
 import org.acme.service.DmnService;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -32,7 +35,9 @@ class EligibilityCheckResourceTest {
     private final EligibilityCheckRepository repository = mock(EligibilityCheckRepository.class);
     private final StorageService storageService = mock(StorageService.class);
     private final DmnService dmnService = mock(DmnService.class);
+    private final CustomCheckDmnTemplate customCheckDmnTemplate = mock(CustomCheckDmnTemplate.class);
     private final SecurityIdentity identity = mock(SecurityIdentity.class);
+    private final JsonWebToken principal = mock(JsonWebToken.class);
 
     private EligibilityCheck workingCheck;
 
@@ -41,8 +46,8 @@ class EligibilityCheckResourceTest {
         resource.eligibilityCheckRepository = repository;
         resource.storageService = storageService;
         resource.dmnService = dmnService;
+        resource.customCheckDmnTemplate = customCheckDmnTemplate;
 
-        JsonWebToken principal = mock(JsonWebToken.class);
         when(principal.<String>getClaim("user_id")).thenReturn(USER_ID);
         when(identity.getPrincipal()).thenReturn(principal);
 
@@ -55,6 +60,37 @@ class EligibilityCheckResourceTest {
         when(dmnService.extractInputSchema(anyString(), any(), anyString()))
                 .thenReturn(new ObjectMapper().createObjectNode());
         when(repository.saveNewPublishedCustomCheck(any())).thenReturn("published-check-1");
+    }
+
+    @Test
+    void createCustomCheckPersistsAndReturnsTheStarterDmn() throws Exception {
+        CreateCheckRequest request = new CreateCheckRequest(
+                "incomeCheck",
+                "income",
+                "Checks the applicant's income",
+                List.of()
+        );
+        String checkId = "W-owner-1-income-incomeCheck";
+        String dmnPath = "check/" + checkId + ".dmn";
+        String initialDmn = "<dmn:definitions/>";
+
+        when(customCheckDmnTemplate.create(request.name(), request.description())).thenReturn(initialDmn);
+        when(repository.saveNewWorkingCustomCheck(any(EligibilityCheck.class)))
+                .thenAnswer(invocation -> {
+                    EligibilityCheck check = invocation.getArgument(0);
+                    check.setId(checkId);
+                    return checkId;
+                });
+        when(storageService.getCheckDmnModelPath(checkId)).thenReturn(dmnPath);
+
+        Response response = resource.createCustomCheck(identity, request);
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        EligibilityCheck createdCheck = (EligibilityCheck) response.getEntity();
+        assertEquals(checkId, createdCheck.getId());
+        assertEquals(initialDmn, createdCheck.getDmnModel());
+        verify(storageService).writeStringToStorage(dmnPath, initialDmn, "application/xml");
+        assertSame(createdCheck, response.getEntity());
     }
 
     @Test
