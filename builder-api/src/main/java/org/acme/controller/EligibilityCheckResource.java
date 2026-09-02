@@ -279,8 +279,11 @@ public class EligibilityCheckResource {
                     .build();
         }
 
-        // Update workingCheck so that the incremented version number is saved
-        check.setVersion(incrementMajorVersion(check.getVersion()));
+        // New checks start at 1.0.0, so only increment after a version has already been published.
+        List<EligibilityCheck> publishedChecks = eligibilityCheckRepository.getPublishedCheckVersions(check);
+        check.setVersion(versionForPublish(check.getVersion(), !publishedChecks.isEmpty()));
+
+        // Update the working check so the extracted input definition and current version are saved.
         try {
             eligibilityCheckRepository.updateWorkingCustomCheck(check);
         } catch (Exception e){
@@ -377,6 +380,10 @@ public class EligibilityCheckResource {
     }
 
     // ========== Private Helper Methods ==========
+
+    String versionForPublish(String currentVersion, boolean hasPublishedVersions) {
+        return hasPublishedVersions ? incrementMajorVersion(currentVersion) : currentVersion;
+    }
 
     private String incrementMajorVersion(String version) {
         int[] v = normalize(version);
