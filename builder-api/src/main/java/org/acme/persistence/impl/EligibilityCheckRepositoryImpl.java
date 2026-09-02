@@ -82,7 +82,7 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
         return nums;
     }
 
-    public List<EligibilityCheck> getPublishedCheckVersions(EligibilityCheck workingCustomCheck){
+    public List<EligibilityCheck> getPublishedCheckVersions(EligibilityCheck workingCustomCheck) throws Exception {
         Map<String, String> fieldValues = Map.of(
             "ownerId", workingCustomCheck.getOwnerId(),
             "module", workingCustomCheck.getModule(),
