@@ -19,9 +19,11 @@ import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.StorageService;
 import org.acme.service.DmnService;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Path("/api/custom-checks")
@@ -279,9 +281,17 @@ public class EligibilityCheckResource {
                     .build();
         }
 
-        // New checks start at 1.0.0, so only increment after a version has already been published.
-        List<EligibilityCheck> publishedChecks = eligibilityCheckRepository.getPublishedCheckVersions(check);
-        check.setVersion(versionForPublish(check.getVersion(), !publishedChecks.isEmpty()));
+        // A check is created at 1.0.0, so the first publish keeps that version.
+        List<EligibilityCheck> publishedChecks;
+        try {
+            publishedChecks = eligibilityCheckRepository.getPublishedCheckVersions(check);
+        } catch (Exception e){
+            Log.error("Could not read published versions of check " + check.getId(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "could not read published versions of Check, published check version was not created"))
+                    .build();
+        }
+        check.setVersion(versionForPublish(check.getVersion(), publishedChecks));
 
         // Update the working check so the extracted input definition and current version are saved.
         try {
@@ -381,16 +391,25 @@ public class EligibilityCheckResource {
 
     // ========== Private Helper Methods ==========
 
-    String versionForPublish(String currentVersion, boolean hasPublishedVersions) {
-        return hasPublishedVersions ? incrementMajorVersion(currentVersion) : currentVersion;
+    private static final Comparator<int[]> VERSION_ORDER = Comparator
+            .<int[]>comparingInt(v -> v[0])
+            .thenComparingInt(v -> v[1])
+            .thenComparingInt(v -> v[2]);
+
+    /* The first publish keeps the working version; later ones increment past the highest published version,
+       so a working version that lags what is already published cannot produce a duplicate published id. */
+    String versionForPublish(String workingVersion, List<EligibilityCheck> publishedChecks) {
+        return publishedChecks.stream()
+                .map(EligibilityCheck::getVersion)
+                .filter(Objects::nonNull)
+                .map(this::normalize)
+                .max(VERSION_ORDER)
+                .map(this::incrementMajorVersion)
+                .orElse(workingVersion);
     }
 
-    private String incrementMajorVersion(String version) {
-        int[] v = normalize(version);
-        v[0]++;         // increment major
-        v[1] = 0;       // reset minor
-        v[2] = 0;       // reset patch
-        return v[0] + "." + v[1] + "." + v[2];
+    private String incrementMajorVersion(int[] version) {
+        return (version[0] + 1) + ".0.0";    // increment major, reset minor and patch
     }
 
     private int[] normalize(String version) {

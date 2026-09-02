@@ -56,30 +56,25 @@ public class FirestoreUtils {
         }
     }
 
-    public static List<Map<String, Object>> getFirestoreDocsByFields(String collection, Map<String, String> fieldValues) {
+    /* Read failures are propagated so callers can tell an empty result apart from an unavailable read. */
+    public static List<Map<String, Object>> getFirestoreDocsByFields(String collection, Map<String, String> fieldValues) throws Exception {
         System.out.println("Fetching documents from collection: " + collection + " with field values: " + fieldValues);
-        System.out.println("Using Firestore instance: " + db.listCollections());
-        try {
-            Query query = db.collection(collection);
-            for (Map.Entry<String, String> entry : fieldValues.entrySet()) {
-                // Add a whereEqualTo clause for each field-value pair
-                query = query.whereEqualTo(entry.getKey(), entry.getValue());
-            }
-            ApiFuture<QuerySnapshot> querySnapshot = query.get();
-            List<QueryDocumentSnapshot> documents;
-            documents = querySnapshot.get().getDocuments();
-
-            return documents.stream()
-                    .map(doc -> {
-                        Map<String, Object> data = doc.getData();
-                        data.put("id", doc.getId());
-                        return data;
-                    })
-                    .toList();
-        }catch(Exception e){
-            Log.error("Error fetching documents from firestore: ", e);
-            return new ArrayList<>();
+        Query query = db.collection(collection);
+        for (Map.Entry<String, String> entry : fieldValues.entrySet()) {
+            // Add a whereEqualTo clause for each field-value pair
+            query = query.whereEqualTo(entry.getKey(), entry.getValue());
         }
+        ApiFuture<QuerySnapshot> querySnapshot = query.get();
+        List<QueryDocumentSnapshot> documents;
+        documents = querySnapshot.get().getDocuments();
+
+        return documents.stream()
+                .map(doc -> {
+                    Map<String, Object> data = doc.getData();
+                    data.put("id", doc.getId());
+                    return data;
+                })
+                .toList();
     }
 
     public static List<Map<String, Object>> getFirestoreDocsByField(String collection, String field, boolean value) {
