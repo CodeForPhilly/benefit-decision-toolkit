@@ -13,9 +13,10 @@
     "python314Packages.pip@latest",
     "github:NixOS/nixpkgs/fef9403a3e4d31b0a23f0bacebbec52c248fbb51#playwright-driver.browsers"
   ],
-  "env_from": ".env",
   "shell": {
     "init_hook": [
+      "[ -f .env ] || bin/ensure-root-env-file",
+      "set -a; . ./.env; set +a",
       "[ -f .devboxrc ] && . ./.devboxrc",
       "echo 'Welcome to devbox!'"
     ],

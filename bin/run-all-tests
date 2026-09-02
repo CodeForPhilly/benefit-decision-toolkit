@@ -125,8 +125,8 @@ suite_selected() {
 
 # The suites need this project's Devbox environment (Maven, Node, Bruno CLI,
 # the Playwright browsers, process-compose). When invoked from outside it,
-# re-enter through Devbox. `devbox run` cannot start at all until the root .env
-# named by `env_from` exists, so create it from the example first.
+# re-enter through Devbox. Create the root .env first so local overrides are
+# available as soon as Devbox initializes.
 if [ "${DEVBOX_SHELL_ENABLED:-}" != "1" ]; then
   if ! command_exists devbox; then
     print_error "devbox not found. Install it with bin/install-devbox, then rerun this script."
