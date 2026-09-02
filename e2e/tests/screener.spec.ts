@@ -173,6 +173,16 @@ test.describe("Screener Builder Tests", () => {
     });
   });
 
+  test("Custom check testing does not offer alias editing", async ({ page }) => {
+    const { workingCheckId } = await seedCustomCheckWithParameter();
+    await page.goto(`/check/${workingCheckId}`);
+
+    await page.getByTestId("project-tab-testing").click();
+
+    await expect(page.getByText("Run Test", { exact: true })).toBeVisible();
+    await expect(page.getByTitle("Edit alias")).toHaveCount(0);
+  });
+
   test("User can create a Screener Form", async ({ page }) => {
     // Seed: screener with benefit and check configured, but no form
     await seedScreenerWithConfiguredBenefit();

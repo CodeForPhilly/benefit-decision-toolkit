@@ -20,7 +20,7 @@ const SelectedEligibilityCheck = ({
 }: {
   checkConfig: Accessor<CheckConfig>;
   updateCheckConfigParams: (newCheckData: ParameterValues) => void;
-  updateCheckConfigAlias: (aliasName: string | null) => void;
+  updateCheckConfigAlias?: (aliasName: string | null) => void;
   onRemove: () => void | null;
 }) => {
   const [configuringCheckModalOpen, setConfiguringCheckModalOpen] =
@@ -70,16 +70,18 @@ const SelectedEligibilityCheck = ({
         <div class="text-xl font-bold mb-2 flex items-center gap-2">
           <span>{titleCase(displayName())}</span>
           <span class="text-gray-500">- {checkConfig().checkVersion}</span>
-          <div
-            class="text-sm text-gray-500 hover:text-gray-700 hover:rounded-lg p-2 hover:bg-gray-400"
-            onClick={(e) => {
-              e.stopPropagation();
-              setEditAliasModalOpen(true);
-            }}
-            title="Edit alias"
-          >
-            <PencilIcon size={16} />
-          </div>
+          <Show when={updateCheckConfigAlias}>
+            <div
+              class="text-sm text-gray-500 hover:text-gray-700 hover:rounded-lg p-2 hover:bg-gray-400"
+              onClick={(e) => {
+                e.stopPropagation();
+                setEditAliasModalOpen(true);
+              }}
+              title="Edit alias"
+            >
+              <PencilIcon size={16} />
+            </div>
+          </Show>
         </div>
         <Show when={checkConfig().aliasName}>
           <div class="text-sm text-gray-500 mb-1">
@@ -141,7 +143,7 @@ const SelectedEligibilityCheck = ({
         />
       )}
 
-      {editAliasModalOpen() && (
+      {editAliasModalOpen() && updateCheckConfigAlias && (
         <EditAliasModal
           checkConfig={checkConfig}
           updateCheckConfigAlias={updateCheckConfigAlias}

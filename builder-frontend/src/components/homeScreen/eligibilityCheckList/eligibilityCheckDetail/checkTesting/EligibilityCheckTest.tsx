@@ -111,7 +111,6 @@ const EligibilityCheckTest = ({
 
         <div class="flex-1">
           <SelectedEligibilityCheck
-            checkId={() => checkConfig().checkId}
             checkConfig={checkConfig}
             updateCheckConfigParams={(newCheckData: ParameterValues) => {
               setCheckConfig({ ...checkConfig(), parameters: newCheckData });
