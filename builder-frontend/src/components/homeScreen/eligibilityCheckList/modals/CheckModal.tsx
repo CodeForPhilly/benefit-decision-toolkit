@@ -2,6 +2,7 @@ import type { CreateCheckRequest } from "@/types";
 import { createSignal, JSX } from "solid-js";
 import Form from "@/components/shared/Form";
 import { Button } from "@/components/shared/Button";
+import { checkNameError } from "@/utils/checkName";
 
 interface Props {
   onAddCheck: (check: CreateCheckRequest) => Promise<void>;
@@ -24,9 +25,14 @@ const EditCheckModal = (props: Props) => {
     const checkModule = form.get("checkModule");
     const checkDescription = form.get("checkDescription");
 
-    if (!checkName || !checkModule || !checkDescription) {
+    // The name becomes the decision name in the check's DMN model, so it has to be usable there.
+    const nameError = checkName
+      ? checkNameError(checkName.toString())
+      : "Please enter a name.";
+
+    if (nameError || !checkModule || !checkDescription) {
       setError({
-        checkName: !checkName ? "Please enter a name." : "",
+        checkName: nameError ?? "",
         module: !checkModule ? "Please enter a module." : "",
         description: !checkDescription ? "Please enter a description." : "",
       });

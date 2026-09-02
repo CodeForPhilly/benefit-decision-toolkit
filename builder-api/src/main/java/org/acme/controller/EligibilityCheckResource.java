@@ -72,7 +72,7 @@ public class EligibilityCheckResource {
 
     @POST
     public Response createCustomCheck(@Context SecurityIdentity identity,
-                                CreateCheckRequest request) {
+                                @Valid CreateCheckRequest request) {
         String userId = AuthUtils.getUserId(identity);
 
         // Build EligibilityCheck from allowed fields only
