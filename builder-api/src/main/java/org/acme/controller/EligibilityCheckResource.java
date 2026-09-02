@@ -85,21 +85,40 @@ public class EligibilityCheckResource {
         );
         String initialDmnModel = customCheckDmnTemplate.create(request.name(), request.description());
 
+        String checkId;
         try {
-            String checkId = eligibilityCheckRepository.saveNewWorkingCustomCheck(newCheck);
-            newCheck.setId(checkId);
+            checkId = eligibilityCheckRepository.saveNewWorkingCustomCheck(newCheck);
+        } catch (Exception e){
+            Log.error("Could not save new check for user " + userId, e);
+            return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Could not save Check"))
+                    .build();
+        }
+        newCheck.setId(checkId);
+
+        try {
             storageService.writeStringToStorage(
                 storageService.getCheckDmnModelPath(checkId),
                 initialDmnModel,
                 "application/xml"
             );
-            newCheck.setDmnModel(initialDmnModel);
-            return Response.ok(newCheck, MediaType.APPLICATION_JSON).build();
         } catch (Exception e){
+            // A check without its DMN model is unusable, and its id is derived from the name, so
+            // leaving the document behind would make every retry of the same name collide with it.
+            Log.error("Could not save the DMN model of check " + checkId + ", removing the check", e);
+            try {
+                eligibilityCheckRepository.deleteWorkingCustomCheck(checkId);
+            } catch (Exception deleteFailure){
+                Log.error("Could not remove check " + checkId + " after its DMN model failed to save",
+                        deleteFailure);
+            }
             return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(Map.of("error", "Could not save Check"))
                     .build();
         }
+
+        newCheck.setDmnModel(initialDmnModel);
+        return Response.ok(newCheck, MediaType.APPLICATION_JSON).build();
     }
 
     // ========== Single Resource Endpoints ==========

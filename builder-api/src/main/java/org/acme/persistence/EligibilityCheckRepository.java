@@ -28,5 +28,7 @@ public interface EligibilityCheckRepository {
 
     void updateWorkingCustomCheck(EligibilityCheck check) throws Exception;
 
+    void deleteWorkingCustomCheck(String checkId) throws Exception;
+
     void updatePublishedCustomCheck(EligibilityCheck check) throws Exception;
 }

@@ -168,6 +168,10 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
         FirestoreUtils.updateDocument(CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION, data, check.getId());
     }
 
+    public void deleteWorkingCustomCheck(String checkId) throws Exception {
+        FirestoreUtils.deleteDocument(CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION, checkId);
+    }
+
     public String saveNewPublishedCustomCheck(EligibilityCheck check) throws Exception {
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(check, Map.class);

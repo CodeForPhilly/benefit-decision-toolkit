@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -91,6 +92,30 @@ class EligibilityCheckResourceTest {
         assertEquals(initialDmn, createdCheck.getDmnModel());
         verify(storageService).writeStringToStorage(dmnPath, initialDmn, "application/xml");
         assertSame(createdCheck, response.getEntity());
+    }
+
+    // A check document without its DMN model is unusable, and its id would block the next attempt
+    @Test
+    void createCustomCheckRemovesTheCheckWhenItsDmnCannotBeStored() throws Exception {
+        CreateCheckRequest request = new CreateCheckRequest(
+                "incomeCheck",
+                "income",
+                "Checks the applicant's income",
+                List.of()
+        );
+        String checkId = "W-owner-1-income-incomeCheck";
+
+        when(customCheckDmnTemplate.create(request.name(), request.description()))
+                .thenReturn("<dmn:definitions/>");
+        when(repository.saveNewWorkingCustomCheck(any(EligibilityCheck.class))).thenReturn(checkId);
+        when(storageService.getCheckDmnModelPath(checkId)).thenReturn("check/" + checkId + ".dmn");
+        doThrow(new RuntimeException("storage unavailable"))
+                .when(storageService).writeStringToStorage(anyString(), anyString(), anyString());
+
+        Response response = resource.createCustomCheck(identity, request);
+
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
+        verify(repository).deleteWorkingCustomCheck(checkId);
     }
 
     @Test
