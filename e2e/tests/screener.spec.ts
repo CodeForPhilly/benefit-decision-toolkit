@@ -170,6 +170,7 @@ test.describe("Screener Builder Tests", () => {
       await expect(
         configuredCheck.getByText("50000", { exact: true }),
       ).toBeVisible();
+      await expect(configuredCheck.getByTitle("Edit alias")).toHaveCount(1);
     });
   });
 
@@ -180,7 +181,13 @@ test.describe("Screener Builder Tests", () => {
     await page.getByTestId("project-tab-testing").click();
 
     await expect(page.getByText("Run Test", { exact: true })).toBeVisible();
-    await expect(page.getByTitle("Edit alias")).toHaveCount(0);
+
+    // Anchor on the check panel itself so the assertion can't pass vacuously
+    const checkPanel = page
+      .locator("div.mb-4.p-4")
+      .filter({ hasText: "Income threshold" });
+    await expect(checkPanel).toBeVisible();
+    await expect(checkPanel.getByTitle("Edit alias")).toHaveCount(0);
   });
 
   test("User can create a Screener Form", async ({ page }) => {

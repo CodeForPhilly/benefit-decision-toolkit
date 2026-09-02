@@ -20,7 +20,8 @@ const SelectedEligibilityCheck = ({
 }: {
   checkConfig: Accessor<CheckConfig>;
   updateCheckConfigParams: (newCheckData: ParameterValues) => void;
-  updateCheckConfigAlias?: (aliasName: string | null) => void;
+  // Pass null where aliases don't apply, which hides the alias editor
+  updateCheckConfigAlias: ((aliasName: string | null) => void) | null;
   onRemove: () => void | null;
 }) => {
   const [configuringCheckModalOpen, setConfiguringCheckModalOpen] =
