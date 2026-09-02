@@ -111,11 +111,13 @@ const EligibilityCheckTest = ({
 
         <div class="flex-1">
           <SelectedEligibilityCheck
-            checkId={() => checkConfig().checkId}
             checkConfig={checkConfig}
             updateCheckConfigParams={(newCheckData: ParameterValues) => {
               setCheckConfig({ ...checkConfig(), parameters: newCheckData });
             }}
+            // Aliases belong to a check's configuration on a benefit, so
+            // there is nothing to rename while testing the check itself
+            updateCheckConfigAlias={null}
             onRemove={null}
           />
         </div>

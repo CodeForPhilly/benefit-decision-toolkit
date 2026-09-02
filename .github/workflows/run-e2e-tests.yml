@@ -85,6 +85,16 @@ jobs:
         run: npm ci
         working-directory: e2e
 
+      # The Firestore emulator jar is downloaded on first use. That download
+      # fails often enough to flake the whole job, so keep it across runs.
+      - name: Cache Firebase emulators
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/firebase/emulators
+          key: ${{ runner.os }}-firebase-emulators-${{ hashFiles('devbox.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-firebase-emulators-
+
       - name: Cache Playwright browsers
         uses: actions/cache@v4
         with:
