@@ -35,8 +35,12 @@ export default function AuthForm() {
   return (
     <div className="w-full h-screen flex self-center place-content-center place-items-center">
       <div className="w-96 text-gray-600 space-y-5 p-4 shadow-xl border rounded-xl">
-        <h1 className="text-gray-800 text-xl font-semibold sm:text-2xl">
-          Benefit Decision Tookit
+        <h1>
+          <img
+            src="/logos/bdt-logo-large-mono-light.svg"
+            alt="Benefit Decision Toolkit"
+            className="mx-auto w-full max-w-64 h-auto"
+          />
         </h1>
         {location.pathname === "/signup" ? (
           <Signup toggleMode={toggleMode} />
