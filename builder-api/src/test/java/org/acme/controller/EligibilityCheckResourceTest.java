@@ -6,6 +6,7 @@ import jakarta.ws.rs.core.Response;
 import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.dto.EligibilityCheck.CreateCheckRequest;
 import org.acme.persistence.EligibilityCheckRepository;
+import org.acme.persistence.DocumentAlreadyExistsException;
 import org.acme.persistence.StorageService;
 import org.acme.service.CustomCheckDmnTemplate;
 import org.acme.service.DmnService;
@@ -61,6 +62,10 @@ class EligibilityCheckResourceTest {
         when(dmnService.extractInputSchema(anyString(), any(), anyString()))
                 .thenReturn(new ObjectMapper().createObjectNode());
         when(repository.saveNewPublishedCustomCheck(any())).thenReturn("published-check-1");
+        when(repository.getWorkingId(any())).thenAnswer(invocation -> {
+            EligibilityCheck check = invocation.getArgument(0);
+            return "W-" + check.getOwnerId() + "-" + check.getModule() + "-" + check.getName();
+        });
     }
 
     @Test
@@ -116,6 +121,66 @@ class EligibilityCheckResourceTest {
 
         assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
         verify(repository).deleteWorkingCustomCheck(checkId);
+    }
+
+    @Test
+    void createCustomCheckRejectsAnExistingActiveCheck() throws Exception {
+        CreateCheckRequest request = createCheckRequest();
+        String checkId = "W-owner-1-income-incomeCheck";
+        EligibilityCheck existing = new EligibilityCheck(
+                request.name(), request.module(), request.description(), List.of(), USER_ID);
+        when(repository.getWorkingCustomCheck(USER_ID, checkId, true)).thenReturn(Optional.of(existing));
+
+        Response response = resource.createCustomCheck(identity, request);
+
+        assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
+        assertEquals(
+                "You already have a check named \"incomeCheck\" in module \"income\".",
+                ((java.util.Map<?, ?>) response.getEntity()).get("error"));
+        verify(repository, never()).saveNewWorkingCustomCheck(any());
+        verify(storageService, never()).writeStringToStorage(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    void createCustomCheckExplainsAnArchivedCollision() throws Exception {
+        CreateCheckRequest request = createCheckRequest();
+        String checkId = "W-owner-1-income-incomeCheck";
+        EligibilityCheck existing = new EligibilityCheck(
+                request.name(), request.module(), request.description(), List.of(), USER_ID);
+        existing.setIsArchived(true);
+        when(repository.getWorkingCustomCheck(USER_ID, checkId, true)).thenReturn(Optional.of(existing));
+
+        Response response = resource.createCustomCheck(identity, request);
+
+        assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
+        assertEquals(
+                "A check named \"incomeCheck\" in module \"income\" is archived. Restore it or choose a different name.",
+                ((java.util.Map<?, ?>) response.getEntity()).get("error"));
+        verify(repository, never()).saveNewWorkingCustomCheck(any());
+    }
+
+    @Test
+    void createCustomCheckMapsAConcurrentCollisionToConflict() throws Exception {
+        CreateCheckRequest request = createCheckRequest();
+        String checkId = "W-owner-1-income-incomeCheck";
+        when(repository.saveNewWorkingCustomCheck(any()))
+                .thenThrow(new DocumentAlreadyExistsException(checkId, new RuntimeException()));
+
+        Response response = resource.createCustomCheck(identity, request);
+
+        assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
+        assertEquals(
+                "You already have a check named \"incomeCheck\" in module \"income\".",
+                ((java.util.Map<?, ?>) response.getEntity()).get("error"));
+        verify(storageService, never()).writeStringToStorage(anyString(), anyString(), anyString());
+    }
+
+    private CreateCheckRequest createCheckRequest() {
+        return new CreateCheckRequest(
+                "incomeCheck",
+                "income",
+                "Checks the applicant's income",
+                List.of());
     }
 
     @Test

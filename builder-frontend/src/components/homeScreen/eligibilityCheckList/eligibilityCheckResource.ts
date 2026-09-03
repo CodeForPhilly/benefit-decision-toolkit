@@ -39,8 +39,10 @@ const eligibilityCheckResource = (): EligibilityCheckResource => {
       await refetch();
     } catch (e) {
       console.error("Failed to add new check", e);
+      throw e;
+    } finally {
+      setActionInProgress(false);
     }
-    setActionInProgress(false);
   };
 
   const removeCheck = async (checkIdToRemove: string) => {

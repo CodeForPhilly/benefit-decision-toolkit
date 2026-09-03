@@ -10,6 +10,17 @@ import type {
 
 const apiUrl = env.apiUrl;
 
+/* Carries the response status so callers can tell a rejected request apart from a failed one. */
+export class ApiError extends Error {
+  readonly status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 export const fetchPublicChecks = async (): Promise<EligibilityCheck[]> => {
   const url = apiUrl + "/library-checks";
   try {
@@ -63,7 +74,14 @@ export const addCheck = async (
     });
 
     if (!response.ok) {
-      throw new Error(`Post failed with status: ${response.status}`);
+      let message = `Post failed with status: ${response.status}`;
+      try {
+        const body = await response.json();
+        if (typeof body.error === "string") message = body.error;
+      } catch {
+        // Keep the status-based fallback when the server does not return JSON.
+      }
+      throw new ApiError(message, response.status);
     }
     const data = await response.json();
     return data;

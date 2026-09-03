@@ -3,6 +3,7 @@ import { createSignal, JSX } from "solid-js";
 import Form from "@/components/shared/Form";
 import { Button } from "@/components/shared/Button";
 import { checkNameError } from "@/utils/checkName";
+import { ApiError } from "@/api/check";
 
 interface Props {
   onAddCheck: (check: CreateCheckRequest) => Promise<void>;
@@ -14,6 +15,7 @@ const EditCheckModal = (props: Props) => {
     checkName: "",
     module: "",
     description: "",
+    form: "",
   });
 
   const handleAddCheck: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (
@@ -35,6 +37,7 @@ const EditCheckModal = (props: Props) => {
         checkName: nameError ?? "",
         module: !checkModule ? "Please enter a module." : "",
         description: !checkDescription ? "Please enter a description." : "",
+        form: "",
       });
     } else {
       const check: CreateCheckRequest = {
@@ -47,7 +50,17 @@ const EditCheckModal = (props: Props) => {
         await props.onAddCheck(check);
         props.onClose();
       } catch (err) {
-        console.log(err);
+        // Only a rejected name belongs under the name input. Every other failure
+        // is the request itself going wrong, and reads as a naming rule there.
+        const message =
+          err instanceof Error ? err.message : "Could not create check.";
+        const nameRejected = err instanceof ApiError && err.status === 409;
+        setError({
+          checkName: nameRejected ? message : "",
+          module: "",
+          description: "",
+          form: nameRejected ? "" : message,
+        });
       }
     }
   };
@@ -70,6 +83,8 @@ const EditCheckModal = (props: Props) => {
           <Form.TextInput />
         </Form.LabelAbove>
         <Form.FormError>{error().description}</Form.FormError>
+
+        <Form.FormError>{error().form}</Form.FormError>
         <Button type="submit">Add Check</Button>
       </Form>
     </div>
