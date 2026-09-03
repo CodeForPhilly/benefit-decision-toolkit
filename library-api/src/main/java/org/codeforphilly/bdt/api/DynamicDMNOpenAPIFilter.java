@@ -169,7 +169,7 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
             }
 
             // Recurse into all fields
-            node.fields().forEachRemaining(entry -> {
+            node.properties().forEach(entry -> {
                 collectReferencesFromNode(entry.getValue(), collectedSchemas);
             });
         } else if (node.isArray()) {
@@ -215,7 +215,7 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
         // Handle properties
         if (node.has("properties")) {
             com.fasterxml.jackson.databind.JsonNode properties = node.get("properties");
-            properties.fields().forEachRemaining(entry -> {
+            properties.properties().forEach(entry -> {
                 Schema propSchema = convertJsonNodeToSchema(entry.getValue());
                 schema.addProperty(entry.getKey(), propSchema);
             });
@@ -418,7 +418,7 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
             com.fasterxml.jackson.databind.JsonNode inputSchemaNode = getSchemaByRef(inputRef);
             if (inputSchemaNode != null && inputSchemaNode.has("properties")) {
                 com.fasterxml.jackson.databind.JsonNode inputProps = inputSchemaNode.get("properties");
-                inputProps.fields().forEachRemaining(entry -> {
+                inputProps.properties().forEach(entry -> {
                     Schema propSchema = convertJsonNodeToSchema(entry.getValue());
                     contextSchema.addProperty(entry.getKey(), propSchema);
                 });
@@ -434,7 +434,7 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
                     // Multiple outputs: add each property directly to context
                     // This handles Decision Services with multiple output decisions (e.g., PhlHomesteadExemption)
                     com.fasterxml.jackson.databind.JsonNode outputProps = outputSchemaNode.get("properties");
-                    outputProps.fields().forEachRemaining(entry -> {
+                    outputProps.properties().forEach(entry -> {
                         Schema propSchema = convertJsonNodeToSchema(entry.getValue());
                         contextSchema.addProperty(entry.getKey(), propSchema);
                     });
@@ -578,7 +578,7 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
                 if (outputSchemaNode.has("properties")) {
                     // Multiple outputs: generate examples for each property directly
                     com.fasterxml.jackson.databind.JsonNode outputProps = outputSchemaNode.get("properties");
-                    outputProps.fields().forEachRemaining(entry -> {
+                    outputProps.properties().forEach(entry -> {
                         String propName = entry.getKey();
                         com.fasterxml.jackson.databind.JsonNode propNode = entry.getValue();
 
@@ -653,7 +653,7 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
                     Map<String, Object> objectExample = new java.util.LinkedHashMap<>();
                     if (propNode.has("properties")) {
                         com.fasterxml.jackson.databind.JsonNode properties = propNode.get("properties");
-                        properties.fields().forEachRemaining(entry -> {
+                        properties.properties().forEach(entry -> {
                             Object value = generateExampleForProperty(entry.getValue());
                             if (value != null) {
                                 objectExample.put(entry.getKey(), value);
