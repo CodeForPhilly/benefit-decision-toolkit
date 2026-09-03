@@ -177,6 +177,10 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
     }
 
     public String getPublishedId(EligibilityCheck check) {
-        return getPublishedPrefix(check) + "-" + check.getVersion().toString();
+        return getPublishedId(check, check.getVersion());
+    }
+
+    public String getPublishedId(EligibilityCheck check, String version) {
+        return getPublishedPrefix(check) + "-" + version;
     }
 }

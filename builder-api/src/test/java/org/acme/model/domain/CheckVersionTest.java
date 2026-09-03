@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -50,5 +51,17 @@ class CheckVersionTest {
         assertTrue(CheckVersion.compare("v2.0.0", "1.0.0") < 0);
         assertEquals(0, CheckVersion.compare("v2.0.0", "also-bad"));
         assertEquals(0, CheckVersion.compare(null, null));
+    }
+
+    @Test
+    void incrementsTheMajorPartAndResetsTheRest() {
+        assertArrayEquals(new int[]{3, 0, 0}, CheckVersion.nextMajor(new int[]{2, 4, 6}));
+        assertEquals("3.0.0", CheckVersion.format(CheckVersion.nextMajor(new int[]{2, 4, 6})));
+    }
+
+    @Test
+    void startsAtTheVersionNewChecksAreCreatedWith() {
+        EligibilityCheck newCheck = new EligibilityCheck("a-check", "a-module", "", List.of(), "owner-1");
+        assertEquals(newCheck.getVersion(), CheckVersion.format(CheckVersion.initial()));
     }
 }

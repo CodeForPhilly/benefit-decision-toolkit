@@ -53,4 +53,16 @@ public final class CheckVersion {
         }
         return Boolean.compare(parsed1.isPresent(), parsed2.isPresent());
     }
+
+    public static int[] initial() {
+        return new int[]{1, 0, 0};
+    }
+
+    public static int[] nextMajor(int[] version) {
+        return new int[]{version[0] + 1, 0, 0};    // increment major, reset minor and patch
+    }
+
+    public static String format(int[] version) {
+        return version[0] + "." + version[1] + "." + version[2];
+    }
 }
