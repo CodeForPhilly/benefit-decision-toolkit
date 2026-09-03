@@ -10,6 +10,7 @@ import org.acme.constants.CheckStatus;
 import org.acme.constants.CollectionNames;
 import org.acme.constants.FieldNames;
 import org.acme.model.domain.Benefit;
+import org.acme.model.domain.CheckVersion;
 import org.acme.model.domain.EligibilityCheck;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.FirestoreUtils;
@@ -55,31 +56,9 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
             .collect(java.util.stream.Collectors.toMap(
                 check -> getPublishedPrefix(check),
                 check -> check,
-                (check1, check2) -> compareVersions(check1.getVersion(), check2.getVersion()) > 0 ? check1 : check2
+                (check1, check2) -> CheckVersion.compare(check1.getVersion(), check2.getVersion()) > 0 ? check1 : check2
             ));
         return new ArrayList<>(latestVersionMap.values());
-    }
-
-    private  static int compareVersions(String v1, String v2) {
-        int[] a = normalize(v1);
-        int[] b = normalize(v2);
-
-        for (int i = 0; i < 3; i++) {
-            if (a[i] != b[i]) {
-                return a[i] - b[i];
-            }
-        }
-        return 0;
-    }
-
-    private static int[] normalize(String version) {
-        String[] parts = version.split("\\.");
-        int[] nums = new int[] {0, 0, 0};
-
-        for (int i = 0; i < parts.length && i < 3; i++) {
-            nums[i] = Integer.parseInt(parts[i]);
-        }
-        return nums;
     }
 
     public List<EligibilityCheck> getPublishedCheckVersions(EligibilityCheck workingCustomCheck) throws Exception {

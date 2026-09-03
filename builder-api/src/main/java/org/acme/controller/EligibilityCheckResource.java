@@ -11,6 +11,7 @@ import jakarta.ws.rs.core.Response;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.acme.auth.AuthUtils;
 import org.acme.constants.CheckStatus;
+import org.acme.model.domain.CheckVersion;
 import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.dto.EligibilityCheck.CheckDmnRequest;
 import org.acme.model.dto.EligibilityCheck.CreateCheckRequest;
@@ -21,7 +22,6 @@ import org.acme.persistence.StorageService;
 import org.acme.service.CustomCheckDmnTemplate;
 import org.acme.service.DmnService;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -443,19 +443,13 @@ public class EligibilityCheckResource {
 
     // ========== Private Helper Methods ==========
 
-    private static final Comparator<int[]> VERSION_ORDER = Comparator
-            .<int[]>comparingInt(v -> v[0])
-            .thenComparingInt(v -> v[1])
-            .thenComparingInt(v -> v[2]);
-
     /* The first publish keeps the working version; later ones increment past the highest published version,
        so a working version that lags what is already published cannot produce a duplicate published id. */
     String versionForPublish(String workingVersion, List<EligibilityCheck> publishedChecks) {
         return publishedChecks.stream()
                 .map(EligibilityCheck::getVersion)
-                .filter(version -> version != null)
-                .flatMap(version -> normalize(version).stream())
-                .max(VERSION_ORDER)
+                .flatMap(version -> parsePublishedVersion(version).stream())
+                .max(CheckVersion.ORDER)
                 .map(this::incrementMajorVersion)
                 .orElse(workingVersion);
     }
@@ -464,18 +458,11 @@ public class EligibilityCheckResource {
         return (version[0] + 1) + ".0.0";    // increment major, reset minor and patch
     }
 
-    private Optional<int[]> normalize(String version) {
-        try {
-            String[] parts = version.split("\\.");
-            int[] nums = new int[]{0, 0, 0};
-
-            for (int i = 0; i < parts.length && i < 3; i++) {
-                nums[i] = Integer.parseInt(parts[i]);
-            }
-            return Optional.of(nums);
-        } catch (NumberFormatException e) {
+    private Optional<int[]> parsePublishedVersion(String version) {
+        Optional<int[]> parsed = CheckVersion.parse(version);
+        if (parsed.isEmpty()) {
             Log.warn("Ignoring malformed published check version: " + version);
-            return Optional.empty();
         }
+        return parsed;
     }
 }
