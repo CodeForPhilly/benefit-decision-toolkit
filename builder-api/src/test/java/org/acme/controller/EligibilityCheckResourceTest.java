@@ -218,6 +218,23 @@ class EligibilityCheckResourceTest {
         assertEquals("3.0.0", capturedPublishedVersion());
     }
 
+    @Test
+    void malformedPublishedVersionsAreIgnored() throws Exception {
+        workingCheck.setVersion("2.0.0");
+        when(repository.getPublishedCheckVersions(workingCheck))
+                .thenReturn(List.of(
+                        publishedVersion(""),
+                        publishedVersion("not-a-version"),
+                        publishedVersion("1.invalid.0"),
+                        publishedVersion("2.0.0")
+                ));
+
+        Response response = resource.publishCustomCheck(identity, CHECK_ID);
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals("3.0.0", capturedPublishedVersion());
+    }
+
     // An unreadable version list must not be mistaken for "never published"
     @Test
     void publishFailsWhenPublishedVersionsCannotBeRead() throws Exception {

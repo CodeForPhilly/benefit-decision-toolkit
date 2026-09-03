@@ -25,7 +25,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 @Path("/api/custom-checks")
@@ -454,8 +453,8 @@ public class EligibilityCheckResource {
     String versionForPublish(String workingVersion, List<EligibilityCheck> publishedChecks) {
         return publishedChecks.stream()
                 .map(EligibilityCheck::getVersion)
-                .filter(Objects::nonNull)
-                .map(this::normalize)
+                .filter(version -> version != null)
+                .flatMap(version -> normalize(version).stream())
                 .max(VERSION_ORDER)
                 .map(this::incrementMajorVersion)
                 .orElse(workingVersion);
@@ -465,13 +464,18 @@ public class EligibilityCheckResource {
         return (version[0] + 1) + ".0.0";    // increment major, reset minor and patch
     }
 
-    private int[] normalize(String version) {
-        String[] parts = version.split("\\.");
-        int[] nums = new int[]{0, 0, 0};
+    private Optional<int[]> normalize(String version) {
+        try {
+            String[] parts = version.split("\\.");
+            int[] nums = new int[]{0, 0, 0};
 
-        for (int i = 0; i < parts.length && i < 3; i++) {
-            nums[i] = Integer.parseInt(parts[i]);
+            for (int i = 0; i < parts.length && i < 3; i++) {
+                nums[i] = Integer.parseInt(parts[i]);
+            }
+            return Optional.of(nums);
+        } catch (NumberFormatException e) {
+            Log.warn("Ignoring malformed published check version: " + version);
+            return Optional.empty();
         }
-        return nums;
     }
 }
