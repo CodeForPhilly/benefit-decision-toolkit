@@ -13,6 +13,7 @@ This is a monorepo for building and publishing benefit eligibility screeners. Ke
 ## Setup and common commands
 
 - Preferred one-time setup: `bin/install-devbox && devbox run setup`
+- In worktrees, agents may create the ignored root `.env` from `.env.example` when needed to run Devbox commands. The preferred setup command above does this automatically.
 - Start the development stack: `devbox services up`
 - All tests: `devbox run test` (wrapper: `bin/run-all-tests`; accepts `--fail-fast` and suite names `builder-frontend`, `builder-api`, `library-api`, `e2e`)
 - Backend tests: `(cd builder-api && mvn test)`
