@@ -1,6 +1,8 @@
 package org.acme.persistence;
 
 import com.google.api.core.ApiFuture;
+import com.google.api.gax.rpc.ApiException;
+import com.google.api.gax.rpc.StatusCode;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import io.quarkus.logging.Log;
@@ -187,6 +189,10 @@ public class FirestoreUtils {
             throw new Exception("Thread interrupted while saving to Firestore", e);
         } catch (ExecutionException e) {
             Log.error(e);
+            if (e.getCause() instanceof ApiException apiException
+                    && apiException.getStatusCode().getCode() == StatusCode.Code.ALREADY_EXISTS) {
+                throw new DocumentAlreadyExistsException(documentId, e);
+            }
             throw new Exception("Failed to write document to Firestore", e);
         }
     }

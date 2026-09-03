@@ -188,6 +188,7 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
         FirestoreUtils.updateDocument(CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION, data, check.getId());
     }
 
+    @Override
     public String getWorkingId(EligibilityCheck check) {
         return CheckStatus.WORKING.getCode() + "-" + check.getOwnerId() + "-" + check.getModule() + "-" + check.getName();
     }

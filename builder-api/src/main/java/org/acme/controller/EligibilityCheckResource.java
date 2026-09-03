@@ -15,6 +15,7 @@ import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.dto.EligibilityCheck.CheckDmnRequest;
 import org.acme.model.dto.EligibilityCheck.CreateCheckRequest;
 import org.acme.model.dto.EligibilityCheck.EditCheckRequest;
+import org.acme.persistence.DocumentAlreadyExistsException;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.StorageService;
 import org.acme.service.CustomCheckDmnTemplate;
@@ -83,11 +84,20 @@ public class EligibilityCheckResource {
             request.parameterDefinitions(),
             userId
         );
+        String checkId = eligibilityCheckRepository.getWorkingId(newCheck);
+        Optional<EligibilityCheck> existingCheck = eligibilityCheckRepository
+                .getWorkingCustomCheck(userId, checkId, true);
+        if (existingCheck.isPresent()) {
+            return duplicateCheckResponse(request, existingCheck.get().getIsArchived());
+        }
+
         String initialDmnModel = customCheckDmnTemplate.create(request.name(), request.description());
 
-        String checkId;
         try {
             checkId = eligibilityCheckRepository.saveNewWorkingCustomCheck(newCheck);
+        } catch (DocumentAlreadyExistsException e) {
+            Log.info("Check " + checkId + " was created concurrently");
+            return duplicateCheckResponse(request, false);
         } catch (Exception e){
             Log.error("Could not save new check for user " + userId, e);
             return  Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -119,6 +129,18 @@ public class EligibilityCheckResource {
 
         newCheck.setDmnModel(initialDmnModel);
         return Response.ok(newCheck, MediaType.APPLICATION_JSON).build();
+    }
+
+    private Response duplicateCheckResponse(CreateCheckRequest request, boolean archived) {
+        String message = archived
+                ? "A check named \"" + request.name() + "\" in module \"" + request.module()
+                    + "\" is archived. Restore it or choose a different name."
+                : "You already have a check named \"" + request.name() + "\" in module \""
+                    + request.module() + "\".";
+        return Response.status(Response.Status.CONFLICT)
+                .type(MediaType.APPLICATION_JSON)
+                .entity(Map.of("error", message))
+                .build();
     }
 
     // ========== Single Resource Endpoints ==========

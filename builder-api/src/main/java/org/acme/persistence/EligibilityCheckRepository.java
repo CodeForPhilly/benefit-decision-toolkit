@@ -22,6 +22,8 @@ public interface EligibilityCheckRepository {
 
     Optional<EligibilityCheck> getPublishedCustomCheck(String userId, String checkId);
 
+    String getWorkingId(EligibilityCheck check);
+
     String saveNewWorkingCustomCheck(EligibilityCheck check) throws Exception;
 
     String saveNewPublishedCustomCheck(EligibilityCheck check) throws Exception;
