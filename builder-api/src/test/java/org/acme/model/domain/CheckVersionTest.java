@@ -25,7 +25,8 @@ class CheckVersionTest {
 
     /* Stored versions are free-form strings, so anything at all can come back from Firestore */
     @ParameterizedTest
-    @ValueSource(strings = {"", " ", ".1", "not-a-version", "v2.0.0", "1.invalid.0", "1.0.0-rc1", "99999999999999"})
+    @ValueSource(strings = {"", " ", ".", "..", "...", ".1", "not-a-version", "v2.0.0", "1.invalid.0",
+            "1.2.3.4", "-1.0.0", "1.0.0-rc1", "99999999999999"})
     void rejectsAnythingThatIsNotAVersion(String version) {
         assertTrue(CheckVersion.parse(version).isEmpty(), "expected \"" + version + "\" to be rejected");
     }

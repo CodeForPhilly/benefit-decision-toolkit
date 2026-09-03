@@ -18,18 +18,26 @@ public final class CheckVersion {
     private CheckVersion() {
     }
 
-    /* A version is dot-separated numbers; missing parts count as zero. */
+    /* A version is one to three dot-separated non-negative numbers; missing parts count as zero. */
     public static Optional<int[]> parse(String version) {
         if (version == null) {
             return Optional.empty();
         }
 
+        // Java drops trailing empty parts, so dot-only strings such as "." split into no parts at all
         String[] parts = version.split("\\.");
+        if (parts.length == 0 || parts.length > PART_COUNT) {
+            return Optional.empty();
+        }
+
         int[] numbers = new int[PART_COUNT];
-        for (int i = 0; i < parts.length && i < PART_COUNT; i++) {
+        for (int i = 0; i < parts.length; i++) {
             try {
                 numbers[i] = Integer.parseInt(parts[i]);
             } catch (NumberFormatException e) {
+                return Optional.empty();
+            }
+            if (numbers[i] < 0) {
                 return Optional.empty();
             }
         }

@@ -235,6 +235,19 @@ class EligibilityCheckResourceTest {
         assertEquals("3.0.0", capturedPublishedVersion());
     }
 
+    // Dot-only strings split into no parts at all, so they must not be read as version 0.0.0
+    @Test
+    void dotOnlyPublishedVersionsAreIgnored() throws Exception {
+        workingCheck.setVersion("2.0.0");
+        when(repository.getPublishedCheckVersions(workingCheck))
+                .thenReturn(List.of(publishedVersion("."), publishedVersion("...")));
+
+        Response response = resource.publishCustomCheck(identity, CHECK_ID);
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals("2.0.0", capturedPublishedVersion());
+    }
+
     // An unreadable version list must not be mistaken for "never published"
     @Test
     void publishFailsWhenPublishedVersionsCannotBeRead() throws Exception {
