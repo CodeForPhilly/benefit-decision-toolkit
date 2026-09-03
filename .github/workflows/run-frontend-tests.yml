@@ -17,6 +17,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Load frontend ENV file from example
+        run: cp builder-frontend/.env.example builder-frontend/.env
+
       - name: Setup devbox
         uses: ./.github/actions/devbox-setup
 
