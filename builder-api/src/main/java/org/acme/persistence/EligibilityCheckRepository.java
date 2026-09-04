@@ -33,4 +33,7 @@ public interface EligibilityCheckRepository {
     void deleteWorkingCustomCheck(String checkId) throws Exception;
 
     void updatePublishedCustomCheck(EligibilityCheck check) throws Exception;
+
+    /* The published document id a check would get at the given version. */
+    String getPublishedId(EligibilityCheck check, String version);
 }

@@ -11,6 +11,7 @@ import jakarta.ws.rs.core.Response;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.acme.auth.AuthUtils;
 import org.acme.constants.CheckStatus;
+import org.acme.model.domain.CheckVersion;
 import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.dto.EligibilityCheck.CheckDmnRequest;
 import org.acme.model.dto.EligibilityCheck.CreateCheckRequest;
@@ -21,12 +22,12 @@ import org.acme.persistence.StorageService;
 import org.acme.service.CustomCheckDmnTemplate;
 import org.acme.service.DmnService;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Path("/api/custom-checks")
 public class EligibilityCheckResource {
@@ -344,7 +345,7 @@ public class EligibilityCheckResource {
                     .entity(Map.of("error", "could not read published versions of Check, published check version was not created"))
                     .build();
         }
-        check.setVersion(versionForPublish(check.getVersion(), publishedChecks));
+        check.setVersion(versionForPublish(check, publishedChecks));
 
         // Update the working check so the extracted input definition and current version are saved.
         try {
@@ -444,34 +445,36 @@ public class EligibilityCheckResource {
 
     // ========== Private Helper Methods ==========
 
-    private static final Comparator<int[]> VERSION_ORDER = Comparator
-            .<int[]>comparingInt(v -> v[0])
-            .thenComparingInt(v -> v[1])
-            .thenComparingInt(v -> v[2]);
+    /* The first publish keeps the working version; later ones increment past the highest published
+       version, so a working version that lags what is already published cannot produce a duplicate
+       published id. */
+    String versionForPublish(EligibilityCheck check, List<EligibilityCheck> publishedChecks) {
+        Set<String> publishedIds = publishedChecks.stream()
+                .map(EligibilityCheck::getId)
+                .filter(id -> id != null)
+                .collect(Collectors.toSet());
 
-    /* The first publish keeps the working version; later ones increment past the highest published version,
-       so a working version that lags what is already published cannot produce a duplicate published id. */
-    String versionForPublish(String workingVersion, List<EligibilityCheck> publishedChecks) {
-        return publishedChecks.stream()
+        int[] version = publishedChecks.stream()
                 .map(EligibilityCheck::getVersion)
-                .filter(Objects::nonNull)
-                .map(this::normalize)
-                .max(VERSION_ORDER)
-                .map(this::incrementMajorVersion)
-                .orElse(workingVersion);
-    }
+                .flatMap(publishedVersion -> parsePublishedVersion(publishedVersion).stream())
+                .max(CheckVersion.ORDER)
+                .map(CheckVersion::nextMajor)
+                .orElseGet(() -> CheckVersion.parse(check.getVersion()).orElseGet(CheckVersion::initial));
 
-    private String incrementMajorVersion(int[] version) {
-        return (version[0] + 1) + ".0.0";    // increment major, reset minor and patch
-    }
-
-    private int[] normalize(String version) {
-        String[] parts = version.split("\\.");
-        int[] nums = new int[]{0, 0, 0};
-
-        for (int i = 0; i < parts.length && i < 3; i++) {
-            nums[i] = Integer.parseInt(parts[i]);
+        /* A published id is derived from the version and can never be written twice, so skip past
+           versions that are already taken. A version ignored above still holds its id, which is the
+           only remaining record that the version was used. */
+        while (publishedIds.contains(eligibilityCheckRepository.getPublishedId(check, CheckVersion.format(version)))) {
+            version = CheckVersion.nextMajor(version);
         }
-        return nums;
+        return CheckVersion.format(version);
+    }
+
+    private Optional<int[]> parsePublishedVersion(String version) {
+        Optional<int[]> parsed = CheckVersion.parse(version);
+        if (parsed.isEmpty()) {
+            Log.warn("Ignoring malformed published check version: " + version);
+        }
+        return parsed;
     }
 }

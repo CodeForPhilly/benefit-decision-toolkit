@@ -32,6 +32,7 @@ class EligibilityCheckResourceTest {
 
     private static final String USER_ID = "owner-1";
     private static final String CHECK_ID = "check-1";
+    private static final String PUBLISHED_PREFIX = "P-" + USER_ID + "-my-module-my-check";
 
     private final EligibilityCheckResource resource = new EligibilityCheckResource();
     private final EligibilityCheckRepository repository = mock(EligibilityCheckRepository.class);
@@ -66,6 +67,8 @@ class EligibilityCheckResourceTest {
             EligibilityCheck check = invocation.getArgument(0);
             return "W-" + check.getOwnerId() + "-" + check.getModule() + "-" + check.getName();
         });
+        when(repository.getPublishedId(any(), anyString()))
+                .thenAnswer(invocation -> PUBLISHED_PREFIX + "-" + invocation.<String>getArgument(1));
     }
 
     @Test
@@ -218,6 +221,81 @@ class EligibilityCheckResourceTest {
         assertEquals("3.0.0", capturedPublishedVersion());
     }
 
+    @Test
+    void malformedPublishedVersionsAreIgnored() throws Exception {
+        workingCheck.setVersion("2.0.0");
+        when(repository.getPublishedCheckVersions(workingCheck))
+                .thenReturn(List.of(
+                        publishedVersion(""),
+                        publishedVersion("not-a-version"),
+                        publishedVersion("1.invalid.0"),
+                        publishedVersion("2.0.0")
+                ));
+
+        Response response = resource.publishCustomCheck(identity, CHECK_ID);
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals("3.0.0", capturedPublishedVersion());
+    }
+
+    // Dot-only strings split into no parts at all, so they must not be read as version 0.0.0
+    @Test
+    void dotOnlyPublishedVersionsAreIgnored() throws Exception {
+        workingCheck.setVersion("2.0.0");
+        when(repository.getPublishedCheckVersions(workingCheck))
+                .thenReturn(List.of(publishedVersion("."), publishedVersion("...")));
+
+        Response response = resource.publishCustomCheck(identity, CHECK_ID);
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals("2.0.0", capturedPublishedVersion());
+    }
+
+    /* Ignoring a corrupt version must not hand back a version whose published id is already taken:
+       that document could never be written, so publishing would fail for good. */
+    @Test
+    void publishSkipsVersionsWhosePublishedIdAlreadyExists() throws Exception {
+        workingCheck.setVersion("2.0.0");
+        when(repository.getPublishedCheckVersions(workingCheck))
+                .thenReturn(List.of(
+                        publishedVersion("1.0.0"),
+                        publishedVersion("v2.0.0", PUBLISHED_PREFIX + "-2.0.0")
+                ));
+
+        Response response = resource.publishCustomCheck(identity, CHECK_ID);
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals("3.0.0", capturedPublishedVersion());
+    }
+
+    @Test
+    void publishKeepsSkippingUntilAnUnusedVersionIsFound() throws Exception {
+        workingCheck.setVersion("1.0.0");
+        when(repository.getPublishedCheckVersions(workingCheck))
+                .thenReturn(List.of(
+                        publishedVersion("1.0.0"),
+                        publishedVersion("v2.0.0", PUBLISHED_PREFIX + "-2.0.0"),
+                        publishedVersion("v3.0.0", PUBLISHED_PREFIX + "-3.0.0")
+                ));
+
+        Response response = resource.publishCustomCheck(identity, CHECK_ID);
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals("4.0.0", capturedPublishedVersion());
+    }
+
+    // A corrupt working version cannot be published as-is, or the next publish inherits the corruption
+    @Test
+    void firstPublishOfACorruptWorkingVersionStartsAtTheInitialVersion() throws Exception {
+        workingCheck.setVersion("not-a-version");
+        when(repository.getPublishedCheckVersions(workingCheck)).thenReturn(List.of());
+
+        Response response = resource.publishCustomCheck(identity, CHECK_ID);
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals("1.0.0", capturedPublishedVersion());
+    }
+
     // An unreadable version list must not be mistaken for "never published"
     @Test
     void publishFailsWhenPublishedVersionsCannotBeRead() throws Exception {
@@ -232,8 +310,14 @@ class EligibilityCheckResourceTest {
     }
 
     private EligibilityCheck publishedVersion(String version) {
+        return publishedVersion(version, PUBLISHED_PREFIX + "-" + version);
+    }
+
+    /* The id is fixed when a version is published, so a version field corrupted later no longer matches it */
+    private EligibilityCheck publishedVersion(String version, String id) {
         EligibilityCheck published = new EligibilityCheck("my-check", "my-module", "a check", List.of(), USER_ID);
         published.setVersion(version);
+        published.setId(id);
         return published;
     }
 
