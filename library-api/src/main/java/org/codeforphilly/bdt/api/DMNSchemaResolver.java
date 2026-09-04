@@ -35,7 +35,7 @@ public class DMNSchemaResolver {
         this.rootNode = loadedRoot != null ? loadedRoot : generateDmnDefinitions(modelRegistry);
         if (rootNode != null && rootNode.has("definitions")) {
             JsonNode definitions = rootNode.get("definitions");
-            definitions.fields().forEachRemaining(entry -> {
+            definitions.properties().forEach(entry -> {
                 schemas.put(entry.getKey(), entry.getValue());
             });
             LOG.info("Loaded " + schemas.size() + " DMN type schemas");
@@ -174,7 +174,7 @@ public class DMNSchemaResolver {
         }
 
         JsonNode properties = schema.get("properties");
-        properties.fields().forEachRemaining(entry -> {
+        properties.properties().forEach(entry -> {
             String fieldName = entry.getKey();
             JsonNode fieldSchema = entry.getValue();
             example.put(fieldName, generateFieldExample(fieldName, fieldSchema));

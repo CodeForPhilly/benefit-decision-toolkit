@@ -179,7 +179,7 @@ public class SituationTypeValidationTest {
         assertNotNull(localSchema, "Local schema should exist for " + model.getPath());
 
         // Check that local schema has properties (not empty/Any-only)
-        if (!localSchema.has("properties") || !localSchema.get("properties").fields().hasNext()) {
+        if (!localSchema.has("properties") || localSchema.get("properties").properties().isEmpty()) {
             fail(model.getPath() + ": local tSituation must define at least one field from BDT.tSituation. " +
                 "It currently has no fields (may just be typeRef='Any').");
         }
@@ -277,7 +277,7 @@ public class SituationTypeValidationTest {
             JsonNode bdtProps = resolvedBdt.get("properties");
 
             // Check each local property
-            localProps.fields().forEachRemaining(entry -> {
+            localProps.properties().forEach(entry -> {
                 String fieldName = entry.getKey();
                 String newPath = currentPath.isEmpty() ? fieldName : currentPath + "." + fieldName;
 
