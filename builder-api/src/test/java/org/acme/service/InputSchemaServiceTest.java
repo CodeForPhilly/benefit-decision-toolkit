@@ -525,6 +525,120 @@ public class InputSchemaServiceTest {
     // ==== extractJsonSchemaPaths tests ====
 
     @Test
+    void transformInputDefinitionSchema_withSctfRelationships_exposesSpouseFields() throws Exception {
+        CheckConfig check = sctfAgeCheck();
+        JsonNode original = check.getInputDefinition().deepCopy();
+
+        JsonNode transformed = service.transformInputDefinitionSchema(check);
+        List<FormPath> paths = service.extractJsonSchemaPaths(transformed);
+
+        assertTrue(paths.contains(new FormPath("people.spouse.dateOfBirth", "date")));
+        assertFalse(paths.stream().anyMatch(path -> path.getPath().startsWith("spouse.")));
+        assertFalse(paths.contains(new FormPath("primaryPersonId", "string")));
+        assertTrue(paths.contains(new FormPath("people.client.dateOfBirth", "date")));
+        assertFalse(paths.contains(new FormPath("people.dateOfBirth", "date")));
+        assertTrue(paths.contains(new FormPath("simpleChecks.lateSpouseWasAtLeast65", "boolean")));
+        assertFalse(paths.stream().anyMatch(path -> path.getPath().startsWith("relationships.")));
+        assertFalse(paths.contains(new FormPath("people.spouse.id", "string")));
+        assertFalse(transformed.path("properties").has("spouse"));
+        assertFalse(transformed.path("properties").has("relationships"));
+        assertEquals(objectMapper.readTree("[\"people\"]"), transformed.path("required"));
+        assertEquals(original, check.getInputDefinition());
+    }
+
+    @Test
+    void transformInputDefinitionSchema_withSpouseAndPersonParameters_keepsPeopleMapping() throws Exception {
+        CheckConfig check = sctfAgeCheck();
+        check.setParameters(Map.of("personId", "client"));
+
+        List<FormPath> paths = service.extractJsonSchemaPaths(service.transformInputDefinitionSchema(check));
+
+        assertTrue(paths.contains(new FormPath("people.client.dateOfBirth", "date")));
+        assertTrue(paths.contains(new FormPath("people.spouse.dateOfBirth", "date")));
+        assertFalse(paths.stream().anyMatch(path -> path.getPath().startsWith("relationships.")));
+    }
+
+    @Test
+    void transformInputDefinitionSchema_withPrimaryPersonBinding_mapsEnrollmentsToClient() throws Exception {
+        CheckConfig check = new CheckConfig();
+        check.setParameters(Map.of("personId", "previous-id", "benefit", "PhlSeniorCitizenTaxFreeze"));
+        check.setParameterBindings(Map.of("personId", "primaryPersonId"));
+        check.setInputDefinition(objectMapper.readTree("""
+            {
+                "type": "object",
+                "properties": {
+                    "enrollments": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "personId": {"type": "string"},
+                                "benefit": {"type": "string"}
+                            }
+                        }
+                    }
+                }
+            }
+            """));
+
+        List<FormPath> paths = service.extractJsonSchemaPaths(service.transformInputDefinitionSchema(check));
+
+        assertEquals(List.of(new FormPath("people.client.enrollments", "array:string")), paths);
+        assertEquals("previous-id", check.getParameters().get("personId"));
+    }
+
+    @Test
+    void transformSpouseSchema_withOtherRelationshipTypes_keepsRawRelationships() throws Exception {
+        JsonNode schema = service.transformPeopleSchema(sctfAgeCheck().getInputDefinition(), List.of("client"));
+        ((com.fasterxml.jackson.databind.node.ArrayNode) schema.at(
+            "/properties/relationships/items/properties/type/enum")).add("child");
+
+        assertEquals(schema, service.transformSpouseSchema(schema));
+        assertEquals(objectMapper.createObjectNode(), service.transformSpouseSchema(null));
+    }
+
+    private CheckConfig sctfAgeCheck() throws Exception {
+        CheckConfig check = new CheckConfig();
+        check.setCheckName("SctfAgeRequirement");
+        check.setParameters(Map.of());
+        check.setInputDefinition(objectMapper.readTree("""
+            {
+                "type": "object",
+                "required": ["primaryPersonId", "people", "relationships"],
+                "properties": {
+                    "primaryPersonId": {"type": "string"},
+                    "people": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": {"type": "string"},
+                                "dateOfBirth": {"type": "string", "format": "date"}
+                            }
+                        }
+                    },
+                    "relationships": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "type": {"type": "string", "enum": ["spouse"]},
+                                "personId": {"type": "string"},
+                                "relatedPersonId": {"type": "string"}
+                            }
+                        }
+                    },
+                    "simpleChecks": {
+                        "type": "object",
+                        "properties": {"lateSpouseWasAtLeast65": {"type": "boolean"}}
+                    }
+                }
+            }
+            """));
+        return check;
+    }
+
+    @Test
     void extractJsonSchemaPaths_withTransformedSchema_extractsCorrectPaths() throws Exception {
         String schemaJson = """
             {

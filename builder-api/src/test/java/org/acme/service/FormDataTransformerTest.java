@@ -103,6 +103,148 @@ public class FormDataTransformerTest {
         assertTrue(result.isEmpty());
     }
 
+    @Test
+    void transformFormData_withSpouse_createsPersonAndRelationships() {
+        Map<String, Object> formData = Map.of(
+            "people", Map.of(
+                "client", Map.of("dateOfBirth", "1970-08-01"),
+                "spouse", Map.of("dateOfBirth", "1960-12-30", "enrollments", List.of("Medicare"))
+            ),
+            "simpleChecks", Map.of("lateSpouseWasAtLeast65", false)
+        );
+
+        Map<String, Object> result = FormDataTransformer.transformFormData(formData);
+
+        assertEquals(Set.of(
+            Map.of("id", "client", "dateOfBirth", "1970-08-01"),
+            Map.of("id", "spouse", "dateOfBirth", "1960-12-30")
+        ), new HashSet<>((List<?>) result.get("people")));
+        assertEquals(2, ((List<?>) result.get("people")).size());
+        assertEquals(List.of(
+            Map.of("type", "spouse", "personId", "client", "relatedPersonId", "spouse"),
+            Map.of("type", "spouse", "personId", "spouse", "relatedPersonId", "client")
+        ), result.get("relationships"));
+        assertEquals(List.of(Map.of("personId", "spouse", "benefit", "Medicare")), result.get("enrollments"));
+        assertEquals(formData.get("simpleChecks"), result.get("simpleChecks"));
+        assertEquals("client", result.get("primaryPersonId"));
+        assertFalse(result.containsKey("spouse"));
+        assertEquals(Map.of("dateOfBirth", "1960-12-30", "enrollments", List.of("Medicare")),
+            ((Map<?, ?>) formData.get("people")).get("spouse"));
+        assertFalse(formData.containsKey("primaryPersonId"));
+        assertFalse(formData.containsKey("relationships"));
+        assertEquals(result, FormDataTransformer.transformFormData(result));
+    }
+
+    @Test
+    void transformFormData_withoutSpouse_defaultsMissingPrimaryPersonIdToClient() {
+        Map<String, Object> formData = Map.of(
+            "people", Map.of("client", Map.of("dateOfBirth", "1960-01-01"))
+        );
+
+        Map<String, Object> result = FormDataTransformer.transformFormData(formData);
+
+        assertEquals("client", result.get("primaryPersonId"));
+        assertEquals(List.of(Map.of("id", "client", "dateOfBirth", "1960-01-01")), result.get("people"));
+        assertFalse(result.containsKey("relationships"));
+    }
+
+    @Test
+    void transformFormData_withBlankPrimaryPersonId_defaultsSpouseRelationshipToClient() {
+        for (String primaryPersonId : Arrays.asList(null, "", " ")) {
+            Map<String, Object> formData = new HashMap<>();
+            formData.put("primaryPersonId", primaryPersonId);
+            formData.put("people", Map.of("spouse", Map.of("dateOfBirth", "1960-01-01")));
+
+            Map<String, Object> result = FormDataTransformer.transformFormData(formData);
+
+            assertEquals("client", result.get("primaryPersonId"));
+            assertEquals(List.of(
+                Map.of("type", "spouse", "personId", "client", "relatedPersonId", "spouse"),
+                Map.of("type", "spouse", "personId", "spouse", "relatedPersonId", "client")
+            ), result.get("relationships"));
+            assertEquals(primaryPersonId, formData.get("primaryPersonId"));
+        }
+    }
+
+    @Test
+    void transformFormData_withExistingSpouse_reusesPersonAndPreservesRelationships() {
+        Map<String, Object> applicant = Map.of("dateOfBirth", "1970-08-01");
+        Map<String, Object> spouse = Map.of("name", "Pat", "dateOfBirth", "1961-01-01");
+        List<Map<String, Object>> relationships = List.of(
+            Map.of("type", "spouse", "personId", "p1", "relatedPersonId", "p2", "note", "existing"),
+            Map.of("type", "spouse", "personId", "p2", "relatedPersonId", "p1"),
+            Map.of("type", "spouse", "personId", "p3", "relatedPersonId", "p4")
+        );
+        Map<String, Object> formData = Map.of(
+            "primaryPersonId", "p1",
+            "people", Map.of("p1", applicant, "p2", spouse, "spouse", Map.of("dateOfBirth", "1960-12-30")),
+            "relationships", relationships
+        );
+
+        Map<String, Object> result = FormDataTransformer.transformFormData(formData);
+
+        assertEquals(Set.of(Map.of("id", "p1", "dateOfBirth", "1970-08-01"),
+            Map.of("id", "p2", "name", "Pat", "dateOfBirth", "1960-12-30")),
+            new HashSet<>((List<?>) result.get("people")));
+        assertEquals(2, ((List<?>) result.get("people")).size());
+        assertEquals(relationships, result.get("relationships"));
+        assertEquals("1961-01-01", spouse.get("dateOfBirth"));
+    }
+
+    @Test
+    void transformFormData_withPeopleSpouseAndExistingRelationship_doesNotDuplicate() {
+        List<Map<String, Object>> relationships = List.of(
+            Map.of("type", "spouse", "personId", "applicant", "relatedPersonId", "spouse"),
+            Map.of("type", "spouse", "personId", "spouse", "relatedPersonId", "applicant")
+        );
+        Map<String, Object> formData = Map.of(
+            "primaryPersonId", "applicant",
+            "people", Map.of("spouse", Map.of("dateOfBirth", "1960-12-30", "enrollments", List.of("Medicare"))),
+            "relationships", relationships
+        );
+
+        Map<String, Object> result = FormDataTransformer.transformFormData(formData);
+
+        assertEquals(List.of(Map.of("id", "spouse", "dateOfBirth", "1960-12-30")), result.get("people"));
+        assertEquals(List.of(Map.of("personId", "spouse", "benefit", "Medicare")), result.get("enrollments"));
+        assertEquals(relationships, result.get("relationships"));
+    }
+
+    @Test
+    void transformFormData_withBlankSpouse_doesNotInventPersonOrRelationship() {
+        Map<String, Object> nullDate = new HashMap<>();
+        nullDate.put("dateOfBirth", null);
+        for (Object spouse : Arrays.asList(null, Map.of(), nullDate, Map.of("dateOfBirth", ""),
+                Map.of("dateOfBirth", " ", "enrollments", List.of()))) {
+            Map<String, Object> formData = new HashMap<>();
+            formData.put("primaryPersonId", "p1");
+            Map<String, Object> people = new HashMap<>();
+            people.put("p1", Map.of("dateOfBirth", "1970-01-01"));
+            people.put("spouse", spouse);
+            formData.put("people", people);
+
+            Map<String, Object> result = FormDataTransformer.transformFormData(formData);
+
+            assertEquals(List.of(Map.of("id", "p1", "dateOfBirth", "1970-01-01")), result.get("people"));
+            assertEquals(List.of(), result.get("relationships"));
+            assertFalse(result.containsKey("spouse"));
+            assertTrue(people.containsKey("spouse"));
+            assertEquals(spouse, people.get("spouse"));
+        }
+    }
+
+    @Test
+    void transformFormData_withoutSpouse_preservesLibraryFormat() {
+        Map<String, Object> formData = Map.of(
+            "primaryPersonId", "p1",
+            "people", List.of(Map.of("id", "p1"), Map.of("id", "p2")),
+            "relationships", List.of(Map.of("type", "spouse", "personId", "p1", "relatedPersonId", "p2"))
+        );
+
+        assertEquals(formData, FormDataTransformer.transformFormData(formData));
+        assertEquals(Map.of(), FormDataTransformer.transformFormData(null));
+    }
+
     // ==== transformEnrollmentsData tests ====
 
     @Test

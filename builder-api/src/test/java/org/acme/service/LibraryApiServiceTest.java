@@ -163,6 +163,26 @@ public class LibraryApiServiceTest {
         assertEquals("Philadelphia", result.parameters().get("county"));
     }
 
+    @Test
+    void buildEffectiveParameters_primaryPersonBinding_usesClientFromTransformedForm() {
+        LibraryApiService service = new LibraryApiService();
+        CheckConfig check = new CheckConfig();
+        check.setParameters(Map.of("benefit", "PhlSeniorCitizenTaxFreeze"));
+        check.setParameterBindings(Map.of("personId", "primaryPersonId"));
+        Map<String, Object> situation = FormDataTransformer.transformFormData(Map.of(
+            "people", Map.of(
+                "client", Map.of("enrollments", List.of("Medicare")),
+                "spouse", Map.of("dateOfBirth", "1960-01-01")
+            )
+        ));
+
+        LibraryApiService.EffectiveParameters result = service.buildEffectiveParameters(check, situation);
+
+        assertEquals("client", result.parameters().get("personId"));
+        assertEquals("PhlSeniorCitizenTaxFreeze", result.parameters().get("benefit"));
+        assertEquals(List.of(Map.of("personId", "client", "benefit", "Medicare")), situation.get("enrollments"));
+    }
+
     private CheckConfig checkConfigWithParameters(
         Map<String, Object> parameters,
         ParameterDefinition parameterDefinition
