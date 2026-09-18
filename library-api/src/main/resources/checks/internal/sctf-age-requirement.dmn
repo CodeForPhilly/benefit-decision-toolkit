@@ -83,9 +83,10 @@
       <dmn:contextEntry id="_741AFA00-8331-41A7-863E-1DC3DA6AC10B">
         <dmn:variable id="_04B4CC0C-D9C5-4080-8AFF-50A12285FBEC" name="result" typeRef="boolean" />
         <dmn:literalExpression id="_F13F433B-FE49-475C-981C-D23B1533DBB7">
-          <dmn:text>if situation.relationships = null then null
+          <dmn:text>if PrimaryPerson65PlusThisYear then true
+else if situation.relationships = null then null
 else if SpouseId = null then PrimaryPerson65PlusThisYear
-else PrimaryPerson65PlusThisYear or Spouse65PlusThisYear or (PrimaryPerson50PlusThisYear and LateSpouseWasAtLeast65)</dmn:text>
+else Spouse65PlusThisYear or (PrimaryPerson50PlusThisYear and LateSpouseWasAtLeast65)</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry id="_3994E127-ED91-4868-B2F9-6400D0C9657D">
