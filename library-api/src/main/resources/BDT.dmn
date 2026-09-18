@@ -27,7 +27,7 @@
     <dmn:itemComponent id="_7899544D-D4BF-43E1-BB0C-61E13BBB14B2" name="id" isCollection="false">
       <dmn:typeRef>string</dmn:typeRef>
     </dmn:itemComponent>
-    <dmn:itemComponent id="_92EB41A5-EF24-4CE8-A0CA-9AEC233238F4" name="New property" isCollection="false" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/">
+    <dmn:itemComponent id="_92EB41A5-EF24-4CE8-A0CA-9AEC233238F4" name="deceased" isCollection="false" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/">
       <dmn:typeRef>boolean</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>

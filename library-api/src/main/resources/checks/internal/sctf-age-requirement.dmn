@@ -5,6 +5,17 @@
   <dmn:import id="_1C14F6F4-3BA7-4818-B667-95B447E799B4" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
   <dmn:import id="_996E205D-A3FF-447D-A436-F0206E6784BE" name="Internal" namespace="https://kie.apache.org/dmn/_15EDFFFA-F0BA-433C-9CFF-2A86EEA4F439" locationURI="Internal.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
   <dmn:import id="_57D0C5AB-AD7B-48FB-A6A2-D1E9701DCE10" name="PersonMinAge" namespace="https://kie.apache.org/dmn/_C189BB80-C23E-476E-B0BB-DDF4FF7D305A" locationURI="../age/person-min-age.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:itemDefinition id="_FF7B6367-E942-4C6F-BCA8-2A14929A4D4B" name="tPerson" isCollection="false" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/">
+    <dmn:itemComponent id="_DBBDA3CE-3A99-432D-9571-C68D11220A2E" name="dateOfBirth" isCollection="false">
+      <dmn:typeRef>date</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_54FCB191-4E09-4FC1-9A42-534E074AB4BA" name="id" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_9087015D-A26F-47D9-AD4E-C651618B33CA" name="deceased" isCollection="false" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
   <dmn:itemDefinition id="_B32CD958-1AE2-45EB-9A70-F4F30463CB29" name="tSituation" isCollection="false">
     <dmn:itemComponent id="_8B68BCA3-FFD6-42A4-B0F3-FA56F47F3D3C" name="primaryPersonId" isCollection="false">
       <dmn:typeRef>string</dmn:typeRef>
