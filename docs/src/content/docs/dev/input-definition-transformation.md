@@ -70,6 +70,19 @@ After some deliberation, the Tech team of BDT decided that the following format 
 
 If this was the data the Screener Form was expected to produce, then we could have the user choose between the following options when building their form: `["people.client.dateOfBirth", "people.spouse.dateOfBirth"]`
 
+For checks that use the library relationship list to find a spouse, the transformed
+form schema also exposes `people.spouse.exists` as a Boolean path. This lets a
+Yes/No field represent the three relationship states without constructing arrays
+in the form:
+
+- unanswered or `null`: spouse status is unknown and `relationships` is omitted or `null`
+- `false`: there is no spouse and `relationships` is `[]`
+- `true`: the transformation layer creates the spouse person and reciprocal spouse
+  relationships, even if the spouse's other fields have not been answered yet
+
+Populated `people.spouse` details from forms created before the `exists` path was
+introduced continue to imply that a spouse exists.
+
 ## The transformation Layer
 
 As of 2026-02-25, the Data Transformation Layer has two parts.

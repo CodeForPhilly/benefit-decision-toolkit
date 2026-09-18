@@ -1,7 +1,7 @@
 meta {
-  name: Unknown spouse
+  name: Known no spouse
   type: http
-  seq: 3
+  seq: 4
 }
 
 post {
@@ -15,13 +15,13 @@ body:json {
     "situation": {
       "primaryPersonId": "p1",
       "people": [{"id": "p1", "dateOfBirth": "2000-01-01"}],
-      "relationships": null,
+      "relationships": [],
       "simpleChecks": {"lateSpouseWasAtLeast65": false}
     }
   }
 }
 
 assert {
-  res.body.checkResult: eq null
+  res.body.checkResult: eq false
   res.status: eq 200
 }

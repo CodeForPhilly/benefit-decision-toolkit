@@ -103,7 +103,8 @@ public class InputSchemaService {
     }
 
     /**
-     * Exposes people.spouse fields for checks such as SCTF that
+     * Exposes people.spouse fields and a synthetic people.spouse.exists Boolean
+     * for checks such as SCTF that
      * look up the primary person's spouse through the relationships array.
      * Must be called after transformPeopleSchema.
      * The relationship IDs are supplied by FormDataTransformer at evaluation time.
@@ -127,8 +128,13 @@ public class InputSchemaService {
 
         ObjectNode transformedSchema = schema.deepCopy();
         ObjectNode transformedProperties = (ObjectNode) transformedSchema.get("properties");
+        ObjectNode spouseSchema = personSchema.deepCopy();
+        ObjectNode spouseProperties = (ObjectNode) spouseSchema.path("properties");
+        ObjectNode existsSchema = objectMapper.createObjectNode();
+        existsSchema.put("type", "boolean");
+        spouseProperties.set("exists", existsSchema);
         ((ObjectNode) transformedProperties.path("people").path("properties"))
-            .set("spouse", personSchema.deepCopy());
+            .set("spouse", spouseSchema);
         transformedProperties.remove("relationships");
         if (transformedSchema.path("required").isArray()) {
             var required = transformedSchema.putArray("required");

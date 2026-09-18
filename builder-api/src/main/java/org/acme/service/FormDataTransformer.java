@@ -52,6 +52,7 @@ public class FormDataTransformer {
 
     /**
      * Maps people.spouse.* to spouse relationships for primaryPersonId.
+     * people.spouse.exists distinguishes unknown, no spouse, and spouse present.
      * Must be called before transformPeopleData. An existing spouse relationship
      * determines the spouse's ID; otherwise the ID is "spouse". transformFormData
      * supplies the default primaryPersonId when the form does not provide one.
@@ -66,20 +67,39 @@ public class FormDataTransformer {
         Map<String, Object> people = new HashMap<>((Map<String, Object>) peopleObject);
         Object spouseValue = people.remove("spouse");
         result.put("people", people);
-        List<Map<String, Object>> relationships = result.get("relationships") instanceof List<?> existing
-            ? new ArrayList<>((List<Map<String, Object>>) existing) : new ArrayList<>();
-        result.put("relationships", relationships);
+        Map<String, Object> spouse = spouseValue instanceof Map<?, ?> spouseMap
+            ? new HashMap<>((Map<String, Object>) spouseMap) : null;
+        boolean hasExistsAnswer = spouse != null && spouse.containsKey("exists");
+        Object existsAnswer = hasExistsAnswer ? spouse.remove("exists") : null;
+        boolean hasSpouseDetails = spouse != null && spouse.entrySet().stream()
+            .filter(entry -> !"id".equals(entry.getKey()))
+            .map(Map.Entry::getValue)
+            .anyMatch(FormDataTransformer::hasMeaningfulValue);
 
-        // Optional spouse fields can be absent or blank when the applicant has no spouse.
-        if (!(spouseValue instanceof Map<?, ?> spouse) || spouse.entrySet().stream()
-                .filter(entry -> !"id".equals(entry.getKey()))
-                .map(Map.Entry::getValue)
-                .noneMatch(value -> value != null && !(value instanceof String text && text.isBlank())
-                    && !(value instanceof List<?> list && list.isEmpty()))) {
+        Object primaryPersonId = result.get("primaryPersonId");
+        if (hasExistsAnswer && !Boolean.TRUE.equals(existsAnswer)) {
+            if (Boolean.FALSE.equals(existsAnswer)) {
+                List<Map<String, Object>> relationships = result.get("relationships") instanceof List<?> existing
+                    ? new ArrayList<>((List<Map<String, Object>>) existing) : new ArrayList<>();
+                relationships.removeIf(relationship -> "spouse".equals(relationship.get("type"))
+                    && (primaryPersonId != null && (primaryPersonId.equals(relationship.get("personId"))
+                        || primaryPersonId.equals(relationship.get("relatedPersonId")))));
+                result.put("relationships", relationships);
+            } else {
+                result.put("relationships", null);
+            }
             return result;
         }
 
-        Object primaryPersonId = result.get("primaryPersonId");
+        // Existing forms did not have an explicit existence question. Preserve compatibility
+        // by treating populated spouse details as "yes", while blank details remain unknown.
+        if (!hasExistsAnswer && !hasSpouseDetails) {
+            return result;
+        }
+
+        List<Map<String, Object>> relationships = result.get("relationships") instanceof List<?> existing
+            ? new ArrayList<>((List<Map<String, Object>>) existing) : new ArrayList<>();
+        result.put("relationships", relationships);
         String spouseId = "spouse";
         for (Map<String, Object> relationship : relationships) {
             if ("spouse".equals(relationship.get("type"))
@@ -102,6 +122,19 @@ public class FormDataTransformer {
             addSpouseRelationship(relationships, spouseId, personId);
         }
         return result;
+    }
+
+    private static boolean hasMeaningfulValue(Object value) {
+        if (value == null || (value instanceof String text && text.isBlank())) {
+            return false;
+        }
+        if (value instanceof List<?> list) {
+            return !list.isEmpty();
+        }
+        if (value instanceof Map<?, ?> map) {
+            return !map.isEmpty();
+        }
+        return true;
     }
 
     private static void addSpouseRelationship(List<Map<String, Object>> relationships,

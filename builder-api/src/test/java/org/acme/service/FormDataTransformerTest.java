@@ -211,7 +211,7 @@ public class FormDataTransformerTest {
     }
 
     @Test
-    void transformFormData_withBlankSpouse_doesNotInventPersonOrRelationship() {
+    void transformFormData_withBlankSpouse_keepsRelationshipStatusUnknown() {
         Map<String, Object> nullDate = new HashMap<>();
         nullDate.put("dateOfBirth", null);
         for (Object spouse : Arrays.asList(null, Map.of(), nullDate, Map.of("dateOfBirth", ""),
@@ -226,11 +226,57 @@ public class FormDataTransformerTest {
             Map<String, Object> result = FormDataTransformer.transformFormData(formData);
 
             assertEquals(List.of(Map.of("id", "p1", "dateOfBirth", "1970-01-01")), result.get("people"));
-            assertEquals(List.of(), result.get("relationships"));
+            assertFalse(result.containsKey("relationships"));
             assertFalse(result.containsKey("spouse"));
             assertTrue(people.containsKey("spouse"));
             assertEquals(spouse, people.get("spouse"));
         }
+    }
+
+    @Test
+    void transformFormData_withExplicitUnknownSpouse_setsRelationshipsToNull() {
+        Map<String, Object> formData = Map.of(
+            "people", Map.of(
+                "client", Map.of("dateOfBirth", "2000-01-01"),
+                "spouse", Collections.singletonMap("exists", null)
+            )
+        );
+
+        Map<String, Object> result = FormDataTransformer.transformFormData(formData);
+
+        assertTrue(result.containsKey("relationships"));
+        assertNull(result.get("relationships"));
+        assertEquals(List.of(Map.of("id", "client", "dateOfBirth", "2000-01-01")), result.get("people"));
+    }
+
+    @Test
+    void transformFormData_withExplicitNoSpouse_createsEmptyRelationshipsAndIgnoresStaleDetails() {
+        Map<String, Object> formData = Map.of(
+            "people", Map.of(
+                "client", Map.of("dateOfBirth", "2000-01-01"),
+                "spouse", Map.of("exists", false, "dateOfBirth", "1960-01-01")
+            )
+        );
+
+        Map<String, Object> result = FormDataTransformer.transformFormData(formData);
+
+        assertEquals(List.of(), result.get("relationships"));
+        assertEquals(List.of(Map.of("id", "client", "dateOfBirth", "2000-01-01")), result.get("people"));
+    }
+
+    @Test
+    void transformFormData_withExplicitSpouse_createsRelationshipWithoutRequiringDetails() {
+        Map<String, Object> formData = Map.of(
+            "people", Map.of("spouse", Map.of("exists", true))
+        );
+
+        Map<String, Object> result = FormDataTransformer.transformFormData(formData);
+
+        assertEquals(List.of(Map.of("id", "spouse")), result.get("people"));
+        assertEquals(List.of(
+            Map.of("type", "spouse", "personId", "client", "relatedPersonId", "spouse"),
+            Map.of("type", "spouse", "personId", "spouse", "relatedPersonId", "client")
+        ), result.get("relationships"));
     }
 
     @Test

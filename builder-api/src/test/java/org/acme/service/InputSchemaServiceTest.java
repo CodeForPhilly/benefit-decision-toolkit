@@ -532,6 +532,7 @@ public class InputSchemaServiceTest {
         JsonNode transformed = service.transformInputDefinitionSchema(check);
         List<FormPath> paths = service.extractJsonSchemaPaths(transformed);
 
+        assertTrue(paths.contains(new FormPath("people.spouse.exists", "boolean")));
         assertTrue(paths.contains(new FormPath("people.spouse.dateOfBirth", "date")));
         assertFalse(paths.stream().anyMatch(path -> path.getPath().startsWith("spouse.")));
         assertFalse(paths.contains(new FormPath("primaryPersonId", "string")));
@@ -554,6 +555,7 @@ public class InputSchemaServiceTest {
         List<FormPath> paths = service.extractJsonSchemaPaths(service.transformInputDefinitionSchema(check));
 
         assertTrue(paths.contains(new FormPath("people.client.dateOfBirth", "date")));
+        assertTrue(paths.contains(new FormPath("people.spouse.exists", "boolean")));
         assertTrue(paths.contains(new FormPath("people.spouse.dateOfBirth", "date")));
         assertFalse(paths.stream().anyMatch(path -> path.getPath().startsWith("relationships.")));
     }
