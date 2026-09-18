@@ -1,0 +1,61 @@
+meta {
+  name: Eligible (deceased spouse)
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{host}}/benefits/pa/phl/senior-citizen-tax-freeze
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "simpleChecks": {
+        "ownerOccupant": true,
+        "livesInPhiladelphiaPa": true
+      },
+      "primaryPersonId": "p1",
+      "people": [
+        {
+          "id": "p1",
+          "dateOfBirth": "1970-10-01"
+        },
+        {
+          "id": "p2",
+          "dateOfBirth": "1960-12-30",
+          "deceased": true
+        }
+      ],
+      "enrollments": [
+        {
+          "personId": "p2",
+          "benefit": "PhlHomesteadExemption"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "spouse",
+          "personId": "p1",
+          "relatedPersonId": "p2"
+        },
+        {
+          "type": "spouse",
+          "personId": "p2",
+          "relatedPersonId": "p1"
+        }
+      ]
+    }
+  }
+}
+
+assert {
+  res.body.isEligible: eq true
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

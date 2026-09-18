@@ -39,7 +39,23 @@
     <dmn:knowledgeRequirement id="_90E90B2C-F045-4636-BFBA-582EBF028C9A">
       <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_C189BB80-C23E-476E-B0BB-DDF4FF7D305A#_6E428234-5215-4D38-AB4E-9083E80882D4" />
     </dmn:knowledgeRequirement>
-    <dmn:context id="_FF052B53-7815-4E78-AA54-E848A9E22DDC">
+    <dmn:context id="_FF052B53-7815-4E78-AA54-E848A9E22DDC" label="checkResult" typeRef="boolean">
+      <dmn:contextEntry id="_C8EC4A92-3434-4561-A643-B587628C6222">
+        <dmn:variable id="_7AD6366D-70D0-40CE-8427-6E160FC5DE04" name="SpouseId" typeRef="string">
+          <dmn:description></dmn:description>
+        </dmn:variable>
+        <dmn:literalExpression id="_C22E7B6B-9364-43C4-A3E5-8C53EF8CAAAD" typeRef="string" label="SpouseId">
+          <dmn:text>BDT.spouse id(situation.relationships, situation.primaryPersonId)</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry id="_01A8B3CB-80D5-48CA-88A3-61D19E8BF03A">
+        <dmn:variable id="_BEABBE9E-C6F3-4DA8-B783-9EB766549FD6" name="Spouse" typeRef="tPerson">
+          <dmn:description></dmn:description>
+        </dmn:variable>
+        <dmn:literalExpression id="_B63E8E0D-77AB-438C-B17E-05247DA2F790" typeRef="tPerson" label="Spouse">
+          <dmn:text>for spouse in [situation.people[id=SpouseId]] return spouse[1]</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
       <dmn:contextEntry id="_C18883FB-FAE8-4295-AB40-07331F92A3EF">
         <dmn:variable id="_2A350996-32D0-4AC5-862E-29B0151014D4" name="PrimaryPerson65PlusThisYear" typeRef="boolean" />
         <dmn:literalExpression id="_3D699621-890F-4FF5-A681-60FE6AD298F2">
@@ -53,21 +69,23 @@
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry id="_6FE5748D-3916-44A2-8372-035ECFDE37CF">
-        <dmn:variable id="_8E99E291-6D59-4FEA-BDB9-CD4183645A13" name="PrimarySpouse65PlusThisYear" typeRef="boolean" />
-        <dmn:literalExpression id="_04877114-6AC3-4B39-8E5A-CF13EBA2CBE0">
-          <dmn:text>PersonMinAge.PersonMinAgeService(situation: situation, parameters: { personId: BDT.spouse id(situation.relationships, situation.primaryPersonId), minAge: 65, asOfDate: date((for current date in [today()] return current date.year)[1], 12, 31) })</dmn:text>
+        <dmn:variable id="_8E99E291-6D59-4FEA-BDB9-CD4183645A13" name="Spouse65PlusThisYear" typeRef="boolean" />
+        <dmn:literalExpression id="_04877114-6AC3-4B39-8E5A-CF13EBA2CBE0" label="Spouse65PlusThisYear" typeRef="boolean">
+          <dmn:text>not(Spouse.deceased = true) and PersonMinAge.PersonMinAgeService(situation: situation, parameters: { personId: SpouseId, minAge: 65, asOfDate: date((for current date in [today()] return current date.year)[1], 12, 31) })</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry id="_BEBBEF25-6F3D-4E3D-8278-63DBE450F855">
         <dmn:variable id="_0A921B95-0B16-49B7-BC81-488641C9C798" name="LateSpouseWasAtLeast65" typeRef="boolean" />
         <dmn:literalExpression id="_B3B1DC6C-4E75-463D-97F2-C53D2E2A020F">
-          <dmn:text>situation.simpleChecks.lateSpouseWasAtLeast65</dmn:text>
+          <dmn:text>Spouse.deceased = true and PersonMinAge.PersonMinAgeService(situation: situation, parameters: { personId: SpouseId, minAge: 65, asOfDate: today() })</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry id="_741AFA00-8331-41A7-863E-1DC3DA6AC10B">
         <dmn:variable id="_04B4CC0C-D9C5-4080-8AFF-50A12285FBEC" name="result" typeRef="boolean" />
         <dmn:literalExpression id="_F13F433B-FE49-475C-981C-D23B1533DBB7">
-          <dmn:text>PrimaryPerson65PlusThisYear or PrimarySpouse65PlusThisYear or (PrimaryPerson50PlusThisYear and LateSpouseWasAtLeast65)</dmn:text>
+          <dmn:text>if situation.relationships = null then null
+else if situation.relationships = [] then PrimaryPerson65PlusThisYear
+else PrimaryPerson65PlusThisYear or Spouse65PlusThisYear or (PrimaryPerson50PlusThisYear and LateSpouseWasAtLeast65)</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry id="_3994E127-ED91-4868-B2F9-6400D0C9657D">
@@ -113,6 +131,12 @@
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_39438FCA-9EFB-4208-A145-2FA5128C536A">
             <kie:width>1720</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C22E7B6B-9364-43C4-A3E5-8C53EF8CAAAD">
+            <kie:width>190</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_B63E8E0D-77AB-438C-B17E-05247DA2F790">
+            <kie:width>190</kie:width>
           </kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
