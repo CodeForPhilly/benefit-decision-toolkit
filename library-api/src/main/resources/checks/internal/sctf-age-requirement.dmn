@@ -32,19 +32,19 @@
       <dmn:contextEntry id="_C18883FB-FAE8-4295-AB40-07331F92A3EF">
         <dmn:variable id="_2A350996-32D0-4AC5-862E-29B0151014D4" name="PrimaryPerson65PlusThisYear" typeRef="boolean" />
         <dmn:literalExpression id="_3D699621-890F-4FF5-A681-60FE6AD298F2">
-          <dmn:text>PersonMinAge.PersonMinAgeService(situation: situation, parameters: { personId: situation.primaryPersonId, minAge: 65, asOfDate: date(today().year, 12, 31) })</dmn:text>
+          <dmn:text>PersonMinAge.PersonMinAgeService(situation: situation, parameters: { personId: situation.primaryPersonId, minAge: 65, asOfDate: date((for current date in [today()] return current date.year)[1], 12, 31) })</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry id="_720F18F1-D353-4B6B-A9C8-A618B3DBF9EC">
         <dmn:variable id="_3A556851-307A-4D28-A6EC-9725095591A1" name="PrimaryPerson50PlusThisYear" typeRef="boolean" />
         <dmn:literalExpression id="_B669E583-BB97-4CAA-A402-DEF9B366DE5B">
-          <dmn:text>PersonMinAge.PersonMinAgeService(situation: situation, parameters: { personId: situation.primaryPersonId, minAge: 50, asOfDate: date(today().year, 12, 31) })</dmn:text>
+          <dmn:text>PersonMinAge.PersonMinAgeService(situation: situation, parameters: { personId: situation.primaryPersonId, minAge: 50, asOfDate: date((for current date in [today()] return current date.year)[1], 12, 31) })</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry id="_6FE5748D-3916-44A2-8372-035ECFDE37CF">
         <dmn:variable id="_8E99E291-6D59-4FEA-BDB9-CD4183645A13" name="PrimarySpouse65PlusThisYear" typeRef="boolean" />
         <dmn:literalExpression id="_04877114-6AC3-4B39-8E5A-CF13EBA2CBE0">
-          <dmn:text>PersonMinAge.PersonMinAgeService(situation: situation, parameters: { personId: BDT.spouse id(situation.relationships, situation.primaryPersonId), minAge: 65, asOfDate: date(today().year, 12, 31) })</dmn:text>
+          <dmn:text>PersonMinAge.PersonMinAgeService(situation: situation, parameters: { personId: BDT.spouse id(situation.relationships, situation.primaryPersonId), minAge: 65, asOfDate: date((for current date in [today()] return current date.year)[1], 12, 31) })</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry id="_BEBBEF25-6F3D-4E3D-8278-63DBE450F855">

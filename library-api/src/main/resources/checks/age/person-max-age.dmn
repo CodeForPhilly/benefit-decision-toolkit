@@ -53,7 +53,7 @@
       <dmn:contextEntry>
         <dmn:variable id="_532E57ED-E10E-4BC6-84D9-F84A6C8EA69B" name="dateOfBirth" typeRef="date"/>
         <dmn:literalExpression id="_CB89C8C7-F4D0-4877-9B6A-8DFDFA996508">
-          <dmn:text>situation.people[id = parameters.personId].dateOfBirth[1]</dmn:text>
+          <dmn:text>(for person in situation.people[id = parameters.personId] return person.dateOfBirth)[1]</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>

@@ -54,7 +54,7 @@
       <dmn:contextEntry>
         <dmn:variable id="_315926C3-6F51-4FF6-9CF6-2518BAC2956E" name="DOBs" typeRef="BDT.tDateList"/>
         <dmn:literalExpression id="_D69F82E7-521B-4043-93D6-DFEF804F5E24">
-          <dmn:text>situation.people[id in parameters.peopleIds].dateOfBirth</dmn:text>
+          <dmn:text>for person in situation.people[id in parameters.peopleIds] return person.dateOfBirth</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>
