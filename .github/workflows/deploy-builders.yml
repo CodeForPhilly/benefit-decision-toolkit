@@ -1,0 +1,60 @@
+name: Test and Deploy Builders
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    uses: ./.github/workflows/run-tests.yml
+
+  deployment-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      builder-api: ${{ steps.changes.outputs.builder-api }}
+      builder-frontend: ${{ steps.changes.outputs.builder-frontend }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Keep the existing component-specific deployment triggers. Missing history
+      # (for example, a force push) conservatively rebuilds both components.
+      - name: Identify deployment changes
+        id: changes
+        env:
+          BEFORE: ${{ github.event.before }}
+        shell: bash
+        run: |
+          for component in builder-api builder-frontend; do
+            if ! git cat-file -e "${BEFORE}^{commit}" 2>/dev/null; then
+              changed=true
+            elif git diff --quiet "$BEFORE" "$GITHUB_SHA" -- "$component/" devbox.json devbox.lock; then
+              changed=false
+            else
+              changed=true
+            fi
+            echo "$component=$changed" >> "$GITHUB_OUTPUT"
+          done
+
+  deploy-builder-api:
+    needs: [tests, deployment-changes]
+    if: needs.deployment-changes.outputs.builder-api == 'true'
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/deploy-builder-api.yml
+    secrets: inherit
+
+  deploy-builder-frontend:
+    needs: [tests, deployment-changes]
+    if: needs.deployment-changes.outputs.builder-frontend == 'true'
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/deploy-builder-frontend.yml
+    secrets: inherit

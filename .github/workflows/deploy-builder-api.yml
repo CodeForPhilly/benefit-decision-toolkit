@@ -1,16 +1,10 @@
 # This workflow uses devbox for dependency management and builds/deploys the builder API
-# to Cloud Run when a commit is pushed to the "main" branch.
+# to Cloud Run after the main-branch test workflow succeeds.
 
 name: 'Build and Deploy Builder API to Cloud Run'
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'builder-api/**'
-      - 'devbox.json'
-      - 'devbox.lock'
+  workflow_call:
 
 env:
   PROJECT_ID: 'benefit-decision-toolkit-play'
@@ -71,6 +65,7 @@ jobs:
           docker push "${DOCKER_TAG}"
 
       - name: 'Deploy to Cloud Run'
+        id: deploy
         uses: 'google-github-actions/deploy-cloudrun@v2'
         with:
           service: '${{ env.API_NAME }}'

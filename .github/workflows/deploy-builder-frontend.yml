@@ -1,16 +1,10 @@
 # This workflow uses devbox for dependency management and builds/deploys the builder frontend
-# to Firebase Hosting when a commit is pushed to the "main" branch.
+# to Firebase Hosting after the main-branch test workflow succeeds.
 
 name: 'Build and Deploy Builder Frontend to Firebase Hosting'
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'builder-frontend/**'
-      - 'devbox.json'
-      - 'devbox.lock'
+  workflow_call:
 
 env:
   PROJECT_ID: 'benefit-decision-toolkit-play'

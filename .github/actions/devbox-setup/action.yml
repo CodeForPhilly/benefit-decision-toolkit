@@ -10,7 +10,7 @@ runs:
   using: composite
   steps:
     - name: Create .env file
-      run: touch .env
+      run: bin/ensure-root-env-file
       shell: bash
 
     - name: Install devbox

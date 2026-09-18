@@ -588,7 +588,9 @@ wait_for_url "Library API" "http://localhost:8083/"
   bru run
 )
 
-wait_for_url "builder frontend" "http://localhost:5173/"
+# On a cold CI runner, builder-api may still need to download and compile its
+# Maven dependencies before the dependent frontend process can start.
+wait_for_url "builder frontend" "http://localhost:5173/" 300
 
 (
   cd e2e
