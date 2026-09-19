@@ -2,7 +2,9 @@ package org.acme.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.quarkus.logging.Log;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -119,17 +121,52 @@ public class LibraryApiService {
         checks = root.path("checks").isArray()
             ? mapper.convertValue(root.path("checks"), new TypeReference<List<EligibilityCheck>>() {})
             : List.of();
-        benefits = root.path("benefits").isArray()
-            ? mapper.convertValue(root.path("benefits"), new TypeReference<List<Benefit>>() {})
-            : List.of();
+        benefits = root.path("benefits").isArray() ? readBenefits(mapper, root.path("benefits")) : List.of();
     }
 
     void loadBenefitsMetadata(String benefitsJson) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         var root = mapper.readTree(benefitsJson);
-        benefits = root.isArray()
-            ? mapper.convertValue(root, new TypeReference<List<Benefit>>() {})
-            : List.of();
+        benefits = root.isArray() ? readBenefits(mapper, root) : List.of();
+    }
+
+    private List<Benefit> readBenefits(ObjectMapper mapper, JsonNode benefitsNode) {
+        List<Benefit> result = new ArrayList<>();
+        for (JsonNode benefitNode : benefitsNode) {
+            ObjectNode benefit = benefitNode.deepCopy();
+            if (resolveParameterBindings(benefit)) {
+                result.add(mapper.convertValue(benefit, Benefit.class));
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Library benefits bind some check parameters to situation fields (e.g. personId to
+     * primaryPersonId). Screener checks only have plain parameters, so replace each binding
+     * with the value the builder's form conventions supply for that field.
+     * Returns false if the benefit uses a binding the builder can't represent.
+     */
+    private boolean resolveParameterBindings(ObjectNode benefit) {
+        for (JsonNode check : benefit.path("checks")) {
+            JsonNode bindings = ((ObjectNode) check).remove("parameterBindings");
+            if (bindings == null || bindings.isEmpty()) {
+                continue;
+            }
+            JsonNode existingParameters = check.path("parameters");
+            ObjectNode parameters = existingParameters.isObject()
+                ? (ObjectNode) existingParameters
+                : ((ObjectNode) check).putObject("parameters");
+            for (var binding : bindings.properties()) {
+                if (!"primaryPersonId".equals(binding.getValue().asText())) {
+                    Log.warn("Skipping library benefit " + benefit.path("id").asText()
+                        + ": unsupported parameter binding " + binding.getKey() + " -> " + binding.getValue().asText());
+                    return false;
+                }
+                parameters.put(binding.getKey(), FormDataTransformer.DEFAULT_PRIMARY_PERSON_ID);
+            }
+        }
+        return true;
     }
 
     private void loadBenefitsMetadataUnchecked(String benefitsJson) {
@@ -185,7 +222,7 @@ public class LibraryApiService {
     public LibraryCheckEvaluation evaluateCheck(CheckConfig checkConfig, Map<String, Object> inputs) throws JsonProcessingException {
 
         // TODO: Check that checkConfig has required attributes and handle null values
-        EffectiveParameters effectiveParameters = buildEffectiveParameters(checkConfig, inputs);
+        EffectiveParameters effectiveParameters = buildEffectiveParameters(checkConfig);
 
         Map<String, Object> data = new HashMap<>();
         data.put("parameters", effectiveParameters.parameters());
@@ -260,21 +297,11 @@ public class LibraryApiService {
     }
 
     EffectiveParameters buildEffectiveParameters(CheckConfig checkConfig) {
-        return buildEffectiveParameters(checkConfig, Map.of());
-    }
-
-    EffectiveParameters buildEffectiveParameters(CheckConfig checkConfig, Map<String, Object> situation) {
         Map<String, Object> configuredParameters = checkConfig.getParameters() != null
             ? checkConfig.getParameters()
             : Map.of();
         Map<String, Object> parameters = new HashMap<>(configuredParameters);
         List<String> defaultedParameters = new ArrayList<>();
-
-        if (checkConfig.getParameterBindings() != null) {
-            checkConfig.getParameterBindings().forEach((parameter, path) ->
-                parameters.put(parameter, resolveSituationPath(situation, path))
-            );
-        }
 
         if (declaresAsOfDateParameter(checkConfig) && isMissingParameter(parameters.get(AS_OF_DATE_PARAMETER))) {
             parameters.put(AS_OF_DATE_PARAMETER, LocalDate.now().toString());
@@ -282,17 +309,6 @@ public class LibraryApiService {
         }
 
         return new EffectiveParameters(parameters, defaultedParameters);
-    }
-
-    private Object resolveSituationPath(Map<String, Object> situation, String path) {
-        Object value = situation;
-        for (String segment : path.split("\\.")) {
-            if (!(value instanceof Map<?, ?> map)) {
-                return null;
-            }
-            value = map.get(segment);
-        }
-        return value;
     }
 
     private boolean declaresAsOfDateParameter(CheckConfig checkConfig) {

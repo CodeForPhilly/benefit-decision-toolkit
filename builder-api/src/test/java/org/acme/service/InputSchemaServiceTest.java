@@ -561,35 +561,6 @@ public class InputSchemaServiceTest {
     }
 
     @Test
-    void transformInputDefinitionSchema_withPrimaryPersonBinding_mapsEnrollmentsToClient() throws Exception {
-        CheckConfig check = new CheckConfig();
-        check.setParameters(Map.of("personId", "previous-id", "benefit", "PhlSeniorCitizenTaxFreeze"));
-        check.setParameterBindings(Map.of("personId", "primaryPersonId"));
-        check.setInputDefinition(objectMapper.readTree("""
-            {
-                "type": "object",
-                "properties": {
-                    "enrollments": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "personId": {"type": "string"},
-                                "benefit": {"type": "string"}
-                            }
-                        }
-                    }
-                }
-            }
-            """));
-
-        List<FormPath> paths = service.extractJsonSchemaPaths(service.transformInputDefinitionSchema(check));
-
-        assertEquals(List.of(new FormPath("people.client.enrollments", "array:string")), paths);
-        assertEquals("previous-id", check.getParameters().get("personId"));
-    }
-
-    @Test
     void transformSpouseSchema_withOtherRelationshipTypes_keepsRawRelationships() throws Exception {
         JsonNode schema = service.transformPeopleSchema(sctfAgeCheck().getInputDefinition(), List.of("client"));
         ((com.fasterxml.jackson.databind.node.ArrayNode) schema.at(

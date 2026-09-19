@@ -69,13 +69,7 @@ public class InputSchemaService {
         }
 
         // Extract personId(s) from parameters - supports both single personId and multiple peopleIds
-        Map<String, Object> parameters = checkConfig.getParameters() != null
-            ? new HashMap<>(checkConfig.getParameters()) : new HashMap<>();
-        if (checkConfig.getParameterBindings() != null
-                && "primaryPersonId".equals(checkConfig.getParameterBindings().get("personId"))) {
-            parameters.put("personId", FormDataTransformer.DEFAULT_PRIMARY_PERSON_ID);
-        }
-        List<String> personIds = new ArrayList<>(extractPersonIds(parameters));
+        List<String> personIds = new ArrayList<>(extractPersonIds(checkConfig.getParameters()));
         if (inputDefinition.path("properties").has("primaryPersonId")
                 && !personIds.contains(FormDataTransformer.DEFAULT_PRIMARY_PERSON_ID)) {
             personIds.add(FormDataTransformer.DEFAULT_PRIMARY_PERSON_ID);
