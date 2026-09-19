@@ -33,14 +33,14 @@
     <dmn:itemComponent id="_FB03B45F-6FAB-4839-949B-5AB930550371" name="dateOfBirth" isCollection="false">
       <dmn:typeRef>date</dmn:typeRef>
     </dmn:itemComponent>
-    <dmn:itemComponent id="_30F5DD6F-B665-4DBD-9618-9CC613D92E45" name="deceased" isCollection="false" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/">
-      <dmn:typeRef>boolean</dmn:typeRef>
-    </dmn:itemComponent>
   </dmn:itemDefinition>
   <dmn:itemDefinition id="_B5C0A033-45D4-4AA7-B01D-0692139E8780" name="tPeople" isCollection="true">
     <dmn:typeRef>tPerson</dmn:typeRef>
   </dmn:itemDefinition>
   <dmn:itemDefinition id="_04F5773E-1CC6-48E7-BD45-DDFFCFF01244" name="tSimpleChecks" isCollection="false">
+    <dmn:itemComponent id="_D0C448DE-C92E-4281-BB70-A577D4B22BD4" name="lateSpouseWasAtLeast65" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
     <dmn:itemComponent id="_A89334E0-348E-4C73-A917-363E37524AF0" name="ownerOccupant" isCollection="false">
       <dmn:typeRef>boolean</dmn:typeRef>
     </dmn:itemComponent>

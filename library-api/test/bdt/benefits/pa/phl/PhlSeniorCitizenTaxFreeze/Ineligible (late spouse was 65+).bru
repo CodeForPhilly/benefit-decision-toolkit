@@ -1,5 +1,5 @@
 meta {
-  name: Ineligible (deceased spouse)
+  name: Ineligible (late spouse was 65+)
   type: http
   seq: 4
 }
@@ -15,38 +15,23 @@ body:json {
     "situation": {
       "simpleChecks": {
         "ownerOccupant": true,
-        "livesInPhiladelphiaPa": true
+        "livesInPhiladelphiaPa": true,
+        "lateSpouseWasAtLeast65": true
       },
       "primaryPersonId": "p1",
       "people": [
         {
           "id": "p1",
           "dateOfBirth": "2005-10-01"
-        },
-        {
-          "id": "p2",
-          "dateOfBirth": "1960-12-30",
-          "deceased": true
         }
       ],
       "enrollments": [
         {
-          "personId": "p2",
+          "personId": "p1",
           "benefit": "PhlHomesteadExemption"
         }
       ],
-      "relationships": [
-        {
-          "type": "spouse",
-          "personId": "p1",
-          "relatedPersonId": "p2"
-        },
-        {
-          "type": "spouse",
-          "personId": "p2",
-          "relatedPersonId": "p1"
-        }
-      ]
+      "relationships": []
     }
   }
 }

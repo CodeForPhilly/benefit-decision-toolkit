@@ -27,9 +27,6 @@
     <dmn:itemComponent id="_7899544D-D4BF-43E1-BB0C-61E13BBB14B2" name="id" isCollection="false">
       <dmn:typeRef>string</dmn:typeRef>
     </dmn:itemComponent>
-    <dmn:itemComponent id="_92EB41A5-EF24-4CE8-A0CA-9AEC233238F4" name="deceased" isCollection="false" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/">
-      <dmn:typeRef>boolean</dmn:typeRef>
-    </dmn:itemComponent>
   </dmn:itemDefinition>
   <dmn:itemDefinition id="_63571AF5-6B52-436F-9BED-0A9A14CE87A4" name="tPersonList" isCollection="true">
     <dmn:typeRef>tPerson</dmn:typeRef>
@@ -86,6 +83,9 @@
     </dmn:itemComponent>
   </dmn:itemDefinition>
   <dmn:itemDefinition id="_1E1DA902-4758-4582-8BD9-483CACB88450" name="tSimpleChecks" isCollection="false">
+    <dmn:itemComponent id="_DA247252-070E-4ABE-B0A4-299BC22F171E" name="lateSpouseWasAtLeast65" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
     <dmn:itemComponent id="_5E71CF8D-3431-4376-8247-05D159A12B53" name="tenYearTaxAbatement" isCollection="false">
       <dmn:typeRef>boolean</dmn:typeRef>
     </dmn:itemComponent>

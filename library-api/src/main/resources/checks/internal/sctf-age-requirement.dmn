@@ -5,17 +5,6 @@
   <dmn:import id="_1C14F6F4-3BA7-4818-B667-95B447E799B4" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
   <dmn:import id="_996E205D-A3FF-447D-A436-F0206E6784BE" name="Internal" namespace="https://kie.apache.org/dmn/_15EDFFFA-F0BA-433C-9CFF-2A86EEA4F439" locationURI="Internal.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
   <dmn:import id="_57D0C5AB-AD7B-48FB-A6A2-D1E9701DCE10" name="PersonMinAge" namespace="https://kie.apache.org/dmn/_C189BB80-C23E-476E-B0BB-DDF4FF7D305A" locationURI="../age/person-min-age.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
-  <dmn:itemDefinition id="_FF7B6367-E942-4C6F-BCA8-2A14929A4D4B" name="tPerson" isCollection="false" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/">
-    <dmn:itemComponent id="_DBBDA3CE-3A99-432D-9571-C68D11220A2E" name="dateOfBirth" isCollection="false">
-      <dmn:typeRef>date</dmn:typeRef>
-    </dmn:itemComponent>
-    <dmn:itemComponent id="_54FCB191-4E09-4FC1-9A42-534E074AB4BA" name="id" isCollection="false">
-      <dmn:typeRef>string</dmn:typeRef>
-    </dmn:itemComponent>
-    <dmn:itemComponent id="_9087015D-A26F-47D9-AD4E-C651618B33CA" name="deceased" isCollection="false" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/">
-      <dmn:typeRef>boolean</dmn:typeRef>
-    </dmn:itemComponent>
-  </dmn:itemDefinition>
   <dmn:itemDefinition id="_B32CD958-1AE2-45EB-9A70-F4F30463CB29" name="tSituation" isCollection="false">
     <dmn:itemComponent id="_8B68BCA3-FFD6-42A4-B0F3-FA56F47F3D3C" name="primaryPersonId" isCollection="false">
       <dmn:typeRef>string</dmn:typeRef>
@@ -25,6 +14,14 @@
     </dmn:itemComponent>
     <dmn:itemComponent id="_000E1993-4ADF-41B7-B926-082EEF436F83" name="relationships" isCollection="false">
       <dmn:typeRef>BDT.tRelationshipList</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_6C1E2B7A-3D4F-4A8B-9E21-5F7A0C3D8B14" name="simpleChecks" isCollection="false">
+      <dmn:typeRef>tSimpleChecks</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_A4D2F1E9-7B3C-4E65-8D10-2C9B6E4F7A31" name="tSimpleChecks" isCollection="false">
+    <dmn:itemComponent id="_E8B3C5D1-6F2A-4C97-B04E-1A7D9F2E6C58" name="lateSpouseWasAtLeast65" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
   <dmn:decision id="_06629809-CF42-44BB-A240-C72F27A8071A" name="checkResult">
@@ -48,14 +45,6 @@
           <dmn:text>BDT.spouse id(situation.relationships, situation.primaryPersonId)</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
-      <dmn:contextEntry id="_01A8B3CB-80D5-48CA-88A3-61D19E8BF03A">
-        <dmn:variable id="_BEABBE9E-C6F3-4DA8-B783-9EB766549FD6" name="Spouse" typeRef="tPerson">
-          <dmn:description></dmn:description>
-        </dmn:variable>
-        <dmn:literalExpression id="_B63E8E0D-77AB-438C-B17E-05247DA2F790" typeRef="tPerson" label="Spouse">
-          <dmn:text>for spouse in [situation.people[id=SpouseId]] return spouse[1]</dmn:text>
-        </dmn:literalExpression>
-      </dmn:contextEntry>
       <dmn:contextEntry id="_C18883FB-FAE8-4295-AB40-07331F92A3EF">
         <dmn:variable id="_2A350996-32D0-4AC5-862E-29B0151014D4" name="PrimaryPerson65PlusThisYear" typeRef="boolean" />
         <dmn:literalExpression id="_3D699621-890F-4FF5-A681-60FE6AD298F2">
@@ -71,22 +60,21 @@
       <dmn:contextEntry id="_6FE5748D-3916-44A2-8372-035ECFDE37CF">
         <dmn:variable id="_8E99E291-6D59-4FEA-BDB9-CD4183645A13" name="Spouse65PlusThisYear" typeRef="boolean" />
         <dmn:literalExpression id="_04877114-6AC3-4B39-8E5A-CF13EBA2CBE0" label="Spouse65PlusThisYear" typeRef="boolean">
-          <dmn:text>not(Spouse.deceased = true) and PersonMinAge.PersonMinAgeService(situation: situation, parameters: { personId: SpouseId, minAge: 65, asOfDate: date((for current date in [today()] return current date.year)[1], 12, 31) })</dmn:text>
+          <dmn:text>PersonMinAge.PersonMinAgeService(situation: situation, parameters: { personId: SpouseId, minAge: 65, asOfDate: date((for current date in [today()] return current date.year)[1], 12, 31) })</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry id="_BEBBEF25-6F3D-4E3D-8278-63DBE450F855">
         <dmn:variable id="_0A921B95-0B16-49B7-BC81-488641C9C798" name="LateSpouseWasAtLeast65" typeRef="boolean" />
         <dmn:literalExpression id="_B3B1DC6C-4E75-463D-97F2-C53D2E2A020F">
-          <dmn:text>Spouse.deceased = true and PersonMinAge.PersonMinAgeService(situation: situation, parameters: { personId: SpouseId, minAge: 65, asOfDate: today() })</dmn:text>
+          <dmn:text>situation.simpleChecks.lateSpouseWasAtLeast65</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry id="_741AFA00-8331-41A7-863E-1DC3DA6AC10B">
         <dmn:variable id="_04B4CC0C-D9C5-4080-8AFF-50A12285FBEC" name="result" typeRef="boolean" />
         <dmn:literalExpression id="_F13F433B-FE49-475C-981C-D23B1533DBB7">
-          <dmn:text>if PrimaryPerson65PlusThisYear then true
-else if situation.relationships = null then null
-else if SpouseId = null then PrimaryPerson65PlusThisYear
-else Spouse65PlusThisYear or (PrimaryPerson50PlusThisYear and LateSpouseWasAtLeast65)</dmn:text>
+          <dmn:text>PrimaryPerson65PlusThisYear
+or (if situation.relationships = null then null else if SpouseId = null then false else Spouse65PlusThisYear)
+or (PrimaryPerson50PlusThisYear and LateSpouseWasAtLeast65)</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry id="_3994E127-ED91-4868-B2F9-6400D0C9657D">
@@ -134,9 +122,6 @@ else Spouse65PlusThisYear or (PrimaryPerson50PlusThisYear and LateSpouseWasAtLea
             <kie:width>1720</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_C22E7B6B-9364-43C4-A3E5-8C53EF8CAAAD">
-            <kie:width>190</kie:width>
-          </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_B63E8E0D-77AB-438C-B17E-05247DA2F790">
             <kie:width>190</kie:width>
           </kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
