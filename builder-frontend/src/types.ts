@@ -32,7 +32,7 @@ export interface CheckConfig {
   aliasName?: string;
 }
 export interface ParameterValues {
-  [key: string]: string | number | boolean | string[];
+  [key: string]: string | number | boolean | string[] | null;
 }
 
 export interface EligibilityCheck {
@@ -73,6 +73,10 @@ export interface CreateCustomBenefitRequest {
 export interface UpdateCustomBenefitRequest {
   name: string;
   description: string;
+}
+
+export interface ImportLibraryBenefitRequest {
+  benefitId: string;
 }
 
 export interface AddCheckRequest {
