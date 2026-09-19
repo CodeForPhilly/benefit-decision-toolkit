@@ -11,8 +11,9 @@ const TYPE_COMPATIBILITY: Record<string, string[]> = {
   // Number types
   'number': ['number'],
   'integer': ['number'],
-  // Boolean types
-  'boolean': ['checkbox', 'yes_no', 'radio', 'select'],
+  // Boolean types: only components that submit real booleans. Other components
+  // submit "true"/"false" strings; builders can still type a boolean key into them.
+  'boolean': ['checkbox', 'yes_no'],
   // Date/time types
   'date': ['datetime'],
   'date-time': ['datetime'],
