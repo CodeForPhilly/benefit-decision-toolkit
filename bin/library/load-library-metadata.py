@@ -37,6 +37,7 @@ class CheckRecord(TypedDict, total=False):
     inputs: dict[str, Any]
     parameterDefinitions: list[ParameterDefinition]
     inputDefinition: dict[str, Any]
+    operationId: str
 
 
 # Type aliases for clarity
@@ -276,6 +277,7 @@ def extract_check_records(openapi: OpenAPIDocument, version: str) -> list[CheckR
                 "module": module,
                 "version": version,
                 "inputs": {},
+                "operationId": details.get("operationId", ""),
             }
 
             # ----------------------------------------
@@ -348,8 +350,86 @@ def transform_situation_format(data: list[CheckRecord]) -> list[CheckRecord]:
     return data
 
 
+def extract_benefit_records(
+    openapi: OpenAPIDocument, checks: list[CheckRecord], version: str
+) -> list[dict[str, Any]]:
+    """Build editable benefit templates from OpenAPI's DMN-derived composition."""
+    checks_by_operation = {check["operationId"]: check for check in checks}
+    benefits: list[dict[str, Any]] = []
+
+    for path, methods in openapi.get("paths", {}).items():
+        if "/benefits/" not in path:
+            continue
+        for method, operation in methods.items():
+            if method.lower() != "post" or "x-bdt-benefit" not in operation:
+                continue
+
+            benefit_checks: list[dict[str, Any]] = []
+            for configured_check in operation["x-bdt-benefit"].get("checks", []):
+                operation_id = configured_check["operationId"]
+                if operation_id not in checks_by_operation:
+                    raise ValueError(
+                        f"Benefit {path} references unknown library check operation {operation_id}"
+                    )
+                source = checks_by_operation[operation_id]
+                benefit_checks.append(
+                    {
+                        "checkId": source["id"],
+                        "sourceCheckId": source["id"],
+                        "checkName": source["name"],
+                        "checkVersion": source["version"],
+                        "checkModule": source["module"],
+                        "evaluationUrl": source["evaluationUrl"],
+                        "inputDefinition": source["inputDefinition"],
+                        "parameterDefinitions": source.get(
+                            "parameterDefinitions", []
+                        ),
+                        "parameters": configured_check.get("parameters", {}),
+                        "parameterBindings": configured_check.get(
+                            "parameterBindings", {}
+                        ),
+                        "aliasName": configured_check.get("alias"),
+                    }
+                )
+
+            segments = path.strip("/").split("/")
+            benefits_index = segments.index("benefits")
+            slug = "-".join(segments[benefits_index + 1 :])
+            benefits.append(
+                {
+                    "id": f"L-benefit-{slug}-{version}",
+                    "name": display_name(segments[-1]),
+                    "description": operation.get("description", ""),
+                    "checks": benefit_checks,
+                }
+            )
+
+    return benefits
+
+
+def display_name(identifier: str) -> str:
+    """Format a kebab/snake identifier the same way the builder formats check names."""
+    words = " ".join(identifier.replace("-", " ").replace("_", " ").split())
+    return words[:1].upper() + words[1:]
+
+
+def public_check_records(checks: list[CheckRecord]) -> list[CheckRecord]:
+    """Remove composition-only checks and sync-only operation identifiers."""
+    public_checks: list[CheckRecord] = []
+    for source in checks:
+        if source["module"] == "internal" or source["module"].startswith("internal/"):
+            continue
+        check = deepcopy(source)
+        check.pop("operationId", None)
+        public_checks.append(check)
+    return public_checks
+
+
 def save_json_to_storage_and_update_firestore(
-    json_string: str, firestore_doc_path: str
+    json_string: str,
+    firestore_doc_path: str,
+    storage_path_field: str = "latestJsonStoragePath",
+    export_name: str = "checks",
 ) -> str:
     """
     Upload JSON string to Firebase Storage and update Firestore
@@ -362,7 +442,7 @@ def save_json_to_storage_and_update_firestore(
     # Example: exported_2025-02-12_14-30-59.json
     # ---------------------
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d_%H-%M-%S")
-    filename = f"LibraryApiSchemaExports/export_{timestamp}.json"
+    filename = f"LibraryApiSchemaExports/{export_name}_{timestamp}.json"
 
     # ---------------------
     # Upload to storage
@@ -379,7 +459,7 @@ def save_json_to_storage_and_update_firestore(
     doc_ref = db.document(firestore_doc_path)
     doc_ref.set(
         {
-            "latestJsonStoragePath": storage_path,
+            storage_path_field: storage_path,
             "updatedAt": firestore.SERVER_TIMESTAMP,
         },
         merge=True,
@@ -418,14 +498,24 @@ def main() -> None:
     for check in check_records:
         check.pop("inputs")  # type: ignore[misc]
 
-    # Write JSON file using UTF-8 to avoid errors
-    json_string: str = json.dumps(check_records, indent=2, ensure_ascii=False)
+    benefit_records = extract_benefit_records(data, check_records, version)
+    check_records = public_check_records(check_records)
+
+    # Keep the existing checks artifact unchanged for rolling-deploy compatibility.
+    checks_json: str = json.dumps(check_records, indent=2, ensure_ascii=False)
+    benefits_json: str = json.dumps(benefit_records, indent=2, ensure_ascii=False)
 
     print("Parsed json")
-    print(json_string)
+    print(json.dumps({"checks": check_records, "benefits": benefit_records}, indent=2))
 
     save_json_to_storage_and_update_firestore(
-        json_string, firestore_doc_path="system/config"
+        checks_json, firestore_doc_path="system/config"
+    )
+    save_json_to_storage_and_update_firestore(
+        benefits_json,
+        firestore_doc_path="system/config",
+        storage_path_field="latestBenefitsJsonStoragePath",
+        export_name="benefits",
     )
 
 

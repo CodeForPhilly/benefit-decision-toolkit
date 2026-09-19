@@ -52,9 +52,11 @@ public class InputSchemaService {
      * Transforms a CheckConfig's inputDefinition JSON Schema by applying all schema transformations.
      * Currently applies:
      * 1. People transformation: converts people array to object keyed by personId(s)
-     * 2. Enrollments transformation: moves enrollments under people.{personId}.enrollments
+     * 2. Spouse transformation: exposes the primary person's spouse as people.spouse.*
+     * 3. Enrollments transformation: moves enrollments under people.{personId}.enrollments
      *
      * Supports both single personId (String) and multiple peopleIds (List<String>) parameters.
+     * Checks using primaryPersonId use the conventional "client" ID in form paths.
      *
      * @param checkConfig The CheckConfig containing inputDefinition and parameters
      * @return A new JsonNode with all transformations applied
@@ -67,15 +69,76 @@ public class InputSchemaService {
         }
 
         // Extract personId(s) from parameters - supports both single personId and multiple peopleIds
-        Map<String, Object> parameters = checkConfig.getParameters();
-        List<String> personIds = extractPersonIds(parameters);
+        List<String> personIds = new ArrayList<>(extractPersonIds(checkConfig.getParameters()));
+        if (inputDefinition.path("properties").has("primaryPersonId")
+                && !personIds.contains(FormDataTransformer.DEFAULT_PRIMARY_PERSON_ID)) {
+            personIds.add(FormDataTransformer.DEFAULT_PRIMARY_PERSON_ID);
+        }
 
         // Apply each transformation in sequence
         JsonNode schema = inputDefinition.deepCopy();
         schema = transformPeopleSchema(schema, personIds);
+        schema = transformSpouseSchema(schema);
         schema = transformEnrollmentsSchema(schema, personIds);
 
+        // The form uses people.client.*; the submission transformer supplies this ID.
+        ((ObjectNode) schema.get("properties")).remove("primaryPersonId");
+        if (schema.path("required").isArray()) {
+            JsonNode originalRequired = schema.get("required");
+            var required = ((ObjectNode) schema).putArray("required");
+            originalRequired.forEach(property -> {
+                if (!"primaryPersonId".equals(property.asText())) {
+                    required.add(property.deepCopy());
+                }
+            });
+        }
+
         return schema;
+    }
+
+    /**
+     * Exposes people.spouse fields and a synthetic people.spouse.exists Boolean
+     * for checks such as SCTF that
+     * look up the primary person's spouse through the relationships array.
+     * Must be called after transformPeopleSchema.
+     * The relationship IDs are supplied by FormDataTransformer at evaluation time.
+     */
+    public JsonNode transformSpouseSchema(JsonNode schema) {
+        if (schema == null) {
+            return objectMapper.createObjectNode();
+        }
+
+        JsonNode properties = schema.path("properties");
+        JsonNode personSchema = properties.path("people").path("properties")
+            .path(FormDataTransformer.DEFAULT_PRIMARY_PERSON_ID);
+        JsonNode relationshipProperties = properties.path("relationships").path("items").path("properties");
+        JsonNode relationshipTypes = relationshipProperties.path("type").path("enum");
+        if (!properties.has("primaryPersonId") || !personSchema.has("properties")
+                || !relationshipProperties.has("personId") || !relationshipProperties.has("relatedPersonId")
+                || !relationshipTypes.isArray() || relationshipTypes.size() != 1
+                || !"spouse".equals(relationshipTypes.get(0).asText())) {
+            return schema.deepCopy();
+        }
+
+        ObjectNode transformedSchema = schema.deepCopy();
+        ObjectNode transformedProperties = (ObjectNode) transformedSchema.get("properties");
+        ObjectNode spouseSchema = personSchema.deepCopy();
+        ObjectNode spouseProperties = (ObjectNode) spouseSchema.path("properties");
+        ObjectNode existsSchema = objectMapper.createObjectNode();
+        existsSchema.put("type", "boolean");
+        spouseProperties.set("exists", existsSchema);
+        ((ObjectNode) transformedProperties.path("people").path("properties"))
+            .set("spouse", spouseSchema);
+        transformedProperties.remove("relationships");
+        if (transformedSchema.path("required").isArray()) {
+            var required = transformedSchema.putArray("required");
+            schema.path("required").forEach(property -> {
+                if (!"relationships".equals(property.asText())) {
+                    required.add(property.deepCopy());
+                }
+            });
+        }
+        return transformedSchema;
     }
 
     /**

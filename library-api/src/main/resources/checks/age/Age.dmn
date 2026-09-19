@@ -11,7 +11,7 @@
         <dmn:text>if date of birth = null or comparison date = null then
   -1
 else
-  years and months duration(date(date of birth), date(comparison date)).years</dmn:text>
+  (for age duration in [years and months duration(date(date of birth), date(comparison date))] return age duration.years)[1]</dmn:text>
       </dmn:literalExpression>
     </dmn:encapsulatedLogic>
   </dmn:businessKnowledgeModel>

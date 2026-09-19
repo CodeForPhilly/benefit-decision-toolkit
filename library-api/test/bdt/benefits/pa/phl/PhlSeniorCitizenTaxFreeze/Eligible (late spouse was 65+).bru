@@ -1,0 +1,46 @@
+meta {
+  name: Eligible (late spouse was 65+)
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{host}}/benefits/pa/phl/senior-citizen-tax-freeze
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "simpleChecks": {
+        "ownerOccupant": true,
+        "livesInPhiladelphiaPa": true,
+        "lateSpouseWasAtLeast65": true
+      },
+      "primaryPersonId": "p1",
+      "people": [
+        {
+          "id": "p1",
+          "dateOfBirth": "1970-10-01"
+        }
+      ],
+      "enrollments": [
+        {
+          "personId": "p1",
+          "benefit": "PhlHomesteadExemption"
+        }
+      ],
+      "relationships": []
+    }
+  }
+}
+
+assert {
+  res.body.isEligible: eq true
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,36 @@
+meta {
+  name: Age Req true with only client DOB > 65
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{host}}/benefits/pa/phl/senior-citizen-tax-freeze
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "people": [
+        {
+          "id": "p1",
+          "dateOfBirth": "1950-09-01"
+        }
+      ],
+      "relationships": null
+    }
+  }
+}
+
+assert {
+  res.body.isEligible: eq null
+  res.body.checks.MeetsAgeRequirement: eq true
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

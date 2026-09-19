@@ -144,7 +144,7 @@ test.describe("Screener Builder Tests", () => {
     await expect(
       page
         .locator("#selected-eligibility-checks_container")
-        .getByText("Owner-occupant"),
+        .getByText("Owner occupant", { exact: true }),
     ).toBeVisible();
 
     await test.step("Add and configure a parameterized custom check", async () => {
