@@ -1,4 +1,4 @@
-import { Accessor, createSignal } from "solid-js";
+import { Accessor, createMemo, createSignal } from "solid-js";
 
 import FormRenderer from "./FormRenderer";
 import Results from "./Results";
@@ -7,12 +7,22 @@ import { evaluateScreener } from "../../../api/screener";
 
 import { PreviewFormData, ScreenerResult } from "./types";
 import Tooltip from "@/components/shared/Tooltip";
+import {
+  getHiddenQuestionPaths,
+  haveSameQuestionPaths,
+} from "@/utils/questionVotes";
 
 const Preview = ({ project, formSchema }) => {
   const [lastInputDataSent, setLastInputDataSent] =
     createSignal<PreviewFormData>({});
   const [results, setResults] = createSignal<ScreenerResult>();
   const [resultsLoading, setResultsLoading] = createSignal(false);
+  const [reviewedBenefits, setReviewedBenefits] = createSignal<string[]>([]);
+  const hiddenQuestionPaths = createMemo(
+    () => getHiddenQuestionPaths(results(), new Set(reviewedBenefits())),
+    undefined,
+    { equals: haveSameQuestionPaths },
+  );
 
   let schema: Accessor<any> = () => {
     if (formSchema()) {
@@ -33,6 +43,7 @@ const Preview = ({ project, formSchema }) => {
 
     let apiResult: ScreenerResult = await evaluateScreener(project().id, data);
     setResults(apiResult);
+    setReviewedBenefits((current) => (current.length > 0 ? [] : current));
     setResultsLoading(false);
   };
 
@@ -40,7 +51,12 @@ const Preview = ({ project, formSchema }) => {
     <div>
       <div class="m-4 p-4 border-2 border-gray-200 rounded">
         <div class="text-lg text-gray-800 text-md font-bold">Form</div>
-        <FormRenderer schema={schema} submitForm={handleSubmitForm} />
+        <FormRenderer
+          schema={schema}
+          formData={lastInputDataSent}
+          hiddenQuestionPaths={hiddenQuestionPaths}
+          submitForm={handleSubmitForm}
+        />
       </div>
       <div class="m-4 p-4 border-2 border-gray-200 rounded">
         <div class="flex flex-row gap-2 items-baseline">
@@ -65,6 +81,12 @@ const Preview = ({ project, formSchema }) => {
           inputData={lastInputDataSent}
           results={results}
           resultsLoading={resultsLoading}
+          reviewedBenefits={reviewedBenefits}
+          onReviewBenefit={(benefitId) =>
+            setReviewedBenefits((current) =>
+              current.includes(benefitId) ? current : [...current, benefitId],
+            )
+          }
         />
       </div>
     </div>

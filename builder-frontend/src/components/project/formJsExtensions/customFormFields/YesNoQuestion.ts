@@ -96,6 +96,8 @@ YesNoQuestion.config = {
   type: YES_NO_TYPE,
   name: 'Yes/No',
   label: 'Yes/No question',
+  sanitizeValue: ({ value }: { value: unknown }) =>
+    typeof value === 'boolean' ? value : null,
   icon: iconsByType("radio"),
   group: 'selection',
   propertiesPanelEntries: [

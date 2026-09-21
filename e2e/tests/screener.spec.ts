@@ -227,7 +227,12 @@ test.describe("Screener Builder Tests", () => {
     });
 
     await test.step("Check the checkbox and verify eligible", async () => {
-      await page.locator("[type='checkbox'].fjs-input").click();
+      const checkbox = page.locator("[type='checkbox'].fjs-input");
+      await expect(checkbox).toBeHidden();
+
+      await page.getByRole("button", { name: "Review questions" }).click();
+      await expect(checkbox).toBeVisible();
+      await checkbox.click();
 
       const benefitResultLoc = page.locator("div#benefit-result-title_0");
       await expect(benefitResultLoc).toHaveText("Test Benefit: Eligible");

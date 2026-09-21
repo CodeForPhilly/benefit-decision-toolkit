@@ -1,31 +1,78 @@
-import { Accessor, onMount } from "solid-js";
+import { Accessor, createEffect, on, onCleanup, onMount } from "solid-js";
 import debounce from "lodash.debounce";
+import cloneDeep from "lodash/cloneDeep";
+import isEqual from "lodash/isEqual";
 
 import { Form } from "@bpmn-io/form-js-viewer";
 
 import { PreviewFormData } from "./types";
 import CustomFormFieldsModule from "../formJsExtensions/customFormFields";
+import { hideQuestions } from "@/utils/questionVotes";
 
 import "@bpmn-io/form-js/dist/assets/form-js.css";
 
-function FormRenderer({ schema, submitForm }: { schema: Accessor<any>; submitForm: (data: PreviewFormData) => void }) {
+function FormRenderer({
+  schema,
+  formData,
+  hiddenQuestionPaths,
+  submitForm,
+}: {
+  schema: Accessor<any>;
+  formData: Accessor<PreviewFormData>;
+  hiddenQuestionPaths: Accessor<string[]>;
+  submitForm: (data: PreviewFormData) => void;
+}) {
   let container: HTMLDivElement | undefined;
+  let form: Form | undefined;
+  let currentData: PreviewFormData = {};
+  let importing = false;
+
+  const importVisibleSchema = async () => {
+    if (!form) return;
+    importing = true;
+    try {
+      const preservedData = cloneDeep(formData());
+      currentData = preservedData;
+      await form.importSchema(
+        hideQuestions(schema(), hiddenQuestionPaths()),
+        preservedData,
+      );
+    } finally {
+      importing = false;
+    }
+  };
+
+  createEffect(
+    on(
+      () => [schema(), hiddenQuestionPaths()] as const,
+      () => void importVisibleSchema(),
+      { defer: true },
+    ),
+  );
 
   onMount(() => {
-    const form = new Form({ container, additionalModules: [ CustomFormFieldsModule ] });
+    form = new Form({ container, additionalModules: [CustomFormFieldsModule] });
     const debouncedSubmit = debounce(
       (data: PreviewFormData) => submitForm(data),
-      500
+      500,
     );
 
     form
-      .importSchema(schema())
+      .importSchema(hideQuestions(schema(), hiddenQuestionPaths()), formData())
       .then(() => {
-        form.on("changed", (event) => {
+        form?.on("changed", (event) => {
+          const dataChanged = !isEqual(currentData, event.data);
+          currentData = cloneDeep(event.data);
+          if (importing || !dataChanged) return;
           debouncedSubmit(event.data);
         });
       })
       .catch(console.error);
+
+    onCleanup(() => {
+      debouncedSubmit.cancel();
+      form?.destroy();
+    });
   });
 
   return (

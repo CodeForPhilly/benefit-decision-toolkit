@@ -1,30 +1,50 @@
-import { Switch, Match, For, Accessor } from "solid-js";
+import { Switch, Match, For, Accessor, Show } from "solid-js";
 
 import type { ScreenerResult, BenefitResult } from "@/types";
 
 import checkIcon from "@/assets/images/checkIcon.svg";
 import questionIcon from "@/assets/images/questionIcon.svg";
 import xIcon from "@/assets/images/xIcon.svg";
+import { getBenefitQuestionPaths } from "@/utils/questionVotes";
 
 export default function EligibilityResults({
   screenerResult,
+  reviewedBenefits,
+  onReviewBenefit,
 }: {
-  screenerResult: Accessor<ScreenerResult>;
+  screenerResult: Accessor<ScreenerResult | undefined>;
+  reviewedBenefits: Accessor<string[]>;
+  onReviewBenefit: (benefitId: string) => void;
 }) {
   console.log(screenerResult());
   return (
     <div class="my-2 mx-12">
       <h2 class="text-gray-600 font-bold">Eligibility Results</h2>
-      <For each={Object.entries(screenerResult())}>
+      <For each={Object.entries(screenerResult() ?? {})}>
         {([benefitKey, benefitResult]) => (
-          <BenefitResult benefitResult={benefitResult} />
+          <BenefitResult
+            benefitId={benefitKey}
+            benefitResult={benefitResult}
+            reviewedBenefits={reviewedBenefits}
+            onReviewBenefit={onReviewBenefit}
+          />
         )}
       </For>
     </div>
   );
 }
 
-function BenefitResult({ benefitResult }: { benefitResult: BenefitResult }) {
+function BenefitResult({
+  benefitId,
+  benefitResult,
+  reviewedBenefits,
+  onReviewBenefit,
+}: {
+  benefitId: string;
+  benefitResult: BenefitResult;
+  reviewedBenefits: Accessor<string[]>;
+  onReviewBenefit: (benefitId: string) => void;
+}) {
   return (
     <article class="border-gray-500 border p-5 my-4 rounded-lg shadow-md">
       <Switch>
@@ -46,8 +66,25 @@ function BenefitResult({ benefitResult }: { benefitResult: BenefitResult }) {
       </Switch>
       <div class="[&:has(+div)]:mb-2">
         <h3 class="font-bold text-lg">{benefitResult.name}</h3>
-        <For each={Object.entries(benefitResult.check_results)}>
-          {([checkKey, check]) => (
+        <Show
+          when={
+            benefitResult.result === "FALSE" &&
+            getBenefitQuestionPaths(benefitResult).length > 0
+          }
+        >
+          <button
+            type="button"
+            class="text-left text-blue-700 underline text-xs w-fit"
+            disabled={reviewedBenefits().includes(benefitId)}
+            onClick={() => onReviewBenefit(benefitId)}
+          >
+            {reviewedBenefits().includes(benefitId)
+              ? "Questions shown"
+              : "Review questions"}
+          </button>
+        </Show>
+        <For each={Object.values(benefitResult.check_results)}>
+          {(check) => (
             <div class="flex items-center mb-1">
               <div class="flex-shrink-0 w-5 mr-2">
                 <Switch>
@@ -62,7 +99,9 @@ function BenefitResult({ benefitResult }: { benefitResult: BenefitResult }) {
                   </Match>
                 </Switch>
               </div>
-              <div class="text-xs">{check.aliasName || check.name}</div>
+              <div class="flex flex-col text-xs">
+                <div>{check.aliasName || check.name}</div>
+              </div>
             </div>
           )}
         </For>

@@ -33,9 +33,7 @@ public class InputSchemaService {
             if (checks == null) continue;
 
             for (CheckConfig check : checks) {
-                JsonNode transformedSchema = transformInputDefinitionSchema(check);
-                List<FormPath> checkFormPaths = extractJsonSchemaPaths(transformedSchema);
-                for (FormPath checkFormPath : checkFormPaths) {
+                for (FormPath checkFormPath : extractInputPaths(check)) {
                     // If the same path exists with different types, keep the first one found
                     pathTypeMap.putIfAbsent(checkFormPath.getPath(), checkFormPath.getType());
                 }
@@ -46,6 +44,14 @@ public class InputSchemaService {
         return pathTypeMap.entrySet().stream()
             .map(entry -> new FormPath(entry.getKey(), entry.getValue()))
             .toList();
+    }
+
+    /**
+     * Extracts the form paths requested by one configured eligibility check.
+     * These paths contribute to the configured benefit's votes for questions on the screener form.
+     */
+    public List<FormPath> extractInputPaths(CheckConfig check) {
+        return extractJsonSchemaPaths(transformInputDefinitionSchema(check));
     }
 
     /**
