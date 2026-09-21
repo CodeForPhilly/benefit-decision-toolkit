@@ -6,6 +6,7 @@ import checkIcon from "@/assets/images/checkIcon.svg";
 import questionIcon from "@/assets/images/questionIcon.svg";
 import xIcon from "@/assets/images/xIcon.svg";
 import { getBenefitQuestionPaths } from "@/utils/questionVotes";
+import { titleCase } from "@/utils/title_case";
 
 export default function EligibilityResults({
   screenerResult,
@@ -100,7 +101,9 @@ function BenefitResult({
                 </Switch>
               </div>
               <div class="flex flex-col text-xs">
-                <div>{check.aliasName || check.name}</div>
+                <div>
+                  {check.aliasName ? titleCase(check.aliasName) : check.name}
+                </div>
               </div>
             </div>
           )}

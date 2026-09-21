@@ -3,6 +3,7 @@ import { Accessor, For, Match, Show, Switch } from "solid-js";
 import { PreviewFormData, ScreenerResult } from "./types";
 import type { ParameterValues } from "@/types";
 import { getBenefitQuestionPaths } from "@/utils/questionVotes";
+import { titleCase } from "@/utils/title_case";
 
 import checkIcon from "../../../assets/images/checkIcon.svg";
 import questionIcon from "../../../assets/images/questionIcon.svg";
@@ -163,7 +164,7 @@ export default function Results({
                                     }
                                   >
                                     <div>
-                                      {check.aliasName}
+                                      {titleCase(check.aliasName!)}
                                       <span class="text-gray-500 text-sm ml-1">
                                         ({check.name},{" "}
                                         {[check.module, check.version]

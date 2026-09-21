@@ -210,7 +210,12 @@ test.describe("Screener Builder Tests", () => {
 
   test("User can Preview a Screener Form", async ({ page }) => {
     // Seed: complete screener with form
-    await seedScreenerWithForm();
+    await seedScreenerWithForm(
+      "Test Screener",
+      "Test Benefit",
+      "Description",
+      "PrimaryResidenceRequirement",
+    );
     await page.goto(`/projects/${TEST_SCREENER_ID}`);
 
     await navigateToPreview(page);
@@ -223,7 +228,10 @@ test.describe("Screener Builder Tests", () => {
 
       const benefitResultLoc = page.locator("div#benefit-result-title_0");
       await expect(benefitResultLoc).toBeVisible();
-      await expect(benefitResultLoc).toHaveText("Test Benefit: Ineligible");
+      await expect(benefitResultLoc).toContainText("Test Benefit: Ineligible");
+      await expect(page.locator("#screener-results")).toContainText(
+        "Primary Residence Requirement",
+      );
     });
 
     await test.step("Check the checkbox and verify eligible", async () => {
@@ -235,13 +243,18 @@ test.describe("Screener Builder Tests", () => {
       await checkbox.click();
 
       const benefitResultLoc = page.locator("div#benefit-result-title_0");
-      await expect(benefitResultLoc).toHaveText("Test Benefit: Eligible");
+      await expect(benefitResultLoc).toContainText("Test Benefit: Eligible");
     });
   });
 
   test("User can Publish a Screener", async ({ page }) => {
     // Seed: complete screener with form
-    await seedScreenerWithForm();
+    await seedScreenerWithForm(
+      "Test Screener",
+      "Test Benefit",
+      "Description",
+      "PrimaryResidenceRequirement",
+    );
     await page.goto(`/projects/${TEST_SCREENER_ID}`);
 
     await navigateToPublish(page);
@@ -260,6 +273,18 @@ test.describe("Screener Builder Tests", () => {
       await expect(screenerUrlInfo).not.toHaveText(
         "Screener URL:Publish screener to create public url.",
       );
+    });
+
+    await test.step("Verify the published results use the check alias", async () => {
+      const publishedUrl = await screenerUrlInfo
+        .getByRole("link")
+        .getAttribute("href");
+      await page.goto(publishedUrl!);
+      await page.locator("[type='checkbox'].fjs-input").click();
+
+      await expect(
+        page.getByText("Primary Residence Requirement", { exact: true }),
+      ).toBeVisible();
     });
   });
 });
