@@ -90,25 +90,25 @@ export default class PathOptionsService {
   }
 
   /**
-   * Get options with already-used keys marked as disabled and filtered by component type.
-   * @param currentFieldKey - The key of the current field being edited (won't be disabled)
+   * Get options filtered by component type and keys already used by other fields.
+   * @param currentFieldKey - The key of the current field being edited (won't be filtered out)
    * @param componentType - The Form-JS component type to filter compatible options
    */
   getOptions(currentFieldKey?: string, componentType?: string): PathOption[] {
     const usedKeys = this.getUsedKeys();
     return this.pathOptions
       .filter(option => {
+        if (option.value !== currentFieldKey && usedKeys.has(option.value)) {
+          return false;
+        }
+
         // If no component type filter, show all options
         if (!componentType) {
           return true;
         }
         // Filter by type compatibility
         return isTypeCompatible(option.type, componentType);
-      })
-      .map(option => ({
-        ...option,
-        disabled: option.value !== currentFieldKey && usedKeys.has(option.value)
-      }));
+      });
   }
 
   /**
