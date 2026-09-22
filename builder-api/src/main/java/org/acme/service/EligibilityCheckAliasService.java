@@ -119,8 +119,8 @@ public class EligibilityCheckAliasService {
 
     private String buildPrompt(String checkName, Map<String, Object> parameters) throws Exception {
         return """
-            Write one short, plain-language display name for an eligibility check.
-            It will be shown to residents in screener results.
+            Write one short, plain-language display name for an eligibility check for a public benefit.
+            It will be shown to non-technical users in screening results.
             Incorporate meaningful configured parameter values naturally, but omit implementation details.
             Do not add a period, quotation marks, explanation, or eligibility verdict.
             Prefer sentence case and no more than 12 words.
