@@ -31,8 +31,9 @@ function FormRenderer({
     if (!form) return;
     importing = true;
     try {
-      const preservedData = cloneDeep(formData());
-      currentData = preservedData;
+      // Preserve the live form state, not the last submitted data: answers
+      // typed since the pending submit would otherwise be discarded.
+      const preservedData = cloneDeep(currentData);
       await form.importSchema(
         hideQuestions(schema, hiddenQuestionPaths()),
         preservedData,
@@ -48,6 +49,7 @@ function FormRenderer({
 
   onMount(() => {
     form = new Form({ container, additionalModules: [CustomFormFieldsModule] });
+    currentData = cloneDeep(formData());
 
     const debouncedSubmit = debounce((data) => {
       submitForm(data);

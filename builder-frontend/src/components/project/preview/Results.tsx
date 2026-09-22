@@ -2,7 +2,6 @@ import { Accessor, For, Match, Show, Switch } from "solid-js";
 
 import { PreviewFormData, ScreenerResult } from "./types";
 import type { ParameterValues } from "@/types";
-import { getBenefitQuestionPaths } from "@/utils/questionVotes";
 import { titleCase } from "@/utils/title_case";
 
 import checkIcon from "../../../assets/images/checkIcon.svg";
@@ -27,14 +26,10 @@ export default function Results({
   inputData,
   results,
   resultsLoading,
-  reviewedBenefits,
-  onReviewBenefit,
 }: {
   inputData: Accessor<PreviewFormData>;
   results: Accessor<ScreenerResult | undefined>;
   resultsLoading: Accessor<boolean>;
-  reviewedBenefits: Accessor<string[]>;
-  onReviewBenefit: (benefitId: string) => void;
 }) {
   return (
     <div class="ml-3">
@@ -72,8 +67,8 @@ export default function Results({
             <div class="text-md font-semibold text-gray-600">Benefits</div>
             <div class="p-2">
               <div class="flex flex-col space-y-2">
-                <For each={Object.entries(results())}>
-                  {([benefitKey, benefit], benefitResultIdx) => (
+                <For each={Object.values(results())}>
+                  {(benefit, benefitResultIdx) => (
                     <div class="border-2 border-gray-200 rounded p-3">
                       <div
                         id={"benefit-result-title_" + benefitResultIdx()}
@@ -99,23 +94,6 @@ export default function Results({
                             </span>
                           </Match>
                         </Switch>
-                        <Show
-                          when={
-                            benefit.result === "FALSE" &&
-                            getBenefitQuestionPaths(benefit).length > 0
-                          }
-                        >
-                          <button
-                            type="button"
-                            class="block text-left text-blue-700 underline text-sm w-fit"
-                            disabled={reviewedBenefits().includes(benefitKey)}
-                            onClick={() => onReviewBenefit(benefitKey)}
-                          >
-                            {reviewedBenefits().includes(benefitKey)
-                              ? "Questions shown"
-                              : "Review questions"}
-                          </button>
-                        </Show>
                       </div>
                       <div class="mt-1 ml-2">
                         <div class="ml-2">

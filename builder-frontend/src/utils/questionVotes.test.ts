@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { BenefitResult, OptionalBoolean, ScreenerResult } from "@/types";
 import {
   getBenefitQuestionPaths,
-  getHiddenQuestionPaths,
+  getUnneededQuestionPaths,
   haveSameQuestionPaths,
   hideQuestions,
 } from "./questionVotes";
@@ -63,22 +63,23 @@ describe("question votes", () => {
     expect(getBenefitQuestionPaths(benefit)).toEqual(["shared", "onlyA"]);
   });
 
-  it("hides a question only after every benefit voting for it is ineligible", () => {
+  it("drops a question only after every benefit voting for it is ineligible", () => {
     expect(
-      getHiddenQuestionPaths(results("FALSE", "UNABLE_TO_DETERMINE")),
+      getUnneededQuestionPaths(results("FALSE", "UNABLE_TO_DETERMINE")),
     ).toEqual(["onlyA"]);
-    expect(getHiddenQuestionPaths(results("FALSE", "TRUE"))).toEqual(["onlyA"]);
-    expect(getHiddenQuestionPaths(results("FALSE", "FALSE"))).toEqual([
+    expect(getUnneededQuestionPaths(results("FALSE", "TRUE"))).toEqual([
+      "onlyA",
+    ]);
+    expect(getUnneededQuestionPaths(results("FALSE", "FALSE"))).toEqual([
       "shared",
       "onlyA",
       "onlyB",
     ]);
   });
 
-  it("keeps an ineligible benefit's questions visible while it is being reviewed", () => {
-    expect(
-      getHiddenQuestionPaths(results("FALSE", "FALSE"), new Set(["benefitA"])),
-    ).toEqual(["onlyB"]);
+  it("keeps every question while no benefit is ineligible", () => {
+    expect(getUnneededQuestionPaths(results("TRUE", "TRUE"))).toEqual([]);
+    expect(getUnneededQuestionPaths(undefined)).toEqual([]);
   });
 
   it("removes matching nested form components without mutating the schema", () => {

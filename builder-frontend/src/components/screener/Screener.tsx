@@ -10,9 +10,11 @@ import {
   evaluatePublishedScreener,
 } from "@/api/publishedScreener";
 
+import HiddenQuestionsNotice from "@/components/shared/HiddenQuestionsNotice";
+
 import type { PublishedScreener, ScreenerResult } from "@/types";
 import {
-  getHiddenQuestionPaths,
+  getUnneededQuestionPaths,
   haveSameQuestionPaths,
 } from "@/utils/questionVotes";
 
@@ -24,9 +26,14 @@ export default function Screener() {
   );
   const [screenerResult, setScreenerResult] = createSignal<ScreenerResult>();
   const [formData, setFormData] = createSignal<any>({});
-  const [reviewedBenefits, setReviewedBenefits] = createSignal<string[]>([]);
+  const [showAllQuestions, setShowAllQuestions] = createSignal(false);
+  const unneededQuestionPaths = createMemo(
+    () => getUnneededQuestionPaths(screenerResult()),
+    undefined,
+    { equals: haveSameQuestionPaths },
+  );
   const hiddenQuestionPaths = createMemo(
-    () => getHiddenQuestionPaths(screenerResult(), new Set(reviewedBenefits())),
+    () => (showAllQuestions() ? [] : unneededQuestionPaths()),
     undefined,
     { equals: haveSameQuestionPaths },
   );
@@ -39,7 +46,6 @@ export default function Screener() {
         data,
       );
       setScreenerResult(evaluationResult);
-      setReviewedBenefits((current) => (current.length > 0 ? [] : current));
     } catch (err) {
       console.log(err);
     }
@@ -57,20 +63,17 @@ export default function Screener() {
               hiddenQuestionPaths={hiddenQuestionPaths}
               submitForm={submitForm}
             />
+            <HiddenQuestionsNotice
+              unneededQuestionCount={() => unneededQuestionPaths().length}
+              showAllQuestions={showAllQuestions}
+              onToggleShowAllQuestions={() =>
+                setShowAllQuestions((current) => !current)
+              }
+            />
           </section>
           <Show when={screenerResult()}>
             <section class="flex-1 overflow-y-auto p-4">
-              <EligibilityResults
-                screenerResult={screenerResult}
-                reviewedBenefits={reviewedBenefits}
-                onReviewBenefit={(benefitId) =>
-                  setReviewedBenefits((current) =>
-                    current.includes(benefitId)
-                      ? current
-                      : [...current, benefitId],
-                  )
-                }
-              />
+              <EligibilityResults screenerResult={screenerResult} />
             </section>
           </Show>
         </div>

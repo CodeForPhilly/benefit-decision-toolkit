@@ -174,7 +174,9 @@ test.describe("Screener Builder Tests", () => {
     });
   });
 
-  test("Custom check testing does not offer alias editing", async ({ page }) => {
+  test("Custom check testing does not offer alias editing", async ({
+    page,
+  }) => {
     const { workingCheckId } = await seedCustomCheckWithParameter();
     await page.goto(`/check/${workingCheckId}`);
 
@@ -237,13 +239,20 @@ test.describe("Screener Builder Tests", () => {
     await test.step("Check the checkbox and verify eligible", async () => {
       const checkbox = page.locator("[type='checkbox'].fjs-input");
       await expect(checkbox).toBeHidden();
+      await expect(page.locator("#hidden-questions-notice")).toContainText(
+        "1 question is hidden",
+      );
 
-      await page.getByRole("button", { name: "Review questions" }).click();
+      await page.getByRole("button", { name: "Show all questions" }).click();
       await expect(checkbox).toBeVisible();
       await checkbox.click();
 
       const benefitResultLoc = page.locator("div#benefit-result-title_0");
       await expect(benefitResultLoc).toContainText("Test Benefit: Eligible");
+
+      // The question stays visible after re-evaluation until it is toggled off.
+      await expect(checkbox).toBeVisible();
+      await expect(page.locator("#hidden-questions-notice")).toBeHidden();
     });
   });
 

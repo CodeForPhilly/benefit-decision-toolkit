@@ -28,20 +28,17 @@ export function getBenefitQuestionPaths(benefit: BenefitResult): string[] {
 
 /**
  * Returns question paths for which every voting benefit is ineligible.
- * Eligible and undetermined benefits continue voting for their questions. A
- * reviewed ineligible benefit temporarily keeps its questions visible.
+ * Eligible and undetermined benefits continue voting for their questions.
  */
-export function getHiddenQuestionPaths(
+export function getUnneededQuestionPaths(
   results: ScreenerResult | undefined,
-  reviewedBenefits: ReadonlySet<string> = new Set(),
 ): string[] {
   if (!results) return [];
 
   const votes = new Map<string, boolean[]>();
 
-  for (const [benefitId, benefit] of Object.entries(results)) {
-    const stillNeedsAnswers =
-      benefit.result !== "FALSE" || reviewedBenefits.has(benefitId);
+  for (const benefit of Object.values(results)) {
+    const stillNeedsAnswers = benefit.result !== "FALSE";
 
     for (const path of getBenefitQuestionPaths(benefit)) {
       const pathVotes = votes.get(path) ?? [];

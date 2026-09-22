@@ -38,8 +38,6 @@ describe("eligibility result aliases", () => {
           inputData={() => ({})}
           results={() => results}
           resultsLoading={() => false}
-          reviewedBenefits={() => []}
-          onReviewBenefit={() => undefined}
         />
       ),
       container,
@@ -51,13 +49,7 @@ describe("eligibility result aliases", () => {
   it("displays aliases in published screener results", () => {
     const container = document.createElement("div");
     dispose = render(
-      () => (
-        <EligibilityResults
-          screenerResult={() => results}
-          reviewedBenefits={() => []}
-          onReviewBenefit={() => undefined}
-        />
-      ),
+      () => <EligibilityResults screenerResult={() => results} />,
       container,
     );
 

@@ -7,8 +7,9 @@ import { evaluateScreener } from "../../../api/screener";
 
 import { PreviewFormData, ScreenerResult } from "./types";
 import Tooltip from "@/components/shared/Tooltip";
+import HiddenQuestionsNotice from "@/components/shared/HiddenQuestionsNotice";
 import {
-  getHiddenQuestionPaths,
+  getUnneededQuestionPaths,
   haveSameQuestionPaths,
 } from "@/utils/questionVotes";
 
@@ -17,9 +18,14 @@ const Preview = ({ project, formSchema }) => {
     createSignal<PreviewFormData>({});
   const [results, setResults] = createSignal<ScreenerResult>();
   const [resultsLoading, setResultsLoading] = createSignal(false);
-  const [reviewedBenefits, setReviewedBenefits] = createSignal<string[]>([]);
+  const [showAllQuestions, setShowAllQuestions] = createSignal(false);
+  const unneededQuestionPaths = createMemo(
+    () => getUnneededQuestionPaths(results()),
+    undefined,
+    { equals: haveSameQuestionPaths },
+  );
   const hiddenQuestionPaths = createMemo(
-    () => getHiddenQuestionPaths(results(), new Set(reviewedBenefits())),
+    () => (showAllQuestions() ? [] : unneededQuestionPaths()),
     undefined,
     { equals: haveSameQuestionPaths },
   );
@@ -43,7 +49,6 @@ const Preview = ({ project, formSchema }) => {
 
     let apiResult: ScreenerResult = await evaluateScreener(project().id, data);
     setResults(apiResult);
-    setReviewedBenefits((current) => (current.length > 0 ? [] : current));
     setResultsLoading(false);
   };
 
@@ -56,6 +61,13 @@ const Preview = ({ project, formSchema }) => {
           formData={lastInputDataSent}
           hiddenQuestionPaths={hiddenQuestionPaths}
           submitForm={handleSubmitForm}
+        />
+        <HiddenQuestionsNotice
+          unneededQuestionCount={() => unneededQuestionPaths().length}
+          showAllQuestions={showAllQuestions}
+          onToggleShowAllQuestions={() =>
+            setShowAllQuestions((current) => !current)
+          }
         />
       </div>
       <div class="m-4 p-4 border-2 border-gray-200 rounded">
@@ -81,12 +93,6 @@ const Preview = ({ project, formSchema }) => {
           inputData={lastInputDataSent}
           results={results}
           resultsLoading={resultsLoading}
-          reviewedBenefits={reviewedBenefits}
-          onReviewBenefit={(benefitId) =>
-            setReviewedBenefits((current) =>
-              current.includes(benefitId) ? current : [...current, benefitId],
-            )
-          }
         />
       </div>
     </div>
