@@ -1,4 +1,4 @@
-import { Accessor, createSignal } from "solid-js";
+import { Accessor, createMemo, createSignal } from "solid-js";
 
 import FormRenderer from "./FormRenderer";
 import Results from "./Results";
@@ -7,12 +7,28 @@ import { evaluateScreener } from "../../../api/screener";
 
 import { PreviewFormData, ScreenerResult } from "./types";
 import Tooltip from "@/components/shared/Tooltip";
+import HiddenQuestionsNotice from "@/components/shared/HiddenQuestionsNotice";
+import {
+  getUnneededQuestionPaths,
+  haveSameQuestionPaths,
+} from "@/utils/questionVotes";
 
 const Preview = ({ project, formSchema }) => {
   const [lastInputDataSent, setLastInputDataSent] =
     createSignal<PreviewFormData>({});
   const [results, setResults] = createSignal<ScreenerResult>();
   const [resultsLoading, setResultsLoading] = createSignal(false);
+  const [showAllQuestions, setShowAllQuestions] = createSignal(false);
+  const unneededQuestionPaths = createMemo(
+    () => getUnneededQuestionPaths(results()),
+    undefined,
+    { equals: haveSameQuestionPaths },
+  );
+  const hiddenQuestionPaths = createMemo(
+    () => (showAllQuestions() ? [] : unneededQuestionPaths()),
+    undefined,
+    { equals: haveSameQuestionPaths },
+  );
 
   let schema: Accessor<any> = () => {
     if (formSchema()) {
@@ -40,7 +56,19 @@ const Preview = ({ project, formSchema }) => {
     <div>
       <div class="m-4 p-4 border-2 border-gray-200 rounded">
         <div class="text-lg text-gray-800 text-md font-bold">Form</div>
-        <FormRenderer schema={schema} submitForm={handleSubmitForm} />
+        <FormRenderer
+          schema={schema}
+          formData={lastInputDataSent}
+          hiddenQuestionPaths={hiddenQuestionPaths}
+          submitForm={handleSubmitForm}
+        />
+        <HiddenQuestionsNotice
+          unneededQuestionCount={() => unneededQuestionPaths().length}
+          showAllQuestions={showAllQuestions}
+          onToggleShowAllQuestions={() =>
+            setShowAllQuestions((current) => !current)
+          }
+        />
       </div>
       <div class="m-4 p-4 border-2 border-gray-200 rounded">
         <div class="flex flex-row gap-2 items-baseline">

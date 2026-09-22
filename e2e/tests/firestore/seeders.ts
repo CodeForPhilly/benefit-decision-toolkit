@@ -160,6 +160,7 @@ export async function seedScreenerWithConfiguredBenefit(
   screenerName = "Test Screener",
   benefitName = "Test Benefit",
   benefitDescription = "Description",
+  checkAlias?: string,
 ): Promise<SeededBenefitWithCheck> {
   const libraryVersion = await getLibraryApiVersion();
   const checkId = `L-residence-owner-occupant-${libraryVersion}`;
@@ -208,6 +209,7 @@ export async function seedScreenerWithConfiguredBenefit(
           },
           parameterDefinitions: [],
           parameters: {},
+          ...(checkAlias ? { aliasName: checkAlias } : {}),
         },
       ],
     },
@@ -228,12 +230,14 @@ export async function seedScreenerWithForm(
   screenerName = "Test Screener",
   benefitName = "Test Benefit",
   benefitDescription = "Description",
+  checkAlias?: string,
 ): Promise<SeededScreenerWithForm> {
   const { screenerId, benefitId, checkId } =
     await seedScreenerWithConfiguredBenefit(
       screenerName,
       benefitName,
       benefitDescription,
+      checkAlias,
     );
 
   // Form schema with a checkbox bound to simpleChecks.ownerOccupant

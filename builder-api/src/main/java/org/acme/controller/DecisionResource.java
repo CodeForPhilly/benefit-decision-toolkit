@@ -23,6 +23,7 @@ import org.acme.service.DmnService;
 import org.acme.service.FormDataTransformer;
 import org.acme.service.LibraryApiService;
 import org.acme.service.LibraryApiService.LibraryCheckEvaluation;
+import org.acme.service.InputSchemaService;
 
 import java.util.*;
 
@@ -46,6 +47,9 @@ public class DecisionResource {
 
     @Inject
     LibraryApiService libraryApi;
+
+    @Inject
+    InputSchemaService inputSchemaService;
 
     @POST
     @Path("/published/{screenerId}/evaluate")
@@ -169,6 +173,9 @@ public class DecisionResource {
                 checkResultMap.put("parameters", checkConfig.getParameters() != null ? checkConfig.getParameters() : Map.of());
                 checkResultMap.put("effectiveParameters", effectiveParameters);
                 checkResultMap.put("defaultedParameters", defaultedParameters);
+                checkResultMap.put("inputPaths", inputSchemaService.extractInputPaths(checkConfig).stream()
+                    .map(formPath -> formPath.getPath())
+                    .toList());
                 checkResults.put(uniqueCheckKey, checkResultMap);
                 checkNum += 1;
             }

@@ -2,6 +2,7 @@ import { Accessor, For, Match, Show, Switch } from "solid-js";
 
 import { PreviewFormData, ScreenerResult } from "./types";
 import type { ParameterValues } from "@/types";
+import { titleCase } from "@/utils/title_case";
 
 import checkIcon from "../../../assets/images/checkIcon.svg";
 import questionIcon from "../../../assets/images/questionIcon.svg";
@@ -9,7 +10,7 @@ import xIcon from "../../../assets/images/xIcon.svg";
 
 function formatParameters(
   params: ParameterValues,
-  defaultedParameters: string[] = []
+  defaultedParameters: string[] = [],
 ): string {
   return Object.entries(params)
     .map(([key, value]) => {
@@ -27,7 +28,7 @@ export default function Results({
   resultsLoading,
 }: {
   inputData: Accessor<PreviewFormData>;
-  results: Accessor<ScreenerResult>;
+  results: Accessor<ScreenerResult | undefined>;
   resultsLoading: Accessor<boolean>;
 }) {
   return (
@@ -66,10 +67,13 @@ export default function Results({
             <div class="text-md font-semibold text-gray-600">Benefits</div>
             <div class="p-2">
               <div class="flex flex-col space-y-2">
-                <For each={Object.entries(results())}>
-                  {([benefitKey, benefit], benefitResultIdx) => (
+                <For each={Object.values(results())}>
+                  {(benefit, benefitResultIdx) => (
                     <div class="border-2 border-gray-200 rounded p-3">
-                      <div id={"benefit-result-title_" + benefitResultIdx()} class="text-md font-medium text-gray-800">
+                      <div
+                        id={"benefit-result-title_" + benefitResultIdx()}
+                        class="text-md font-medium text-gray-800"
+                      >
                         {benefit.name}:{" "}
                         <Switch>
                           <Match when={benefit.result === "TRUE"}>
@@ -93,8 +97,8 @@ export default function Results({
                       </div>
                       <div class="mt-1 ml-2">
                         <div class="ml-2">
-                          <For each={Object.entries(benefit.check_results)}>
-                            {([checkKey, check]) => (
+                          <For each={Object.values(benefit.check_results)}>
+                            {(check) => (
                               <div class="flex items-center text-md text-gray-700 mb-1">
                                 <div class="flex-shrink-0 w-5 mr-2">
                                   <Switch>
@@ -104,41 +108,65 @@ export default function Results({
                                     <Match when={check.result === "FALSE"}>
                                       <img src={xIcon} alt="" class="w-4" />
                                     </Match>
-                                    <Match when={check.result === "UNABLE_TO_DETERMINE"}>
-                                      <img src={questionIcon} alt="" class="w-4" />
+                                    <Match
+                                      when={
+                                        check.result === "UNABLE_TO_DETERMINE"
+                                      }
+                                    >
+                                      <img
+                                        src={questionIcon}
+                                        alt=""
+                                        class="w-4"
+                                      />
                                     </Match>
                                   </Switch>
                                 </div>
                                 <div class="flex flex-col">
-                                  <Show when={check.aliasName} fallback={
+                                  <Show
+                                    when={check.aliasName}
+                                    fallback={
+                                      <div>
+                                        {check.name}
+                                        <Show
+                                          when={check.module || check.version}
+                                        >
+                                          <span class="text-gray-500 ml-1">
+                                            (
+                                            {[check.module, check.version]
+                                              .filter(Boolean)
+                                              .join(", v")}
+                                            )
+                                          </span>
+                                        </Show>
+                                      </div>
+                                    }
+                                  >
                                     <div>
-                                      {check.name}
-                                      <Show when={check.module || check.version}>
-                                        <span class="text-gray-500 ml-1">
-                                          ({[check.module, check.version].filter(Boolean).join(", v")})
-                                        </span>
-                                      </Show>
-                                    </div>
-                                  }>
-                                    <div>
-                                      {check.aliasName}
+                                      {titleCase(check.aliasName!)}
                                       <span class="text-gray-500 text-sm ml-1">
-                                        ({check.name}, {[check.module, check.version].filter(Boolean).join(", v")})
+                                        ({check.name},{" "}
+                                        {[check.module, check.version]
+                                          .filter(Boolean)
+                                          .join(", v")}
+                                        )
                                       </span>
                                     </div>
                                   </Show>
                                   <Show
                                     when={
                                       (check.effectiveParameters &&
-                                        Object.keys(check.effectiveParameters).length > 0) ||
+                                        Object.keys(check.effectiveParameters)
+                                          .length > 0) ||
                                       (check.parameters &&
-                                        Object.keys(check.parameters).length > 0)
+                                        Object.keys(check.parameters).length >
+                                          0)
                                     }
                                   >
                                     <div class="text-gray-500 text-sm">
                                       {formatParameters(
-                                        check.effectiveParameters ?? check.parameters,
-                                        check.defaultedParameters
+                                        check.effectiveParameters ??
+                                          check.parameters,
+                                        check.defaultedParameters,
                                       )}
                                     </div>
                                   </Show>

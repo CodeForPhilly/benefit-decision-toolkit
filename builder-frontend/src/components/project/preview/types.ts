@@ -1,27 +1,4 @@
-import type { ParameterValues } from "@/types";
-
-/* Screener Evaluation Results */
-export interface ScreenerResult {
-  [key: string]: BenefitResult
-}
-interface BenefitResult {
-  name: string;
-  result: OptionalBoolean;
-  check_results: {
-    [key: string]: CheckResult;
-  }
-}
-interface CheckResult {
-  name: string;
-  aliasName?: string;
-  result: OptionalBoolean;
-  module: string;
-  version: string;
-  parameters: ParameterValues;
-  effectiveParameters?: ParameterValues;
-  defaultedParameters?: string[];
-}
-type OptionalBoolean = "TRUE" | "FALSE" | "UNABLE_TO_DETERMINE";
+export type { ScreenerResult } from "@/types";
 
 /* Form Data for Preview */
 export interface PreviewFormData {

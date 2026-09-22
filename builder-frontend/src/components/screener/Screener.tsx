@@ -1,4 +1,4 @@
-import { createSignal, createResource, ErrorBoundary, Show } from "solid-js";
+import { createSignal, createResource, createMemo, Show } from "solid-js";
 import { useParams } from "@solidjs/router";
 
 import FormRenderer from "./FormRenderer";
@@ -10,7 +10,13 @@ import {
   evaluatePublishedScreener,
 } from "@/api/publishedScreener";
 
+import HiddenQuestionsNotice from "@/components/shared/HiddenQuestionsNotice";
+
 import type { PublishedScreener, ScreenerResult } from "@/types";
+import {
+  getUnneededQuestionPaths,
+  haveSameQuestionPaths,
+} from "@/utils/questionVotes";
 
 export default function Screener() {
   const params = useParams();
@@ -19,9 +25,22 @@ export default function Screener() {
     fetchPublishedScreener(params.publishedScreenerId),
   );
   const [screenerResult, setScreenerResult] = createSignal<ScreenerResult>();
+  const [formData, setFormData] = createSignal<any>({});
+  const [showAllQuestions, setShowAllQuestions] = createSignal(false);
+  const unneededQuestionPaths = createMemo(
+    () => getUnneededQuestionPaths(screenerResult()),
+    undefined,
+    { equals: haveSameQuestionPaths },
+  );
+  const hiddenQuestionPaths = createMemo(
+    () => (showAllQuestions() ? [] : unneededQuestionPaths()),
+    undefined,
+    { equals: haveSameQuestionPaths },
+  );
 
   const submitForm = async (data: any) => {
     try {
+      setFormData(data);
       let evaluationResult: ScreenerResult = await evaluatePublishedScreener(
         params.publishedScreenerId,
         data,
@@ -40,7 +59,16 @@ export default function Screener() {
           <section class="flex-1 overflow-y-auto p-4">
             <FormRenderer
               schema={screener()?.formSchema || {}}
+              formData={formData}
+              hiddenQuestionPaths={hiddenQuestionPaths}
               submitForm={submitForm}
+            />
+            <HiddenQuestionsNotice
+              unneededQuestionCount={() => unneededQuestionPaths().length}
+              showAllQuestions={showAllQuestions}
+              onToggleShowAllQuestions={() =>
+                setShowAllQuestions((current) => !current)
+              }
             />
           </section>
           <Show when={screenerResult()}>

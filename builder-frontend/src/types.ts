@@ -116,6 +116,8 @@ export interface CheckResult {
   parameters: ParameterValues;
   effectiveParameters?: ParameterValues;
   defaultedParameters?: string[];
+  /** Form fields this check contributes to its configured benefit's question votes. */
+  inputPaths: string[];
 }
 export type OptionalBoolean = "TRUE" | "FALSE" | "UNABLE_TO_DETERMINE";
 

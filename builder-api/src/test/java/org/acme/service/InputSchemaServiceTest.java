@@ -710,4 +710,33 @@ public class InputSchemaServiceTest {
         assertTrue(paths.contains(new FormPath("people.spouse.dateOfBirth", "date")));
         assertEquals(2, paths.size());
     }
+
+    @Test
+    void extractInputPaths_returnsTransformedQuestionVotesForOneCheck() throws Exception {
+        CheckConfig check = new CheckConfig();
+        check.setParameters(Map.of("personId", "applicant"));
+        check.setInputDefinition(objectMapper.readTree("""
+            {
+                "type": "object",
+                "properties": {
+                    "people": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "dateOfBirth": { "type": "string", "format": "date" }
+                            }
+                        }
+                    },
+                    "income": { "type": "number" }
+                }
+            }
+            """));
+
+        List<FormPath> paths = service.extractInputPaths(check);
+
+        assertEquals(2, paths.size());
+        assertTrue(paths.contains(new FormPath("people.applicant.dateOfBirth", "date")));
+        assertTrue(paths.contains(new FormPath("income", "number")));
+    }
 }
