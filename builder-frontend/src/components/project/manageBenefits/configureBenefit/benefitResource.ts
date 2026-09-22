@@ -6,7 +6,8 @@ import {
   addCheckToBenefit,
   removeCheckFromBenefit,
   updateCheckParameters,
-  updateCheckAlias
+  updateCheckAlias,
+  generateCheckAlias,
 } from "@/api/benefit";
 
 import type { Benefit, ParameterValues } from "@/types";
@@ -14,16 +15,14 @@ import type { Benefit, ParameterValues } from "@/types";
 interface ScreenerBenefitsResource {
   benefit: Accessor<Benefit>;
   actions: {
-    addCheck: (checkId: string) => void;
+    addCheck: (checkId: string, parameters: ParameterValues) => void;
     removeCheck: (checkId: string) => void;
     updateCheckConfigParams: (
       checkId: string,
-      parameters: ParameterValues
+      parameters: ParameterValues,
     ) => void;
-    updateCheckConfigAlias: (
-      checkId: string,
-      aliasName: string | null
-    ) => void;
+    updateCheckConfigAlias: (checkId: string, aliasName: string | null) => void;
+    generateCheckConfigAlias: (checkId: string) => Promise<string>;
   };
   actionInProgress: Accessor<boolean>;
   initialLoadStatus: {
@@ -34,11 +33,11 @@ interface ScreenerBenefitsResource {
 
 const createScreenerBenefits = (
   screenerId: Accessor<string>,
-  benefitId: Accessor<string>
+  benefitId: Accessor<string>,
 ): ScreenerBenefitsResource => {
   const [benefitResource, { refetch }] = createResource<Benefit, string[]>(
     () => [screenerId(), benefitId()],
-    ([sId, bId]) => fetchScreenerBenefit(sId, bId)
+    ([sId, bId]) => fetchScreenerBenefit(sId, bId),
   );
 
   // Local fine-grained store
@@ -55,12 +54,12 @@ const createScreenerBenefits = (
   });
 
   // Actions
-  const addCheck = async (checkId: string) => {
+  const addCheck = async (checkId: string, parameters: ParameterValues) => {
     if (!benefit) return;
     setActionInProgress(true);
 
     try {
-      await addCheckToBenefit(screenerId(), benefitId(), checkId);
+      await addCheckToBenefit(screenerId(), benefitId(), checkId, parameters);
       await refetch();
     } catch (e) {
       console.error("Failed to add check to benefit", e);
@@ -83,13 +82,18 @@ const createScreenerBenefits = (
 
   const updateCheckConfigParams = async (
     checkId: string,
-    parameters: ParameterValues
+    parameters: ParameterValues,
   ) => {
     if (!benefit) return;
     setActionInProgress(true);
 
     try {
-      await updateCheckParameters(screenerId(), benefitId(), checkId, parameters);
+      await updateCheckParameters(
+        screenerId(),
+        benefitId(),
+        checkId,
+        parameters,
+      );
       await refetch();
     } catch (e) {
       console.error("Failed to update check parameters", e);
@@ -99,7 +103,7 @@ const createScreenerBenefits = (
 
   const updateCheckConfigAlias = async (
     checkId: string,
-    aliasName: string | null
+    aliasName: string | null,
   ) => {
     if (!benefit) return;
     setActionInProgress(true);
@@ -113,6 +117,9 @@ const createScreenerBenefits = (
     setActionInProgress(false);
   };
 
+  const generateCheckConfigAlias = (checkId: string) =>
+    generateCheckAlias(screenerId(), benefitId(), checkId);
+
   return {
     benefit: () => benefit,
     actions: {
@@ -120,6 +127,7 @@ const createScreenerBenefits = (
       removeCheck,
       updateCheckConfigParams,
       updateCheckConfigAlias,
+      generateCheckConfigAlias,
     },
     actionInProgress,
     initialLoadStatus: {

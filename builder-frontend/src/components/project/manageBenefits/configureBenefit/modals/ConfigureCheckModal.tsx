@@ -13,10 +13,12 @@ const ConfigureCheckModal = ({
   checkConfig,
   updateCheckConfigParams,
   closeModal,
+  confirmLabel = "Confirm",
 }: {
   checkConfig: Accessor<CheckConfig>;
   updateCheckConfigParams: (newCheckData: ParameterValues) => void;
   closeModal: () => void;
+  confirmLabel?: string;
 }) => {
   const [tempCheck, setTempCheck] = createStore<CheckConfig>({
     checkId: checkConfig().checkId,
@@ -34,6 +36,23 @@ const ConfigureCheckModal = ({
     updateCheckConfigParams(tempCheck.parameters);
     closeModal();
   };
+
+  const canConfirm = () =>
+    checkConfig().parameterDefinitions.every((parameter) => {
+      if (
+        !parameter.required ||
+        usesAsOfDateDefault(checkConfig(), parameter)
+      ) {
+        return true;
+      }
+      const value = tempCheck.parameters[parameter.key];
+      return (
+        value !== undefined &&
+        value !== null &&
+        value !== "" &&
+        (!Array.isArray(value) || value.length > 0)
+      );
+    });
 
   return (
     <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
@@ -65,7 +84,9 @@ const ConfigureCheckModal = ({
                           setTempCheck={setTempCheck}
                           parameter={() => parameter}
                         />
-                        <Show when={usesAsOfDateDefault(checkConfig(), parameter)}>
+                        <Show
+                          when={usesAsOfDateDefault(checkConfig(), parameter)}
+                        >
                           <div class="mt-1 text-sm text-gray-500">
                             Leave blank to use today's date when this screener
                             is evaluated.
@@ -87,8 +108,9 @@ const ConfigureCheckModal = ({
           <button
             class="btn-default btn-blue !text-sm"
             onClick={confirmAndClose}
+            disabled={!canConfirm()}
           >
-            Confirm
+            {confirmLabel}
           </button>
         </div>
       </div>
@@ -98,7 +120,7 @@ const ConfigureCheckModal = ({
 
 const usesAsOfDateDefault = (
   checkConfig: CheckConfig,
-  parameter: ParameterDefinition
+  parameter: ParameterDefinition,
 ) => {
   return (
     !!checkConfig.evaluationUrl &&

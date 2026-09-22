@@ -124,6 +124,11 @@ const ConfigureBenefit = ({
                               aliasName,
                             );
                           }}
+                          generateCheckConfigAlias={() =>
+                            actions.generateCheckConfigAlias(
+                              checkConfig.checkId,
+                            )
+                          }
                         />
                       );
                     }}

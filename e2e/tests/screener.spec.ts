@@ -141,36 +141,40 @@ test.describe("Screener Builder Tests", () => {
 
     await addOwnerOccupantCheck(page);
 
-    await expect(
-      page
-        .locator("#selected-eligibility-checks_container")
-        .getByText("Owner occupant", { exact: true }),
-    ).toBeVisible();
+    const selectedChecks = page.locator(
+      "#selected-eligibility-checks_container",
+    );
+    const ownerOccupantCheck = selectedChecks
+      .locator("div.mb-4.p-4")
+      .filter({ hasText: "Original: owner-occupant" });
+    await expect(ownerOccupantCheck).toBeVisible({ timeout: 15_000 });
 
     await test.step("Add and configure a parameterized custom check", async () => {
       await page.getByRole("button", { name: "Custom Checks" }).click();
       await page.getByTestId("add-check-income_threshold").click();
 
-      const selectedChecks = page.locator(
-        "#selected-eligibility-checks_container",
-      );
-      await selectedChecks
-        .getByText("Income threshold", { exact: true })
-        .click();
-
-      const configureModal = page
+      const addCheckModal = page
         .getByText("Configure Check: Income threshold", { exact: true })
         .locator("..");
-      await configureModal.locator('input[type="number"]').fill("50000");
-      await configureModal.getByRole("button", { name: "Confirm" }).click();
+      await addCheckModal.locator('input[type="number"]').fill("50000");
+      await addCheckModal.getByRole("button", { name: "Add check" }).click();
 
       const configuredCheck = selectedChecks
         .locator("div.mb-4.p-4")
-        .filter({ hasText: "Income threshold" });
+        .filter({ hasText: "Original: income_threshold" });
       await expect(
         configuredCheck.getByText("50000", { exact: true }),
-      ).toBeVisible();
+      ).toBeVisible({ timeout: 15_000 });
       await expect(configuredCheck.getByTitle("Edit alias")).toHaveCount(1);
+
+      await configuredCheck.getByTitle("Edit alias").click();
+      const aliasInput = page.locator('input[type="text"]');
+      await expect(aliasInput).not.toHaveValue("");
+      await page.getByRole("button", { name: "Generate alias" }).click();
+      await expect(
+        page.getByRole("button", { name: "Generate alias" }),
+      ).toBeEnabled({ timeout: 15_000 });
+      await expect(aliasInput).not.toHaveValue("");
     });
   });
 

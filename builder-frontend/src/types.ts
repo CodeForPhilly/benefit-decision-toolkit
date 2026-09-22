@@ -81,6 +81,7 @@ export interface ImportLibraryBenefitRequest {
 
 export interface AddCheckRequest {
   checkId: string;
+  parameters: ParameterValues;
 }
 
 export interface UpdateCheckParametersRequest {
