@@ -16,7 +16,8 @@ import type { Benefit, ParameterValues } from "@/types";
 interface ScreenerBenefitsResource {
   benefit: Accessor<Benefit>;
   actions: {
-    addCheck: (checkId: string, parameters: ParameterValues) => void;
+    // Rejects if the check could not be added, so callers can keep the user's input
+    addCheck: (checkId: string, parameters: ParameterValues) => Promise<void>;
     removeCheck: (checkId: string) => void;
     updateCheckConfigParams: (
       checkId: string,
@@ -72,10 +73,9 @@ const createScreenerBenefits = (
         );
       }
       await refetch();
-    } catch (e) {
-      console.error("Failed to add check to benefit", e);
+    } finally {
+      setActionInProgress(false);
     }
-    setActionInProgress(false);
   };
 
   const removeCheck = async (checkId: string) => {

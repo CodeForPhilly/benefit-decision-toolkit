@@ -1,4 +1,5 @@
 import { Accessor, For, Resource, Setter, Show, createSignal } from "solid-js";
+import toast from "solid-toast";
 
 import { titleCase } from "@/utils/title_case";
 import ConfigureCheckModal from "./modals/ConfigureCheckModal";
@@ -42,7 +43,7 @@ const EligibilityCheckListView = ({
   publicChecks,
   userDefinedChecks,
 }: {
-  addCheck: (checkId: string, parameters: ParameterValues) => void;
+  addCheck: (checkId: string, parameters: ParameterValues) => Promise<void>;
   mode: Accessor<EligibilityCheckListMode>;
   setMode: Setter<EligibilityCheckListMode>;
   publicChecks: Resource<EligibilityCheck[]>;
@@ -58,7 +59,10 @@ const EligibilityCheckListView = ({
 
   const onAddEligibilityCheck = (check: EligibilityCheck) => {
     if ((check.parameterDefinitions?.length ?? 0) === 0) {
-      addCheck(check.id, {});
+      addCheck(check.id, {}).catch((error) => {
+        console.error("Failed to add check to benefit", error);
+        toast.error("Could not add the check. Please try again.");
+      });
       return;
     }
     setCheckToConfigure(check);
@@ -155,9 +159,9 @@ const EligibilityCheckListView = ({
         <ConfigureCheckModal
           checkConfig={pendingCheckConfig}
           confirmLabel="Add check"
-          updateCheckConfigParams={(parameters) => {
-            addCheck(checkToConfigure()!.id, parameters);
-          }}
+          updateCheckConfigParams={(parameters) =>
+            addCheck(checkToConfigure()!.id, parameters)
+          }
           closeModal={() => setCheckToConfigure(undefined)}
         />
       </Show>

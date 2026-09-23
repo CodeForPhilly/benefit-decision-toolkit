@@ -16,7 +16,10 @@ const ConfigureCheckModal = ({
   confirmLabel = "Confirm",
 }: {
   checkConfig: Accessor<CheckConfig>;
-  updateCheckConfigParams: (newCheckData: ParameterValues) => void;
+  // May return a promise; the modal stays open and shows an error if it rejects
+  updateCheckConfigParams: (
+    newCheckData: ParameterValues,
+  ) => void | Promise<void>;
   closeModal: () => void;
   confirmLabel?: string;
 }) => {
@@ -32,9 +35,21 @@ const ConfigureCheckModal = ({
     parameters: { ...checkConfig().parameters },
   });
 
-  const confirmAndClose = () => {
-    updateCheckConfigParams(tempCheck.parameters);
-    closeModal();
+  const [saving, setSaving] = createSignal(false);
+  const [saveError, setSaveError] = createSignal("");
+
+  const confirmAndClose = async () => {
+    setSaving(true);
+    setSaveError("");
+    try {
+      await updateCheckConfigParams(tempCheck.parameters);
+      closeModal();
+    } catch (error) {
+      console.error("Failed to save check configuration", error);
+      setSaveError("Could not save this check. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const canConfirm = () =>
@@ -101,6 +116,10 @@ const ConfigureCheckModal = ({
           </div>
         )}
 
+        <Show when={saveError()}>
+          <div class="mb-4 text-sm text-red-700">{saveError()}</div>
+        </Show>
+
         <div class="flex justify-end gap-2 space-x-2">
           <button class="btn-default btn-gray !text-sm" onClick={closeModal}>
             Cancel
@@ -108,9 +127,9 @@ const ConfigureCheckModal = ({
           <button
             class="btn-default btn-blue !text-sm"
             onClick={confirmAndClose}
-            disabled={!canConfirm()}
+            disabled={!canConfirm() || saving()}
           >
-            {confirmLabel}
+            {saving() ? "Saving…" : confirmLabel}
           </button>
         </div>
       </div>
