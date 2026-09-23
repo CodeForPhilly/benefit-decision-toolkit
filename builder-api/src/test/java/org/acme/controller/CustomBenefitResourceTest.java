@@ -75,7 +75,7 @@ class CustomBenefitResourceTest {
         when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
         when(checkRepository.getPublishedCustomCheck(USER_ID, "published-check")).thenReturn(Optional.of(check));
         when(aliasService.generate(check.getName(), parameters))
-            .thenReturn("Client not already enrolled in Homestead Exemption");
+            .thenReturn(Optional.of("Client not already enrolled in Homestead Exemption"));
 
         Response response = resource.addCheckToBenefit(
             identity,
@@ -106,7 +106,7 @@ class CustomBenefitResourceTest {
         Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(check));
 
         when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
-        when(aliasService.generate("IncomeThreshold", check.getParameters())).thenReturn("Income under $50,000");
+        when(aliasService.generate("IncomeThreshold", check.getParameters())).thenReturn(Optional.of("Income under $50,000"));
 
         Response response = resource.generateCheckAlias(identity, SCREENER_ID, BENEFIT_ID, "configured-check");
 
@@ -114,6 +114,52 @@ class CustomBenefitResourceTest {
         assertEquals("Income under $50,000", ((Map<String, String>) response.getEntity()).get("aliasName"));
         assertEquals("Manual alias", check.getAliasName());
         verify(screenerRepository, never()).updateCustomBenefit(any(), any());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void addCheckStillAddsTheCheckWhenAliasGenerationFails() throws Exception {
+        Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, new ArrayList<>());
+        EligibilityCheck check = new EligibilityCheck();
+        check.setId("published-check");
+        check.setName("OwnerOccupant");
+        check.setParameterDefinitions(List.of());
+
+        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+        when(checkRepository.getPublishedCustomCheck(USER_ID, "published-check")).thenReturn(Optional.of(check));
+        when(aliasService.generate(any(), any())).thenReturn(Optional.empty());
+
+        Response response = resource.addCheckToBenefit(
+            identity,
+            SCREENER_ID,
+            BENEFIT_ID,
+            new AddCheckRequest("published-check", Map.of())
+        );
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(false, ((Map<String, Object>) response.getEntity()).get("aliasGenerated"));
+        ArgumentCaptor<Benefit> benefitCaptor = ArgumentCaptor.forClass(Benefit.class);
+        verify(screenerRepository).updateCustomBenefit(
+            org.mockito.ArgumentMatchers.eq(SCREENER_ID),
+            benefitCaptor.capture()
+        );
+        assertEquals(null, benefitCaptor.getValue().getChecks().getFirst().getAliasName());
+    }
+
+    @Test
+    void generateCheckAliasReportsFailure() throws Exception {
+        CheckConfig check = new CheckConfig();
+        check.setCheckId("configured-check");
+        check.setCheckName("IncomeThreshold");
+        check.setParameters(Map.of("limit", 50_000));
+        Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(check));
+
+        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+        when(aliasService.generate(any(), any())).thenReturn(Optional.empty());
+
+        Response response = resource.generateCheckAlias(identity, SCREENER_ID, BENEFIT_ID, "configured-check");
+
+        assertEquals(Response.Status.SERVICE_UNAVAILABLE.getStatusCode(), response.getStatus());
     }
 
     @Test

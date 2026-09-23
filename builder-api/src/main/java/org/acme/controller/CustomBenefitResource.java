@@ -336,7 +336,9 @@ public class CustomBenefitResource {
                 check.getParameterDefinitions() != null ? check.getParameterDefinitions() : List.of(),
                 parameters
             );
-            checkConfig.setAliasName(eligibilityCheckAliasService.generate(check.getName(), parameters));
+            // Without a generated alias the check's original name is displayed instead
+            Optional<String> aliasName = eligibilityCheckAliasService.generate(check.getName(), parameters);
+            aliasName.ifPresent(checkConfig::setAliasName);
 
             // Add the check to the benefit
             List<CheckConfig> checks = benefit.getChecks();
@@ -351,7 +353,7 @@ public class CustomBenefitResource {
             // Save the updated benefit
             screenerRepository.updateCustomBenefit(screenerId, benefit);
 
-            return Response.ok().build();
+            return Response.ok(Map.of("aliasGenerated", aliasName.isPresent())).build();
         } catch (Exception e) {
             Log.error(e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -580,8 +582,13 @@ public class CustomBenefitResource {
             }
 
             CheckConfig check = checkOpt.get();
-            String aliasName = eligibilityCheckAliasService.generate(check.getCheckName(), check.getParameters());
-            return Response.ok(Map.of("aliasName", aliasName)).build();
+            Optional<String> aliasName = eligibilityCheckAliasService.generate(check.getCheckName(), check.getParameters());
+            if (aliasName.isEmpty()) {
+                return Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(Map.of("error", "Could not generate check alias"))
+                    .build();
+            }
+            return Response.ok(Map.of("aliasName", aliasName.get())).build();
         } catch (Exception e) {
             Log.error(e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

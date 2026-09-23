@@ -58,7 +58,7 @@ export const addCheckToBenefit = async (
   benefitId: string,
   checkId: string,
   parameters: ParameterValues,
-): Promise<void> => {
+): Promise<{ aliasGenerated: boolean }> => {
   const url =
     apiUrl + "/screener/" + screenerId + "/benefit/" + benefitId + "/check";
   try {
@@ -66,6 +66,7 @@ export const addCheckToBenefit = async (
     if (!response.ok) {
       throw new Error(`Add check failed with status: ${response.status}`);
     }
+    return (await response.json()) as { aliasGenerated: boolean };
   } catch (error) {
     console.error("Error adding check to benefit:", error);
     throw error;

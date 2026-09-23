@@ -21,24 +21,14 @@ class EligibilityCheckAliasServiceTest {
     }
 
     @Test
-    void generateCreatesReadableAliasWithoutExternalConfiguration() {
-        String alias = service.generate(
-            "PersonNotEnrolledInBenefit",
-            Map.of("personId", "client", "benefit", "PhlHomesteadExemption")
-        );
-
-        assertEquals("Client not already enrolled in Homestead Exemption", alias);
+    void generateReturnsNothingWithoutAnApiKey() {
+        assertEquals(Optional.empty(), service.generate("IncomeThreshold", Map.of("limit", 50_000)));
     }
 
     @Test
-    void generateIncludesOtherwiseUnrepresentedParameters() {
-        String alias = service.generate("IncomeThreshold", Map.of("householdIncomeLimit", 50_000));
+    void generateReturnsNothingWithABlankApiKey() {
+        service.apiKey = Optional.of(" ");
 
-        assertEquals("Income Threshold (household income limit: 50000)", alias);
-    }
-
-    @Test
-    void generateHumanizesAParameterlessCheckName() {
-        assertEquals("Owner occupant", service.generate("owner-occupant", Map.of()));
+        assertEquals(Optional.empty(), service.generate("IncomeThreshold", Map.of("limit", 50_000)));
     }
 }

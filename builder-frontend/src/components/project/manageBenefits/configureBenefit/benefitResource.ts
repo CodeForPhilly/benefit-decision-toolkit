@@ -1,5 +1,6 @@
 import { createResource, createEffect, Accessor, createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
+import toast from "solid-toast";
 
 import {
   fetchScreenerBenefit,
@@ -59,7 +60,17 @@ const createScreenerBenefits = (
     setActionInProgress(true);
 
     try {
-      await addCheckToBenefit(screenerId(), benefitId(), checkId, parameters);
+      const { aliasGenerated } = await addCheckToBenefit(
+        screenerId(),
+        benefitId(),
+        checkId,
+        parameters,
+      );
+      if (!aliasGenerated) {
+        toast.error(
+          "Check added, but an alias couldn't be generated. The check's original name will be shown.",
+        );
+      }
       await refetch();
     } catch (e) {
       console.error("Failed to add check to benefit", e);
