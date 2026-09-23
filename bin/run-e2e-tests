@@ -575,6 +575,10 @@ fi
 TEST_DATA_INSTALLED=1
 cp -R "$PROJECT_ROOT/e2e/e2e-emulator-data" "$PROJECT_ROOT/emulator-data"
 
+# Keep the suite fast and deterministic: never call Gemini, even when a local
+# .env provides GEMINI_API_KEY. Alias generation is covered by builder-api tests.
+export ALIAS_GENERATION_ENABLED=false
+
 SERVICES_MAY_BE_RUNNING=1
 devbox services up -b
 

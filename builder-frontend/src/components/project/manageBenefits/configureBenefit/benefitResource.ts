@@ -1,12 +1,14 @@
 import { createResource, createEffect, Accessor, createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
+import toast from "solid-toast";
 
 import {
   fetchScreenerBenefit,
   addCheckToBenefit,
   removeCheckFromBenefit,
   updateCheckParameters,
-  updateCheckAlias
+  updateCheckAlias,
+  generateCheckAlias,
 } from "@/api/benefit";
 
 import type { Benefit, ParameterValues } from "@/types";
@@ -14,16 +16,19 @@ import type { Benefit, ParameterValues } from "@/types";
 interface ScreenerBenefitsResource {
   benefit: Accessor<Benefit>;
   actions: {
-    addCheck: (checkId: string) => void;
+    // Rejects if the check could not be added, so callers can keep the user's input
+    addCheck: (checkId: string, parameters: ParameterValues) => Promise<void>;
     removeCheck: (checkId: string) => void;
     updateCheckConfigParams: (
       checkId: string,
-      parameters: ParameterValues
+      parameters: ParameterValues,
     ) => void;
     updateCheckConfigAlias: (
       checkId: string,
-      aliasName: string | null
+      aliasName: string | null,
+      aliasGenerated: boolean,
     ) => void;
+    generateCheckConfigAlias: (checkId: string) => Promise<string>;
   };
   actionInProgress: Accessor<boolean>;
   initialLoadStatus: {
@@ -34,11 +39,11 @@ interface ScreenerBenefitsResource {
 
 const createScreenerBenefits = (
   screenerId: Accessor<string>,
-  benefitId: Accessor<string>
+  benefitId: Accessor<string>,
 ): ScreenerBenefitsResource => {
   const [benefitResource, { refetch }] = createResource<Benefit, string[]>(
     () => [screenerId(), benefitId()],
-    ([sId, bId]) => fetchScreenerBenefit(sId, bId)
+    ([sId, bId]) => fetchScreenerBenefit(sId, bId),
   );
 
   // Local fine-grained store
@@ -55,17 +60,26 @@ const createScreenerBenefits = (
   });
 
   // Actions
-  const addCheck = async (checkId: string) => {
+  const addCheck = async (checkId: string, parameters: ParameterValues) => {
     if (!benefit) return;
     setActionInProgress(true);
 
     try {
-      await addCheckToBenefit(screenerId(), benefitId(), checkId);
+      const { aliasGenerated } = await addCheckToBenefit(
+        screenerId(),
+        benefitId(),
+        checkId,
+        parameters,
+      );
+      if (!aliasGenerated) {
+        toast.error(
+          "Check added, but an alias couldn't be generated. The check's original name will be shown.",
+        );
+      }
       await refetch();
-    } catch (e) {
-      console.error("Failed to add check to benefit", e);
+    } finally {
+      setActionInProgress(false);
     }
-    setActionInProgress(false);
   };
 
   const removeCheck = async (checkId: string) => {
@@ -83,13 +97,23 @@ const createScreenerBenefits = (
 
   const updateCheckConfigParams = async (
     checkId: string,
-    parameters: ParameterValues
+    parameters: ParameterValues,
   ) => {
     if (!benefit) return;
     setActionInProgress(true);
 
     try {
-      await updateCheckParameters(screenerId(), benefitId(), checkId, parameters);
+      const { aliasCleared } = await updateCheckParameters(
+        screenerId(),
+        benefitId(),
+        checkId,
+        parameters,
+      );
+      if (aliasCleared) {
+        toast.error(
+          "Settings saved, but the alias couldn't be updated. The check's original name will be shown.",
+        );
+      }
       await refetch();
     } catch (e) {
       console.error("Failed to update check parameters", e);
@@ -99,19 +123,29 @@ const createScreenerBenefits = (
 
   const updateCheckConfigAlias = async (
     checkId: string,
-    aliasName: string | null
+    aliasName: string | null,
+    aliasGenerated: boolean,
   ) => {
     if (!benefit) return;
     setActionInProgress(true);
 
     try {
-      await updateCheckAlias(screenerId(), benefitId(), checkId, aliasName);
+      await updateCheckAlias(
+        screenerId(),
+        benefitId(),
+        checkId,
+        aliasName,
+        aliasGenerated,
+      );
       await refetch();
     } catch (e) {
       console.error("Failed to update check alias", e);
     }
     setActionInProgress(false);
   };
+
+  const generateCheckConfigAlias = (checkId: string) =>
+    generateCheckAlias(screenerId(), benefitId(), checkId);
 
   return {
     benefit: () => benefit,
@@ -120,6 +154,7 @@ const createScreenerBenefits = (
       removeCheck,
       updateCheckConfigParams,
       updateCheckConfigAlias,
+      generateCheckConfigAlias,
     },
     actionInProgress,
     initialLoadStatus: {

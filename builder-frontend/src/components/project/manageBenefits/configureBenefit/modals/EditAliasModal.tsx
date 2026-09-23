@@ -1,4 +1,4 @@
-import { Accessor, createSignal } from "solid-js";
+import { Accessor, Show, createSignal } from "solid-js";
 
 import { titleCase } from "@/utils/title_case";
 
@@ -7,24 +7,55 @@ import type { CheckConfig } from "@/types";
 const EditAliasModal = ({
   checkConfig,
   updateCheckConfigAlias,
+  generateCheckConfigAlias,
   closeModal,
 }: {
   checkConfig: Accessor<CheckConfig>;
-  updateCheckConfigAlias: (aliasName: string | null) => void;
+  updateCheckConfigAlias: (
+    aliasName: string | null,
+    aliasGenerated: boolean,
+  ) => void;
+  generateCheckConfigAlias?: () => Promise<string>;
   closeModal: () => void;
 }) => {
   const [aliasValue, setAliasValue] = createSignal(
-    checkConfig().aliasName ?? ""
+    checkConfig().aliasName ?? "",
   );
+  // The alias counts as generated only if it's saved exactly as generated, so
+  // it can be refreshed later when the check's settings change
+  const [generatedValue, setGeneratedValue] = createSignal(
+    checkConfig().aliasGenerated ? (checkConfig().aliasName ?? "") : "",
+  );
+  const [generating, setGenerating] = createSignal(false);
+  const [generationError, setGenerationError] = createSignal("");
 
   const confirmAndClose = () => {
     const trimmedValue = aliasValue().trim();
-    updateCheckConfigAlias(trimmedValue === "" ? null : trimmedValue);
+    updateCheckConfigAlias(
+      trimmedValue === "" ? null : trimmedValue,
+      trimmedValue !== "" && trimmedValue === generatedValue(),
+    );
     closeModal();
   };
 
   const clearAlias = () => {
     setAliasValue("");
+  };
+
+  const generateAlias = async () => {
+    if (!generateCheckConfigAlias) return;
+    setGenerating(true);
+    setGenerationError("");
+    try {
+      const generated = await generateCheckConfigAlias();
+      setGeneratedValue(generated);
+      setAliasValue(generated);
+    } catch (error) {
+      console.error("Failed to generate check alias", error);
+      setGenerationError("Could not generate an alias. Please try again.");
+    } finally {
+      setGenerating(false);
+    }
   };
 
   return (
@@ -56,18 +87,32 @@ const EditAliasModal = ({
               </button>
             )}
           </div>
+          <Show when={generationError()}>
+            <div class="mt-2 text-sm text-red-700">{generationError()}</div>
+          </Show>
         </div>
 
-        <div class="flex justify-end gap-2 space-x-2">
-          <button class="btn-default btn-gray !text-sm" onClick={closeModal}>
-            Cancel
-          </button>
-          <button
-            class="btn-default btn-blue !text-sm"
-            onClick={confirmAndClose}
-          >
-            Save
-          </button>
+        <div class="flex justify-between gap-2">
+          <Show when={generateCheckConfigAlias}>
+            <button
+              class="btn-default btn-gray !text-sm"
+              onClick={generateAlias}
+              disabled={generating()}
+            >
+              {generating() ? "Generating…" : "Generate alias"}
+            </button>
+          </Show>
+          <div class="flex justify-end gap-2">
+            <button class="btn-default btn-gray !text-sm" onClick={closeModal}>
+              Cancel
+            </button>
+            <button
+              class="btn-default btn-blue !text-sm"
+              onClick={confirmAndClose}
+            >
+              Save
+            </button>
+          </div>
         </div>
       </div>
     </div>

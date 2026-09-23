@@ -13,10 +13,15 @@ const ConfigureCheckModal = ({
   checkConfig,
   updateCheckConfigParams,
   closeModal,
+  confirmLabel = "Confirm",
 }: {
   checkConfig: Accessor<CheckConfig>;
-  updateCheckConfigParams: (newCheckData: ParameterValues) => void;
+  // May return a promise; the modal stays open and shows an error if it rejects
+  updateCheckConfigParams: (
+    newCheckData: ParameterValues,
+  ) => void | Promise<void>;
   closeModal: () => void;
+  confirmLabel?: string;
 }) => {
   const [tempCheck, setTempCheck] = createStore<CheckConfig>({
     checkId: checkConfig().checkId,
@@ -30,10 +35,39 @@ const ConfigureCheckModal = ({
     parameters: { ...checkConfig().parameters },
   });
 
-  const confirmAndClose = () => {
-    updateCheckConfigParams(tempCheck.parameters);
-    closeModal();
+  const [saving, setSaving] = createSignal(false);
+  const [saveError, setSaveError] = createSignal("");
+
+  const confirmAndClose = async () => {
+    setSaving(true);
+    setSaveError("");
+    try {
+      await updateCheckConfigParams(tempCheck.parameters);
+      closeModal();
+    } catch (error) {
+      console.error("Failed to save check configuration", error);
+      setSaveError("Could not save this check. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
+
+  const canConfirm = () =>
+    checkConfig().parameterDefinitions.every((parameter) => {
+      if (
+        !parameter.required ||
+        usesAsOfDateDefault(checkConfig(), parameter)
+      ) {
+        return true;
+      }
+      const value = tempCheck.parameters[parameter.key];
+      return (
+        value !== undefined &&
+        value !== null &&
+        value !== "" &&
+        (!Array.isArray(value) || value.length > 0)
+      );
+    });
 
   return (
     <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
@@ -65,7 +99,9 @@ const ConfigureCheckModal = ({
                           setTempCheck={setTempCheck}
                           parameter={() => parameter}
                         />
-                        <Show when={usesAsOfDateDefault(checkConfig(), parameter)}>
+                        <Show
+                          when={usesAsOfDateDefault(checkConfig(), parameter)}
+                        >
                           <div class="mt-1 text-sm text-gray-500">
                             Leave blank to use today's date when this screener
                             is evaluated.
@@ -80,6 +116,10 @@ const ConfigureCheckModal = ({
           </div>
         )}
 
+        <Show when={saveError()}>
+          <div class="mb-4 text-sm text-red-700">{saveError()}</div>
+        </Show>
+
         <div class="flex justify-end gap-2 space-x-2">
           <button class="btn-default btn-gray !text-sm" onClick={closeModal}>
             Cancel
@@ -87,8 +127,9 @@ const ConfigureCheckModal = ({
           <button
             class="btn-default btn-blue !text-sm"
             onClick={confirmAndClose}
+            disabled={!canConfirm() || saving()}
           >
-            Confirm
+            {saving() ? "Saving…" : confirmLabel}
           </button>
         </div>
       </div>
@@ -98,7 +139,7 @@ const ConfigureCheckModal = ({
 
 const usesAsOfDateDefault = (
   checkConfig: CheckConfig,
-  parameter: ParameterDefinition
+  parameter: ParameterDefinition,
 ) => {
   return (
     !!checkConfig.evaluationUrl &&

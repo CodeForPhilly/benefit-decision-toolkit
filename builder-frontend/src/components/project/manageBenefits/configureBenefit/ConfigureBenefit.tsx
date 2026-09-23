@@ -118,12 +118,19 @@ const ConfigureBenefit = ({
                           }}
                           updateCheckConfigAlias={(
                             aliasName: string | null,
+                            aliasGenerated: boolean,
                           ) => {
                             actions.updateCheckConfigAlias(
                               checkConfig.checkId,
                               aliasName,
+                              aliasGenerated,
                             );
                           }}
+                          generateCheckConfigAlias={() =>
+                            actions.generateCheckConfigAlias(
+                              checkConfig.checkId,
+                            )
+                          }
                         />
                       );
                     }}

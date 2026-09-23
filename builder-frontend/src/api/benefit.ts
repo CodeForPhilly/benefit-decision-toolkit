@@ -57,14 +57,16 @@ export const addCheckToBenefit = async (
   screenerId: string,
   benefitId: string,
   checkId: string,
-): Promise<void> => {
+  parameters: ParameterValues,
+): Promise<{ aliasGenerated: boolean }> => {
   const url =
     apiUrl + "/screener/" + screenerId + "/benefit/" + benefitId + "/check";
   try {
-    const response = await authPost(url.toString(), { checkId });
+    const response = await authPost(url.toString(), { checkId, parameters });
     if (!response.ok) {
       throw new Error(`Add check failed with status: ${response.status}`);
     }
+    return (await response.json()) as { aliasGenerated: boolean };
   } catch (error) {
     console.error("Error adding check to benefit:", error);
     throw error;
@@ -101,7 +103,7 @@ export const updateCheckParameters = async (
   benefitId: string,
   checkId: string,
   parameters: ParameterValues,
-): Promise<void> => {
+): Promise<{ aliasCleared: boolean }> => {
   const url =
     apiUrl +
     "/screener/" +
@@ -118,6 +120,7 @@ export const updateCheckParameters = async (
         `Update parameters failed with status: ${response.status}`,
       );
     }
+    return (await response.json()) as { aliasCleared: boolean };
   } catch (error) {
     console.error("Error updating check parameters:", error);
     throw error;
@@ -129,6 +132,7 @@ export const updateCheckAlias = async (
   benefitId: string,
   checkId: string,
   aliasName: string | null,
+  aliasGenerated: boolean,
 ): Promise<void> => {
   const url =
     apiUrl +
@@ -140,7 +144,10 @@ export const updateCheckAlias = async (
     checkId +
     "/alias";
   try {
-    const response = await authPatch(url.toString(), { aliasName });
+    const response = await authPatch(url.toString(), {
+      aliasName,
+      aliasGenerated,
+    });
     if (!response.ok) {
       throw new Error(`Update alias failed with status: ${response.status}`);
     }
@@ -148,4 +155,26 @@ export const updateCheckAlias = async (
     console.error("Error updating check alias:", error);
     throw error;
   }
+};
+
+export const generateCheckAlias = async (
+  screenerId: string,
+  benefitId: string,
+  checkId: string,
+): Promise<string> => {
+  const url =
+    apiUrl +
+    "/screener/" +
+    screenerId +
+    "/benefit/" +
+    benefitId +
+    "/check/" +
+    checkId +
+    "/alias/generate";
+  const response = await authPost(url, {});
+  if (!response.ok) {
+    throw new Error(`Generate alias failed with status: ${response.status}`);
+  }
+  const data = (await response.json()) as { aliasName: string };
+  return data.aliasName;
 };

@@ -1,8 +1,10 @@
-import { Accessor, For, Resource, Setter } from "solid-js";
+import { Accessor, For, Resource, Setter, Show, createSignal } from "solid-js";
+import toast from "solid-toast";
 
 import { titleCase } from "@/utils/title_case";
+import ConfigureCheckModal from "./modals/ConfigureCheckModal";
 
-import type { EligibilityCheck } from "@/types";
+import type { CheckConfig, EligibilityCheck, ParameterValues } from "@/types";
 
 export type EligibilityCheckListMode = "user-defined" | "public";
 interface CheckModeConfig {
@@ -41,20 +43,44 @@ const EligibilityCheckListView = ({
   publicChecks,
   userDefinedChecks,
 }: {
-  addCheck: (checkId: string) => void;
+  addCheck: (checkId: string, parameters: ParameterValues) => Promise<void>;
   mode: Accessor<EligibilityCheckListMode>;
   setMode: Setter<EligibilityCheckListMode>;
   publicChecks: Resource<EligibilityCheck[]>;
   userDefinedChecks: Resource<EligibilityCheck[]>;
 }) => {
+  const [checkToConfigure, setCheckToConfigure] =
+    createSignal<EligibilityCheck>();
   const activeCheckConfig: Accessor<CheckModeConfig> = () =>
     mode() === "public" ? PublicCheckConfig : UserDefinedCheckConfig;
   const activeChecks: Accessor<Resource<EligibilityCheck[]>> = () =>
     mode() === "public" ? publicChecks : userDefinedChecks;
+  const activeCheckItems = () => activeChecks()() ?? [];
 
   const onAddEligibilityCheck = (check: EligibilityCheck) => {
-    // Only pass the checkId - the server will create the CheckConfig snapshot
-    addCheck(check.id);
+    if ((check.parameterDefinitions?.length ?? 0) === 0) {
+      addCheck(check.id, {}).catch((error) => {
+        console.error("Failed to add check to benefit", error);
+        toast.error("Could not add the check. Please try again.");
+      });
+      return;
+    }
+    setCheckToConfigure(check);
+  };
+
+  const pendingCheckConfig = (): CheckConfig => {
+    const check = checkToConfigure()!;
+    return {
+      checkId: check.id,
+      checkName: check.name,
+      checkVersion: check.version,
+      checkModule: check.module,
+      checkDescription: check.description,
+      evaluationUrl: check.evaluationUrl,
+      inputDefinition: check.inputDefinition,
+      parameterDefinitions: check.parameterDefinitions ?? [],
+      parameters: {},
+    };
   };
 
   return (
@@ -112,14 +138,14 @@ const EligibilityCheckListView = ({
               </td>
             </tr>
           )}
-          {activeChecks()() && activeChecks()().length === 0 && (
+          {!activeChecks().loading && activeCheckItems().length === 0 && (
             <tr>
               <td colSpan={3} class="p-4 font-bold text-center text-gray-600">
                 No checks available.
               </td>
             </tr>
           )}
-          <For each={activeChecks()()}>
+          <For each={activeCheckItems()}>
             {(check) => (
               <EligibilityCheckRow
                 check={check}
@@ -129,6 +155,16 @@ const EligibilityCheckListView = ({
           </For>
         </tbody>
       </table>
+      <Show when={checkToConfigure()}>
+        <ConfigureCheckModal
+          checkConfig={pendingCheckConfig}
+          confirmLabel="Add check"
+          updateCheckConfigParams={(parameters) =>
+            addCheck(checkToConfigure()!.id, parameters)
+          }
+          closeModal={() => setCheckToConfigure(undefined)}
+        />
+      </Show>
     </>
   );
 };

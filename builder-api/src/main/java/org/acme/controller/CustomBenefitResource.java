@@ -17,7 +17,12 @@ import org.acme.model.dto.CustomBenefit.UpdateCheckParametersRequest;
 import org.acme.model.dto.CustomBenefit.UpdateCustomBenefitRequest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.ScreenerRepository;
+import org.acme.service.EligibilityCheckAliasService;
 import org.acme.service.LibraryApiService;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +34,8 @@ import java.util.UUID;
 
 @Path("/api")
 public class CustomBenefitResource {
+    private static final ObjectMapper PARAMETER_COMPARISON_MAPPER = new ObjectMapper()
+        .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
 
     @Inject
     ScreenerRepository screenerRepository;
@@ -38,6 +45,9 @@ public class CustomBenefitResource {
 
     @Inject
     LibraryApiService libraryApiMetadataService;  // Inject the singleton bean
+
+    @Inject
+    EligibilityCheckAliasService eligibilityCheckAliasService;
 
     // ========== Collection Endpoints ==========
 
@@ -299,6 +309,25 @@ public class CustomBenefitResource {
 
             EligibilityCheck check = checkOpt.get();
             Benefit benefit = benefitOpt.get();
+            Map<String, Object> parameters = request.parameters() != null
+                ? new HashMap<>(request.parameters())
+                : new HashMap<>();
+            List<String> missingParameters = check.getParameterDefinitions() == null
+                ? List.of()
+                : check.getParameterDefinitions().stream()
+                    .filter(ParameterDefinition::isRequired)
+                    .filter(parameter -> !usesEvaluationDateDefault(check, parameter))
+                    .filter(parameter -> isBlankParameter(parameters.get(parameter.getKey())))
+                    .map(ParameterDefinition::getKey)
+                    .toList();
+            if (!missingParameters.isEmpty()) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of(
+                        "error", "Required check parameters are missing",
+                        "parameters", missingParameters
+                    ))
+                    .build();
+            }
 
             // Create CheckConfig snapshot from the EligibilityCheck
             String newCheckConfigId = UUID.randomUUID().toString();
@@ -310,9 +339,13 @@ public class CustomBenefitResource {
                 check.getModule(),
                 check.getEvaluationUrl(),
                 check.getInputDefinition(),
-                check.getParameterDefinitions(),
-                new HashMap<>()
+                check.getParameterDefinitions() != null ? check.getParameterDefinitions() : List.of(),
+                parameters
             );
+            // Without a generated alias the check's original name is displayed instead
+            Optional<String> aliasName = eligibilityCheckAliasService.generate(check.getName(), parameters);
+            aliasName.ifPresent(checkConfig::setAliasName);
+            checkConfig.setAliasGenerated(aliasName.isPresent());
 
             // Add the check to the benefit
             List<CheckConfig> checks = benefit.getChecks();
@@ -327,7 +360,7 @@ public class CustomBenefitResource {
             // Save the updated benefit
             screenerRepository.updateCustomBenefit(screenerId, benefit);
 
-            return Response.ok().build();
+            return Response.ok(Map.of("aliasGenerated", aliasName.isPresent())).build();
         } catch (Exception e) {
             Log.error(e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -429,10 +462,21 @@ public class CustomBenefitResource {
 
             // Find and update the check with the matching checkId
             Boolean checkUpdated = false;
+            boolean aliasCleared = false;
             List<CheckConfig> checkListAfterUpdate = new ArrayList<>();
             for (CheckConfig check : checks) {
                 if (check.getCheckId().equals(checkId)) {
-                    check.setParameters(request.parameters() != null ? request.parameters() : new HashMap<>());
+                    Map<String, Object> parameters = request.parameters() != null ? request.parameters() : new HashMap<>();
+                    boolean parametersChanged = !sameParameterValues(check.getParameters(), parameters);
+                    check.setParameters(parameters);
+                    // A generated alias describes the old parameter values, so refresh it.
+                    // Hand-written aliases are left alone.
+                    if (parametersChanged && check.isAliasGenerated()) {
+                        Optional<String> aliasName = eligibilityCheckAliasService.generate(check.getCheckName(), parameters);
+                        check.setAliasName(aliasName.orElse(null));
+                        check.setAliasGenerated(aliasName.isPresent());
+                        aliasCleared = aliasName.isEmpty();
+                    }
                     checkUpdated = true;
                 }
                 checkListAfterUpdate.add(check);
@@ -449,7 +493,7 @@ public class CustomBenefitResource {
             // Save the updated benefit
             screenerRepository.updateCustomBenefit(screenerId, benefit);
 
-            return Response.ok().build();
+            return Response.ok(Map.of("aliasCleared", aliasCleared)).build();
         } catch (Exception e) {
             Log.error(e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -498,6 +542,9 @@ public class CustomBenefitResource {
             for (CheckConfig check : checks) {
                 if (check.getCheckId().equals(checkId)) {
                     check.setAliasName(request.aliasName());
+                    check.setAliasGenerated(
+                        request.aliasName() != null && Boolean.TRUE.equals(request.aliasGenerated())
+                    );
                     checkUpdated = true;
                 }
                 checkListAfterUpdate.add(check);
@@ -523,7 +570,82 @@ public class CustomBenefitResource {
         }
     }
 
+    @POST
+    @Path("/screener/{screenerId}/benefit/{benefitId}/check/{checkId}/alias/generate")
+    public Response generateCheckAlias(
+        @Context SecurityIdentity identity,
+        @PathParam("screenerId") String screenerId,
+        @PathParam("benefitId") String benefitId,
+        @PathParam("checkId") String checkId
+    ) {
+        String userId = AuthUtils.getUserId(identity);
+
+        if (!isUserAuthorizedForScreener(userId, screenerId)) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        try {
+            Optional<Benefit> benefitOpt = screenerRepository.getCustomBenefit(screenerId, benefitId);
+            if (benefitOpt.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", "Benefit not found"))
+                    .build();
+            }
+
+            List<CheckConfig> checks = benefitOpt.get().getChecks();
+            Optional<CheckConfig> checkOpt = (checks == null ? List.<CheckConfig>of() : checks).stream()
+                .filter(check -> check.getCheckId().equals(checkId))
+                .findFirst();
+            if (checkOpt.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", "Check not found in benefit"))
+                    .build();
+            }
+
+            CheckConfig check = checkOpt.get();
+            Optional<String> aliasName = eligibilityCheckAliasService.generate(check.getCheckName(), check.getParameters());
+            if (aliasName.isEmpty()) {
+                return Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(Map.of("error", "Could not generate check alias"))
+                    .build();
+            }
+            return Response.ok(Map.of("aliasName", aliasName.get())).build();
+        } catch (Exception e) {
+            Log.error(e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(Map.of("error", "Could not generate check alias"))
+                .build();
+        }
+    }
+
     // ========== Private Helper Methods ==========
+
+    private static boolean usesEvaluationDateDefault(EligibilityCheck check, ParameterDefinition parameter) {
+        return check.getEvaluationUrl() != null
+            && parameter.getKey().equals("asOfDate")
+            && "date".equals(parameter.getType());
+    }
+
+    // Compares as JSON so numbers read back from Firestore as Long still match
+    // the Integer values sent by the frontend.
+    private static boolean sameParameterValues(Map<String, Object> current, Map<String, Object> updated) {
+        try {
+            return PARAMETER_COMPARISON_MAPPER.writeValueAsString(current == null ? Map.of() : current)
+                .equals(PARAMETER_COMPARISON_MAPPER.writeValueAsString(updated));
+        } catch (JsonProcessingException e) {
+            return false;
+        }
+    }
+
+    private static boolean isBlankParameter(Object value) {
+        if (value == null) {
+            return true;
+        }
+        if (value instanceof String stringValue) {
+            return stringValue.isBlank();
+        }
+        return value instanceof List<?> listValue && listValue.isEmpty();
+    }
 
     private boolean isUserAuthorizedForScreener(String userId, String screenerId) {
         Optional<Screener> screenerOptional = screenerRepository.getWorkingScreenerMetaDataOnly(screenerId);

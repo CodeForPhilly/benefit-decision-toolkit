@@ -17,11 +17,15 @@ const SelectedEligibilityCheck = ({
   onRemove,
   updateCheckConfigParams,
   updateCheckConfigAlias,
+  generateCheckConfigAlias,
 }: {
   checkConfig: Accessor<CheckConfig>;
   updateCheckConfigParams: (newCheckData: ParameterValues) => void;
   // Pass null where aliases don't apply, which hides the alias editor
-  updateCheckConfigAlias: ((aliasName: string | null) => void) | null;
+  updateCheckConfigAlias:
+    | ((aliasName: string | null, aliasGenerated: boolean) => void)
+    | null;
+  generateCheckConfigAlias?: () => Promise<string>;
   onRemove: () => void | null;
 }) => {
   const [configuringCheckModalOpen, setConfiguringCheckModalOpen] =
@@ -50,6 +54,7 @@ const SelectedEligibilityCheck = ({
   return (
     <>
       <div
+        data-testid={`selected-check-${checkConfig().checkName}`}
         onClick={() => {
           setConfiguringCheckModalOpen(true);
         }}
@@ -148,6 +153,7 @@ const SelectedEligibilityCheck = ({
         <EditAliasModal
           checkConfig={checkConfig}
           updateCheckConfigAlias={updateCheckConfigAlias}
+          generateCheckConfigAlias={generateCheckConfigAlias}
           closeModal={() => {
             setEditAliasModalOpen(false);
           }}
