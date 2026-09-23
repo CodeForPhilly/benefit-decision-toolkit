@@ -8,6 +8,8 @@ import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.domain.ParameterDefinition;
 import org.acme.model.domain.Screener;
 import org.acme.model.dto.CustomBenefit.AddCheckRequest;
+import org.acme.model.dto.CustomBenefit.UpdateCheckAliasRequest;
+import org.acme.model.dto.CustomBenefit.UpdateCheckParametersRequest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.ScreenerRepository;
 import org.acme.service.EligibilityCheckAliasService;
@@ -23,6 +25,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -93,6 +98,7 @@ class CustomBenefitResourceTest {
         CheckConfig savedCheck = benefitCaptor.getValue().getChecks().getFirst();
         assertEquals(parameters, savedCheck.getParameters());
         assertEquals("Client not already enrolled in Homestead Exemption", savedCheck.getAliasName());
+        assertTrue(savedCheck.isAliasGenerated());
     }
 
     @Test
@@ -160,6 +166,116 @@ class CustomBenefitResourceTest {
         Response response = resource.generateCheckAlias(identity, SCREENER_ID, BENEFIT_ID, "configured-check");
 
         assertEquals(Response.Status.SERVICE_UNAVAILABLE.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void updateCheckParametersRegeneratesAGeneratedAlias() throws Exception {
+        CheckConfig check = configuredIncomeCheck("Income under $50,000", true);
+        Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(check));
+        Map<String, Object> updatedParameters = Map.of("limit", 60_000);
+
+        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+        when(aliasService.generate("IncomeThreshold", updatedParameters))
+            .thenReturn(Optional.of("Income under $60,000"));
+
+        Response response = resource.updateCheckParameters(
+            identity, SCREENER_ID, BENEFIT_ID, "configured-check",
+            new UpdateCheckParametersRequest(updatedParameters)
+        );
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(false, ((Map<String, Object>) response.getEntity()).get("aliasCleared"));
+        assertEquals("Income under $60,000", check.getAliasName());
+        assertTrue(check.isAliasGenerated());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void updateCheckParametersClearsAGeneratedAliasWhenRegenerationFails() throws Exception {
+        CheckConfig check = configuredIncomeCheck("Income under $50,000", true);
+        Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(check));
+
+        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+        when(aliasService.generate(any(), any())).thenReturn(Optional.empty());
+
+        Response response = resource.updateCheckParameters(
+            identity, SCREENER_ID, BENEFIT_ID, "configured-check",
+            new UpdateCheckParametersRequest(Map.of("limit", 60_000))
+        );
+
+        assertEquals(true, ((Map<String, Object>) response.getEntity()).get("aliasCleared"));
+        assertNull(check.getAliasName());
+        assertFalse(check.isAliasGenerated());
+    }
+
+    @Test
+    void updateCheckParametersKeepsAHandWrittenAlias() throws Exception {
+        CheckConfig check = configuredIncomeCheck("My income check", false);
+        Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(check));
+
+        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+
+        resource.updateCheckParameters(
+            identity, SCREENER_ID, BENEFIT_ID, "configured-check",
+            new UpdateCheckParametersRequest(Map.of("limit", 60_000))
+        );
+
+        assertEquals("My income check", check.getAliasName());
+        verify(aliasService, never()).generate(any(), any());
+    }
+
+    @Test
+    void updateCheckParametersSkipsRegenerationWhenValuesAreUnchanged() throws Exception {
+        CheckConfig check = configuredIncomeCheck("Income under $50,000", true);
+        // Firestore returns whole numbers as Long; the frontend sends Integer
+        check.setParameters(Map.of("limit", 50_000L));
+        Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(check));
+
+        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+
+        resource.updateCheckParameters(
+            identity, SCREENER_ID, BENEFIT_ID, "configured-check",
+            new UpdateCheckParametersRequest(Map.of("limit", 50_000))
+        );
+
+        assertEquals("Income under $50,000", check.getAliasName());
+        verify(aliasService, never()).generate(any(), any());
+    }
+
+    @Test
+    void updateCheckAliasRecordsWhetherTheAliasWasGenerated() throws Exception {
+        CheckConfig check = configuredIncomeCheck("Income under $50,000", true);
+        Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(check));
+        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+
+        resource.updateCheckAlias(
+            identity, SCREENER_ID, BENEFIT_ID, "configured-check",
+            new UpdateCheckAliasRequest("My income check", false)
+        );
+        assertFalse(check.isAliasGenerated());
+
+        resource.updateCheckAlias(
+            identity, SCREENER_ID, BENEFIT_ID, "configured-check",
+            new UpdateCheckAliasRequest("Income under $50,000", true)
+        );
+        assertTrue(check.isAliasGenerated());
+
+        resource.updateCheckAlias(
+            identity, SCREENER_ID, BENEFIT_ID, "configured-check",
+            new UpdateCheckAliasRequest(null, true)
+        );
+        assertFalse(check.isAliasGenerated());
+    }
+
+    private static CheckConfig configuredIncomeCheck(String aliasName, boolean aliasGenerated) {
+        CheckConfig check = new CheckConfig();
+        check.setCheckId("configured-check");
+        check.setCheckName("IncomeThreshold");
+        check.setParameters(Map.of("limit", 50_000));
+        check.setAliasName(aliasName);
+        check.setAliasGenerated(aliasGenerated);
+        return check;
     }
 
     @Test

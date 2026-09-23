@@ -1,3 +1,4 @@
 package org.acme.model.dto.CustomBenefit;
 
-public record UpdateCheckAliasRequest(String aliasName) {}
+// aliasGenerated is true when the user saved a generated alias without editing it
+public record UpdateCheckAliasRequest(String aliasName, Boolean aliasGenerated) {}

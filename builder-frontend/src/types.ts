@@ -30,6 +30,8 @@ export interface CheckConfig {
   parameterDefinitions: ParameterDefinition[];
   // Optional user-defined alias for display purposes
   aliasName?: string;
+  // True when aliasName was generated and not hand-edited
+  aliasGenerated?: boolean;
 }
 export interface ParameterValues {
   [key: string]: string | number | boolean | string[] | null;

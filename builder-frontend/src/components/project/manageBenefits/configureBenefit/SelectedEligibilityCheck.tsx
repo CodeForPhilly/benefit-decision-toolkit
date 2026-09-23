@@ -22,7 +22,9 @@ const SelectedEligibilityCheck = ({
   checkConfig: Accessor<CheckConfig>;
   updateCheckConfigParams: (newCheckData: ParameterValues) => void;
   // Pass null where aliases don't apply, which hides the alias editor
-  updateCheckConfigAlias: ((aliasName: string | null) => void) | null;
+  updateCheckConfigAlias:
+    | ((aliasName: string | null, aliasGenerated: boolean) => void)
+    | null;
   generateCheckConfigAlias?: () => Promise<string>;
   onRemove: () => void | null;
 }) => {

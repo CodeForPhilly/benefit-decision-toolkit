@@ -23,7 +23,11 @@ interface ScreenerBenefitsResource {
       checkId: string,
       parameters: ParameterValues,
     ) => void;
-    updateCheckConfigAlias: (checkId: string, aliasName: string | null) => void;
+    updateCheckConfigAlias: (
+      checkId: string,
+      aliasName: string | null,
+      aliasGenerated: boolean,
+    ) => void;
     generateCheckConfigAlias: (checkId: string) => Promise<string>;
   };
   actionInProgress: Accessor<boolean>;
@@ -99,12 +103,17 @@ const createScreenerBenefits = (
     setActionInProgress(true);
 
     try {
-      await updateCheckParameters(
+      const { aliasCleared } = await updateCheckParameters(
         screenerId(),
         benefitId(),
         checkId,
         parameters,
       );
+      if (aliasCleared) {
+        toast.error(
+          "Settings saved, but the alias couldn't be updated. The check's original name will be shown.",
+        );
+      }
       await refetch();
     } catch (e) {
       console.error("Failed to update check parameters", e);
@@ -115,12 +124,19 @@ const createScreenerBenefits = (
   const updateCheckConfigAlias = async (
     checkId: string,
     aliasName: string | null,
+    aliasGenerated: boolean,
   ) => {
     if (!benefit) return;
     setActionInProgress(true);
 
     try {
-      await updateCheckAlias(screenerId(), benefitId(), checkId, aliasName);
+      await updateCheckAlias(
+        screenerId(),
+        benefitId(),
+        checkId,
+        aliasName,
+        aliasGenerated,
+      );
       await refetch();
     } catch (e) {
       console.error("Failed to update check alias", e);

@@ -21,6 +21,9 @@ public class CheckConfig {
     private List<ParameterDefinition> parameterDefinitions;
     // optional alias name for this check instance
     private String aliasName;
+    // true when aliasName came from alias generation and hasn't been hand-edited,
+    // so it can be regenerated when parameters change
+    private boolean aliasGenerated;
 
     public CheckConfig() {
     }
@@ -125,5 +128,13 @@ public class CheckConfig {
 
     public void setAliasName(String aliasName) {
         this.aliasName = aliasName;
+    }
+
+    public boolean isAliasGenerated() {
+        return aliasGenerated;
+    }
+
+    public void setAliasGenerated(boolean aliasGenerated) {
+        this.aliasGenerated = aliasGenerated;
     }
 }

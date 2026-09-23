@@ -103,7 +103,7 @@ export const updateCheckParameters = async (
   benefitId: string,
   checkId: string,
   parameters: ParameterValues,
-): Promise<void> => {
+): Promise<{ aliasCleared: boolean }> => {
   const url =
     apiUrl +
     "/screener/" +
@@ -120,6 +120,7 @@ export const updateCheckParameters = async (
         `Update parameters failed with status: ${response.status}`,
       );
     }
+    return (await response.json()) as { aliasCleared: boolean };
   } catch (error) {
     console.error("Error updating check parameters:", error);
     throw error;
@@ -131,6 +132,7 @@ export const updateCheckAlias = async (
   benefitId: string,
   checkId: string,
   aliasName: string | null,
+  aliasGenerated: boolean,
 ): Promise<void> => {
   const url =
     apiUrl +
@@ -142,7 +144,10 @@ export const updateCheckAlias = async (
     checkId +
     "/alias";
   try {
-    const response = await authPatch(url.toString(), { aliasName });
+    const response = await authPatch(url.toString(), {
+      aliasName,
+      aliasGenerated,
+    });
     if (!response.ok) {
       throw new Error(`Update alias failed with status: ${response.status}`);
     }

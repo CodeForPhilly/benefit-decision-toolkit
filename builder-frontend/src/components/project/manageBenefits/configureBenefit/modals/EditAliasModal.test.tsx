@@ -56,7 +56,55 @@ describe("EditAliasModal", () => {
     expect(updateAlias).not.toHaveBeenCalled();
 
     clickButton(container, "Save");
-    expect(updateAlias).toHaveBeenCalledWith("Client not already enrolled");
+    expect(updateAlias).toHaveBeenCalledWith(
+      "Client not already enrolled",
+      true,
+    );
+  });
+
+  it("saves an edited alias as hand-written", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const updateAlias = vi.fn();
+    dispose = render(
+      () => (
+        <EditAliasModal
+          checkConfig={() => ({ ...checkConfig, aliasGenerated: true })}
+          updateCheckConfigAlias={updateAlias}
+          closeModal={vi.fn()}
+        />
+      ),
+      container,
+    );
+
+    const input = container.querySelector<HTMLInputElement>(
+      'input[type="text"]',
+    )!;
+    input.value = "My own alias";
+    input.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    clickButton(container, "Save");
+
+    expect(updateAlias).toHaveBeenCalledWith("My own alias", false);
+  });
+
+  it("keeps an unchanged generated alias marked as generated", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const updateAlias = vi.fn();
+    dispose = render(
+      () => (
+        <EditAliasModal
+          checkConfig={() => ({ ...checkConfig, aliasGenerated: true })}
+          updateCheckConfigAlias={updateAlias}
+          closeModal={vi.fn()}
+        />
+      ),
+      container,
+    );
+
+    clickButton(container, "Save");
+
+    expect(updateAlias).toHaveBeenCalledWith("Existing alias", true);
   });
 });
 

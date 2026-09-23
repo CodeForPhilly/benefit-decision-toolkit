@@ -20,6 +20,10 @@ import org.acme.persistence.ScreenerRepository;
 import org.acme.service.EligibilityCheckAliasService;
 import org.acme.service.LibraryApiService;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,6 +34,8 @@ import java.util.UUID;
 
 @Path("/api")
 public class CustomBenefitResource {
+    private static final ObjectMapper PARAMETER_COMPARISON_MAPPER = new ObjectMapper()
+        .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
 
     @Inject
     ScreenerRepository screenerRepository;
@@ -339,6 +345,7 @@ public class CustomBenefitResource {
             // Without a generated alias the check's original name is displayed instead
             Optional<String> aliasName = eligibilityCheckAliasService.generate(check.getName(), parameters);
             aliasName.ifPresent(checkConfig::setAliasName);
+            checkConfig.setAliasGenerated(aliasName.isPresent());
 
             // Add the check to the benefit
             List<CheckConfig> checks = benefit.getChecks();
@@ -455,10 +462,21 @@ public class CustomBenefitResource {
 
             // Find and update the check with the matching checkId
             Boolean checkUpdated = false;
+            boolean aliasCleared = false;
             List<CheckConfig> checkListAfterUpdate = new ArrayList<>();
             for (CheckConfig check : checks) {
                 if (check.getCheckId().equals(checkId)) {
-                    check.setParameters(request.parameters() != null ? request.parameters() : new HashMap<>());
+                    Map<String, Object> parameters = request.parameters() != null ? request.parameters() : new HashMap<>();
+                    boolean parametersChanged = !sameParameterValues(check.getParameters(), parameters);
+                    check.setParameters(parameters);
+                    // A generated alias describes the old parameter values, so refresh it.
+                    // Hand-written aliases are left alone.
+                    if (parametersChanged && check.isAliasGenerated()) {
+                        Optional<String> aliasName = eligibilityCheckAliasService.generate(check.getCheckName(), parameters);
+                        check.setAliasName(aliasName.orElse(null));
+                        check.setAliasGenerated(aliasName.isPresent());
+                        aliasCleared = aliasName.isEmpty();
+                    }
                     checkUpdated = true;
                 }
                 checkListAfterUpdate.add(check);
@@ -475,7 +493,7 @@ public class CustomBenefitResource {
             // Save the updated benefit
             screenerRepository.updateCustomBenefit(screenerId, benefit);
 
-            return Response.ok().build();
+            return Response.ok(Map.of("aliasCleared", aliasCleared)).build();
         } catch (Exception e) {
             Log.error(e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -524,6 +542,9 @@ public class CustomBenefitResource {
             for (CheckConfig check : checks) {
                 if (check.getCheckId().equals(checkId)) {
                     check.setAliasName(request.aliasName());
+                    check.setAliasGenerated(
+                        request.aliasName() != null && Boolean.TRUE.equals(request.aliasGenerated())
+                    );
                     checkUpdated = true;
                 }
                 checkListAfterUpdate.add(check);
@@ -603,6 +624,17 @@ public class CustomBenefitResource {
         return check.getEvaluationUrl() != null
             && parameter.getKey().equals("asOfDate")
             && "date".equals(parameter.getType());
+    }
+
+    // Compares as JSON so numbers read back from Firestore as Long still match
+    // the Integer values sent by the frontend.
+    private static boolean sameParameterValues(Map<String, Object> current, Map<String, Object> updated) {
+        try {
+            return PARAMETER_COMPARISON_MAPPER.writeValueAsString(current == null ? Map.of() : current)
+                .equals(PARAMETER_COMPARISON_MAPPER.writeValueAsString(updated));
+        } catch (JsonProcessingException e) {
+            return false;
+        }
     }
 
     private static boolean isBlankParameter(Object value) {

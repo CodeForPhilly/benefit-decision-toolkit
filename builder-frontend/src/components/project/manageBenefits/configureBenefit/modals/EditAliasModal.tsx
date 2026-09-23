@@ -11,19 +11,30 @@ const EditAliasModal = ({
   closeModal,
 }: {
   checkConfig: Accessor<CheckConfig>;
-  updateCheckConfigAlias: (aliasName: string | null) => void;
+  updateCheckConfigAlias: (
+    aliasName: string | null,
+    aliasGenerated: boolean,
+  ) => void;
   generateCheckConfigAlias?: () => Promise<string>;
   closeModal: () => void;
 }) => {
   const [aliasValue, setAliasValue] = createSignal(
     checkConfig().aliasName ?? "",
   );
+  // The alias counts as generated only if it's saved exactly as generated, so
+  // it can be refreshed later when the check's settings change
+  const [generatedValue, setGeneratedValue] = createSignal(
+    checkConfig().aliasGenerated ? (checkConfig().aliasName ?? "") : "",
+  );
   const [generating, setGenerating] = createSignal(false);
   const [generationError, setGenerationError] = createSignal("");
 
   const confirmAndClose = () => {
     const trimmedValue = aliasValue().trim();
-    updateCheckConfigAlias(trimmedValue === "" ? null : trimmedValue);
+    updateCheckConfigAlias(
+      trimmedValue === "" ? null : trimmedValue,
+      trimmedValue !== "" && trimmedValue === generatedValue(),
+    );
     closeModal();
   };
 
@@ -36,7 +47,9 @@ const EditAliasModal = ({
     setGenerating(true);
     setGenerationError("");
     try {
-      setAliasValue(await generateCheckConfigAlias());
+      const generated = await generateCheckConfigAlias();
+      setGeneratedValue(generated);
+      setAliasValue(generated);
     } catch (error) {
       console.error("Failed to generate check alias", error);
       setGenerationError("Could not generate an alias. Please try again.");
