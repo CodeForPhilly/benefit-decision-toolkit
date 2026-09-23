@@ -18,10 +18,11 @@ import java.util.Optional;
 
 @ApplicationScoped
 public class EligibilityCheckAliasService {
-    private static final String API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/";
-
     @Inject
     ObjectMapper objectMapper;
+
+    @ConfigProperty(name = "alias-generation.enabled", defaultValue = "true")
+    boolean enabled;
 
     @ConfigProperty(name = "alias-generation.gemini.api-key")
     Optional<String> apiKey;
@@ -29,15 +30,24 @@ public class EligibilityCheckAliasService {
     @ConfigProperty(name = "alias-generation.gemini.model", defaultValue = "gemini-3.5-flash-lite")
     String model;
 
+    @ConfigProperty(
+        name = "alias-generation.gemini.base-url",
+        defaultValue = "https://generativelanguage.googleapis.com/v1beta/models/"
+    )
+    String baseUrl;
+
     private final HttpClient httpClient = HttpClient.newBuilder()
         .connectTimeout(Duration.ofSeconds(3))
         .build();
 
     /**
-     * Generates a display alias with Gemini. Returns empty when no API key is configured
-     * or generation fails, so callers can tell the user instead of storing a guess.
+     * Generates a display alias with Gemini. Returns empty when generation is disabled, no API
+     * key is configured, or generation fails, so callers can tell the user instead of storing a guess.
      */
     public Optional<String> generate(String checkName, Map<String, Object> parameters) {
+        if (!enabled) {
+            return Optional.empty();
+        }
         if (apiKey.isEmpty() || apiKey.get().isBlank()) {
             Log.warn("GEMINI_API_KEY is not configured; skipping eligibility check alias generation");
             return Optional.empty();
@@ -59,7 +69,7 @@ public class EligibilityCheckAliasService {
                 )
             );
             HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(API_BASE_URL + model + ":generateContent"))
+                .uri(URI.create(baseUrl + model + ":generateContent"))
                 .timeout(Duration.ofSeconds(8))
                 .header("Content-Type", "application/json")
                 .header("x-goog-api-key", apiKey.get())

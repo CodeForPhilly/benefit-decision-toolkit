@@ -24,6 +24,7 @@ describe("EditAliasModal", () => {
   afterEach(() => {
     dispose?.();
     document.body.replaceChildren();
+    vi.restoreAllMocks();
   });
 
   it("places a generated alias in the editable field without saving it", async () => {
@@ -60,6 +61,37 @@ describe("EditAliasModal", () => {
       "Client not already enrolled",
       true,
     );
+  });
+
+  it("keeps the current alias and shows an error when generation fails", async () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const updateAlias = vi.fn();
+    const generateAlias = vi.fn().mockRejectedValue(new Error("failed"));
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    dispose = render(
+      () => (
+        <EditAliasModal
+          checkConfig={() => checkConfig}
+          updateCheckConfigAlias={updateAlias}
+          generateCheckConfigAlias={generateAlias}
+          closeModal={vi.fn()}
+        />
+      ),
+      container,
+    );
+
+    clickButton(container, "Generate alias");
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(container.textContent).toContain(
+      "Could not generate an alias. Please try again.",
+    );
+    expect(
+      container.querySelector<HTMLInputElement>('input[type="text"]')!.value,
+    ).toBe("Existing alias");
+    expect(updateAlias).not.toHaveBeenCalled();
   });
 
   it("saves an edited alias as hand-written", () => {

@@ -144,9 +144,9 @@ test.describe("Screener Builder Tests", () => {
     const selectedChecks = page.locator(
       "#selected-eligibility-checks_container",
     );
-    const ownerOccupantCheck = selectedChecks
-      .locator("div.mb-4.p-4")
-      .filter({ hasText: "Original: owner-occupant" });
+    const ownerOccupantCheck = selectedChecks.getByTestId(
+      "selected-check-owner-occupant",
+    );
     await expect(ownerOccupantCheck).toBeVisible({ timeout: 15_000 });
 
     await test.step("Add and configure a parameterized custom check", async () => {
@@ -159,16 +159,16 @@ test.describe("Screener Builder Tests", () => {
       await addCheckModal.locator('input[type="number"]').fill("50000");
       await addCheckModal.getByRole("button", { name: "Add check" }).click();
 
-      const configuredCheck = selectedChecks
-        .locator("div.mb-4.p-4")
-        .filter({ hasText: "Original: income_threshold" });
+      const configuredCheck = selectedChecks.getByTestId(
+        "selected-check-income_threshold",
+      );
       await expect(
         configuredCheck.getByText("50000", { exact: true }),
       ).toBeVisible({ timeout: 15_000 });
       await expect(configuredCheck.getByTitle("Edit alias")).toHaveCount(1);
 
-      // Alias generation depends on GEMINI_API_KEY, so only check that the
-      // request completes rather than asserting a generated value.
+      // bin/run-e2e-tests disables Gemini, so only check that the request
+      // completes. Generated values are covered by builder-api tests.
       await configuredCheck.getByTitle("Edit alias").click();
       await page.getByRole("button", { name: "Generate alias" }).click();
       await expect(

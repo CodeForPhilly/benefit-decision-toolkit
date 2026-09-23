@@ -54,6 +54,7 @@ const SelectedEligibilityCheck = ({
   return (
     <>
       <div
+        data-testid={`selected-check-${checkConfig().checkName}`}
         onClick={() => {
           setConfiguringCheckModalOpen(true);
         }}
