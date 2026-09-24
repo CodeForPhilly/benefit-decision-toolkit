@@ -4,7 +4,7 @@ This is a monorepo for building and publishing benefit eligibility screeners. Ke
 
 ## Repository map
 
-- `library-api/`: Java 17 / Quarkus / Kogito service that turns DMN files into REST endpoints. Read `library-api/AGENTS.md` before changing this subtree.
+- `library-api/`: Java 21 / Quarkus / Kogito service that turns DMN files into REST endpoints. Read `library-api/AGENTS.md` before changing this subtree.
 - `builder-api/`: Java 21 / Quarkus administration API backed by Firebase.
 - `builder-frontend/`: Solid.js and Vite screener editor.
 - `e2e/`: Playwright end-to-end tests.

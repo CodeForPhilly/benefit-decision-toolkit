@@ -2,7 +2,10 @@
   "name": "e2e",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "capture-docs-screenshots": "node capture-docs-screenshots.mjs",
+    "capture-custom-check-screenshots": "node capture-custom-check-screenshots.mjs"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmn:definitions xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/"
+  xmlns="https://bdt.example/docs/income-limit"
+  xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/"
+  xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
+  xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+  id="docs_income_model" name="household-income-limit" namespace="https://bdt.example/docs/income-limit">
+  <dmn:itemDefinition id="parameters_type" name="ProgramParameters">
+    <dmn:itemComponent id="income_limit_field" name="incomeLimit"><dmn:typeRef>number</dmn:typeRef></dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:inputData id="income_input" name="householdIncome">
+    <dmn:variable id="income_variable" name="householdIncome" typeRef="number"/>
+  </dmn:inputData>
+  <dmn:inputData id="limit_input" name="parameters">
+    <dmn:variable id="limit_variable" name="parameters" typeRef="ProgramParameters"/>
+  </dmn:inputData>
+  <dmn:decision id="income_decision" name="household-income-limit">
+    <dmn:variable id="result_variable" name="household-income-limit" typeRef="boolean"/>
+    <dmn:informationRequirement id="income_requirement"><dmn:requiredInput href="#income_input"/></dmn:informationRequirement>
+    <dmn:informationRequirement id="limit_requirement"><dmn:requiredInput href="#limit_input"/></dmn:informationRequirement>
+    <dmn:literalExpression id="income_expression">
+      <dmn:text>if householdIncome = null or parameters.incomeLimit = null then null else householdIncome &lt;= parameters.incomeLimit</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="income_diagram" name="Income eligibility">
+      <dmndi:DMNShape id="shape_income" dmnElementRef="income_input"><dc:Bounds x="120" y="310" width="200" height="70"/><dmndi:DMNLabel/></dmndi:DMNShape>
+      <dmndi:DMNShape id="shape_limit" dmnElementRef="limit_input"><dc:Bounds x="440" y="310" width="200" height="70"/><dmndi:DMNLabel/></dmndi:DMNShape>
+      <dmndi:DMNShape id="shape_decision" dmnElementRef="income_decision"><dc:Bounds x="230" y="100" width="300" height="90"/><dmndi:DMNLabel/></dmndi:DMNShape>
+      <dmndi:DMNEdge id="edge_income" dmnElementRef="income_requirement"><di:waypoint x="220" y="310"/><di:waypoint x="300" y="190"/></dmndi:DMNEdge>
+      <dmndi:DMNEdge id="edge_limit" dmnElementRef="limit_requirement"><di:waypoint x="540" y="310"/><di:waypoint x="460" y="190"/></dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>

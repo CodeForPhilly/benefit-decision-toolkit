@@ -55,7 +55,7 @@ const ConfigureBenefit = ({
                 </p>
                 <p>
                   <a
-                    href="https://bdt-docs.web.app/user-guide/#4-configuring-a-benefit"
+                    href="https://bdt-docs.web.app/user/user-guide/#4-configuring-a-benefit"
                     target="_blank"
                   >
                     Read about configuring a benefit in the docs
