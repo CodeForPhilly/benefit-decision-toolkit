@@ -1,11 +1,9 @@
 ---
 title: Learn BDT
+template: splash
 description: User guide for the Benefit Decision Toolkit screener builder app
 hero:
   tagline: Learn how to use the BDT screener builder app by following our guide.
-  image:
-    file: ../../assets/screenshots/example-screener.png
-    alt: An eligibility form for assistance programs.
   actions:
     - text: Get started
       link: /user/intro
@@ -19,3 +17,18 @@ hero:
       icon: github
       variant: secondary
 ---
+
+import { Image } from 'astro:assets';
+import exampleScreener from '../../assets/screenshots/example-screener.png';
+
+<figure>
+  <a href={exampleScreener.src}>
+  <Image
+    src={exampleScreener}
+    alt="Philadelphia Homeowner Support demo: two answered questions alongside eligible results for Home Repair Support and Neighborhood Resource Navigation."
+    loading="eager"
+    width={1100}
+  />
+  </a>
+  <figcaption>An example screener with live eligibility results. The programs shown are illustrative. Select the image to enlarge it.</figcaption>
+</figure>

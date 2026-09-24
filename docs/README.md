@@ -63,8 +63,22 @@ npm ci
 npm run capture-docs-screenshots
 ```
 
-The script creates a temporary account in the local Firebase emulator and
-captures the main navigation, benefit-management, publishing, and custom-check
-screens at a consistent viewport. Review every generated image before
-committing it. Other screenshots should still be updated manually when their
-specific workflow changes.
+The script creates a fresh account directly in the local Firebase Auth emulator,
+without importing the bundled example. It seeds a Philadelphia Homeowner Support
+screener with two illustrative programs, a two-question form, a second draft
+screener, and custom-check drafts with meaningful parameter definitions. It only
+uses localhost services and the `demo-bdt-dev` emulator project; it does not reset
+other accounts or export emulator data.
+
+All guide screenshots are captured from these examples, including benefit
+configuration, form editing and validation, preview results, publishing, and custom
+checks. Screens use compact viewports, 2× pixel density, and focused panel captures.
+The script waits for visible questions and successful eligibility results before
+saving the public form. It prints the new local account's email; its local-only
+password is `local-docs-screenshot-account`. The account remains in the running
+emulator for inspection.
+
+Review every generated image before committing it, then build and view the docs
+homepage and guide. Keep the homepage screenshot at its native aspect ratio: a
+square hero crop can remove the form content. The custom checks are unpublished
+drafts demonstrating parameter configuration, not completed eligibility rules.
