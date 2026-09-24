@@ -104,9 +104,13 @@ If **both** checks return `True`, the user is eligible for the benefit. If **eit
 The left side of the Configure Benefit page displays the list of available eligibility checks. Checks are organized into two categories:
 
 - **Public Checks** — prebuilt checks available to all BDT users
-- **Your Checks** — custom checks that you have created and published
+- **Custom Checks** — custom checks that you have created and published
 
 Each row in the list shows the check name, a brief description, and its version. Select **Add** on any row to add that check to the benefit.
+
+If the check has no parameters, it is added right away. If it has parameters, a dialog opens so you can fill them in first (see [Configuring Check Parameters](#43-configuring-check-parameters)); select **Add check** to add it.
+
+![Add-check dialog for Person min age, with applicant as the person and 18 as the minimum age.](../../../assets/screenshots/configure-check.png)
 
 Once added, the check appears as a card in the right panel under the benefit's configured checks.
 
@@ -118,11 +122,9 @@ Many eligibility checks have **parameters** — configurable values that control
 
 **Example**: A **Household Income Limit** check might have a `maximumIncome` parameter. You set it to `20000` for one benefit and `35000` for another. The underlying rule is the same; only the threshold differs.
 
-To configure the parameters for an added check, click on its card in the right panel. A modal will open showing a form with all of that check's configurable parameters.
+When you add a check that has parameters, the add-check dialog asks for them before the check is added. Fill in the value for each parameter and select **Add check**. Required parameters are marked with a red asterisk (`*`).
 
-Fill in the value for each parameter and select **Confirm** to save. Required parameters are marked with a red asterisk (`*`).
-
-![Add-check dialog for Person min age, with applicant as the person and 18 as the minimum age.](../../../assets/screenshots/configure-check.png)
+To change the parameters of a check you already added, click on its card in the right panel. The same form opens; update the values and select **Confirm** to save.
 
 ### 4.4 Removing a Check
 
