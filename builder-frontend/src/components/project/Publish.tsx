@@ -91,7 +91,7 @@ export default function Publish({ project, refetchProject }) {
               </p>
               <p>
                 <a
-                  href="https://bdt-docs.web.app/user-guide/#7-publishing-your-screener"
+                  href="https://bdt-docs.web.app/user/user-guide/#7-publishing-your-screener"
                   target="_blank"
                 >
                   Read about publishing your screener in the docs

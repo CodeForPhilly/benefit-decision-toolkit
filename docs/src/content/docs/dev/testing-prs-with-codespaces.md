@@ -231,4 +231,4 @@ If you're stuck:
 
 1. Ask in the pull request comments
 2. Reach out to the development team
-3. Check the [project's main README](../README.md) for additional resources
+3. Check the [project's main README](https://github.com/CodeForPhilly/benefit-decision-toolkit#readme) for additional resources

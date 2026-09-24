@@ -11,7 +11,7 @@ This guide walks through how to create, configure, test, and publish an eligibil
 
 After signing in, you will land on the **Screeners** view. This page displays all of your existing screener projects and serves as your starting point for creating and managing screeners.
 
-![Benefit Decision Toolkit homepage featuring a welcome message and an option to create a new screener. The page includes a navigation bar with options for 'Screeners' and 'Eligibility checks'. There is also a card labeled 'Food & Heating Assistance' with a menu option indicated by three dots.](../../../assets/screenshots/screener-dashboard.png)
+![Benefit Decision Toolkit home page showing the Create new screener button, account menu, and an example screener card.](../../../assets/screenshots/screener-dashboard.png)
 
 From here, you can:
 
@@ -21,7 +21,7 @@ From here, you can:
 
 **Creating a new screener**:
 
-Select **Create New Screener** and provide a name for your screener. The name should clearly reflect the benefit or set of benefits being screened (for example, "Philadelphia Senior Benefits" or "Housing Assistance Eligibility").
+Select **Create new screener** and provide a name for your screener. The name should clearly reflect the benefit or set of benefits being screened (for example, "Philadelphia Senior Benefits" or "Housing Assistance Eligibility").
 
 After the screener is created, you are automatically taken to the **Screener Dashboard**.
 
@@ -59,11 +59,12 @@ A single screener can evaluate eligibility for one or multiple benefits. Each be
 
 The **Manage Benefits** tab displays all benefits configured for your screener as a list of cards.
 
-![Manage Benefits page of the Benefit Decision Toolkit. The page allows users to define and organize benefits available in their screener, with each benefit having associated eligibility checks. There is a 'Create New Benefit' button at the top. Two benefits are listed: Food Assistance, described as 'Help with affording groceries,' and Heating Assistance, described as 'Discount on PGW bill.' Each benefit has 'Edit' and 'Remove' buttons for managing the entries. The navigation bar at the top includes links to Food & Heating Assistance, Manage Benefits, Form Editor, Preview, and Publish.](../../../assets/screenshots/manage-benefits.png)
+![Manage Benefits page of Benefit Decision Toolkit showing benefit cards and controls for adding benefits.](../../../assets/screenshots/manage-benefits.png)
 
 From this view, you can:
 
-- **Create** a new benefit by selecting **Create New Benefit** and providing a name and description
+- **Create a custom benefit** by selecting **Create custom benefit** and providing a name and description
+- **Add a library benefit** by selecting **Add library benefit**, choosing a pre-built benefit, and selecting **Add to screener**. The imported copy can then be edited without changing the library source.
 - **Edit** a benefit by selecting **Edit** on its card, which opens the **Configure Benefit** page
 - **Remove** a benefit by selecting **Remove** on its card
 
@@ -185,6 +186,12 @@ Each benefit's result also shows a breakdown of how each individual eligibility 
 
 > Use the Preview tab iteratively as you build your screener to confirm that each benefit evaluates correctly across a range of test inputs.
 
+After an evaluation, BDT may hide questions that no remaining benefit needs.
+For example, if an answer makes a benefit ineligible, later questions used only
+by that benefit no longer need to be answered. Use **Show all questions** to
+review the complete form, and **Hide questions that aren't needed** to return
+to the adaptive view.
+
 ---
 
 ## 7. Publishing Your Screener
@@ -193,15 +200,17 @@ The **Publish** tab is where you deploy your screener to a publicly accessible U
 
 **To publish your screener**:
 
-Select **Deploy Screener**. BDT will package your current form and eligibility logic and make them available at a public URL. The URL is displayed on the Publish tab after the first deployment.
+Select **Publish Screener**. BDT will package your current form and eligibility logic and make them available at a public URL. The URL is displayed on the Publish tab after the first publication.
 
 The Publish tab shows:
 
 - **Screener URL** — the public link where end users can access and submit the screener
 - **Last Published Date** — the date and time of the most recent deployment
 
-> Deploying your screener publishes a snapshot of the current form and benefit configuration. Subsequent edits to the form or eligibility logic are not reflected at the public URL until you deploy again.
+![Publish tab showing the public screener URL, last-published date, and Publish Screener button.](../../../assets/screenshots/publish.png)
 
-If you update your screener after publishing, return to the **Publish** tab and select **Deploy Screener** again to push the updated version to the public URL.
+> Publishing your screener creates a snapshot of the current form and benefit configuration. Subsequent edits to the form or eligibility logic are not reflected at the public URL until you publish again.
 
-![The image shows a form and eligibility results for Food & Heating Assistance. The form asks if the user lives in Philly, with "Yes" selected, and prompts the user to enter their birthday, which is filled in as 2/18/1990. It also asks if the user owns their house, with "No" selected, and allows the user to select the benefit they are enrolled in, with "Food Assistance" chosen. The eligibility results section indicates that the user is eligible for Food Assistance, meeting criteria such as residence in Philadelphia and being at least 18 years old. However, the user is ineligible for Heating Assistance because, although they meet age and enrollment criteria, they do not meet the owner-occupant residence requirement.](../../../assets/screenshots/published-screener.png)
+If you update your screener after publishing, return to the **Publish** tab and select **Publish Screener** again to push the updated version to the public URL.
+
+![Published example screener displaying the public form that applicants complete.](../../../assets/screenshots/published-screener.png)

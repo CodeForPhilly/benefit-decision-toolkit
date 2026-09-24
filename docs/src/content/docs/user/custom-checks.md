@@ -94,15 +94,16 @@ For a deeper understanding of DMN and FEEL, refer to the official documentation:
 
 ## 3. Managing Custom Checks
 
-The **Eligibility Checks** view lists all of the custom checks you have created. You can access it from the BDT home screen by selecting the **Eligibility Checks** tab.
+The **Eligibility Checks** view lists all of the custom checks you have created. Open the menu in the upper-right corner of BDT and select **Custom Checks**.
 
 From this view, you can:
 
 - View all of your custom checks
 - Create a new custom check
 - Open an existing check to edit or publish it
+- Archive a check that is no longer in use, or restore an archived check
 
-> TODO: Add image of Eligibility Checks list view
+![Eligibility Checks view showing the Create New Check control and the current user's checks.](../../../assets/screenshots/custom-checks-list.png)
 
 ### Creating a New Check
 
@@ -112,7 +113,7 @@ To create a new custom check, select **Create New Check**. You will be prompted 
 - **Module** — the category or group that this check belongs to (e.g., `housing`)
 - **Description** — a brief explanation of what the check evaluates
 
-Once created, the check opens in the **Custom Check Editor**, where you define its logic, configure its parameters, test it, and publish it.
+Once created, the check opens in the **Custom Check Editor** with a starter DMN model. From there, you configure parameters, define the logic, test it, and publish it.
 
 ---
 
@@ -120,12 +121,12 @@ Once created, the check opens in the **Custom Check Editor**, where you define i
 
 When you open a custom check, you are taken to the **Custom Check Editor**. This editor has four tabs that guide you through the process of building and publishing a check:
 
-- **Parameters** — define configurable inputs for your check
+- **Parameter Configuration** — define configurable inputs for your check
 - **DMN Definition** — build the decision logic using the visual DMN editor
 - **Testing** — run the check against sample inputs to verify it behaves correctly
 - **Publish** — publish a version of the check to make it available in your screeners
 
-> TODO: Add image of Custom Check Editor navigation tabs
+![Custom Check Editor showing the Parameter Configuration, DMN Definition, Testing, and Publish tabs.](../../../assets/screenshots/custom-check-editor.png)
 
 ---
 
@@ -148,8 +149,6 @@ Select **Create New Parameter** and fill in the following fields:
 - **Type** — the data type: `string`, `number`, `boolean`, or `date`
 - **Required** — whether the parameter must be provided when the check is added to a benefit
 
-> TODO: Add image of Parameters tab and Parameter modal
-
 ---
 
 ### 4.2 DMN Definition
@@ -165,8 +164,6 @@ Select **Save Changes** to persist your DMN model. The save button turns yellow 
 **Validating your DMN**:
 
 Select **Validate Current DMN** to check your model for structural or syntax errors. If validation issues are found, a summary of the errors is displayed. Resolve all validation errors before testing or publishing your check.
-
-> TODO: Add image of DMN Definition tab
 
 ---
 
@@ -203,8 +200,6 @@ Select **Run Test** to evaluate the check against your input data. The result is
 
 Use the testing tab iteratively as you build your DMN logic to confirm each rule behaves as expected.
 
-> TODO: Add image of Testing tab with a sample result
-
 ---
 
 ### 4.4 Publish
@@ -228,5 +223,3 @@ Each published version displays:
 - **Module** — the module identifier
 
 Once published, the check and its version will appear in the **Your Checks** section when adding eligibility checks to a benefit in any of your screeners.
-
-> TODO: Add image of Publish tab with published versions list
