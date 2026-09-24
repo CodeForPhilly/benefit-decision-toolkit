@@ -29,7 +29,7 @@ Custom check logic is defined using **DMN** with expressions written in **FEEL**
 
 **Decision Model and Notation (DMN)** is an open standard for modeling and executing decision logic. It provides a visual, structured way to express rules that a system can evaluate automatically.
 
-In BDT, each custom check is backed by a DMN model that contains one or more **decision tables** organized into a decision tree.
+In BDT, each custom check is backed by a DMN model. Decisions can use **decision tables** or a **literal expression**, such as the income comparison in the walkthrough below.
 
 DMN models have two main building blocks:
 
@@ -113,7 +113,11 @@ To create a new custom check, select **Create New Check**. You will be prompted 
 - **Module** — the category or group that this check belongs to (e.g., `housing`)
 - **Description** — a brief explanation of what the check evaluates
 
-Once created, the check opens in the **Custom Check Editor** with a starter DMN model. From there, you configure parameters, define the logic, test it, and publish it.
+For this walkthrough, create `household-income-limit` in the `community-support` module. It will compare a household's annual income with a configurable program limit. These values are illustrative, not the rules of a real benefit program.
+
+![Create New Check dialog filled with household-income-limit, the community-support module, and an explanation of the income comparison.](../../../assets/screenshots/custom-check-create.png)
+
+Select **Add Check**, then **Edit** on the new card to open the **Custom Check Editor**. The check includes a starter DMN model. From there, configure parameters, define the logic, test it, and publish it.
 
 ---
 
@@ -132,22 +136,28 @@ When you open a custom check, you are taken to the **Custom Check Editor**. This
 
 ### 4.1 Parameters
 
-The **Parameters** tab is where you define inputs that can be configured when adding your check to a benefit, rather than being supplied directly by the form.
+The **Parameter Configuration** tab is where you define inputs that can be configured when adding your check to a benefit, rather than being supplied directly by the form.
 
 **What is a parameter?**
 
 Most eligibility checks involve a threshold or reference value — for example, a minimum age or an income limit. Rather than hardcoding that value in your DMN logic, you can expose it as a **parameter**. When you add the check to a benefit, you supply the specific value for that parameter. This makes the check reusable across multiple benefits with different thresholds.
 
-**Example**: A custom income check might expose a `maximumIncome` parameter. When configuring the check on a benefit for Program A, you set `maximumIncome` to 20000. For Program B, you set it to 35000. The same check logic serves both without modification.
+**Example**: Our income check exposes an `incomeLimit` parameter. When configuring the check on a benefit for Program A, set `incomeLimit` to 20000. For Program B, set it to 35000. The same check logic serves both without modification.
 
 **Adding a parameter**:
 
 Select **Create New Parameter** and fill in the following fields:
 
-- **Key** — the internal identifier used in your DMN model to reference this parameter (e.g., `maximumIncome`)
+- **Key** — the internal identifier used in your DMN model to reference this parameter (here, `incomeLimit`)
 - **Label** — the human-readable name displayed when configuring the check on a benefit
-- **Type** — the data type: `string`, `number`, `boolean`, or `date`
+- **Type** — the data type: String, Number, Boolean, Date, or String List
 - **Required** — whether the parameter must be provided when the check is added to a benefit
+
+Enter `incomeLimit`, label it **Annual household income limit ($)**, choose **Number**, and set **Required** to **True**. Select **Add Parameter** to save it.
+
+![Add Parameter dialog defining incomeLimit as a required number with the label Annual household income limit ($).](../../../assets/screenshots/custom-check-parameter.png)
+
+The applicant's `householdIncome` is form data. The program's `incomeLimit` is a parameter, supplied to DMN inside the `parameters` context.
 
 ---
 
@@ -156,6 +166,19 @@ Select **Create New Parameter** and fill in the following fields:
 The **DMN Definition** tab contains the visual DMN editor where you define the decision logic for your check.
 
 The editor provides a graphical canvas for building your DMN model. You can create and connect decision nodes, define input data sources, build decision tables, and organize decisions into a Decision Service.
+
+For the income example, replace the starter input with two **Input Data** nodes: `householdIncome` of type `number`, and `parameters` of a structured type containing an `incomeLimit` number. In **Data types**, define this structured type as `ProgramParameters`. Connect both inputs to the `household-income-limit` decision, whose result type is `boolean`. Keep the decision name identical to the check name.
+
+![DMN Definition showing householdIncome and parameters connected to the household-income-limit decision.](../../../assets/screenshots/custom-check-dmn.png)
+
+Open the decision's expression editor and use this FEEL literal expression:
+
+```text
+if householdIncome = null or parameters.incomeLimit = null then null
+else householdIncome <= parameters.incomeLimit
+```
+
+This returns `true` when income is at or below the limit, `false` when it is above the limit, and `null` when either value is missing. Defining a parameter in BDT does not automatically create its DMN input node; the model must include the `parameters` context too.
 
 **Saving your work**:
 
@@ -181,14 +204,17 @@ Example:
 
 ```json
 {
-  "age": 72,
-  "state": "California"
+  "householdIncome": 28000
 }
 ```
 
 **Right panel — Check Summary**:
 
 Displays information about the check being tested, including its configured parameters and their current values.
+
+Click the check card to configure the test parameter. Set `incomeLimit` to `35000`, then select **Confirm**. The parameter is supplied separately from the applicant JSON.
+
+![Configure Check dialog setting incomeLimit to 35000 for a test run.](../../../assets/screenshots/custom-check-test-parameter.png)
 
 **Running a test**:
 
@@ -199,6 +225,14 @@ Select **Run Test** to evaluate the check against your input data. The result is
 - **Need more information** (yellow) — the check could not determine eligibility from the provided inputs
 
 Use the testing tab iteratively as you build your DMN logic to confirm each rule behaves as expected.
+
+With `householdIncome` set to `28000` and `incomeLimit` set to `35000`, select **Run Test**. **Latest Test Data** records the input used, and **Latest Test Result** shows **Eligible**.
+
+![Testing tab with householdIncome 28000, incomeLimit 35000, and an Eligible result.](../../../assets/screenshots/custom-check-test-eligible.png)
+
+Change the JSON income to `42000` and run the test again. The same rule now returns **Ineligible**. Also test the boundary (`35000`, eligible) and an unanswered value (`{"householdIncome": null}`, need more information) before publishing.
+
+![Testing tab with householdIncome 42000 and an Ineligible result against the same 35000 income limit.](../../../assets/screenshots/custom-check-test-ineligible.png)
 
 ---
 
@@ -214,6 +248,8 @@ Eligibility checks use semantic versioning. Each time you publish, a new version
 
 Select **Publish Check**. The new version will appear in the **Published Versions** list below, sorted from newest to oldest.
 
+![Publish tab showing household-income-limit version 1.0.0 in Published Versions, with the community-support module and one parameter.](../../../assets/screenshots/custom-check-publish.png)
+
 **Published version details**:
 
 Each published version displays:
@@ -222,4 +258,4 @@ Each published version displays:
 - **Version** — the semantic version number (e.g., `1.0.0`)
 - **Module** — the module identifier
 
-Once published, the check and its version will appear in the **Your Checks** section when adding eligibility checks to a benefit in any of your screeners.
+Once published, the check and its version will appear in the **Custom Checks** tab when adding eligibility checks to a benefit in any of your screeners. Configure `incomeLimit` for that benefit and connect a numeric form field to `custom.householdIncome`. The screener passes fields under `custom` to the custom DMN model; the Testing tab accepts the unwrapped input shown above.

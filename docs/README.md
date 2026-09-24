@@ -82,3 +82,10 @@ Review every generated image before committing it, then build and view the docs
 homepage and guide. Keep the homepage screenshot at its native aspect ratio: a
 square hero crop can remove the form content. The custom checks are unpublished
 drafts demonstrating parameter configuration, not completed eligibility rules.
+
+For the custom-check walkthrough, run `npm run capture-custom-check-screenshots`
+from `e2e/`. This creates a separate local account and a working income-limit
+check using `e2e/fixtures/docs-income-limit.dmn`. It captures creation, parameter
+configuration, the DMN diagram, test results, and a local published version.
+The script validates the model and checks the displayed results before saving
+the screenshots. Its account uses the same local-only password above.
