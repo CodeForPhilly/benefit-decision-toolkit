@@ -230,19 +230,29 @@ public class FormDataTransformer {
         List<Map<String, Object>> peopleArray = (List<Map<String, Object>>) peopleValue;
         List<Map<String, Object>> enrollmentsList = new ArrayList<>();
         List<Map<String, Object>> transformedPeopleArray = new ArrayList<>();
+        boolean hasEnrollmentAnswer = false;
+        boolean hasUnansweredEnrollments = false;
 
         // Extract enrollments from each person
         for (Map<String, Object> person : peopleArray) {
             String personId = (String) person.get("id");
             Object personEnrollments = person.get("enrollments");
+            if (person.containsKey("enrollments")) {
+                hasEnrollmentAnswer = true;
+                if (personEnrollments == null) {
+                    hasUnansweredEnrollments = true;
+                }
+            }
 
             // Create a copy of the person data without enrollments
             Map<String, Object> personCopy = new HashMap<>(person);
 
-            if (personEnrollments instanceof List) {
-                // Remove enrollments from person object (DMN doesn't expect it there)
+            if (person.containsKey("enrollments")) {
+                // The DMN receives a flat enrollments field, not per-person fields.
                 personCopy.remove("enrollments");
+            }
 
+            if (personEnrollments instanceof List) {
                 // Convert each enrollment string to an enrollment object
                 for (Object enrollment : (List<?>) personEnrollments) {
                     if (enrollment instanceof String) {
@@ -261,9 +271,11 @@ public class FormDataTransformer {
         Map<String, Object> result = new HashMap<>(formData);
         result.put("people", transformedPeopleArray);
 
-        // Only add enrollments if we extracted any
-        if (!enrollmentsList.isEmpty()) {
-            result.put("enrollments", enrollmentsList);
+        // Preserve the distinction between unanswered (null), an explicit
+        // "None of these" answer ([]), and selected enrollments. If any
+        // person's answer is unknown, the combined answer is still unknown.
+        if (hasEnrollmentAnswer) {
+            result.put("enrollments", hasUnansweredEnrollments ? null : enrollmentsList);
         }
 
         return result;

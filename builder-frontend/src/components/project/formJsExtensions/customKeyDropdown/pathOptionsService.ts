@@ -19,11 +19,11 @@ const TYPE_COMPATIBILITY: Record<string, string[]> = {
   'date-time': ['datetime'],
   'time': ['datetime'],
   // Array types (arrays of primitives)
-  'array:string': ['checklist', 'taglist', 'select'],
-  'array:number': ['checklist', 'taglist', 'select'],
-  'array:boolean': ['checklist'],
+  'array:string': ['checklist', 'checklist_none', 'taglist', 'select'],
+  'array:number': ['checklist', 'checklist_none', 'taglist', 'select'],
+  'array:boolean': ['checklist', 'checklist_none'],
   // Fallback for any/unknown types - compatible with all
-  'any': ['textfield', 'textarea', 'number', 'checkbox', 'select', 'radio', 'checklist', 'taglist', 'datetime', 'yes_no'],
+  'any': ['textfield', 'textarea', 'number', 'checkbox', 'select', 'radio', 'checklist', 'checklist_none', 'taglist', 'datetime', 'yes_no'],
 };
 
 interface EventBus {

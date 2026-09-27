@@ -384,7 +384,7 @@ public class FormDataTransformerTest {
     }
 
     @Test
-    void transformEnrollmentsData_withEmptyEnrollmentsArray_doesNotAddEnrollmentsKey() {
+    void transformEnrollmentsData_withEmptyEnrollmentsArray_preservesExplicitNone() {
         Map<String, Object> person = new HashMap<>();
         person.put("id", "applicant");
         person.put("enrollments", new ArrayList<>());
@@ -397,7 +397,39 @@ public class FormDataTransformerTest {
 
         Map<String, Object> result = FormDataTransformer.transformEnrollmentsData(formData);
 
-        assertFalse(result.containsKey("enrollments"));
+        assertEquals(List.of(), result.get("enrollments"));
+    }
+
+    @Test
+    void transformEnrollmentsData_withNullEnrollments_preservesUnanswered() {
+        Map<String, Object> person = new HashMap<>();
+        person.put("id", "applicant");
+        person.put("enrollments", null);
+
+        Map<String, Object> result = FormDataTransformer.transformEnrollmentsData(
+            Map.of("people", List.of(person)));
+
+        assertTrue(result.containsKey("enrollments"));
+        assertNull(result.get("enrollments"));
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> resultPeople = (List<Map<String, Object>>) result.get("people");
+        assertFalse(resultPeople.getFirst().containsKey("enrollments"));
+    }
+
+    @Test
+    void transformEnrollmentsData_withOneUnansweredPerson_doesNotInferNone() {
+        Map<String, Object> applicant = new HashMap<>();
+        applicant.put("id", "applicant");
+        applicant.put("enrollments", List.of("SNAP"));
+        Map<String, Object> spouse = new HashMap<>();
+        spouse.put("id", "spouse");
+        spouse.put("enrollments", null);
+
+        Map<String, Object> result = FormDataTransformer.transformEnrollmentsData(
+            Map.of("people", List.of(applicant, spouse)));
+
+        assertTrue(result.containsKey("enrollments"));
+        assertNull(result.get("enrollments"));
     }
 
     @Test
