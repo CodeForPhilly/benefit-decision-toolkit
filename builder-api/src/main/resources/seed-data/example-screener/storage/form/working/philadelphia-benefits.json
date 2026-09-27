@@ -1,0 +1,164 @@
+{
+  "id": "Form_philadelphia_example",
+  "type": "default",
+  "components": [
+    {
+      "id": "Field_example_0",
+      "type": "text",
+      "layout": {
+        "row": "Row_example_0"
+      },
+      "text": "# Philadelphia benefits explorer\n\nExplore three library tax benefits and fictional Philly Cash. This is a learning screener, not an application. Use Preview to try answers and expand each result to inspect its checks. Leave a question blank to explore Unable to determine.\n\nBuilder tour: Manage Benefits shows reusable checks, aliases, and parameters. Custom Checks contains annotated editable DMN diagrams and published versions. Form lets you change labels and layout. When ready, Publish creates a shareable screener snapshot."
+    },
+    {
+      "id": "Field_example_1",
+      "type": "yes_no",
+      "layout": {
+        "row": "Row_example_1"
+      },
+      "label": "Do you live in Philadelphia, Pennsylvania?",
+      "key": "simpleChecks.livesInPhiladelphiaPa",
+      "description": "Shared by all four benefits: one answer can feed several checks."
+    },
+    {
+      "id": "Field_example_2",
+      "type": "yes_no",
+      "layout": {
+        "row": "Row_example_2"
+      },
+      "label": "Would you like extra cash?",
+      "key": "custom.wantsExtraCash",
+      "description": "Only used by fictional Philly Cash. A No answer fails that benefit; leaving this blank means unknown. Custom check questions use the custom. prefix; the DMN input is named wantsExtraCash."
+    },
+    {
+      "id": "Field_example_3",
+      "type": "text",
+      "layout": {
+        "row": "Row_example_3"
+      },
+      "text": "## Your home\n\nThese questions feed the three library tax benefits. Watch which questions become unnecessary as you answer in Preview."
+    },
+    {
+      "id": "Field_example_4",
+      "type": "yes_no",
+      "layout": {
+        "row": "Row_example_4"
+      },
+      "label": "Do you own and live in your home?",
+      "key": "simpleChecks.ownerOccupant",
+      "description": "Shared by Homestead, OOPA, and SCTF."
+    },
+    {
+      "id": "Field_example_5",
+      "type": "yes_no",
+      "layout": {
+        "row": "Row_example_5"
+      },
+      "label": "Do you owe delinquent property taxes?",
+      "key": "simpleChecks.taxDelinquent",
+      "description": "Used by OOPA."
+    },
+    {
+      "id": "Field_example_6",
+      "type": "yes_no",
+      "layout": {
+        "row": "Row_example_6"
+      },
+      "label": "Does your property have a ten-year tax abatement?",
+      "key": "simpleChecks.tenYearTaxAbatement",
+      "description": "Homestead uses a negative check: No passes, Yes fails."
+    },
+    {
+      "id": "Field_example_7",
+      "type": "checklist_none",
+      "layout": {
+        "row": "Row_example_7"
+      },
+      "values": [
+        {
+          "label": "Homestead Exemption",
+          "value": "PhlHomesteadExemption"
+        },
+        {
+          "label": "Owner-Occupied Payment Agreement (OOPA)",
+          "value": "PhlOwnerOccupiedPaymentAgreement"
+        },
+        {
+          "label": "Senior Citizen Tax Freeze (SCTF)",
+          "value": "PhlSeniorCitizenTaxFreeze"
+        }
+      ],
+      "label": "Which of these programs are you already enrolled in?",
+      "key": "people.client.enrollments",
+      "description": "Choose None of these explicitly if you are not enrolled. The current library treats an empty enrollment list as unknown, so the tax benefits may still show Unable to determine. Select a program to see its enrollment check fail and the other programs\u2019 checks pass."
+    },
+    {
+      "id": "Field_example_8",
+      "type": "text",
+      "layout": {
+        "row": "Row_example_8"
+      },
+      "text": "## Age and family\n\nSCTF can use your age, your spouse\u2019s age, or whether a late spouse was at least 65. The library compares birth dates with the current date."
+    },
+    {
+      "id": "Field_example_9",
+      "type": "datetime",
+      "layout": {
+        "row": "Row_example_9"
+      },
+      "subtype": "date",
+      "dateLabel": "Date of birth",
+      "label": "Your date of birth",
+      "key": "people.client.dateOfBirth",
+      "description": "Try a date more than 65 years ago, then try a younger age."
+    },
+    {
+      "id": "Field_example_10",
+      "type": "yes_no",
+      "layout": {
+        "row": "Row_example_10"
+      },
+      "label": "Do you currently have a spouse?",
+      "key": "people.spouse.exists",
+      "description": "No explicitly records no spouse. Yes links the spouse\u2019s birth date to you for the library age check."
+    },
+    {
+      "id": "Field_example_11",
+      "type": "datetime",
+      "layout": {
+        "row": "Row_example_11"
+      },
+      "subtype": "date",
+      "dateLabel": "Spouse date of birth",
+      "conditional": {
+        "hide": "= people.spouse.exists != true"
+      },
+      "label": "Your spouse\u2019s date of birth",
+      "key": "people.spouse.dateOfBirth",
+      "description": "Used only when you have a spouse."
+    },
+    {
+      "id": "Field_example_12",
+      "type": "yes_no",
+      "layout": {
+        "row": "Row_example_12"
+      },
+      "label": "Was your late spouse at least 65?",
+      "key": "simpleChecks.lateSpouseWasAtLeast65",
+      "description": "Answer No if this does not apply. Leaving it blank can keep the age result unknown when neither birth date establishes eligibility."
+    },
+    {
+      "id": "Field_example_13",
+      "type": "text",
+      "layout": {
+        "row": "Row_example_13"
+      },
+      "text": "## Try a few scenarios\n\n**Explore all four:** Philadelphia resident, wants cash, owns and occupies home, owes delinquent taxes, no abatement, None of these enrollments, birth date over 65 years ago.\n\n**Only Philly Cash passes:** Philadelphia resident, wants cash, does not own and occupy a home.\n\n**Unknown cash result:** Philadelphia resident with the extra-cash question unanswered.\n\nPhilly Cash passes in the first scenario. With None of these, the current library enrollment check returns unknown for the tax benefits.\n\nChange an enrollment to see a parameterized check fail for just that program. Then inspect the expanded results and compare the shared residence checks."
+    }
+  ],
+  "schemaVersion": 18,
+  "exporter": {
+    "name": "form-js",
+    "version": "1.15.2"
+  }
+}

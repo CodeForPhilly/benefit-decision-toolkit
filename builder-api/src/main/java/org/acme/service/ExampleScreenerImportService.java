@@ -419,7 +419,7 @@ public class ExampleScreenerImportService {
                 InputStream stream = getPathStream(path);
                 String contents = new String(stream.readAllBytes(),
                         StandardCharsets.UTF_8);
-                dmnByCheckId.put(stripExtension(getIdFromPath(path)), contents);
+                dmnByCheckId.put(getIdFromPath(path), contents);
             } catch (IOException exception) {
                 Log.info("Error reading DMN file: " + path);
             }

@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 class ExampleScreenerImportServiceTest {
 
     private static final String USER_ID = "new-user";
-    private static final String SEED_CHECK_ID = "W-uwx3W7vaM6GUk9RaBsf5WIyRErjr-testchecks-test";
+    private static final String SEED_CHECK_ID = "W-example-wants-extra-cash";
 
     private final EligibilityCheckRepositoryImpl ids = new EligibilityCheckRepositoryImpl();
     private final EligibilityCheckRepository checkRepository = mock(EligibilityCheckRepository.class);
@@ -60,7 +60,7 @@ class ExampleScreenerImportServiceTest {
 
     @Test
     void reimportKeepsARenamedCheckAndPublishesUnderItsId() throws Exception {
-        EligibilityCheck renamed = new EligibilityCheck("renamed", "testchecks", "", List.of(), USER_ID);
+        EligibilityCheck renamed = new EligibilityCheck("renamed", "Philadelphia examples", "", List.of(), USER_ID);
         renamed.setId("W-kept");
         renamed.setExampleSourceId(SEED_CHECK_ID);
         when(checkRepository.getAllWorkingCustomChecks(USER_ID)).thenReturn(List.of(renamed));
@@ -68,9 +68,7 @@ class ExampleScreenerImportServiceTest {
         service.importForUser(USER_ID);
 
         verify(checkRepository, never()).updateWorkingCustomCheck(any());
-        ArgumentCaptor<EligibilityCheck> saved = ArgumentCaptor.forClass(EligibilityCheck.class);
-        verify(checkRepository, atLeastOnce()).saveNewWorkingCustomCheck(saved.capture());
-        assertTrue(saved.getAllValues().stream().noneMatch(check -> SEED_CHECK_ID.equals(check.getExampleSourceId())));
+        verify(checkRepository, never()).saveNewWorkingCustomCheck(any());
         ArgumentCaptor<EligibilityCheck> published = ArgumentCaptor.forClass(EligibilityCheck.class);
         verify(checkRepository, atLeastOnce()).saveNewPublishedCustomCheck(published.capture());
         assertTrue(published.getAllValues().stream().anyMatch(check -> check.getId().startsWith("P-kept-")));
@@ -81,13 +79,13 @@ class ExampleScreenerImportServiceTest {
         service.importForUser(USER_ID);
 
         verify(checkRepository).reserveCheckName(org.mockito.ArgumentMatchers.eq(USER_ID),
-                org.mockito.ArgumentMatchers.eq("testchecks"), org.mockito.ArgumentMatchers.eq("test"),
+                org.mockito.ArgumentMatchers.eq("Philadelphia examples"), org.mockito.ArgumentMatchers.eq("Would like extra cash"),
                 org.mockito.ArgumentMatchers.startsWith("W-"));
     }
 
     @Test
     void importRefusesToDuplicateANameUsedByAnotherCheck() {
-        EligibilityCheck other = new EligibilityCheck("test", "testchecks", "", List.of(), USER_ID);
+        EligibilityCheck other = new EligibilityCheck("Would like extra cash", "Philadelphia examples", "", List.of(), USER_ID);
         other.setId("W-unrelated");
         when(checkRepository.getAllWorkingCustomChecks(USER_ID)).thenReturn(List.of(other));
 
