@@ -10,6 +10,12 @@ describe("isTypeCompatible", () => {
     expect(isTypeCompatible("boolean", "checklist")).toBe(false);
     expect(isTypeCompatible("boolean", "radio")).toBe(false);
     expect(isTypeCompatible("boolean", "select")).toBe(false);
+    expect(isTypeCompatible("boolean", "checklist_none")).toBe(false);
+  });
+
+  it("offers array paths to checkbox groups with None", () => {
+    expect(isTypeCompatible("array:string", "checklist_none")).toBe(true);
+    expect(isTypeCompatible("array:number", "checklist_none")).toBe(true);
   });
 });
 

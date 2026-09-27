@@ -140,6 +140,8 @@ The editor provides a visual drag-and-drop canvas powered by Form-JS. You can ad
 
 ![Form Editor showing the component palette and the two-question homeowner support form.](../../../assets/screenshots/form-editor-components.png)
 
+For questions where people can select several options or explicitly answer **None of these**, use **Checkbox group with None** from the Selection components. Configure its options using static values, input data, or an expression, and map its key to an array input. Until someone answers, the input is `null`; choosing **None of these** sends an empty array; choosing other options sends their selected values. **None of these** clears the other choices automatically.
+
 **Saving your work**:
 
 Select **Save** to persist your form. The save button turns yellow when there are unsaved changes, so you can tell at a glance whether your current edits have been saved.
