@@ -19,6 +19,8 @@ public class EligibilityCheck {
     // API endpoint for evaluating library checks
     private String evaluationUrl;
     private Boolean isArchived;
+    // working id of the example check this was imported from, so re-imports survive renames
+    private String exampleSourceId;
 
     public EligibilityCheck() {
     }
@@ -124,5 +126,13 @@ public class EligibilityCheck {
 
     public void setIsArchived(Boolean isArchived) {
         this.isArchived = isArchived;
+    }
+
+    public String getExampleSourceId() {
+        return exampleSourceId;
+    }
+
+    public void setExampleSourceId(String exampleSourceId) {
+        this.exampleSourceId = exampleSourceId;
     }
 }

@@ -62,6 +62,9 @@ export interface CreateCheckRequest {
 }
 
 export interface UpdateCheckRequest {
+  name?: string;
+  dmnModel?: string;
+  originalDmnModel?: string;
   description?: string;
   parameterDefinitions?: ParameterDefinition[];
 }

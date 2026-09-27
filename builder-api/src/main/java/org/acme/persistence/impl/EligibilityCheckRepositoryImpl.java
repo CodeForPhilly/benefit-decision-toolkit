@@ -16,13 +16,22 @@ import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.FirestoreUtils;
 import org.acme.persistence.StorageService;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @ApplicationScoped
 public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepository {
+
+    private static final long ABANDONED_RESERVATION_MILLIS = 5 * 60 * 1000;
 
     @Inject
     private StorageService storageService;
@@ -67,21 +76,10 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
     }
 
     public List<EligibilityCheck> getPublishedCheckVersions(EligibilityCheck workingCustomCheck) throws Exception {
-        Map<String, String> fieldValues = Map.of(
-            "ownerId", workingCustomCheck.getOwnerId(),
-            "module", workingCustomCheck.getModule(),
-            "name", workingCustomCheck.getName()
-        );
-
-        /* Get all related Published Checks for a Working Check */
-        List<Map<String, Object>> checkMaps = (
-            FirestoreUtils.getFirestoreDocsByFields(
-                CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION,
-                fieldValues
-            )
-        );
-        ObjectMapper mapper = new ObjectMapper();
-        return checkMaps.stream().map(checkMap -> mapper.convertValue(checkMap, EligibilityCheck.class)).toList();
+        String prefix = getPublishedPrefix(workingCustomCheck);
+        return getPublishedCustomChecks(workingCustomCheck.getOwnerId()).stream()
+                .filter(check -> prefix.equals(getPublishedPrefix(check)))
+                .toList();
     }
 
     public Optional<EligibilityCheck> getWorkingCustomCheck(String userId, String checkId){
@@ -150,8 +148,11 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
     }
 
     public String saveNewWorkingCustomCheck(EligibilityCheck check) throws Exception{
-        String checkId = getWorkingId(check);
-        check.setId(checkId);
+        // A check's id never changes, so it cannot be derived from the name, which can be renamed.
+        if (check.getId() == null) {
+            check.setId(newWorkingId());
+        }
+        String checkId = check.getId();
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(check, Map.class);
         return FirestoreUtils.persistDocumentWithId(CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION, checkId, data);
@@ -185,11 +186,72 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
 
     @Override
     public String getWorkingId(EligibilityCheck check) {
-        return CheckStatus.WORKING.getCode() + "-" + check.getOwnerId() + "-" + check.getModule() + "-" + check.getName();
+        if (check.getId() != null && check.getId().startsWith("W-")) {
+            return check.getId();
+        }
+        if (check.getId() != null && check.getId().startsWith("P-")
+                && check.getVersion() != null && check.getId().endsWith("-" + check.getVersion())) {
+            return "W-" + check.getId().substring(2, check.getId().length() - check.getVersion().length() - 1);
+        }
+        throw new IllegalArgumentException("Check " + check.getId() + " has no working id");
+    }
+
+    @Override
+    public void reserveCheckName(String ownerId, String module, String name, String checkId) throws Exception {
+        long now = System.currentTimeMillis();
+        Map<String, Object> reservation = new HashMap<>();
+        reservation.put(FieldNames.OWNER_ID, ownerId);
+        reservation.put("module", module);
+        reservation.put("name", name);
+        reservation.put("checkId", checkId);
+        reservation.put("reservedAt", now);
+        FirestoreUtils.createDocumentUnlessHeld(CollectionNames.CUSTOM_CHECK_NAME_COLLECTION,
+                getCheckNameReservationId(ownerId, module, name), reservation,
+                (existing, reader) -> isAbandonedReservation(existing, reader, now));
+    }
+
+    /* A reservation outlives its check when a request fails between reserving the name and saving
+       the check. Once it is old enough that no request can still be finishing with it, it counts
+       only if its check still has the name. */
+    private boolean isAbandonedReservation(Map<String, Object> reservation,
+                                           FirestoreUtils.TransactionReader reader, long now) throws Exception {
+        if (!(reservation.get("reservedAt") instanceof Number reservedAt)
+                || now - reservedAt.longValue() < ABANDONED_RESERVATION_MILLIS) {
+            return false;
+        }
+        if (!(reservation.get("checkId") instanceof String holderId)) {
+            return true;
+        }
+        Optional<Map<String, Object>> holder = reader.get(CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION, holderId);
+        return holder.isEmpty()
+                || !Objects.equals(holder.get().get("module"), reservation.get("module"))
+                || !Objects.equals(holder.get().get("name"), reservation.get("name"));
+    }
+
+    @Override
+    public void releaseCheckName(String ownerId, String module, String name, String checkId) throws Exception {
+        String reservationId = getCheckNameReservationId(ownerId, module, name);
+        Optional<Map<String, Object>> reservation = FirestoreUtils.getFirestoreDocById(
+                CollectionNames.CUSTOM_CHECK_NAME_COLLECTION, reservationId);
+        if (reservation.isPresent() && checkId.equals(reservation.get().get("checkId"))) {
+            FirestoreUtils.deleteDocument(CollectionNames.CUSTOM_CHECK_NAME_COLLECTION, reservationId);
+        }
+    }
+
+    /* Encoding keeps ':' out of the parts, so it can separate them, and '/' out of the id. */
+    public String getCheckNameReservationId(String ownerId, String module, String name) {
+        return Stream.of(ownerId, module == null ? "" : module, name)
+                .map(part -> URLEncoder.encode(part, StandardCharsets.UTF_8))
+                .collect(Collectors.joining(":"));
+    }
+
+    @Override
+    public String newWorkingId() {
+        return CheckStatus.WORKING.getCode() + "-" + UUID.randomUUID();
     }
 
     public String getPublishedPrefix(EligibilityCheck check) {
-        return CheckStatus.PUBLISHED.getCode() + "-" + check.getOwnerId() + "-" + check.getModule() + "-" + check.getName();
+        return "P-" + getWorkingId(check).substring(2);
     }
 
     public String getPublishedId(EligibilityCheck check) {

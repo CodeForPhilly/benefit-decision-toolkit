@@ -29,6 +29,15 @@ public interface EligibilityCheckRepository {
 
     String getWorkingId(EligibilityCheck check);
 
+    String newWorkingId();
+
+    /* Claims a check name within the owner's module for checkId, atomically, so two checks cannot
+       take the same name at once. Throws DocumentAlreadyExistsException when another check holds it. */
+    void reserveCheckName(String ownerId, String module, String name, String checkId) throws Exception;
+
+    /* Gives up checkId's claim on a name; a claim held by another check is left alone. */
+    void releaseCheckName(String ownerId, String module, String name, String checkId) throws Exception;
+
     String saveNewWorkingCustomCheck(EligibilityCheck check) throws Exception;
 
     String saveNewPublishedCustomCheck(EligibilityCheck check) throws Exception;

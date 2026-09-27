@@ -14,6 +14,8 @@ import java.lang.annotation.*;
 @Constraint(validatedBy = CheckNameValidator.class)
 public @interface ValidCheckName {
 
+  boolean optional() default false;
+
   String message() default "Check name is not valid.";
 
   Class<?>[] groups() default {};

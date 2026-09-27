@@ -7,8 +7,8 @@ vi.mock("@/api/auth", () => ({
   authPut: vi.fn(),
 }));
 
-import { authPost } from "@/api/auth";
-import { addCheck, ApiError } from "./check";
+import { authPatch, authPost } from "@/api/auth";
+import { addCheck, ApiError, updateCheck } from "./check";
 
 const request = {
   name: "incomeCheck",
@@ -16,6 +16,25 @@ const request = {
   description: "Checks income",
   parameterDefinitions: [],
 };
+
+describe("updateCheck", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("sends a check name change", async () => {
+    vi.mocked(authPatch).mockResolvedValue(new Response("{}", { status: 200 }));
+
+    await updateCheck("check-id", {
+      name: "New title",
+      dmnModel: "renamed",
+      originalDmnModel: "original",
+    });
+
+    expect(authPatch).toHaveBeenCalledWith(
+      expect.stringContaining("/custom-checks/check-id"),
+      { name: "New title", dmnModel: "renamed", originalDmnModel: "original" },
+    );
+  });
+});
 
 describe("addCheck", () => {
   beforeEach(() => vi.clearAllMocks());
