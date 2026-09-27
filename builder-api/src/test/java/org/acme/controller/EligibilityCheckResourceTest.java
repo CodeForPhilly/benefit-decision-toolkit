@@ -6,8 +6,8 @@ import jakarta.ws.rs.core.Response;
 import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.dto.EligibilityCheck.CreateCheckRequest;
 import org.acme.model.dto.EligibilityCheck.EditCheckRequest;
-import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.DocumentAlreadyExistsException;
+import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.StorageService;
 import org.acme.service.CustomCheckDmnTemplate;
 import org.acme.service.CustomCheckDmnRenameValidator;
@@ -73,10 +73,7 @@ class EligibilityCheckResourceTest {
         when(dmnService.extractInputSchema(anyString(), any(), anyString()))
                 .thenReturn(new ObjectMapper().createObjectNode());
         when(repository.saveNewPublishedCustomCheck(any())).thenReturn("published-check-1");
-        when(repository.getWorkingId(any())).thenAnswer(invocation -> {
-            EligibilityCheck check = invocation.getArgument(0);
-            return "W-" + check.getOwnerId() + "-" + check.getModule() + "-" + check.getName();
-        });
+        when(repository.newWorkingId()).thenReturn("W-new");
         when(repository.getPublishedId(any(), anyString()))
                 .thenAnswer(invocation -> PUBLISHED_PREFIX + "-" + invocation.<String>getArgument(1));
     }
@@ -89,17 +86,11 @@ class EligibilityCheckResourceTest {
                 "Checks the applicant's income",
                 List.of()
         );
-        String checkId = "W-owner-1-income-incomeCheck";
+        String checkId = "W-new";
         String dmnPath = "check/" + checkId + ".dmn";
         String initialDmn = "<dmn:definitions/>";
 
         when(customCheckDmnTemplate.create(request.name(), request.description())).thenReturn(initialDmn);
-        when(repository.saveNewWorkingCustomCheck(any(EligibilityCheck.class)))
-                .thenAnswer(invocation -> {
-                    EligibilityCheck check = invocation.getArgument(0);
-                    check.setId(checkId);
-                    return checkId;
-                });
         when(storageService.getCheckDmnModelPath(checkId)).thenReturn(dmnPath);
 
         Response response = resource.createCustomCheck(identity, request);
@@ -121,11 +112,10 @@ class EligibilityCheckResourceTest {
                 "Checks the applicant's income",
                 List.of()
         );
-        String checkId = "W-owner-1-income-incomeCheck";
+        String checkId = "W-new";
 
         when(customCheckDmnTemplate.create(request.name(), request.description()))
                 .thenReturn("<dmn:definitions/>");
-        when(repository.saveNewWorkingCustomCheck(any(EligibilityCheck.class))).thenReturn(checkId);
         when(storageService.getCheckDmnModelPath(checkId)).thenReturn("check/" + checkId + ".dmn");
         RuntimeException storageFailure = new RuntimeException("storage unavailable");
         doThrow(storageFailure)
@@ -138,15 +128,15 @@ class EligibilityCheckResourceTest {
 
         assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
         verify(repository).deleteWorkingCustomCheck(checkId);
+        verify(repository).releaseCheckName(USER_ID, request.module(), request.name(), checkId);
     }
 
     @Test
     void createCustomCheckRejectsAnExistingActiveCheck() throws Exception {
         CreateCheckRequest request = createCheckRequest();
-        String checkId = "W-owner-1-income-incomeCheck";
         EligibilityCheck existing = new EligibilityCheck(
                 request.name(), request.module(), request.description(), List.of(), USER_ID);
-        when(repository.getWorkingCustomCheckMetadata(USER_ID, checkId)).thenReturn(Optional.of(existing));
+        when(repository.getAllWorkingCustomChecks(USER_ID)).thenReturn(List.of(existing));
 
         Response response = resource.createCustomCheck(identity, request);
 
@@ -161,11 +151,10 @@ class EligibilityCheckResourceTest {
     @Test
     void createCustomCheckExplainsAnArchivedCollision() throws Exception {
         CreateCheckRequest request = createCheckRequest();
-        String checkId = "W-owner-1-income-incomeCheck";
         EligibilityCheck existing = new EligibilityCheck(
                 request.name(), request.module(), request.description(), List.of(), USER_ID);
         existing.setIsArchived(true);
-        when(repository.getWorkingCustomCheckMetadata(USER_ID, checkId)).thenReturn(Optional.of(existing));
+        when(repository.getAllWorkingCustomChecks(USER_ID)).thenReturn(List.of(existing));
 
         Response response = resource.createCustomCheck(identity, request);
 
@@ -174,66 +163,6 @@ class EligibilityCheckResourceTest {
                 "A check named \"incomeCheck\" in module \"income\" is archived. Restore it or choose a different name.",
                 ((java.util.Map<?, ?>) response.getEntity()).get("error"));
         verify(repository, never()).saveNewWorkingCustomCheck(any());
-    }
-
-    @Test
-    void createCustomCheckMapsAConcurrentCollisionToConflict() throws Exception {
-        CreateCheckRequest request = createCheckRequest();
-        String checkId = "W-owner-1-income-incomeCheck";
-        when(repository.saveNewWorkingCustomCheck(any()))
-                .thenThrow(new DocumentAlreadyExistsException(checkId, new RuntimeException()));
-
-        Response response = resource.createCustomCheck(identity, request);
-
-        assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
-        assertEquals(
-                "A check named \"incomeCheck\" in module \"income\" already exists.",
-                ((java.util.Map<?, ?>) response.getEntity()).get("error"));
-        verify(storageService, never()).writeStringToStorage(anyString(), anyString(), anyString());
-    }
-
-    @Test
-    void createCustomCheckReportsArchivedStateAfterAWriteCollision() throws Exception {
-        CreateCheckRequest request = createCheckRequest();
-        String checkId = "W-owner-1-income-incomeCheck";
-        EligibilityCheck archivedCheck = new EligibilityCheck(
-                request.name(), request.module(), request.description(), List.of(), USER_ID);
-        archivedCheck.setIsArchived(true);
-        when(repository.getWorkingCustomCheckMetadata(USER_ID, checkId))
-                .thenReturn(Optional.empty(), Optional.of(archivedCheck));
-        when(repository.saveNewWorkingCustomCheck(any()))
-                .thenThrow(new DocumentAlreadyExistsException(checkId, new RuntimeException()));
-
-        Response response = resource.createCustomCheck(identity, request);
-
-        assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
-        assertEquals(
-                "A check named \"incomeCheck\" in module \"income\" is archived. Restore it or choose a different name.",
-                ((java.util.Map<?, ?>) response.getEntity()).get("error"));
-        verify(storageService, never()).writeStringToStorage(anyString(), anyString(), anyString());
-    }
-
-    @Test
-    void createCustomCheckStillConflictsWhenTheCollidingCheckCannotBeRead() throws Exception {
-        CreateCheckRequest request = createCheckRequest();
-        String checkId = "W-owner-1-income-incomeCheck";
-        IllegalArgumentException readFailure = new IllegalArgumentException("unmappable document");
-        when(repository.getWorkingCustomCheckMetadata(USER_ID, checkId))
-                .thenReturn(Optional.empty())
-                .thenThrow(readFailure);
-        when(repository.saveNewWorkingCustomCheck(any()))
-                .thenThrow(new DocumentAlreadyExistsException(checkId, new RuntimeException()));
-
-        Response response = captureExpectedErrorLog(
-                "Could not read the check " + checkId + " that collided with the new check",
-                readFailure,
-                () -> resource.createCustomCheck(identity, request));
-
-        assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
-        assertEquals(
-                "A check named \"incomeCheck\" in module \"income\" already exists.",
-                ((java.util.Map<?, ?>) response.getEntity()).get("error"));
-        verify(storageService, never()).writeStringToStorage(anyString(), anyString(), anyString());
     }
 
     private CreateCheckRequest createCheckRequest() {
@@ -344,6 +273,8 @@ class EligibilityCheckResourceTest {
 
         assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
         verify(storageService).writeStringToStorage("checks/dmn.xml", originalDmn, "application/xml");
+        verify(repository).releaseCheckName(USER_ID, "my-module", "new-check", CHECK_ID);
+        verify(repository, never()).releaseCheckName(USER_ID, "my-module", "my-check", CHECK_ID);
     }
 
     @Test
@@ -356,6 +287,102 @@ class EligibilityCheckResourceTest {
 
         assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
         verify(repository, never()).saveNewWorkingCustomCheck(any());
+    }
+
+    @Test
+    void createCustomCheckConflictsWhenAConcurrentRequestReservedTheName() throws Exception {
+        CreateCheckRequest request = createCheckRequest();
+        doThrow(new DocumentAlreadyExistsException("reservation", null))
+                .when(repository).reserveCheckName(USER_ID, request.module(), request.name(), "W-new");
+
+        Response response = resource.createCustomCheck(identity, request);
+
+        assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
+        verify(repository, never()).saveNewWorkingCustomCheck(any());
+    }
+
+    @Test
+    void createCustomCheckReleasesTheNameWhenTheCheckCannotBeSaved() throws Exception {
+        CreateCheckRequest request = createCheckRequest();
+        when(repository.saveNewWorkingCustomCheck(any())).thenThrow(new Exception("Firestore unavailable"));
+
+        Response response = resource.createCustomCheck(identity, request);
+
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
+        verify(repository).releaseCheckName(USER_ID, request.module(), request.name(), "W-new");
+    }
+
+    @Test
+    void renameCustomCheckMovesTheNameReservation() throws Exception {
+        String originalDmn = new CustomCheckDmnTemplate().create("my-check", "a check");
+        when(storageService.getStringFromStorage("checks/dmn.xml")).thenReturn(Optional.of(originalDmn));
+
+        Response response = resource.updateCustomCheck(identity, CHECK_ID,
+                new EditCheckRequest("new-check", null, null,
+                        originalDmn.replace("name=\"my-check\"", "name=\"new-check\""), originalDmn));
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        verify(repository).reserveCheckName(USER_ID, "my-module", "new-check", CHECK_ID);
+        verify(repository).releaseCheckName(USER_ID, "my-module", "my-check", CHECK_ID);
+    }
+
+    @Test
+    void renameCustomCheckConflictsWhenAConcurrentRequestReservedTheName() throws Exception {
+        String originalDmn = new CustomCheckDmnTemplate().create("my-check", "a check");
+        when(storageService.getStringFromStorage("checks/dmn.xml")).thenReturn(Optional.of(originalDmn));
+        doThrow(new DocumentAlreadyExistsException("reservation", null))
+                .when(repository).reserveCheckName(USER_ID, "my-module", "new-check", CHECK_ID);
+
+        Response response = resource.updateCustomCheck(identity, CHECK_ID,
+                new EditCheckRequest("new-check", null, null,
+                        originalDmn.replace("name=\"my-check\"", "name=\"new-check\""), originalDmn));
+
+        assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
+        verify(storageService, never()).writeStringToStorage(anyString(), anyString(), anyString());
+        verify(repository, never()).updateWorkingCustomCheck(any());
+    }
+
+    // Check ids built from names outlive a rename, so they must not reserve the old name
+    @Test
+    void createCustomCheckAllowsTheFormerNameOfARenamedCheck() throws Exception {
+        EligibilityCheck renamedCheck = new EligibilityCheck("renamed", "my-module", "", List.of(), USER_ID);
+        renamedCheck.setId("W-" + USER_ID + "-my-module-my-check");
+        when(repository.getAllWorkingCustomChecks(USER_ID)).thenReturn(List.of(renamedCheck));
+        when(repository.saveNewWorkingCustomCheck(any())).thenReturn("W-new");
+        CreateCheckRequest request = new CreateCheckRequest("my-check", "my-module", "another", List.of());
+
+        Response response = resource.createCustomCheck(identity, request);
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    void renameCustomCheckAllowsTheFormerNameOfAnotherRenamedCheck() throws Exception {
+        EligibilityCheck renamedCheck = new EligibilityCheck("renamed", "my-module", "", List.of(), USER_ID);
+        renamedCheck.setId("W-" + USER_ID + "-my-module-free-name");
+        when(repository.getAllWorkingCustomChecks(USER_ID)).thenReturn(List.of(workingCheck, renamedCheck));
+        String originalDmn = new CustomCheckDmnTemplate().create("my-check", "a check");
+        when(storageService.getStringFromStorage("checks/dmn.xml")).thenReturn(Optional.of(originalDmn));
+
+        Response response = resource.updateCustomCheck(identity, CHECK_ID,
+                new EditCheckRequest("free-name", null, null,
+                        originalDmn.replace("name=\"my-check\"", "name=\"free-name\""), originalDmn));
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals("free-name", workingCheck.getName());
+    }
+
+    @Test
+    void renameCustomCheckRejectsANameInUse() throws Exception {
+        EligibilityCheck otherCheck = new EligibilityCheck("taken", "my-module", "", List.of(), USER_ID);
+        otherCheck.setId("W-other");
+        when(repository.getAllWorkingCustomChecks(USER_ID)).thenReturn(List.of(workingCheck, otherCheck));
+
+        Response response = resource.updateCustomCheck(identity, CHECK_ID,
+                new EditCheckRequest("taken", null, null, "<definitions/>", "<definitions/>"));
+
+        assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
+        verify(repository, never()).updateWorkingCustomCheck(any());
     }
 
     @Test

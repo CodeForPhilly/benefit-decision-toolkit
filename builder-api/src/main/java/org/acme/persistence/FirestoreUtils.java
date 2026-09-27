@@ -198,6 +198,46 @@ public class FirestoreUtils {
     }
 
 
+    /* Reads a document inside a transaction, so the transaction fails if it changes before commit. */
+    public interface TransactionReader {
+        Optional<Map<String, Object>> get(String collection, String id) throws Exception;
+    }
+
+    public interface ReplaceableCheck {
+        boolean isReplaceable(Map<String, Object> existing, TransactionReader reader) throws Exception;
+    }
+
+    /* Atomically creates the document, or replaces an existing one only when isReplaceable says so.
+       Throws DocumentAlreadyExistsException when an existing document is kept. */
+    public static void createDocumentUnlessHeld(String collection, String documentId, Map<String, Object> data,
+                                                ReplaceableCheck replaceableCheck) throws Exception {
+        DocumentReference documentRef = db.collection(collection).document(documentId);
+        boolean created;
+        try {
+            created = db.runTransaction(transaction -> {
+                TransactionReader reader = (readCollection, readId) -> {
+                    DocumentSnapshot doc = transaction.get(db.collection(readCollection).document(readId)).get();
+                    return doc.exists() ? Optional.of(doc.getData()) : Optional.empty();
+                };
+                DocumentSnapshot existing = transaction.get(documentRef).get();
+                if (existing.exists() && !replaceableCheck.isReplaceable(existing.getData(), reader)) {
+                    return false;
+                }
+                transaction.set(documentRef, data);
+                return true;
+            }).get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new Exception("Thread interrupted while saving to Firestore", e);
+        } catch (ExecutionException e) {
+            Log.error(e);
+            throw new Exception("Failed to write document to Firestore", e);
+        }
+        if (!created) {
+            throw new DocumentAlreadyExistsException(documentId, null);
+        }
+    }
+
     public static void updateDocument(String collectionName, Map<String, Object> data, String docId) throws Exception {
         try {
             WriteResult result = db.collection(collectionName)

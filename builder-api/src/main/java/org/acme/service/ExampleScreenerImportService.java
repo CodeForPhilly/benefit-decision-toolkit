@@ -15,6 +15,7 @@ import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.domain.Screener;
 import org.acme.model.dto.ExampleScreener.Manifest;
 import org.acme.model.dto.ExampleScreener.ScreenerManifest;
+import org.acme.persistence.DocumentAlreadyExistsException;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.ScreenerRepository;
 import org.acme.persistence.StorageService;
@@ -31,6 +32,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -133,24 +136,42 @@ public class ExampleScreenerImportService {
                     seedData,
                     seedSourceCheckId);
 
-            if (seedCustomCheckVersions.workingCheck() != null) {
-                String newWorkingId = upsertWorkingCustomCheck(
-                        userId,
-                        seedCustomCheckVersions.workingCheck(),
-                        seedData.dmnByCheckId());
-                remappedCheckIds.put(
-                        seedCustomCheckVersions.workingCheck().getId(),
-                        newWorkingId);
-            }
+            EligibilityCheck seedCheck = seedCustomCheckVersions.workingCheck() != null
+                    ? seedCustomCheckVersions.workingCheck()
+                    : seedCustomCheckVersions.publishedCheck();
+            if (seedCheck != null) {
+                String exampleSourceId = eligibilityCheckRepository.getWorkingId(seedCheck);
+                Optional<EligibilityCheck> existingCheck = findImportedWorkingCheck(
+                        userId, seedCheck, exampleSourceId);
+                String workingId = existingCheck.map(EligibilityCheck::getId)
+                        .orElseGet(eligibilityCheckRepository::newWorkingId);
 
-            if (seedCustomCheckVersions.publishedCheck() != null) {
-                String newPublishedId = upsertPublishedCustomCheck(
-                        userId,
-                        seedCustomCheckVersions.publishedCheck(),
-                        seedData.dmnByCheckId());
-                remappedCheckIds.put(
-                        seedCustomCheckVersions.publishedCheck().getId(),
-                        newPublishedId);
+                if (seedCustomCheckVersions.workingCheck() != null) {
+                    // An earlier import's check may since have been renamed or edited, so keep it
+                    if (existingCheck.isEmpty()) {
+                        saveWorkingCustomCheck(
+                                userId,
+                                workingId,
+                                exampleSourceId,
+                                seedCustomCheckVersions.workingCheck(),
+                                seedData.dmnByCheckId());
+                    }
+                    remappedCheckIds.put(
+                            seedCustomCheckVersions.workingCheck().getId(),
+                            workingId);
+                }
+
+                if (seedCustomCheckVersions.publishedCheck() != null) {
+                    String newPublishedId = savePublishedCustomCheck(
+                            userId,
+                            workingId,
+                            exampleSourceId,
+                            seedCustomCheckVersions.publishedCheck(),
+                            seedData.dmnByCheckId());
+                    remappedCheckIds.put(
+                            seedCustomCheckVersions.publishedCheck().getId(),
+                            newPublishedId);
+                }
             }
 
             if (!remappedCheckIds.containsKey(seedSourceCheckId)) {
@@ -177,75 +198,91 @@ public class ExampleScreenerImportService {
                             + seedSourceCheckId);
         }
 
-        String seedWorkingId = buildWorkingCheckId(
-                referencedCheck.getOwnerId(),
-                referencedCheck.getModule(),
-                referencedCheck.getName());
-        String seedPublishedId = buildPublishedCheckId(
-                referencedCheck.getOwnerId(),
-                referencedCheck.getModule(),
-                referencedCheck.getName(),
-                referencedCheck.getVersion());
+        String seedWorkingId = eligibilityCheckRepository
+                .getWorkingId(referencedCheck);
+        String seedPublishedId = eligibilityCheckRepository
+                .getPublishedId(referencedCheck, referencedCheck.getVersion());
 
         return new SeedCustomCheckVersions(
                 seedData.workingCustomChecks().get(seedWorkingId),
                 seedData.publishedCustomChecks().get(seedPublishedId));
     }
 
-    private String upsertWorkingCustomCheck(String userId,
-            EligibilityCheck seedCheck, Map<String, String> dmnByCheckId)
-            throws Exception {
-        EligibilityCheck importedCheck = cloneEligibilityCheck(seedCheck);
-        importedCheck.setOwnerId(userId);
-        importedCheck.setIsArchived(false);
-
-        String newWorkingId = buildWorkingCheckId(
-                userId,
-                importedCheck.getModule(),
-                importedCheck.getName());
-        importedCheck.setId(newWorkingId);
-
-        if (eligibilityCheckRepository
-                .getWorkingCustomCheck(userId, newWorkingId, true)
-                .isPresent()) {
-            eligibilityCheckRepository.updateWorkingCustomCheck(importedCheck);
-        } else {
-            eligibilityCheckRepository.saveNewWorkingCustomCheck(importedCheck);
+    /* Finds the check an earlier import of this example created, even if it was renamed since.
+       Checks imported before exampleSourceId existed are found by the id that was built from
+       their name, as long as they still have that name. */
+    private Optional<EligibilityCheck> findImportedWorkingCheck(String userId,
+            EligibilityCheck seedCheck, String exampleSourceId) {
+        List<EligibilityCheck> userChecks = eligibilityCheckRepository
+                .getAllWorkingCustomChecks(userId);
+        Optional<EligibilityCheck> importedCheck = userChecks.stream()
+                .filter(check -> exampleSourceId
+                        .equals(check.getExampleSourceId()))
+                .findFirst();
+        if (importedCheck.isPresent()) {
+            return importedCheck;
         }
 
-        writeCheckDmn(newWorkingId, seedCheck, dmnByCheckId);
-        return newWorkingId;
+        String legacyId = "W-" + userId + "-" + seedCheck.getModule() + "-"
+                + seedCheck.getName();
+        Optional<EligibilityCheck> sameNameCheck = userChecks.stream()
+                .filter(check -> Objects.equals(check.getModule(),
+                        seedCheck.getModule())
+                        && Objects.equals(check.getName(), seedCheck.getName()))
+                .findFirst();
+        if (sameNameCheck.isEmpty()) {
+            return Optional.empty();
+        }
+        if (legacyId.equals(sameNameCheck.get().getId())
+                && sameNameCheck.get().getExampleSourceId() == null) {
+            return sameNameCheck;
+        }
+        throw new IllegalStateException("User " + userId
+                + " already has a check named " + seedCheck.getName()
+                + " in module " + seedCheck.getModule());
     }
 
-    private String upsertPublishedCustomCheck(String userId,
-            EligibilityCheck seedCheck, Map<String, String> dmnByCheckId)
-            throws Exception {
+    private void saveWorkingCustomCheck(String userId, String workingId,
+            String exampleSourceId, EligibilityCheck seedCheck,
+            Map<String, String> dmnByCheckId) throws Exception {
         EligibilityCheck importedCheck = cloneEligibilityCheck(seedCheck);
         importedCheck.setOwnerId(userId);
         importedCheck.setIsArchived(false);
+        importedCheck.setId(workingId);
+        importedCheck.setExampleSourceId(exampleSourceId);
 
-        String newPublishedId = buildPublishedCheckId(
-                userId,
-                importedCheck.getModule(),
-                importedCheck.getName(),
-                importedCheck.getVersion());
+        try {
+            eligibilityCheckRepository.reserveCheckName(userId,
+                    importedCheck.getModule(), importedCheck.getName(),
+                    workingId);
+        } catch (DocumentAlreadyExistsException e) {
+            throw new IllegalStateException("User " + userId
+                    + " already has a check named " + importedCheck.getName()
+                    + " in module " + importedCheck.getModule(), e);
+        }
+        eligibilityCheckRepository.saveNewWorkingCustomCheck(importedCheck);
+        writeCheckDmn(workingId, seedCheck, dmnByCheckId);
+    }
+
+    // Published versions are immutable, so one that already exists is reused as it is
+    private String savePublishedCustomCheck(String userId, String workingId,
+            String exampleSourceId, EligibilityCheck seedCheck,
+            Map<String, String> dmnByCheckId) throws Exception {
+        EligibilityCheck importedCheck = cloneEligibilityCheck(seedCheck);
+        importedCheck.setOwnerId(userId);
+        importedCheck.setIsArchived(false);
+        importedCheck.setExampleSourceId(exampleSourceId);
+        importedCheck.setId(workingId);
+        String newPublishedId = eligibilityCheckRepository
+                .getPublishedId(importedCheck, importedCheck.getVersion());
         importedCheck.setId(newPublishedId);
 
-        if (eligibilityCheckRepository
-                .getPublishedCustomCheck(userId, newPublishedId).isPresent()) {
+        try {
             eligibilityCheckRepository
-                    .updatePublishedCustomCheck(importedCheck);
-        } else {
-            try {
-                eligibilityCheckRepository
-                        .saveNewPublishedCustomCheck(importedCheck);
-            } catch (Exception e) {
-                Log.info(e);
-                eligibilityCheckRepository
-                        .updatePublishedCustomCheck(importedCheck);
-            }
+                    .saveNewPublishedCustomCheck(importedCheck);
+        } catch (DocumentAlreadyExistsException e) {
+            return newPublishedId;
         }
-
         writeCheckDmn(newPublishedId, seedCheck, dmnByCheckId);
         return newPublishedId;
     }
@@ -417,16 +454,6 @@ public class ExampleScreenerImportService {
         } catch (IOException exception) {
             throw new IOException("Could not find: " + path);
         }
-    }
-
-    private String buildWorkingCheckId(String ownerId, String module,
-            String name) {
-        return "W-" + ownerId + "-" + module + "-" + name;
-    }
-
-    private String buildPublishedCheckId(String ownerId, String module,
-            String name, String version) {
-        return "P-" + ownerId + "-" + module + "-" + name + "-" + version;
     }
 
     private String getIdFromPath(String path) {
