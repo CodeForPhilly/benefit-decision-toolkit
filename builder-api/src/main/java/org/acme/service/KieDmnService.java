@@ -108,7 +108,7 @@ public class KieDmnService implements DmnService {
             );
         }
 
-        if (requiredBooleanDecision.getResultType().getName() != "boolean") {
+        if (!"boolean".equals(requiredBooleanDecision.getResultType().getName())) {
             return List.of("The Result DataType of Decision '" + requiredBooleanDecisionName + "' must be of type 'boolean'.");
         }
         return new ArrayList<String>();

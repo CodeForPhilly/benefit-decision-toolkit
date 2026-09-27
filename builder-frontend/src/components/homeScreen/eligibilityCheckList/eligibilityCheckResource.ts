@@ -8,7 +8,11 @@ import {
   archiveCheck,
   fetchUserDefinedChecks,
   restoreCheck,
+  updateCheck,
+  fetchCheck,
 } from "@/api/check";
+import { renameCheckDmn } from "@/utils/renameCheckDmn";
+import type { EligibilityCheckDetail } from "@/types";
 
 export interface EligibilityCheckResource {
   checks: () => EligibilityCheck[];
@@ -17,6 +21,7 @@ export interface EligibilityCheckResource {
     addNewCheck: (check: CreateCheckRequest) => Promise<void>;
     removeCheck: (checkIdToRemove: string) => Promise<void>;
     restoreCheck: (checkIdToRestore: string) => Promise<void>;
+    renameCheck: (checkId: string, name: string) => Promise<void>;
   };
   actionInProgress: Accessor<boolean>;
   initialLoadStatus: {
@@ -93,6 +98,24 @@ const eligibilityCheckResource = (): EligibilityCheckResource => {
     }
   };
 
+  const renameCheck = async (checkId: string, name: string) => {
+    setActionInProgress(true);
+    try {
+      const check = (await fetchCheck(checkId)) as EligibilityCheckDetail;
+      if (check.name === name) return;
+      const dmnModel = await renameCheckDmn(check.dmnModel, check.name, name);
+      await updateCheck(checkId, {
+        name,
+        dmnModel,
+        originalDmnModel: check.dmnModel,
+      });
+      await refetchChecks();
+      toast.success("Check renamed.");
+    } finally {
+      setActionInProgress(false);
+    }
+  };
+
   return {
     checks: () => checks,
     archivedChecks: () => archivedChecks,
@@ -100,6 +123,7 @@ const eligibilityCheckResource = (): EligibilityCheckResource => {
       addNewCheck,
       removeCheck,
       restoreCheck: restoreArchivedCheck,
+      renameCheck,
     },
     actionInProgress,
     initialLoadStatus: {

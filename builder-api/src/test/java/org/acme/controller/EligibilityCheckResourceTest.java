@@ -5,10 +5,12 @@ import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.ws.rs.core.Response;
 import org.acme.model.domain.EligibilityCheck;
 import org.acme.model.dto.EligibilityCheck.CreateCheckRequest;
+import org.acme.model.dto.EligibilityCheck.EditCheckRequest;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.DocumentAlreadyExistsException;
 import org.acme.persistence.StorageService;
 import org.acme.service.CustomCheckDmnTemplate;
+import org.acme.service.CustomCheckDmnRenameValidator;
 import org.acme.service.DmnService;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,6 +59,7 @@ class EligibilityCheckResourceTest {
         resource.storageService = storageService;
         resource.dmnService = dmnService;
         resource.customCheckDmnTemplate = customCheckDmnTemplate;
+        resource.customCheckDmnRenameValidator = new CustomCheckDmnRenameValidator();
 
         when(principal.<String>getClaim("user_id")).thenReturn(USER_ID);
         when(identity.getPrincipal()).thenReturn(principal);
@@ -277,6 +280,82 @@ class EligibilityCheckResourceTest {
         assertEquals("includeArchived requires working=true",
                 ((java.util.Map<?, ?>) response.getEntity()).get("error"));
         verify(repository, never()).getLatestVersionPublishedCustomChecks(USER_ID);
+    }
+
+    @Test
+    void renameCustomCheckUpdatesWorkingDecisionButLeavesPublishedVersionUntouched() throws Exception {
+        EligibilityCheck publishedCheck = new EligibilityCheck("my-check", "my-module", "a check", List.of(), USER_ID);
+        publishedCheck.setId("published-check-1");
+        String originalDmn = new CustomCheckDmnTemplate().create("my-check", "a check");
+        when(storageService.getStringFromStorage("checks/dmn.xml")).thenReturn(Optional.of(originalDmn));
+        Response response = resource.updateCustomCheck(identity, CHECK_ID,
+                new EditCheckRequest("  New public title  ", null, null,
+                        originalDmn.replace("name=\"my-check\"", "name=\"New public title\""), originalDmn));
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals("New public title", workingCheck.getName());
+        assertEquals(CHECK_ID, workingCheck.getId());
+        verify(repository).updateWorkingCustomCheck(workingCheck);
+        assertEquals("my-check", publishedCheck.getName());
+        verify(repository, never()).updatePublishedCustomCheck(any());
+        verify(storageService).writeStringToStorage(org.mockito.ArgumentMatchers.eq("checks/dmn.xml"),
+                org.mockito.ArgumentMatchers.contains("name=\"New public title\""),
+                org.mockito.ArgumentMatchers.eq("application/xml"));
+    }
+
+    @Test
+    void renameCustomCheckRejectsMissingDecision() throws Exception {
+        Response response = resource.updateCustomCheck(identity, CHECK_ID,
+                new EditCheckRequest("other-check", null, null, "<definitions/>", "<definitions/>"));
+
+        assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
+        verify(repository, never()).updateWorkingCustomCheck(any());
+    }
+
+    @Test
+    void renameCustomCheckRejectsStaleModelWithoutWriting() throws Exception {
+        Response response = resource.updateCustomCheck(identity, CHECK_ID,
+                new EditCheckRequest("new-check", null, null, "<definitions/>", "outdated"));
+
+        assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
+        verify(storageService, never()).writeStringToStorage(anyString(), anyString(), anyString());
+        verify(repository, never()).updateWorkingCustomCheck(any());
+    }
+
+    @Test
+    void renameCustomCheckRequiresRefactoredModel() throws Exception {
+        Response response = resource.updateCustomCheck(identity, CHECK_ID,
+                new EditCheckRequest("new-check", null, null, null, null));
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        verify(repository, never()).updateWorkingCustomCheck(any());
+    }
+
+    @Test
+    void renameCustomCheckRestoresDmnWhenMetadataUpdateFails() throws Exception {
+        String originalDmn = new CustomCheckDmnTemplate().create("my-check", "a check");
+        when(storageService.getStringFromStorage("checks/dmn.xml")).thenReturn(Optional.of(originalDmn));
+        doThrow(new Exception("Firestore unavailable"))
+                .when(repository).updateWorkingCustomCheck(workingCheck);
+
+        Response response = resource.updateCustomCheck(identity, CHECK_ID,
+                new EditCheckRequest("new-check", null, null,
+                        originalDmn.replace("name=\"my-check\"", "name=\"new-check\""), originalDmn));
+
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
+        verify(storageService).writeStringToStorage("checks/dmn.xml", originalDmn, "application/xml");
+    }
+
+    @Test
+    void createCustomCheckRejectsNameAlreadyUsedByARenamedCheck() throws Exception {
+        workingCheck.setName("new-check");
+        when(repository.getAllWorkingCustomChecks(USER_ID)).thenReturn(List.of(workingCheck));
+        CreateCheckRequest request = new CreateCheckRequest("new-check", "my-module", "another", List.of());
+
+        Response response = resource.createCustomCheck(identity, request);
+
+        assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
+        verify(repository, never()).saveNewWorkingCustomCheck(any());
     }
 
     @Test

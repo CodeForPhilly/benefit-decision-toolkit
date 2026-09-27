@@ -11,6 +11,7 @@ import { Title } from "@solidjs/meta";
 import { Modal } from "@/components/shared/Modal";
 import { ArchiveCheck } from "@/components/homeScreen/eligibilityCheckList/modals/ArchiveCheck";
 import { Button } from "@/components/shared/Button";
+import { RenameCheck } from "./modals/RenameCheck";
 
 const EligibilityChecksList = () => {
   const {
@@ -29,6 +30,8 @@ const EligibilityChecksList = () => {
   const [checkIdToRemove, setCheckIdToRemove] = createSignal<null | string>(
     null,
   );
+  const [checkToRename, setCheckToRename] =
+    createSignal<EligibilityCheck | null>(null);
 
   const navigateToCheck = (check: EligibilityCheck) => {
     navigate("/check/" + check.id);
@@ -83,6 +86,7 @@ const EligibilityChecksList = () => {
               eligibilityCheck={check}
               navigateToCheck={navigateToCheck}
               setCheckIdToRemove={setCheckIdToRemove}
+              onRename={setCheckToRename}
             />
           )}
         </For>
@@ -123,6 +127,20 @@ const EligibilityChecksList = () => {
         </div>
       </Show>
       <Modal
+        show={checkToRename() !== null}
+        onClose={() => setCheckToRename(null)}
+      >
+        <Show when={checkToRename()}>
+          {(check) => (
+            <RenameCheck
+              check={check()}
+              onRename={(name) => actions.renameCheck(check().id, name)}
+              onClose={() => setCheckToRename(null)}
+            />
+          )}
+        </Show>
+      </Modal>
+      <Modal
         show={checkIdToRemove() !== null}
         onClose={() => setCheckIdToRemove(null)}
       >
@@ -143,13 +161,15 @@ const CheckCard = ({
   eligibilityCheck,
   navigateToCheck,
   setCheckIdToRemove,
+  onRename,
   archived = false,
   onRestore,
   actionInProgress,
 }: {
   eligibilityCheck: EligibilityCheck;
   navigateToCheck: (check: EligibilityCheck) => void;
-  setCheckIdToRemove: Setter<string>;
+  setCheckIdToRemove: Setter<string | null>;
+  onRename?: (check: EligibilityCheck) => void;
   archived?: boolean;
   onRestore?: () => Promise<void>;
   actionInProgress?: Accessor<boolean>;
@@ -165,7 +185,9 @@ const CheckCard = ({
           id={"check-card-details-" + eligibilityCheck.id}
           class="p-4 border-bottom border-gray-300 flex-1"
         >
-          <div class="text-2xl mb-2 font-bold">{eligibilityCheck.name}</div>
+          <div class="text-2xl mb-2 font-bold">
+            {eligibilityCheck.name}
+          </div>
           <div>
             <span class="font-bold">Description:</span>{" "}
             {eligibilityCheck.description}
@@ -179,6 +201,12 @@ const CheckCard = ({
             when={archived}
             fallback={
               <>
+                <Button
+                  variant="outline-secondary"
+                  onClick={() => onRename?.(eligibilityCheck)}
+                >
+                  Rename
+                </Button>
                 <Button
                   variant="outline-secondary"
                   onClick={() => {

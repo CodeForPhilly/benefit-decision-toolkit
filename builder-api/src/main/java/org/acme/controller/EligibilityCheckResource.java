@@ -20,12 +20,14 @@ import org.acme.persistence.DocumentAlreadyExistsException;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.StorageService;
 import org.acme.service.CustomCheckDmnTemplate;
+import org.acme.service.CustomCheckDmnRenameValidator;
 import org.acme.service.DmnService;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -43,6 +45,9 @@ public class EligibilityCheckResource {
 
     @Inject
     CustomCheckDmnTemplate customCheckDmnTemplate;
+
+    @Inject
+    CustomCheckDmnRenameValidator customCheckDmnRenameValidator;
 
     // ========== Collection Endpoints ==========
 
@@ -106,6 +111,12 @@ public class EligibilityCheckResource {
                 .getWorkingCustomCheckMetadata(userId, checkId);
         if (existingCheck.isPresent()) {
             return duplicateCheckResponse(request, existingCheck.get().getIsArchived());
+        }
+        boolean nameInUse = eligibilityCheckRepository.getAllWorkingCustomChecks(userId).stream()
+                .anyMatch(check -> Objects.equals(check.getModule(), request.module())
+                        && Objects.equals(check.getName(), request.name()));
+        if (nameInUse) {
+            return duplicateCheckResponse(request);
         }
 
         String initialDmnModel = customCheckDmnTemplate.create(request.name(), request.description());
@@ -239,6 +250,69 @@ public class EligibilityCheckResource {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
 
+        String newName = request.name() == null ? null : request.name().trim();
+        boolean renamed = newName != null && !newName.equals(existingCheck.getName());
+        String originalDmn = null;
+        String dmnPath = null;
+        if (request.dmnModel() != null && !renamed) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", "A renamed DMN model must accompany a check name change."))
+                    .build();
+        }
+        if (renamed) {
+            if (request.dmnModel() == null || request.dmnModel().isBlank() || request.originalDmnModel() == null) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity(Map.of("error", "Renaming requires the original and refactored DMN models."))
+                        .build();
+            }
+            boolean nameInUse = eligibilityCheckRepository.getAllWorkingCustomChecks(userId).stream()
+                    .anyMatch(check -> !checkId.equals(check.getId())
+                            && Objects.equals(check.getModule(), existingCheck.getModule())
+                            && Objects.equals(check.getName(), newName));
+            EligibilityCheck candidate = new EligibilityCheck(newName, existingCheck.getModule(),
+                    existingCheck.getDescription(), existingCheck.getParameterDefinitions(), userId);
+            String candidateId = eligibilityCheckRepository.getWorkingId(candidate);
+            if (nameInUse || (!candidateId.equals(checkId)
+                    && eligibilityCheckRepository.getWorkingCustomCheckMetadata(userId, candidateId).isPresent())) {
+                return duplicateCheckResponse("A check named \"" + newName + "\" in module \""
+                        + existingCheck.getModule() + "\" already exists.");
+            }
+            dmnPath = storageService.getCheckDmnModelPath(checkId);
+            Optional<String> dmn = storageService.getStringFromStorage(dmnPath);
+            if (dmn.isEmpty()) {
+                return Response.status(Response.Status.CONFLICT)
+                        .entity(Map.of("error", "The working check has no DMN model to rename."))
+                        .build();
+            }
+            originalDmn = dmn.get();
+            if (!originalDmn.equals(request.originalDmnModel())) {
+                return Response.status(Response.Status.CONFLICT)
+                        .entity(Map.of("error", "The DMN model changed. Reload the check and try renaming again."))
+                        .build();
+            }
+            try {
+                String renamedDmn = request.dmnModel();
+                customCheckDmnRenameValidator.validate(originalDmn, renamedDmn, existingCheck.getName(), newName);
+                List<String> errors = dmnService.validateDmnXml(renamedDmn, Map.of(), checkId, newName);
+                if (!errors.isEmpty()) {
+                    return Response.status(Response.Status.CONFLICT)
+                            .entity(Map.of("error", "The renamed DMN model is invalid: " + String.join("; ", errors)))
+                            .build();
+                }
+                storageService.writeStringToStorage(dmnPath, renamedDmn, "application/xml");
+                existingCheck.setDmnModel(renamedDmn);
+            } catch (IllegalArgumentException | org.xml.sax.SAXException e) {
+                return Response.status(Response.Status.CONFLICT)
+                        .entity(Map.of("error", e.getMessage()))
+                        .build();
+            } catch (Exception e) {
+                Log.error("Could not rename DMN model of check " + checkId, e);
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                        .entity(Map.of("error", "Could not rename the check's DMN model."))
+                        .build();
+            }
+            existingCheck.setName(newName);
+        }
         // Partial update: only update fields that are provided (non-null)
         if (request.description() != null) {
             existingCheck.setDescription(request.description());
@@ -251,6 +325,13 @@ public class EligibilityCheckResource {
             eligibilityCheckRepository.updateWorkingCustomCheck(existingCheck);
             return Response.ok().entity(existingCheck).build();
         } catch (Exception e){
+            if (renamed) {
+                try {
+                    storageService.writeStringToStorage(dmnPath, originalDmn, "application/xml");
+                } catch (Exception rollbackFailure) {
+                    Log.error("Could not restore DMN model after failed rename of check " + checkId, rollbackFailure);
+                }
+            }
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(Map.of("error", "could not update Check"))
                     .build();

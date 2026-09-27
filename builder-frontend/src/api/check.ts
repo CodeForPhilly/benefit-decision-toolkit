@@ -99,6 +99,10 @@ export const updateCheck = async (
   try {
     // Build request body with only non-undefined fields (partial update)
     const body: UpdateCheckRequest = {};
+    if (updates.name !== undefined) body.name = updates.name;
+    if (updates.dmnModel !== undefined) body.dmnModel = updates.dmnModel;
+    if (updates.originalDmnModel !== undefined)
+      body.originalDmnModel = updates.originalDmnModel;
     if (updates.description !== undefined)
       body.description = updates.description;
     if (updates.parameterDefinitions !== undefined)
@@ -107,7 +111,15 @@ export const updateCheck = async (
     const response = await authPatch(url, body);
 
     if (!response.ok) {
-      throw new Error(`Update failed with status: ${response.status}`);
+      let message = `Update failed with status: ${response.status}`;
+      try {
+        const responseBody = await response.json();
+        if (typeof responseBody.error === "string")
+          message = responseBody.error;
+      } catch {
+        // Keep the status-based fallback when the server does not return JSON.
+      }
+      throw new ApiError(message, response.status);
     }
     const data = await response.json();
     return data;

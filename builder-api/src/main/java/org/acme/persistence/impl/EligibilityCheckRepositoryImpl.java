@@ -67,21 +67,10 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
     }
 
     public List<EligibilityCheck> getPublishedCheckVersions(EligibilityCheck workingCustomCheck) throws Exception {
-        Map<String, String> fieldValues = Map.of(
-            "ownerId", workingCustomCheck.getOwnerId(),
-            "module", workingCustomCheck.getModule(),
-            "name", workingCustomCheck.getName()
-        );
-
-        /* Get all related Published Checks for a Working Check */
-        List<Map<String, Object>> checkMaps = (
-            FirestoreUtils.getFirestoreDocsByFields(
-                CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION,
-                fieldValues
-            )
-        );
-        ObjectMapper mapper = new ObjectMapper();
-        return checkMaps.stream().map(checkMap -> mapper.convertValue(checkMap, EligibilityCheck.class)).toList();
+        String prefix = getPublishedPrefix(workingCustomCheck);
+        return getPublishedCustomChecks(workingCustomCheck.getOwnerId()).stream()
+                .filter(check -> prefix.equals(getPublishedPrefix(check)))
+                .toList();
     }
 
     public Optional<EligibilityCheck> getWorkingCustomCheck(String userId, String checkId){
@@ -185,11 +174,18 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
 
     @Override
     public String getWorkingId(EligibilityCheck check) {
+        if (check.getId() != null && check.getId().startsWith("W-")) {
+            return check.getId();
+        }
+        if (check.getId() != null && check.getId().startsWith("P-")
+                && check.getVersion() != null && check.getId().endsWith("-" + check.getVersion())) {
+            return "W-" + check.getId().substring(2, check.getId().length() - check.getVersion().length() - 1);
+        }
         return CheckStatus.WORKING.getCode() + "-" + check.getOwnerId() + "-" + check.getModule() + "-" + check.getName();
     }
 
     public String getPublishedPrefix(EligibilityCheck check) {
-        return CheckStatus.PUBLISHED.getCode() + "-" + check.getOwnerId() + "-" + check.getModule() + "-" + check.getName();
+        return "P-" + getWorkingId(check).substring(2);
     }
 
     public String getPublishedId(EligibilityCheck check) {

@@ -13,6 +13,13 @@ import java.util.regex.Pattern;
  */
 public class CheckNameValidator implements ConstraintValidator<ValidCheckName, String> {
 
+  private boolean optional;
+
+  @Override
+  public void initialize(ValidCheckName constraintAnnotation) {
+    optional = constraintAnnotation.optional();
+  }
+
   private static final Pattern ALLOWED = Pattern.compile("^\\p{L}[\\p{L}\\p{N} '_-]*$");
 
   private static final Pattern FIRST_WORD = Pattern.compile("^[\\p{L}\\p{N}]+");
@@ -24,6 +31,9 @@ public class CheckNameValidator implements ConstraintValidator<ValidCheckName, S
 
   @Override
   public boolean isValid(String name, ConstraintValidatorContext context) {
+    if (name == null && optional) {
+      return true;
+    }
     if (name == null || name.isBlank()) {
       return reject(context, "Check name must be provided.");
     }

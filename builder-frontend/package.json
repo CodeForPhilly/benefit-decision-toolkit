@@ -16,6 +16,8 @@
     "@bpmn-io/properties-panel": "^3.36.0",
     "@corvu/drawer": "^0.2.4",
     "@kie-tools/dmn-editor-standalone": "^10.2.0",
+    "@kie-tools/dmn-language-service": "10.2.0",
+    "@kie-tools/dmn-marshaller": "10.2.0",
     "@solid-primitives/deep": "^0.3.3",
     "@solid-primitives/resource": "^0.4.2",
     "@solidjs/meta": "^0.29.4",
