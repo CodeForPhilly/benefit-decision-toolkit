@@ -19,7 +19,7 @@ An **eligibility screener** is a web-based form that:
 2. Evaluates that information against defined eligibility rules
 3. Displays eligibility results based on the evaluation
 
-![An eligibility form for assistance programs. The form asks if the user lives in Philly, their birthday, if they own their house, and which benefits they are enrolled in. The results show that the user is eligible for Food Assistance because they live in Philadelphia, are over 18, and are enrolled in Food Assistance. However, they are ineligible for Heating Assistance because although they are enrolled in Food Assistance and over 18, they do not own their house.](../../../assets/screenshots/example-screener.png)
+![A published eligibility screener form that collects the information needed to evaluate an applicant.](../../../assets/screenshots/example-screener.png)
 
 Each screener has two primary components that work together:
 
@@ -48,6 +48,10 @@ A **Screener** is the top-level project in BDT. It represents the complete web e
 A **Benefit** is a named program that you want to screen applicants for (for example, "SNAP" or "Medicaid"). Each screener can contain one or more benefits, and each benefit is evaluated independently.
 
 A user is eligible for a benefit only if all of its eligibility rules evaluate to `True`.
+
+You can create a custom benefit or start from a pre-built benefit in the BDT
+library. Library benefits are copied into your screener so you can adjust their
+name, description, and eligibility checks.
 
 ### 3.3 Eligibility Checks
 

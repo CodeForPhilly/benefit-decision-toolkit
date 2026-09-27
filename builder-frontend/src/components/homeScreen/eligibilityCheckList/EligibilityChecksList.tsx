@@ -49,7 +49,10 @@ const EligibilityChecksList = () => {
             checks.
           </p>
           <p>
-            <a href="https://bdt-docs.web.app/custom-checks/" target="_blank">
+            <a
+              href="https://bdt-docs.web.app/user/custom-checks/"
+              target="_blank"
+            >
               Read about custom eligibility checks in the docs
             </a>
           </p>

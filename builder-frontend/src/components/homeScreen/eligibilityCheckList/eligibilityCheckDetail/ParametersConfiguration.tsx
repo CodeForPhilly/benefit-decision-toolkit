@@ -46,7 +46,7 @@ const ParametersConfiguration = ({
           </p>
           <p>
             <a
-              href="https://bdt-docs.web.app/custom-checks/#4-the-custom-check-editor"
+              href="https://bdt-docs.web.app/user/custom-checks/#4-the-custom-check-editor"
               target="_blank"
             >
               Read about the custom check editor in the docs

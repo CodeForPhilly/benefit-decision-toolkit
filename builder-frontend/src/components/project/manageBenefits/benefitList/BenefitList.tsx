@@ -43,10 +43,10 @@ const BenefitList = ({
           </p>
           <p>
             <a
-              href="https://bdt-docs.web.app/user-guide/#3-defining-eligibility-logic-manage-benefits"
+              href="https://bdt-docs.web.app/user/user-guide/#3-defining-eligibility-logic-manage-benefits"
               target="_blank"
             >
-              Read about defining elegibility logic in the docs
+              Read about defining eligibility logic in the docs
             </a>
           </p>
         </Tooltip>

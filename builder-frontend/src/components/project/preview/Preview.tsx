@@ -81,7 +81,7 @@ const Preview = ({ project, formSchema }) => {
             </p>
             <p>
               <a
-                href="https://bdt-docs.web.app/user-guide/#6-previewing-your-screener"
+                href="https://bdt-docs.web.app/user/user-guide/#6-previewing-your-screener"
                 target="_blank"
               >
                 Read about previewing your screener in the docs

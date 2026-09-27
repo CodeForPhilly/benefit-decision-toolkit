@@ -219,11 +219,11 @@ Pushing the tag triggers GitHub Actions → Docker build → Google Cloud Run de
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| Java | 17 | Runtime |
-| Quarkus | 2.16.12.Final | Framework |
-| Kogito | 1.44.1.Final | DMN engine |
+| Java | 21 | Runtime |
+| Quarkus | 3.27.2 | Framework |
+| Kogito | 10.2.0 | DMN engine |
 | Maven | 3.8+ | Build tool |
-| DMN | 1.3 | Decision modeling |
+| DMN | 1.6 | Decision modeling |
 | Bruno | Latest | API testing |
 
 ### Key Commands
@@ -239,14 +239,14 @@ mvn test                  # Java tests
 cd test/bdt && bru run    # Bruno tests
 
 # Deployment
-./bin/tag-release 0.4.0   # Create release
+./bin/tag-release X.Y.Z   # Create release
 ```
 
 ### Important Constraints
 
 1. All DMN model names must be globally unique
 2. Decision Services must be named `{ModelName}Service`
-3. Java 17 required (not 21 like main BDT project)
+3. Java 21 required
 4. Hot reload works for DMN only; Java changes need restart
 5. Imported decision services can't share names
 
