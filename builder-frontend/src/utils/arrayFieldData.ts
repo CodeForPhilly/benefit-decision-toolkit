@@ -10,8 +10,15 @@ interface FormComponent {
   components?: FormComponent[];
 }
 
-/** Convert only the opt-in field's internal value to eligibility input data. */
-export function normalizeChecklistWithNoneData<T extends object>(
+// Field types whose answers are arrays of selected options.
+const ARRAY_FIELD_TYPES = ['checklist', 'taglist', CHECKLIST_WITH_NONE_TYPE];
+
+/**
+ * Convert array answers to eligibility input data. form-js uses [] for an
+ * untouched field, so an empty answer is sent as null (unanswered). Only an
+ * explicit "None of these" answer is sent as [].
+ */
+export function normalizeArrayFieldData<T extends object>(
   schema: { components?: FormComponent[] },
   data: T,
 ): T {
@@ -34,8 +41,6 @@ export function normalizeChecklistWithNoneData<T extends object>(
     }
 
     const value = target[segment];
-    // form-js uses [] for an untouched checkbox group. An explicit None
-    // answer carries the marker until this evaluation boundary.
     target[segment] = Array.isArray(value) && value.includes(NONE_OF_THESE_VALUE)
       ? []
       : Array.isArray(value) && value.length > 0 ? value : null;
@@ -45,7 +50,7 @@ export function normalizeChecklistWithNoneData<T extends object>(
     for (const component of components ?? []) {
       const prefix = [parentPath, component.path].filter(Boolean).join('.');
 
-      if (component.type === CHECKLIST_WITH_NONE_TYPE && component.key) {
+      if (ARRAY_FIELD_TYPES.includes(component.type) && component.key) {
         const path = [prefix, component.key].filter(Boolean).join('.');
         normalizeAtPath(result, path.split('.'));
       }

@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { Form } from '@bpmn-io/form-js-viewer';
 import CustomFormFieldsModule from './index';
 import { NONE_OF_THESE_VALUE } from './ChecklistWithNone';
-import { normalizeChecklistWithNoneData } from '@/utils/checklistWithNoneData';
+import { normalizeArrayFieldData } from '@/utils/arrayFieldData';
 
 let form: Form | undefined;
 
@@ -90,9 +90,9 @@ describe('ChecklistWithNone', () => {
     expect(form._getState().data.enrollments).toEqual([NONE_OF_THESE_VALUE]);
     expect(checkboxes()[0].checked).toBe(false);
 
-    expect(normalizeChecklistWithNoneData(schema, form._getState().data).enrollments).toEqual([]);
+    expect(normalizeArrayFieldData(schema, form._getState().data).enrollments).toEqual([]);
     checkboxes()[1].click();
     await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(normalizeChecklistWithNoneData(schema, form._getState().data).enrollments).toBeNull();
+    expect(normalizeArrayFieldData(schema, form._getState().data).enrollments).toBeNull();
   });
 });

@@ -8,7 +8,7 @@ import { State } from "@bpmn-io/form-js-viewer/dist/types/Form";
 
 import CustomFormFieldsModule from "../project/formJsExtensions/customFormFields";
 import { hideQuestions } from "@/utils/questionVotes";
-import { normalizeChecklistWithNoneData } from "@/utils/checklistWithNoneData";
+import { normalizeArrayFieldData } from "@/utils/arrayFieldData";
 
 import "@bpmn-io/form-js/dist/assets/form-js.css";
 
@@ -53,7 +53,7 @@ function FormRenderer({
     currentData = cloneDeep(formData());
 
     const debouncedSubmit = debounce((data) => {
-      submitForm(normalizeChecklistWithNoneData(schema, data));
+      submitForm(normalizeArrayFieldData(schema, data));
     }, 1000);
 
     form
