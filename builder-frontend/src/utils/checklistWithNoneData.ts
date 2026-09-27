@@ -27,7 +27,8 @@ export function normalizeChecklistWithNoneData<T extends object>(
     const [segment, ...rest] = segments;
     if (['__proto__', 'prototype', 'constructor'].includes(segment)) return;
     if (rest.length > 0) {
-      target[segment] ??= {};
+      // A missing parent means the field's section wasn't submitted (e.g. it
+      // is hidden). Creating it would add people or list items to the data.
       normalizeAtPath(target[segment], rest);
       return;
     }

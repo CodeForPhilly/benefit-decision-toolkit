@@ -12,7 +12,7 @@ const schema = {
 
 describe('normalizeChecklistWithNoneData', () => {
   it('distinguishes unanswered, explicit None, and selected values', () => {
-    expect(normalizeChecklistWithNoneData(schema, {})).toEqual({
+    expect(normalizeChecklistWithNoneData(schema, { people: { client: {} } })).toEqual({
       people: { client: { enrollments: null } },
     });
     expect(normalizeChecklistWithNoneData(schema, {
@@ -37,6 +37,17 @@ describe('normalizeChecklistWithNoneData', () => {
     expect(normalized.regular).toEqual([]);
     expect(normalized.people.client.enrollments).toEqual([]);
     expect(data.people.client.enrollments).toEqual([NONE_OF_THESE_VALUE]);
+  });
+
+  it('does not create missing parent objects or lists', () => {
+    expect(normalizeChecklistWithNoneData(schema, { people: {} })).toEqual({ people: {} });
+    expect(normalizeChecklistWithNoneData({
+      components: [{
+        type: 'dynamiclist',
+        path: 'household',
+        components: [{ type: 'checklist_none', key: 'enrollments' }],
+      }],
+    }, {})).toEqual({});
   });
 
   it('normalizes fields inside repeated groups', () => {
