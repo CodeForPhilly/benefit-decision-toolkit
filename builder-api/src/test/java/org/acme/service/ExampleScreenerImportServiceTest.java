@@ -1,5 +1,7 @@
 package org.acme.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.acme.model.domain.EligibilityCheck;
 import org.acme.persistence.EligibilityCheckRepository;
 import org.acme.persistence.ScreenerRepository;
@@ -9,12 +11,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
@@ -27,7 +32,9 @@ class ExampleScreenerImportServiceTest {
 
     private static final String USER_ID = "new-user";
     private EligibilityCheck seedCheck;
+    private String seedWorkingId;
 
+    private final ObjectMapper mapper = new ObjectMapper();
     private final EligibilityCheckRepositoryImpl ids = new EligibilityCheckRepositoryImpl();
     private final EligibilityCheckRepository checkRepository = mock(EligibilityCheckRepository.class);
     private final ScreenerRepository screenerRepository = mock(ScreenerRepository.class);
@@ -37,20 +44,44 @@ class ExampleScreenerImportServiceTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        var mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-        var loader = getClass().getClassLoader();
-        try (var stream = loader.getResourceAsStream("seed-data/example-screener/manifest.json")) {
-            var manifest = mapper.readTree(stream);
-            try (var checkStream = loader.getResourceAsStream(manifest.path("workingCustomChecks").get(0).asText())) {
-                seedCheck = mapper.readValue(checkStream, EligibilityCheck.class);
-            }
-        }
+        seedCheck = findReferencedSeedCheck();
+        assumeTrue(seedCheck != null, "The example screener's benefits use no custom checks");
+        seedWorkingId = ids.getWorkingId(seedCheck);
         when(checkRepository.getWorkingId(any())).thenAnswer(invocation -> ids.getWorkingId(invocation.getArgument(0)));
         when(checkRepository.getPublishedId(any(), anyString()))
                 .thenAnswer(invocation -> ids.getPublishedId(invocation.getArgument(0), invocation.getArgument(1)));
         when(checkRepository.newWorkingId()).thenAnswer(invocation -> ids.newWorkingId());
         when(screenerRepository.saveNewWorkingScreener(any())).thenReturn("screener-1");
         when(storageService.getCheckDmnModelPath(anyString())).thenAnswer(invocation -> "check/" + invocation.getArgument(0));
+    }
+
+    // The first custom check a benefit uses, as the seed stores it (working or published)
+    private EligibilityCheck findReferencedSeedCheck() throws Exception {
+        JsonNode manifest = readResource("seed-data/example-screener/manifest.json");
+        Map<String, JsonNode> seedChecks = new HashMap<>();
+        for (String collection : List.of("workingCustomChecks", "publishedCustomChecks")) {
+            for (JsonNode path : manifest.path(collection)) {
+                JsonNode check = readResource(path.asText());
+                seedChecks.put(check.path("id").asText(), check);
+            }
+        }
+        for (JsonNode screener : manifest.path("screeners")) {
+            for (JsonNode benefitPath : screener.path("benefits")) {
+                for (JsonNode checkConfig : readResource(benefitPath.asText()).path("checks")) {
+                    JsonNode check = seedChecks.get(checkConfig.path("sourceCheckId").asText());
+                    if (check != null) {
+                        return mapper.treeToValue(check, EligibilityCheck.class);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private JsonNode readResource(String path) throws Exception {
+        try (var stream = getClass().getClassLoader().getResourceAsStream(path)) {
+            return mapper.readTree(stream);
+        }
     }
 
     @Test
@@ -60,7 +91,7 @@ class ExampleScreenerImportServiceTest {
         ArgumentCaptor<EligibilityCheck> saved = ArgumentCaptor.forClass(EligibilityCheck.class);
         verify(checkRepository, atLeastOnce()).saveNewWorkingCustomCheck(saved.capture());
         EligibilityCheck imported = saved.getAllValues().stream()
-                .filter(check -> seedCheck.getId().equals(check.getExampleSourceId()))
+                .filter(check -> seedWorkingId.equals(check.getExampleSourceId()))
                 .findFirst().orElseThrow();
         assertFalse(imported.getId().contains(imported.getName()));
         assertEquals(USER_ID, imported.getOwnerId());
@@ -70,7 +101,7 @@ class ExampleScreenerImportServiceTest {
     void reimportKeepsARenamedCheckAndPublishesUnderItsId() throws Exception {
         EligibilityCheck renamed = new EligibilityCheck("renamed", seedCheck.getModule(), "", List.of(), USER_ID);
         renamed.setId("W-kept");
-        renamed.setExampleSourceId(seedCheck.getId());
+        renamed.setExampleSourceId(seedWorkingId);
         when(checkRepository.getAllWorkingCustomChecks(USER_ID)).thenReturn(List.of(renamed));
 
         service.importForUser(USER_ID);
