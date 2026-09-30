@@ -2,152 +2,156 @@ package org.acme.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.acme.enums.EvaluationResult;
-import org.acme.persistence.StorageService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
+/* Checks that the bundled seed is internally consistent. It deliberately asserts nothing about
+   what the example contains, so the example can be edited and re-exported freely. */
 class ExampleScreenerSeedTest {
+    private static final String MANIFEST = "seed-data/example-screener/manifest.json";
+
     private final ObjectMapper mapper = new ObjectMapper();
+    private JsonNode manifest;
+
+    @BeforeEach
+    void loadManifest() throws Exception {
+        manifest = json(MANIFEST);
+    }
+
+    @Test
+    void everyManifestPathIsBundled() throws Exception {
+        for (JsonNode screener : manifest.path("screeners")) {
+            json(screener.path("screenerPath").asText());
+            for (JsonNode benefitPath : screener.path("benefits")) {
+                json(benefitPath.asText());
+            }
+            String formPath = screener.path("formSchema").asText();
+            if (!formPath.isEmpty()) {
+                json(formPath);
+            }
+        }
+        for (String collection : List.of("workingCustomChecks", "publishedCustomChecks", "dmnPaths")) {
+            for (JsonNode path : manifest.path(collection)) {
+                resource(path.asText());
+            }
+        }
+    }
+
+    @Test
+    void benefitsReferenceBundledCustomChecksAndSetRequiredParameters() throws Exception {
+        Map<String, JsonNode> customChecks = customChecksById();
+        Map<String, String> dmnPaths = dmnPathsByCheckId();
+        for (JsonNode screener : manifest.path("screeners")) {
+            for (JsonNode benefitPath : screener.path("benefits")) {
+                for (JsonNode checkConfig : json(benefitPath.asText()).path("checks")) {
+                    String context = benefitPath.asText() + " check " + checkConfig.path("checkName").asText();
+                    String sourceCheckId = sourceCheckId(checkConfig);
+                    if (!isLibraryCheckId(sourceCheckId)) {
+                        assertTrue(customChecks.containsKey(sourceCheckId),
+                                context + " references " + sourceCheckId + ", which is not in the seed");
+                        assertTrue(dmnPaths.containsKey(sourceCheckId),
+                                context + " references " + sourceCheckId + ", which has no DMN in the seed");
+                    }
+                    for (JsonNode parameter : checkConfig.path("parameterDefinitions")) {
+                        if (parameter.path("required").asBoolean()) {
+                            String key = parameter.path("key").asText();
+                            assertTrue(checkConfig.path("parameters").hasNonNull(key),
+                                    context + " is missing required parameter " + key);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    void everyCustomCheckHasAValidDmnMatchingItsInputDefinition() throws Exception {
+        KieDmnService dmnService = new KieDmnService();
+        Map<String, String> dmnPaths = dmnPathsByCheckId();
+        for (Map.Entry<String, JsonNode> check : customChecksById().entrySet()) {
+            String checkId = check.getKey();
+            String dmnPath = dmnPaths.get(checkId);
+            assertNotNull(dmnPath, "No DMN in the seed for " + checkId);
+            String xml = resource(dmnPath);
+            String name = new DmnParser(xml).getName();
+            assertEquals(List.of(), dmnService.validateDmnXml(xml, Map.of(), name, name), checkId);
+            assertEquals(dmnService.extractInputSchema(xml, Map.of(), name),
+                    check.getValue().path("inputDefinition"), checkId);
+        }
+    }
+
+    @Test
+    void formsAskForTheCustomInputsTheirChecksUse() throws Exception {
+        Map<String, JsonNode> customChecks = customChecksById();
+        for (JsonNode screener : manifest.path("screeners")) {
+            String formPath = screener.path("formSchema").asText();
+            List<String> formKeys = formPath.isEmpty()
+                    ? List.of()
+                    : json(formPath).findValuesAsText("key");
+            for (JsonNode benefitPath : screener.path("benefits")) {
+                for (JsonNode checkConfig : json(benefitPath.asText()).path("checks")) {
+                    JsonNode check = customChecks.get(sourceCheckId(checkConfig));
+                    if (check == null) {
+                        continue;
+                    }
+                    check.path("inputDefinition").path("properties").path("custom").path("properties")
+                            .fieldNames().forEachRemaining(field -> assertTrue(
+                                    formKeys.stream().anyMatch(key -> key.equals("custom." + field)
+                                            || key.startsWith("custom." + field + ".")),
+                                    screener.path("screenerPath").asText() + " has no form field for custom."
+                                            + field + ", which " + check.path("id").asText() + " needs"));
+                }
+            }
+        }
+    }
+
+    private Map<String, JsonNode> customChecksById() throws Exception {
+        Map<String, JsonNode> checks = new HashMap<>();
+        for (String collection : List.of("workingCustomChecks", "publishedCustomChecks")) {
+            for (JsonNode path : manifest.path(collection)) {
+                JsonNode check = json(path.asText());
+                checks.put(check.path("id").asText(), check);
+            }
+        }
+        return checks;
+    }
+
+    // The importer finds a check's DMN by the file name, which is the check's id
+    private Map<String, String> dmnPathsByCheckId() {
+        Map<String, String> paths = new HashMap<>();
+        for (JsonNode path : manifest.path("dmnPaths")) {
+            String fileName = Paths.get(path.asText()).getFileName().toString();
+            paths.put(fileName.substring(0, fileName.lastIndexOf('.')), path.asText());
+        }
+        return paths;
+    }
+
+    // Mirrors ExampleScreenerImportService
+    private String sourceCheckId(JsonNode checkConfig) {
+        String sourceCheckId = checkConfig.path("sourceCheckId").asText();
+        return sourceCheckId.isBlank() ? checkConfig.path("checkId").asText() : sourceCheckId;
+    }
+
+    private boolean isLibraryCheckId(String checkId) {
+        return checkId.startsWith("L");
+    }
+
+    private JsonNode json(String path) throws Exception {
+        return mapper.readTree(resource(path));
+    }
 
     private String resource(String path) throws Exception {
         try (var stream = getClass().getClassLoader().getResourceAsStream(path)) {
-            assertNotNull(stream, path);
+            assertNotNull(stream, path + " is not bundled");
             return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
         }
     }
-
-    @Test
-    void manifestContainsFourBenefitsAndEveryReferencedResource() throws Exception {
-        JsonNode manifest = mapper.readTree(resource("seed-data/example-screener/manifest.json"));
-        assertEquals(1, manifest.path("screeners").size());
-        JsonNode screener = manifest.path("screeners").get(0);
-        resource(screener.path("screenerPath").asText());
-        JsonNode form = mapper.readTree(resource(screener.path("formSchema").asText()));
-        assertTrue(form.path("components").size() > 10);
-        assertEquals(4, screener.path("benefits").size());
-        assertTrue(form.path("components").findValuesAsText("key").contains("custom.wantsExtraCash"));
-        int libraryChecks = 0;
-        int customChecks = 0;
-        for (JsonNode path : screener.path("benefits")) {
-            JsonNode benefit = mapper.readTree(resource(path.asText()));
-            for (JsonNode check : benefit.path("checks")) {
-                if (check.path("sourceCheckId").asText().startsWith("L-")) {
-                    libraryChecks++;
-                    assertTrue(check.path("evaluationUrl").asText().startsWith("/api/v1/checks/"));
-                    if (check.path("parameters").has("personId")) {
-                        assertEquals("client", check.path("parameters").path("personId").asText());
-                    }
-                } else {
-                    customChecks++;
-                    boolean found = false;
-                    for (JsonNode checkPath : manifest.path("publishedCustomChecks")) {
-                        found |= mapper.readTree(resource(checkPath.asText())).path("id")
-                            .asText().equals(check.path("sourceCheckId").asText());
-                    }
-                    assertTrue(found, "Custom check must reference an exported published version");
-                }
-            }
-        }
-        assertEquals(13, libraryChecks);
-        assertEquals(1, customChecks);
-        for (String collection : new String[]{"workingCustomChecks", "publishedCustomChecks", "dmnPaths"}) {
-            assertEquals(collection.equals("dmnPaths") ? 2 : 1, manifest.path(collection).size());
-            for (JsonNode path : manifest.path(collection)) resource(path.asText());
-        }
-    }
-
-    @Test
-    void customChecksEvaluateYesNoAndUnknownForWorkingAndPublishedVersions() throws Exception {
-        JsonNode manifest = mapper.readTree(resource("seed-data/example-screener/manifest.json"));
-        KieDmnService service = new KieDmnService();
-        StorageService storage = mock(StorageService.class);
-        var storageField = KieDmnService.class.getDeclaredField("storageService");
-        storageField.setAccessible(true);
-        storageField.set(service, storage);
-        for (JsonNode path : manifest.path("dmnPaths")) {
-            String xml = resource(path.asText());
-            String name = new DmnParser(xml).getName();
-            assertTrue(service.validateDmnXml(xml, Map.of(), name, name).isEmpty());
-            JsonNode generatedSchema = service.extractInputSchema(xml, Map.of(), name);
-            for (String collection : new String[]{"workingCustomChecks", "publishedCustomChecks"}) {
-                for (JsonNode checkPath : manifest.path(collection)) {
-                    assertEquals(generatedSchema, mapper.readTree(resource(checkPath.asText())).path("inputDefinition"));
-                }
-            }
-            when(storage.getStringFromStorage(path.asText())).thenReturn(Optional.of(xml));
-            for (Boolean answer : new Boolean[]{true, false, null}) {
-                Map<String, Object> inputs = new HashMap<>();
-                inputs.put("wantsExtraCash", answer);
-                EvaluationResult expected = answer == null ? EvaluationResult.UNABLE_TO_DETERMINE
-                    : answer ? EvaluationResult.TRUE : EvaluationResult.FALSE;
-                assertEquals(expected, service.evaluateDmn(path.asText(), name, inputs, Map.of("expectedAnswer", true)));
-            }
-        }
-    }
-    @Test
-    void screenerEvaluationReadsTheCustomFormObject() throws Exception {
-        JsonNode manifest = mapper.readTree(resource("seed-data/example-screener/manifest.json"));
-        org.acme.model.domain.Benefit benefit = null;
-        for (JsonNode benefitPath : manifest.path("screeners").get(0).path("benefits")) {
-            var candidate = mapper.readValue(resource(benefitPath.asText()), org.acme.model.domain.Benefit.class);
-            if (candidate.getChecks().stream().anyMatch(check -> !check.getSourceCheckId().startsWith("L-"))) {
-                benefit = candidate;
-                break;
-            }
-        }
-        assertNotNull(benefit, "Example must contain a benefit with a custom check");
-        var controller = new org.acme.controller.DecisionResource();
-        var repository = mock(org.acme.persistence.PublishedScreenerRepository.class);
-        var storage = mock(StorageService.class);
-        var library = mock(LibraryApiService.class);
-        var dmn = new KieDmnService();
-        var storageField = KieDmnService.class.getDeclaredField("storageService");
-        storageField.setAccessible(true);
-        storageField.set(dmn, storage);
-        var screener = new org.acme.model.domain.Screener();
-        when(repository.getScreener("example")).thenReturn(Optional.of(screener));
-        when(repository.getBenefitsInScreener(screener)).thenReturn(java.util.List.of(benefit));
-        when(library.evaluateCheck(any(), any())).thenReturn(new LibraryApiService.LibraryCheckEvaluation(
-            EvaluationResult.TRUE, Map.of(), java.util.List.of()));
-        var customCheck = benefit.getChecks().stream()
-            .filter(check -> !check.getSourceCheckId().startsWith("L-")).findFirst().orElseThrow();
-        String dmnPath = "";
-        for (JsonNode path : manifest.path("dmnPaths")) {
-            if (path.asText().endsWith("/" + customCheck.getSourceCheckId() + ".dmn")) {
-                dmnPath = path.asText();
-                break;
-            }
-        }
-        assertFalse(dmnPath.isEmpty(), "Published custom check must have a DMN");
-        String xml = resource(dmnPath);
-        when(storage.getCheckDmnModelPath(anyString())).thenReturn("cash.dmn");
-        when(storage.getStringFromStorage("cash.dmn")).thenReturn(Optional.of(xml));
-        Map<String, Object> services = Map.of("publishedScreenerRepository", repository,
-            "storageService", storage, "libraryApi", library, "dmnService", dmn,
-            "inputSchemaService", new InputSchemaService());
-        for (var entry : services.entrySet()) {
-            var field = org.acme.controller.DecisionResource.class.getDeclaredField(entry.getKey());
-            field.setAccessible(true);
-            field.set(controller, entry.getValue());
-        }
-        for (Boolean answer : new Boolean[]{true, false, null}) {
-            Map<String, Object> custom = new HashMap<>();
-            custom.put("wantsExtraCash", answer);
-            try (var response = controller.evaluatePublishedScreener("example", Map.of("custom", custom))) {
-                assertEquals(200, response.getStatus());
-                JsonNode result = mapper.valueToTree(response.getEntity());
-                assertEquals(answer == null ? "UNABLE_TO_DETERMINE" : answer ? "TRUE" : "FALSE",
-                    result.path(benefit.getId()).path("result").asText());
-            }
-        }
-    }
-
 }

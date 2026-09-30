@@ -33,6 +33,6 @@ fail and allows the other enrollment checks to pass.
 
 Run `mvn test -Dtest=ExampleScreenerImportServiceTest,ExampleScreenerSeedTest`
 in builder-api to check account import, resource integrity, and custom DMN
-validation/evaluation. See the editing-example-screener documentation for UI
+validation. See the editing-example-screener documentation for UI
 editing. The supported export is the app's Export Example Screener action,
 which writes this bundled manifest format through the builder API.
