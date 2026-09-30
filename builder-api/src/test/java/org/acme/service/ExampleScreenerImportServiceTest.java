@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 class ExampleScreenerImportServiceTest {
 
     private static final String USER_ID = "new-user";
-    private static final String SEED_CHECK_ID = "W-example-wants-extra-cash";
+    private EligibilityCheck seedCheck;
 
     private final EligibilityCheckRepositoryImpl ids = new EligibilityCheckRepositoryImpl();
     private final EligibilityCheckRepository checkRepository = mock(EligibilityCheckRepository.class);
@@ -37,6 +37,14 @@ class ExampleScreenerImportServiceTest {
 
     @BeforeEach
     void setUp() throws Exception {
+        var mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        var loader = getClass().getClassLoader();
+        try (var stream = loader.getResourceAsStream("seed-data/example-screener/manifest.json")) {
+            var manifest = mapper.readTree(stream);
+            try (var checkStream = loader.getResourceAsStream(manifest.path("workingCustomChecks").get(0).asText())) {
+                seedCheck = mapper.readValue(checkStream, EligibilityCheck.class);
+            }
+        }
         when(checkRepository.getWorkingId(any())).thenAnswer(invocation -> ids.getWorkingId(invocation.getArgument(0)));
         when(checkRepository.getPublishedId(any(), anyString()))
                 .thenAnswer(invocation -> ids.getPublishedId(invocation.getArgument(0), invocation.getArgument(1)));
@@ -52,7 +60,7 @@ class ExampleScreenerImportServiceTest {
         ArgumentCaptor<EligibilityCheck> saved = ArgumentCaptor.forClass(EligibilityCheck.class);
         verify(checkRepository, atLeastOnce()).saveNewWorkingCustomCheck(saved.capture());
         EligibilityCheck imported = saved.getAllValues().stream()
-                .filter(check -> SEED_CHECK_ID.equals(check.getExampleSourceId()))
+                .filter(check -> seedCheck.getId().equals(check.getExampleSourceId()))
                 .findFirst().orElseThrow();
         assertFalse(imported.getId().contains(imported.getName()));
         assertEquals(USER_ID, imported.getOwnerId());
@@ -60,9 +68,9 @@ class ExampleScreenerImportServiceTest {
 
     @Test
     void reimportKeepsARenamedCheckAndPublishesUnderItsId() throws Exception {
-        EligibilityCheck renamed = new EligibilityCheck("renamed", "Philadelphia examples", "", List.of(), USER_ID);
+        EligibilityCheck renamed = new EligibilityCheck("renamed", seedCheck.getModule(), "", List.of(), USER_ID);
         renamed.setId("W-kept");
-        renamed.setExampleSourceId(SEED_CHECK_ID);
+        renamed.setExampleSourceId(seedCheck.getId());
         when(checkRepository.getAllWorkingCustomChecks(USER_ID)).thenReturn(List.of(renamed));
 
         service.importForUser(USER_ID);
@@ -79,13 +87,13 @@ class ExampleScreenerImportServiceTest {
         service.importForUser(USER_ID);
 
         verify(checkRepository).reserveCheckName(org.mockito.ArgumentMatchers.eq(USER_ID),
-                org.mockito.ArgumentMatchers.eq("Philadelphia examples"), org.mockito.ArgumentMatchers.eq("Would like extra cash"),
+                org.mockito.ArgumentMatchers.eq(seedCheck.getModule()), org.mockito.ArgumentMatchers.eq(seedCheck.getName()),
                 org.mockito.ArgumentMatchers.startsWith("W-"));
     }
 
     @Test
     void importRefusesToDuplicateANameUsedByAnotherCheck() {
-        EligibilityCheck other = new EligibilityCheck("Would like extra cash", "Philadelphia examples", "", List.of(), USER_ID);
+        EligibilityCheck other = new EligibilityCheck(seedCheck.getName(), seedCheck.getModule(), "", List.of(), USER_ID);
         other.setId("W-unrelated");
         when(checkRepository.getAllWorkingCustomChecks(USER_ID)).thenReturn(List.of(other));
 

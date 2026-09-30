@@ -47,7 +47,12 @@ class ExampleScreenerSeedTest {
                     }
                 } else {
                     customChecks++;
-                    assertTrue(check.path("sourceCheckId").asText().startsWith("P-example-"));
+                    boolean found = false;
+                    for (JsonNode checkPath : manifest.path("publishedCustomChecks")) {
+                        found |= mapper.readTree(resource(checkPath.asText())).path("id")
+                            .asText().equals(check.path("sourceCheckId").asText());
+                    }
+                    assertTrue(found, "Custom check must reference an exported published version");
                 }
             }
         }
@@ -89,7 +94,16 @@ class ExampleScreenerSeedTest {
     }
     @Test
     void screenerEvaluationReadsTheCustomFormObject() throws Exception {
-        var benefit = mapper.readValue(resource("seed-data/example-screener/firestore/workingScreener/philadelphia-benefits/customBenefit/philly-cash.json"), org.acme.model.domain.Benefit.class);
+        JsonNode manifest = mapper.readTree(resource("seed-data/example-screener/manifest.json"));
+        org.acme.model.domain.Benefit benefit = null;
+        for (JsonNode benefitPath : manifest.path("screeners").get(0).path("benefits")) {
+            var candidate = mapper.readValue(resource(benefitPath.asText()), org.acme.model.domain.Benefit.class);
+            if (candidate.getChecks().stream().anyMatch(check -> !check.getSourceCheckId().startsWith("L-"))) {
+                benefit = candidate;
+                break;
+            }
+        }
+        assertNotNull(benefit, "Example must contain a benefit with a custom check");
         var controller = new org.acme.controller.DecisionResource();
         var repository = mock(org.acme.persistence.PublishedScreenerRepository.class);
         var storage = mock(StorageService.class);
@@ -103,7 +117,17 @@ class ExampleScreenerSeedTest {
         when(repository.getBenefitsInScreener(screener)).thenReturn(java.util.List.of(benefit));
         when(library.evaluateCheck(any(), any())).thenReturn(new LibraryApiService.LibraryCheckEvaluation(
             EvaluationResult.TRUE, Map.of(), java.util.List.of()));
-        String xml = resource("seed-data/example-screener/storage/check/P-example-wants-extra-cash-1.0.0.dmn");
+        var customCheck = benefit.getChecks().stream()
+            .filter(check -> !check.getSourceCheckId().startsWith("L-")).findFirst().orElseThrow();
+        String dmnPath = "";
+        for (JsonNode path : manifest.path("dmnPaths")) {
+            if (path.asText().endsWith("/" + customCheck.getSourceCheckId() + ".dmn")) {
+                dmnPath = path.asText();
+                break;
+            }
+        }
+        assertFalse(dmnPath.isEmpty(), "Published custom check must have a DMN");
+        String xml = resource(dmnPath);
         when(storage.getCheckDmnModelPath(anyString())).thenReturn("cash.dmn");
         when(storage.getStringFromStorage("cash.dmn")).thenReturn(Optional.of(xml));
         Map<String, Object> services = Map.of("publishedScreenerRepository", repository,
@@ -121,7 +145,7 @@ class ExampleScreenerSeedTest {
                 assertEquals(200, response.getStatus());
                 JsonNode result = mapper.valueToTree(response.getEntity());
                 assertEquals(answer == null ? "UNABLE_TO_DETERMINE" : answer ? "TRUE" : "FALSE",
-                    result.path("philly-cash").path("result").asText());
+                    result.path(benefit.getId()).path("result").asText());
             }
         }
     }

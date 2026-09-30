@@ -1,24 +1,10 @@
 {
-  "screeners": [
-    {
-      "screenerPath": "seed-data/example-screener/firestore/workingScreener/philadelphia-benefits.json",
-      "benefits": [
-        "seed-data/example-screener/firestore/workingScreener/philadelphia-benefits/customBenefit/homestead-exemption.json",
-        "seed-data/example-screener/firestore/workingScreener/philadelphia-benefits/customBenefit/owner-occupied-payment-agreement.json",
-        "seed-data/example-screener/firestore/workingScreener/philadelphia-benefits/customBenefit/senior-citizen-tax-freeze.json",
-        "seed-data/example-screener/firestore/workingScreener/philadelphia-benefits/customBenefit/philly-cash.json"
-      ],
-      "formSchema": "seed-data/example-screener/storage/form/working/philadelphia-benefits.json"
-    }
-  ],
-  "workingCustomChecks": [
-    "seed-data/example-screener/firestore/workingCustomCheck/W-example-wants-extra-cash.json"
-  ],
-  "publishedCustomChecks": [
-    "seed-data/example-screener/firestore/publishedCustomCheck/P-example-wants-extra-cash-1.0.0.json"
-  ],
-  "dmnPaths": [
-    "seed-data/example-screener/storage/check/W-example-wants-extra-cash.dmn",
-    "seed-data/example-screener/storage/check/P-example-wants-extra-cash-1.0.0.dmn"
-  ]
+  "screeners" : [ {
+    "screenerPath" : "seed-data/example-screener/firestore/workingScreener/eCI03lKZqnNtPRgGbag1.json",
+    "benefits" : [ "seed-data/example-screener/firestore/workingScreener/eCI03lKZqnNtPRgGbag1/customBenefit/a3bbed8c-e300-4a6f-bd7b-28670db9d8ec.json", "seed-data/example-screener/firestore/workingScreener/eCI03lKZqnNtPRgGbag1/customBenefit/aca7b919-3005-47b7-9ad8-8734a013e07e.json", "seed-data/example-screener/firestore/workingScreener/eCI03lKZqnNtPRgGbag1/customBenefit/ca00617a-4c9b-4710-9601-57880efde0c0.json", "seed-data/example-screener/firestore/workingScreener/eCI03lKZqnNtPRgGbag1/customBenefit/fd13baff-cf75-488a-afee-c6785acd6c7b.json" ],
+    "formSchema" : "seed-data/example-screener/storage/form/working/eCI03lKZqnNtPRgGbag1.json"
+  } ],
+  "workingCustomChecks" : [ "seed-data/example-screener/firestore/workingCustomCheck/W-4fc360de-940e-48a1-97e5-adb2be1c7246.json" ],
+  "publishedCustomChecks" : [ "seed-data/example-screener/firestore/publishedCustomCheck/P-4fc360de-940e-48a1-97e5-adb2be1c7246-1.0.0.json" ],
+  "dmnPaths" : [ "seed-data/example-screener/storage/check/W-4fc360de-940e-48a1-97e5-adb2be1c7246.dmn", "seed-data/example-screener/storage/check/P-4fc360de-940e-48a1-97e5-adb2be1c7246-1.0.0.dmn" ]
 }

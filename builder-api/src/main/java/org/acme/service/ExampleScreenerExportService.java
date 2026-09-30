@@ -324,9 +324,16 @@ public class ExampleScreenerExportService {
     }
 
     private void resetExportRoot() throws IOException {
-        if (Files.exists(EXPORT_ROOT)) {
-            try (var walk = Files.walk(EXPORT_ROOT)) {
-                walk.sorted(Comparator.reverseOrder()).forEach(path -> {
+        resetExportRoot(EXPORT_ROOT);
+    }
+
+    static void resetExportRoot(Path exportRoot) throws IOException {
+        if (Files.exists(exportRoot)) {
+            try (var walk = Files.walk(exportRoot)) {
+                // The README is maintained in Git, not generated from account data.
+                walk.filter(path -> !path.equals(exportRoot)
+                                && !path.equals(exportRoot.resolve("README.md")))
+                        .sorted(Comparator.reverseOrder()).forEach(path -> {
                     try {
                         Files.delete(path);
                     } catch (IOException e) {
@@ -342,7 +349,7 @@ public class ExampleScreenerExportService {
             }
         }
 
-        Files.createDirectories(EXPORT_ROOT);
+        Files.createDirectories(exportRoot);
     }
 
     private void writeJsonFile(Path path, Object data) throws IOException {

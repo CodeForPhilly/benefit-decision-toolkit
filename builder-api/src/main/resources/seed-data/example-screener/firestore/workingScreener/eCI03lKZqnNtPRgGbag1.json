@@ -1,0 +1,23 @@
+{
+  "benefits" : [ {
+    "name" : "Homestead Exemption",
+    "description" : "A library benefit for Philadelphia homeowners. Open its checks to see how residence, ownership, tax abatement, and existing enrollment combine. The enrollment check has a benefit parameter; the same reusable check is configured differently for each tax program.",
+    "id" : "a3bbed8c-e300-4a6f-bd7b-28670db9d8ec"
+  }, {
+    "name" : "Owner-Occupied Payment Agreement (OOPA)",
+    "description" : "A library benefit for homeowners with delinquent property taxes. Compare its checks with Homestead: both reuse residence and ownership, while OOPA adds tax delinquency. Change one answer in Preview to see several benefits update together.",
+    "id" : "fd13baff-cf75-488a-afee-c6785acd6c7b"
+  }, {
+    "name" : "Philly Cash (fictional)",
+    "description" : "A made-up benefit: you qualify if you live in Philadelphia and would like extra cash. No other criteria apply. Open Custom Checks to inspect the annotated diagram, edit the logic, test it, and publish a new version. Here the published 1.0.0 custom check demonstrate version pinning and a configurable parameter. This program does not exist and pays no money.",
+    "id" : "aca7b919-3005-47b7-9ad8-8734a013e07e"
+  }, {
+    "name" : "Senior Citizen Tax Freeze (SCTF)",
+    "description" : "A library benefit illustrating age logic for an applicant, spouse, or late spouse. Try an applicant over 65, then a younger applicant with a spouse over 65. An unanswered birth date can produce Unable to determine. These are the current library rules; this example does not add income criteria.",
+    "id" : "ca00617a-4c9b-4710-9601-57880efde0c0"
+  } ],
+  "id" : "eCI03lKZqnNtPRgGbag1",
+  "ownerId" : "Edmyf5xCZ8C6xkp5Ig0cPYmWvM8T",
+  "screenerName" : "Philadelphia Benefits Example",
+  "_id" : "eCI03lKZqnNtPRgGbag1"
+}

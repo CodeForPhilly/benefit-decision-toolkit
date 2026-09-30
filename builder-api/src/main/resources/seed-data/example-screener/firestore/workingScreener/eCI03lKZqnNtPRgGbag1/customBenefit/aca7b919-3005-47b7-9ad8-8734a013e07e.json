@@ -1,0 +1,66 @@
+{
+  "checks" : [ {
+    "aliasGenerated" : false,
+    "aliasName" : "Lives in Philadelphia",
+    "checkModule" : "residence",
+    "checkVersion" : "0.9.0",
+    "inputDefinition" : {
+      "type" : "object",
+      "properties" : {
+        "simpleChecks" : {
+          "type" : "object",
+          "properties" : {
+            "livesInPhiladelphiaPa" : {
+              "type" : "boolean"
+            }
+          }
+        }
+      }
+    },
+    "parameterDefinitions" : [ ],
+    "sourceCheckId" : "L-residence-lives-in-philadelphia-pa-0.9.0",
+    "checkName" : "lives-in-philadelphia-pa",
+    "evaluationUrl" : "/api/v1/checks/residence/lives-in-philadelphia-pa",
+    "checkId" : "3746307e-45a5-4e86-afe3-5bbaa6cc7225",
+    "parameters" : { }
+  }, {
+    "aliasGenerated" : false,
+    "aliasName" : "Would like extra cash",
+    "checkModule" : "Philadelphia examples",
+    "checkVersion" : "1.0.0",
+    "inputDefinition" : {
+      "type" : "object",
+      "required" : [ "custom", "parameters" ],
+      "properties" : {
+        "custom" : {
+          "type" : "object",
+          "required" : [ "wantsExtraCash" ],
+          "properties" : {
+            "wantsExtraCash" : { }
+          }
+        },
+        "parameters" : {
+          "type" : "object",
+          "properties" : { }
+        }
+      }
+    },
+    "parameterDefinitions" : [ {
+      "label" : "Answer required to pass (true for Philly Cash)",
+      "type" : "boolean",
+      "key" : "expectedAnswer",
+      "required" : true
+    } ],
+    "sourceCheckId" : "P-4fc360de-940e-48a1-97e5-adb2be1c7246-1.0.0",
+    "checkName" : "Would like extra cash",
+    "checkId" : "3259031e-563b-46a9-b16e-d4f0893a4381",
+    "parameters" : {
+      "expectedAnswer" : true
+    }
+  } ],
+  "name" : "Philly Cash (fictional)",
+  "description" : "A made-up benefit: you qualify if you live in Philadelphia and would like extra cash. No other criteria apply. Open Custom Checks to inspect the annotated diagram, edit the logic, test it, and publish a new version. Here the published 1.0.0 custom check demonstrate version pinning and a configurable parameter. This program does not exist and pays no money.",
+  "id" : "aca7b919-3005-47b7-9ad8-8734a013e07e",
+  "ownerId" : "Edmyf5xCZ8C6xkp5Ig0cPYmWvM8T",
+  "_id" : "aca7b919-3005-47b7-9ad8-8734a013e07e"
+}
