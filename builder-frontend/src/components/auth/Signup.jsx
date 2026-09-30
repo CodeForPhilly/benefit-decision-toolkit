@@ -42,7 +42,7 @@ export default function Signup({ toggleMode }) {
       await register(email(), password());
       setIsSigningIn(false);
       setError(null);
-      navigate("/", { replace: true });
+      navigate("/screeners", { replace: true });
     } catch (err) {
       setError(getFriendlyErrorMessage(err));
       setIsSigningIn(false);

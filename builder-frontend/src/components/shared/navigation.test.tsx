@@ -8,6 +8,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import Header from "../Header/Header";
 import Breadcrumbs from "./Breadcrumbs";
 import EditorNavigation from "./EditorNavigation";
+import AreaRedirect from "./AreaRedirect";
 
 vi.mock("@/context/AuthContext", () => ({
   useAuth: () => ({
@@ -45,26 +46,40 @@ describe("app navigation", () => {
             </>
           )}
         >
-          <Route path="/" component={() => <div>Project list</div>} />
-          <Route path="/projects" component={() => <div>Project list</div>} />
-          <Route path="/check" component={() => <div>Check list</div>} />
           <Route
-            path="/projects/:id"
+            path="/"
+            component={() => <AreaRedirect from="/" to="/screeners" />}
+          />
+          <Route
+            path={["/projects", "/projects/:id"]}
+            component={() => <AreaRedirect from="/projects" to="/screeners" />}
+          />
+          <Route
+            path={["/check", "/check/:id"]}
+            component={() => <AreaRedirect from="/check" to="/custom-checks" />}
+          />
+          <Route path="/screeners" component={() => <div>Screener list</div>} />
+          <Route
+            path="/custom-checks"
+            component={() => <div>Check list</div>}
+          />
+          <Route
+            path="/screeners/:id"
             component={() => (
               <EditorNavigation
                 items={[
-                  { label: "Projects", href: "/projects" },
-                  { label: "My project" },
+                  { label: "Screeners", href: "/screeners" },
+                  { label: "My screener" },
                 ]}
               />
             )}
           />
           <Route
-            path="/check/:id"
+            path="/custom-checks/:id"
             component={() => (
               <EditorNavigation
                 items={[
-                  { label: "Eligibility checks", href: "/check" },
+                  { label: "Custom Checks", href: "/custom-checks" },
                   { label: "My check" },
                 ]}
               />
@@ -77,50 +92,91 @@ describe("app navigation", () => {
     return { container, history };
   }
 
-  it.each(["/", "/projects", "/projects/example"])(
-    "marks Projects as current at %s",
-    (path) => {
+  it.each(["/", "/screeners", "/screeners/example"])(
+    "marks Screeners as current at %s",
+    async (path) => {
       const { container } = mount(path);
+      await vi.waitFor(() =>
+        expect(
+          container.querySelector(
+            'nav[aria-label="Main navigation"] a[aria-current="page"]',
+          )?.textContent,
+        ).toBe("Screeners"),
+      );
       const active = container.querySelector(
         'nav[aria-label="Main navigation"] a[aria-current="page"]',
       );
-      expect(active?.textContent).toBe("Projects");
+      expect(active?.textContent).toBe("Screeners");
       expect(active?.classList.contains("active")).toBe(true);
     },
   );
 
+  it.each([
+    ["/", "/screeners"],
+    ["/?source=bookmark#list", "/screeners?source=bookmark#list"],
+    ["/projects", "/screeners"],
+    ["/projects/", "/screeners/"],
+    [
+      "/projects/example?source=bookmark#form",
+      "/screeners/example?source=bookmark#form",
+    ],
+    ["/check", "/custom-checks"],
+    ["/check/", "/custom-checks/"],
+    [
+      "/check/income%20limit?source=bookmark#testing",
+      "/custom-checks/income%20limit?source=bookmark#testing",
+    ],
+  ])("redirects %s to %s", async (oldUrl, newUrl) => {
+    const { history } = mount(oldUrl);
+    await vi.waitFor(() => expect(history.get()).toBe(newUrl));
+    history.back();
+    expect(history.get()).toBe(newUrl);
+  });
+
+  it("replaces the legacy URL rather than adding an extra history entry", async () => {
+    const { history } = mount("/custom-checks");
+    history.set({ value: "/projects/example" });
+    await vi.waitFor(() => expect(history.get()).toBe("/screeners/example"));
+    history.back();
+    await vi.waitFor(() => expect(history.get()).toBe("/custom-checks"));
+    history.forward();
+    await vi.waitFor(() => expect(history.get()).toBe("/screeners/example"));
+  });
+
   it("moves between areas and follows browser back and forward", async () => {
-    const { container, history } = mount("/projects/example");
-    (container.querySelector('a[href="/check"]') as HTMLAnchorElement).click();
-    await vi.waitFor(() => expect(history.get()).toBe("/check"));
+    const { container, history } = mount("/screeners/example");
+    (
+      container.querySelector('a[href="/custom-checks"]') as HTMLAnchorElement
+    ).click();
+    await vi.waitFor(() => expect(history.get()).toBe("/custom-checks"));
     expect(container.querySelector('a[aria-current="page"]')?.textContent).toBe(
-      "Eligibility checks",
+      "Custom Checks",
     );
     history.back();
     await vi.waitFor(() =>
       expect(
         container.querySelector('a[aria-current="page"]')?.textContent,
-      ).toBe("Projects"),
+      ).toBe("Screeners"),
     );
     history.forward();
     await vi.waitFor(() =>
       expect(
         container.querySelector('a[aria-current="page"]')?.textContent,
-      ).toBe("Eligibility checks"),
+      ).toBe("Custom Checks"),
     );
   });
 
   it("keeps both areas visible while the account menu is closed", () => {
-    const { container } = mount("/check/example");
+    const { container } = mount("/custom-checks/example");
     const navigation = container.querySelector(
       'nav[aria-label="Main navigation"]',
     )!;
-    expect(navigation.querySelector('a[href="/projects"]')?.textContent).toBe(
-      "Projects",
+    expect(navigation.querySelector('a[href="/screeners"]')?.textContent).toBe(
+      "Screeners",
     );
-    expect(navigation.querySelector('a[href="/check"]')?.textContent).toBe(
-      "Eligibility checks",
-    );
+    expect(
+      navigation.querySelector('a[href="/custom-checks"]')?.textContent,
+    ).toBe("Custom Checks");
     const toggle = container.querySelector(
       'button[aria-label="Account menu"]',
     ) as HTMLButtonElement;
@@ -140,8 +196,8 @@ describe("app navigation", () => {
   });
 
   it.each([
-    ["/projects/example", "/projects", "My project"],
-    ["/check/example", "/check", "My check"],
+    ["/screeners/example", "/screeners", "My screener"],
+    ["/custom-checks/example", "/custom-checks", "My check"],
   ])(
     "returns a directly opened detail page %s to its own list",
     async (path, parent, name) => {
@@ -160,7 +216,7 @@ describe("app navigation", () => {
     },
   );
 
-  it("returns from benefit configuration without leaving the project", () => {
+  it("returns from benefit configuration without leaving the screener", () => {
     const container = document.body.appendChild(document.createElement("div"));
     dispose = render(() => {
       const [configuring, setConfiguring] = createSignal(true);
@@ -191,7 +247,7 @@ describe("app navigation", () => {
       const [active, setActive] = createSignal("edit");
       return (
         <EditorNavigation
-          items={[{ label: "My project" }]}
+          items={[{ label: "My screener" }]}
           navProps={() => ({
             activeTabKey: active,
             tabDefs: [
@@ -208,7 +264,7 @@ describe("app navigation", () => {
     }, container);
     (
       container.querySelector(
-        '[data-testid="project-tab-preview"]',
+        '[data-testid="editor-section-preview"]',
       ) as HTMLButtonElement
     ).click();
     expect(
@@ -218,6 +274,6 @@ describe("app navigation", () => {
     ).toBe("Preview");
     expect(
       container.querySelector(".breadcrumb-current")?.getAttribute("title"),
-    ).toBe("My project");
+    ).toBe("My screener");
   });
 });

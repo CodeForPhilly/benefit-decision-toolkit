@@ -13,10 +13,10 @@ vi.mock("solid-toast", () => ({
 }));
 
 import { addCheck, fetchUserDefinedChecks, restoreCheck } from "@/api/check";
-import eligibilityCheckResource from "./eligibilityCheckResource";
+import customChecksResource from "./customChecksResource";
 import type { EligibilityCheck } from "@/types";
 
-describe("eligibilityCheckResource", () => {
+describe("customChecksResource", () => {
   beforeEach(() => vi.clearAllMocks());
   afterEach(() => vi.restoreAllMocks());
 
@@ -29,7 +29,7 @@ describe("eligibilityCheckResource", () => {
 
     await new Promise<void>((resolve, reject) => {
       createRoot((dispose) => {
-        const resource = eligibilityCheckResource();
+        const resource = customChecksResource();
         resource.actions
           .addNewCheck({
             name: "incomeCheck",
@@ -68,7 +68,7 @@ describe("eligibilityCheckResource", () => {
 
     await new Promise<void>((resolve, reject) => {
       createRoot((dispose) => {
-        const resource = eligibilityCheckResource();
+        const resource = customChecksResource();
         queueMicrotask(() => {
           try {
             expect(fetchUserDefinedChecks).toHaveBeenCalledTimes(1);
@@ -92,7 +92,7 @@ describe("eligibilityCheckResource", () => {
 
     await new Promise<void>((resolve, reject) => {
       createRoot((dispose) => {
-        const resource = eligibilityCheckResource();
+        const resource = customChecksResource();
         queueMicrotask(() => {
           try {
             expect(resource.checks()).toEqual([]);
@@ -112,7 +112,7 @@ describe("eligibilityCheckResource", () => {
   it("restores a check and refreshes the check list", async () => {
     await new Promise<void>((resolve, reject) => {
       createRoot((dispose) => {
-        const resource = eligibilityCheckResource();
+        const resource = customChecksResource();
         resource.actions
           .restoreCheck("archived-check-id")
           .then(() => {

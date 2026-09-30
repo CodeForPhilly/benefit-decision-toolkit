@@ -19,7 +19,7 @@ const BdtNavbar = ({ navProps }: { navProps: Accessor<NavbarProps> }) => {
           aria-current={
             navProps().activeTabKey() === tab.key ? "page" : undefined
           }
-          data-testid={`project-tab-${tab.key}`}
+          data-testid={`editor-section-${tab.key}`}
           class="editor-section"
           classList={{ selected: navProps().activeTabKey() === tab.key }}
           onClick={tab.onClick}

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { normalizeArrayFieldData } from './arrayFieldData';
-import { NONE_OF_THESE_VALUE } from '@/components/project/formJsExtensions/customFormFields/ChecklistWithNone';
+import { NONE_OF_THESE_VALUE } from '@/components/screenerEditor/formJsExtensions/customFormFields/ChecklistWithNone';
 
 const schema = {
   components: [{

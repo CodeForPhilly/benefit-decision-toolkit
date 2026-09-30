@@ -13,7 +13,7 @@ export default function AuthForm() {
 
   const toggleMode = () => {
     if (location.pathname === "/signup") {
-      navigate("/");
+      navigate("/screeners");
     } else {
       navigate("/signup");
     }
@@ -24,7 +24,7 @@ export default function AuthForm() {
       setIsSigningIn(true);
       await loginWithGoogle();
       setIsSigningIn(false);
-      navigate("/");
+      navigate("/screeners");
     } catch (err) {
       setIsSigningIn(false);
 

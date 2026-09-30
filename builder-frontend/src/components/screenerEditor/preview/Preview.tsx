@@ -13,7 +13,7 @@ import {
   haveSameQuestionPaths,
 } from "@/utils/questionVotes";
 
-const Preview = ({ project, formSchema }) => {
+const Preview = ({ screener, formSchema }) => {
   const [lastInputDataSent, setLastInputDataSent] =
     createSignal<PreviewFormData>({});
   const [results, setResults] = createSignal<ScreenerResult>();
@@ -47,7 +47,7 @@ const Preview = ({ project, formSchema }) => {
     setLastInputDataSent(data);
     setResultsLoading(true);
 
-    let apiResult: ScreenerResult = await evaluateScreener(project().id, data);
+    let apiResult: ScreenerResult = await evaluateScreener(screener().id, data);
     setResults(apiResult);
     setResultsLoading(false);
   };

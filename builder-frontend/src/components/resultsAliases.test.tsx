@@ -3,7 +3,7 @@
 import { render } from "solid-js/web";
 import { afterEach, describe, expect, it } from "vitest";
 
-import PreviewResults from "@/components/project/preview/Results";
+import PreviewResults from "@/components/screenerEditor/preview/Results";
 import EligibilityResults from "@/components/screener/EligibilityResults";
 import type { ScreenerResult } from "@/types";
 

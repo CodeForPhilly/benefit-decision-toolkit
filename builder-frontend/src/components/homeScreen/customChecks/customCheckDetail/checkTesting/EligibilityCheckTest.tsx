@@ -6,7 +6,7 @@ import {
   OptionalBoolean,
   ParameterValues,
 } from "@/types";
-import SelectedEligibilityCheck from "@/components/project/manageBenefits/configureBenefit/SelectedEligibilityCheck";
+import SelectedEligibilityCheck from "@/components/screenerEditor/manageBenefits/configureBenefit/SelectedEligibilityCheck";
 import CheckJsonEditor from "./CheckJsonEditor";
 import { JSONContent } from "vanilla-jsoneditor";
 

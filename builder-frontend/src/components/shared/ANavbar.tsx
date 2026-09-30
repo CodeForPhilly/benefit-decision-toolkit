@@ -9,9 +9,7 @@ interface Props {
 const ANavBar: Component<Props> = (props) => {
   const location = useLocation();
   const isActive = (href: string) =>
-    location.pathname === href ||
-    location.pathname.startsWith(`${href}/`) ||
-    (href === "/projects" && location.pathname === "/");
+    location.pathname === href || location.pathname.startsWith(`${href}/`);
   return (
     <nav aria-label="Main navigation" class="app-areas">
       {props.items.map(({ label, href }) => (

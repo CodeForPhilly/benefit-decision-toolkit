@@ -13,7 +13,7 @@ import NewScreenerForm from "./NewScreenerForm";
 import MenuIcon from "../icon/MenuIcon";
 
 import {
-  fetchProjects,
+  fetchScreeners,
   updateScreener,
   deleteScreener,
   createNewScreener,
@@ -22,9 +22,9 @@ import { useAuth } from "@/context/AuthContext";
 import { Title } from "@solidjs/meta";
 import { Modal } from "@/components/shared/Modal";
 
-export default function ProjectsList() {
-  const [projectList, { refetch: refetchProjectList }] =
-    createResource(fetchProjects);
+export default function ScreenersList() {
+  const [screeners, { refetch: refetchScreenerList }] =
+    createResource(fetchScreeners);
   const [isNewScreenerModalVisible, setIsNewScreenerModalVisible] =
     createSignal(false);
   const [isEditModalVisible, setIsEditModalVisible] = createSignal(false);
@@ -40,8 +40,8 @@ export default function ProjectsList() {
     }
   });
 
-  const navigateToProject = (project) => {
-    navigate("/projects/" + project.id);
+  const navigateToScreener = (screener) => {
+    navigate("/screeners/" + screener.id);
   };
 
   const handleCreateNewScreener = async (screenerData: {
@@ -50,13 +50,13 @@ export default function ProjectsList() {
   }) => {
     try {
       const newScreener = await createNewScreener(screenerData);
-      navigate(`/projects/${newScreener.id}`);
+      navigate(`/screeners/${newScreener.id}`);
     } catch (e) {
       console.log("Error creating screener", e);
     }
   };
 
-  const handleProjectMenuClicked =
+  const handleScreenerMenuClicked =
     (
       screenerData: EditModalData,
     ): JSX.EventHandler<HTMLButtonElement, MouseEvent> =>
@@ -72,7 +72,7 @@ export default function ProjectsList() {
   ) => {
     try {
       await updateScreener(screenerId, screenerData);
-      refetchProjectList();
+      refetchScreenerList();
       setIsEditModalVisible(false);
     } catch (e) {
       console.log("Error editing screener", e);
@@ -82,7 +82,7 @@ export default function ProjectsList() {
   const handleDeleteScreener = async (screenerData) => {
     try {
       await deleteScreener(screenerData.id);
-      refetchProjectList();
+      refetchScreenerList();
       setIsEditModalVisible(false);
     } catch (e) {
       console.log("Error deleting screener", e);
@@ -91,7 +91,7 @@ export default function ProjectsList() {
 
   return (
     <>
-      <Title>BDT - Projects List</Title>
+      <Title>BDT - Screeners</Title>
       <div class="bg-gray-100 rounded-xl p-8 flex flex-col text-sm">
         <div class="text-xl font-bold">
           Welcome to Benefit Decision Toolkit!
@@ -124,14 +124,14 @@ export default function ProjectsList() {
           <NewScreenerForm />
         </Modal>
       </div>
-      <Show when={projectList} fallback={<div>Loading...</div>}>
+      <Show when={screeners} fallback={<div>Loading...</div>}>
         <div class="flex flex-wrap gap-4 py-4">
-          <Show when={projectList.loading}>
+          <Show when={screeners.loading}>
             <div class="w-80 h-60 flex items-center justify-center border-2 border-gray-300 rounded-lg shadow-md">
               <div class="text-2xl font-bold">Loading screeners...</div>
             </div>
           </Show>
-          <For each={projectList()}>
+          <For each={screeners()}>
             {(item) => {
               const screenerData: EditModalData = {
                 screenerId: item.id,
@@ -148,12 +148,12 @@ export default function ProjectsList() {
                     <button
                       type="button"
                       class="absolute px-2 top-2 right-2 hover:bg-gray-300 rounded-xl"
-                      onClick={handleProjectMenuClicked(screenerData)}
+                      onClick={handleScreenerMenuClicked(screenerData)}
                     >
                       <MenuIcon />
                     </button>
                     <div
-                      onClick={() => navigateToProject(item)}
+                      onClick={() => navigateToScreener(item)}
                       class="h-60 p-4 flex flex-col justify-center items-center"
                     >
                       <div class="text-2xl font-bold">{item.screenerName}</div>

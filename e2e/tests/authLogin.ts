@@ -13,6 +13,6 @@ export const authLogin = async ({ page }: { page: Page }) => {
   // Click sign in button
   await page.getByRole('button', { name: 'Sign In' }).click();
 
-  // Wait for navigation to home page after successful login
-  await expect(page).toHaveURL('/');
+  // Wait for navigation to Screeners page after successful login
+  await expect(page).toHaveURL('/screeners');
 };

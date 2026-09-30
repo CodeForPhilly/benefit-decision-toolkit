@@ -1,18 +1,18 @@
 import { Route, Router } from "@solidjs/router";
 
-import Project from "./components/project/Project";
+import ScreenerEditor from "./components/screenerEditor/ScreenerEditor";
 import AuthForm from "./components/auth/AuthForm";
 import { useAuth } from "./context/AuthContext";
-import HomeScreen from "./components/homeScreen/HomeScreen";
-import EligibilityCheckDetail from "./components/homeScreen/eligibilityCheckList/eligibilityCheckDetail/EligibilityCheckDetail";
+import AreaRedirect from "./components/shared/AreaRedirect";
+import CustomCheckDetail from "./components/homeScreen/customChecks/customCheckDetail/CustomCheckDetail";
 import Screener from "./components/screener/Screener";
 import Loading from "./components/Loading";
 import { Match, ParentProps, Switch } from "solid-js";
 import { ComponentLibrary } from "@/components/shared/ComponentLibrary";
 import Header from "@/components/Header/Header";
 import { ViewLayout } from "@/components/homeScreen/ViewLayout";
-import ProjectsList from "@/components/homeScreen/ProjectsList";
-import EligibilityChecksList from "@/components/homeScreen/eligibilityCheckList/EligibilityChecksList";
+import ScreenersList from "@/components/homeScreen/ScreenersList";
+import CustomChecksList from "@/components/homeScreen/customChecks/CustomChecksList";
 
 const MainLayout = (props: ParentProps) => {
   const { user, isAuthLoading, isProvisioningAccount } = useAuth();
@@ -38,16 +38,27 @@ function App() {
     <Router>
       <Route path="/component-test" component={ComponentLibrary} />
       <Route path="/" component={MainLayout}>
-        <Route path="/" component={HomeScreen} />
+        <Route
+          path="/"
+          component={() => <AreaRedirect from="/" to="/screeners" />}
+        />
+        <Route
+          path={["/projects", "/projects/:screenerId"]}
+          component={() => <AreaRedirect from="/projects" to="/screeners" />}
+        />
+        <Route
+          path={["/check", "/check/:checkId"]}
+          component={() => <AreaRedirect from="/check" to="/custom-checks" />}
+        />
         <Route path="/login" component={AuthForm} />
         <Route path="/signup" component={AuthForm} />
-        <Route path="/projects" component={ViewLayout}>
-          <Route path="/" component={ProjectsList} />
-          <Route path="/:projectId" component={Project} />
+        <Route path="/screeners" component={ViewLayout}>
+          <Route path="/" component={ScreenersList} />
+          <Route path="/:screenerId" component={ScreenerEditor} />
         </Route>
-        <Route path="/check" component={ViewLayout}>
-          <Route path="/" component={EligibilityChecksList} />
-          <Route path="/:checkId" component={EligibilityCheckDetail} />
+        <Route path="/custom-checks" component={ViewLayout}>
+          <Route path="/" component={CustomChecksList} />
+          <Route path="/:checkId" component={CustomCheckDetail} />
         </Route>
       </Route>
       <Route path="/screener/:publishedScreenerId" component={Screener} />

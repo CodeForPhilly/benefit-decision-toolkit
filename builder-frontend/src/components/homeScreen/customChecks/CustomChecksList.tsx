@@ -3,24 +3,24 @@ import { useNavigate } from "@solidjs/router";
 
 import Loading from "@/components/Loading";
 import CheckModal from "./modals/CheckModal";
-import eligibilityCheckResource from "./eligibilityCheckResource";
+import customChecksResource from "./customChecksResource";
 
 import type { EligibilityCheck } from "@/types";
 import Tooltip from "@/components/shared/Tooltip";
 import { Title } from "@solidjs/meta";
 import { Modal } from "@/components/shared/Modal";
-import { ArchiveCheck } from "@/components/homeScreen/eligibilityCheckList/modals/ArchiveCheck";
+import { ArchiveCheck } from "@/components/homeScreen/customChecks/modals/ArchiveCheck";
 import { Button } from "@/components/shared/Button";
 import { RenameCheck } from "./modals/RenameCheck";
 
-const EligibilityChecksList = () => {
+const CustomChecksList = () => {
   const {
     checks,
     archivedChecks,
     actions,
     actionInProgress,
     initialLoadStatus,
-  } = eligibilityCheckResource();
+  } = customChecksResource();
   const navigate = useNavigate();
 
   const [addingNewCheck, setAddingNewCheck] = createSignal<boolean>(false);
@@ -34,7 +34,7 @@ const EligibilityChecksList = () => {
     createSignal<EligibilityCheck | null>(null);
 
   const navigateToCheck = (check: EligibilityCheck) => {
-    navigate("/check/" + check.id);
+    navigate("/custom-checks/" + check.id);
   };
 
   return (
@@ -44,26 +44,25 @@ const EligibilityChecksList = () => {
         <Loading />
       </Show>
       <div class="flex flex-row gap-2 items-baseline">
-        <div class="text-xl font-bold mb-2">Eligibility Checks</div>
+        <div class="text-xl font-bold mb-2">Custom Checks</div>
         <Tooltip>
           <p>
             If the public checks do not cover a requirement specific to your use
-            case, BDT allows you to build your own reusable custom eligibility
-            checks.
+            case, BDT allows you to build your own reusable custom checks.
           </p>
           <p>
             <a
               href="https://bdt-docs.web.app/user/custom-checks/"
               target="_blank"
             >
-              Read about custom eligibility checks in the docs
+              Read about custom checks in the docs
             </a>
           </p>
         </Tooltip>
       </div>
       <div class="text-md mb-3">
-        Manage your custom eligibility checks here. Click on a check to view or
-        edit its details.
+        Manage your custom checks here. Click on a check to view or edit its
+        details.
       </div>
       <button
         class="px-4 py-2 w-fit cursor-pointer bg-blue-500
@@ -185,9 +184,7 @@ const CheckCard = ({
           id={"check-card-details-" + eligibilityCheck.id}
           class="p-4 border-bottom border-gray-300 flex-1"
         >
-          <div class="text-2xl mb-2 font-bold">
-            {eligibilityCheck.name}
-          </div>
+          <div class="text-2xl mb-2 font-bold">{eligibilityCheck.name}</div>
           <div>
             <span class="font-bold">Description:</span>{" "}
             {eligibilityCheck.description}
@@ -239,4 +236,4 @@ const CheckCard = ({
   );
 };
 
-export default EligibilityChecksList;
+export default CustomChecksList;

@@ -28,7 +28,7 @@ const ParametersConfiguration = ({
     null | number
   >(null);
 
-  const handleProjectMenuClicked = (e, parameterIndex: number) => {
+  const handleScreenerMenuClicked = (e, parameterIndex: number) => {
     e.stopPropagation();
     setParameterIndexToRemove(parameterIndex);
   };
@@ -99,7 +99,7 @@ const ParametersConfiguration = ({
                   <div
                     class="absolute px-2 top-2 right-2 hover:bg-gray-300 rounded-xl font-bold"
                     onClick={(e) =>
-                      handleProjectMenuClicked(e, parameterIndex())
+                      handleScreenerMenuClicked(e, parameterIndex())
                     }
                   >
                     X

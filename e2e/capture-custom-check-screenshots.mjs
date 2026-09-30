@@ -39,7 +39,7 @@ try {
   await page.getByPlaceholder("Password", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Sign In", exact: true }).click();
   await expect(page.getByTestId("create-new-screener-button")).toBeVisible();
-  await page.goto("http://localhost:5173/check");
+  await page.goto("http://localhost:5173/custom-checks");
   await page
     .getByRole("button", { name: "Create New Check", exact: true })
     .click();

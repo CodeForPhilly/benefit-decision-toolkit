@@ -35,7 +35,7 @@ export default function Login({ toggleMode }) {
       await login(email(), password());
       setIsSigningIn(false);
       setError(null);
-      navigate("/", { replace: true });
+      navigate("/screeners", { replace: true });
     } catch (err) {
       setError(getFriendlyErrorMessage(err));
       setIsSigningIn(false);

@@ -8,33 +8,33 @@ import ManageBenefits from "./manageBenefits/ManageBenefits";
 import Preview from "./preview/Preview";
 import Publish from "./Publish";
 
-import { fetchProject } from "@/api/screener";
+import { fetchScreener } from "@/api/screener";
 import { NavbarProps } from "@/components/shared/BdtNavbar";
 import { Title } from "@solidjs/meta";
 
 type TabOption = "manageBenefits" | "formEditor" | "preview" | "publish";
 
-function Project() {
+function ScreenerEditor() {
   const params = useParams();
 
   const [activeTab, setActiveTab] = createSignal<TabOption>("manageBenefits");
   const [formSchema, setFormSchema] = createSignal();
   const [forceUpdate, setForceUpdate] = createSignal(0);
 
-  const fetchAndCacheProject = async (keys) => {
-    const projectData = await fetchProject(keys[0]);
-    setFormSchema(projectData.formSchema);
-    return projectData;
+  const fetchAndCacheScreener = async (keys) => {
+    const screenerData = await fetchScreener(keys[0]);
+    setFormSchema(screenerData.formSchema);
+    return screenerData;
   };
 
-  const [project] = createResource(
+  const [screener] = createResource(
     // Using resrouce to more easily track states during refetch
     // However resources only refetch when key has changed.
-    // In order to force refetch even thought he projectId hasn't change,
+    // In order to force refetch even thought he screenerId hasn't change,
     // including a dummy signal 'forceUpdate' that can be unique for
     // each call to the refetch
-    () => [params.projectId, forceUpdate()],
-    fetchAndCacheProject,
+    () => [params.screenerId, forceUpdate()],
+    fetchAndCacheScreener,
   );
 
   const navbarDefs: Accessor<NavbarProps> = () => {
@@ -68,17 +68,17 @@ function Project() {
   return (
     <div class="h-screen flex flex-col">
       <EditorNavigation
-        navProps={project.loading ? undefined : navbarDefs}
+        navProps={screener.loading ? undefined : navbarDefs}
         items={[
-          { label: "Projects", href: "/projects" },
-          { label: project()?.screenerName || "Loading project…" },
+          { label: "Screeners", href: "/screeners" },
+          { label: screener()?.screenerName || "Loading screener…" },
         ]}
       />
-      {project.loading ? (
+      {screener.loading ? (
         <Loading />
       ) : (
         <>
-          <Title>BDT - {project().screenerName}</Title>
+          <Title>BDT - {screener().screenerName}</Title>
           {activeTab() == "formEditor" && (
             <FormEditorView
               formSchema={formSchema}
@@ -87,12 +87,12 @@ function Project() {
           )}
           {activeTab() == "manageBenefits" && <ManageBenefits />}
           {activeTab() == "preview" && (
-            <Preview project={project} formSchema={formSchema} />
+            <Preview screener={screener} formSchema={formSchema} />
           )}
           {activeTab() == "publish" && (
             <Publish
-              project={project}
-              refetchProject={() => setForceUpdate((prev) => prev + 1)}
+              screener={screener}
+              refetchScreener={() => setForceUpdate((prev) => prev + 1)}
             />
           )}
         </>
@@ -101,4 +101,4 @@ function Project() {
   );
 }
 
-export default Project;
+export default ScreenerEditor;

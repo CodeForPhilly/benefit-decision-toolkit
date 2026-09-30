@@ -74,13 +74,13 @@ export default function Header() {
 
   return (
     <header class="app-header">
-      <A href="/projects" aria-label="BDT projects" class="app-brand">
+      <A href="/screeners" aria-label="BDT screeners" class="app-brand">
         <img src="/logos/bdt-logo-small-mono-light.svg" alt="BDT logo" />
       </A>
       <ANavBar
         items={[
-          { label: "Projects", href: "/projects" },
-          { label: "Eligibility checks", href: "/check" },
+          { label: "Screeners", href: "/screeners" },
+          { label: "Custom Checks", href: "/custom-checks" },
         ]}
       />
       <div class="app-account">

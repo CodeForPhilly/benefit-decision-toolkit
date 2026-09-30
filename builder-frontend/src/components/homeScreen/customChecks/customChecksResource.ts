@@ -12,9 +12,9 @@ import {
   fetchCheck,
 } from "@/api/check";
 import { renameCheckDmn } from "@/utils/renameCheckDmn";
-import type { EligibilityCheckDetail } from "@/types";
+import type { CustomCheckDetail } from "@/types";
 
-export interface EligibilityCheckResource {
+export interface CustomChecksResource {
   checks: () => EligibilityCheck[];
   archivedChecks: () => EligibilityCheck[];
   actions: {
@@ -30,7 +30,7 @@ export interface EligibilityCheckResource {
   };
 }
 
-const eligibilityCheckResource = (): EligibilityCheckResource => {
+const customChecksResource = (): CustomChecksResource => {
   // Both lists come from one request: the two are the same Firestore
   // collection, so asking for them separately doubles the reads.
   const [checksResource, { refetch: refetchChecks }] = createResource(() =>
@@ -101,7 +101,7 @@ const eligibilityCheckResource = (): EligibilityCheckResource => {
   const renameCheck = async (checkId: string, name: string) => {
     setActionInProgress(true);
     try {
-      const check = (await fetchCheck(checkId)) as EligibilityCheckDetail;
+      const check = (await fetchCheck(checkId)) as CustomCheckDetail;
       if (check.name === name) return;
       const dmnModel = await renameCheckDmn(check.dmnModel, check.name, name);
       await updateCheck(checkId, {
@@ -133,4 +133,4 @@ const eligibilityCheckResource = (): EligibilityCheckResource => {
   };
 };
 
-export default eligibilityCheckResource;
+export default customChecksResource;

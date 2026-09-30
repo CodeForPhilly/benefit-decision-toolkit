@@ -310,13 +310,13 @@ try {
   await saveScreenshot("published-screener.png", page.locator("main"));
   await saveScreenshot("example-screener.png", page.locator("main"));
 
-  await page.goto(`${baseUrl}/check`);
+  await page.goto(`${baseUrl}/custom-checks`);
   await page.setViewportSize({ width: 1100, height: 420 });
   await expect(
     page.getByText("household-income-limit", { exact: true }),
   ).toBeVisible();
   await saveScreenshot("custom-checks-list.png");
-  await page.goto(`${baseUrl}/check/${customCheck.id}`);
+  await page.goto(`${baseUrl}/custom-checks/${customCheck.id}`);
   await page.setViewportSize({ width: 1000, height: 530 });
   await expect(page.getByText("incomeLimit", { exact: true })).toBeVisible();
   await saveScreenshot("custom-check-editor.png");

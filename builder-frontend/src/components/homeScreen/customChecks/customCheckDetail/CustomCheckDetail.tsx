@@ -11,7 +11,7 @@ import EligibilityCheckTest from "./checkTesting/EligibilityCheckTest";
 import PublishCheck from "./PublishCheck";
 
 import { isDmnModelChanged } from "./dmnEditor";
-import eligibilityCheckDetailResource from "./eligibilityCheckDetailResource";
+import customCheckDetailResource from "./customCheckDetailResource";
 import ParametersConfiguration from "./ParametersConfiguration";
 
 import ErrorDisplayModal from "@/components/shared/ErrorModal";
@@ -23,7 +23,7 @@ type CheckDetailScreenMode =
   | "testing"
   | "publish";
 
-const EligibilityCheckDetail = () => {
+const CustomCheckDetail = () => {
   const { checkId } = useParams();
 
   const [currentDmnModel, setCurrentDmnModel] = createSignal<string>("");
@@ -35,7 +35,7 @@ const EligibilityCheckDetail = () => {
     createSignal<boolean>(false);
 
   const { eligibilityCheck, actions, actionInProgress, initialLoadStatus } =
-    eligibilityCheckDetailResource(() => checkId);
+    customCheckDetailResource(() => checkId);
 
   const hasDmnModelChanged = (): boolean => {
     return isDmnModelChanged(eligibilityCheck().dmnModel, currentDmnModel());
@@ -88,7 +88,7 @@ const EligibilityCheckDetail = () => {
       <EditorNavigation
         navProps={navbarDefs}
         items={[
-          { label: "Eligibility checks", href: "/check" },
+          { label: "Custom Checks", href: "/custom-checks" },
           { label: eligibilityCheck().name || "Loading check…" },
         ]}
       />
@@ -157,4 +157,4 @@ const EligibilityCheckDetail = () => {
   );
 };
 
-export default EligibilityCheckDetail;
+export default CustomCheckDetail;

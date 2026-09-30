@@ -31,12 +31,13 @@ Learn more about deploying your application with the [documentations](https://vi
 
 The authenticated editor uses three consistent navigation levels:
 
-- **App areas:** Projects and Eligibility checks sit beside the logo in the
-  compact header. The active area stays highlighted on its list and detail pages. `/`
-  remains a Projects list alias, and the logo links to `/projects`.
+- **App areas:** Screeners and Custom Checks sit beside the logo in the
+  compact header. The active area stays highlighted on its list and detail pages. The logo links to `/screeners`.
+  `/` and the legacy `/projects` URLs redirect to `/screeners`; legacy `/check`
+  URLs redirect to `/custom-checks`, preserving detail IDs, query strings, and hashes.
 - **Parent pages:** Breadcrumbs in the editor bar link back to each detail editor’s own
-  list and show the current project or check name. Benefit configuration has a
-  breadcrumb back to Manage Benefits within the open project. Parent navigation
+  list and show the current screener or check name. Benefit configuration has a
+  breadcrumb back to Manage Benefits within the open screener. Parent navigation
   uses a known destination, so it also works when a detail page is opened directly.
 - **Editor sections:** The section buttons share the editor bar with the
   breadcrumb, with the current section highlighted. On narrow screens, the
