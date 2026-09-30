@@ -32,7 +32,7 @@ class ExampleScreenerImportServiceTest {
 
     private static final String USER_ID = "new-user";
     private EligibilityCheck seedCheck;
-    private String seedWorkingId;
+    private String seedExampleSourceId;
 
     private final ObjectMapper mapper = new ObjectMapper();
     private final EligibilityCheckRepositoryImpl ids = new EligibilityCheckRepositoryImpl();
@@ -46,7 +46,10 @@ class ExampleScreenerImportServiceTest {
     void setUp() throws Exception {
         seedCheck = findReferencedSeedCheck();
         assumeTrue(seedCheck != null, "The example screener's benefits use no custom checks");
-        seedWorkingId = ids.getWorkingId(seedCheck);
+        // Seed checks exported from an account that imported the example carry its identity
+        seedExampleSourceId = seedCheck.getExampleSourceId() != null
+                ? seedCheck.getExampleSourceId()
+                : ids.getWorkingId(seedCheck);
         when(checkRepository.getWorkingId(any())).thenAnswer(invocation -> ids.getWorkingId(invocation.getArgument(0)));
         when(checkRepository.getPublishedId(any(), anyString()))
                 .thenAnswer(invocation -> ids.getPublishedId(invocation.getArgument(0), invocation.getArgument(1)));
@@ -91,17 +94,30 @@ class ExampleScreenerImportServiceTest {
         ArgumentCaptor<EligibilityCheck> saved = ArgumentCaptor.forClass(EligibilityCheck.class);
         verify(checkRepository, atLeastOnce()).saveNewWorkingCustomCheck(saved.capture());
         EligibilityCheck imported = saved.getAllValues().stream()
-                .filter(check -> seedWorkingId.equals(check.getExampleSourceId()))
+                .filter(check -> seedExampleSourceId.equals(check.getExampleSourceId()))
                 .findFirst().orElseThrow();
         assertFalse(imported.getId().contains(imported.getName()));
         assertEquals(USER_ID, imported.getOwnerId());
     }
 
     @Test
+    void importKeepsTheExampleIdentityOfAReExportedSeedCheck() throws Exception {
+        assumeTrue(seedCheck.getExampleSourceId() != null, "The seed check was not exported from an imported example");
+        assertFalse(seedCheck.getExampleSourceId().equals(ids.getWorkingId(seedCheck)));
+
+        service.importForUser(USER_ID);
+
+        ArgumentCaptor<EligibilityCheck> saved = ArgumentCaptor.forClass(EligibilityCheck.class);
+        verify(checkRepository, atLeastOnce()).saveNewWorkingCustomCheck(saved.capture());
+        assertTrue(saved.getAllValues().stream()
+                .anyMatch(check -> seedCheck.getExampleSourceId().equals(check.getExampleSourceId())));
+    }
+
+    @Test
     void reimportKeepsARenamedCheckAndPublishesUnderItsId() throws Exception {
         EligibilityCheck renamed = new EligibilityCheck("renamed", seedCheck.getModule(), "", List.of(), USER_ID);
         renamed.setId("W-kept");
-        renamed.setExampleSourceId(seedWorkingId);
+        renamed.setExampleSourceId(seedExampleSourceId);
         when(checkRepository.getAllWorkingCustomChecks(USER_ID)).thenReturn(List.of(renamed));
 
         service.importForUser(USER_ID);
