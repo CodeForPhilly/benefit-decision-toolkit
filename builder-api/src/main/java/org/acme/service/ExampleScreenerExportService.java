@@ -29,8 +29,6 @@ import java.util.Set;
 public class ExampleScreenerExportService {
     private static final Path EXPORT_ROOT = Paths
             .get("src", "main", "resources", "seed-data", "example-screener");
-    private static final String SYSTEM_COLLECTION = "system";
-    private static final String SYSTEM_CONFIG_ID = "config";
 
     private final StorageService storageService;
     private final String bucketName;
@@ -72,7 +70,6 @@ public class ExampleScreenerExportService {
         firestoreDocuments += exportedScreeners.numExported()
                 + exportedWorkingChecks.numExported()
                 + exportedPublishedChecks.numExported();
-        firestoreDocuments += exportSystemConfig();
 
         int storageFiles = 0;
         ExportDocumentResult exportedWorkingCheckDmns = exportCheckDmns(
@@ -196,20 +193,6 @@ public class ExampleScreenerExportService {
             checkPaths.add(skipFirstPath(checkPath).toString());
         }
         return new ExportDocumentResult(numExported, checkPaths);
-    }
-
-    private int exportSystemConfig() throws IOException {
-        Optional<Map<String, Object>> config = FirestoreUtils
-                .getFirestoreDocById(SYSTEM_COLLECTION, SYSTEM_CONFIG_ID);
-        if (config.isEmpty()) {
-            return 0;
-        }
-
-        writeJsonFile(
-                EXPORT_ROOT.resolve("firestore").resolve(SYSTEM_COLLECTION)
-                        .resolve(SYSTEM_CONFIG_ID + ".json"),
-                firestoreDocumentForExport(config.get(), SYSTEM_CONFIG_ID));
-        return 1;
     }
 
     private String exportScreenerForm(String screenerId) throws IOException {
