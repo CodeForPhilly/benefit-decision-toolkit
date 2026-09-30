@@ -26,3 +26,25 @@ Your app is ready to be deployed!
 ## Deployment
 
 Learn more about deploying your application with the [documentations](https://vite.dev/guide/static-deploy.html)
+
+## App navigation
+
+The authenticated editor uses three consistent navigation levels:
+
+- **App areas:** Projects and Eligibility checks sit beside the logo in the
+  compact header. The active area stays highlighted on its list and detail pages. `/`
+  remains a Projects list alias, and the logo links to `/projects`.
+- **Parent pages:** Breadcrumbs in the editor bar link back to each detail editor’s own
+  list and show the current project or check name. Benefit configuration has a
+  breadcrumb back to Manage Benefits within the open project. Parent navigation
+  uses a known destination, so it also works when a detail page is opened directly.
+- **Editor sections:** The section buttons share the editor bar with the
+  breadcrumb, with the current section highlighted. On narrow screens, the
+  breadcrumb gets one line and the section buttons scroll horizontally. Long
+  names truncate visually, with the full name available on hover and to screen
+  readers. Section and benefit selection remain
+  local editor state rather than separate URLs.
+
+The account menu contains User Guide, Logout, and the development-only example
+export. Published `/screener/:publishedScreenerId` pages remain outside the editor
+navigation.

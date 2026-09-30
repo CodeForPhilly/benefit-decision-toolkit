@@ -1,5 +1,5 @@
 import type { Component } from "solid-js";
-import { A } from "@solidjs/router";
+import { useLocation } from "@solidjs/router";
 
 import "./ANavbar.css";
 
@@ -7,12 +7,22 @@ interface Props {
   items: { label: string; href: string }[];
 }
 const ANavBar: Component<Props> = (props) => {
+  const location = useLocation();
+  const isActive = (href: string) =>
+    location.pathname === href ||
+    location.pathname.startsWith(`${href}/`) ||
+    (href === "/projects" && location.pathname === "/");
   return (
-    <nav class="flex border-b border-gray-300">
+    <nav aria-label="Main navigation" class="app-areas">
       {props.items.map(({ label, href }) => (
-        <A href={href} class="navbarlink">
+        <a
+          href={href}
+          class="navbarlink"
+          classList={{ active: isActive(href), inactive: !isActive(href) }}
+          aria-current={isActive(href) ? "page" : undefined}
+        >
           {label}
-        </A>
+        </a>
       ))}
     </nav>
   );

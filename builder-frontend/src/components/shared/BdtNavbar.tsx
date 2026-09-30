@@ -1,12 +1,8 @@
-import { Accessor, Show } from "solid-js";
+import { Accessor } from "solid-js";
 
 export interface NavbarProps {
   tabDefs: NavbarButtonDef[];
   activeTabKey: Accessor<string>;
-  titleDef: NavbarTitleDef | null;
-}
-interface NavbarTitleDef {
-  label: string;
 }
 interface NavbarButtonDef {
   key: string;
@@ -16,20 +12,16 @@ interface NavbarButtonDef {
 
 const BdtNavbar = ({ navProps }: { navProps: Accessor<NavbarProps> }) => {
   return (
-    <nav class="flex border-b border-gray-300">
-      <Show when={navProps().titleDef !== null}>
-        <span class="py-2 px-4 font-bold text-gray-700 cursor-default">
-          {navProps().titleDef!.label}
-        </span>
-      </Show>
+    <nav aria-label="Editor sections" class="editor-sections">
       {navProps().tabDefs.map((tab) => (
         <button
+          type="button"
+          aria-current={
+            navProps().activeTabKey() === tab.key ? "page" : undefined
+          }
           data-testid={`project-tab-${tab.key}`}
-          class={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-            navProps().activeTabKey() === tab.key
-              ? "border-b border-gray-700 text-gray-700 hover:bg-gray-200"
-              : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-200"
-          }`}
+          class="editor-section"
+          classList={{ selected: navProps().activeTabKey() === tab.key }}
           onClick={tab.onClick}
         >
           {tab.label.charAt(0).toUpperCase() + tab.label.slice(1)}

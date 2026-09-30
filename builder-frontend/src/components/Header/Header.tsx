@@ -1,34 +1,15 @@
 import { useAuth } from "../../context/AuthContext";
-import { useLocation, useNavigate } from "@solidjs/router";
-import { Component, createMemo, createSignal, DEV, For, Show } from "solid-js";
+import { A, useNavigate } from "@solidjs/router";
+import { Component, createSignal, DEV, Show } from "solid-js";
 
 import { HamburgerMenu } from "@/components/shared/HamburgerMenu";
+import ANavBar from "@/components/shared/ANavbar";
 
 import "./Header.css";
 import { Menu } from "lucide-solid";
 import { Button } from "@/components/shared/Button";
 import { Modal } from "@/components/shared/Modal";
 import { ExportExampleScreener } from "@/components/Header/ExportExampleScreener";
-
-const HeaderButton = ({
-  buttonText,
-  onClick,
-}: {
-  buttonText: string;
-  onClick: () => void;
-}) => {
-  return (
-    <button
-      onClick={onClick}
-      class="
-        px-4 py-2 text-md font-bold text-gray-700 rounded-md
-        flex items-center
-        hover:bg-gray-300 cursor-pointer select-none"
-    >
-      {buttonText}
-    </button>
-  );
-};
 
 interface MenuProps {
   userEmail: string;
@@ -37,20 +18,7 @@ interface MenuProps {
 }
 
 const HeaderMenu: Component<MenuProps> = (props) => {
-  const navigate = useNavigate();
   const [showExportMenu, setShowExportMenu] = createSignal(false);
-
-  const menuItems: { label: string; onClick: () => void }[] = [
-    {
-      label: "Custom Checks",
-      onClick: () => navigate("/check"),
-    },
-    {
-      label: "User Guide",
-      onClick: () => window.open("https://bdt-docs.web.app/", "_blank"),
-    },
-    { label: "Logout", onClick: props.logout },
-  ];
 
   return (
     <section class="header-menu">
@@ -59,13 +27,25 @@ const HeaderMenu: Component<MenuProps> = (props) => {
       </h2>
       <hr />
       <ul>
-        <For each={menuItems}>
-          {(menuItem) => (
-            <li class="header-menu-item" onClick={menuItem.onClick}>
-              {menuItem.label}
-            </li>
-          )}
-        </For>
+        <li>
+          <a
+            class="header-menu-item block"
+            href="https://bdt-docs.web.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            User Guide
+          </a>
+        </li>
+        <li>
+          <button
+            type="button"
+            class="header-menu-item text-left"
+            onClick={props.logout}
+          >
+            Logout
+          </button>
+        </li>
       </ul>
       <Show when={DEV}>
         <Button onClick={() => setShowExportMenu(true)}>
@@ -87,37 +67,26 @@ export default function Header() {
 
   const navigate = useNavigate();
 
-  const location = useLocation();
-  const isNotRoot = createMemo(
-    () => location.pathname !== "/" && location.pathname !== "/projects",
-  );
-
   const handleLogout = () => {
     logout();
     navigate("/login", { replace: true });
   };
 
   return (
-    <header class="bg-gray-200 min-h-12 h-12 px-4 flex items-center justify-between border-b-2 border-gray-300">
-      <div class="flex items-center space-x-6">
-        <img
-          src="/logos/bdt-logo-small-mono-light.svg"
-          alt="BDT logo"
-          class="w-18 cursor-pointer"
-          onClick={() => navigate("/")}
-        />
-      </div>
-      <div class="flex items-center h-full">
-        <Show when={isNotRoot()}>
-          <HeaderButton
-            buttonText="← Back to Home"
-            onClick={() => navigate("/")}
-          />
-        </Show>
-
+    <header class="app-header">
+      <A href="/projects" aria-label="BDT projects" class="app-brand">
+        <img src="/logos/bdt-logo-small-mono-light.svg" alt="BDT logo" />
+      </A>
+      <ANavBar
+        items={[
+          { label: "Projects", href: "/projects" },
+          { label: "Eligibility checks", href: "/check" },
+        ]}
+      />
+      <div class="app-account">
         <HamburgerMenu>
           <HamburgerMenu.Button>
-            <Menu />
+            <Menu size={20} />
           </HamburgerMenu.Button>
           <HamburgerMenu.Panel>
             <HeaderMenu

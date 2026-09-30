@@ -1,10 +1,10 @@
+import EditorNavigation from "@/components/shared/EditorNavigation";
 import { Accessor, createSignal, Match, Show, Switch } from "solid-js";
 import { useParams } from "@solidjs/router";
 
 import { clsx } from "clsx";
 import toast from "solid-toast";
 
-import Header from "../../../Header/Header";
 import Loading from "../../../Loading";
 import KogitoDmnEditorView from "./KogitoDmnEditorView";
 import EligibilityCheckTest from "./checkTesting/EligibilityCheckTest";
@@ -15,7 +15,7 @@ import eligibilityCheckDetailResource from "./eligibilityCheckDetailResource";
 import ParametersConfiguration from "./ParametersConfiguration";
 
 import ErrorDisplayModal from "@/components/shared/ErrorModal";
-import BdtNavbar, { NavbarProps } from "@/components/shared/BdtNavbar";
+import { NavbarProps } from "@/components/shared/BdtNavbar";
 
 type CheckDetailScreenMode =
   | "paramConfig"
@@ -76,7 +76,6 @@ const EligibilityCheckDetail = () => {
         },
       ],
       activeTabKey: () => screenMode(),
-      titleDef: { label: eligibilityCheck().name },
     };
   };
 
@@ -86,7 +85,13 @@ const EligibilityCheckDetail = () => {
         <Loading />
       </Show>
 
-      <BdtNavbar navProps={navbarDefs} />
+      <EditorNavigation
+        navProps={navbarDefs}
+        items={[
+          { label: "Eligibility checks", href: "/check" },
+          { label: eligibilityCheck().name || "Loading check…" },
+        ]}
+      />
       <Show
         when={
           eligibilityCheck().id !== undefined && !initialLoadStatus.loading()

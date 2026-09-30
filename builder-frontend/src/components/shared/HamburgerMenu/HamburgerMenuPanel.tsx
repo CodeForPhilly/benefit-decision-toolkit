@@ -14,6 +14,7 @@ export const HamburgerMenuPanel: Component<Props> = (props) => {
           <button
             class="menu-toggle"
             type="button"
+            aria-label="Close account menu"
             onClick={() => setShowMenu(false)}
           >
             <X />

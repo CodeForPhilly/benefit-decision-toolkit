@@ -10,18 +10,12 @@ import Loading from "./components/Loading";
 import { Match, ParentProps, Switch } from "solid-js";
 import { ComponentLibrary } from "@/components/shared/ComponentLibrary";
 import Header from "@/components/Header/Header";
-import ANavBar from "@/components/shared/ANavbar";
 import { ViewLayout } from "@/components/homeScreen/ViewLayout";
 import ProjectsList from "@/components/homeScreen/ProjectsList";
 import EligibilityChecksList from "@/components/homeScreen/eligibilityCheckList/EligibilityChecksList";
 
 const MainLayout = (props: ParentProps) => {
   const { user, isAuthLoading, isProvisioningAccount } = useAuth();
-
-  const navbarItems = [
-    { label: "Projects", href: "/projects" },
-    { label: "Eligibility checks", href: "/check" },
-  ];
 
   return (
     <Switch>

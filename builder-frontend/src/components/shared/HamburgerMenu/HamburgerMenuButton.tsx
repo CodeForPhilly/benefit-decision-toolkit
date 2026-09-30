@@ -8,8 +8,14 @@ interface Props {
 export const HamburgerMenuButton: Component<Props> = (props) => {
   const menuCtx = useHamburgerMenuContext();
   return (
-    <div class="menu-toggle" onClick={menuCtx.toggle}>
+    <button
+      type="button"
+      aria-label="Account menu"
+      aria-expanded={menuCtx.showMenu()}
+      class="menu-toggle"
+      onClick={menuCtx.toggle}
+    >
       {props.children}
-    </div>
+    </button>
   );
 };

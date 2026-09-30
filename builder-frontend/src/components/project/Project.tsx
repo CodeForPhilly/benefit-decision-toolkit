@@ -1,3 +1,4 @@
+import EditorNavigation from "@/components/shared/EditorNavigation";
 import { createSignal, createResource, Accessor } from "solid-js";
 import { useParams } from "@solidjs/router";
 
@@ -8,7 +9,7 @@ import Preview from "./preview/Preview";
 import Publish from "./Publish";
 
 import { fetchProject } from "@/api/screener";
-import BdtNavbar, { NavbarProps } from "@/components/shared/BdtNavbar";
+import { NavbarProps } from "@/components/shared/BdtNavbar";
 import { Title } from "@solidjs/meta";
 
 type TabOption = "manageBenefits" | "formEditor" | "preview" | "publish";
@@ -61,18 +62,23 @@ function Project() {
         },
       ],
       activeTabKey: () => activeTab(),
-      titleDef: { label: project().screenerName },
     };
   };
 
   return (
     <div class="h-screen flex flex-col">
+      <EditorNavigation
+        navProps={project.loading ? undefined : navbarDefs}
+        items={[
+          { label: "Projects", href: "/projects" },
+          { label: project()?.screenerName || "Loading project…" },
+        ]}
+      />
       {project.loading ? (
         <Loading />
       ) : (
         <>
           <Title>BDT - {project().screenerName}</Title>
-          <BdtNavbar navProps={navbarDefs} />
           {activeTab() == "formEditor" && (
             <FormEditorView
               formSchema={formSchema}
