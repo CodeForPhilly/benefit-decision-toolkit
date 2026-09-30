@@ -1,0 +1,35 @@
+{
+  "datePublished" : 1790791953833,
+  "isArchived" : false,
+  "module" : "Philadelphia examples",
+  "inputDefinition" : {
+    "type" : "object",
+    "required" : [ "custom", "parameters" ],
+    "properties" : {
+      "custom" : {
+        "type" : "object",
+        "required" : [ "wantsExtraCash" ],
+        "properties" : {
+          "wantsExtraCash" : { }
+        }
+      },
+      "parameters" : {
+        "type" : "object",
+        "properties" : { }
+      }
+    }
+  },
+  "parameterDefinitions" : [ {
+    "label" : "Answer required to pass (true for Philly Cash)",
+    "type" : "boolean",
+    "key" : "expectedAnswer",
+    "required" : true
+  } ],
+  "name" : "Would like extra cash",
+  "description" : "A parameterized custom check for the fictional Philly Cash benefit. expectedAnswer is configured as true. Leave the answer blank in Preview to see Unable to determine.",
+  "id" : "P-4fc360de-940e-48a1-97e5-adb2be1c7246-1.0.0",
+  "exampleSourceId" : "W-42ec0302-e333-4c6d-8488-e249c8eb2f49",
+  "ownerId" : "Edmyf5xCZ8C6xkp5Ig0cPYmWvM8T",
+  "version" : "1.0.0",
+  "_id" : "P-4fc360de-940e-48a1-97e5-adb2be1c7246-1.0.0"
+}

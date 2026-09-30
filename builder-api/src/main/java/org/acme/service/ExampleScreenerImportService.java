@@ -140,7 +140,7 @@ public class ExampleScreenerImportService {
                     ? seedCustomCheckVersions.workingCheck()
                     : seedCustomCheckVersions.publishedCheck();
             if (seedCheck != null) {
-                String exampleSourceId = eligibilityCheckRepository.getWorkingId(seedCheck);
+                String exampleSourceId = exampleSourceId(seedCheck);
                 Optional<EligibilityCheck> existingCheck = findImportedWorkingCheck(
                         userId, seedCheck, exampleSourceId);
                 String workingId = existingCheck.map(EligibilityCheck::getId)
@@ -206,6 +206,16 @@ public class ExampleScreenerImportService {
         return new SeedCustomCheckVersions(
                 seedData.workingCustomChecks().get(seedWorkingId),
                 seedData.publishedCustomChecks().get(seedPublishedId));
+    }
+
+    /* A check keeps the identity of the example check it came from, because exporting the example
+       replaces the seed check's own id with the exporting account's id. */
+    private String exampleSourceId(EligibilityCheck seedCheck) {
+        if (seedCheck.getExampleSourceId() != null
+                && !seedCheck.getExampleSourceId().isBlank()) {
+            return seedCheck.getExampleSourceId();
+        }
+        return eligibilityCheckRepository.getWorkingId(seedCheck);
     }
 
     /* Finds the check an earlier import of this example created, even if it was renamed since.
@@ -419,7 +429,7 @@ public class ExampleScreenerImportService {
                 InputStream stream = getPathStream(path);
                 String contents = new String(stream.readAllBytes(),
                         StandardCharsets.UTF_8);
-                dmnByCheckId.put(stripExtension(getIdFromPath(path)), contents);
+                dmnByCheckId.put(getIdFromPath(path), contents);
             } catch (IOException exception) {
                 Log.info("Error reading DMN file: " + path);
             }

@@ -1,0 +1,159 @@
+{
+  "checks" : [ {
+    "aliasGenerated" : false,
+    "aliasName" : "NotAlreadyOnSeniorCitizenTaxFreeze",
+    "checkModule" : "enrollment",
+    "checkVersion" : "0.9.0",
+    "inputDefinition" : {
+      "type" : "object",
+      "properties" : {
+        "enrollments" : {
+          "type" : "array",
+          "items" : {
+            "type" : "object",
+            "properties" : {
+              "personId" : {
+                "type" : "string"
+              },
+              "benefit" : {
+                "type" : "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameterDefinitions" : [ {
+      "label" : "personId",
+      "type" : "string",
+      "key" : "personId",
+      "required" : false
+    }, {
+      "label" : "benefit",
+      "type" : "string",
+      "key" : "benefit",
+      "required" : false
+    } ],
+    "sourceCheckId" : "L-enrollment-person-not-enrolled-in-benefit-0.9.0",
+    "checkName" : "person-not-enrolled-in-benefit",
+    "evaluationUrl" : "/api/v1/checks/enrollment/person-not-enrolled-in-benefit",
+    "checkId" : "40c3c72c-18c8-423d-9923-bf8013181eb3",
+    "parameters" : {
+      "personId" : "client",
+      "benefit" : "PhlSeniorCitizenTaxFreeze"
+    }
+  }, {
+    "aliasGenerated" : false,
+    "aliasName" : "OwnerOccupant",
+    "checkModule" : "residence",
+    "checkVersion" : "0.9.0",
+    "inputDefinition" : {
+      "type" : "object",
+      "properties" : {
+        "simpleChecks" : {
+          "type" : "object",
+          "properties" : {
+            "ownerOccupant" : {
+              "type" : "boolean"
+            }
+          }
+        }
+      }
+    },
+    "parameterDefinitions" : [ ],
+    "sourceCheckId" : "L-residence-owner-occupant-0.9.0",
+    "checkName" : "owner-occupant",
+    "evaluationUrl" : "/api/v1/checks/residence/owner-occupant",
+    "checkId" : "383d5d42-4a8d-4bb4-a92e-29f0a63e6746",
+    "parameters" : { }
+  }, {
+    "aliasGenerated" : false,
+    "aliasName" : "LivesInPhiladelphiaPa",
+    "checkModule" : "residence",
+    "checkVersion" : "0.9.0",
+    "inputDefinition" : {
+      "type" : "object",
+      "properties" : {
+        "simpleChecks" : {
+          "type" : "object",
+          "properties" : {
+            "livesInPhiladelphiaPa" : {
+              "type" : "boolean"
+            }
+          }
+        }
+      }
+    },
+    "parameterDefinitions" : [ ],
+    "sourceCheckId" : "L-residence-lives-in-philadelphia-pa-0.9.0",
+    "checkName" : "lives-in-philadelphia-pa",
+    "evaluationUrl" : "/api/v1/checks/residence/lives-in-philadelphia-pa",
+    "checkId" : "eb5ca136-1cd3-44c2-aea2-2b941918d84c",
+    "parameters" : { }
+  }, {
+    "aliasGenerated" : false,
+    "aliasName" : "MeetsAgeRequirement",
+    "checkModule" : "internal",
+    "checkVersion" : "0.9.0",
+    "inputDefinition" : {
+      "type" : "object",
+      "properties" : {
+        "relationships" : {
+          "type" : "array",
+          "items" : {
+            "type" : "object",
+            "properties" : {
+              "personId" : {
+                "type" : "string"
+              },
+              "type" : {
+                "type" : "string",
+                "enum" : [ "spouse" ]
+              },
+              "relatedPersonId" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "people" : {
+          "type" : "array",
+          "items" : {
+            "type" : "object",
+            "properties" : {
+              "dateOfBirth" : {
+                "format" : "date",
+                "type" : "string"
+              },
+              "id" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "primaryPersonId" : {
+          "type" : "string"
+        },
+        "simpleChecks" : {
+          "type" : "object",
+          "properties" : {
+            "lateSpouseWasAtLeast65" : {
+              "type" : "boolean"
+            }
+          }
+        }
+      }
+    },
+    "parameterDefinitions" : [ ],
+    "sourceCheckId" : "L-internal-sctf-age-requirement-0.9.0",
+    "checkName" : "sctf-age-requirement",
+    "evaluationUrl" : "/api/v1/checks/internal/sctf-age-requirement",
+    "checkId" : "dddfa96b-e60d-4835-904f-b34a803d3753",
+    "parameters" : { }
+  } ],
+  "name" : "Senior Citizen Tax Freeze (SCTF)",
+  "description" : "A library benefit illustrating age logic for an applicant, spouse, or late spouse. Try an applicant over 65, then a younger applicant with a spouse over 65. An unanswered birth date can produce Unable to determine. These are the current library rules; this example does not add income criteria.",
+  "id" : "ca00617a-4c9b-4710-9601-57880efde0c0",
+  "ownerId" : "Edmyf5xCZ8C6xkp5Ig0cPYmWvM8T",
+  "_id" : "ca00617a-4c9b-4710-9601-57880efde0c0"
+}

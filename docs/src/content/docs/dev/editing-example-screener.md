@@ -18,7 +18,7 @@ The workflow is:
 1. Create a Codespace from the `main` branch
 2. Log in to the app with a fake account (which comes pre-loaded with the example screener)
 3. Make your edits to the screener and/or custom checks
-4. Run the save script to export your changes
+4. Export your changes with the **Export Example Screener** button
 5. Commit and push
 6. Stop or delete the Codespace
 
@@ -61,22 +61,24 @@ Make your changes to the example screener using the builder UI. You can:
 
 ## Step 4: Save Your Changes
 
-When you're satisfied with your edits, run the save script to export the updated screener data from the Firebase emulator so it can be committed to the repository.
+When you're satisfied with your edits, export them so they can be committed to the repository.
 
-In the VS Code terminal, run:
+1. Click **Export Example Screener** in the app's header (the button only appears in development builds)
+2. Click **Export** in the dialog
+3. Wait for **Successfully exported screeners.**
 
-```bash
-bin/export-example-screener
-```
+The export writes your account's screeners, custom checks (working and published versions), their DMN files and the screener form into `builder-api/src/main/resources/seed-data/example-screener/`, replacing the previous export. Hand-maintained files in that directory, such as its `README.md`, are left alone. This is the data that gets loaded for new accounts, so committing it is what makes your changes take effect.
 
-This script exports Firestore and Storage data from the running emulators into `seed-data/example-screener/` in a portable JSON format. This is the data that gets loaded for new accounts, so committing it is what makes your changes take effect.
+:::caution
+Everything your account owns is exported, not just the example screener. Make your edits in an account that contains only the example, and don't create other screeners or custom checks in it.
+:::
 
 ## Step 5: Commit and Push
 
 In the VS Code terminal:
 
 ```bash
-git add .
+git add builder-api/src/main/resources/seed-data/example-screener
 git commit -m "Update example screener"
 git push
 ```
@@ -104,10 +106,10 @@ For general Codespace issues (app not loading, ports not showing, services crash
 
 ### Emulator data loss
 
-If the Firebase emulators don't shut down gracefully (e.g., due to a Codespace idle timeout), unsaved emulator data may be lost. Always run the save script **before** stepping away from the Codespace for an extended period.
+If the Firebase emulators don't shut down gracefully (e.g., due to a Codespace idle timeout), unsaved emulator data may be lost. Always export your changes **before** stepping away from the Codespace for an extended period.
 
 ### Codespace idle timeout
 
-Codespaces will stop after a period of inactivity (default: 30 minutes). Interacting with the web app alone may not count as activity. If you're making a long editing session, occasionally interact with the VS Code terminal to keep the Codespace alive. You might also want to run the `bin/export-example-screener` script periodically to ensure you can pick up where you left off when restarting the Codespace later.
+Codespaces will stop after a period of inactivity (default: 30 minutes). Interacting with the web app alone may not count as activity. If you're making a long editing session, occasionally interact with the VS Code terminal to keep the Codespace alive. You might also want to export periodically to ensure you can pick up where you left off when restarting the Codespace later.
 
 To increase the default idle timeout, go to [github.com/settings/codespaces](https://github.com/settings/codespaces) and change the **Default idle timeout** setting (maximum: 240 minutes).
