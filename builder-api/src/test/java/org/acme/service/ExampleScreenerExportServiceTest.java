@@ -13,8 +13,11 @@ class ExampleScreenerExportServiceTest {
     Path exportRoot;
 
     @Test
-    void resetRemovesOldExportDataAndPreservesReadme() throws Exception {
+    void resetRemovesOldExportDataAndKeepsOtherFiles() throws Exception {
         Files.writeString(exportRoot.resolve("README.md"), "Seed editing guidance");
+        Path notes = exportRoot.resolve("notes/scenarios.md");
+        Files.createDirectories(notes.getParent());
+        Files.writeString(notes, "Preview scenarios");
         Files.writeString(exportRoot.resolve("manifest.json"), "old manifest");
         Path oldData = exportRoot.resolve("firestore/workingScreener/old.json");
         Files.createDirectories(oldData.getParent());
@@ -27,8 +30,9 @@ class ExampleScreenerExportServiceTest {
 
         assertTrue(Files.isDirectory(exportRoot));
         assertEquals("Seed editing guidance", Files.readString(exportRoot.resolve("README.md")));
-        try (var files = Files.list(exportRoot)) {
-            assertEquals(java.util.List.of(exportRoot.resolve("README.md")), files.toList());
-        }
+        assertEquals("Preview scenarios", Files.readString(notes));
+        assertFalse(Files.exists(exportRoot.resolve("manifest.json")));
+        assertFalse(Files.exists(exportRoot.resolve("firestore")));
+        assertFalse(Files.exists(exportRoot.resolve("storage")));
     }
 }

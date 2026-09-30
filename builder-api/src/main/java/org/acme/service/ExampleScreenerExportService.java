@@ -29,6 +29,8 @@ import java.util.Set;
 public class ExampleScreenerExportService {
     private static final Path EXPORT_ROOT = Paths
             .get("src", "main", "resources", "seed-data", "example-screener");
+    private static final List<String> EXPORTED_PATHS = List.of("firestore",
+            "storage", "manifest.json");
 
     private final StorageService storageService;
     private final String bucketName;
@@ -310,29 +312,32 @@ public class ExampleScreenerExportService {
         resetExportRoot(EXPORT_ROOT);
     }
 
+    // Only the paths the export writes are cleared, so hand-maintained files like the README survive
     static void resetExportRoot(Path exportRoot) throws IOException {
-        if (Files.exists(exportRoot)) {
-            try (var walk = Files.walk(exportRoot)) {
-                // The README is maintained in Git, not generated from account data.
-                walk.filter(path -> !path.equals(exportRoot)
-                                && !path.equals(exportRoot.resolve("README.md")))
-                        .sorted(Comparator.reverseOrder()).forEach(path -> {
-                    try {
-                        Files.delete(path);
-                    } catch (IOException e) {
-                        throw new RuntimeException("Failed to delete " + path,
-                                e);
-                    }
-                });
-            } catch (RuntimeException e) {
-                if (e.getCause() instanceof IOException ioException) {
-                    throw ioException;
-                }
-                throw e;
-            }
+        for (String exportedPath : EXPORTED_PATHS) {
+            deleteRecursively(exportRoot.resolve(exportedPath));
         }
-
         Files.createDirectories(exportRoot);
+    }
+
+    private static void deleteRecursively(Path root) throws IOException {
+        if (!Files.exists(root)) {
+            return;
+        }
+        try (var walk = Files.walk(root)) {
+            walk.sorted(Comparator.reverseOrder()).forEach(path -> {
+                try {
+                    Files.delete(path);
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to delete " + path, e);
+                }
+            });
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof IOException ioException) {
+                throw ioException;
+            }
+            throw e;
+        }
     }
 
     private void writeJsonFile(Path path, Object data) throws IOException {
