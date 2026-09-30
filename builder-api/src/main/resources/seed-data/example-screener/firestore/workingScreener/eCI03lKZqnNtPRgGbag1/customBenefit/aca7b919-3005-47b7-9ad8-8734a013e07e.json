@@ -59,7 +59,7 @@
     }
   } ],
   "name" : "Philly Cash (fictional)",
-  "description" : "A made-up benefit: you qualify if you live in Philadelphia and would like extra cash. No other criteria apply. Open Custom Checks to inspect the annotated diagram, edit the logic, test it, and publish a new version. Here the published 1.0.0 custom check demonstrate version pinning and a configurable parameter. This program does not exist and pays no money.",
+  "description" : "A made-up benefit: you qualify if you live in Philadelphia and would like extra cash. No other criteria apply. Open Custom Checks to inspect the annotated diagram, edit the logic, test it, and publish a new version. Here the published 1.0.0 custom check demonstrates version pinning and a configurable parameter. This program does not exist and pays no money.",
   "id" : "aca7b919-3005-47b7-9ad8-8734a013e07e",
   "ownerId" : "Edmyf5xCZ8C6xkp5Ig0cPYmWvM8T",
   "_id" : "aca7b919-3005-47b7-9ad8-8734a013e07e"
