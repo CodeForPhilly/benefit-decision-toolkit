@@ -60,7 +60,14 @@ describe("CustomCheckDetail", () => {
     );
     const currentCrumb = () =>
       container.querySelector(".breadcrumb-current")?.textContent;
-    return { container, currentCrumb, setCheck, setLoading, setError };
+    return {
+      container,
+      currentCrumb,
+      history,
+      setCheck,
+      setLoading,
+      setError,
+    };
   }
 
   it("shows the check name once loaded, even while refetching", () => {
@@ -87,5 +94,35 @@ describe("CustomCheckDetail", () => {
         .querySelector('[data-testid="editor-section-publish"]')
         ?.getAttribute("aria-current"),
     ).toBe("true");
+  });
+
+  it("keeps the open section in the URL", async () => {
+    const { container, history, setCheck, setLoading } = mount(
+      "/custom-checks/example?tab=publish",
+    );
+    setCheck({ id: "example", name: "Income limit" });
+    setLoading(false);
+    const isCurrent = (key: string) =>
+      container
+        .querySelector(`[data-testid="editor-section-${key}"]`)
+        ?.getAttribute("aria-current") === "true";
+
+    container
+      .querySelector<HTMLElement>('[data-testid="editor-section-testing"]')!
+      .click();
+    await vi.waitFor(() =>
+      expect(history.get()).toBe("/custom-checks/example?tab=testing"),
+    );
+    expect(isCurrent("testing")).toBe(true);
+
+    container
+      .querySelector<HTMLElement>('[data-testid="editor-section-paramConfig"]')!
+      .click();
+    await vi.waitFor(() =>
+      expect(history.get()).toBe("/custom-checks/example"),
+    );
+
+    history.set({ value: "/custom-checks/example?tab=dmnDefinition" });
+    await vi.waitFor(() => expect(isCurrent("dmnDefinition")).toBe(true));
   });
 });

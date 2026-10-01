@@ -17,20 +17,30 @@ import ParametersConfiguration from "./ParametersConfiguration";
 import ErrorDisplayModal from "@/components/shared/ErrorModal";
 import { NavbarProps } from "@/components/shared/BdtNavbar";
 
-type CheckDetailScreenMode =
-  | "paramConfig"
-  | "dmnDefinition"
-  | "testing"
-  | "publish";
+const screenModes = [
+  "paramConfig",
+  "dmnDefinition",
+  "testing",
+  "publish",
+] as const;
+type CheckDetailScreenMode = (typeof screenModes)[number];
+
+const isScreenMode = (tab: unknown): tab is CheckDetailScreenMode =>
+  screenModes.includes(tab as CheckDetailScreenMode);
 
 const CustomCheckDetail = () => {
   const { checkId } = useParams();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [currentDmnModel, setCurrentDmnModel] = createSignal<string>("");
-  const [screenMode, setScreenMode] = createSignal<CheckDetailScreenMode>(
-    searchParams.tab === "publish" ? "publish" : "paramConfig",
-  );
+  // The URL holds the open tab so reloads, links, and history keep it.
+  const screenMode = (): CheckDetailScreenMode =>
+    isScreenMode(searchParams.tab) ? searchParams.tab : "paramConfig";
+  const setScreenMode = (mode: CheckDetailScreenMode) =>
+    setSearchParams(
+      { tab: mode === "paramConfig" ? undefined : mode },
+      { replace: true },
+    );
 
   const [validationErrors, setValidationErrors] = createSignal<string[]>([]);
   const [showingErrorModal, setShowingErrorModal] =
