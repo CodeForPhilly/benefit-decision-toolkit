@@ -6,10 +6,10 @@
  * - Opens a panel on the left side (can be parameterized in the future)
  *
  * <HamburgerMenu>
- *   <HamburgerMenu.Button>
+ *   <HamburgerMenu.Button label="Account menu">
  *     <MyToggleButton />
  *   </HamburgerMenu.Button>
- *   <HamburgerMenu.Panel>
+ *   <HamburgerMenu.Panel closeLabel="Close account menu">
  *     <MyPanel />
  *   </HamburgerMenu.Panel>
  * </HamburgerMenu>

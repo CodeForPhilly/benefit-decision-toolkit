@@ -4,6 +4,7 @@ import { X } from "lucide-solid";
 
 interface Props {
   children: JSX.Element;
+  closeLabel?: string;
 }
 export const HamburgerMenuPanel: Component<Props> = (props) => {
   const { showMenu, setShowMenu } = useHamburgerMenuContext();
@@ -14,7 +15,7 @@ export const HamburgerMenuPanel: Component<Props> = (props) => {
           <button
             class="menu-toggle"
             type="button"
-            aria-label="Close account menu"
+            aria-label={props.closeLabel ?? "Close menu"}
             onClick={() => setShowMenu(false)}
           >
             <X />

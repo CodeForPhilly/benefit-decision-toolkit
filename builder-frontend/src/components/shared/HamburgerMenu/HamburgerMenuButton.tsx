@@ -3,6 +3,7 @@ import { useHamburgerMenuContext } from "./HamburgerMenuWrapper";
 
 interface Props {
   children: JSX.Element;
+  label?: string;
 }
 
 export const HamburgerMenuButton: Component<Props> = (props) => {
@@ -10,7 +11,7 @@ export const HamburgerMenuButton: Component<Props> = (props) => {
   return (
     <button
       type="button"
-      aria-label="Account menu"
+      aria-label={props.label ?? "Menu"}
       aria-expanded={menuCtx.showMenu()}
       class="menu-toggle"
       onClick={menuCtx.toggle}

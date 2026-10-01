@@ -85,10 +85,10 @@ export default function Header() {
       />
       <div class="app-account">
         <HamburgerMenu>
-          <HamburgerMenu.Button>
+          <HamburgerMenu.Button label="Account menu">
             <Menu size={20} />
           </HamburgerMenu.Button>
-          <HamburgerMenu.Panel>
+          <HamburgerMenu.Panel closeLabel="Close account menu">
             <HeaderMenu
               userEmail={userEmail}
               displayName={displayName}
