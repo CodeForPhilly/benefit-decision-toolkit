@@ -11,6 +11,15 @@ export default function AuthForm() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // On /login and /signup, continue to the app after signing in. Anywhere
+  // else, stay put: once signed in, MainLayout renders the requested page
+  // (including legacy redirects) in place of this form.
+  const finishSignIn = () => {
+    if (location.pathname === "/login" || location.pathname === "/signup") {
+      navigate("/screeners", { replace: true });
+    }
+  };
+
   const toggleMode = () => {
     if (location.pathname === "/signup") {
       navigate("/screeners");
@@ -24,7 +33,7 @@ export default function AuthForm() {
       setIsSigningIn(true);
       await loginWithGoogle();
       setIsSigningIn(false);
-      navigate("/screeners");
+      finishSignIn();
     } catch (err) {
       setIsSigningIn(false);
 
@@ -43,9 +52,9 @@ export default function AuthForm() {
           />
         </h1>
         {location.pathname === "/signup" ? (
-          <Signup toggleMode={toggleMode} />
+          <Signup toggleMode={toggleMode} onSignedIn={finishSignIn} />
         ) : (
-          <Login toggleMode={toggleMode} />
+          <Login toggleMode={toggleMode} onSignedIn={finishSignIn} />
         )}
         <div class="relative flex w-100 h-12 justify-center items-center">
           <hr class="absolute w-100 border-t border-gray-300" />
