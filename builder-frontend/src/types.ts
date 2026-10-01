@@ -49,7 +49,7 @@ export interface EligibilityCheck {
   // API endpoint for evaluating check (Library checks only)
   evaluationUrl?: string;
 }
-export interface CustomCheckDetail extends EligibilityCheck {
+export interface CustomCheckWithDmn extends EligibilityCheck {
   dmnModel: string;
 }
 

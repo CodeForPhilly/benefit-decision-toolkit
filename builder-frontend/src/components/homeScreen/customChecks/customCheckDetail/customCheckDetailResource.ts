@@ -13,13 +13,13 @@ import {
 
 import type {
   CheckConfig,
-  CustomCheckDetail,
+  CustomCheckWithDmn,
   OptionalBoolean,
   ParameterDefinition,
 } from "@/types";
 
 export interface CustomCheckDetailResource {
-  eligibilityCheck: () => CustomCheckDetail;
+  eligibilityCheck: () => CustomCheckWithDmn;
   actions: {
     addParameter: (parameterDef: ParameterDefinition) => Promise<void>;
     updateParameter: (
@@ -45,7 +45,7 @@ export interface CustomCheckDetailResource {
 const customCheckDetailResource = (
   checkId: Accessor<string>,
 ): CustomCheckDetailResource => {
-  const [customChecksResource, { refetch }] = createResource(
+  const [checkResource, { refetch }] = createResource(
     () => checkId(),
     fetchCheck,
   );
@@ -53,17 +53,17 @@ const customCheckDetailResource = (
 
   // Local fine-grained store
   const [eligibilityCheck, setEligibilityCheck] =
-    createStore<CustomCheckDetail | null>(null);
+    createStore<CustomCheckWithDmn | null>(null);
 
   // When resource resolves, sync it into the store
   createEffect(() => {
     console.log("Setting custom check");
-    const data = customChecksResource();
-    if (customChecksResource()) {
+    const data = checkResource();
+    if (checkResource()) {
       console.log("here");
       console.log(data.name);
 
-      setEligibilityCheck(customChecksResource()!);
+      setEligibilityCheck(checkResource()!);
     }
   });
 
@@ -192,8 +192,8 @@ const customCheckDetailResource = (
     },
     actionInProgress,
     initialLoadStatus: {
-      loading: () => customChecksResource.loading,
-      error: () => customChecksResource.error,
+      loading: () => checkResource.loading,
+      error: () => checkResource.error,
     },
   };
 };

@@ -12,7 +12,7 @@ import {
   fetchCheck,
 } from "@/api/check";
 import { renameCheckDmn } from "@/utils/renameCheckDmn";
-import type { CustomCheckDetail } from "@/types";
+import type { CustomCheckWithDmn } from "@/types";
 
 export interface CustomChecksResource {
   checks: () => EligibilityCheck[];
@@ -101,7 +101,7 @@ const customChecksResource = (): CustomChecksResource => {
   const renameCheck = async (checkId: string, name: string) => {
     setActionInProgress(true);
     try {
-      const check = (await fetchCheck(checkId)) as CustomCheckDetail;
+      const check = (await fetchCheck(checkId)) as CustomCheckWithDmn;
       if (check.name === name) return;
       const dmnModel = await renameCheckDmn(check.dmnModel, check.name, name);
       await updateCheck(checkId, {
