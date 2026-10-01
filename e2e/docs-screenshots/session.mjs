@@ -60,9 +60,7 @@ export async function settledBox(locator, timeout = 10000) {
   throw new Error(`${locator} did not stop moving within ${timeout}ms`);
 }
 
-export async function openSession() {
-  const email = await createAccount();
-  const browser = await chromium.launch({ headless: true });
+async function signIn(browser, email) {
   const page = await browser.newPage({
     viewport: { width: 1100, height: 720 },
     deviceScaleFactor: 2,
@@ -76,6 +74,19 @@ export async function openSession() {
   await expect(
     page.getByText(exampleScreenerName, { exact: true }),
   ).toBeVisible();
+  return page;
+}
+
+export async function openSession() {
+  const email = await createAccount();
+  const browser = await chromium.launch({ headless: true });
+  let page;
+  try {
+    page = await signIn(browser, email);
+  } catch (error) {
+    await browser.close();
+    throw error;
+  }
 
   /* Saves the page, one element (`locator`), or the region from the top of
      one element down to the bottom of the lowest of several (`from`, `to`) */
