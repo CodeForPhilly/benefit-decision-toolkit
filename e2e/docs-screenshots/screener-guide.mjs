@@ -111,10 +111,8 @@ export async function captureScreenerGuide({ page, save }) {
   await page.setViewportSize({ width: 1100, height: 720 });
   await answerOnlyPhillyCashScenario(page);
   // The answered questions beside every benefit's result
-  const publishedRegion = {
+  await save("published-screener", {
     from: page.locator("main"),
     to: [question(page, incomeQuestion), section(page, "Eligibility Results")],
-  };
-  await save("published-screener", publishedRegion);
-  await save("example-screener", publishedRegion);
+  });
 }
