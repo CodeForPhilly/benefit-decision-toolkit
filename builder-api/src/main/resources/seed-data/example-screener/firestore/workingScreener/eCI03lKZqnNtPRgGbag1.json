@@ -13,7 +13,7 @@
     "id" : "aca7b919-3005-47b7-9ad8-8734a013e07e"
   }, {
     "name" : "Senior Citizen Tax Freeze (SCTF)",
-    "description" : "A library benefit illustrating age logic for an applicant, spouse, or late spouse. Try an applicant over 65, then a younger applicant with a spouse over 65. An unanswered birth date can produce Unable to determine. These are the current library rules; this example does not add income criteria.",
+    "description" : "A library benefit illustrating age logic for an applicant, spouse, or late spouse. Try an applicant over 65, then a younger applicant with a spouse over 65. An unanswered birth date can produce Need more information. These are the current library rules; this example does not add income criteria.",
     "id" : "ca00617a-4c9b-4710-9601-57880efde0c0"
   } ],
   "id" : "eCI03lKZqnNtPRgGbag1",
