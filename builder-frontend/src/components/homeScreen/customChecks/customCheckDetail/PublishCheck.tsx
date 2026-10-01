@@ -61,13 +61,9 @@ const PublishCheck = (props: {
       setPublishing(false);
       return;
     }
-    try {
-      await refetch();
-    } catch {
-      // Publication succeeded. The resource's error state offers a refresh retry.
-    } finally {
-      setPublishing(false);
-    }
+    // A failed refresh does not reject; it shows the resource's Retry state.
+    await refetch();
+    setPublishing(false);
   };
 
   return (
@@ -107,7 +103,7 @@ const PublishCheck = (props: {
             <Button
               variant="outline-secondary"
               class="ml-2"
-              onClick={() => void Promise.resolve(refetch()).catch(() => {})}
+              onClick={() => refetch()}
             >
               Retry
             </Button>
