@@ -83,7 +83,11 @@ export default function Login({ toggleMode, onSignedIn }) {
         Sign In
       </button>
 
-      <button className="text-gray-600 pt-4 text-center" onClick={toggleMode}>
+      <button
+        type="button"
+        className="text-gray-600 pt-4 text-center"
+        onClick={toggleMode}
+      >
         Don't have an account?&nbsp;
         <span className="text-gray-700 font-bold hover:underline hover:cursor-pointer">
           Sign Up

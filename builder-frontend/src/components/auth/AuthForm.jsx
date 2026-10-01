@@ -11,21 +11,26 @@ export default function AuthForm() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // On /login and /signup, continue to the app after signing in. Anywhere
-  // else, stay put: once signed in, MainLayout renders the requested page
-  // (including legacy redirects) in place of this form.
+  const isAuthPage = () =>
+    location.pathname === "/login" || location.pathname === "/signup";
+
+  // On /login and /signup, continue to the page the user originally asked
+  // for (carried along by toggleMode) or to the app. Anywhere else, stay
+  // put: once signed in, MainLayout renders the requested page (including
+  // legacy redirects) in place of this form.
   const finishSignIn = () => {
-    if (location.pathname === "/login" || location.pathname === "/signup") {
-      navigate("/screeners", { replace: true });
+    if (isAuthPage()) {
+      navigate(location.state?.returnTo ?? "/screeners", { replace: true });
     }
   };
 
   const toggleMode = () => {
-    if (location.pathname === "/signup") {
-      navigate("/screeners");
-    } else {
-      navigate("/signup");
-    }
+    const returnTo = isAuthPage()
+      ? location.state?.returnTo
+      : `${location.pathname}${location.search}${location.hash}`;
+    navigate(location.pathname === "/signup" ? "/login" : "/signup", {
+      state: { returnTo },
+    });
   };
 
   const handleGoogleLogin = async () => {

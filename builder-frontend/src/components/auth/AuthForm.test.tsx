@@ -85,4 +85,32 @@ describe("AuthForm", () => {
     await settle();
     expect(history.get()).toBe(bookmark);
   });
+
+  function clickText(container: HTMLElement, text: string) {
+    const element = [...container.querySelectorAll("button, div")].find((e) =>
+      e.childNodes[0]?.textContent?.startsWith(text),
+    ) as HTMLElement;
+    element.click();
+  }
+
+  it("switches between the sign-in and sign-up forms", async () => {
+    const { container, history } = mount("/login");
+    clickText(container, "Don't have an account?");
+    await vi.waitFor(() => expect(history.get()).toBe("/signup"));
+    clickText(container, "Have an account?");
+    await vi.waitFor(() => expect(history.get()).toBe("/login"));
+    expect(container.textContent).toContain("Don't have an account?");
+  });
+
+  it("returns to a bookmarked URL after switching forms and signing up", async () => {
+    auth.register.mockResolvedValue(undefined);
+    const bookmark = "/check/income-limit?source=bookmark#testing";
+    const { container, history } = mount(bookmark);
+    clickText(container, "Don't have an account?");
+    await vi.waitFor(() => expect(history.get()).toBe("/signup"));
+    clickButton(container, "Sign Up");
+    await vi.waitFor(() => expect(history.get()).toBe(bookmark));
+    history.back();
+    await vi.waitFor(() => expect(history.get()).toBe(bookmark));
+  });
 });
