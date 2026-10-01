@@ -50,6 +50,14 @@ const PublishCheck = ({
     return [parts[0], parts[1], parts[2]];
   }
 
+  const formattedDate = (datePublished?: number) =>
+    datePublished === undefined || datePublished === null
+      ? "--"
+      : new Intl.DateTimeFormat("en-US", {
+          dateStyle: "medium",
+          timeStyle: "short",
+        }).format(new Date(datePublished));
+
   return (
     <div class="p-12">
       <div class="text-3xl font-bold tracking-wide mb-2">
@@ -84,7 +92,8 @@ const PublishCheck = ({
                       {check.parameterDefinitions?.length || 0}
                     </div>
                     <div>
-                      <span class="font-bold">Date Published:</span> --
+                      <span class="font-bold">Date Published:</span>{" "}
+                      {formattedDate(check.datePublished)}
                     </div>
                   </div>
                 </div>

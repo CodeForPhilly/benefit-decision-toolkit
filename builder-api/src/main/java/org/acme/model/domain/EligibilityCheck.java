@@ -21,6 +21,8 @@ public class EligibilityCheck {
     private Boolean isArchived;
     // working id of the example check this was imported from, so re-imports survive renames
     private String exampleSourceId;
+    // milliseconds since the epoch at which a published version was saved; null for working checks
+    private Long datePublished;
 
     public EligibilityCheck() {
     }
@@ -134,5 +136,13 @@ public class EligibilityCheck {
 
     public void setExampleSourceId(String exampleSourceId) {
         this.exampleSourceId = exampleSourceId;
+    }
+
+    public Long getDatePublished() {
+        return datePublished;
+    }
+
+    public void setDatePublished(Long datePublished) {
+        this.datePublished = datePublished;
     }
 }
