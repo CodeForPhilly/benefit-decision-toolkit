@@ -19,7 +19,7 @@ An **eligibility screener** is a web-based form that:
 2. Evaluates that information against defined eligibility rules
 3. Displays eligibility results based on the evaluation
 
-![A published eligibility screener form that collects the information needed to evaluate an applicant.](../../../assets/screenshots/example-screener.png)
+![A published eligibility screener form that collects the information needed to evaluate an applicant.](../../../assets/screenshots/published-screener.png)
 
 Each screener has two primary components that work together:
 

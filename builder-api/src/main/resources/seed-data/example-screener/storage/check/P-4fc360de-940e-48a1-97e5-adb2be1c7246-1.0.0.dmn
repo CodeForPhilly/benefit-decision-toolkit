@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dmn:definitions xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns="https://bdt.codeforphilly.org/examples/wants-extra-cash" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" id="definitions-wants-extra-cash" name="Would like extra cash" namespace="https://bdt.codeforphilly.org/examples/wants-extra-cash">
-  <dmn:description>A parameterized custom check for the fictional Philly Cash benefit. expectedAnswer is configured as true. Leave the answer blank in Preview to see Unable to determine.</dmn:description>
+  <dmn:description>A parameterized custom check for the fictional Philly Cash benefit. expectedAnswer is configured as true. Leave the answer blank in Preview to see Need more information.</dmn:description>
   <dmn:itemDefinition id="parameters-type" name="tParameters"><dmn:itemComponent id="answer-field" name="expectedAnswer"><dmn:typeRef>boolean</dmn:typeRef></dmn:itemComponent></dmn:itemDefinition>
   <dmn:inputData id="input" name="wantsExtraCash"><dmn:variable id="input-variable" name="wantsExtraCash" typeRef="boolean"/></dmn:inputData>
   <dmn:inputData id="parameters" name="parameters"><dmn:variable id="parameters-variable" name="parameters" typeRef="tParameters"/></dmn:inputData>
-  <dmn:decision id="decision" name="Would like extra cash"><dmn:description>A parameterized custom check for the fictional Philly Cash benefit. expectedAnswer is configured as true. Leave the answer blank in Preview to see Unable to determine.</dmn:description><dmn:variable id="decision-variable" name="Would like extra cash" typeRef="boolean"/>
+  <dmn:decision id="decision" name="Would like extra cash"><dmn:description>A parameterized custom check for the fictional Philly Cash benefit. expectedAnswer is configured as true. Leave the answer blank in Preview to see Need more information.</dmn:description><dmn:variable id="decision-variable" name="Would like extra cash" typeRef="boolean"/>
     <dmn:informationRequirement id="requires-input"><dmn:requiredInput href="#input"/></dmn:informationRequirement>
     <dmn:informationRequirement id="requires-parameters"><dmn:requiredInput href="#parameters"/></dmn:informationRequirement>
     <dmn:literalExpression id="expression"><dmn:text>if wantsExtraCash = null then null else wantsExtraCash = parameters.expectedAnswer</dmn:text></dmn:literalExpression></dmn:decision>

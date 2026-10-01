@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmn:definitions xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns="https://bdt.codeforphilly.org/examples/household-income-limit" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" id="definitions-household-income-limit" name="Household income limit" namespace="https://bdt.codeforphilly.org/examples/household-income-limit">
+  <dmn:description>Passes when yearly household income is at or below incomeLimit. Each benefit that uses this check sets its own incomeLimit; Philly Cash uses 40000. A blank income gives Need more information.</dmn:description>
+  <dmn:itemDefinition id="parameters-type" name="tParameters"><dmn:itemComponent id="income-limit-field" name="incomeLimit"><dmn:typeRef>number</dmn:typeRef></dmn:itemComponent></dmn:itemDefinition>
+  <dmn:inputData id="input" name="householdIncome"><dmn:variable id="input-variable" name="householdIncome" typeRef="number"/></dmn:inputData>
+  <dmn:inputData id="parameters" name="parameters"><dmn:variable id="parameters-variable" name="parameters" typeRef="tParameters"/></dmn:inputData>
+  <dmn:decision id="decision" name="Household income limit"><dmn:description>Passes when yearly household income is at or below incomeLimit. Each benefit that uses this check sets its own incomeLimit; Philly Cash uses 40000. A blank income gives Need more information.</dmn:description><dmn:variable id="decision-variable" name="Household income limit" typeRef="boolean"/>
+    <dmn:informationRequirement id="requires-input"><dmn:requiredInput href="#input"/></dmn:informationRequirement>
+    <dmn:informationRequirement id="requires-parameters"><dmn:requiredInput href="#parameters"/></dmn:informationRequirement>
+    <dmn:literalExpression id="expression"><dmn:text>if householdIncome = null or parameters.incomeLimit = null then null
+else householdIncome &lt;= parameters.incomeLimit</dmn:text></dmn:literalExpression></dmn:decision>
+  <dmn:textAnnotation id="annotation"><dmn:text>householdIncome comes from the form (key custom.householdIncome). incomeLimit is a parameter: it is set on the benefit, not answered by the applicant, so one check can serve programs with different limits. Returning null when a value is missing shows Need more information instead of Ineligible.</dmn:text></dmn:textAnnotation>
+  <dmn:association id="association" associationDirection="None"><dmn:sourceRef href="#annotation"/><dmn:targetRef href="#decision"/></dmn:association>
+  <dmndi:DMNDI><dmndi:DMNDiagram id="diagram" name="DRG">
+    <dmndi:DMNShape id="shape-decision" dmnElementRef="decision"><dc:Bounds x="220" y="120" width="220" height="80"/><dmndi:DMNLabel/></dmndi:DMNShape>
+    <dmndi:DMNShape id="shape-annotation" dmnElementRef="annotation"><dc:Bounds x="530" y="80" width="370" height="230"/><dmndi:DMNLabel/></dmndi:DMNShape>
+    <dmndi:DMNShape id="shape-input" dmnElementRef="input"><dc:Bounds x="120" y="360" width="220" height="80"/><dmndi:DMNLabel/></dmndi:DMNShape>
+    <dmndi:DMNShape id="shape-parameters" dmnElementRef="parameters"><dc:Bounds x="420" y="360" width="220" height="80"/><dmndi:DMNLabel/></dmndi:DMNShape>
+    <dmndi:DMNEdge id="edge-input" dmnElementRef="requires-input"><di:waypoint x="230" y="360"/><di:waypoint x="330" y="200"/></dmndi:DMNEdge>
+    <dmndi:DMNEdge id="edge-parameters" dmnElementRef="requires-parameters"><di:waypoint x="530" y="360"/><di:waypoint x="330" y="200"/></dmndi:DMNEdge>
+    <dmndi:DMNEdge id="edge-annotation" dmnElementRef="association"><di:waypoint x="530" y="160"/><di:waypoint x="440" y="160"/></dmndi:DMNEdge>
+  </dmndi:DMNDiagram></dmndi:DMNDI>
+</dmn:definitions>

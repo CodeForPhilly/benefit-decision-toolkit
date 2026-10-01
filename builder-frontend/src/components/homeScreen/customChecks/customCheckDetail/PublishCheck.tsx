@@ -3,6 +3,13 @@ import { EligibilityCheck } from "@/types";
 
 import { getRelatedPublishedChecks } from "@/api/check";
 
+const dateFormat = new Intl.DateTimeFormat("en-US", {
+  dateStyle: "medium",
+  timeStyle: "short",
+});
+const formattedDate = (datePublished?: number | null) =>
+  datePublished == null ? "--" : dateFormat.format(new Date(datePublished));
+
 const PublishCheck = ({
   eligibilityCheck,
   publishCheck,
@@ -84,7 +91,8 @@ const PublishCheck = ({
                       {check.parameterDefinitions?.length || 0}
                     </div>
                     <div>
-                      <span class="font-bold">Date Published:</span> --
+                      <span class="font-bold">Date Published:</span>{" "}
+                      {formattedDate(check.datePublished)}
                     </div>
                   </div>
                 </div>

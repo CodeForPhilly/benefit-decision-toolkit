@@ -25,7 +25,7 @@
     "required" : true
   } ],
   "name" : "Would like extra cash",
-  "description" : "A parameterized custom check for the fictional Philly Cash benefit. expectedAnswer is configured as true. Leave the answer blank in Preview to see Unable to determine.",
+  "description" : "A parameterized custom check for the fictional Philly Cash benefit. expectedAnswer is configured as true. Leave the answer blank in Preview to see Need more information.",
   "id" : "W-4fc360de-940e-48a1-97e5-adb2be1c7246",
   "exampleSourceId" : "W-42ec0302-e333-4c6d-8488-e249c8eb2f49",
   "ownerId" : "Edmyf5xCZ8C6xkp5Ig0cPYmWvM8T",

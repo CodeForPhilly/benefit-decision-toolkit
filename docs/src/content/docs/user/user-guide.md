@@ -11,7 +11,9 @@ This guide walks through how to create, configure, test, and publish an eligibil
 
 After signing in, you will land on the **Screeners** view. This page displays all of your existing screeners and serves as your starting point for creating and managing screeners.
 
-![Screener dashboard with Philadelphia Homeowner Support and a Community Food Support draft.](../../../assets/screenshots/screener-dashboard.png)
+![Screeners view with the Philadelphia Benefits Example screener.](../../../assets/screenshots/screener-dashboard.png)
+
+New accounts start with the **Philadelphia Benefits Example** screener. It screens for three Philadelphia tax benefits from the BDT library and **Philly Cash**, a fictional benefit built from custom checks. The screenshots in this guide come from that example, so you can open it in your own account and follow along.
 
 From here, you can:
 
@@ -59,7 +61,7 @@ A single screener can evaluate eligibility for one or multiple benefits. Each be
 
 The **Manage Benefits** tab displays all benefits configured for your screener as a list of cards.
 
-![Manage Benefits page of Benefit Decision Toolkit showing benefit cards and controls for adding benefits.](../../../assets/screenshots/manage-benefits.png)
+![Manage Benefits for the Philadelphia Benefits Example, showing benefit cards and controls for adding benefits.](../../../assets/screenshots/manage-benefits.png)
 
 From this view, you can:
 
@@ -110,17 +112,17 @@ Each row in the list shows the check name, a brief description, and its version.
 
 If the check has no parameters, it is added right away. If it has parameters, a dialog opens so you can fill them in first (see [Configuring Check Parameters](#43-configuring-check-parameters)); select **Add check** to add it.
 
-![Add-check dialog for Person min age, with applicant as the person and 18 as the minimum age.](../../../assets/screenshots/configure-check.png)
+![Add-check dialog for Person min age, with client as the person and 18 as the minimum age.](../../../assets/screenshots/configure-check.png)
 
 Once added, the check appears as a card in the right panel under the benefit's configured checks.
 
-![Home Repair Support configured with Philadelphia residency and owner-occupancy checks.](../../../assets/screenshots/configure-benefit-2.png)
+![Philly Cash configured with Philadelphia residence, extra-cash, and household income checks, with the income limit set to 40000.](../../../assets/screenshots/configure-benefit-2.png)
 
 ### 4.3 Configuring Check Parameters
 
 Many eligibility checks have **parameters** — configurable values that control how the check evaluates eligibility. Parameters allow the same check logic to be reused across multiple benefits with different thresholds.
 
-**Example**: A **Household Income Limit** check might have a `maximumIncome` parameter. You set it to `20000` for one benefit and `35000` for another. The underlying rule is the same; only the threshold differs.
+**Example**: The example screener's **Household income limit** custom check has an `incomeLimit` parameter. Philly Cash sets it to `40000`; another benefit could add the same check with a limit of `20000`. The underlying rule is the same; only the threshold differs. The [Custom Checks guide](/user/custom-checks/) shows how this check is built.
 
 When you add a check that has parameters, the add-check dialog asks for them before the check is added. Fill in the value for each parameter and select **Add check**. Required parameters are marked with a red asterisk (`*`).
 
@@ -138,7 +140,7 @@ The **Form Editor** tab is where you build the user-facing form that collects th
 
 The editor provides a visual drag-and-drop canvas powered by Form-JS. You can add, arrange, and configure form fields without writing any code.
 
-![Form Editor showing the component palette and the two-question homeowner support form.](../../../assets/screenshots/form-editor-components.png)
+![Form Editor showing the component palette and the start of the example screener's form.](../../../assets/screenshots/form-editor-components.png)
 
 For questions where people can select several options or explicitly answer **None of these**, use **Checkbox group with None** from the Selection components. Configure its options using static values, input data, or an expression, and map its key to an array input. Until someone answers, the input is `null`; choosing **None of these** sends an empty array; choosing other options sends their selected values. **None of these** clears the other choices automatically.
 
@@ -152,7 +154,7 @@ Select **Save** to persist your form. The save button turns yellow when there ar
 
 For the screener to evaluate eligibility correctly, the form must collect all of the inputs that the configured eligibility checks require. Each form field has a **key** that identifies the data it collects — this key must match the input name expected by the corresponding eligibility check.
 
-![Selected home-ownership question with its field label and simpleChecks.ownerOccupant key in the General settings.](../../../assets/screenshots/form-editor-parameters.png)
+![Selected household income question with its field label and custom.householdIncome key in the General settings.](../../../assets/screenshots/form-editor-parameters.png)
 
 The **Validate Form Outputs** drawer (accessible via a button at the bottom-right of the editor) helps you verify that your form covers all required inputs. It shows:
 
@@ -162,7 +164,7 @@ The **Validate Form Outputs** drawer (accessible via a button at the bottom-righ
 
 Use this drawer to identify gaps between your form and your eligibility logic, and resolve any missing inputs before moving to the Preview step.
 
-![Form Validation drawer showing that the residency and owner-occupancy inputs are both satisfied.](../../../assets/screenshots/form-validation.png)
+![Form Validation drawer listing the example form's outputs, with no missing inputs and every required input satisfied.](../../../assets/screenshots/form-validation.png)
 
 ---
 
@@ -176,7 +178,7 @@ The preview screen is divided into two sections:
 
 Displays your screener form as it will appear to end users. Eligibility results update automatically as you answer the questions.
 
-![Homeowner support form in Preview with Yes selected for residency and home ownership.](../../../assets/screenshots/preview-inputs.png)
+![Example screener in Preview with Yes for living in Philadelphia and wanting extra cash, and a yearly income of 30000.](../../../assets/screenshots/preview-inputs.png)
 
 **Results section**:
 
@@ -186,7 +188,9 @@ After answering, the results section displays the outcome for each benefit:
 - **Ineligible** (red) — one or more eligibility checks returned `False`
 - **Need more information** (yellow) — one or more checks could not determine eligibility from the inputs provided
 
-![Preview results showing the submitted boolean inputs and eligible outcomes for both demo programs.](../../../assets/screenshots/preview-results.png)
+![Preview results showing the submitted inputs, Philly Cash eligible, and the three tax benefits ineligible.](../../../assets/screenshots/preview-results.png)
+
+In the example above, the applicant lives in Philadelphia, would like extra cash, has a yearly income of $30,000, and does not own their home. Philly Cash is eligible; the three tax benefits are ineligible because their owner-occupant check fails. The example form's **Try a few scenarios** section suggests other answers to try.
 
 Each benefit's result also shows a breakdown of how each individual eligibility check evaluated, including whether it passed, failed, or was unable to determine, and what parameter values were used. This detail is useful for debugging eligibility logic during development.
 
@@ -219,4 +223,4 @@ The Publish tab shows:
 
 If you update your screener after publishing, return to the **Publish** tab and select **Publish Screener** again to push the updated version to the public URL.
 
-![Published homeowner support demo showing two answered questions and both programs' eligibility results.](../../../assets/screenshots/published-screener.png)
+![Published example screener with the answered questions beside each benefit's eligibility result.](../../../assets/screenshots/published-screener.png)
