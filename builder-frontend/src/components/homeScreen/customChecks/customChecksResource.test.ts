@@ -5,14 +5,28 @@ vi.mock("@/api/check", () => ({
   addCheck: vi.fn(),
   archiveCheck: vi.fn(),
   restoreCheck: vi.fn(),
+  fetchCheck: vi.fn(),
+  updateCheck: vi.fn(),
   fetchUserDefinedChecks: vi.fn().mockResolvedValue([]),
+}));
+
+vi.mock("@/utils/renameCheckDmn", () => ({
+  renameCheckDmn: vi
+    .fn()
+    .mockResolvedValue("<definitions>renamed</definitions>"),
 }));
 
 vi.mock("solid-toast", () => ({
   default: { success: vi.fn(), error: vi.fn() },
 }));
 
-import { addCheck, fetchUserDefinedChecks, restoreCheck } from "@/api/check";
+import {
+  addCheck,
+  fetchCheck,
+  fetchUserDefinedChecks,
+  restoreCheck,
+  updateCheck,
+} from "@/api/check";
 import customChecksResource from "./customChecksResource";
 import type { EligibilityCheck } from "@/types";
 
@@ -123,6 +137,69 @@ describe("customChecksResource", () => {
                 includeArchived: true,
               });
               expect(resource.actionInProgress()).toBe(false);
+              resolve();
+            } catch (assertionError) {
+              reject(assertionError);
+            } finally {
+              dispose();
+            }
+          })
+          .catch(reject);
+      });
+    });
+  });
+
+  it("refreshes a stale list without saving when the draft already has the name", async () => {
+    vi.mocked(fetchCheck).mockResolvedValue({
+      id: "W-check",
+      name: "New name",
+      dmnModel: "<definitions />",
+    } as unknown as EligibilityCheck);
+
+    await new Promise<void>((resolve, reject) => {
+      createRoot((dispose) => {
+        const resource = customChecksResource();
+        queueMicrotask(() => {
+          vi.mocked(fetchUserDefinedChecks).mockClear();
+          resource.actions
+            .renameCheck("W-check", "New name")
+            .then(() => {
+              try {
+                expect(updateCheck).not.toHaveBeenCalled();
+                expect(fetchUserDefinedChecks).toHaveBeenCalledOnce();
+                expect(resource.actionInProgress()).toBe(false);
+                resolve();
+              } catch (assertionError) {
+                reject(assertionError);
+              } finally {
+                dispose();
+              }
+            })
+            .catch(reject);
+        });
+      });
+    });
+  });
+
+  it("saves the renamed DMN with the new name", async () => {
+    vi.mocked(fetchCheck).mockResolvedValue({
+      id: "W-check",
+      name: "Old name",
+      dmnModel: "<definitions />",
+    } as unknown as EligibilityCheck);
+
+    await new Promise<void>((resolve, reject) => {
+      createRoot((dispose) => {
+        const resource = customChecksResource();
+        resource.actions
+          .renameCheck("W-check", "New name")
+          .then(() => {
+            try {
+              expect(updateCheck).toHaveBeenCalledWith("W-check", {
+                name: "New name",
+                dmnModel: "<definitions>renamed</definitions>",
+                originalDmnModel: "<definitions />",
+              });
               resolve();
             } catch (assertionError) {
               reject(assertionError);

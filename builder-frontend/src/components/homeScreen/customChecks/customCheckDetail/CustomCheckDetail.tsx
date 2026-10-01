@@ -1,6 +1,14 @@
 import EditorNavigation from "@/components/shared/EditorNavigation";
-import { Accessor, createSignal, Match, Show, Switch } from "solid-js";
-import { useParams } from "@solidjs/router";
+import {
+  Accessor,
+  createEffect,
+  createResource,
+  createSignal,
+  Match,
+  Show,
+  Switch,
+} from "solid-js";
+import { useParams, useSearchParams } from "@solidjs/router";
 
 import { clsx } from "clsx";
 import toast from "solid-toast";
@@ -11,24 +19,37 @@ import EligibilityCheckTest from "./checkTesting/EligibilityCheckTest";
 import PublishCheck from "./PublishCheck";
 
 import { isDmnModelChanged } from "./dmnEditor";
+import { loadPublication } from "./checkPublication";
 import customCheckDetailResource from "./customCheckDetailResource";
 import ParametersConfiguration from "./ParametersConfiguration";
 
 import ErrorDisplayModal from "@/components/shared/ErrorModal";
 import { NavbarProps } from "@/components/shared/BdtNavbar";
 
-type CheckDetailScreenMode =
-  | "paramConfig"
-  | "dmnDefinition"
-  | "testing"
-  | "publish";
+const screenModes = [
+  "paramConfig",
+  "dmnDefinition",
+  "testing",
+  "publish",
+] as const;
+type CheckDetailScreenMode = (typeof screenModes)[number];
+
+const isScreenMode = (tab: unknown): tab is CheckDetailScreenMode =>
+  screenModes.includes(tab as CheckDetailScreenMode);
 
 const CustomCheckDetail = () => {
   const { checkId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [currentDmnModel, setCurrentDmnModel] = createSignal<string>("");
-  const [screenMode, setScreenMode] =
-    createSignal<CheckDetailScreenMode>("paramConfig");
+  // The URL holds the open tab so reloads, links, and history keep it.
+  const screenMode = (): CheckDetailScreenMode =>
+    isScreenMode(searchParams.tab) ? searchParams.tab : "paramConfig";
+  const setScreenMode = (mode: CheckDetailScreenMode) =>
+    setSearchParams(
+      { tab: mode === "paramConfig" ? undefined : mode },
+      { replace: true },
+    );
 
   const [validationErrors, setValidationErrors] = createSignal<string[]>([]);
   const [showingErrorModal, setShowingErrorModal] =
@@ -37,9 +58,25 @@ const CustomCheckDetail = () => {
   const { eligibilityCheck, actions, actionInProgress, initialLoadStatus } =
     customCheckDetailResource(() => checkId);
 
+  // Load the publication status when the Publish tab first opens and keep it
+  // across tab switches. Publishing refetches it.
+  const [publicationRequested, setPublicationRequested] = createSignal(false);
+  createEffect(() => {
+    if (screenMode() === "publish") setPublicationRequested(true);
+  });
+  const [publication, { refetch: refetchPublication }] = createResource(
+    () => publicationRequested() && eligibilityCheck().id,
+    loadPublication,
+  );
+
   const hasDmnModelChanged = (): boolean => {
     return isDmnModelChanged(eligibilityCheck().dmnModel, currentDmnModel());
   };
+
+  // The model is empty until the DMN editor has opened, and an unopened
+  // editor has no edits to lose.
+  const hasUnsavedDmnChanges = (): boolean =>
+    currentDmnModel() !== "" && hasDmnModelChanged();
 
   const validateDmnModel = async (dmnString: string) => {
     const errors: string[] = await actions.validateDmnModel(dmnString);
@@ -149,6 +186,10 @@ const CustomCheckDetail = () => {
             <PublishCheck
               eligibilityCheck={eligibilityCheck}
               publishCheck={actions.publishCheck}
+              hasUnsavedDmnChanges={hasUnsavedDmnChanges}
+              saveDmnChanges={() => actions.saveDmnModel(currentDmnModel())}
+              publication={publication}
+              refetchPublication={refetchPublication}
             />
           </Match>
         </Switch>

@@ -170,13 +170,11 @@ const customCheckDetailResource = (
   const publishCheck = async (checkId: string) => {
     setActionInProgress(true);
     try {
-      console.log("publish", checkId);
-      await publishCheckApi(checkId);
-      await refetch();
-    } catch (e) {
-      console.error("Failed to publish check", e);
+      const publishedCheck = await publishCheckApi(checkId);
+      setEligibilityCheck(publishedCheck);
+    } finally {
+      setActionInProgress(false);
     }
-    setActionInProgress(false);
   };
 
   return {

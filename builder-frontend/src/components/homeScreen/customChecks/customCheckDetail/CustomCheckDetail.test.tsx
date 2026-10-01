@@ -5,6 +5,7 @@ import { createSignal } from "solid-js";
 import { render } from "solid-js/web";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { getRelatedPublishedChecks } from "@/api/check";
 import CustomCheckDetail from "./CustomCheckDetail";
 
 const resource = vi.hoisted(() => ({
@@ -28,6 +29,10 @@ vi.mock("./customCheckDetailResource", () => ({
     },
   }),
 }));
+vi.mock("@/api/check", () => ({
+  fetchCheck: vi.fn(),
+  getRelatedPublishedChecks: vi.fn().mockResolvedValue([]),
+}));
 vi.mock("./KogitoDmnEditorView", () => ({ default: () => null }));
 vi.mock("./checkTesting/EligibilityCheckTest", () => ({ default: () => null }));
 vi.mock("./PublishCheck", () => ({ default: () => null }));
@@ -37,18 +42,19 @@ describe("CustomCheckDetail", () => {
   let dispose: (() => void) | undefined;
 
   afterEach(() => {
+    vi.mocked(getRelatedPublishedChecks).mockClear();
     dispose?.();
     document.body.replaceChildren();
   });
 
-  function mount() {
+  function mount(url = "/custom-checks/example") {
     const [check, setCheck] = createSignal<{ id?: string; name?: string }>({});
     const [loading, setLoading] = createSignal(true);
     const [error, setError] = createSignal<unknown>();
     resource.state = { check, loading, error };
 
     const history = createMemoryHistory();
-    history.set({ value: "/custom-checks/example", replace: true });
+    history.set({ value: url, replace: true });
     const container = document.body.appendChild(document.createElement("div"));
     dispose = render(
       () => (
@@ -60,7 +66,14 @@ describe("CustomCheckDetail", () => {
     );
     const currentCrumb = () =>
       container.querySelector(".breadcrumb-current")?.textContent;
-    return { currentCrumb, setCheck, setLoading, setError };
+    return {
+      container,
+      currentCrumb,
+      history,
+      setCheck,
+      setLoading,
+      setError,
+    };
   }
 
   it("shows the check name once loaded, even while refetching", () => {
@@ -78,5 +91,66 @@ describe("CustomCheckDetail", () => {
     setError(new Error("Not found"));
     setLoading(false);
     expect(currentCrumb()).toBe("Check unavailable");
+  });
+
+  it("opens the Publish section from the rename review link", () => {
+    const { container } = mount("/custom-checks/example?tab=publish");
+    expect(
+      container
+        .querySelector('[data-testid="editor-section-publish"]')
+        ?.getAttribute("aria-current"),
+    ).toBe("true");
+  });
+
+  it("keeps the open section in the URL", async () => {
+    const { container, history, setCheck, setLoading } = mount(
+      "/custom-checks/example?tab=publish",
+    );
+    setCheck({ id: "example", name: "Income limit" });
+    setLoading(false);
+    const isCurrent = (key: string) =>
+      container
+        .querySelector(`[data-testid="editor-section-${key}"]`)
+        ?.getAttribute("aria-current") === "true";
+
+    container
+      .querySelector<HTMLElement>('[data-testid="editor-section-testing"]')!
+      .click();
+    await vi.waitFor(() =>
+      expect(history.get()).toBe("/custom-checks/example?tab=testing"),
+    );
+    expect(isCurrent("testing")).toBe(true);
+
+    container
+      .querySelector<HTMLElement>('[data-testid="editor-section-paramConfig"]')!
+      .click();
+    await vi.waitFor(() =>
+      expect(history.get()).toBe("/custom-checks/example"),
+    );
+
+    history.set({ value: "/custom-checks/example?tab=dmnDefinition" });
+    await vi.waitFor(() => expect(isCurrent("dmnDefinition")).toBe(true));
+  });
+
+  it("loads publication status once, when the Publish section first opens", async () => {
+    const { container, setCheck, setLoading } = mount();
+    setCheck({ id: "example", name: "Income limit" });
+    setLoading(false);
+    const open = (key: string) =>
+      container
+        .querySelector<HTMLElement>(`[data-testid="editor-section-${key}"]`)!
+        .click();
+
+    expect(getRelatedPublishedChecks).not.toHaveBeenCalled();
+    open("publish");
+    await vi.waitFor(() =>
+      expect(getRelatedPublishedChecks).toHaveBeenCalledExactlyOnceWith(
+        "example",
+      ),
+    );
+    open("testing");
+    open("publish");
+    await new Promise((resolve) => setTimeout(resolve));
+    expect(getRelatedPublishedChecks).toHaveBeenCalledOnce();
   });
 });

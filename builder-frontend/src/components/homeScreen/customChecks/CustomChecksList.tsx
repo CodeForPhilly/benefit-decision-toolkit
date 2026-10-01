@@ -62,7 +62,8 @@ const CustomChecksList = () => {
       </div>
       <div class="text-md mb-3">
         Manage your custom checks here. Click on a check to view or edit its
-        details.
+        details. Changes are saved to a draft. Publish a version to make them
+        available when adding checks to a benefit.
       </div>
       <button
         class="px-4 py-2 w-fit cursor-pointer bg-blue-500
@@ -128,6 +129,7 @@ const CustomChecksList = () => {
       <Modal
         show={checkToRename() !== null}
         onClose={() => setCheckToRename(null)}
+        dismissible={!actionInProgress()}
       >
         <Show when={checkToRename()}>
           {(check) => (
@@ -135,6 +137,10 @@ const CustomChecksList = () => {
               check={check()}
               onRename={(name) => actions.renameCheck(check().id, name)}
               onClose={() => setCheckToRename(null)}
+              onReviewPublish={() => {
+                navigate("/custom-checks/" + check().id + "?tab=publish");
+                setCheckToRename(null);
+              }}
             />
           )}
         </Show>

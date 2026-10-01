@@ -8,7 +8,7 @@ vi.mock("@/api/auth", () => ({
 }));
 
 import { authPatch, authPost } from "@/api/auth";
-import { addCheck, ApiError, updateCheck } from "./check";
+import { addCheck, ApiError, updateCheck, publishCheck } from "./check";
 
 const request = {
   name: "incomeCheck",
@@ -16,6 +16,31 @@ const request = {
   description: "Checks income",
   parameterDefinitions: [],
 };
+
+describe("publishCheck", () => {
+  beforeEach(() => vi.clearAllMocks());
+  afterEach(() => vi.restoreAllMocks());
+
+  it("returns the updated check from the API", async () => {
+    const check = { id: "W-check", name: "Income", version: "2.0.0" };
+    vi.mocked(authPost).mockResolvedValue(new Response(JSON.stringify(check)));
+    await expect(publishCheck(check.id)).resolves.toEqual(check);
+  });
+
+  it("reports the server's publication error", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.mocked(authPost).mockResolvedValue(
+      new Response(
+        JSON.stringify({ error: "Failed to extract input schema" }),
+        { status: 500 },
+      ),
+    );
+    await expect(publishCheck("W-check")).rejects.toMatchObject({
+      message: "Failed to extract input schema",
+      status: 500,
+    });
+  });
+});
 
 describe("updateCheck", () => {
   beforeEach(() => vi.clearAllMocks());
