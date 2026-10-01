@@ -32,7 +32,8 @@ export async function captureCustomChecksGuide({ page, save }) {
   await save("custom-check-create", {
     locator: page.locator("[data-modal-root] > div"),
   });
-  await page.locator("[data-modal-root] > div button").first().click();
+  // Clicking the backdrop closes the dialog and can never submit it
+  await page.locator("[data-modal-root]").click({ position: { x: 5, y: 5 } });
   await expect(page.locator("#checkName")).toBeHidden();
 
   await page
