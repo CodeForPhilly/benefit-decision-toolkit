@@ -1,26 +1,20 @@
 import type { Component } from "solid-js";
-import { useLocation } from "@solidjs/router";
+import { A } from "@solidjs/router";
 
 import "./ANavbar.css";
 
 interface Props {
   items: { label: string; href: string }[];
 }
+// <A> marks a link "active" on its own path and the paths below it, and
+// sets aria-current="page" only on its own path.
 const ANavBar: Component<Props> = (props) => {
-  const location = useLocation();
-  const isActive = (href: string) =>
-    location.pathname === href || location.pathname.startsWith(`${href}/`);
   return (
     <nav aria-label="Main navigation" class="app-areas">
       {props.items.map(({ label, href }) => (
-        <a
-          href={href}
-          class="navbarlink"
-          classList={{ active: isActive(href), inactive: !isActive(href) }}
-          aria-current={location.pathname === href ? "page" : undefined}
-        >
+        <A href={href} class="navbarlink">
           {label}
-        </a>
+        </A>
       ))}
     </nav>
   );

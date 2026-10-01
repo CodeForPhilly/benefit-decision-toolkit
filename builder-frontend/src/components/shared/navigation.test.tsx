@@ -92,7 +92,7 @@ describe("app navigation", () => {
     return { container, history };
   }
 
-  it.each(["/", "/screeners", "/screeners/example"])(
+  it.each(["/", "/screeners", "/screeners/example", "/Screeners/example"])(
     "highlights the Screeners area at %s",
     async (path) => {
       const { container } = mount(path);
