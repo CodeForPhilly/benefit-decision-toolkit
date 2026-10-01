@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
-import { createSignal } from "solid-js";
+import { createResource, createSignal } from "solid-js";
 import { render } from "solid-js/web";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { CustomCheckWithDmn } from "@/types";
 import { fetchCheck, getRelatedPublishedChecks } from "@/api/check";
 import PublishCheck from "./PublishCheck";
+import { loadPublication } from "./checkPublication";
 
 vi.mock("@/api/check", () => ({
   fetchCheck: vi.fn(),
@@ -47,17 +48,22 @@ describe("PublishCheck", () => {
     const container = document.body.appendChild(document.createElement("div"));
     const [check, setCheck] = createSignal(draft);
     const [unsavedDmn, setUnsavedDmn] = createSignal(false);
-    dispose = render(
-      () => (
+    dispose = render(() => {
+      const [publication, { refetch }] = createResource(
+        () => check().id,
+        loadPublication,
+      );
+      return (
         <PublishCheck
           eligibilityCheck={check}
           publishCheck={publishCheck}
           hasUnsavedDmnChanges={unsavedDmn}
           saveDmnChanges={saveDmnChanges}
+          publication={publication}
+          refetchPublication={refetch}
         />
-      ),
-      container,
-    );
+      );
+    }, container);
     const button = () =>
       [...container.querySelectorAll("button")].find((button) =>
         /Publish Check|Publishing/.test(button.textContent || ""),

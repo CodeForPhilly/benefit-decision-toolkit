@@ -1,8 +1,7 @@
-import { Accessor, createResource, createSignal, For, Show } from "solid-js";
+import { Accessor, createSignal, For, Resource, Show } from "solid-js";
 import type { CustomCheckWithDmn } from "@/types";
-import { fetchCheck, getRelatedPublishedChecks } from "@/api/check";
 import { Button } from "@/components/shared/Button";
-import { matchesPublishedCheck, sortPublishedChecks } from "./checkPublication";
+import { matchesPublishedCheck, type Publication } from "./checkPublication";
 
 const dateFormat = new Intl.DateTimeFormat("en-US", {
   dateStyle: "medium",
@@ -16,17 +15,16 @@ const PublishCheck = (props: {
   publishCheck: (checkId: string) => Promise<void>;
   hasUnsavedDmnChanges: Accessor<boolean>;
   saveDmnChanges: () => Promise<void>;
+  // Owned by the parent so the status survives switching tabs.
+  publication: Resource<Publication>;
+  refetchPublication: () => unknown;
 }) => {
-  const [publication, { refetch }] = createResource(
-    () => props.eligibilityCheck().id,
-    async (id) => {
-      const versions = sortPublishedChecks(await getRelatedPublishedChecks(id));
-      const latest = versions.length
-        ? ((await fetchCheck(versions[0].id)) as CustomCheckWithDmn)
-        : undefined;
-      return { versions, latest };
-    },
-  );
+  const publication = props.publication;
+  const refetch = () => props.refetchPublication();
+  // The parent requests the status when this tab first opens, so it can
+  // still be unrequested on the first render.
+  const publicationLoading = () =>
+    publication.loading || publication.state === "unresolved";
   const [publishing, setPublishing] = createSignal(false);
   const [error, setError] = createSignal("");
   const [success, setSuccess] = createSignal("");
@@ -39,7 +37,12 @@ const PublishCheck = (props: {
   };
 
   const handlePublish = async () => {
-    if (publishing() || publication.loading || publication.error || unchanged())
+    if (
+      publishing() ||
+      publicationLoading() ||
+      publication.error ||
+      unchanged()
+    )
       return;
     setPublishing(true);
     setError("");
@@ -112,7 +115,7 @@ const PublishCheck = (props: {
         }
       >
         <Show
-          when={!publication.loading}
+          when={!publicationLoading()}
           fallback={<p class="mb-4">Loading publication status...</p>}
         >
           <div class="mb-4 rounded border border-gray-300 p-4" role="status">
@@ -154,7 +157,7 @@ const PublishCheck = (props: {
         onClick={handlePublish}
         disabled={
           publishing() ||
-          publication.loading ||
+          publicationLoading() ||
           !!publication.error ||
           unchanged()
         }
@@ -173,7 +176,7 @@ const PublishCheck = (props: {
       </Show>
       <section class="mt-8">
         <h2 class="text-2xl font-bold mb-4">Published Versions</h2>
-        <Show when={!publication.error && !publication.loading}>
+        <Show when={!publication.error && !publicationLoading()}>
           <Show
             when={publication()?.versions.length}
             fallback={<p>No published versions yet.</p>}

@@ -5,6 +5,7 @@ import { createSignal } from "solid-js";
 import { render } from "solid-js/web";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { getRelatedPublishedChecks } from "@/api/check";
 import CustomCheckDetail from "./CustomCheckDetail";
 
 const resource = vi.hoisted(() => ({
@@ -28,6 +29,10 @@ vi.mock("./customCheckDetailResource", () => ({
     },
   }),
 }));
+vi.mock("@/api/check", () => ({
+  fetchCheck: vi.fn(),
+  getRelatedPublishedChecks: vi.fn().mockResolvedValue([]),
+}));
 vi.mock("./KogitoDmnEditorView", () => ({ default: () => null }));
 vi.mock("./checkTesting/EligibilityCheckTest", () => ({ default: () => null }));
 vi.mock("./PublishCheck", () => ({ default: () => null }));
@@ -37,6 +42,7 @@ describe("CustomCheckDetail", () => {
   let dispose: (() => void) | undefined;
 
   afterEach(() => {
+    vi.mocked(getRelatedPublishedChecks).mockClear();
     dispose?.();
     document.body.replaceChildren();
   });
@@ -124,5 +130,27 @@ describe("CustomCheckDetail", () => {
 
     history.set({ value: "/custom-checks/example?tab=dmnDefinition" });
     await vi.waitFor(() => expect(isCurrent("dmnDefinition")).toBe(true));
+  });
+
+  it("loads publication status once, when the Publish section first opens", async () => {
+    const { container, setCheck, setLoading } = mount();
+    setCheck({ id: "example", name: "Income limit" });
+    setLoading(false);
+    const open = (key: string) =>
+      container
+        .querySelector<HTMLElement>(`[data-testid="editor-section-${key}"]`)!
+        .click();
+
+    expect(getRelatedPublishedChecks).not.toHaveBeenCalled();
+    open("publish");
+    await vi.waitFor(() =>
+      expect(getRelatedPublishedChecks).toHaveBeenCalledExactlyOnceWith(
+        "example",
+      ),
+    );
+    open("testing");
+    open("publish");
+    await new Promise((resolve) => setTimeout(resolve));
+    expect(getRelatedPublishedChecks).toHaveBeenCalledOnce();
   });
 });

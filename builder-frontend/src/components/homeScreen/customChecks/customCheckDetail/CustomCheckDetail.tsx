@@ -1,5 +1,13 @@
 import EditorNavigation from "@/components/shared/EditorNavigation";
-import { Accessor, createSignal, Match, Show, Switch } from "solid-js";
+import {
+  Accessor,
+  createEffect,
+  createResource,
+  createSignal,
+  Match,
+  Show,
+  Switch,
+} from "solid-js";
 import { useParams, useSearchParams } from "@solidjs/router";
 
 import { clsx } from "clsx";
@@ -11,6 +19,7 @@ import EligibilityCheckTest from "./checkTesting/EligibilityCheckTest";
 import PublishCheck from "./PublishCheck";
 
 import { isDmnModelChanged } from "./dmnEditor";
+import { loadPublication } from "./checkPublication";
 import customCheckDetailResource from "./customCheckDetailResource";
 import ParametersConfiguration from "./ParametersConfiguration";
 
@@ -48,6 +57,17 @@ const CustomCheckDetail = () => {
 
   const { eligibilityCheck, actions, actionInProgress, initialLoadStatus } =
     customCheckDetailResource(() => checkId);
+
+  // Load the publication status when the Publish tab first opens and keep it
+  // across tab switches. Publishing refetches it.
+  const [publicationRequested, setPublicationRequested] = createSignal(false);
+  createEffect(() => {
+    if (screenMode() === "publish") setPublicationRequested(true);
+  });
+  const [publication, { refetch: refetchPublication }] = createResource(
+    () => publicationRequested() && eligibilityCheck().id,
+    loadPublication,
+  );
 
   const hasDmnModelChanged = (): boolean => {
     return isDmnModelChanged(eligibilityCheck().dmnModel, currentDmnModel());
@@ -168,6 +188,8 @@ const CustomCheckDetail = () => {
               publishCheck={actions.publishCheck}
               hasUnsavedDmnChanges={hasUnsavedDmnChanges}
               saveDmnChanges={() => actions.saveDmnModel(currentDmnModel())}
+              publication={publication}
+              refetchPublication={refetchPublication}
             />
           </Match>
         </Switch>

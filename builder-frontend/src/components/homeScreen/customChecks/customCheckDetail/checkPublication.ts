@@ -1,5 +1,11 @@
 import type { CustomCheckWithDmn, EligibilityCheck } from "@/types";
+import { fetchCheck, getRelatedPublishedChecks } from "@/api/check";
 import { normalizeDmnXml } from "./dmnEditor";
+
+export interface Publication {
+  versions: EligibilityCheck[];
+  latest?: CustomCheckWithDmn;
+}
 
 export function sortPublishedChecks(checks: EligibilityCheck[]) {
   return checks.slice().sort((a, b) => {
@@ -11,6 +17,16 @@ export function sortPublishedChecks(checks: EligibilityCheck[]) {
     }
     return 0;
   });
+}
+
+export async function loadPublication(checkId: string): Promise<Publication> {
+  const versions = sortPublishedChecks(
+    await getRelatedPublishedChecks(checkId),
+  );
+  const latest = versions.length
+    ? ((await fetchCheck(versions[0].id)) as CustomCheckWithDmn)
+    : undefined;
+  return { versions, latest };
 }
 
 // Compare the saved fields that publishing snapshots. The input schema is
