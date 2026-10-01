@@ -18,8 +18,8 @@ DMN-only changes hot reload in dev mode. Java changes may require a restart. A c
 - `src/main/resources/BDT.dmn` defines shared types, including `tSituation`.
 - `src/main/resources/checks/` contains reusable eligibility decisions and category base modules.
 - `src/main/resources/benefits/` composes checks into program eligibility decisions.
-- `src/main/java/org/codeforphilly/bdt/api/` contains the custom discovery, routing, evaluation, and OpenAPI code.
-- `src/main/java/org/codeforphilly/bdt/functions/` contains custom FEEL functions.
+- `src/main/java/org/codeforphilly/bdt/library/api/` contains the custom discovery, routing, evaluation, and OpenAPI code.
+- `src/main/java/org/codeforphilly/bdt/library/functions/` contains custom FEEL functions.
 - `test/bdt/` contains Bruno tests for endpoint and business-rule behavior.
 
 The project disables Kogito's default decision REST generation and uses its own dynamic REST resource. Do not infer endpoint behavior from Kogito defaults.
@@ -43,8 +43,8 @@ For creation work, read the matching skill instead of reconstructing these conve
 ## Java boundaries
 
 - Never edit `target/generated-sources/kogito/` or other `target/` content.
-- Editable REST/OpenAPI code lives under `src/main/java/org/codeforphilly/bdt/api/`.
-- Editable custom FEEL functions live under `src/main/java/org/codeforphilly/bdt/functions/`.
+- Editable REST/OpenAPI code lives under `src/main/java/org/codeforphilly/bdt/library/api/`.
+- Editable custom FEEL functions live under `src/main/java/org/codeforphilly/bdt/library/functions/`.
 - Preserve compatibility with Java 21 and the versions pinned in `pom.xml`.
 
 ## Testing
