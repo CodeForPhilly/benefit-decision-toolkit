@@ -3,6 +3,7 @@ package org.codeforphilly.bdt.builder.controller;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.ws.rs.core.Response;
 import org.codeforphilly.bdt.builder.model.domain.Benefit;
+import org.codeforphilly.bdt.builder.model.domain.BenefitDetail;
 import org.codeforphilly.bdt.builder.model.domain.CheckConfig;
 import org.codeforphilly.bdt.builder.model.domain.Screener;
 import org.codeforphilly.bdt.builder.model.dto.custombenefit.ImportLibraryBenefitRequest;
@@ -67,7 +68,7 @@ class LibraryBenefitResourceTest {
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         verify(screenerRepository).saveNewCustomBenefit(SCREENER_ID, imported);
-        var detailCaptor = ArgumentCaptor.forClass(org.codeforphilly.bdt.builder.model.domain.BenefitDetail.class);
+        var detailCaptor = ArgumentCaptor.forClass(BenefitDetail.class);
         verify(screenerRepository).addBenefitDetailToWorkingScreener(eq(SCREENER_ID), detailCaptor.capture());
         assertEquals("new-benefit-id", detailCaptor.getValue().getId());
         assertEquals("Library Benefit", detailCaptor.getValue().getName());
