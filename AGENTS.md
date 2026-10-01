@@ -26,6 +26,7 @@ Run the narrowest checks that cover a change. Do not claim a check passed unless
 
 ## Working conventions
 
+- Java APIs share Maven `groupId` `org.codeforphilly.bdt`, with artifact IDs `bdt-builder-api` and `bdt-library-api`. Use lowercase Java packages under `org.codeforphilly.bdt.builder` and `org.codeforphilly.bdt.library`, respectively; source and test directories must match their package names.
 - Preserve unrelated work in the working tree and keep changes scoped to the request.
 - Follow existing patterns in the component being edited; consult its README and build configuration rather than guessing versions or commands.
 - Never edit generated output under `target/`, `dist/`, Playwright reports, emulator exports, logs, or dependency directories unless the user explicitly asks.

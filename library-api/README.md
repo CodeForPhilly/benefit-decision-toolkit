@@ -172,7 +172,7 @@ Test individual decisions in Swagger UI before composing them.
 
 Purpose: Validate internal behavior (model discovery, endpoint patterns)
 - NOT for testing DMN business logic
-- Location: `src/test/java/org/codeforphilly/bdt/api/`
+- Location: `src/test/java/org/codeforphilly/bdt/library/api/`
 
 ### Bruno API Tests (`cd test/bdt && bru run`)
 
@@ -259,7 +259,7 @@ cd test/bdt && bru run    # Bruno tests
 - `src/main/resources/BDT.dmn` - Root model with shared types
 - `src/main/resources/checks/` - Reusable eligibility checks
 - `src/main/resources/benefits/` - Specific benefit programs
-- `src/main/java/org/codeforphilly/bdt/api/` - Custom REST endpoints
+- `src/main/java/org/codeforphilly/bdt/library/api/` - Custom REST endpoints
 - `test/bdt/` - Bruno API tests
 
 ### Resources
@@ -285,8 +285,8 @@ This project uses **custom endpoint generation** (not Kogito's defaults):
 
 ### Code You Can Edit
 
-- `src/main/java/org/codeforphilly/bdt/api/` - REST + OpenAPI
-- `src/main/java/org/codeforphilly/bdt/functions/` - Custom FEEL functions
+- `src/main/java/org/codeforphilly/bdt/library/api/` - REST + OpenAPI
+- `src/main/java/org/codeforphilly/bdt/library/functions/` - Custom FEEL functions
 - `src/main/resources/*.dmn` - DMN decision models
 
 **DO NOT EDIT**: `target/generated-sources/kogito/` (auto-generated)

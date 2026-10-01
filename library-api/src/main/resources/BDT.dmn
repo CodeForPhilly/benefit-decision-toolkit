@@ -125,7 +125,7 @@
         <dmn:contextEntry id="_96CDDC08-E6A1-458D-B942-3CCCAB72D8FE">
           <dmn:variable id="_E6BD953F-968B-4B81-9C52-FCE0AC7F78EC" name="class" typeRef="string" />
           <dmn:literalExpression id="_EFA52AF3-5C0F-4DAB-9A08-86788CF578C7">
-            <dmn:text>&quot;org.codeforphilly.bdt.functions.DecisionServiceInvoker&quot;</dmn:text>
+            <dmn:text>&quot;org.codeforphilly.bdt.library.functions.DecisionServiceInvoker&quot;</dmn:text>
           </dmn:literalExpression>
         </dmn:contextEntry>
         <dmn:contextEntry id="_E2406814-E115-4887-8D63-F6071B821922">
