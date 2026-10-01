@@ -1,0 +1,35 @@
+{
+  "datePublished" : 1790791953833,
+  "isArchived" : false,
+  "module" : "Philadelphia examples",
+  "inputDefinition" : {
+    "type" : "object",
+    "required" : [ "custom", "parameters" ],
+    "properties" : {
+      "custom" : {
+        "type" : "object",
+        "required" : [ "householdIncome" ],
+        "properties" : {
+          "householdIncome" : { }
+        }
+      },
+      "parameters" : {
+        "type" : "object",
+        "properties" : { }
+      }
+    }
+  },
+  "parameterDefinitions" : [ {
+    "label" : "Yearly household income limit ($)",
+    "type" : "number",
+    "key" : "incomeLimit",
+    "required" : true
+  } ],
+  "name" : "Household income limit",
+  "description" : "Passes when yearly household income is at or below incomeLimit. Each benefit that uses this check sets its own incomeLimit; Philly Cash uses 40000. A blank income gives Unable to determine.",
+  "id" : "P-5bdf1ac7-b0ca-403b-89f9-7f1504f6bf26-1.0.0",
+  "exampleSourceId" : "W-049ddd2c-7945-44c4-ad4d-2acde28ee789",
+  "ownerId" : "Edmyf5xCZ8C6xkp5Ig0cPYmWvM8T",
+  "version" : "1.0.0",
+  "_id" : "P-5bdf1ac7-b0ca-403b-89f9-7f1504f6bf26-1.0.0"
+}

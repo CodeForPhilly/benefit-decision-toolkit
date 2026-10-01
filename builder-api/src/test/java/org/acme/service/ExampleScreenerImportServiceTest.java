@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -123,7 +124,9 @@ class ExampleScreenerImportServiceTest {
         service.importForUser(USER_ID);
 
         verify(checkRepository, never()).updateWorkingCustomCheck(any());
-        verify(checkRepository, never()).saveNewWorkingCustomCheck(any());
+        // Other example checks are still imported; only the renamed one is kept as it is
+        verify(checkRepository, never()).saveNewWorkingCustomCheck(
+                argThat(check -> seedExampleSourceId.equals(check.getExampleSourceId())));
         ArgumentCaptor<EligibilityCheck> published = ArgumentCaptor.forClass(EligibilityCheck.class);
         verify(checkRepository, atLeastOnce()).saveNewPublishedCustomCheck(published.capture());
         assertTrue(published.getAllValues().stream().anyMatch(check -> check.getId().startsWith("P-kept-")));

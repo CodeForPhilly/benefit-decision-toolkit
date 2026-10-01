@@ -57,9 +57,43 @@
     "parameters" : {
       "expectedAnswer" : true
     }
+  }, {
+    "aliasGenerated" : false,
+    "aliasName" : "Household income at or below $40,000",
+    "checkModule" : "Philadelphia examples",
+    "checkVersion" : "1.0.0",
+    "inputDefinition" : {
+      "type" : "object",
+      "required" : [ "custom", "parameters" ],
+      "properties" : {
+        "custom" : {
+          "type" : "object",
+          "required" : [ "householdIncome" ],
+          "properties" : {
+            "householdIncome" : { }
+          }
+        },
+        "parameters" : {
+          "type" : "object",
+          "properties" : { }
+        }
+      }
+    },
+    "parameterDefinitions" : [ {
+      "label" : "Yearly household income limit ($)",
+      "type" : "number",
+      "key" : "incomeLimit",
+      "required" : true
+    } ],
+    "sourceCheckId" : "P-5bdf1ac7-b0ca-403b-89f9-7f1504f6bf26-1.0.0",
+    "checkName" : "Household income limit",
+    "checkId" : "c5bd4fcd-692d-4cd9-88d1-b200ce71da24",
+    "parameters" : {
+      "incomeLimit" : 40000
+    }
   } ],
   "name" : "Philly Cash (fictional)",
-  "description" : "A made-up benefit: you qualify if you live in Philadelphia and would like extra cash. No other criteria apply. Open Custom Checks to inspect the annotated diagram, edit the logic, test it, and publish a new version. Here the published 1.0.0 custom check demonstrates version pinning and a configurable parameter. This program does not exist and pays no money.",
+  "description" : "A made-up benefit: you qualify if you live in Philadelphia, would like extra cash, and your household earns $40,000 a year or less. Its two custom checks show different kinds of logic: Would like extra cash compares a Yes/No answer, while Household income limit compares a number with an incomeLimit parameter that this benefit sets to 40000. Open Custom Checks to inspect their annotated diagrams, edit the logic, test it, and publish a new version. Both are pinned to published version 1.0.0. This program does not exist and pays no money.",
   "id" : "aca7b919-3005-47b7-9ad8-8734a013e07e",
   "ownerId" : "Edmyf5xCZ8C6xkp5Ig0cPYmWvM8T",
   "_id" : "aca7b919-3005-47b7-9ad8-8734a013e07e"

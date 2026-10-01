@@ -63,29 +63,34 @@ npm ci
 npm run capture-docs-screenshots
 ```
 
-The script creates a fresh account directly in the local Firebase Auth emulator,
-without importing the bundled example. It seeds a Philadelphia Homeowner Support
-screener with two illustrative programs, a two-question form, a second draft
-screener, and custom-check drafts with meaningful parameter definitions. It only
-uses localhost services and the `demo-bdt-dev` emulator project; it does not reset
-other accounts or export emulator data.
+The script signs up a fresh account in the local Firebase Auth emulator and
+imports the bundled example screener through the same account hook the app runs
+at sign-up. Every screenshot shows that example, so the guides match what new
+users see in their own accounts. The script only uses localhost services and
+the `demo-bdt-dev` emulator project; it does not reset other accounts or export
+emulator data.
 
-All guide screenshots are captured from these examples, including benefit
-configuration, form editing and validation, preview results, publishing, and custom
-checks. Screens use compact viewports, 2× pixel density, and focused panel captures.
-The script waits for visible questions and successful eligibility results before
-saving the public form. It prints the new local account's email; its local-only
+To refresh one guide's screenshots, name it:
+`npm run capture-docs-screenshots -- screeners` or
+`npm run capture-docs-screenshots -- custom-checks`. Each guide's flow lives in
+`e2e/docs-screenshots/`, with the shared account, sign-in, and saving in
+`session.mjs`.
+
+The screener guide flow answers the example's "Only Philly Cash passes"
+scenario in Preview and on the published screener, and waits for the expected
+results before saving. The custom checks flow walks through the example's
+Household income limit check: its parameter, DMN model, test results, and
+published version. It shows the Create New Check dialog without creating a
+check. Screens use compact viewports, 2× pixel density, and focused panel
+captures. The script prints the new local account's email; its local-only
 password is `local-docs-screenshot-account`. The account remains in the running
 emulator for inspection.
 
-Review every generated image before committing it, then build and view the docs
-homepage and guide. Keep the homepage screenshot at its native aspect ratio: a
-square hero crop can remove the form content. The custom checks are unpublished
-drafts demonstrating parameter configuration, not completed eligibility rules.
+The flows find elements by the example's names and question labels. After
+changing the example screener (see the developer guide on editing it), update
+the names at the top of each flow file, recapture, and update any guide text
+that describes the example.
 
-For the custom-check walkthrough, run `npm run capture-custom-check-screenshots`
-from `e2e/`. This creates a separate local account and a working income-limit
-check using `e2e/fixtures/docs-income-limit.dmn`. It captures creation, parameter
-configuration, the DMN diagram, test results, and a local published version.
-The script validates the model and checks the displayed results before saving
-the screenshots. Its account uses the same local-only password above.
+Review every generated image before committing it, then build and view the docs
+homepage and guides. Keep the homepage screenshot at its native aspect ratio: a
+square hero crop can remove the form content.

@@ -63,7 +63,7 @@ Make your changes to the example screener using the builder UI. You can:
 
 When you're satisfied with your edits, export them so they can be committed to the repository.
 
-1. Click **Export Example Screener** in the app's header (the button only appears in development builds)
+1. Open the menu (☰) at the right of the app's header and click **Export Example Screener** (the button only appears in development builds)
 2. Click **Export** in the dialog
 3. Wait for **Successfully exported screeners.**
 
@@ -82,6 +82,8 @@ git add builder-api/src/main/resources/seed-data/example-screener
 git commit -m "Update example screener"
 git push
 ```
+
+The user guides' screenshots show the example screener. If your edits change what the guides show, refresh the screenshots as described under **Refreshing UI screenshots** in `docs/README.md`, and commit them with your changes.
 
 ## Step 6: Clean Up the Codespace
 
