@@ -47,14 +47,17 @@ async function createAccount() {
 }
 
 // The bounding box once an element has stopped moving, such as a sliding drawer
-export async function settledBox(locator) {
-  let previous = null;
-  for (;;) {
-    const box = await locator.boundingBox();
-    if (JSON.stringify(box) === JSON.stringify(previous)) return box;
-    previous = box;
+export async function settledBox(locator, timeout = 10000) {
+  await locator.waitFor({ state: "visible" });
+  const deadline = Date.now() + timeout;
+  let previous = await locator.boundingBox();
+  while (Date.now() < deadline) {
     await locator.page().waitForTimeout(100);
+    const box = await locator.boundingBox();
+    if (box && JSON.stringify(box) === JSON.stringify(previous)) return box;
+    previous = box;
   }
+  throw new Error(`${locator} did not stop moving within ${timeout}ms`);
 }
 
 export async function openSession() {
