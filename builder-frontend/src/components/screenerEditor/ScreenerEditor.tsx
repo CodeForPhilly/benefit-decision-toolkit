@@ -18,6 +18,11 @@ function ScreenerEditor() {
   const params = useParams();
 
   const [activeTab, setActiveTab] = createSignal<TabOption>("manageBenefits");
+  // Kept here rather than in ManageBenefits so that selecting the Manage
+  // Benefits section also returns from Configure Benefit to the list.
+  const [benefitIdToConfigure, setBenefitIdToConfigure] = createSignal<
+    string | null
+  >(null);
   const [formSchema, setFormSchema] = createSignal();
   const [forceUpdate, setForceUpdate] = createSignal(0);
 
@@ -43,7 +48,10 @@ function ScreenerEditor() {
         {
           key: "manageBenefits",
           label: "Manage Benefits",
-          onClick: () => setActiveTab("manageBenefits"),
+          onClick: () => {
+            setActiveTab("manageBenefits");
+            setBenefitIdToConfigure(null);
+          },
         },
         {
           key: "formEditor",
@@ -85,7 +93,12 @@ function ScreenerEditor() {
               setFormSchema={setFormSchema}
             />
           )}
-          {activeTab() == "manageBenefits" && <ManageBenefits />}
+          {activeTab() == "manageBenefits" && (
+            <ManageBenefits
+              benefitIdToConfigure={benefitIdToConfigure}
+              setBenefitIdToConfigure={setBenefitIdToConfigure}
+            />
+          )}
           {activeTab() == "preview" && (
             <Preview screener={screener} formSchema={formSchema} />
           )}
