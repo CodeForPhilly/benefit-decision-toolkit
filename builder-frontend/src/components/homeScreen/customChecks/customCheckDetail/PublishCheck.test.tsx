@@ -40,12 +40,21 @@ describe("PublishCheck", () => {
     document.body.replaceChildren();
   });
 
-  function mount(publishCheck = vi.fn().mockResolvedValue(undefined)) {
+  function mount(
+    publishCheck = vi.fn().mockResolvedValue(undefined),
+    saveDmnChanges = vi.fn().mockResolvedValue(undefined),
+  ) {
     const container = document.body.appendChild(document.createElement("div"));
     const [check, setCheck] = createSignal(draft);
+    const [unsavedDmn, setUnsavedDmn] = createSignal(false);
     dispose = render(
       () => (
-        <PublishCheck eligibilityCheck={check} publishCheck={publishCheck} />
+        <PublishCheck
+          eligibilityCheck={check}
+          publishCheck={publishCheck}
+          hasUnsavedDmnChanges={unsavedDmn}
+          saveDmnChanges={saveDmnChanges}
+        />
       ),
       container,
     );
@@ -53,7 +62,7 @@ describe("PublishCheck", () => {
       [...container.querySelectorAll("button")].find((button) =>
         /Publish Check|Publishing/.test(button.textContent || ""),
       )!;
-    return { container, button, setCheck };
+    return { container, button, setCheck, setUnsavedDmn };
   }
 
   it("explains an unpublished rename and preserves the published name", async () => {
@@ -96,6 +105,22 @@ describe("PublishCheck", () => {
     });
     expect(container.textContent).toContain("Unpublished changes");
     expect(button().disabled).toBe(false);
+  });
+
+  it("warns about unsaved DMN edits and offers to save them", async () => {
+    vi.mocked(fetchCheck).mockResolvedValue({ ...draft, id: published.id });
+    const saveDmnChanges = vi.fn().mockResolvedValue(undefined);
+    const { container, setUnsavedDmn } = mount(undefined, saveDmnChanges);
+    await vi.waitFor(() =>
+      expect(container.textContent).toContain("All saved changes published"),
+    );
+    expect(container.textContent).not.toContain("Unsaved DMN edits");
+    setUnsavedDmn(true);
+    expect(container.textContent).toContain("Unsaved DMN edits");
+    [...container.querySelectorAll("button")]
+      .find((button) => button.textContent === "Save DMN edits")!
+      .click();
+    expect(saveDmnChanges).toHaveBeenCalledOnce();
   });
 
   it("publishes once, refreshes versions immediately, and shows success", async () => {

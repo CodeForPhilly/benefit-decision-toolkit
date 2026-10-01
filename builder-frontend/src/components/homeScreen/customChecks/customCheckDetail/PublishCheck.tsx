@@ -14,6 +14,8 @@ const formattedDate = (datePublished?: number | null) =>
 const PublishCheck = (props: {
   eligibilityCheck: Accessor<CustomCheckWithDmn>;
   publishCheck: (checkId: string) => Promise<void>;
+  hasUnsavedDmnChanges: Accessor<boolean>;
+  saveDmnChanges: () => Promise<void>;
 }) => {
   const [publication, { refetch }] = createResource(
     () => props.eligibilityCheck().id,
@@ -78,6 +80,22 @@ const PublishCheck = (props: {
         already use; to use the new version, remove the old check and add the
         new one in Configure Benefit.
       </p>
+      <Show when={props.hasUnsavedDmnChanges()}>
+        <div class="mb-4 rounded border border-yellow-400 p-4">
+          <p class="font-bold">Unsaved DMN edits</p>
+          <p class="mb-2">
+            The DMN Definition has edits that are not saved. Publishing includes
+            only saved changes.
+          </p>
+          <Button
+            variant="outline-secondary"
+            disabled={publishing()}
+            onClick={() => void props.saveDmnChanges()}
+          >
+            Save DMN edits
+          </Button>
+        </div>
+      </Show>
       <Show
         when={!publication.error}
         fallback={

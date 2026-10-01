@@ -43,6 +43,11 @@ const CustomCheckDetail = () => {
     return isDmnModelChanged(eligibilityCheck().dmnModel, currentDmnModel());
   };
 
+  // The model is empty until the DMN editor has opened, and an unopened
+  // editor has no edits to lose.
+  const hasUnsavedDmnChanges = (): boolean =>
+    currentDmnModel() !== "" && hasDmnModelChanged();
+
   const validateDmnModel = async (dmnString: string) => {
     const errors: string[] = await actions.validateDmnModel(dmnString);
     setValidationErrors(errors);
@@ -151,6 +156,8 @@ const CustomCheckDetail = () => {
             <PublishCheck
               eligibilityCheck={eligibilityCheck}
               publishCheck={actions.publishCheck}
+              hasUnsavedDmnChanges={hasUnsavedDmnChanges}
+              saveDmnChanges={() => actions.saveDmnModel(currentDmnModel())}
             />
           </Match>
         </Switch>
