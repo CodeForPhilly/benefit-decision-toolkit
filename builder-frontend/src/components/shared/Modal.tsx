@@ -7,14 +7,19 @@ import styles from "./Modal.module.css";
 interface Props {
   show: boolean;
   onClose: () => void;
+  // False while the content is busy, e.g. saving, so it cannot be dismissed.
+  dismissible?: boolean;
 }
 export const Modal: Component<ParentProps<Props>> = (props) => {
+  const close = () => {
+    if (props.dismissible !== false) props.onClose();
+  };
   return (
     <Show when={props.show}>
       <Portal>
         <div
           class={styles["modal-wrapper"]}
-          onClick={() => props.onClose()}
+          onClick={close}
           data-modal-root
         >
           <div
@@ -22,11 +27,8 @@ export const Modal: Component<ParentProps<Props>> = (props) => {
             onClick={(e) => e.stopPropagation()}
           >
             <div class={styles["modal-header"]}>
-              <div
-                class={styles["modal-close"]}
-                onClick={() => props.onClose()}
-              >
-                <button type="button">
+              <div class={styles["modal-close"]} onClick={close}>
+                <button type="button" disabled={props.dismissible === false}>
                   <CircleX />
                 </button>
               </div>

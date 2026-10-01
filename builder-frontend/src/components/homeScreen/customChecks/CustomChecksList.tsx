@@ -129,6 +129,7 @@ const CustomChecksList = () => {
       <Modal
         show={checkToRename() !== null}
         onClose={() => setCheckToRename(null)}
+        dismissible={!actionInProgress()}
       >
         <Show when={checkToRename()}>
           {(check) => (
