@@ -263,6 +263,37 @@ describe("app navigation", () => {
     expect(container.querySelector("button")).toBeNull();
   });
 
+  it("keeps breadcrumb elements when a label changes", () => {
+    const container = document.body.appendChild(document.createElement("div"));
+    const [name, setName] = createSignal("My check");
+    dispose = render(
+      () => (
+        <MemoryRouter>
+          <Route
+            path="*"
+            component={() => (
+              <Breadcrumbs
+                items={[
+                  { label: "Custom Checks", href: "/custom-checks" },
+                  { label: name() },
+                ]}
+              />
+            )}
+          />
+        </MemoryRouter>
+      ),
+      container,
+    );
+    const parent = container.querySelector("a")!;
+    parent.focus();
+    setName("Renamed check");
+    expect(container.querySelector(".breadcrumb-current")?.textContent).toBe(
+      "Renamed check",
+    );
+    expect(container.querySelector("a")).toBe(parent);
+    expect(document.activeElement).toBe(parent);
+  });
+
   it("updates the current editor section when selected", () => {
     const container = document.body.appendChild(document.createElement("div"));
     dispose = render(() => {

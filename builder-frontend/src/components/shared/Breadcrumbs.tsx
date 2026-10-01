@@ -1,5 +1,5 @@
 import { A } from "@solidjs/router";
-import { For, Show } from "solid-js";
+import { Index, Show } from "solid-js";
 import "./EditorNavigation.css";
 
 export type Breadcrumb = {
@@ -19,46 +19,48 @@ export default function Breadcrumbs(props: {
   return (
     <nav aria-label={props.label ?? "Breadcrumb"} class="breadcrumbs">
       <ol class="breadcrumb-list">
-        <For each={props.items}>
+        {/* Callers rebuild the items array whenever a label changes. <Index>
+            keeps each crumb's DOM (and keyboard focus) and updates it in place. */}
+        <Index each={props.items}>
           {(item, index) => (
             <li class="breadcrumb-item">
-              <Show when={index() > 0}>
+              <Show when={index > 0}>
                 <span aria-hidden="true" class="breadcrumb-separator">
                   /
                 </span>
               </Show>
               <Show
-                when={index() < props.items.length - 1}
+                when={index < props.items.length - 1}
                 fallback={
                   <span
                     aria-current={props.current ?? "page"}
                     class="breadcrumb-current"
-                    title={item.label}
+                    title={item().label}
                   >
-                    {item.label}
+                    {item().label}
                   </span>
                 }
               >
                 <Show
-                  when={item.href}
+                  when={item().href}
                   fallback={
                     <button
                       type="button"
                       class="breadcrumb-parent"
-                      onClick={item.onClick}
+                      onClick={() => item().onClick?.()}
                     >
-                      {item.label}
+                      {item().label}
                     </button>
                   }
                 >
-                  <A href={item.href!} class="breadcrumb-parent">
-                    {item.label}
+                  <A href={item().href!} class="breadcrumb-parent">
+                    {item().label}
                   </A>
                 </Show>
               </Show>
             </li>
           )}
-        </For>
+        </Index>
       </ol>
     </nav>
   );
