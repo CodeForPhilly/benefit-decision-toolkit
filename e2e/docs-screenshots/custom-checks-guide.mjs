@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 
-import { baseUrl, openEditorSection, settle } from "./session.mjs";
+import { baseUrl, openEditorSection, settle, settledBox } from "./session.mjs";
 
 // The example screener's custom check that the custom checks guide walks through
 const incomeCheck = "Household income limit";
@@ -52,7 +52,12 @@ export async function captureCustomChecksGuide({ page, save }) {
 
   await openEditorSection(page, "dmnDefinition");
   await page.setViewportSize({ width: 1100, height: 820 });
-  await page.waitForTimeout(4000); // The DMN editor renders in an iframe
+  // The DMN editor renders the diagram in an iframe after it loads
+  const decisionNode = page
+    .frameLocator("iframe")
+    .locator(".react-flow__node-node_decision");
+  await expect(decisionNode).toHaveText(incomeCheck);
+  await settledBox(decisionNode);
   await save("custom-check-dmn");
   await page.getByText("Validate Current DMN", { exact: true }).click();
   await expect(

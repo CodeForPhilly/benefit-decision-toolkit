@@ -47,7 +47,7 @@ async function createAccount() {
 }
 
 // The bounding box once an element has stopped moving, such as a sliding drawer
-async function settledBox(locator) {
+export async function settledBox(locator) {
   let previous = null;
   for (;;) {
     const box = await locator.boundingBox();
