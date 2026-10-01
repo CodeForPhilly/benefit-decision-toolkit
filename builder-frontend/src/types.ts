@@ -48,8 +48,8 @@ export interface EligibilityCheck {
   isArchived?: boolean;
   // API endpoint for evaluating check (Library checks only)
   evaluationUrl?: string;
-  // Milliseconds since the epoch (published custom checks only)
-  datePublished?: number;
+  // Milliseconds since the epoch; null on working checks
+  datePublished?: number | null;
 }
 export interface CustomCheckWithDmn extends EligibilityCheck {
   dmnModel: string;

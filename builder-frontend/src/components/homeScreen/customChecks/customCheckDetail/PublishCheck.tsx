@@ -50,7 +50,7 @@ const PublishCheck = ({
     return [parts[0], parts[1], parts[2]];
   }
 
-  const formattedDate = (datePublished?: number) =>
+  const formattedDate = (datePublished?: number | null) =>
     datePublished === undefined || datePublished === null
       ? "--"
       : new Intl.DateTimeFormat("en-US", {
