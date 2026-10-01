@@ -21,6 +21,21 @@ export class ApiError extends Error {
   }
 }
 
+// Prefer the server's error message, falling back to the status.
+async function apiErrorFrom(
+  response: Response,
+  fallback: string,
+): Promise<ApiError> {
+  let message = `${fallback} with status: ${response.status}`;
+  try {
+    const body = await response.json();
+    if (typeof body.error === "string") message = body.error;
+  } catch {
+    // Keep the status-based fallback when the server does not return JSON.
+  }
+  return new ApiError(message, response.status);
+}
+
 export const fetchPublicChecks = async (): Promise<EligibilityCheck[]> => {
   const url = apiUrl + "/library-checks";
   try {
@@ -74,14 +89,7 @@ export const addCheck = async (
     });
 
     if (!response.ok) {
-      let message = `Post failed with status: ${response.status}`;
-      try {
-        const body = await response.json();
-        if (typeof body.error === "string") message = body.error;
-      } catch {
-        // Keep the status-based fallback when the server does not return JSON.
-      }
-      throw new ApiError(message, response.status);
+      throw await apiErrorFrom(response, "Post failed");
     }
     const data = await response.json();
     return data;
@@ -111,15 +119,7 @@ export const updateCheck = async (
     const response = await authPatch(url, body);
 
     if (!response.ok) {
-      let message = `Update failed with status: ${response.status}`;
-      try {
-        const responseBody = await response.json();
-        if (typeof responseBody.error === "string")
-          message = responseBody.error;
-      } catch {
-        // Keep the status-based fallback when the server does not return JSON.
-      }
-      throw new ApiError(message, response.status);
+      throw await apiErrorFrom(response, "Update failed");
     }
     const data = await response.json();
     return data;
@@ -241,14 +241,7 @@ export const publishCheck = async (
     const response = await authPost(url);
 
     if (!response.ok) {
-      let message = `Publish failed with status: ${response.status}`;
-      try {
-        const body = await response.json();
-        if (typeof body.error === "string") message = body.error;
-      } catch {
-        // Keep the status-based fallback when the server does not return JSON.
-      }
-      throw new ApiError(message, response.status);
+      throw await apiErrorFrom(response, "Publish failed");
     }
     const data = await response.json();
     return data;
