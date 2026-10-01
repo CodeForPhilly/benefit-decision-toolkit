@@ -93,7 +93,25 @@ describe("app navigation", () => {
   }
 
   it.each(["/", "/screeners", "/screeners/example"])(
-    "marks Screeners as current at %s",
+    "highlights the Screeners area at %s",
+    async (path) => {
+      const { container } = mount(path);
+      await vi.waitFor(() =>
+        expect(
+          container.querySelector('nav[aria-label="Main navigation"] a.active')
+            ?.textContent,
+        ).toBe("Screeners"),
+      );
+      expect(
+        container.querySelectorAll(
+          'nav[aria-label="Main navigation"] a.active',
+        ),
+      ).toHaveLength(1);
+    },
+  );
+
+  it.each(["/", "/screeners"])(
+    "marks the Screeners link as the current page at %s",
     async (path) => {
       const { container } = mount(path);
       await vi.waitFor(() =>
@@ -103,13 +121,15 @@ describe("app navigation", () => {
           )?.textContent,
         ).toBe("Screeners"),
       );
-      const active = container.querySelector(
-        'nav[aria-label="Main navigation"] a[aria-current="page"]',
-      );
-      expect(active?.textContent).toBe("Screeners");
-      expect(active?.classList.contains("active")).toBe(true);
     },
   );
+
+  it("marks only the open screener as the current page in its editor", () => {
+    const { container } = mount("/screeners/example");
+    const current = container.querySelectorAll('[aria-current="page"]');
+    expect(current).toHaveLength(1);
+    expect(current[0].textContent).toBe("My screener");
+  });
 
   it.each([
     ["/", "/screeners"],
@@ -148,22 +168,15 @@ describe("app navigation", () => {
     (
       container.querySelector('a[href="/custom-checks"]') as HTMLAnchorElement
     ).click();
+    const activeArea = () =>
+      container.querySelector('nav[aria-label="Main navigation"] a.active')
+        ?.textContent;
     await vi.waitFor(() => expect(history.get()).toBe("/custom-checks"));
-    expect(container.querySelector('a[aria-current="page"]')?.textContent).toBe(
-      "Custom Checks",
-    );
+    expect(activeArea()).toBe("Custom Checks");
     history.back();
-    await vi.waitFor(() =>
-      expect(
-        container.querySelector('a[aria-current="page"]')?.textContent,
-      ).toBe("Screeners"),
-    );
+    await vi.waitFor(() => expect(activeArea()).toBe("Screeners"));
     history.forward();
-    await vi.waitFor(() =>
-      expect(
-        container.querySelector('a[aria-current="page"]')?.textContent,
-      ).toBe("Custom Checks"),
-    );
+    await vi.waitFor(() => expect(activeArea()).toBe("Custom Checks"));
   });
 
   it("keeps both areas visible while the account menu is closed", () => {
@@ -222,6 +235,8 @@ describe("app navigation", () => {
       const [configuring, setConfiguring] = createSignal(true);
       return (
         <Breadcrumbs
+          label="Benefit configuration"
+          current="true"
           items={
             configuring()
               ? [
@@ -236,6 +251,13 @@ describe("app navigation", () => {
         />
       );
     }, container);
+    expect(
+      container.querySelector('nav[aria-label="Benefit configuration"]'),
+    ).not.toBeNull();
+    expect(container.querySelector('[aria-current="page"]')).toBeNull();
+    expect(container.querySelector('[aria-current="true"]')?.textContent).toBe(
+      "My benefit",
+    );
     (container.querySelector("button") as HTMLButtonElement).click();
     expect(container.textContent).toBe("Manage Benefits");
     expect(container.querySelector("button")).toBeNull();
@@ -269,11 +291,12 @@ describe("app navigation", () => {
     ).click();
     expect(
       container.querySelector(
-        'nav[aria-label="Editor sections"] [aria-current="page"]',
+        'nav[aria-label="Editor sections"] [aria-current="true"]',
       )?.textContent,
     ).toBe("Preview");
     expect(
       container.querySelector(".breadcrumb-current")?.getAttribute("title"),
     ).toBe("My screener");
+    expect(container.querySelectorAll('[aria-current="page"]')).toHaveLength(1);
   });
 });

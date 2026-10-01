@@ -8,9 +8,16 @@ export type Breadcrumb = {
   onClick?: () => void;
 };
 
-export default function Breadcrumbs(props: { items: Breadcrumb[] }) {
+export default function Breadcrumbs(props: {
+  items: Breadcrumb[];
+  // A page-level trail is labelled "Breadcrumb" and marks the current page.
+  // A trail inside part of a page needs its own label, and marks its last
+  // item as the current item of that trail rather than the current page.
+  label?: string;
+  current?: "page" | "true";
+}) {
   return (
-    <nav aria-label="Breadcrumb" class="breadcrumbs">
+    <nav aria-label={props.label ?? "Breadcrumb"} class="breadcrumbs">
       <ol class="breadcrumb-list">
         <For each={props.items}>
           {(item, index) => (
@@ -24,7 +31,7 @@ export default function Breadcrumbs(props: { items: Breadcrumb[] }) {
                 when={index() < props.items.length - 1}
                 fallback={
                   <span
-                    aria-current="page"
+                    aria-current={props.current ?? "page"}
                     class="breadcrumb-current"
                     title={item.label}
                   >

@@ -45,6 +45,8 @@ const ConfigureBenefit = ({
         <div class="p-5">
           <div class="flex items-center gap-2 mb-4 min-w-0">
             <Breadcrumbs
+              label="Benefit configuration"
+              current="true"
               items={[
                 { label: "Manage Benefits", onClick: () => setBenefitId(null) },
                 { label: `Configure Benefit: ${benefit().name}` },

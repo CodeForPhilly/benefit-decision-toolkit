@@ -17,7 +17,7 @@ const ANavBar: Component<Props> = (props) => {
           href={href}
           class="navbarlink"
           classList={{ active: isActive(href), inactive: !isActive(href) }}
-          aria-current={isActive(href) ? "page" : undefined}
+          aria-current={location.pathname === href ? "page" : undefined}
         >
           {label}
         </a>
