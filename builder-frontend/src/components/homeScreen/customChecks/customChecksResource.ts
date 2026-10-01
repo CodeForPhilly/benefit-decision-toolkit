@@ -113,9 +113,6 @@ const customChecksResource = (): CustomChecksResource => {
         });
       }
       await refetchChecks();
-      toast.success(
-        "Draft name saved. Publish a new version to use it in screeners.",
-      );
     } finally {
       setActionInProgress(false);
     }
