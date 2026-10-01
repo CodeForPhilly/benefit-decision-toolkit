@@ -95,7 +95,9 @@ export async function openSession() {
       const from = await settledBox(target.from);
       const bottoms = await Promise.all(
         target.to.map(async (locator) => {
+          await locator.waitFor({ state: "visible" });
           const box = await locator.boundingBox();
+          if (!box) throw new Error(`${locator} has no bounding box`);
           return box.y + box.height;
         }),
       );
