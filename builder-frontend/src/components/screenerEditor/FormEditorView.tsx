@@ -36,7 +36,7 @@ function FormEditorView({ formSchema, setFormSchema }) {
 
   // Fetch form paths from backend (replaces local transformation logic)
   const [formPaths] = createResource<FormPath[]>(
-    () => params.projectId,
+    () => params.screenerId,
     async (screenerId: string) => {
       if (!screenerId) return [];
       const response = await fetchFormPaths(screenerId);
@@ -129,13 +129,13 @@ function FormEditorView({ formSchema, setFormSchema }) {
   });
 
   const handleSave = async () => {
-    const projectId = params.projectId;
+    const screenerId = params.screenerId;
     const schema = formSchema();
     setIsSaving(true);
     clearTimeout(timeoutId);
 
     try {
-      await saveFormSchema(projectId, schema);
+      await saveFormSchema(screenerId, schema);
       setIsUnsaved(false);
     } catch (error) {
       // Keep the form marked as unsaved so a failed request is not presented

@@ -1,15 +1,15 @@
 ---
-title: Custom Eligibility Checks
-description: Custom Eligibility Checks
+title: Custom Checks
+description: Custom Checks
 ---
 
-## 1. What Are Custom Eligibility Checks?
+## 1. What Are Custom Checks?
 
 The BDT platform provides a library of **public eligibility checks** — prebuilt rule components that cover common eligibility criteria such as age thresholds, residency requirements, and income limits. For most screeners, combining these public checks is sufficient to express the required eligibility logic.
 
-However, if the public checks do not cover a requirement specific to your use case, BDT allows you to build your own reusable **custom eligibility checks**.
+However, if the public checks do not cover a requirement specific to your use case, BDT allows you to build your own reusable **custom checks**.
 
-A custom eligibility check works exactly like a public check within your screener:
+A custom check works exactly like a public check within your screener:
 
 - It accepts one or more inputs from the screener form
 - It evaluates a defined condition
@@ -94,7 +94,7 @@ For a deeper understanding of DMN and FEEL, refer to the official documentation:
 
 ## 3. Managing Custom Checks
 
-The **Eligibility Checks** view lists all of the custom checks you have created. Open the menu in the upper-right corner of BDT and select **Custom Checks**.
+The **Custom Checks** view lists all of the custom checks you have created. Select **Custom Checks** in the top navigation bar.
 
 From this view, you can:
 
@@ -103,7 +103,7 @@ From this view, you can:
 - Open an existing check to edit or publish it
 - Archive a check that is no longer in use, or restore an archived check
 
-![Eligibility Checks view showing the Create New Check control and the current user's checks.](../../../assets/screenshots/custom-checks-list.png)
+![Custom Checks view showing the Create New Check control and the current user's checks.](../../../assets/screenshots/custom-checks-list.png)
 
 ### Creating a New Check
 

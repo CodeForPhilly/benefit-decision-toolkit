@@ -1,6 +1,5 @@
 import { createSignal } from "solid-js";
 import { useAuth } from "../../context/AuthContext";
-import { useNavigate } from "@solidjs/router";
 
 const firebaseErrorMessages = {
   "auth/user-not-found": "No user found with this email.",
@@ -23,14 +22,13 @@ function getFriendlyErrorMessage(firebaseError) {
   );
 }
 
-export default function Signup({ toggleMode }) {
+export default function Signup({ toggleMode, onSignedIn }) {
   const [email, setEmail] = createSignal("");
   const [password, setPassword] = createSignal("");
   const [passwordConfirm, setPasswordConfirm] = createSignal("");
   const [error, setError] = createSignal("");
   const [isSigningIn, setIsSigningIn] = createSignal(false);
   const { loginWithGoogle, register } = useAuth();
-  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -42,7 +40,7 @@ export default function Signup({ toggleMode }) {
       await register(email(), password());
       setIsSigningIn(false);
       setError(null);
-      navigate("/", { replace: true });
+      onSignedIn();
     } catch (err) {
       setError(getFriendlyErrorMessage(err));
       setIsSigningIn(false);

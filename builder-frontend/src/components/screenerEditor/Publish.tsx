@@ -4,17 +4,17 @@ import { publishScreener } from "../../api/screener";
 import Tooltip from "../shared/Tooltip";
 import { Button } from "@/components/shared/Button";
 
-export default function Publish({ project, refetchProject }) {
+export default function Publish({ screener, refetchScreener }) {
   const [isLoading, setIsLoading] = createSignal(false);
 
   const screenerName = () => {
-    return project()?.screenerName;
+    return screener()?.screenerName;
   };
   const isPublished = () => {
-    return project()?.publishedScreenerId !== null;
+    return screener()?.publishedScreenerId !== null;
   };
   const lastPublishDate = () => {
-    return project()?.lastPublishDate;
+    return screener()?.lastPublishDate;
   };
   const screenerUrl = () => {
     return (
@@ -22,17 +22,17 @@ export default function Publish({ project, refetchProject }) {
       "//" +
       window.location.host +
       "/screener/" +
-      project()?.publishedScreenerId
+      screener()?.publishedScreenerId
     );
   };
 
-  const { projectId } = useParams();
+  const { screenerId } = useParams();
 
   const handlePublish = async () => {
     try {
       setIsLoading(true);
-      await publishScreener(projectId);
-      refetchProject();
+      await publishScreener(screenerId);
+      refetchScreener();
       setIsLoading(false);
     } catch (e) {
       setIsLoading(false);

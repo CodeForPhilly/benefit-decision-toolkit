@@ -1,6 +1,6 @@
 import type { DmnLatestModel } from "@kie-tools/dmn-marshaller";
 import type { Normalized } from "@kie-tools/dmn-marshaller/dist/normalization/normalize";
-import { normalizeDmnXml } from "@/components/homeScreen/eligibilityCheckList/eligibilityCheckDetail/dmnEditor";
+import { normalizeDmnXml } from "@/components/homeScreen/customChecks/customCheckDetail/dmnEditor";
 
 export const renameCheckDmn = async (
   xml: string,

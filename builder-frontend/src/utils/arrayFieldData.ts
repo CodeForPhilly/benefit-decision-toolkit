@@ -1,7 +1,7 @@
 import {
   CHECKLIST_WITH_NONE_TYPE,
   NONE_OF_THESE_VALUE,
-} from '@/components/project/formJsExtensions/customFormFields/ChecklistWithNone';
+} from '@/components/screenerEditor/formJsExtensions/customFormFields/ChecklistWithNone';
 
 interface FormComponent {
   type: string;

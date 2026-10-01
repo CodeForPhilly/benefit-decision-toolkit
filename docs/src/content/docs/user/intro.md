@@ -41,7 +41,7 @@ BDT organizes eligibility logic around three core building blocks. Understanding
 
 ### 3.1 Screeners
 
-A **Screener** is the top-level project in BDT. It represents the complete web experience — including the form and the eligibility logic — for one or more related benefits. When you publish a screener, it becomes available at a public URL.
+A **Screener** is the top-level resource in BDT. It represents the complete web experience — including the form and the eligibility logic — for one or more related benefits. When you publish a screener, it becomes available at a public URL.
 
 ### 3.2 Benefits
 

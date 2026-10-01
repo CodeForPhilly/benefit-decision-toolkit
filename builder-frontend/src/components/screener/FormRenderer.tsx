@@ -6,7 +6,7 @@ import isEqual from "lodash/isEqual";
 import { Form } from "@bpmn-io/form-js-viewer";
 import { State } from "@bpmn-io/form-js-viewer/dist/types/Form";
 
-import CustomFormFieldsModule from "../project/formJsExtensions/customFormFields";
+import CustomFormFieldsModule from "../screenerEditor/formJsExtensions/customFormFields";
 import { hideQuestions } from "@/utils/questionVotes";
 import { normalizeArrayFieldData } from "@/utils/arrayFieldData";
 

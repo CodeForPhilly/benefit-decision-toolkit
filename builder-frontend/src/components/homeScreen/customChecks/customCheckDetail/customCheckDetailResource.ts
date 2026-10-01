@@ -13,25 +13,25 @@ import {
 
 import type {
   CheckConfig,
-  EligibilityCheckDetail,
+  CustomCheckWithDmn,
   OptionalBoolean,
   ParameterDefinition,
 } from "@/types";
 
-export interface EligibilityCheckDetailResource {
-  eligibilityCheck: () => EligibilityCheckDetail;
+export interface CustomCheckDetailResource {
+  eligibilityCheck: () => CustomCheckWithDmn;
   actions: {
     addParameter: (parameterDef: ParameterDefinition) => Promise<void>;
     updateParameter: (
       parameterIndex: number,
-      parameterDef: ParameterDefinition
+      parameterDef: ParameterDefinition,
     ) => Promise<void>;
     removeParameter: (parameterIndex: number) => Promise<void>;
     saveDmnModel: (dmnString: string) => Promise<void>;
     validateDmnModel: (dmnString: string) => Promise<string[]>;
     testEligibility: (
       checkConfg: CheckConfig,
-      inputData: Record<string, any>
+      inputData: Record<string, any>,
     ) => Promise<OptionalBoolean>;
     publishCheck: (checkId: string) => Promise<void>;
   };
@@ -42,28 +42,28 @@ export interface EligibilityCheckDetailResource {
   };
 }
 
-const eligibilityCheckDetailResource = (
-  checkId: Accessor<string>
-): EligibilityCheckDetailResource => {
-  const [eligibilityCheckResource, { refetch }] = createResource(
+const customCheckDetailResource = (
+  checkId: Accessor<string>,
+): CustomCheckDetailResource => {
+  const [checkResource, { refetch }] = createResource(
     () => checkId(),
-    fetchCheck
+    fetchCheck,
   );
   const [actionInProgress, setActionInProgress] = createSignal<boolean>(false);
 
   // Local fine-grained store
   const [eligibilityCheck, setEligibilityCheck] =
-    createStore<EligibilityCheckDetail | null>(null);
+    createStore<CustomCheckWithDmn | null>(null);
 
   // When resource resolves, sync it into the store
   createEffect(() => {
-    console.log("Setting eligibility check");
-    const data = eligibilityCheckResource();
-    if (eligibilityCheckResource()) {
+    console.log("Setting custom check");
+    const data = checkResource();
+    if (checkResource()) {
       console.log("here");
       console.log(data.name);
 
-      setEligibilityCheck(eligibilityCheckResource()!);
+      setEligibilityCheck(checkResource()!);
     }
   });
 
@@ -86,7 +86,7 @@ const eligibilityCheckDetailResource = (
 
   const updateParameter = async (
     parameterIndex: number,
-    parameterDef: ParameterDefinition
+    parameterDef: ParameterDefinition,
   ) => {
     const updatedParameters = [...eligibilityCheck.parameterDefinitions];
     updatedParameters[parameterIndex] = parameterDef;
@@ -137,7 +137,7 @@ const eligibilityCheckDetailResource = (
     try {
       const errors: string[] = await validateCheckDmn(
         eligibilityCheck.id,
-        dmnString
+        dmnString,
       );
       console.log(errors);
       setActionInProgress(false);
@@ -150,14 +150,14 @@ const eligibilityCheckDetailResource = (
 
   const testEligibility = async (
     checkConfg: CheckConfig,
-    inputData: Record<string, any>
+    inputData: Record<string, any>,
   ): Promise<OptionalBoolean> => {
     setActionInProgress(true);
     try {
       const reponse = await evaluateWorkingCheck(
         eligibilityCheck.id,
         checkConfg,
-        inputData
+        inputData,
       );
       setActionInProgress(false);
       return reponse;
@@ -192,10 +192,10 @@ const eligibilityCheckDetailResource = (
     },
     actionInProgress,
     initialLoadStatus: {
-      loading: () => eligibilityCheckResource.loading,
-      error: () => eligibilityCheckResource.error,
+      loading: () => checkResource.loading,
+      error: () => checkResource.error,
     },
   };
 };
 
-export default eligibilityCheckDetailResource;
+export default customCheckDetailResource;

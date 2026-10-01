@@ -3,7 +3,7 @@ import { createStore } from "solid-js/store";
 
 import {
   addCustomBenefit,
-  fetchProject,
+  fetchScreener,
   importLibraryBenefit,
   removeCustomBenefit,
 } from "@/api/screener";
@@ -33,7 +33,7 @@ const createScreenerBenefits = (
 ): ScreenerBenefitsResource => {
   const [screenerResource, { refetch }] = createResource(
     () => screenerId(),
-    fetchProject,
+    fetchScreener,
   );
   const [actionInProgress, setActionInProgress] = createSignal<boolean>(false);
 

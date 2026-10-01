@@ -1,21 +1,21 @@
+import EditorNavigation from "@/components/shared/EditorNavigation";
 import { Accessor, createSignal, Match, Show, Switch } from "solid-js";
 import { useParams } from "@solidjs/router";
 
 import { clsx } from "clsx";
 import toast from "solid-toast";
 
-import Header from "../../../Header/Header";
 import Loading from "../../../Loading";
 import KogitoDmnEditorView from "./KogitoDmnEditorView";
 import EligibilityCheckTest from "./checkTesting/EligibilityCheckTest";
 import PublishCheck from "./PublishCheck";
 
 import { isDmnModelChanged } from "./dmnEditor";
-import eligibilityCheckDetailResource from "./eligibilityCheckDetailResource";
+import customCheckDetailResource from "./customCheckDetailResource";
 import ParametersConfiguration from "./ParametersConfiguration";
 
 import ErrorDisplayModal from "@/components/shared/ErrorModal";
-import BdtNavbar, { NavbarProps } from "@/components/shared/BdtNavbar";
+import { NavbarProps } from "@/components/shared/BdtNavbar";
 
 type CheckDetailScreenMode =
   | "paramConfig"
@@ -23,7 +23,7 @@ type CheckDetailScreenMode =
   | "testing"
   | "publish";
 
-const EligibilityCheckDetail = () => {
+const CustomCheckDetail = () => {
   const { checkId } = useParams();
 
   const [currentDmnModel, setCurrentDmnModel] = createSignal<string>("");
@@ -35,7 +35,7 @@ const EligibilityCheckDetail = () => {
     createSignal<boolean>(false);
 
   const { eligibilityCheck, actions, actionInProgress, initialLoadStatus } =
-    eligibilityCheckDetailResource(() => checkId);
+    customCheckDetailResource(() => checkId);
 
   const hasDmnModelChanged = (): boolean => {
     return isDmnModelChanged(eligibilityCheck().dmnModel, currentDmnModel());
@@ -49,6 +49,13 @@ const EligibilityCheckDetail = () => {
     } else {
       toast.success("No validation errors found in DMN model.");
     }
+  };
+
+  // The store keeps the loaded check during refetches, so show its name
+  // whenever there is one and fall back only while nothing has loaded yet.
+  const checkLabel = () => {
+    if (eligibilityCheck().id !== undefined) return eligibilityCheck().name;
+    return initialLoadStatus.error() ? "Check unavailable" : "Loading check…";
   };
 
   const navbarDefs: Accessor<NavbarProps> = () => {
@@ -76,7 +83,6 @@ const EligibilityCheckDetail = () => {
         },
       ],
       activeTabKey: () => screenMode(),
-      titleDef: { label: eligibilityCheck().name },
     };
   };
 
@@ -86,7 +92,13 @@ const EligibilityCheckDetail = () => {
         <Loading />
       </Show>
 
-      <BdtNavbar navProps={navbarDefs} />
+      <EditorNavigation
+        navProps={navbarDefs}
+        items={[
+          { label: "Custom Checks", href: "/custom-checks" },
+          { label: checkLabel() },
+        ]}
+      />
       <Show
         when={
           eligibilityCheck().id !== undefined && !initialLoadStatus.loading()
@@ -152,4 +164,4 @@ const EligibilityCheckDetail = () => {
   );
 };
 
-export default EligibilityCheckDetail;
+export default CustomCheckDetail;

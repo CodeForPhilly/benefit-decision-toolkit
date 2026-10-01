@@ -1,3 +1,4 @@
+import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { Accessor, createResource, createSignal, For, Show } from "solid-js";
 
 import SelectedEligibilityCheck from "./SelectedEligibilityCheck";
@@ -42,37 +43,29 @@ const ConfigureBenefit = ({
 
       <Show when={benefit().id !== undefined && !initialLoadStatus.loading()}>
         <div class="p-5">
-          <div class="flex mb-4">
-            <div class="flex flex-row gap-2 items-baseline">
-              <div class="text-3xl font-bold tracking-wide">
-                Configure Benefit:{" "}
-                {benefit() ? benefit().name : "No Benefit Found"}
-              </div>
-              <Tooltip>
-                <p>
-                  The Configure Benefit page is where you define the rules that
-                  determine whether a user qualifies for a specific benefit.
-                </p>
-                <p>
-                  <a
-                    href="https://bdt-docs.web.app/user/user-guide/#4-configuring-a-benefit"
-                    target="_blank"
-                  >
-                    Read about configuring a benefit in the docs
-                  </a>
-                </p>
-              </Tooltip>
-            </div>
-            <div class="ml-auto">
-              <div
-                class="btn-default btn-gray"
-                onClick={() => {
-                  setBenefitId(null);
-                }}
-              >
-                Back
-              </div>
-            </div>
+          <div class="flex items-center gap-2 mb-4 min-w-0">
+            <Breadcrumbs
+              label="Benefit configuration"
+              current="true"
+              items={[
+                { label: "Manage Benefits", onClick: () => setBenefitId(null) },
+                { label: `Configure Benefit: ${benefit().name}` },
+              ]}
+            />
+            <Tooltip>
+              <p>
+                The Configure Benefit page is where you define the rules that
+                determine whether a user qualifies for a specific benefit.
+              </p>
+              <p>
+                <a
+                  href="https://bdt-docs.web.app/user/user-guide/#4-configuring-a-benefit"
+                  target="_blank"
+                >
+                  Read about configuring a benefit in the docs
+                </a>
+              </p>
+            </Tooltip>
           </div>
           <div class="flex gap-4 flex-col 2xl:flex-row">
             <div

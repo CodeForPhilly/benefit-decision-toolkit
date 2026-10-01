@@ -12,7 +12,7 @@ test.describe("Smoke Tests", () => {
     // Authentication done by beforeEach(...) hook
 
     // Verify the page title
-    await expect(page).toHaveTitle("BDT - Projects List");
+    await expect(page).toHaveTitle("BDT - Screeners");
 
     // Verify key elements of the landing page are visible
     // Header with logout button indicates user is authenticated

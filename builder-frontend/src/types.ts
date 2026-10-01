@@ -1,6 +1,6 @@
 import type { JSONSchema7 } from "json-schema";
 
-/* Types for managing benefits in a project */
+/* Types for managing benefits in a screener */
 export interface ScreenerBenefits {
   benefits: BenefitDetail[];
 }
@@ -49,7 +49,7 @@ export interface EligibilityCheck {
   // API endpoint for evaluating check (Library checks only)
   evaluationUrl?: string;
 }
-export interface EligibilityCheckDetail extends EligibilityCheck {
+export interface CustomCheckWithDmn extends EligibilityCheck {
   dmnModel: string;
 }
 

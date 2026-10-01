@@ -16,3 +16,43 @@
 .header-menu-item:hover {
   @apply bg-slate-200 cursor-pointer;
 }
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: 3rem;
+  padding: 0 1rem;
+  background: var(--color-gray-100);
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.app-brand {
+  flex-shrink: 0;
+  padding-right: 1rem;
+  border-right: 1px solid var(--color-gray-300);
+}
+
+.app-brand img {
+  width: 4rem;
+}
+.app-account {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.app-account > .menu-wrapper > .menu-toggle {
+  padding: 0.5rem;
+}
+
+@media (max-width: 480px) {
+  .app-header {
+    gap: 0.5rem;
+    padding: 0 0.5rem;
+  }
+  .app-brand {
+    padding-right: 0.5rem;
+  }
+  .app-brand img {
+    width: 3rem;
+  }
+}

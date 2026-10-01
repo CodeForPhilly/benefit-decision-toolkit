@@ -10,7 +10,7 @@ import type {
 
 const apiUrl = env.apiUrl;
 
-export const fetchProjects = async () => {
+export const fetchScreeners = async () => {
   const url = apiUrl + "/screeners";
   try {
     const response = await authGet(url);
@@ -21,12 +21,12 @@ export const fetchProjects = async () => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error fetching projects:", error);
+    console.error("Error fetching screeners:", error);
     throw error; // rethrow so you can handle it in your component if needed
   }
 };
 
-export const fetchProject = async (screenerId: string) => {
+export const fetchScreener = async (screenerId: string) => {
   const url = apiUrl + "/screener/" + screenerId;
   try {
     const response = await authGet(url);
@@ -56,7 +56,7 @@ export const createNewScreener = async (request: {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error creating new project:", error);
+    console.error("Error creating new screener:", error);
     throw error; // rethrow so you can handle it in your component if needed
   }
 };
@@ -75,7 +75,7 @@ export const updateScreener = async (
       throw new Error(err);
     }
   } catch (error) {
-    console.error("Error updating project:", error);
+    console.error("Error updating screener:", error);
     throw error;
   }
 };
@@ -89,7 +89,7 @@ export const deleteScreener = async (screenerId: string) => {
       throw new Error(`Update failed with status: ${response.status}`);
     }
   } catch (error) {
-    console.error("Error updating project:", error);
+    console.error("Error updating screener:", error);
     throw error;
   }
 };

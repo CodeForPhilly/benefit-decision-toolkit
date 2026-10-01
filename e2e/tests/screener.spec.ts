@@ -53,7 +53,7 @@ const navigateToBenefitConfig = async (page: Page) => {
 
 const navigateToFormEditor = async (page: Page) => {
   await test.step("Navigate to form editor", async () => {
-    await page.getByTestId("project-tab-formEditor").click();
+    await page.getByTestId("editor-section-formEditor").click();
   });
 };
 
@@ -81,13 +81,13 @@ const createFormWithCheckbox = async (page: Page) => {
 
 const navigateToPreview = async (page: Page) => {
   await test.step("Navigate to preview", async () => {
-    await page.getByTestId("project-tab-preview").click();
+    await page.getByTestId("editor-section-preview").click();
   });
 };
 
 const navigateToPublish = async (page: Page) => {
   await test.step("Navigate to publish", async () => {
-    await page.getByTestId("project-tab-publish").click();
+    await page.getByTestId("editor-section-publish").click();
   });
 };
 
@@ -118,7 +118,7 @@ test.describe("Screener Builder Tests", () => {
   test("User can add a benefit to a Screener", async ({ page }) => {
     // Seed: screener exists, but no benefits
     await seedScreener();
-    await page.goto(`/projects/${TEST_SCREENER_ID}`);
+    await page.goto(`/screeners/${TEST_SCREENER_ID}`);
 
     const editButtonLocator = page.getByText("Edit", { exact: true });
     await expect(editButtonLocator).toHaveCount(0);
@@ -132,7 +132,7 @@ test.describe("Screener Builder Tests", () => {
     // Seed: screener with benefit exists, but no checks configured
     await seedScreenerWithBenefit();
     await seedCustomCheckWithParameter();
-    await page.goto(`/projects/${TEST_SCREENER_ID}`);
+    await page.goto(`/screeners/${TEST_SCREENER_ID}`);
     await navigateToBenefitConfig(page);
 
     await expect(
@@ -181,9 +181,9 @@ test.describe("Screener Builder Tests", () => {
     page,
   }) => {
     const { workingCheckId } = await seedCustomCheckWithParameter();
-    await page.goto(`/check/${workingCheckId}`);
+    await page.goto(`/custom-checks/${workingCheckId}`);
 
-    await page.getByTestId("project-tab-testing").click();
+    await page.getByTestId("editor-section-testing").click();
 
     await expect(page.getByText("Run Test", { exact: true })).toBeVisible();
 
@@ -198,7 +198,7 @@ test.describe("Screener Builder Tests", () => {
   test("User can create a Screener Form", async ({ page }) => {
     // Seed: screener with benefit and check configured, but no form
     await seedScreenerWithConfiguredBenefit();
-    await page.goto(`/projects/${TEST_SCREENER_ID}`);
+    await page.goto(`/screeners/${TEST_SCREENER_ID}`);
     await navigateToBenefitConfig(page);
 
     await navigateToFormEditor(page);
@@ -221,7 +221,7 @@ test.describe("Screener Builder Tests", () => {
       "Description",
       "PrimaryResidenceRequirement",
     );
-    await page.goto(`/projects/${TEST_SCREENER_ID}`);
+    await page.goto(`/screeners/${TEST_SCREENER_ID}`);
 
     await navigateToPreview(page);
 
@@ -267,7 +267,7 @@ test.describe("Screener Builder Tests", () => {
       "Description",
       "PrimaryResidenceRequirement",
     );
-    await page.goto(`/projects/${TEST_SCREENER_ID}`);
+    await page.goto(`/screeners/${TEST_SCREENER_ID}`);
 
     await navigateToPublish(page);
 

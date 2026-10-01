@@ -7,9 +7,9 @@ This guide walks through how to create, configure, test, and publish an eligibil
 
 ---
 
-## 1. Screener Projects
+## 1. Screeners
 
-After signing in, you will land on the **Screeners** view. This page displays all of your existing screener projects and serves as your starting point for creating and managing screeners.
+After signing in, you will land on the **Screeners** view. This page displays all of your existing screeners and serves as your starting point for creating and managing screeners.
 
 ![Screener dashboard with Philadelphia Homeowner Support and a Community Food Support draft.](../../../assets/screenshots/screener-dashboard.png)
 
@@ -17,7 +17,7 @@ From here, you can:
 
 - View all of your existing screeners
 - Open and edit a screener
-- Create a new screener project
+- Create a new screener
 
 **Creating a new screener**:
 
@@ -29,7 +29,7 @@ After the screener is created, you are automatically taken to the **Screener Das
 
 ## 2. The Screener Dashboard
 
-When you open a screener project, you are taken to the **Screener Dashboard** — the central workspace for building and managing your screener.
+When you open a screener, you are taken to the **Screener Dashboard** — the central workspace for building and managing your screener.
 
 At the top of the page, the navigation bar contains four tabs representing the main stages of screener development:
 

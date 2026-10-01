@@ -1,6 +1,5 @@
 import { createSignal } from "solid-js";
 import { useAuth } from "../../context/AuthContext";
-import { useNavigate } from "@solidjs/router";
 
 const firebaseErrorMessages = {
   "auth/user-not-found": "No user found with this email.",
@@ -20,13 +19,12 @@ function getFriendlyErrorMessage(firebaseError) {
   );
 }
 
-export default function Login({ toggleMode }) {
+export default function Login({ toggleMode, onSignedIn }) {
   const [email, setEmail] = createSignal("");
   const [password, setPassword] = createSignal("");
   const [error, setError] = createSignal("");
   const [isSigningIn, setIsSigningIn] = createSignal(false);
   const { loginWithGoogle, login } = useAuth();
-  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -35,7 +33,7 @@ export default function Login({ toggleMode }) {
       await login(email(), password());
       setIsSigningIn(false);
       setError(null);
-      navigate("/", { replace: true });
+      onSignedIn();
     } catch (err) {
       setError(getFriendlyErrorMessage(err));
       setIsSigningIn(false);
@@ -85,7 +83,11 @@ export default function Login({ toggleMode }) {
         Sign In
       </button>
 
-      <button className="text-gray-600 pt-4 text-center" onClick={toggleMode}>
+      <button
+        type="button"
+        className="text-gray-600 pt-4 text-center"
+        onClick={toggleMode}
+      >
         Don't have an account?&nbsp;
         <span className="text-gray-700 font-bold hover:underline hover:cursor-pointer">
           Sign Up

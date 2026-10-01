@@ -21,7 +21,7 @@ export default function NewScreenerForm({}) {
       const data = { screenerName: screenerName.toString() };
       try {
         const newScreener = await createNewScreener(data);
-        navigate(`/projects/${newScreener.id}`);
+        navigate(`/screeners/${newScreener.id}`);
       } catch (e) {
         console.log("Error creating screener", e);
       }
