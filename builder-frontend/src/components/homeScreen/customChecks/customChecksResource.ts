@@ -102,13 +102,16 @@ const customChecksResource = (): CustomChecksResource => {
     setActionInProgress(true);
     try {
       const check = (await fetchCheck(checkId)) as CustomCheckWithDmn;
-      if (check.name === name) return;
-      const dmnModel = await renameCheckDmn(check.dmnModel, check.name, name);
-      await updateCheck(checkId, {
-        name,
-        dmnModel,
-        originalDmnModel: check.dmnModel,
-      });
+      // The list can be stale, so the draft may already have this name. Skip
+      // the write but still refresh the list so it shows the saved name.
+      if (check.name !== name) {
+        const dmnModel = await renameCheckDmn(check.dmnModel, check.name, name);
+        await updateCheck(checkId, {
+          name,
+          dmnModel,
+          originalDmnModel: check.dmnModel,
+        });
+      }
       await refetchChecks();
       toast.success(
         "Draft name saved. Publish a new version to use it in screeners.",
