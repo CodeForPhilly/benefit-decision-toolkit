@@ -36,14 +36,14 @@ const PublishCheck = (props: {
     );
   };
 
+  const canPublish = () =>
+    !publishing() &&
+    !publicationLoading() &&
+    !publication.error &&
+    !unchanged();
+
   const handlePublish = async () => {
-    if (
-      publishing() ||
-      publicationLoading() ||
-      publication.error ||
-      unchanged()
-    )
-      return;
+    if (!canPublish()) return;
     setPublishing(true);
     setError("");
     setSuccess("");
@@ -153,15 +153,7 @@ const PublishCheck = (props: {
           </div>
         </Show>
       </Show>
-      <Button
-        onClick={handlePublish}
-        disabled={
-          publishing() ||
-          publicationLoading() ||
-          !!publication.error ||
-          unchanged()
-        }
-      >
+      <Button onClick={handlePublish} disabled={!canPublish()}>
         {publishing() ? "Publishing..." : "Publish Check"}
       </Button>
       <Show when={error()}>
