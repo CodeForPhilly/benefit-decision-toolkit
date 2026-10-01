@@ -11,9 +11,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -22,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -32,6 +34,7 @@ import static org.mockito.Mockito.when;
 class ExampleScreenerImportServiceTest {
 
     private static final String USER_ID = "new-user";
+    private List<EligibilityCheck> referencedSeedChecks;
     private EligibilityCheck seedCheck;
     private String seedExampleSourceId;
 
@@ -45,12 +48,10 @@ class ExampleScreenerImportServiceTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        seedCheck = findReferencedSeedCheck();
-        assumeTrue(seedCheck != null, "The example screener's benefits use no custom checks");
-        // Seed checks exported from an account that imported the example carry its identity
-        seedExampleSourceId = seedCheck.getExampleSourceId() != null
-                ? seedCheck.getExampleSourceId()
-                : ids.getWorkingId(seedCheck);
+        referencedSeedChecks = findReferencedSeedChecks();
+        assumeTrue(!referencedSeedChecks.isEmpty(), "The example screener's benefits use no custom checks");
+        seedCheck = referencedSeedChecks.get(0);
+        seedExampleSourceId = exampleSourceId(seedCheck);
         when(checkRepository.getWorkingId(any())).thenAnswer(invocation -> ids.getWorkingId(invocation.getArgument(0)));
         when(checkRepository.getPublishedId(any(), anyString()))
                 .thenAnswer(invocation -> ids.getPublishedId(invocation.getArgument(0), invocation.getArgument(1)));
@@ -59,8 +60,13 @@ class ExampleScreenerImportServiceTest {
         when(storageService.getCheckDmnModelPath(anyString())).thenAnswer(invocation -> "check/" + invocation.getArgument(0));
     }
 
-    // The first custom check a benefit uses, as the seed stores it (working or published)
-    private EligibilityCheck findReferencedSeedCheck() throws Exception {
+    // Seed checks exported from an account that imported the example carry its identity
+    private String exampleSourceId(EligibilityCheck check) {
+        return check.getExampleSourceId() != null ? check.getExampleSourceId() : ids.getWorkingId(check);
+    }
+
+    // The custom checks the benefits use, in order, as the seed stores them (working or published)
+    private List<EligibilityCheck> findReferencedSeedChecks() throws Exception {
         JsonNode manifest = readResource("seed-data/example-screener/manifest.json");
         Map<String, JsonNode> seedChecks = new HashMap<>();
         for (String collection : List.of("workingCustomChecks", "publishedCustomChecks")) {
@@ -69,17 +75,18 @@ class ExampleScreenerImportServiceTest {
                 seedChecks.put(check.path("id").asText(), check);
             }
         }
+        List<EligibilityCheck> referenced = new ArrayList<>();
         for (JsonNode screener : manifest.path("screeners")) {
             for (JsonNode benefitPath : screener.path("benefits")) {
                 for (JsonNode checkConfig : readResource(benefitPath.asText()).path("checks")) {
                     JsonNode check = seedChecks.get(checkConfig.path("sourceCheckId").asText());
                     if (check != null) {
-                        return mapper.treeToValue(check, EligibilityCheck.class);
+                        referenced.add(mapper.treeToValue(check, EligibilityCheck.class));
                     }
                 }
             }
         }
-        return null;
+        return referenced;
     }
 
     private JsonNode readResource(String path) throws Exception {
@@ -120,13 +127,21 @@ class ExampleScreenerImportServiceTest {
         renamed.setId("W-kept");
         renamed.setExampleSourceId(seedExampleSourceId);
         when(checkRepository.getAllWorkingCustomChecks(USER_ID)).thenReturn(List.of(renamed));
+        Set<String> otherSourceIds = referencedSeedChecks.stream()
+                .map(this::exampleSourceId)
+                .filter(sourceId -> !sourceId.equals(seedExampleSourceId))
+                .collect(Collectors.toSet());
+        assumeTrue(!otherSourceIds.isEmpty(), "The example screener uses only one custom check");
 
         service.importForUser(USER_ID);
 
         verify(checkRepository, never()).updateWorkingCustomCheck(any());
         // Other example checks are still imported; only the renamed one is kept as it is
-        verify(checkRepository, never()).saveNewWorkingCustomCheck(
-                argThat(check -> seedExampleSourceId.equals(check.getExampleSourceId())));
+        ArgumentCaptor<EligibilityCheck> saved = ArgumentCaptor.forClass(EligibilityCheck.class);
+        verify(checkRepository, atLeastOnce()).saveNewWorkingCustomCheck(saved.capture());
+        assertEquals(otherSourceIds, saved.getAllValues().stream()
+                .map(EligibilityCheck::getExampleSourceId)
+                .collect(Collectors.toSet()));
         ArgumentCaptor<EligibilityCheck> published = ArgumentCaptor.forClass(EligibilityCheck.class);
         verify(checkRepository, atLeastOnce()).saveNewPublishedCustomCheck(published.capture());
         assertTrue(published.getAllValues().stream().anyMatch(check -> check.getId().startsWith("P-kept-")));
