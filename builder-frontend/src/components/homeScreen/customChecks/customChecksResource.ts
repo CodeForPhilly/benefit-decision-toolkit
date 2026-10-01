@@ -110,7 +110,9 @@ const customChecksResource = (): CustomChecksResource => {
         originalDmnModel: check.dmnModel,
       });
       await refetchChecks();
-      toast.success("Check renamed.");
+      toast.success(
+        "Draft name saved. Publish a new version to use it in screeners.",
+      );
     } finally {
       setActionInProgress(false);
     }

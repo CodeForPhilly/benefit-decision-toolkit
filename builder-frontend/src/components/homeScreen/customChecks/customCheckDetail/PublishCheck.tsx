@@ -1,7 +1,8 @@
-import { Accessor, createResource, For, Show } from "solid-js";
-import { EligibilityCheck } from "@/types";
-
-import { getRelatedPublishedChecks } from "@/api/check";
+import { Accessor, createResource, createSignal, For, Show } from "solid-js";
+import type { CustomCheckWithDmn } from "@/types";
+import { fetchCheck, getRelatedPublishedChecks } from "@/api/check";
+import { Button } from "@/components/shared/Button";
+import { matchesPublishedCheck, sortPublishedChecks } from "./checkPublication";
 
 const dateFormat = new Intl.DateTimeFormat("en-US", {
   dateStyle: "medium",
@@ -10,79 +11,162 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
 const formattedDate = (datePublished?: number | null) =>
   datePublished == null ? "--" : dateFormat.format(new Date(datePublished));
 
-const PublishCheck = ({
-  eligibilityCheck,
-  publishCheck,
-}: {
-  eligibilityCheck: Accessor<EligibilityCheck>;
+const PublishCheck = (props: {
+  eligibilityCheck: Accessor<CustomCheckWithDmn>;
   publishCheck: (checkId: string) => Promise<void>;
 }) => {
-  const [relatedPublishedChecks] = createResource(
-    () => eligibilityCheck().id,
-    getRelatedPublishedChecks
+  const [publication, { refetch }] = createResource(
+    () => props.eligibilityCheck().id,
+    async (id) => {
+      const versions = sortPublishedChecks(await getRelatedPublishedChecks(id));
+      const latest = versions.length
+        ? ((await fetchCheck(versions[0].id)) as CustomCheckWithDmn)
+        : undefined;
+      return { versions, latest };
+    },
   );
-
-  const sortedPublishedChecks = () => {
-    /* Sort published checks by version in descending order */
-    const checks = relatedPublishedChecks();
-    if (!checks) return [];
-    return checks
-      .slice()
-      .sort((check1, check2) =>
-        reverseCompareVersions(check1.version, check2.version)
-      );
+  const [publishing, setPublishing] = createSignal(false);
+  const [error, setError] = createSignal("");
+  const [success, setSuccess] = createSignal("");
+  const latest = () => (publication.error ? undefined : publication()?.latest);
+  const unchanged = () => {
+    const published = latest();
+    return (
+      !!published && matchesPublishedCheck(props.eligibilityCheck(), published)
+    );
   };
 
-  // Called reverse compare because we are sorting the largest version number first
-  function reverseCompareVersions(a: string, b: string): number {
-    const aValues = normalize(a);
-    const bValues = normalize(b);
-
-    for (let i = 0; i < 3; i++) {
-      if (aValues[i] !== bValues[i]) {
-        // The order of this subtraction is what reverses the sort order
-        return bValues[i] - aValues[i];
-      }
+  const handlePublish = async () => {
+    if (publishing() || publication.loading || publication.error || unchanged())
+      return;
+    setPublishing(true);
+    setError("");
+    setSuccess("");
+    try {
+      await props.publishCheck(props.eligibilityCheck().id);
+      setSuccess(
+        "Check published. The new version is available when adding checks to a benefit.",
+      );
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Could not publish check. Please try again.",
+      );
+      setPublishing(false);
+      return;
     }
-    return 0;
-  }
-
-  function normalize(version: string): [number, number, number] {
-    const parts = version.split(".").map(Number);
-
-    while (parts.length < 3) {
-      parts.push(0);
+    try {
+      await refetch();
+    } catch {
+      // Publication succeeded. The resource's error state offers a refresh retry.
+    } finally {
+      setPublishing(false);
     }
-
-    return [parts[0], parts[1], parts[2]];
-  }
+  };
 
   return (
-    <div class="p-12">
-      <div class="text-3xl font-bold tracking-wide mb-2">
-        {eligibilityCheck().name}
-      </div>
-      <p class="text-xl mb-4">{eligibilityCheck().description}</p>
-      <div
-        onClick={() => publishCheck(eligibilityCheck().id)}
-        class="btn-default btn-blue"
+    <div class="p-4 md:p-12">
+      <h1 class="text-3xl font-bold tracking-wide mb-2">
+        {props.eligibilityCheck().name}
+      </h1>
+      <p class="text-xl mb-4">{props.eligibilityCheck().description}</p>
+      <p class="mb-4 text-gray-700">
+        Publishing creates a version of all saved changes, including the name,
+        parameters, and check logic, for use in screeners. Save and test your
+        changes before publishing. Existing benefits keep the version they
+        already use; to use the new version, remove the old check and add the
+        new one in Configure Benefit.
+      </p>
+      <Show
+        when={!publication.error}
+        fallback={
+          <div role="alert" class="mb-4 text-red-700">
+            Could not load publication status or published versions.
+            <Button
+              variant="outline-secondary"
+              class="ml-2"
+              onClick={() => void Promise.resolve(refetch()).catch(() => {})}
+            >
+              Retry
+            </Button>
+          </div>
+        }
       >
-        Publish Check
-      </div>
-      <div class="mt-8">
-        <div class="text-2xl font-bold mb-4">Published Versions</div>
         <Show
-          when={relatedPublishedChecks()}
-          fallback={<div>Loading related published checks...</div>}
+          when={!publication.loading}
+          fallback={<p class="mb-4">Loading publication status...</p>}
         >
-          <div class="flex flex-wrap gap-4">
-            <For each={sortedPublishedChecks()}>
-              {(check) => (
-                <div class="relative p-4 w-96 border-2 border-gray-200 rounded">
-                  <div class="text-lg font-bold text-gray-800 mb-2">
-                    {check.name} - {check.version}
-                  </div>
-                  <div>
+          <div class="mb-4 rounded border border-gray-300 p-4" role="status">
+            <p class="font-bold">
+              {latest()
+                ? unchanged()
+                  ? "All saved changes published"
+                  : "Unpublished changes"
+                : "Not yet published"}
+            </p>
+            <Show
+              when={latest()}
+              fallback={
+                <p>
+                  Publish this draft to make it available when adding checks to
+                  a benefit.
+                </p>
+              }
+            >
+              {(published) => (
+                <>
+                  <p>
+                    Latest published version: {published().name} —{" "}
+                    {published().version}
+                  </p>
+                  <Show when={!unchanged()}>
+                    <p>
+                      Publish a new version to make your saved changes
+                      available.
+                    </p>
+                  </Show>
+                </>
+              )}
+            </Show>
+          </div>
+        </Show>
+      </Show>
+      <Button
+        onClick={handlePublish}
+        disabled={
+          publishing() ||
+          publication.loading ||
+          !!publication.error ||
+          unchanged()
+        }
+      >
+        {publishing() ? "Publishing..." : "Publish Check"}
+      </Button>
+      <Show when={error()}>
+        <p role="alert" class="mt-3 text-red-700">
+          {error()}
+        </p>
+      </Show>
+      <Show when={success()}>
+        <p role="status" class="mt-3 text-green-800">
+          {success()}
+        </p>
+      </Show>
+      <section class="mt-8">
+        <h2 class="text-2xl font-bold mb-4">Published Versions</h2>
+        <Show when={!publication.error && !publication.loading}>
+          <Show
+            when={publication()?.versions.length}
+            fallback={<p>No published versions yet.</p>}
+          >
+            <div class="flex flex-wrap gap-4">
+              <For each={publication()?.versions}>
+                {(check) => (
+                  <div class="relative p-4 w-96 border-2 border-gray-200 rounded">
+                    <div class="text-lg font-bold text-gray-800 mb-2">
+                      {check.name} - {check.version}
+                    </div>
                     <div>
                       <span class="font-bold">Module:</span> {check.module}
                     </div>
@@ -95,12 +179,12 @@ const PublishCheck = ({
                       {formattedDate(check.datePublished)}
                     </div>
                   </div>
-                </div>
-              )}
-            </For>
-          </div>
+                )}
+              </For>
+            </div>
+          </Show>
         </Show>
-      </div>
+      </section>
     </div>
   );
 };

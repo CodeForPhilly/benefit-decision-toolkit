@@ -235,16 +235,23 @@ export const getRelatedPublishedChecks = async (
 
 export const publishCheck = async (
   checkId: string,
-): Promise<OptionalBoolean> => {
+): Promise<EligibilityCheck> => {
   const url = apiUrl + `/custom-checks/${checkId}/publish`;
   try {
     const response = await authPost(url);
 
     if (!response.ok) {
-      throw new Error(`Publish failed with status: ${response.status}`);
+      let message = `Publish failed with status: ${response.status}`;
+      try {
+        const body = await response.json();
+        if (typeof body.error === "string") message = body.error;
+      } catch {
+        // Keep the status-based fallback when the server does not return JSON.
+      }
+      throw new ApiError(message, response.status);
     }
     const data = await response.json();
-    return data["result"];
+    return data;
   } catch (error) {
     console.error("Error publishing check:", error);
     throw error; // rethrow so you can handle it in your component if needed

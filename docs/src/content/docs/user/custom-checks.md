@@ -101,6 +101,7 @@ From this view, you can:
 - View all of your custom checks
 - Create a new custom check
 - Open an existing check to edit or publish it
+- Rename a check's draft, then review and publish the new name
 - Archive a check that is no longer in use, or restore an archived check
 
 ![Custom Checks view showing the Create New Check control and the example's two custom checks.](../../../assets/screenshots/custom-checks-list.png)
@@ -120,6 +121,12 @@ For example, a check that a household has enough people for a program could be n
 ![Create New Check dialog filled with Minimum household size, the Philadelphia examples module, and a one-sentence description.](../../../assets/screenshots/custom-check-create.png)
 
 Select **Add Check**, then **Edit** on the new card to open the **Custom Check Editor**. The check includes a starter DMN model. From there, configure parameters, define the logic, test it, and publish it.
+
+### Renaming a Check
+
+Select **Rename** on a check's card, enter the new name, then select **Save draft name**. The name takes effect immediately in your draft. Publishing remains a separate action so you can review and test all saved changes first.
+
+After saving, select **Review & publish** to open the check's **Publish** tab, or **Done** to keep working on the draft. Publish a new version to make the new name available when adding checks to a benefit. Previously published versions and benefits using them keep their current names.
 
 ---
 
@@ -244,11 +251,15 @@ The **Publish** tab is where you publish your custom check to make it available 
 
 Eligibility checks use semantic versioning. Each time you publish, a new version is created. Previously published versions are preserved and remain available.
 
-> Publishing creates a snapshot of your current DMN model. Subsequent changes to the DMN definition do not affect already-published versions. You must publish again to make new changes available.
+> Publishing creates a snapshot of all saved changes, including the name, parameters, and DMN model. Save and test your changes before publishing. Subsequent edits do not affect already-published versions. You must publish again to make new changes available.
+
+The publication status shows **Not yet published**, **Unpublished changes**, or **All saved changes published**, along with the latest published name and version. When all saved changes match the latest version, the publish button is disabled.
 
 **To publish a check**:
 
-Select **Publish Check**. The new version will appear in the **Published Versions** list below, sorted from newest to oldest. The example's check is already published as version `1.0.0`, which Philly Cash uses.
+Select **Publish Check**. A success message confirms publication, and the **Published Versions** list updates immediately, sorted from newest to oldest. If publication fails, an error is displayed and you can retry. The example's check is already published as version `1.0.0`, which Philly Cash uses.
+
+Existing benefits continue using the check version they already have. To use the new version, remove the old check and add the new one in **Configure Benefit**, then configure its parameters. Republish the screener when you are ready to make that change available to its users.
 
 ![Publish tab showing Household income limit version 1.0.0 in Published Versions, with the Philadelphia examples module and one parameter.](../../../assets/screenshots/custom-check-publish.png)
 

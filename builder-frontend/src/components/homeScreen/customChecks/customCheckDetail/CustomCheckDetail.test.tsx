@@ -41,14 +41,14 @@ describe("CustomCheckDetail", () => {
     document.body.replaceChildren();
   });
 
-  function mount() {
+  function mount(url = "/custom-checks/example") {
     const [check, setCheck] = createSignal<{ id?: string; name?: string }>({});
     const [loading, setLoading] = createSignal(true);
     const [error, setError] = createSignal<unknown>();
     resource.state = { check, loading, error };
 
     const history = createMemoryHistory();
-    history.set({ value: "/custom-checks/example", replace: true });
+    history.set({ value: url, replace: true });
     const container = document.body.appendChild(document.createElement("div"));
     dispose = render(
       () => (
@@ -60,7 +60,7 @@ describe("CustomCheckDetail", () => {
     );
     const currentCrumb = () =>
       container.querySelector(".breadcrumb-current")?.textContent;
-    return { currentCrumb, setCheck, setLoading, setError };
+    return { container, currentCrumb, setCheck, setLoading, setError };
   }
 
   it("shows the check name once loaded, even while refetching", () => {
@@ -78,5 +78,14 @@ describe("CustomCheckDetail", () => {
     setError(new Error("Not found"));
     setLoading(false);
     expect(currentCrumb()).toBe("Check unavailable");
+  });
+
+  it("opens the Publish section from the rename review link", () => {
+    const { container } = mount("/custom-checks/example?tab=publish");
+    expect(
+      container
+        .querySelector('[data-testid="editor-section-publish"]')
+        ?.getAttribute("aria-current"),
+    ).toBe("true");
   });
 });

@@ -1,4 +1,4 @@
-import { Component, JSX, ParentProps } from "solid-js";
+import { Component, JSX, ParentProps, splitProps } from "solid-js";
 
 import styles from "./Button.module.css";
 
@@ -15,14 +15,19 @@ interface Props extends JSX.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const Button: Component<ParentProps<Props>> = (props) => {
-  const { type, children, ...rest } = props;
+  const [local, rest] = splitProps(props, [
+    "type",
+    "children",
+    "variant",
+    "class",
+  ]);
   return (
     <button
-      type={type || "button"}
-      class={`${styles.button} ${styles[props.variant || "primary"]} ${props.class || ""}`}
+      type={local.type || "button"}
+      class={`${styles.button} ${styles[local.variant || "primary"]} ${local.class || ""}`}
       {...rest}
     >
-      {props.children}
+      {local.children}
     </button>
   );
 };

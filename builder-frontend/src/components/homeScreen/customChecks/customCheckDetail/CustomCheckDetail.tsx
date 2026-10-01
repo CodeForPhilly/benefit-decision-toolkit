@@ -1,6 +1,6 @@
 import EditorNavigation from "@/components/shared/EditorNavigation";
 import { Accessor, createSignal, Match, Show, Switch } from "solid-js";
-import { useParams } from "@solidjs/router";
+import { useParams, useSearchParams } from "@solidjs/router";
 
 import { clsx } from "clsx";
 import toast from "solid-toast";
@@ -25,10 +25,12 @@ type CheckDetailScreenMode =
 
 const CustomCheckDetail = () => {
   const { checkId } = useParams();
+  const [searchParams] = useSearchParams();
 
   const [currentDmnModel, setCurrentDmnModel] = createSignal<string>("");
-  const [screenMode, setScreenMode] =
-    createSignal<CheckDetailScreenMode>("paramConfig");
+  const [screenMode, setScreenMode] = createSignal<CheckDetailScreenMode>(
+    searchParams.tab === "publish" ? "publish" : "paramConfig",
+  );
 
   const [validationErrors, setValidationErrors] = createSignal<string[]>([]);
   const [showingErrorModal, setShowingErrorModal] =
