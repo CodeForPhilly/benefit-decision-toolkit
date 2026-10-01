@@ -147,10 +147,12 @@ describe("app navigation", () => {
       "/custom-checks/income%20limit?source=bookmark#testing",
     ],
   ])("redirects %s to %s", async (oldUrl, newUrl) => {
-    const { history } = mount(oldUrl);
+    const { history } = mount("/custom-checks");
+    history.set({ value: oldUrl });
     await vi.waitFor(() => expect(history.get()).toBe(newUrl));
+    // Back skips the legacy URL only if the redirect replaced it.
     history.back();
-    expect(history.get()).toBe(newUrl);
+    await vi.waitFor(() => expect(history.get()).toBe("/custom-checks"));
   });
 
   it("replaces the legacy URL rather than adding an extra history entry", async () => {
