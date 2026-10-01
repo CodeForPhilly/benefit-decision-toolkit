@@ -51,6 +51,13 @@ const CustomCheckDetail = () => {
     }
   };
 
+  // The store keeps the loaded check during refetches, so show its name
+  // whenever there is one and fall back only while nothing has loaded yet.
+  const checkLabel = () => {
+    if (eligibilityCheck().id !== undefined) return eligibilityCheck().name;
+    return initialLoadStatus.error() ? "Check unavailable" : "Loading check…";
+  };
+
   const navbarDefs: Accessor<NavbarProps> = () => {
     return {
       tabDefs: [
@@ -89,7 +96,7 @@ const CustomCheckDetail = () => {
         navProps={navbarDefs}
         items={[
           { label: "Custom Checks", href: "/custom-checks" },
-          { label: eligibilityCheck().name || "Loading check…" },
+          { label: checkLabel() },
         ]}
       />
       <Show

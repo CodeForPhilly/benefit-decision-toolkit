@@ -6,6 +6,7 @@ import { render } from "solid-js/web";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import ScreenerEditor from "./ScreenerEditor";
+import { fetchScreener } from "@/api/screener";
 
 vi.mock("@/api/screener", () => ({
   fetchScreener: vi.fn(async () => ({
@@ -40,7 +41,7 @@ describe("ScreenerEditor", () => {
     document.body.replaceChildren();
   });
 
-  it("returns from Configure Benefit when Manage Benefits is selected", async () => {
+  function mount() {
     const history = createMemoryHistory();
     history.set({ value: "/screeners/example", replace: true });
     const container = document.body.appendChild(document.createElement("div"));
@@ -54,6 +55,27 @@ describe("ScreenerEditor", () => {
       ),
       container,
     );
+    return container;
+  }
+
+  const currentCrumb = (container: HTMLElement) =>
+    container.querySelector(".breadcrumb-current")?.textContent;
+
+  it("shows the loading label only while the screener loads", async () => {
+    let resolveScreener!: (screener: unknown) => void;
+    vi.mocked(fetchScreener).mockReturnValueOnce(
+      new Promise((resolve) => (resolveScreener = resolve)),
+    );
+    const container = mount();
+    await vi.waitFor(() =>
+      expect(currentCrumb(container)).toBe("Loading screener…"),
+    );
+    resolveScreener({ screenerName: "", formSchema: {} });
+    await vi.waitFor(() => expect(currentCrumb(container)).toBe(""));
+  });
+
+  it("returns from Configure Benefit when Manage Benefits is selected", async () => {
+    const container = mount();
     const button = (text: string) =>
       [...container.querySelectorAll("button")].find(
         (b) => b.textContent === text,

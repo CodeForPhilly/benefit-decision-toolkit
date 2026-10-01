@@ -42,6 +42,13 @@ function ScreenerEditor() {
     fetchAndCacheScreener,
   );
 
+  // `latest` keeps the loaded screener during refetches; reading it after a
+  // failed load would throw, so check the error first.
+  const screenerLabel = () => {
+    if (screener.error) return "Screener unavailable";
+    return screener.latest?.screenerName ?? "Loading screener…";
+  };
+
   const navbarDefs: Accessor<NavbarProps> = () => {
     return {
       tabDefs: [
@@ -79,7 +86,7 @@ function ScreenerEditor() {
         navProps={screener.loading ? undefined : navbarDefs}
         items={[
           { label: "Screeners", href: "/screeners" },
-          { label: screener()?.screenerName || "Loading screener…" },
+          { label: screenerLabel() },
         ]}
       />
       {screener.loading ? (
