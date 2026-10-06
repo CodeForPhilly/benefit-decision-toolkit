@@ -28,6 +28,15 @@ public class CheckConfig {
     public CheckConfig() {
     }
 
+    /* The check this configuration evaluates. Older configurations kept it in checkId. */
+    public String resolveSourceCheckId() {
+        return sourceCheckId != null && !sourceCheckId.isBlank() ? sourceCheckId : checkId;
+    }
+
+    public static boolean isLibraryCheckId(String checkId) {
+        return checkId != null && checkId.startsWith("L");
+    }
+
     public CheckConfig(
         String checkId,
         String sourceCheckId,

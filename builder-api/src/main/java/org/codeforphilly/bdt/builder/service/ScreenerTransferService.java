@@ -59,7 +59,7 @@ public class ScreenerTransferService {
             benefit.setOwnerId(null);
             for (CheckConfig config : configs(benefit)) {
                 String source = sourceId(config);
-                if (source.startsWith("L")) continue;
+                if (CheckConfig.isLibraryCheckId(source)) continue;
                 // Only the versions the screener uses are shared, never the author's unpublished draft.
                 if (customChecks.containsKey(source)) continue;
                 customChecks.put(source, portableCheck(loadCheck(owner, source)));
@@ -109,7 +109,7 @@ public class ScreenerTransferService {
         for (Benefit benefit : transfer.benefits()) {
             for (CheckConfig config : configs(benefit)) {
                 String source = sourceId(config);
-                if (source.startsWith("L") && !libraryChecks.containsKey(source)) {
+                if (CheckConfig.isLibraryCheckId(source) && !libraryChecks.containsKey(source)) {
                     libraryChecks.put(source, library.getScreenerCheckById(source).orElseThrow(() ->
                             new BadRequestException("Library check " + source + " is unavailable on this server.")));
                 }
@@ -159,7 +159,7 @@ public class ScreenerTransferService {
                 for (CheckConfig config : configs(benefit)) {
                     String source = sourceId(config);
                     config.setCheckId(UUID.randomUUID().toString());
-                    if (source.startsWith("L")) {
+                    if (CheckConfig.isLibraryCheckId(source)) {
                         // Use this server's endpoint, never a URL supplied by the file.
                         config.setSourceCheckId(source);
                         config.setEvaluationUrl(libraryChecks.get(source).getEvaluationUrl());
@@ -408,7 +408,7 @@ public class ScreenerTransferService {
             for (CheckConfig config : configs(benefit)) {
                 if (config == null || blank(config.getCheckName())) throw new BadRequestException("Invalid configured check.");
                 String source = sourceId(config);
-                if (source.startsWith("L")) continue;
+                if (CheckConfig.isLibraryCheckId(source)) continue;
                 EligibilityCheck check = byId.get(source);
                 if (check == null) throw new BadRequestException("Missing custom check " + source);
                 if (!Objects.equals(config.getCheckName(), check.getName())
@@ -455,7 +455,7 @@ public class ScreenerTransferService {
     }
 
     private String sourceId(CheckConfig config) {
-        String id = blank(config.getSourceCheckId()) ? config.getCheckId() : config.getSourceCheckId();
+        String id = config.resolveSourceCheckId();
         if (blank(id)) throw new BadRequestException("A configured check is missing its source ID.");
         return id;
     }

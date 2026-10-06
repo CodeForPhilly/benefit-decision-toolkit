@@ -8,7 +8,7 @@ import type {
   ScreenerResult,
 } from "@/types";
 
-import { errorMessage } from "./screenerTransfer";
+import { apiErrorFrom } from "./check";
 
 const apiUrl = env.apiUrl;
 
@@ -53,9 +53,7 @@ export const createNewScreener = async (request: {
     const response = await authPost(url.toString(), request);
 
     if (!response.ok) {
-      throw new Error(
-        await errorMessage(response, "Could not create the screener."),
-      );
+      throw await apiErrorFrom(response, "Could not create the screener");
     }
     const data = await response.json();
     return data;
@@ -75,9 +73,7 @@ export const updateScreener = async (
     const response = await authPatch(url.toString(), request);
 
     if (!response.ok) {
-      throw new Error(
-        await errorMessage(response, "Could not update the screener."),
-      );
+      throw await apiErrorFrom(response, "Could not update the screener");
     }
   } catch (error) {
     console.error("Error updating screener:", error);

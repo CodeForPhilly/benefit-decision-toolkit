@@ -121,9 +121,9 @@ public class ExampleScreenerImportService {
                     continue;
                 }
                 for (CheckConfig checkConfig : benefit.getChecks()) {
-                    String sourceCheckId = resolveSourceCheckId(checkConfig);
+                    String sourceCheckId = checkConfig.resolveSourceCheckId();
                     if (sourceCheckId != null
-                            && !isLibraryCheckId(sourceCheckId)) {
+                            && !CheckConfig.isLibraryCheckId(sourceCheckId)) {
                         referencedCustomCheckIds.add(sourceCheckId);
                     }
                 }
@@ -340,9 +340,9 @@ public class ExampleScreenerImportService {
                     .convertValue(seedCheck, CheckConfig.class);
             importedCheck.setCheckId(UUID.randomUUID().toString());
 
-            String sourceCheckId = resolveSourceCheckId(seedCheck);
+            String sourceCheckId = seedCheck.resolveSourceCheckId();
             if (sourceCheckId != null) {
-                if (isLibraryCheckId(sourceCheckId)) {
+                if (CheckConfig.isLibraryCheckId(sourceCheckId)) {
                     importedCheck.setSourceCheckId(sourceCheckId);
                 } else {
                     String remappedSourceCheckId = importedCustomCheckIds
@@ -364,18 +364,6 @@ public class ExampleScreenerImportService {
 
     private EligibilityCheck cloneEligibilityCheck(EligibilityCheck seedCheck) {
         return objectMapper.convertValue(seedCheck, EligibilityCheck.class);
-    }
-
-    private String resolveSourceCheckId(CheckConfig checkConfig) {
-        if (checkConfig.getSourceCheckId() != null
-                && !checkConfig.getSourceCheckId().isBlank()) {
-            return checkConfig.getSourceCheckId();
-        }
-        return checkConfig.getCheckId();
-    }
-
-    private boolean isLibraryCheckId(String checkId) {
-        return checkId != null && checkId.startsWith("L");
     }
 
     private SeedData loadSeedData(Manifest manifest) throws IOException {
