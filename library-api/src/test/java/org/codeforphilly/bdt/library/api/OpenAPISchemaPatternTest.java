@@ -146,7 +146,7 @@ public class OpenAPISchemaPatternTest {
 
         List<Map<String, Object>> loopChecks = openApiSpec.getList(
             "paths.'/api/v1/benefits/pa/phl/loop'.post.'x-bdt-benefit'.checks");
-        assertEquals(9, loopChecks.size());
+        assertEquals(8, loopChecks.size());
         Map<String, Object> years = loopChecks.stream()
             .filter(check -> "MinYearsOwnerOccupantService".equals(check.get("operationId")))
             .findFirst().orElseThrow();

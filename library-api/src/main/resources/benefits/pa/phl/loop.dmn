@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <dmn:definitions xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:kie="https://kie.org/dmn/extensions/1.0" id="_AB0B3660-E4A3-4291-BAED-572248443A82" name="PhlLoop" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_FCEECA1A-0994-43DB-BF4D-F17D2D1C2C5B" xmlns="https://kie.apache.org/dmn/_FCEECA1A-0994-43DB-BF4D-F17D2D1C2C5B" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:included1="https://kie.apache.org/dmn/_9514D95A-63FB-4345-911B-D83E1867F709" xmlns:included2="https://kie.apache.org/dmn/_3B9E68B5-63FA-437C-AF93-CC12DDD00BC5" xmlns:included3="https://kie.apache.org/dmn/_47ECD886-CEBE-47BC-BD4F-06113DCDE5D8" xmlns:included4="https://kie.apache.org/dmn/_5FD5AE82-65B3-44EF-98CC-651E88F93786" xmlns:included5="https://kie.apache.org/dmn/_7CF18264-8908-42B1-8D1B-838863020556" xmlns:included6="https://kie.apache.org/dmn/_DAB3F35C-2DCB-4A58-AC98-74EF174731A8" xmlns:included7="https://kie.apache.org/dmn/_70055967-EC4F-4900-B499-53DFE6337AA6" xmlns:included8="https://kie.apache.org/dmn/_E6D4D573-2C2C-4EE3-BC52-4351F39E5E06" xmlns:included9="https://kie.apache.org/dmn/_5B6F0640-F1FF-4AFF-9D7A-A58FCA052672" xmlns:included10="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included11="https://kie.apache.org/dmn/_6E9D53A6-E99A-4060-9E3E-1AE12EAB5465">
-  <dmn:description>Philadelphia Longtime Owner Occupants Program (LOOP) for new applicants. Homestead recipients must remove that exemption to enroll; historical owner/close-relative abatements are excluded.</dmn:description>
+  <dmn:description>Philadelphia Longtime Owner Occupants Program (LOOP) for new applicants. Homestead recipients can qualify but must remove that exemption when they enroll; historical owner/close-relative abatements are excluded.</dmn:description>
   <dmn:extensionElements />
   <dmn:import id="_10DBCBB0-652E-4EF2-8FBF-F03CD798EF48" name="Benefits" namespace="https://kie.apache.org/dmn/_9514D95A-63FB-4345-911B-D83E1867F709" locationURI="../../Benefits.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
   <dmn:import id="_64CC0578-0346-40D4-A867-2760AA61556F" name="PersonNotEnrolledInBenefit" namespace="https://kie.apache.org/dmn/_3B9E68B5-63FA-437C-AF93-CC12DDD00BC5" locationURI="../../../checks/enrollment/person-not-enrolled-in-benefit.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
@@ -241,37 +241,6 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_70D46A52-5001-4FB6-AC5F-1DC3F83F577A" name="NotOnHomestead" typeRef="boolean" />
-        <dmn:invocation id="_32F124BE-75FA-481D-8021-43FC3607898F">
-          <dmn:literalExpression id="_3D78C67B-8024-4124-A293-C0590D0A1866">
-            <dmn:text>PersonNotEnrolledInBenefit.PersonNotEnrolledInBenefitService</dmn:text>
-          </dmn:literalExpression>
-          <dmn:binding>
-            <dmn:parameter id="_2583F7B2-C7AC-49CA-A701-7410057222D9" name="situation" typeRef="PersonNotEnrolledInBenefit.tSituation" />
-            <dmn:literalExpression id="_5D4BD124-DCA5-4216-9B87-DBDFEDC4EF6F">
-              <dmn:text>situation</dmn:text>
-            </dmn:literalExpression>
-          </dmn:binding>
-          <dmn:binding>
-            <dmn:parameter id="_D10ABADC-B36E-44F2-923F-B688A7FE70F5" name="parameters" typeRef="PersonNotEnrolledInBenefit.tParameters" />
-            <dmn:context id="_B1B20ED1-347F-4FEA-BF91-DB99A0A9FEFC">
-              <dmn:contextEntry>
-                <dmn:variable id="_D2803C28-E2BB-4780-B167-7EEEA6A06E7C" name="personId" typeRef="string" />
-                <dmn:literalExpression id="_593EBD74-A1FF-4E88-A48A-E6F42739FAD1">
-                  <dmn:text>situation.primaryPersonId</dmn:text>
-                </dmn:literalExpression>
-              </dmn:contextEntry>
-              <dmn:contextEntry>
-                <dmn:variable id="_6368406A-1CD7-4C7C-84B7-70109C4528B9" name="benefit" typeRef="string" />
-                <dmn:literalExpression id="_5FBC69A5-BEED-4F39-938B-C6B27C8F9877">
-                  <dmn:text>"PhlHomesteadExemption"</dmn:text>
-                </dmn:literalExpression>
-              </dmn:contextEntry>
-            </dmn:context>
-          </dmn:binding>
-        </dmn:invocation>
-      </dmn:contextEntry>
-      <dmn:contextEntry>
         <dmn:variable id="_7369BCA9-1F4C-45B5-970E-B3DBF8AD8878" name="NoDisqualifyingTaxAbatement" typeRef="boolean" />
         <dmn:invocation id="_0FEEAD23-6567-41C5-8B96-4893C7E0A64B">
           <dmn:literalExpression id="_7A8B5B8D-9B6D-4DBD-A4AF-D2650CD7BA35">
@@ -419,27 +388,6 @@
             </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_3A13F8F3-3FB5-4D8B-92C9-D30C583C999F">
             <kie:width>290</kie:width>
-          </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_32F124BE-75FA-481D-8021-43FC3607898F">
-            <kie:width>50</kie:width>
-            <kie:width>239</kie:width>
-            <kie:width>290</kie:width>
-          </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_3D78C67B-8024-4124-A293-C0590D0A1866">
-            </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_5D4BD124-DCA5-4216-9B87-DBDFEDC4EF6F">
-            <kie:width>290</kie:width>
-          </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_B1B20ED1-347F-4FEA-BF91-DB99A0A9FEFC">
-            <kie:width>50</kie:width>
-            <kie:width>120</kie:width>
-            <kie:width>100</kie:width>
-          </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_593EBD74-A1FF-4E88-A48A-E6F42739FAD1">
-            <kie:width>100</kie:width>
-          </kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_5FBC69A5-BEED-4F39-938B-C6B27C8F9877">
-            <kie:width>100</kie:width>
           </kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_0FEEAD23-6567-41C5-8B96-4893C7E0A64B">
             <kie:width>50</kie:width>

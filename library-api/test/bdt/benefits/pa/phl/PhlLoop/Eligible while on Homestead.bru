@@ -1,5 +1,5 @@
 meta {
-  name: Fails NotOnHomestead
+  name: Eligible while on Homestead
   type: http
   seq: 9
 }
@@ -38,6 +38,5 @@ body:json {
 
 assert {
   res.status: eq 200
-  res.body.isEligible: eq false
-  res.body.checks.NotOnHomestead: eq false
+  res.body.isEligible: eq true
 }
