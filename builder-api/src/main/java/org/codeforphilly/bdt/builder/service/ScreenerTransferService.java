@@ -57,17 +57,9 @@ public class ScreenerTransferService {
             for (CheckConfig config : configs(benefit)) {
                 String source = sourceId(config);
                 if (source.startsWith("L")) continue;
+                // Only the versions the screener uses are shared, never the author's unpublished draft.
                 if (customChecks.containsKey(source)) continue;
-                EligibilityCheck check = loadCheck(owner, source);
-                customChecks.put(source, portableCheck(check));
-                String workingId = checks.getWorkingId(check);
-                if (!customChecks.containsKey(workingId)) {
-                    Optional<EligibilityCheck> working = checks.getWorkingCustomCheck(owner, workingId, true);
-                    if (working.isPresent()) {
-                        requireOwnedCheck(owner, working.get());
-                        customChecks.put(workingId, portableCheck(working.get()));
-                    }
-                }
+                customChecks.put(source, portableCheck(loadCheck(owner, source)));
             }
         }
         return new ScreenerTransfer(ScreenerTransfer.FORMAT, ScreenerTransfer.VERSION,

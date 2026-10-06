@@ -58,7 +58,9 @@ The import dialog prefills the exported screener name and requires a different n
 
 Import creates a new unpublished screener for the
 signed-in user. Files contain a `bdt-screener` format marker and `formatVersion: 1`.
-Custom checks retain an `originCheckId` across imports and later exports. Existing
+Exports include only the custom-check versions the benefits reference, never the
+author's unpublished draft; a new family's draft is seeded from its latest included
+version. Custom checks retain an `originCheckId` across imports and later exports. Existing
 families and matching published versions are reused; missing versions are added,
 and recipient draft edits are preserved. Conflicting published content (or a
 referenced draft that differs) returns a readable 409 error. Unrelated checks

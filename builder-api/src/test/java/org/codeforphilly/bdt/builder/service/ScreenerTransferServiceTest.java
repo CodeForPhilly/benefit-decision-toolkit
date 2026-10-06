@@ -80,7 +80,8 @@ class ScreenerTransferServiceTest {
         String json = mapper.writeValueAsString(export);
         assertFalse(json.contains("ownerId\":\"sender"));
         assertFalse(json.contains("public-link"));
-        assertEquals(3, export.customChecks().size());
+        assertEquals(List.of("P-family-1.0.0", "P-family-2.0.0"),
+                export.customChecks().stream().map(EligibilityCheck::getId).sorted().toList());
         // Exercise the exact single-file representation, including embedded XML.
         Screener imported = service.importScreener("recipient", mapper.readValue(json, ScreenerTransfer.class));
         assertNotEquals(source.getId(), imported.getId());
@@ -106,7 +107,7 @@ class ScreenerTransferServiceTest {
         ArgumentCaptor<EligibilityCheck> savedDraft = ArgumentCaptor.forClass(EligibilityCheck.class);
         verify(checks).saveNewWorkingCustomCheck(savedDraft.capture());
         EligibilityCheck importedDraft = savedDraft.getValue();
-        assertEquals("3.0.0", importedDraft.getVersion());
+        assertEquals("2.0.0", importedDraft.getVersion());
         assertEquals("recipient", importedDraft.getOwnerId());
         assertFalse(importedDraft.getIsArchived());
         assertNull(importedDraft.getExampleSourceId());
@@ -426,7 +427,7 @@ class ScreenerTransferServiceTest {
         when(screeners.getBenefitsInScreener(source)).thenReturn(List.of(benefits.get(0), unlisted));
         ScreenerTransfer export = service.exportScreener("sender", source.getId());
         assertEquals(List.of("benefit-b"), export.benefits().stream().map(Benefit::getId).toList());
-        assertEquals(2, export.customChecks().size());
+        assertEquals(1, export.customChecks().size());
     }
 
     @Test
@@ -471,7 +472,7 @@ class ScreenerTransferServiceTest {
     void archivedChecksAlreadyUsedByAScreenerCanBeShared() throws Exception {
         draft.setIsArchived(true);
         ScreenerTransfer export = service.exportScreener("sender", source.getId());
-        assertTrue(export.customChecks().stream().anyMatch(EligibilityCheck::getIsArchived));
+        assertEquals(2, export.customChecks().size());
         service.importScreener("recipient", export);
         ArgumentCaptor<EligibilityCheck> saved = ArgumentCaptor.forClass(EligibilityCheck.class);
         verify(checks).saveNewWorkingCustomCheck(saved.capture());
@@ -479,10 +480,11 @@ class ScreenerTransferServiceTest {
     }
 
     @Test
-    void publishedModelCanSupplyAnEditableDraftWhenTheOriginalDraftIsMissing() throws Exception {
-        doReturn(Optional.empty()).when(checks).getWorkingCustomCheck("sender", "W-family", true);
+    void unpublishedDraftIsNotSharedAndTheLatestUsedVersionSeedsTheRecipientDraft() throws Exception {
+        // The author's draft is mid-edit and no longer has a decision named after the check.
+        draft.setDmnModel("<definitions xmlns=\"https://www.omg.org/spec/DMN/20240513/MODEL/\" name=\"Income\"/>");
         ScreenerTransfer export = service.exportScreener("sender", source.getId());
-        assertEquals(2, export.customChecks().size());
+        assertTrue(export.customChecks().stream().noneMatch(c -> c.getId().startsWith("W-")));
         service.importScreener("recipient", export);
         ArgumentCaptor<EligibilityCheck> saved = ArgumentCaptor.forClass(EligibilityCheck.class);
         verify(checks).saveNewWorkingCustomCheck(saved.capture());

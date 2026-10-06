@@ -164,10 +164,18 @@ test("the bundled example can be chosen, exported, and imported with its interna
     expect(response.ok(), await response.text()).toBe(true);
     return response.json();
   };
-  const originalIds = exported.customChecks
-    .filter((check: any) => check.id.startsWith("W-"))
-    .map((check: any) => check.id)
-    .sort();
+  // Only the versions the screener uses are shared, never the author's drafts.
+  expect(
+    exported.customChecks.every((check: any) => check.id.startsWith("P-")),
+  ).toBe(true);
+  const originalIds = [
+    ...new Set(
+      exported.customChecks.map(
+        (check: any) =>
+          `W-${check.id.slice(2, -(check.version.length + 1))}`,
+      ),
+    ),
+  ].sort();
   expect(originalIds).toHaveLength(2);
   expect(
     (await readWorking(account.idToken)).map((check: any) => check.id).sort(),
