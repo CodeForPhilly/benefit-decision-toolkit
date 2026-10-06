@@ -197,6 +197,15 @@ class ScreenerTransferServiceTest {
     }
 
     @Test
+    void storedCheckWithAMalformedIdDoesNotBlockImport() throws Exception {
+        EligibilityCheck malformed = check("P-legacy", "1.0.0");
+        malformed.setOwnerId("recipient");
+        doReturn(List.of(malformed)).when(checks).getCustomChecksForImport("recipient");
+        service.importScreener("recipient", service.exportScreener("sender", source.getId()));
+        verify(checks).saveNewWorkingCustomCheck(any());
+    }
+
+    @Test
     void unrelatedCheckWithSameNameGetsItsOwnFamilyAndModule() throws Exception {
         EligibilityCheck unrelated = check("W-unrelated", "1.0.0");
         unrelated.setOwnerId("recipient");

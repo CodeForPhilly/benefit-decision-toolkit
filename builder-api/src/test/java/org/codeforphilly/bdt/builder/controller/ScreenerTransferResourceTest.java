@@ -66,6 +66,14 @@ class ScreenerTransferResourceTest {
     }
 
     @Test
+    void rejectedImportKeepsItsStatusInsteadOfAskingForARetry() throws Exception {
+        when(service.importScreener("recipient", null)).thenThrow(new ForbiddenException());
+        try (var response = resource.importScreener(identity, null)) {
+            assertEquals(403, response.getStatus());
+        }
+    }
+
+    @Test
     void forbiddenExportReturnsForbidden() throws Exception {
         when(service.exportScreener("recipient", "other-screener")).thenThrow(new ForbiddenException());
         try (var response = resource.exportScreener(identity, "other-screener")) {

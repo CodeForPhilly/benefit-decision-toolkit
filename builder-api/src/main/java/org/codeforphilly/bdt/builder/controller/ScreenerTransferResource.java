@@ -46,6 +46,8 @@ public class ScreenerTransferResource {
             return Response.status(409).entity(Map.of("error", conflict.getMessage())).build();
         } catch (BadRequestException rejected) {
             return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", rejected.getMessage())).build();
+        } catch (WebApplicationException rejected) {
+            return rejected.getResponse();
         } catch (Exception failure) {
             Log.error("Could not import screener", failure);
             return Response.serverError().entity(Map.of("error", "Could not import the screener. Please try again.")).build();

@@ -115,7 +115,7 @@ public class ScreenerTransferService {
             }
         }
         // Decide every reuse/conflict before reserving names or writing any artifact.
-        List<EligibilityCheck> existing = checks.getCustomChecksForImport(owner);
+        List<EligibilityCheck> existing = matchableChecks(checks.getCustomChecksForImport(owner));
         CheckImportPlan plan = planChecks(owner, originals, existing, transfer);
         Deque<Cleanup> cleanup = new ArrayDeque<>();
         try {
@@ -196,6 +196,20 @@ public class ScreenerTransferService {
             }
             throw failure;
         }
+    }
+
+    /* A stored check whose ID does not match its version has no family to match, so import leaves it alone. */
+    private List<EligibilityCheck> matchableChecks(List<EligibilityCheck> stored) {
+        List<EligibilityCheck> matchable = new ArrayList<>();
+        for (EligibilityCheck check : stored) {
+            try {
+                checks.getWorkingId(check);
+                matchable.add(check);
+            } catch (IllegalArgumentException malformed) {
+                Log.warn("Ignoring custom check " + check.getId() + " while importing: " + malformed.getMessage());
+            }
+        }
+        return matchable;
     }
 
     private String originId(EligibilityCheck check) {
