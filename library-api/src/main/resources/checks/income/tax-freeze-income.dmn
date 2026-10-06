@@ -64,9 +64,17 @@ else situation.applicantAndSpouseIncome &lt;= (if BDT.spouse id(situation.relati
         <dc:Bounds x="172.0" y="520" width="160" height="80" />
         <dmndi:DMNLabel />
       </dmndi:DMNShape>
+      <dmndi:DMNShape id="_CB6E2B97-02F5-4090-ABE6-E5E21D995D88" dmnElementRef="included1:_14EAB512-0E33-419C-9630-BA0265476B6E" isCollapsed="false">
+        <dc:Bounds x="172" y="20" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
       <dmndi:DMNEdge id="_45E6EE7A-2337-4093-B17A-CEE45BC0C9DA" dmnElementRef="_8D4DED9E-E8B3-4175-97CA-812C5EF50762" sourceElement="_F25A7772-863C-41D5-A7B1-F64F0878EA82" targetElement="_527F699B-E9B9-452C-ABC4-FD4CAF3F03A9">
         <di:waypoint x="252.0" y="520" />
         <di:waypoint x="252.0" y="250" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="_BC45676E-B1BC-4E17-9452-080C62DA8655" dmnElementRef="_A6F1C0D8-2B47-4E93-8C5A-71D3E9B4F026" sourceElement="_CB6E2B97-02F5-4090-ABE6-E5E21D995D88" targetElement="_527F699B-E9B9-452C-ABC4-FD4CAF3F03A9">
+        <di:waypoint x="252" y="100" />
+        <di:waypoint x="252" y="170" />
       </dmndi:DMNEdge>
     </dmndi:DMNDiagram>
   </dmndi:DMNDI>

@@ -60,9 +60,17 @@
         <dc:Bounds x="160.0" y="520" width="160" height="80" />
         <dmndi:DMNLabel />
       </dmndi:DMNShape>
+      <dmndi:DMNShape id="_38C0DD38-6F2B-473A-BDE9-E7C2FE769036" dmnElementRef="included2:_2C8F5A13-94D6-4E7B-B1A0-6F3E8D2C7B95" isCollapsed="false">
+        <dc:Bounds x="160" y="20" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
       <dmndi:DMNEdge id="_6C89EC14-A677-4879-96BA-23FF368C74FF" dmnElementRef="_0E9CC6C5-07AB-4EC9-8985-6EA4230EDC30" sourceElement="_720D272E-59AA-4A33-B571-C558F641645D" targetElement="_148BEE2D-BFEA-45CA-BBDA-1DEB5C2E0BA5">
         <di:waypoint x="240.0" y="520" />
         <di:waypoint x="240.0" y="250" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="_8D6D92A4-04FA-4961-A48C-52D12BB48E94" dmnElementRef="_B3E8F1A4-7C26-4D95-8A0B-2E6D9C4F1A57" sourceElement="_38C0DD38-6F2B-473A-BDE9-E7C2FE769036" targetElement="_148BEE2D-BFEA-45CA-BBDA-1DEB5C2E0BA5">
+        <di:waypoint x="240" y="100" />
+        <di:waypoint x="240" y="170" />
       </dmndi:DMNEdge>
     </dmndi:DMNDiagram>
   </dmndi:DMNDI>

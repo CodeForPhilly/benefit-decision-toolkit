@@ -149,6 +149,10 @@ else situation.simpleChecks.spouseLivesInHousehold and PersonMinAge.PersonMinAge
           <di:waypoint x="380" y="50" />
         </dmndi:DMNDecisionServiceDividerLine>
       </dmndi:DMNShape>
+      <dmndi:DMNShape id="_3BF00550-CCAC-42C7-9A98-61C981DBB072" dmnElementRef="included1:_14EAB512-0E33-419C-9630-BA0265476B6E" isCollapsed="false">
+        <dc:Bounds x="440" y="20" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
       <dmndi:DMNEdge id="_B7C8A9BA-698B-4C35-8D05-9C92E42A4614" dmnElementRef="_FB3A2EE1-93FE-4D39-98AA-5B41355DBE15" sourceElement="_BDC7C04F-0F64-4553-B5BF-11AB6BADB703" targetElement="_CCA4FA7F-5BE8-4513-9622-04628B2AEBF7">
         <di:waypoint x="190.0" y="520" />
         <di:waypoint x="291.2" y="250" />
@@ -160,6 +164,10 @@ else situation.simpleChecks.spouseLivesInHousehold and PersonMinAge.PersonMinAge
       <dmndi:DMNEdge id="_4B4E4D6C-BD7C-4789-87E6-E8017F0AB67C" dmnElementRef="_B6C10AA3-5585-406E-9126-D8EECD54EF6C" sourceElement="_8E2152DB-6204-4936-BB86-8A889D090066" targetElement="_CCA4FA7F-5BE8-4513-9622-04628B2AEBF7">
         <di:waypoint x="230.0" y="100" />
         <di:waypoint x="298.6" y="170" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="_5B40036A-1D91-4F1A-A763-97C03D08DA9A" dmnElementRef="_3E8D1F4A-6B2C-4D7E-9A15-C4F0B8E2D961" sourceElement="_3BF00550-CCAC-42C7-9A98-61C981DBB072" targetElement="_CCA4FA7F-5BE8-4513-9622-04628B2AEBF7">
+        <di:waypoint x="520" y="100" />
+        <di:waypoint x="320" y="170" />
       </dmndi:DMNEdge>
     </dmndi:DMNDiagram>
   </dmndi:DMNDI>
