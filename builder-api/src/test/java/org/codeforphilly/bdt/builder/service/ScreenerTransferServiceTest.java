@@ -420,6 +420,16 @@ class ScreenerTransferServiceTest {
     }
 
     @Test
+    void exportFollowsTheEditorsBenefitListWhenStoredBenefitsDisagree() throws Exception {
+        // A partly failed benefit create or delete leaves the list and the stored benefits out of step.
+        Benefit unlisted = new Benefit("benefit-orphan", "Orphan", null, "sender", List.of());
+        when(screeners.getBenefitsInScreener(source)).thenReturn(List.of(benefits.get(0), unlisted));
+        ScreenerTransfer export = service.exportScreener("sender", source.getId());
+        assertEquals(List.of("benefit-b"), export.benefits().stream().map(Benefit::getId).toList());
+        assertEquals(2, export.customChecks().size());
+    }
+
+    @Test
     void refusesExportsForOtherUsersBeforeReadingArtifacts() throws Exception {
         assertThrows(ForbiddenException.class, () -> service.exportScreener("recipient", source.getId()));
         verify(screeners, never()).getWorkingScreener(anyString());

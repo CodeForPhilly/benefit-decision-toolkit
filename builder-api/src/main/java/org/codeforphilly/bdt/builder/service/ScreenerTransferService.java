@@ -38,15 +38,19 @@ public class ScreenerTransferService {
         List<Benefit> benefits = new ArrayList<>();
         Map<String, Benefit> byId = new HashMap<>();
         for (Benefit benefit : screeners.getBenefitsInScreener(screener)) byId.put(benefit.getId(), benefit);
-        // The screener's benefit list determines the order shown in the editor.
+        // Export what the editor shows: its benefit list, in order. Benefit writes are not atomic with that
+        // list, so skip entries without a stored benefit and stored benefits the list no longer includes.
         if (screener.getBenefits() != null) {
             for (BenefitDetail detail : screener.getBenefits()) {
                 Benefit benefit = byId.remove(detail.getId());
-                if (benefit == null) throw new IllegalStateException("Missing screener benefit");
+                if (benefit == null) {
+                    Log.warn("Exporting screener " + id + " without missing benefit " + detail.getId());
+                    continue;
+                }
                 benefits.add(copy(benefit, Benefit.class));
             }
         }
-        if (!byId.isEmpty()) throw new IllegalStateException("Screener benefit list is inconsistent");
+        if (!byId.isEmpty()) Log.warn("Exporting screener " + id + " without unlisted benefits " + byId.keySet());
         Map<String, EligibilityCheck> customChecks = new LinkedHashMap<>();
         for (Benefit benefit : benefits) {
             benefit.setOwnerId(null);
