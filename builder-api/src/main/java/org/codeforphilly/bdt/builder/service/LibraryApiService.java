@@ -197,6 +197,30 @@ public class LibraryApiService {
         return benefits;
     }
 
+    /**
+     * A screener can reference composition-only checks carried by a library benefit.
+     * Resolve those against trusted benefit metadata without adding them to the public picker.
+     */
+    public Optional<EligibilityCheck> getScreenerCheckById(String id) {
+        return getById(id).or(() -> benefits.stream()
+            .filter(benefit -> benefit.getChecks() != null)
+            .flatMap(benefit -> benefit.getChecks().stream())
+            .filter(config -> id.equals(config.getSourceCheckId() != null
+                ? config.getSourceCheckId() : config.getCheckId()))
+            .findFirst()
+            .map(config -> {
+                EligibilityCheck check = new EligibilityCheck();
+                check.setId(id);
+                check.setName(config.getCheckName());
+                check.setModule(config.getCheckModule());
+                check.setVersion(config.getCheckVersion());
+                check.setEvaluationUrl(config.getEvaluationUrl());
+                check.setInputDefinition(config.getInputDefinition());
+                check.setParameterDefinitions(config.getParameterDefinitions());
+                return check;
+            }));
+    }
+
     public Optional<Benefit> getBenefitById(String id) {
         return benefits.stream()
             .filter(benefit -> id.equals(benefit.getId()))

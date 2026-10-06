@@ -85,6 +85,10 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
     public String saveNewWorkingScreener(Screener screener) throws Exception{
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(screener, Map.class);
+        data.remove("formSchema");
+        if (screener.getId() != null) {
+            return FirestoreUtils.persistDocumentWithId(CollectionNames.WORKING_SCREENER_COLLECTION, screener.getId(), data);
+        }
         return FirestoreUtils.persistDocument(CollectionNames.WORKING_SCREENER_COLLECTION, data);
     }
 

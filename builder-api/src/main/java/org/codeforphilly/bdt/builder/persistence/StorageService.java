@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface StorageService {
+    void deleteFile(String filePath) throws Exception;
+
     void writeStringToStorage(String filePath, String content, String contentType) throws Exception;
 
     void writeBytesToStorage(String filePath, byte[] content, String contentType);

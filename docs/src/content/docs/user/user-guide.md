@@ -20,12 +20,21 @@ From here, you can:
 - View all of your existing screeners
 - Open and edit a screener
 - Create a new screener
+- Import a screener shared by another analyst
 
 **Creating a new screener**:
 
 Select **Create new screener** and provide a name for your screener. The name should clearly reflect the benefit or set of benefits being screened (for example, "Philadelphia Senior Benefits" or "Housing Assistance Eligibility").
 
 After the screener is created, you are automatically taken to the **Screener Dashboard**.
+
+### Sharing a screener
+
+Save your changes, then return to **Screeners**, open the menu on the screener's card, and select **Export screener**. BDT downloads one `.bdt.json` file containing the saved benefits, configured check versions, parameters, aliases, custom-check rules and drafts, and form. Share this file with the recipient.
+
+To open a shared screener, select **Import screener** on the **Screeners** page, choose the JSON file (up to 10 MB), and select **Import screener** in the dialog. BDT opens a new editable draft owned by your account. You can preview, edit, and publish it with its own public URL.
+
+Each import creates independent copies of the custom checks. If a custom check's name and module already exist in your account, the copy goes into a module with an `imported` suffix. The screener keeps the check versions used by the sender. Library checks use your BDT server's library and must be available there; a file with missing checks is rejected before anything is imported.
 
 ---
 

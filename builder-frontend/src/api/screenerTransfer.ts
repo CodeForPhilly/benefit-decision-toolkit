@@ -1,0 +1,60 @@
+import { authGet, authPost } from "@/api/auth";
+import { env } from "@/config/environment";
+
+export const MAX_SCREENER_FILE_BYTES = 10 * 1024 * 1024;
+
+async function errorMessage(response: Response, fallback: string) {
+  try {
+    const body = await response.json();
+    if (typeof body.error === "string") return body.error;
+  } catch {
+    // Keep a readable fallback for non-JSON responses.
+  }
+  return fallback;
+}
+
+export async function exportScreener(screenerId: string): Promise<Blob> {
+  const response = await authGet(
+    `${env.apiUrl}/screener/${encodeURIComponent(screenerId)}/export`,
+  );
+  if (!response.ok) {
+    throw new Error(
+      await errorMessage(response, "Could not export the screener."),
+    );
+  }
+  return response.blob();
+}
+
+export async function importScreener(file: File): Promise<{ id: string }> {
+  if (file.size > MAX_SCREENER_FILE_BYTES) {
+    throw new Error("Choose a screener file smaller than 10 MB.");
+  }
+  let data: unknown;
+  try {
+    data = JSON.parse(await file.text());
+  } catch {
+    throw new Error(
+      "This file is not valid JSON. Choose a BDT screener export.",
+    );
+  }
+  const response = await authPost(`${env.apiUrl}/screener/import`, data);
+  if (!response.ok) {
+    throw new Error(
+      await errorMessage(response, "Could not import the screener."),
+    );
+  }
+  return response.json();
+}
+
+export async function downloadScreener(screenerId: string, name: string) {
+  const blob = await exportScreener(screenerId);
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${name.replace(/[^a-zA-Z0-9_-]+/g, "-") || "screener"}.bdt.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  // Allow the browser to start the download before releasing the object URL.
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}

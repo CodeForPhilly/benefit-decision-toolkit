@@ -65,6 +65,34 @@ public class LibraryApiServiceTest {
     }
 
     @Test
+    void screenerCheckLookupIncludesCompositionChecksFromBenefitMetadata() throws Exception {
+        LibraryApiService service = new LibraryApiService();
+        service.loadMetadata("""
+            {"checks":[{"id":"L-public-0.9.0","name":"public"}],"benefits":[{
+              "id":"sctf","name":"Senior Citizen Tax Freeze","checks":[{
+                "checkId":"L-internal-sctf-age-requirement-0.9.0",
+                "sourceCheckId":"L-internal-sctf-age-requirement-0.9.0",
+                "checkName":"sctf-age-requirement","checkModule":"internal","checkVersion":"0.9.0",
+                "evaluationUrl":"/api/v1/checks/internal/sctf-age-requirement",
+                "parameters":{},"parameterDefinitions":[]
+              }]
+            }]}
+            """);
+
+        String id = "L-internal-sctf-age-requirement-0.9.0";
+        var check = service.getScreenerCheckById(id).orElseThrow();
+        assertEquals(id, check.getId());
+        assertEquals("internal", check.getModule());
+        assertEquals("sctf-age-requirement", check.getName());
+        assertEquals("0.9.0", check.getVersion());
+        assertEquals("/api/v1/checks/internal/sctf-age-requirement", check.getEvaluationUrl());
+        assertTrue(service.getById(id).isEmpty());
+        assertEquals(1, service.getAll().size());
+        assertTrue(service.getScreenerCheckById("L-public-0.9.0").isPresent());
+        assertTrue(service.getScreenerCheckById("L-internal-sctf-age-requirement-99.0.0").isEmpty());
+    }
+
+    @Test
     void loadMetadata_acceptsLegacyCheckArray() throws Exception {
         LibraryApiService service = new LibraryApiService();
         service.loadMetadata("[{\"id\":\"check-1\",\"name\":\"check\",\"module\":\"module\"}]");

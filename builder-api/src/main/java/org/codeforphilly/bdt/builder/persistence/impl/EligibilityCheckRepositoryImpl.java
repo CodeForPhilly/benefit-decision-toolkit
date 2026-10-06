@@ -103,6 +103,10 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
     }
 
     public Optional<EligibilityCheck> getPublishedCustomCheck(String userId, String checkId){
+        return getPublishedCustomCheck(userId, checkId, false);
+    }
+
+    public Optional<EligibilityCheck> getPublishedCustomCheck(String userId, String checkId, boolean includeArchived){
         Optional<EligibilityCheck> publishedCheckOpt = getCustomCheck(userId, checkId, true);
         if (publishedCheckOpt.isEmpty()) {
             return Optional.empty();
@@ -114,7 +118,7 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
         Optional<EligibilityCheck> workingCheckOpt = getWorkingCustomCheck(userId, workingCheckId, true);
 
         // If working check exists and is archived, return empty
-        if (workingCheckOpt.isPresent() && workingCheckOpt.get().getIsArchived()) {
+        if (!includeArchived && workingCheckOpt.isPresent() && workingCheckOpt.get().getIsArchived()) {
             return Optional.empty();
         }
 
@@ -166,6 +170,11 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
 
     public void deleteWorkingCustomCheck(String checkId) throws Exception {
         FirestoreUtils.deleteDocument(CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION, checkId);
+    }
+
+    @Override
+    public void deletePublishedCustomCheck(String checkId) throws Exception {
+        FirestoreUtils.deleteDocument(CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION, checkId);
     }
 
     public String saveNewPublishedCustomCheck(EligibilityCheck check) throws Exception {

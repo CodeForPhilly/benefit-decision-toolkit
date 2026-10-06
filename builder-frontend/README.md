@@ -49,3 +49,11 @@ The authenticated editor uses three consistent navigation levels:
 The account menu contains User Guide, Logout, and the development-only example
 export. Published `/screener/:publishedScreenerId` pages remain outside the editor
 navigation.
+
+## Screener sharing
+
+The Screeners page offers **Import screener**. Each screener card's menu offers
+**Export screener**, which downloads the saved draft as a single `.bdt.json` file.
+Import creates a new unpublished screener and independent custom checks for the
+signed-in user. Files contain a `bdt-screener` format marker and `formatVersion: 1`.
+Library check references are resolved against the receiving server's library.

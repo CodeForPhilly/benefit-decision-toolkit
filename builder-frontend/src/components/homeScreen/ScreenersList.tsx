@@ -10,6 +10,8 @@ import { useNavigate } from "@solidjs/router";
 
 import EditScreenerForm, { EditModalData } from "./EditScreenerForm";
 import NewScreenerForm from "./NewScreenerForm";
+import ImportScreenerForm from "./ImportScreenerForm";
+import { Button } from "@/components/shared/Button";
 import MenuIcon from "../icon/MenuIcon";
 
 import {
@@ -28,6 +30,7 @@ export default function ScreenersList() {
   const [isNewScreenerModalVisible, setIsNewScreenerModalVisible] =
     createSignal(false);
   const [isEditModalVisible, setIsEditModalVisible] = createSignal(false);
+  const [isImportModalVisible, setIsImportModalVisible] = createSignal(false);
   const [editModelData, setEditModalData] = createSignal<EditModalData | null>(
     null,
   );
@@ -117,6 +120,19 @@ export default function ScreenersList() {
         >
           Create new screener
         </button>
+        <Button
+          class="mt-2 w-fit"
+          variant="outline-primary"
+          onClick={() => setIsImportModalVisible(true)}
+        >
+          Import screener
+        </Button>
+        <Modal
+          show={isImportModalVisible()}
+          onClose={() => setIsImportModalVisible(false)}
+        >
+          <ImportScreenerForm />
+        </Modal>
         <Modal
           show={isNewScreenerModalVisible()}
           onClose={() => setIsNewScreenerModalVisible(false)}

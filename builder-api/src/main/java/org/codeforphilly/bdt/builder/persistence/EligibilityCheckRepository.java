@@ -27,6 +27,8 @@ public interface EligibilityCheckRepository {
 
     Optional<EligibilityCheck> getPublishedCustomCheck(String userId, String checkId);
 
+    Optional<EligibilityCheck> getPublishedCustomCheck(String userId, String checkId, boolean includeArchived);
+
     String getWorkingId(EligibilityCheck check);
 
     String newWorkingId();
@@ -45,6 +47,8 @@ public interface EligibilityCheckRepository {
     void updateWorkingCustomCheck(EligibilityCheck check) throws Exception;
 
     void deleteWorkingCustomCheck(String checkId) throws Exception;
+
+    void deletePublishedCustomCheck(String checkId) throws Exception;
 
     void updatePublishedCustomCheck(EligibilityCheck check) throws Exception;
 

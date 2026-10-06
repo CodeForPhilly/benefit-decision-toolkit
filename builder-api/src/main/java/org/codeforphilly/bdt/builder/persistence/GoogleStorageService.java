@@ -18,6 +18,11 @@ import java.util.Optional;
 
 @ApplicationScoped
 public class GoogleStorageService implements StorageService {
+    @Override
+    public void deleteFile(String filePath) {
+        storage.delete(BlobId.of(bucketName, filePath));
+    }
+
     @Inject
     Storage storage;
 
