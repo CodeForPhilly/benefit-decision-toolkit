@@ -8,6 +8,14 @@ import java.util.Optional;
 
 public interface EligibilityCheckRepository {
 
+    /* Strict metadata read, including archived drafts and all published versions. */
+    List<EligibilityCheck> getCustomChecksForImport(String userId) throws Exception;
+
+    /* Prevents concurrent imports from creating separate families for the same origin. */
+    void reserveImportIdentity(String ownerId, String originId, String workingId) throws Exception;
+
+    void releaseImportIdentity(String ownerId, String originId, String workingId) throws Exception;
+
     List<EligibilityCheck> getWorkingCustomChecks(String userId);
 
     List<EligibilityCheck> getAllWorkingCustomChecks(String userId);

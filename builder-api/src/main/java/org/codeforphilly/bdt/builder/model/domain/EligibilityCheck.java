@@ -21,6 +21,8 @@ public class EligibilityCheck {
     private Boolean isArchived;
     // working id of the example check this was imported from, so re-imports survive renames
     private String exampleSourceId;
+    // Original family identity, preserved through screener exports and imports across accounts.
+    private String originCheckId;
     // milliseconds since the epoch at which a published version was saved; null for working checks
     private Long datePublished;
 
@@ -137,6 +139,10 @@ public class EligibilityCheck {
     public void setExampleSourceId(String exampleSourceId) {
         this.exampleSourceId = exampleSourceId;
     }
+
+    public String getOriginCheckId() { return originCheckId; }
+
+    public void setOriginCheckId(String originCheckId) { this.originCheckId = originCheckId; }
 
     public Long getDatePublished() {
         return datePublished;

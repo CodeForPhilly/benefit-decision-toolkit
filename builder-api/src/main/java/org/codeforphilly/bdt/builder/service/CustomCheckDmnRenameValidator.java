@@ -27,6 +27,28 @@ public class CustomCheckDmnRenameValidator {
         }
     }
 
+    public boolean equivalentModels(String left, String right) throws Exception {
+        Element original = parse(left).getDocumentElement();
+        Element imported = parse(right).getDocumentElement();
+        removeIndentation(original);
+        removeIndentation(imported);
+        return original.isEqualNode(imported);
+    }
+
+    private void removeIndentation(org.w3c.dom.Node node) {
+        boolean hasElements = false;
+        for (var child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
+            if (child.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) hasElements = true;
+        }
+        for (var child = node.getFirstChild(); child != null;) {
+            var next = child.getNextSibling();
+            if (hasElements && child.getNodeType() == org.w3c.dom.Node.TEXT_NODE && child.getNodeValue().isBlank())
+                node.removeChild(child);
+            else removeIndentation(child);
+            child = next;
+        }
+    }
+
     private Document parse(String xml) throws Exception {
         if (xml.startsWith("\"")) {
             xml = new com.fasterxml.jackson.databind.ObjectMapper().readValue(xml, String.class);

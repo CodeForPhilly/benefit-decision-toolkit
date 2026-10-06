@@ -56,6 +56,12 @@ The Screeners page offers **Import screener**. Each screener card's menu offers
 **Export screener**, which downloads the saved draft as a single `.bdt.json` file.
 The import dialog prefills the exported screener name and requires a different name if it already exists in the account. Creation, rename, and import enforce per-user name uniqueness, ignoring case and surrounding spaces.
 
-Import creates a new unpublished screener and independent custom checks for the
+Import creates a new unpublished screener for the
 signed-in user. Files contain a `bdt-screener` format marker and `formatVersion: 1`.
+Custom checks retain an `originCheckId` across imports and later exports. Existing
+families and matching published versions are reused; missing versions are added,
+and recipient draft edits are preserved. Conflicting published content (or a
+referenced draft that differs) returns a readable 409 error. Unrelated checks
+with the same name remain separate and receive an `imported` module suffix.
+Older exports without `originCheckId` use their original working family ID.
 Library check references are resolved against the receiving server's library.

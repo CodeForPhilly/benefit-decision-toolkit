@@ -36,6 +36,45 @@ public class EligibilityCheckRepositoryImpl implements EligibilityCheckRepositor
     @Inject
     private StorageService storageService;
 
+    @Override
+    public List<EligibilityCheck> getCustomChecksForImport(String userId) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        List<EligibilityCheck> all = new ArrayList<>();
+        for (String collection : List.of(CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION,
+                CollectionNames.PUBLISHED_CUSTOM_CHECK_COLLECTION)) {
+            for (Map<String, Object> data : FirestoreUtils.getFirestoreDocsByFields(collection,
+                    Map.of(FieldNames.OWNER_ID, userId))) {
+                all.add(mapper.convertValue(data, EligibilityCheck.class));
+            }
+        }
+        return all;
+    }
+
+    @Override
+    public void reserveImportIdentity(String ownerId, String originId, String workingId) throws Exception {
+        long now = System.currentTimeMillis();
+        FirestoreUtils.createDocumentUnlessHeld(CollectionNames.CUSTOM_CHECK_ORIGIN_COLLECTION,
+                importIdentityId(ownerId, originId),
+                Map.of("ownerId", ownerId, "originCheckId", originId, "checkId", workingId, "reservedAt", now),
+                (existing, reader) -> existing.get("reservedAt") instanceof Number reservedAt
+                        && now - reservedAt.longValue() >= ABANDONED_RESERVATION_MILLIS
+                        && existing.get("checkId") instanceof String holder
+                        && reader.get(CollectionNames.WORKING_CUSTOM_CHECK_COLLECTION, holder).isEmpty());
+    }
+
+    @Override
+    public void releaseImportIdentity(String ownerId, String originId, String workingId) throws Exception {
+        String id = importIdentityId(ownerId, originId);
+        var reservation = FirestoreUtils.getFirestoreDocById(CollectionNames.CUSTOM_CHECK_ORIGIN_COLLECTION, id);
+        if (reservation.isPresent() && workingId.equals(reservation.get().get("checkId")))
+            FirestoreUtils.deleteDocument(CollectionNames.CUSTOM_CHECK_ORIGIN_COLLECTION, id);
+    }
+
+    private String importIdentityId(String ownerId, String originId) {
+        return URLEncoder.encode(ownerId, StandardCharsets.UTF_8) + ":"
+                + URLEncoder.encode(originId, StandardCharsets.UTF_8);
+    }
+
     public List<EligibilityCheck> getWorkingCustomChecks(String userId){
         return getAllWorkingCustomChecks(userId).stream()
                 .filter(check -> !check.getIsArchived())

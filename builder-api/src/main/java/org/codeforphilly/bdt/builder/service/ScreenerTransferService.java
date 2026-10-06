@@ -88,6 +88,7 @@ public class ScreenerTransferService {
     private EligibilityCheck portableCheck(EligibilityCheck original) {
         EligibilityCheck check = copy(original, EligibilityCheck.class);
         if (blank(check.getDmnModel())) throw new IllegalStateException("Missing custom check DMN model");
+        check.setOriginCheckId(originId(original));
         check.setOwnerId(null);
         check.setExampleSourceId(null);
         check.setDatePublished(null);
@@ -113,48 +114,39 @@ public class ScreenerTransferService {
                 }
             }
         }
-        Map<String, String> newWorkingIds = new LinkedHashMap<>();
-        Map<String, EligibilityCheck> workingCopies = new LinkedHashMap<>();
-        for (EligibilityCheck original : originals.values()) {
-            String family = checks.getWorkingId(original);
-            newWorkingIds.computeIfAbsent(family, ignored -> checks.newWorkingId());
-            EligibilityCheck candidate = workingCopies.get(family);
-            if (candidate == null || original.getId().startsWith("W-")
-                    || (!candidate.getId().startsWith("W-")
-                        && CheckVersion.compare(original.getVersion(), candidate.getVersion()) > 0)) {
-                workingCopies.put(family, copy(original, EligibilityCheck.class));
-            }
-        }
+        // Decide every reuse/conflict before reserving names or writing any artifact.
+        List<EligibilityCheck> existing = checks.getCustomChecksForImport(owner);
+        CheckImportPlan plan = planChecks(owner, originals, existing, transfer);
         Deque<Cleanup> cleanup = new ArrayDeque<>();
         try {
-            // A collision gets a separate module, keeping decision names and DMN XML intact.
-            List<EligibilityCheck> existing = checks.getAllWorkingCustomChecks(owner);
-            for (var entry : workingCopies.entrySet()) {
-                EligibilityCheck working = entry.getValue();
-                working.setId(newWorkingIds.get(entry.getKey()));
-                resetCheckOwnership(working, owner);
-                reserveImportedName(working, existing);
+            List<EligibilityCheck> occupiedNames = new ArrayList<>(existing.stream()
+                    .filter(check -> owner.equals(check.getOwnerId()) && check.getId().startsWith("W-")).toList());
+            for (FamilyImport family : plan.families().values()) {
+                if (!family.createWorking()) continue;
+                EligibilityCheck working = family.working();
+                if (family.newFamily()) {
+                    try {
+                        checks.reserveImportIdentity(owner, working.getOriginCheckId(), working.getId());
+                    } catch (DocumentAlreadyExistsException concurrentImport) {
+                        throw new CustomCheckImportConflictException("Another import is creating check "
+                                + working.getName() + ". Please retry the import.");
+                    }
+                    cleanup.push(() -> checks.releaseImportIdentity(owner, working.getOriginCheckId(), working.getId()));
+                }
+                reserveImportedName(working, occupiedNames);
                 cleanup.push(() -> checks.releaseCheckName(owner, working.getModule(), working.getName(), working.getId()));
-                existing = new ArrayList<>(existing);
-                existing.add(working);
-            }
-            Map<String, String> remappedIds = new HashMap<>();
-            for (var entry : workingCopies.entrySet()) {
-                EligibilityCheck working = entry.getValue();
-                remappedIds.put(entry.getKey(), working.getId());
-                cleanup.push(() -> checks.deleteWorkingCustomCheck(working.getId()));
+                occupiedNames.add(working);
                 saveCheck(working, false, cleanup);
             }
-            for (EligibilityCheck original : originals.values()) {
-                if (!original.getId().startsWith("P-")) continue;
-                String family = checks.getWorkingId(original);
-                EligibilityCheck published = copy(original, EligibilityCheck.class);
-                resetCheckOwnership(published, owner);
-                published.setModule(workingCopies.get(family).getModule());
-                published.setId(newWorkingIds.get(family));
-                published.setId(checks.getPublishedId(published, published.getVersion()));
-                remappedIds.put(original.getId(), published.getId());
-                cleanup.push(() -> checks.deletePublishedCustomCheck(published.getId()));
+            for (EligibilityCheck published : plan.publishedToCreate()) {
+                // A new family's module may have changed while reserving its name.
+                String workingId = checks.getWorkingId(published);
+                for (FamilyImport family : plan.families().values()) {
+                    if (family.working().getId().equals(workingId)) {
+                        published.setModule(family.working().getModule());
+                        break;
+                    }
+                }
                 saveCheck(published, true, cleanup);
             }
             List<Benefit> benefits = new ArrayList<>();
@@ -171,9 +163,10 @@ public class ScreenerTransferService {
                         config.setSourceCheckId(source);
                         config.setEvaluationUrl(libraryChecks.get(source).getEvaluationUrl());
                     } else {
-                        config.setSourceCheckId(remappedIds.get(source));
+                        EligibilityCheck target = plan.destinations().get(source);
+                        config.setSourceCheckId(target.getId());
                         config.setEvaluationUrl(null);
-                        config.setCheckModule(workingCopies.get(checks.getWorkingId(originals.get(source))).getModule());
+                        config.setCheckModule(target.getModule());
                     }
                 }
                 benefits.add(benefit);
@@ -205,15 +198,138 @@ public class ScreenerTransferService {
         }
     }
 
+    private String originId(EligibilityCheck check) {
+        if (!blank(check.getOriginCheckId())) return check.getOriginCheckId();
+        if (!blank(check.getExampleSourceId())) return check.getExampleSourceId();
+        return checks.getWorkingId(check);
+    }
+
+    private CheckImportPlan planChecks(String owner, Map<String, EligibilityCheck> originals,
+                                       List<EligibilityCheck> existing, ScreenerTransfer transfer) throws Exception {
+        Map<String, EligibilityCheck> draftSources = new LinkedHashMap<>();
+        Set<String> referencedWorking = new HashSet<>();
+        for (Benefit benefit : transfer.benefits()) {
+            for (CheckConfig config : configs(benefit)) {
+                if (sourceId(config).startsWith("W-")) referencedWorking.add(sourceId(config));
+            }
+        }
+        for (EligibilityCheck original : originals.values()) {
+            String family = checks.getWorkingId(original);
+            EligibilityCheck candidate = draftSources.get(family);
+            if (candidate == null || original.getId().startsWith("W-")
+                    || (!candidate.getId().startsWith("W-")
+                        && CheckVersion.compare(original.getVersion(), candidate.getVersion()) > 0)) {
+                draftSources.put(family, original);
+            }
+        }
+        Map<String, FamilyImport> families = new LinkedHashMap<>();
+        Map<String, EligibilityCheck> destinations = new HashMap<>();
+        List<EligibilityCheck> publishedToCreate = new ArrayList<>();
+        for (var entry : draftSources.entrySet()) {
+            String sourceFamily = entry.getKey();
+            String origin = originId(entry.getValue());
+            List<EligibilityCheck> matches = existing.stream()
+                    .filter(check -> owner.equals(check.getOwnerId()))
+                    .filter(check -> origin.equals(originId(check)) || origin.equals(checks.getWorkingId(check))
+                            || sourceFamily.equals(checks.getWorkingId(check)))
+                    .toList();
+            Set<String> matchingFamilies = new HashSet<>();
+            for (EligibilityCheck match : matches) matchingFamilies.add(checks.getWorkingId(match));
+            if (matchingFamilies.size() > 1)
+                throw new CustomCheckImportConflictException("Several checks share the original identity of "
+                        + entry.getValue().getName() + ". Resolve those duplicates before importing.");
+            boolean newFamily = matchingFamilies.isEmpty();
+            String workingId = newFamily ? checks.newWorkingId() : matchingFamilies.iterator().next();
+            EligibilityCheck working = matches.stream().filter(check -> workingId.equals(check.getId()))
+                    .findFirst().orElse(null);
+            boolean createWorking = working == null;
+            if (createWorking) {
+                working = copy(entry.getValue(), EligibilityCheck.class);
+                working.setId(workingId);
+                working.setOriginCheckId(origin);
+                resetCheckOwnership(working, owner);
+            } else if (referencedWorking.contains(sourceFamily)) {
+                working = loadCheck(owner, workingId);
+                requireSameContent(entry.getValue(), working, true);
+            }
+            families.put(sourceFamily, new FamilyImport(working, createWorking, newFamily));
+            destinations.put(sourceFamily, working);
+        }
+        for (EligibilityCheck original : originals.values()) {
+            if (!original.getId().startsWith("P-")) continue;
+            FamilyImport family = families.get(checks.getWorkingId(original));
+            String id = checks.getPublishedId(family.working(), original.getVersion());
+            EligibilityCheck metadata = existing.stream().filter(check -> id.equals(check.getId())).findFirst().orElse(null);
+            EligibilityCheck target;
+            if (metadata != null) {
+                requireOwnedCheck(owner, metadata);
+                target = loadCheck(owner, id);
+                requireSameContent(original, target, false);
+            } else {
+                target = copy(original, EligibilityCheck.class);
+                target.setId(id);
+                target.setOriginCheckId(originId(original));
+                target.setModule(family.working().getModule());
+                resetCheckOwnership(target, owner);
+                publishedToCreate.add(target);
+            }
+            destinations.put(original.getId(), target);
+        }
+        return new CheckImportPlan(families, destinations, publishedToCreate);
+    }
+
+    private void requireSameContent(EligibilityCheck incoming, EligibilityCheck existing, boolean working) {
+        boolean same = false;
+        try {
+            same = Objects.equals(incoming.getName(), existing.getName())
+                    && Objects.equals(incoming.getVersion(), existing.getVersion())
+                    && Objects.equals(normalizeInputDefinition(incoming), normalizeInputDefinition(existing))
+                    && mapper.valueToTree(incoming.getParameterDefinitions() == null ? List.of() : incoming.getParameterDefinitions())
+                        .equals(mapper.valueToTree(existing.getParameterDefinitions() == null ? List.of() : existing.getParameterDefinitions()))
+                    && !blank(existing.getDmnModel())
+                    && new CustomCheckDmnRenameValidator().equivalentModels(incoming.getDmnModel(), existing.getDmnModel());
+        } catch (Exception invalidModel) {
+            // An unreadable existing model cannot safely be reused.
+        }
+        if (!same) throw new CustomCheckImportConflictException(working
+                ? "The imported screener uses a draft of check " + incoming.getName()
+                    + " that differs from your draft. Publish and use a check version before exporting."
+                : "Check " + incoming.getName() + " version " + incoming.getVersion()
+                    + " already exists with different rules or parameter definitions. The screener was not imported.");
+    }
+
+    private com.fasterxml.jackson.databind.JsonNode normalizeInputDefinition(EligibilityCheck check) {
+        var definition = check.getInputDefinition();
+        return definition == null || definition.isNull() ? null : definition;
+    }
+
     private void saveCheck(EligibilityCheck check, boolean published, Deque<Cleanup> cleanup) throws Exception {
         String dmn = check.getDmnModel();
-        check.setDmnModel(null);
+        EligibilityCheck metadata = copy(check, EligibilityCheck.class);
+        metadata.setDmnModel(null);
+        // Claim the document before touching its XML. A losing concurrent create never overwrites it.
+        try {
+            if (published) checks.saveNewPublishedCustomCheck(metadata);
+            else checks.saveNewWorkingCustomCheck(metadata);
+        } catch (DocumentAlreadyExistsException concurrentCreate) {
+            if (!published) throw new CustomCheckImportConflictException("Another import created this check. Please retry.");
+            EligibilityCheck winner = loadCheck(check.getOwnerId(), check.getId());
+            requireSameContent(check, winner, false);
+            check.setModule(winner.getModule());
+            return;
+        }
+        cleanup.push(() -> {
+            if (published) checks.deletePublishedCustomCheck(check.getId());
+            else checks.deleteWorkingCustomCheck(check.getId());
+        });
         String path = storage.getCheckDmnModelPath(check.getId());
         cleanup.push(() -> storage.deleteFile(path));
         storage.writeStringToStorage(path, dmn, "application/xml");
-        if (published) checks.saveNewPublishedCustomCheck(check);
-        else checks.saveNewWorkingCustomCheck(check);
     }
+
+    private record FamilyImport(EligibilityCheck working, boolean createWorking, boolean newFamily) {}
+    private record CheckImportPlan(Map<String, FamilyImport> families, Map<String, EligibilityCheck> destinations,
+                                   List<EligibilityCheck> publishedToCreate) {}
 
     private void resetCheckOwnership(EligibilityCheck check, String owner) {
         check.setOwnerId(owner);
@@ -262,6 +378,17 @@ public class ScreenerTransferService {
             } catch (Exception invalid) { throw new BadRequestException("Invalid DMN model or ID for check " + check.getName()); }
             if (byId.putIfAbsent(check.getId(), check) != null)
                 throw new BadRequestException("Duplicate custom check ID.");
+        }
+        Map<String, String> familyOrigins = new HashMap<>();
+        Map<String, String> originFamilies = new HashMap<>();
+        for (EligibilityCheck check : byId.values()) {
+            String family = checks.getWorkingId(check);
+            String origin = originId(check);
+            String priorOrigin = familyOrigins.putIfAbsent(family, origin);
+            String priorFamily = originFamilies.putIfAbsent(origin, family);
+            if ((priorOrigin != null && !priorOrigin.equals(origin))
+                    || (priorFamily != null && !priorFamily.equals(family)))
+                throw new BadRequestException("Custom check family identities are inconsistent.");
         }
         Set<String> benefitIds = new HashSet<>();
         Set<String> referencedFamilies = new HashSet<>();

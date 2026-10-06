@@ -8,6 +8,7 @@ import jakarta.ws.rs.core.*;
 import org.codeforphilly.bdt.builder.auth.AuthUtils;
 import org.codeforphilly.bdt.builder.model.dto.screener.ScreenerTransfer;
 import org.codeforphilly.bdt.builder.service.ScreenerTransferService;
+import org.codeforphilly.bdt.builder.service.CustomCheckImportConflictException;
 import java.util.Map;
 import org.codeforphilly.bdt.builder.persistence.DuplicateScreenerNameException;
 
@@ -41,6 +42,8 @@ public class ScreenerTransferResource {
             return Response.status(Response.Status.CREATED).entity(transferService.importScreener(owner, transfer)).build();
         } catch (DuplicateScreenerNameException duplicate) {
             return Response.status(409).entity(Map.of("error", duplicate.getMessage())).build();
+        } catch (CustomCheckImportConflictException conflict) {
+            return Response.status(409).entity(Map.of("error", conflict.getMessage())).build();
         } catch (BadRequestException rejected) {
             return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", rejected.getMessage())).build();
         } catch (Exception failure) {

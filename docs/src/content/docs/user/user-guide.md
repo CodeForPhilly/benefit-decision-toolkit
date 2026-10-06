@@ -34,7 +34,7 @@ Save your changes, then return to **Screeners**, open the menu on the screener's
 
 To open a shared screener, select **Import screener** on the **Screeners** page, choose the JSON file (up to 10 MB), and review the prefilled **Screener name**. If that name already exists in your account, choose a different name before selecting **Import screener** in the dialog. Screener names are unique within your account, ignoring case and surrounding spaces. BDT opens a new editable draft owned by your account. You can preview, edit, and publish it with its own public URL.
 
-Each import creates independent copies of the custom checks. If a custom check's name and module already exist in your account, the copy goes into a module with an `imported` suffix. The screener keeps the check versions used by the sender. Library checks use your BDT server's library and must be available there; a file with missing checks is rejected before anything is imported.
+Custom checks keep their original identity when shared. Import reuses checks already in your account, keeps your draft edits, and adds any missing published versions. If the same check version contains different rules or parameter definitions, BDT rejects the import and explains the conflict. A screener that directly uses a changed draft is also rejected; publish and select a version before sharing it. Checks with a different identity remain separate even if their names match; a module with an `imported` suffix resolves those name collisions. The screener keeps the check versions used by the sender. Library checks use your BDT server's library and must be available there; a file with missing checks is rejected before anything is imported.
 
 ---
 

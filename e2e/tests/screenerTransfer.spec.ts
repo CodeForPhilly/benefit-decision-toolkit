@@ -35,7 +35,7 @@ test.describe("Screener sharing", () => {
   test.beforeEach(authLogin);
   test.afterEach(resetEmulator);
 
-  test("exports and imports a complete screener with independent custom checks", async ({
+  test("exports and imports a complete screener while reusing its custom checks", async ({
     page,
   }) => {
     await seedScreenerWithForm("Shared screener");
@@ -161,12 +161,11 @@ test.describe("Screener sharing", () => {
       { timeout: 15000 },
     );
 
-    // The two working copies must remain distinct, even when importing into the sender's account.
+    // Importing back into the same account keeps the original custom-check family.
     const workingChecks = (await getCollection("workingCustomCheck")) as any;
-    expect(workingChecks.documents).toHaveLength(2);
-    const copy = workingChecks.documents.find(
-      (document: any) => document.fields.id.stringValue !== workingCheckId,
+    expect(workingChecks.documents).toHaveLength(1);
+    expect(workingChecks.documents[0].fields.id.stringValue).toBe(
+      workingCheckId,
     );
-    expect(copy.fields.module.stringValue).toBe("e2e (imported 2)");
   });
 });

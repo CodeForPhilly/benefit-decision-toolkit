@@ -31,6 +31,9 @@ class ScreenerTransferServiceTest {
     @BeforeEach
     void setup() throws Exception {
         doReturn(List.of()).when(checks).getAllWorkingCustomChecks(anyString());
+        doReturn(List.of()).when(checks).getCustomChecksForImport(anyString());
+        doNothing().when(checks).reserveImportIdentity(anyString(), anyString(), anyString());
+        doNothing().when(checks).releaseImportIdentity(anyString(), anyString(), anyString());
         doNothing().when(checks).reserveCheckName(anyString(), anyString(), anyString(), anyString());
         doNothing().when(checks).releaseCheckName(anyString(), anyString(), anyString(), anyString());
         doAnswer(invocation -> invocation.<EligibilityCheck>getArgument(0).getId()).when(checks).saveNewWorkingCustomCheck(any());
@@ -107,6 +110,7 @@ class ScreenerTransferServiceTest {
         assertEquals("recipient", importedDraft.getOwnerId());
         assertFalse(importedDraft.getIsArchived());
         assertNull(importedDraft.getExampleSourceId());
+        assertEquals("example", importedDraft.getOriginCheckId());
         ArgumentCaptor<EligibilityCheck> savedPublished = ArgumentCaptor.forClass(EligibilityCheck.class);
         verify(checks, times(2)).saveNewPublishedCustomCheck(savedPublished.capture());
         for (EligibilityCheck published : savedPublished.getAllValues()) {
@@ -120,18 +124,266 @@ class ScreenerTransferServiceTest {
     }
 
     @Test
-    void importingTwiceDoesNotReuseOrOverwriteCustomChecks() throws Exception {
+    void repeatImportsReuseVersionsAndKeepEditedDraftsEvenAfterReExport() throws Exception {
+        Map<String, EligibilityCheck> saved = recipientState();
         ScreenerTransfer export = service.exportScreener("sender", source.getId());
-        doReturn(List.of(draft)).when(checks).getAllWorkingCustomChecks("recipient");
         Screener one = service.importScreener("recipient", export);
-        Screener two = service.importScreener("recipient", export);
+        EligibilityCheck localDraft = saved.values().stream().filter(c -> c.getId().startsWith("W-")).findFirst().orElseThrow();
+        localDraft.setName("My renamed draft");
+        localDraft.setModule("My module");
+        localDraft.setVersion("9.0.0");
+        localDraft.setDmnModel(draft.getDmnModel().replace("Income", "My renamed draft").replace("true", "false"));
+        clearInvocations(checks, storage, screeners);
+        Screener two = service.importScreener("recipient", withName(export, "Second copy"));
         assertNotEquals(one.getId(), two.getId());
-        ArgumentCaptor<EligibilityCheck> saved = ArgumentCaptor.forClass(EligibilityCheck.class);
-        verify(checks, times(2)).saveNewWorkingCustomCheck(saved.capture());
-        assertNotEquals(saved.getAllValues().get(0).getId(), saved.getAllValues().get(1).getId());
+        verify(checks, never()).saveNewWorkingCustomCheck(any());
+        verify(checks, never()).saveNewPublishedCustomCheck(any());
+        verify(checks, never()).updateWorkingCustomCheck(any());
+        verify(checks, never()).reserveCheckName(anyString(), anyString(), anyString(), anyString());
+        verify(storage, never()).writeStringToStorage(startsWith("check/"), anyString(), anyString());
+        assertEquals("My renamed draft", localDraft.getName());
+        assertTrue(localDraft.getDmnModel().contains("false"));
+        ArgumentCaptor<Benefit> importedBenefits = ArgumentCaptor.forClass(Benefit.class);
+        verify(screeners, times(2)).saveNewCustomBenefit(eq(two.getId()), importedBenefits.capture());
+        assertEquals("income", importedBenefits.getAllValues().getFirst().getChecks().getFirst().getCheckModule());
+
+        // Re-export from the recipient, then bring that file back to the original account.
+        // The origin remains stable even though local family IDs and the draft's name changed.
+        when(screeners.getWorkingScreenerMetaDataOnly(two.getId())).thenReturn(Optional.of(two));
+        when(screeners.getWorkingScreener(two.getId())).thenReturn(Optional.of(two));
+        when(screeners.getBenefitsInScreener(two)).thenReturn(importedBenefits.getAllValues());
+        ScreenerTransfer reexported = service.exportScreener("recipient", two.getId());
+        assertTrue(reexported.customChecks().stream().allMatch(c -> "example".equals(c.getOriginCheckId())));
+        List<EligibilityCheck> senderChecks = new ArrayList<>();
+        senderChecks.add(draft);
+        senderChecks.add(check("P-family-1.0.0", "1.0.0"));
+        senderChecks.add(check("P-family-2.0.0", "2.0.0"));
+        doReturn(senderChecks).when(checks).getCustomChecksForImport("sender");
+        service.importScreener("sender", withName(reexported, "Back to sender"));
+        verify(checks, never()).saveNewWorkingCustomCheck(any());
+        verify(checks, never()).saveNewPublishedCustomCheck(any());
+    }
+
+    @Test
+    void importIntoOriginalAccountReusesNativeIdsAndArchivedDrafts() throws Exception {
+        draft.setIsArchived(true);
+        doReturn(List.of(draft, check("P-family-1.0.0", "1.0.0"), check("P-family-2.0.0", "2.0.0")))
+                .when(checks).getCustomChecksForImport("sender");
+        service.importScreener("sender", service.exportScreener("sender", source.getId()));
+        verify(checks, never()).saveNewWorkingCustomCheck(any());
+        verify(checks, never()).saveNewPublishedCustomCheck(any());
+        assertTrue(draft.getIsArchived());
+        ArgumentCaptor<Benefit> imported = ArgumentCaptor.forClass(Benefit.class);
+        verify(screeners, times(2)).saveNewCustomBenefit(anyString(), imported.capture());
+        assertEquals("P-family-1.0.0", imported.getAllValues().getFirst().getChecks().getFirst().getSourceCheckId());
+    }
+
+    @Test
+    void checksInAnotherAccountAreNeverReused() throws Exception {
+        doReturn(List.of(draft, check("P-family-1.0.0", "1.0.0"), check("P-family-2.0.0", "2.0.0")))
+                .when(checks).getCustomChecksForImport("recipient");
+        service.importScreener("recipient", service.exportScreener("sender", source.getId()));
+        var saved = ArgumentCaptor.forClass(EligibilityCheck.class);
+        verify(checks).saveNewWorkingCustomCheck(saved.capture());
+        assertNotEquals(draft.getId(), saved.getValue().getId());
+        assertEquals("recipient", saved.getValue().getOwnerId());
+        assertEquals("income", saved.getValue().getModule());
+    }
+
+    @Test
+    void unrelatedCheckWithSameNameGetsItsOwnFamilyAndModule() throws Exception {
+        EligibilityCheck unrelated = check("W-unrelated", "1.0.0");
+        unrelated.setOwnerId("recipient");
+        unrelated.setExampleSourceId(null);
+        doReturn(List.of(unrelated)).when(checks).getCustomChecksForImport("recipient");
+        service.importScreener("recipient", service.exportScreener("sender", source.getId()));
+        var saved = ArgumentCaptor.forClass(EligibilityCheck.class);
+        verify(checks).saveNewWorkingCustomCheck(saved.capture());
+        assertNotEquals(unrelated.getId(), saved.getValue().getId());
         assertEquals("income (imported 2)", saved.getValue().getModule());
-        assertEquals("Income", saved.getValue().getName());
-        assertEquals("income", draft.getModule());
+    }
+
+    @Test
+    void missingPublishedVersionIsAddedWithoutReplacingTheDraft() throws Exception {
+        Map<String, EligibilityCheck> saved = recipientState();
+        ScreenerTransfer export = service.exportScreener("sender", source.getId());
+        service.importScreener("recipient", export);
+        var removed = saved.values().stream().filter(c -> c.getId().startsWith("P-") && "2.0.0".equals(c.getVersion()))
+                .findFirst().orElseThrow();
+        saved.remove(removed.getId());
+        clearInvocations(checks, storage);
+        service.importScreener("recipient", withName(export, "With version two"));
+        verify(checks, never()).saveNewWorkingCustomCheck(any());
+        verify(checks, never()).updateWorkingCustomCheck(any());
+        verify(checks).saveNewPublishedCustomCheck(argThat(c -> c.getId().equals(removed.getId())));
+        verify(storage).writeStringToStorage(eq("check/" + removed.getId() + ".dmn"), anyString(), eq("application/xml"));
+    }
+
+    @Test
+    void conflictingPublishedRulesRejectTheWholeImportBeforeWrites() throws Exception {
+        Map<String, EligibilityCheck> saved = recipientState();
+        ScreenerTransfer export = service.exportScreener("sender", source.getId());
+        service.importScreener("recipient", export);
+        saved.values().stream().filter(c -> c.getId().startsWith("P-")).findFirst().orElseThrow()
+                .setDmnModel(draft.getDmnModel().replace("true", "false"));
+        clearInvocations(checks, screeners, storage);
+        var failure = assertThrows(CustomCheckImportConflictException.class,
+                () -> service.importScreener("recipient", withName(export, "Conflicting copy")));
+        assertTrue(failure.getMessage().contains("different rules or parameter definitions"));
+        verify(storage, never()).writeStringToStorage(anyString(), anyString(), anyString());
+        verify(screeners, never()).saveNewCustomBenefit(anyString(), any());
+        verify(checks, never()).deletePublishedCustomCheck(anyString());
+    }
+
+    @Test
+    void conflictingParameterDefinitionsRejectReuse() throws Exception {
+        Map<String, EligibilityCheck> saved = recipientState();
+        ScreenerTransfer export = service.exportScreener("sender", source.getId());
+        service.importScreener("recipient", export);
+        ParameterDefinition parameter = new ParameterDefinition();
+        parameter.setKey("new-limit");
+        saved.values().stream().filter(c -> c.getId().startsWith("P-")).findFirst().orElseThrow()
+                .setParameterDefinitions(List.of(parameter));
+        clearInvocations(storage);
+        assertThrows(CustomCheckImportConflictException.class,
+                () -> service.importScreener("recipient", withName(export, "Conflicting parameters")));
+        verify(storage, never()).writeStringToStorage(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    void xmlIndentationDoesNotCauseAFalseVersionConflict() throws Exception {
+        Map<String, EligibilityCheck> saved = recipientState();
+        ScreenerTransfer export = service.exportScreener("sender", source.getId());
+        service.importScreener("recipient", export);
+        saved.values().stream().filter(c -> c.getId().startsWith("P-")).forEach(c ->
+                c.setDmnModel(c.getDmnModel().replace("><", ">\n  <")));
+        clearInvocations(checks);
+        service.importScreener("recipient", withName(export, "Formatted copy"));
+        verify(checks, never()).saveNewPublishedCustomCheck(any());
+    }
+
+    @Test
+    void referencedDraftConflictDoesNotSilentlyChangeTheImportedRules() throws Exception {
+        Map<String, EligibilityCheck> saved = recipientState();
+        service.importScreener("recipient", service.exportScreener("sender", source.getId()));
+        saved.values().stream().filter(c -> c.getId().startsWith("W-")).findFirst().orElseThrow()
+                .setDmnModel(draft.getDmnModel().replace("true", "false"));
+        CheckConfig configured = benefits.getLast().getChecks().getFirst();
+        configured.setSourceCheckId(draft.getId());
+        configured.setCheckVersion(draft.getVersion());
+        ScreenerTransfer export = service.exportScreener("sender", source.getId());
+        clearInvocations(storage);
+        var failure = assertThrows(CustomCheckImportConflictException.class,
+                () -> service.importScreener("recipient", withName(export, "Draft conflict")));
+        assertTrue(failure.getMessage().contains("differs from your draft"));
+        verify(storage, never()).writeStringToStorage(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    void oldExportsWithoutOriginIdentityRemainImportableAndReusable() throws Exception {
+        recipientState();
+        ScreenerTransfer export = service.exportScreener("sender", source.getId());
+        export.customChecks().forEach(c -> c.setOriginCheckId(null));
+        service.importScreener("recipient", export);
+        clearInvocations(checks, screeners);
+        Screener legacyCopy = service.importScreener("recipient", withName(export, "Legacy copy"));
+        verify(checks, never()).saveNewWorkingCustomCheck(any());
+        verify(checks, never()).saveNewPublishedCustomCheck(any());
+        var importedBenefits = ArgumentCaptor.forClass(Benefit.class);
+        verify(screeners, times(2)).saveNewCustomBenefit(eq(legacyCopy.getId()), importedBenefits.capture());
+        when(screeners.getWorkingScreenerMetaDataOnly(legacyCopy.getId())).thenReturn(Optional.of(legacyCopy));
+        when(screeners.getWorkingScreener(legacyCopy.getId())).thenReturn(Optional.of(legacyCopy));
+        when(screeners.getBenefitsInScreener(legacyCopy)).thenReturn(importedBenefits.getAllValues());
+        doReturn(List.of(draft, check("P-family-1.0.0", "1.0.0"), check("P-family-2.0.0", "2.0.0")))
+                .when(checks).getCustomChecksForImport("sender");
+        service.importScreener("sender", withName(service.exportScreener("recipient", legacyCopy.getId()), "Legacy shared back"));
+        verify(checks, never()).saveNewWorkingCustomCheck(any());
+        verify(checks, never()).saveNewPublishedCustomCheck(any());
+    }
+
+    @Test
+    void rollbackNeverDeletesReusedCheckVersionsOrDrafts() throws Exception {
+        recipientState();
+        ScreenerTransfer export = service.exportScreener("sender", source.getId());
+        service.importScreener("recipient", export);
+        doThrow(new Exception("Storage unavailable")).when(storage)
+                .writeStringToStorage(startsWith("form/"), anyString(), eq("application/json"));
+        clearInvocations(checks, storage);
+        assertThrows(Exception.class, () -> service.importScreener("recipient", withName(export, "Failed copy")));
+        verify(checks, never()).deleteWorkingCustomCheck(anyString());
+        verify(checks, never()).deletePublishedCustomCheck(anyString());
+        verify(storage, never()).deleteFile(startsWith("check/"));
+    }
+
+    @Test
+    void concurrentPublishedCreateDoesNotOverwriteOrDeleteTheWinner() throws Exception {
+        Map<String, EligibilityCheck> saved = recipientState();
+        ScreenerTransfer export = service.exportScreener("sender", source.getId());
+        service.importScreener("recipient", export);
+        var version = saved.values().stream().filter(c -> c.getId().startsWith("P-") && "2.0.0".equals(c.getVersion()))
+                .findFirst().orElseThrow();
+        doReturn(saved.values().stream().filter(c -> !c.getId().equals(version.getId())).toList())
+                .when(checks).getCustomChecksForImport("recipient");
+        doThrow(new DocumentAlreadyExistsException(version.getId(), null)).when(checks)
+                .saveNewPublishedCustomCheck(argThat(c -> c.getId().equals(version.getId())));
+        doThrow(new Exception("Storage unavailable")).when(storage)
+                .writeStringToStorage(startsWith("form/"), anyString(), eq("application/json"));
+        clearInvocations(checks, storage);
+        assertThrows(Exception.class, () -> service.importScreener("recipient", withName(export, "Racing copy")));
+        verify(storage, never()).writeStringToStorage(startsWith("check/"), anyString(), anyString());
+        verify(checks, never()).deletePublishedCustomCheck(anyString());
+    }
+
+    @Test
+    void concurrentFamilyCreationIsRejectedBeforeNameOrArtifactWrites() throws Exception {
+        doThrow(new DocumentAlreadyExistsException("origin", null)).when(checks)
+                .reserveImportIdentity(anyString(), anyString(), anyString());
+        var export = service.exportScreener("sender", source.getId());
+        assertThrows(CustomCheckImportConflictException.class, () -> service.importScreener("recipient", export));
+        verify(checks, never()).reserveCheckName(anyString(), anyString(), anyString(), anyString());
+        verify(storage, never()).writeStringToStorage(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    void unavailableMetadataReadDoesNotCreateDuplicateFamilies() throws Exception {
+        doThrow(new Exception("Firestore unavailable")).when(checks).getCustomChecksForImport("recipient");
+        var export = service.exportScreener("sender", source.getId());
+        assertThrows(Exception.class, () -> service.importScreener("recipient", export));
+        verify(checks, never()).reserveImportIdentity(anyString(), anyString(), anyString());
+        verify(storage, never()).writeStringToStorage(anyString(), anyString(), anyString());
+    }
+
+    private ScreenerTransfer withName(ScreenerTransfer transfer, String name) {
+        return new ScreenerTransfer(transfer.format(), transfer.formatVersion(), name,
+                transfer.formSchema(), transfer.benefits(), transfer.customChecks());
+    }
+
+    private Map<String, EligibilityCheck> recipientState() throws Exception {
+        Map<String, EligibilityCheck> saved = new LinkedHashMap<>();
+        doAnswer(i -> new ArrayList<>(saved.values())).when(checks).getCustomChecksForImport("recipient");
+        for (boolean published : List.of(false, true)) {
+            org.mockito.stubbing.Answer<String> save = i -> {
+                EligibilityCheck check = mapper.convertValue(i.getArgument(0), EligibilityCheck.class);
+                saved.put(check.getId(), check);
+                return check.getId();
+            };
+            if (published) {
+                doAnswer(save).when(checks).saveNewPublishedCustomCheck(any());
+                doAnswer(i -> Optional.ofNullable(saved.get(i.<String>getArgument(1))))
+                        .when(checks).getPublishedCustomCheck(eq("recipient"), anyString(), eq(true));
+            } else {
+                doAnswer(save).when(checks).saveNewWorkingCustomCheck(any());
+                doAnswer(i -> Optional.ofNullable(saved.get(i.<String>getArgument(1))))
+                        .when(checks).getWorkingCustomCheck(eq("recipient"), anyString(), eq(true));
+            }
+        }
+        doAnswer(i -> {
+            String path = i.getArgument(0);
+            String id = path.substring("check/".length(), path.length() - ".dmn".length());
+            saved.get(id).setDmnModel(i.getArgument(1));
+            return null;
+        }).when(storage).writeStringToStorage(startsWith("check/"), anyString(), eq("application/xml"));
+        return saved;
     }
 
     @Test

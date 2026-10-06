@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 
 // Provision our own local demo account instead of clearing an existing developer's data.
 // This also exercises the exact bundled example received by a new analyst.
-test("the bundled example can be chosen, exported, and imported with its internal library checks", async ({
+test("the bundled example can be chosen, exported, and imported with its internal library checks and reused custom checks", async ({
   page,
   request,
 }) => {
@@ -153,4 +153,164 @@ test("the bundled example can be chosen, exported, and imported with its interna
   for (const benefit of imported.benefits) {
     await expect(page.getByText(benefit.name, { exact: true })).toBeVisible();
   }
+
+  const readWorking = async (token: string) => {
+    const response = await request.get(
+      "http://localhost:8081/api/custom-checks?working=true&includeArchived=true",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+    expect(response.ok(), await response.text()).toBe(true);
+    return response.json();
+  };
+  const originalIds = exported.customChecks
+    .filter((check: any) => check.id.startsWith("W-"))
+    .map((check: any) => check.id)
+    .sort();
+  expect(originalIds).toHaveLength(2);
+  expect(
+    (await readWorking(account.idToken)).map((check: any) => check.id).sort(),
+  ).toEqual(originalIds);
+  expect(
+    exported.customChecks.every(
+      (check: any) => typeof check.originCheckId === "string",
+    ),
+  ).toBe(true);
+
+  // Two simultaneous transfers to a fresh recipient must create just one family per origin.
+  const recipientSignUp = await request.post(
+    "http://localhost:9099/identitytoolkit.googleapis.com/v1/accounts:signUp?key=local-demo",
+    {
+      data: {
+        email: `import-recipient-${randomUUID()}@example.com`,
+        password,
+        returnSecureToken: true,
+      },
+    },
+  );
+  expect(recipientSignUp.ok()).toBe(true);
+  const recipient = await recipientSignUp.json();
+  const recipientHeaders = { Authorization: `Bearer ${recipient.idToken}` };
+  const importForRecipient = (name: string) =>
+    request.post("http://localhost:8081/api/screener/import", {
+      headers: recipientHeaders,
+      data: { ...exported, screenerName: name },
+    });
+  const concurrent = await Promise.all([
+    importForRecipient("Recipient one"),
+    importForRecipient("Recipient two"),
+  ]);
+  expect(concurrent.some((response) => response.status() === 201)).toBe(true);
+  for (const [index, response] of concurrent.entries()) {
+    expect([201, 409], await response.text()).toContain(response.status());
+    if (response.status() === 409) {
+      const retry = await importForRecipient(
+        index === 0 ? "Recipient one" : "Recipient two",
+      );
+      expect(retry.status(), await retry.text()).toBe(201);
+    }
+  }
+  const recipientDrafts = await readWorking(recipient.idToken);
+  expect(recipientDrafts).toHaveLength(2);
+  expect(
+    recipientDrafts.every((check: any) => !originalIds.includes(check.id)),
+  ).toBe(true);
+  const editedDraft = recipientDrafts[0];
+  const draftResponse = await request.get(
+    `http://localhost:8081/api/custom-checks/${editedDraft.id}`,
+    { headers: recipientHeaders },
+  );
+  expect(draftResponse.ok()).toBe(true);
+  const draft = await draftResponse.json();
+  const editedXml = draft.dmnModel.replace(
+    /<dmn:text>[\s\S]*?<\/dmn:text>/,
+    "<dmn:text>false</dmn:text>",
+  );
+  expect(editedXml).not.toBe(draft.dmnModel);
+  const edit = await request.put(
+    `http://localhost:8081/api/custom-checks/${editedDraft.id}/dmn`,
+    {
+      headers: recipientHeaders,
+      data: { dmnModel: editedXml },
+    },
+  );
+  expect(edit.ok(), await edit.text()).toBe(true);
+  const repeat = await importForRecipient("Recipient three");
+  expect(repeat.status(), await repeat.text()).toBe(201);
+  const repeatScreener = await repeat.json();
+  expect(
+    (await readWorking(recipient.idToken)).map((check: any) => check.id).sort(),
+  ).toEqual(recipientDrafts.map((check: any) => check.id).sort());
+  const retained = await request.get(
+    `http://localhost:8081/api/custom-checks/${editedDraft.id}`,
+    { headers: recipientHeaders },
+  );
+  expect((await retained.json()).dmnModel).toBe(editedXml);
+  const reexportResponse = await request.get(
+    `http://localhost:8081/api/screener/${repeatScreener.id}/export`,
+    { headers: recipientHeaders },
+  );
+  expect(reexportResponse.ok()).toBe(true);
+  const reexported = await reexportResponse.json();
+  expect(
+    reexported.customChecks.map((check: any) => check.originCheckId).sort(),
+  ).toEqual(
+    exported.customChecks.map((check: any) => check.originCheckId).sort(),
+  );
+  const sharedBack = await request.post(
+    "http://localhost:8081/api/screener/import",
+    {
+      headers,
+      data: { ...reexported, screenerName: "Shared back" },
+    },
+  );
+  expect(sharedBack.status(), await sharedBack.text()).toBe(201);
+  expect(
+    (await readWorking(account.idToken)).map((check: any) => check.id).sort(),
+  ).toEqual(originalIds);
+
+  // A file that claims the same published identity/version with changed rules gets a readable UI error.
+  const conflicting = structuredClone(exported);
+  const conflictingVersion = conflicting.customChecks.find((check: any) =>
+    check.id.startsWith("P-"),
+  );
+  conflictingVersion.dmnModel = conflictingVersion.dmnModel.replace(
+    /<dmn:text>[\s\S]*?<\/dmn:text>/,
+    "<dmn:text>false</dmn:text>",
+  );
+  conflicting.screenerName = "Conflicting version";
+  await page.goto("/screeners");
+  await page
+    .getByRole("button", { name: "Import screener", exact: true })
+    .click();
+  await page.getByLabel("Screener file").setInputFiles({
+    name: "conflicting.bdt.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(conflicting)),
+  });
+  await expect(page.getByLabel("Screener name", { exact: true })).toHaveValue(
+    "Conflicting version",
+  );
+  const conflictPromise = page.waitForResponse(
+    (response) =>
+      response.url().endsWith("/api/screener/import") &&
+      response.request().method() === "POST",
+  );
+  await page
+    .locator("form")
+    .getByRole("button", { name: "Import screener", exact: true })
+    .click();
+  expect((await conflictPromise).status()).toBe(409);
+  await expect(page.getByRole("alert")).toContainText(
+    "different rules or parameter definitions",
+  );
+  await expect(
+    page
+      .locator("form")
+      .getByRole("button", { name: "Import screener", exact: true }),
+  ).toBeEnabled();
+  expect(
+    (await readWorking(account.idToken)).map((check: any) => check.id).sort(),
+  ).toEqual(originalIds);
 });
