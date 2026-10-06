@@ -270,6 +270,9 @@ public class DMNSchemaResolver {
                 if (fieldName.contains("Age") || fieldName.contains("age")) {
                     return 65;
                 }
+                if (fieldName.contains("Size") || fieldName.contains("size")) {
+                    return 1;  // Household sizes index income tables starting at 1
+                }
                 return 42;
 
             case "boolean":
