@@ -22,7 +22,7 @@ export class ApiError extends Error {
 }
 
 // Prefer the server's error message, falling back to the status.
-async function apiErrorFrom(
+export async function apiErrorFrom(
   response: Response,
   fallback: string,
 ): Promise<ApiError> {

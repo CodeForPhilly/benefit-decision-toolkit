@@ -8,6 +8,14 @@ import java.util.Optional;
 
 public interface EligibilityCheckRepository {
 
+    /* Strict metadata read, including archived drafts and all published versions. */
+    List<EligibilityCheck> getCustomChecksForImport(String userId) throws Exception;
+
+    /* Prevents concurrent imports from creating separate families for the same origin. */
+    void reserveImportIdentity(String ownerId, String originId, String workingId) throws Exception;
+
+    void releaseImportIdentity(String ownerId, String originId, String workingId) throws Exception;
+
     List<EligibilityCheck> getWorkingCustomChecks(String userId);
 
     List<EligibilityCheck> getAllWorkingCustomChecks(String userId);
@@ -27,6 +35,8 @@ public interface EligibilityCheckRepository {
 
     Optional<EligibilityCheck> getPublishedCustomCheck(String userId, String checkId);
 
+    Optional<EligibilityCheck> getPublishedCustomCheck(String userId, String checkId, boolean includeArchived);
+
     String getWorkingId(EligibilityCheck check);
 
     String newWorkingId();
@@ -45,6 +55,8 @@ public interface EligibilityCheckRepository {
     void updateWorkingCustomCheck(EligibilityCheck check) throws Exception;
 
     void deleteWorkingCustomCheck(String checkId) throws Exception;
+
+    void deletePublishedCustomCheck(String checkId) throws Exception;
 
     void updatePublishedCustomCheck(EligibilityCheck check) throws Exception;
 

@@ -1,4 +1,5 @@
-import { createSignal, JSX } from "solid-js";
+import { createSignal, JSX, Show } from "solid-js";
+import { downloadScreener } from "@/api/screenerTransfer";
 import TrashIcon from "../icon/TrashIcon";
 import DeleteConfirmation from "./DeleteConfirmation";
 import { Modal } from "@/components/shared/Modal";
@@ -23,6 +24,8 @@ export default function EditScreenerForm(props: Props) {
   const [isLoading, setIsLoading] = createSignal(false);
   const [isConfirmationVisible, setIsConfirmationVisible] = createSignal(false);
   const [error, setError] = createSignal("");
+  const [exporting, setExporting] = createSignal(false);
+  const [exportError, setExportError] = createSignal("");
 
   const handleSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (
     e,
@@ -31,7 +34,7 @@ export default function EditScreenerForm(props: Props) {
     setError("");
     const form = new FormData(e.currentTarget);
     const screenerName = form.get("screenerName");
-    if (!screenerName) {
+    if (!screenerName?.toString().trim()) {
       setError("Please enter a screener name.");
     } else {
       try {
@@ -40,6 +43,9 @@ export default function EditScreenerForm(props: Props) {
         await props.handleEditScreener(props.modalData.screenerId, data);
         setIsLoading(false);
       } catch (e) {
+        setError(
+          e instanceof Error ? e.message : "Could not update the screener.",
+        );
         if (isLoading()) {
           setIsLoading(false);
         }
@@ -73,6 +79,42 @@ export default function EditScreenerForm(props: Props) {
           Update
         </Button>
       </Form>
+
+      <hr class="my-4 text-gray-300" />
+
+      <p class="mb-3">
+        Download this screener’s saved benefits, checks, and form to share an
+        editable copy.
+      </p>
+      <Button
+        variant="outline-primary"
+        disabled={exporting() || isLoading()}
+        onClick={async () => {
+          setExportError("");
+          setExporting(true);
+          try {
+            await downloadScreener(
+              props.modalData.screenerId,
+              props.modalData.screenerName,
+            );
+          } catch (failure) {
+            setExportError(
+              failure instanceof Error
+                ? failure.message
+                : "Could not export the screener.",
+            );
+          } finally {
+            setExporting(false);
+          }
+        }}
+      >
+        {exporting() ? "Exporting…" : "Export screener"}
+      </Button>
+      <Show when={exportError()}>
+        <p role="alert" class="text-red-700 mt-2">
+          {exportError()}
+        </p>
+      </Show>
 
       <hr class="my-4 text-gray-300" />
 

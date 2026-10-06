@@ -18,6 +18,9 @@ public interface ScreenerRepository {
 
     public void updateWorkingScreener(Screener screener) throws Exception;
 
+    /** Saves a new name, rejecting one already used by another of the owner's screeners. */
+    public void renameWorkingScreener(Screener screener) throws Exception;
+
     public void addBenefitDetailToWorkingScreener(String screenerId, BenefitDetail benefitDetail) throws Exception;
 
     public void deleteWorkingScreener(String screenerId) throws Exception;

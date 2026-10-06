@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import org.codeforphilly.bdt.builder.persistence.DuplicateScreenerNameException;
 import java.util.Optional;
 import org.codeforphilly.bdt.builder.model.dto.screener.CreateScreenerRequest;
 import org.codeforphilly.bdt.builder.model.dto.screener.EditScreenerRequest;
@@ -109,6 +110,10 @@ public class ScreenerResource {
       String screenerId = screenerRepository.saveNewWorkingScreener(newScreener);
       newScreener.setId(screenerId);
       return Response.ok(newScreener, MediaType.APPLICATION_JSON).build();
+    } catch (DuplicateScreenerNameException duplicate) {
+      return Response.status(409).entity(Map.of("error", duplicate.getMessage())).build();
+    } catch (jakarta.ws.rs.BadRequestException invalid) {
+      return Response.status(400).entity(Map.of("error", invalid.getMessage())).build();
     } catch (Exception e) {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
           .entity(Map.of("error", "Could not save Screener"))
@@ -139,13 +144,22 @@ public class ScreenerResource {
     Log.info(request.toString());
 
     // Update Screener fields from request
+    // Only a changed name is checked for uniqueness, so screeners that already share a name stay editable.
+    boolean renamed = request.screenerName() != null
+        && !Screener.normalizeName(request.screenerName())
+            .equals(Screener.normalizeName(screener.getScreenerName()));
     if (request.screenerName() != null) {
-      screener.setScreenerName(request.screenerName());
+      screener.setScreenerName(request.screenerName().strip());
     }
 
     try {
-      screenerRepository.updateWorkingScreener(screener);
+      if (renamed) screenerRepository.renameWorkingScreener(screener);
+      else screenerRepository.updateWorkingScreener(screener);
       return Response.ok(screener, MediaType.APPLICATION_JSON).build();
+    } catch (DuplicateScreenerNameException duplicate) {
+      return Response.status(409).entity(Map.of("error", duplicate.getMessage())).build();
+    } catch (jakarta.ws.rs.BadRequestException invalid) {
+      return Response.status(400).entity(Map.of("error", invalid.getMessage())).build();
     } catch (Exception e) {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
           .entity(Map.of("error", "Could not update Screener"))

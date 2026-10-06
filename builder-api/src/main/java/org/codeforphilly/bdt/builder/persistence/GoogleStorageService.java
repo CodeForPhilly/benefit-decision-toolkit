@@ -18,6 +18,11 @@ import java.util.Optional;
 
 @ApplicationScoped
 public class GoogleStorageService implements StorageService {
+    @Override
+    public void deleteFile(String filePath) {
+        storage.delete(BlobId.of(bucketName, filePath));
+    }
+
     @Inject
     Storage storage;
 
@@ -148,25 +153,22 @@ public class GoogleStorageService implements StorageService {
     @Override
     public Map<String, Object> getFormSchemaFromStorage(String filePath) {
         try {
-            BlobId blobId = BlobId.of(bucketName, filePath);
-            Blob blob = storage.get(blobId);
-
-            if (blob == null || !blob.exists()) {
-               return null;
-            }
-
-            byte[] content = blob.getContent();
-
-            ObjectMapper mapper = new ObjectMapper();
-            Map<String, Object> formSchema = mapper.readValue(new ByteArrayInputStream(content), new TypeReference<Map<String, Object>>() {
-            });
-
-            return formSchema;
-
+            return readFormSchema(filePath).orElse(null);
         } catch (Exception e){
             Log.error("Error fetching form model from firebase storage: ", e);
             return null;
         }
+    }
+
+    @Override
+    public Optional<Map<String, Object>> readFormSchema(String filePath) throws Exception {
+        Blob blob = storage.get(BlobId.of(bucketName, filePath));
+        if (blob == null || !blob.exists()) {
+            return Optional.empty();
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        return Optional.of(mapper.readValue(new ByteArrayInputStream(blob.getContent()),
+                new TypeReference<Map<String, Object>>() {}));
     }
 
     @Override

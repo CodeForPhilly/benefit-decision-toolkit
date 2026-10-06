@@ -8,6 +8,8 @@ import type {
   ScreenerResult,
 } from "@/types";
 
+import { apiErrorFrom } from "./check";
+
 const apiUrl = env.apiUrl;
 
 export const fetchScreeners = async () => {
@@ -51,7 +53,7 @@ export const createNewScreener = async (request: {
     const response = await authPost(url.toString(), request);
 
     if (!response.ok) {
-      throw new Error(`Post failed with status: ${response.status}`);
+      throw await apiErrorFrom(response, "Could not create the screener");
     }
     const data = await response.json();
     return data;
@@ -71,8 +73,7 @@ export const updateScreener = async (
     const response = await authPatch(url.toString(), request);
 
     if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err);
+      throw await apiErrorFrom(response, "Could not update the screener");
     }
   } catch (error) {
     console.error("Error updating screener:", error);

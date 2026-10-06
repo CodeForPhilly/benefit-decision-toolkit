@@ -6,6 +6,7 @@ import com.google.api.gax.rpc.StatusCode;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import io.quarkus.logging.Log;
+import org.codeforphilly.bdt.builder.model.domain.Screener;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -235,6 +236,42 @@ public class FirestoreUtils {
         }
         if (!created) {
             throw new DocumentAlreadyExistsException(documentId, null);
+        }
+    }
+
+    /** Serializes name changes per owner and includes existing screeners without a name index. */
+    public static void saveScreenerWithUniqueName(String collection, String id, Map<String, Object> data,
+                                                  boolean create) throws Exception {
+        String owner = (String) data.get("ownerId");
+        String name = (String) data.get("screenerName");
+        DocumentReference ownerLock = db.collection("screenerNameLocks").document(owner);
+        DocumentReference document = db.collection(collection).document(id);
+        try {
+            db.runTransaction(transaction -> {
+                transaction.get(ownerLock).get();
+                QuerySnapshot screeners = transaction.get(db.collection(collection)
+                        .whereEqualTo("ownerId", owner)).get();
+                for (QueryDocumentSnapshot existing : screeners.getDocuments()) {
+                    if (!id.equals(existing.getId()) && Screener.normalizeName(name)
+                            .equals(Screener.normalizeName(existing.getString("screenerName")))) {
+                        throw new DuplicateScreenerNameException();
+                    }
+                }
+                if (create) transaction.create(document, data);
+                else transaction.set(document, data, SetOptions.merge());
+                transaction.set(ownerLock, Map.of("lastChange", UUID.randomUUID().toString()));
+                return null;
+            }).get();
+        } catch (InterruptedException failure) {
+            Thread.currentThread().interrupt();
+            throw failure;
+        } catch (ExecutionException failure) {
+            Throwable cause = failure;
+            while (cause != null) {
+                if (cause instanceof DuplicateScreenerNameException duplicate) throw duplicate;
+                cause = cause.getCause();
+            }
+            throw failure;
         }
     }
 
