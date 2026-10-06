@@ -1,5 +1,41 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<dmn:definitions xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" id="_F3B91F5D-6EEC-4DBC-AE47-BA91DD2C9E5D" name="Income" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5" xmlns="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/">
+<dmn:definitions xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:kie="https://kie.org/dmn/extensions/1.0" id="_F3B91F5D-6EEC-4DBC-AE47-BA91DD2C9E5D" name="Income" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5" xmlns="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/">
   <dmn:description>Shared definitions for income eligibility checks.</dmn:description>
   <dmn:extensionElements />
+  <dmn:itemDefinition id="_6B1E4D92-7C35-4A8F-9E20-D5C3A8F71B64" name="tIncomeLimitList" isCollection="true">
+    <dmn:typeRef>number</dmn:typeRef>
+  </dmn:itemDefinition>
+  <dmn:businessKnowledgeModel id="_2C8F5A13-94D6-4E7B-B1A0-6F3E8D2C7B95" name="below household income limit">
+    <dmn:extensionElements />
+    <dmn:variable id="_8D4A1F67-2E9B-4C35-A7D0-3B6C9E1F4A28" name="below household income limit" typeRef="boolean" />
+    <dmn:encapsulatedLogic id="_E7B3C9D1-5F28-4A64-8C0E-1D9A6B4F2E73" kind="FEEL">
+      <dmn:formalParameter id="_4F9E2A6C-1B83-4D57-9A0C-E6D3B7F81C42" name="income" typeRef="number" />
+      <dmn:formalParameter id="_A3D7C1E9-6B42-4F85-8E1D-0C5B9F2A7D36" name="household size" typeRef="number" />
+      <dmn:formalParameter id="_1C6B8F4D-3A97-4E20-B5D1-7F2E9A4C6B83" name="limits" typeRef="tIncomeLimitList" />
+      <dmn:literalExpression id="_9B2E7D4A-6C15-4F83-A0E9-5D1C8B3F7A64">
+        <dmn:text>if income = null or income &lt; 0 or household size = null or limits = null then null
+else if household size &lt; 1 or household size &gt; count(limits) or floor(household size) != household size then null
+else income &lt; limits[household size]</dmn:text>
+      </dmn:literalExpression>
+    </dmn:encapsulatedLogic>
+  </dmn:businessKnowledgeModel>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_5E8C2B71-A4D9-4F36-9B0E-C7D1A3F64E28" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_9B2E7D4A-6C15-4F83-A0E9-5D1C8B3F7A64">
+            <kie:width>917</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E7B3C9D1-5F28-4A64-8C0E-1D9A6B4F2E73">
+            <kie:width>50</kie:width>
+            <kie:width>917</kie:width>
+          </kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="_D4A9E6C2-7B13-4F58-A0D1-8E3C5B9F2A76" dmnElementRef="_2C8F5A13-94D6-4E7B-B1A0-6F3E8D2C7B95" isCollapsed="false">
+        <dc:Bounds x="100" y="100" width="200" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
 </dmn:definitions>

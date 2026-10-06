@@ -24,10 +24,11 @@
     <dmn:informationRequirement id="_0E9CC6C5-07AB-4EC9-8985-6EA4230EDC30">
       <dmn:requiredInput href="#_E83712B9-7AAF-49CF-B844-2C81414375AB" />
     </dmn:informationRequirement>
+    <dmn:knowledgeRequirement id="_B3E8F1A4-7C26-4D95-8A0B-2E6D9C4F1A57">
+      <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5#_2C8F5A13-94D6-4E7B-B1A0-6F3E8D2C7B95" />
+    </dmn:knowledgeRequirement>
     <dmn:literalExpression id="_BA464CDF-932F-42BB-9D23-EE8B90076A3C">
-      <dmn:text>if situation.householdIncome = null or situation.householdIncome &lt; 0 or situation.householdSize = null then null
-else if situation.householdSize &lt; 1 or situation.householdSize &gt; 10 or floor(situation.householdSize) != situation.householdSize then null
-else situation.householdIncome &lt; [103050, 117800, 132500, 147200, 159000, 170800, 182550, 194350, 206100, 217900][situation.householdSize]</dmn:text>
+      <dmn:text>Income.below household income limit(situation.householdIncome, situation.householdSize, [103050, 117800, 132500, 147200, 159000, 170800, 182550, 194350, 206100, 217900])</dmn:text>
     </dmn:literalExpression>
   </dmn:decision>
   <dmn:inputData id="_E83712B9-7AAF-49CF-B844-2C81414375AB" name="situation">
