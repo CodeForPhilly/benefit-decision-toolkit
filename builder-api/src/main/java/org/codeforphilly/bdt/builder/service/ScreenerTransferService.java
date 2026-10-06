@@ -99,8 +99,9 @@ public class ScreenerTransferService {
         // Validate the complete file and resolve library references before any writes.
         Map<String, EligibilityCheck> originals = validate(transfer);
         String name = transfer.screenerName().strip();
+        // Match the transactional check on save, so this early rejection never disagrees with it.
         if (screeners.getWorkingScreeners(owner).stream().anyMatch(existing ->
-                name.equalsIgnoreCase(existing.getScreenerName() == null ? "" : existing.getScreenerName().strip()))) {
+                Screener.normalizeName(name).equals(Screener.normalizeName(existing.getScreenerName())))) {
             throw new DuplicateScreenerNameException();
         }
         validateModels(originals.values());

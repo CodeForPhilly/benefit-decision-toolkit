@@ -414,6 +414,14 @@ class ScreenerTransferServiceTest {
     }
 
     @Test
+    void nameCheckMatchesTheSavedNameNormalization() throws Exception {
+        // equalsIgnoreCase treats "İ" as "i", but the save-time check lowercases it to "i" plus a combining dot.
+        ScreenerTransfer export = withName(service.exportScreener("sender", source.getId()), "income");
+        when(screeners.getWorkingScreeners("recipient")).thenReturn(List.of(Screener.create("recipient", "İncome", null)));
+        assertEquals("income", service.importScreener("recipient", export).getScreenerName());
+    }
+
+    @Test
     void missingModelIsRejectedBeforeAnyWrites() throws Exception {
         ScreenerTransfer export = service.exportScreener("sender", source.getId());
         export.customChecks().getFirst().setDmnModel(null);
