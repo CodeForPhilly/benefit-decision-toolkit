@@ -107,7 +107,10 @@ test.describe("Screener sharing", () => {
 
     const buffer = await downloadScreener(page);
     const exported = JSON.parse(buffer.toString());
-    expect(exported.customChecks).toHaveLength(2);
+    // Only the version the benefit uses is shared, not the working draft.
+    expect(
+      exported.customChecks.map((check: any) => check.id),
+    ).toEqual([publishedCheckId]);
     expect(exported.benefits[0].checks[1].parameters).toEqual({
       incomeLimit: 50000,
     });
