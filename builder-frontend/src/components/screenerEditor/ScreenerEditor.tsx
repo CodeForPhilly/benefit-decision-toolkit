@@ -46,8 +46,9 @@ function ScreenerEditor() {
     // However resources only refetch when key has changed.
     // In order to force refetch even thought he screenerId hasn't change,
     // including a dummy signal 'forceUpdate' that can be unique for
-    // each call to the refetch
-    () => [params.screenerId, forceUpdate()],
+    // each call to the refetch. Navigating away clears screenerId before the
+    // editor unmounts, so skip fetching without one.
+    () => params.screenerId && [params.screenerId, forceUpdate()],
     fetchAndCacheScreener,
   );
 
@@ -101,7 +102,7 @@ function ScreenerEditor() {
         <Loading />
       ) : loadedScreener() ? (
         <>
-          <Title>BDT - {loadedScreener().screenerName}</Title>
+          <Title>BDT - {loadedScreener()?.screenerName}</Title>
           {activeTab() == "formEditor" && (
             <FormEditorView
               formSchema={formSchema}

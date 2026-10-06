@@ -120,6 +120,26 @@ describe("ScreenerEditor", () => {
     expect(button("Configure benefit-1")).toBeDefined();
   });
 
+  it("can leave the editor from the breadcrumb", async () => {
+    const errors: unknown[] = [];
+    const onError = (event: ErrorEvent) => errors.push(event.error);
+    window.addEventListener("error", onError);
+    const container = mount();
+    await vi.waitFor(() => expect(currentCrumb(container)).toBe("My screener"));
+
+    const screenersLink = [...container.querySelectorAll("a")].find(
+      (link) => link.textContent === "Screeners",
+    )!;
+    screenersLink.click();
+
+    await vi.waitFor(() =>
+      expect(container.textContent).toContain("Screeners list"),
+    );
+    window.removeEventListener("error", onError);
+    expect(errors).toEqual([]);
+    expect(fetchScreener).not.toHaveBeenCalledWith(undefined);
+  });
+
   it("shows a recovery link when loading fails and can return to the list", async () => {
     vi.mocked(fetchScreener).mockRejectedValueOnce(new Error("Fetch failed"));
     const container = mount();
