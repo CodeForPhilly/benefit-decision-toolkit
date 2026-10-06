@@ -22,10 +22,16 @@ body:json {
       ],
       "simpleChecks": {
         "ownerOccupant": true,
-        "livesInPhiladelphiaPa": true,
-        "isMarried": true
+        "livesInPhiladelphiaPa": true
       },
-      "householdIncome": 41500
+      "applicantAndSpouseIncome": 41500,
+      "relationships": [
+        {
+          "type": "spouse",
+          "personId": "p1",
+          "relatedPersonId": "p2"
+        }
+      ]
     }
   }
 }

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <dmn:definitions xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:kie="https://kie.org/dmn/extensions/1.0" id="_0FA74C12-2C73-4CD4-BEEC-A63F3FEF547B" name="PhlLowIncomeTaxFreeze" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_BDAE664A-A1E5-46F9-A470-90B8C34D7FB2" xmlns="https://kie.apache.org/dmn/_BDAE664A-A1E5-46F9-A470-90B8C34D7FB2" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:included1="https://kie.apache.org/dmn/_9514D95A-63FB-4345-911B-D83E1867F709" xmlns:included2="https://kie.apache.org/dmn/_3B9E68B5-63FA-437C-AF93-CC12DDD00BC5" xmlns:included3="https://kie.apache.org/dmn/_47ECD886-CEBE-47BC-BD4F-06113DCDE5D8" xmlns:included4="https://kie.apache.org/dmn/_5FD5AE82-65B3-44EF-98CC-651E88F93786" xmlns:included5="https://kie.apache.org/dmn/_325E4AAB-C41A-49BA-9078-57738900C2C3" xmlns:included6="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included7="https://kie.apache.org/dmn/_6E9D53A6-E99A-4060-9E3E-1AE12EAB5465">
-  <dmn:description>Philadelphia Low-Income Real Estate Tax Freeze for owner-occupants meeting single/married gross annual income limits.</dmn:description>
+  <dmn:description>Philadelphia Low-Income Real Estate Tax Freeze for owner-occupants whose income plus any spouse&apos;s income meets the single/married gross annual limits.</dmn:description>
   <dmn:extensionElements />
   <dmn:import id="_4B71F9A6-D075-4F7E-B831-42AD572135DE" name="Benefits" namespace="https://kie.apache.org/dmn/_9514D95A-63FB-4345-911B-D83E1867F709" locationURI="../../Benefits.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
   <dmn:import id="_340D37C8-7EEF-460D-A206-4BF33C4C306E" name="PersonNotEnrolledInBenefit" namespace="https://kie.apache.org/dmn/_3B9E68B5-63FA-437C-AF93-CC12DDD00BC5" locationURI="../../../checks/enrollment/person-not-enrolled-in-benefit.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
@@ -16,8 +16,11 @@
     <dmn:itemComponent id="_32E766F9-B2CD-41CC-8E2A-BBAB9D7ED13C" name="simpleChecks" isCollection="false">
       <dmn:typeRef>tSimpleChecks</dmn:typeRef>
     </dmn:itemComponent>
-    <dmn:itemComponent id="_29749574-1DF0-4732-9498-791A22AB93FD" name="householdIncome" isCollection="false">
+    <dmn:itemComponent id="_29749574-1DF0-4732-9498-791A22AB93FD" name="applicantAndSpouseIncome" isCollection="false">
       <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_7C2E9B14-5A63-4F8D-B0E7-3D96A1C4F825" name="relationships" isCollection="false">
+      <dmn:typeRef>BDT.tRelationshipList</dmn:typeRef>
     </dmn:itemComponent>
     <dmn:itemComponent id="_0BF4F49C-B7CC-4F66-8CE0-3097D502F79B" name="primaryPersonId" isCollection="false">
       <dmn:typeRef>string</dmn:typeRef>
@@ -28,9 +31,6 @@
       <dmn:typeRef>boolean</dmn:typeRef>
     </dmn:itemComponent>
     <dmn:itemComponent id="_46C7EAD4-CC49-459E-BB18-A62222D4694A" name="livesInPhiladelphiaPa" isCollection="false">
-      <dmn:typeRef>boolean</dmn:typeRef>
-    </dmn:itemComponent>
-    <dmn:itemComponent id="_E1A7AF21-1FBB-4514-91F2-52AC1E8E018E" name="isMarried" isCollection="false">
       <dmn:typeRef>boolean</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>

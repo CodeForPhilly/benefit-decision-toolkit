@@ -1,20 +1,18 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <dmn:definitions xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:kie="https://kie.org/dmn/extensions/1.0" id="_763A8AF1-9F47-45C4-844A-6A3860E510CF" name="TaxFreezeIncome" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_325E4AAB-C41A-49BA-9078-57738900C2C3" xmlns="https://kie.apache.org/dmn/_325E4AAB-C41A-49BA-9078-57738900C2C3" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5">
-  <dmn:description>Philadelphia tax freeze gross annual income: at most $33,500 single or $41,500 married (city guidance verified 2026-10-05). Married income includes both spouses.</dmn:description>
+  <dmn:description>Philadelphia tax freeze gross annual income: at most $33,500 single or $41,500 married (city guidance verified 2026-10-05). Counts the applicant&apos;s income plus a spouse&apos;s; a spouse in relationships means the married limit applies. An empty relationships list means no spouse; omitted relationships mean unknown.</dmn:description>
   <dmn:extensionElements />
   <dmn:import id="_9986C569-813C-46D3-A7AA-8519D72F0182" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
   <dmn:import id="_8C8A5EAB-BE99-4098-B58F-37EE3E1F98B3" name="Income" namespace="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5" locationURI="Income.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
   <dmn:itemDefinition id="_2CBCC35C-346F-4D89-B9DE-C7989BD7D0B6" name="tSituation" isCollection="false">
-    <dmn:itemComponent id="_76B3CE75-3112-45DF-BEB0-1DA3269324A3" name="householdIncome" isCollection="false">
+    <dmn:itemComponent id="_76B3CE75-3112-45DF-BEB0-1DA3269324A3" name="applicantAndSpouseIncome" isCollection="false">
       <dmn:typeRef>number</dmn:typeRef>
     </dmn:itemComponent>
-    <dmn:itemComponent id="_14677E3C-4DFE-4F88-9E62-1761F57FFF5F" name="simpleChecks" isCollection="false">
-      <dmn:typeRef>tSimpleChecks</dmn:typeRef>
+    <dmn:itemComponent id="_14677E3C-4DFE-4F88-9E62-1761F57FFF5F" name="primaryPersonId" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
     </dmn:itemComponent>
-  </dmn:itemDefinition>
-  <dmn:itemDefinition id="_9E4F28C6-81AF-41A8-98D8-AC55FA4A06D3" name="tSimpleChecks" isCollection="false">
-    <dmn:itemComponent id="_27CDB064-2721-4095-B851-2A99E4BE99C9" name="isMarried" isCollection="false">
-      <dmn:typeRef>boolean</dmn:typeRef>
+    <dmn:itemComponent id="_27CDB064-2721-4095-B851-2A99E4BE99C9" name="relationships" isCollection="false">
+      <dmn:typeRef>BDT.tRelationshipList</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
   <dmn:decisionService id="_8FCBEB34-FBA5-4684-AA73-8FC6B9C7E86F" name="TaxFreezeIncomeService">
@@ -29,9 +27,12 @@
     <dmn:informationRequirement id="_8D4DED9E-E8B3-4175-97CA-812C5EF50762">
       <dmn:requiredInput href="#_8C376723-0FFC-490D-B1CE-9E20E7B84537" />
     </dmn:informationRequirement>
+    <dmn:knowledgeRequirement id="_A6F1C0D8-2B47-4E93-8C5A-71D3E9B4F026">
+      <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79#_14EAB512-0E33-419C-9630-BA0265476B6E" />
+    </dmn:knowledgeRequirement>
     <dmn:literalExpression id="_0387D68E-9425-46B8-A8F3-3FBE526872D0">
-      <dmn:text>if situation.householdIncome = null or situation.householdIncome &lt; 0 or situation.simpleChecks.isMarried = null then null
-else situation.householdIncome &lt;= (if situation.simpleChecks.isMarried then 41500 else 33500)</dmn:text>
+      <dmn:text>if situation.applicantAndSpouseIncome = null or situation.applicantAndSpouseIncome &lt; 0 or situation.relationships = null or situation.primaryPersonId = null then null
+else situation.applicantAndSpouseIncome &lt;= (if BDT.spouse id(situation.relationships, situation.primaryPersonId) = null then 33500 else 41500)</dmn:text>
     </dmn:literalExpression>
   </dmn:decision>
   <dmn:inputData id="_8C376723-0FFC-490D-B1CE-9E20E7B84537" name="situation">

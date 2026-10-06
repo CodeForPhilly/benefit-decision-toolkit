@@ -25,6 +25,9 @@
     <dmn:itemComponent id="_22C1E901-82D4-49BD-97DB-6B9AD024AF98" name="householdSize" isCollection="false">
       <dmn:typeRef>number</dmn:typeRef>
     </dmn:itemComponent>
+    <dmn:itemComponent id="_5D9A2C71-3E84-4B6F-A0D2-8C17F4E9B356" name="applicantAndSpouseIncome" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
     <dmn:itemComponent id="_18279532-DA32-4A27-88A7-0C026E8E6249" name="yearsOwnerOccupied" isCollection="false">
       <dmn:typeRef>number</dmn:typeRef>
     </dmn:itemComponent>
@@ -114,9 +117,6 @@
       <dmn:typeRef>boolean</dmn:typeRef>
     </dmn:itemComponent>
     <dmn:itemComponent id="_587DCE99-9448-4BE2-BBAC-8E1946049A23" name="taxDelinquent" isCollection="false">
-      <dmn:typeRef>boolean</dmn:typeRef>
-    </dmn:itemComponent>
-    <dmn:itemComponent id="_12F0D2C8-2B40-4EA5-AC34-B90EE19BBA20" name="isMarried" isCollection="false">
       <dmn:typeRef>boolean</dmn:typeRef>
     </dmn:itemComponent>
     <dmn:itemComponent id="_7A5563AC-B0D3-4C38-B61E-F5677B291054" name="spouseLivesInHousehold" isCollection="false">
