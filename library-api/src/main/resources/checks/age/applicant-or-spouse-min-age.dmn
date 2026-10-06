@@ -56,6 +56,9 @@
     <dmn:informationRequirement id="_4E4BC718-F6FD-4060-BE3B-DD0C9B48774D">
       <dmn:requiredInput href="#_63F66303-A72B-4135-9DA4-EC9C94A6BA03" />
     </dmn:informationRequirement>
+    <dmn:knowledgeRequirement id="_3E8D1F4A-6B2C-4D7E-9A15-C4F0B8E2D961">
+      <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79#_14EAB512-0E33-419C-9630-BA0265476B6E" />
+    </dmn:knowledgeRequirement>
     <dmn:knowledgeRequirement id="_B6C10AA3-5585-406E-9126-D8EECD54EF6C">
       <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_C189BB80-C23E-476E-B0BB-DDF4FF7D305A#_6E428234-5215-4D38-AB4E-9083E80882D4" />
     </dmn:knowledgeRequirement>
@@ -69,7 +72,7 @@
       <dmn:contextEntry>
         <dmn:variable id="_6A82C1D4-430F-4C3D-907F-CEBB593A0F6F" name="SpouseId" typeRef="string" />
         <dmn:literalExpression id="_C94B6004-5D1D-4AC6-B911-19FB66A315F4">
-          <dmn:text>if situation.relationships = null or situation.primaryPersonId = null then null else situation.relationships[personId = situation.primaryPersonId and type = "spouse"][1].relatedPersonId</dmn:text>
+          <dmn:text>if situation.relationships = null or situation.primaryPersonId = null then null else BDT.spouse id(situation.relationships, situation.primaryPersonId)</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>
