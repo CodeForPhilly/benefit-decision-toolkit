@@ -26,9 +26,18 @@ function ScreenerEditor() {
   const [formSchema, setFormSchema] = createSignal();
   const [forceUpdate, setForceUpdate] = createSignal(0);
 
+  // The last screener loaded for this route. Keeping it lets the editor stay
+  // open when a later refetch (such as after publishing) fails.
+  const [loaded, setLoaded] = createSignal<{ id: string; screener: any }>();
+  const loadedScreener = () =>
+    loaded()?.id === params.screenerId ? loaded()?.screener : undefined;
+
   const fetchAndCacheScreener = async (keys) => {
     const screenerData = await fetchScreener(keys[0]);
-    setFormSchema(screenerData.formSchema);
+    // Only take the form from the server on first load so that refetches
+    // don't discard unsaved form edits.
+    if (loaded()?.id !== keys[0]) setFormSchema(screenerData.formSchema);
+    setLoaded({ id: keys[0], screener: screenerData });
     return screenerData;
   };
 
@@ -42,12 +51,9 @@ function ScreenerEditor() {
     fetchAndCacheScreener,
   );
 
-  // `latest` keeps the loaded screener during refetches; reading it after a
-  // failed load would throw, so check the error first.
-  const screenerLabel = () => {
-    if (screener.error) return "Screener unavailable";
-    return screener.latest?.screenerName ?? "Loading screener…";
-  };
+  const screenerLabel = () =>
+    loadedScreener()?.screenerName ??
+    (screener.loading ? "Loading screener…" : "Screener unavailable");
 
   const navbarDefs: Accessor<NavbarProps> = () => {
     return {
@@ -83,13 +89,42 @@ function ScreenerEditor() {
   return (
     <div class="h-screen flex flex-col">
       <EditorNavigation
-        navProps={screener.loading || screener.error ? undefined : navbarDefs}
+        navProps={
+          screener.loading || !loadedScreener() ? undefined : navbarDefs
+        }
         items={[
           { label: "Screeners", href: "/screeners" },
           { label: screenerLabel() },
         ]}
       />
-      {screener.error ? (
+      {screener.loading ? (
+        <Loading />
+      ) : loadedScreener() ? (
+        <>
+          <Title>BDT - {loadedScreener().screenerName}</Title>
+          {activeTab() == "formEditor" && (
+            <FormEditorView
+              formSchema={formSchema}
+              setFormSchema={setFormSchema}
+            />
+          )}
+          {activeTab() == "manageBenefits" && (
+            <ManageBenefits
+              benefitIdToConfigure={benefitIdToConfigure}
+              setBenefitIdToConfigure={setBenefitIdToConfigure}
+            />
+          )}
+          {activeTab() == "preview" && (
+            <Preview screener={loadedScreener} formSchema={formSchema} />
+          )}
+          {activeTab() == "publish" && (
+            <Publish
+              screener={loadedScreener}
+              refetchScreener={() => setForceUpdate((prev) => prev + 1)}
+            />
+          )}
+        </>
+      ) : (
         <div role="alert" class="m-6 rounded-lg border border-gray-300 p-6">
           <h1 class="text-xl font-bold">Unable to load this screener</h1>
           <p class="mt-2">
@@ -108,33 +143,6 @@ function ScreenerEditor() {
             </button>
           </div>
         </div>
-      ) : screener.loading ? (
-        <Loading />
-      ) : (
-        <>
-          <Title>BDT - {screener().screenerName}</Title>
-          {activeTab() == "formEditor" && (
-            <FormEditorView
-              formSchema={formSchema}
-              setFormSchema={setFormSchema}
-            />
-          )}
-          {activeTab() == "manageBenefits" && (
-            <ManageBenefits
-              benefitIdToConfigure={benefitIdToConfigure}
-              setBenefitIdToConfigure={setBenefitIdToConfigure}
-            />
-          )}
-          {activeTab() == "preview" && (
-            <Preview screener={screener} formSchema={formSchema} />
-          )}
-          {activeTab() == "publish" && (
-            <Publish
-              screener={screener}
-              refetchScreener={() => setForceUpdate((prev) => prev + 1)}
-            />
-          )}
-        </>
       )}
     </div>
   );
