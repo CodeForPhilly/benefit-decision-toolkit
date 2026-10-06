@@ -6,6 +6,7 @@ import com.google.api.gax.rpc.StatusCode;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import io.quarkus.logging.Log;
+import org.codeforphilly.bdt.builder.model.domain.Screener;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -251,8 +252,8 @@ public class FirestoreUtils {
                 QuerySnapshot screeners = transaction.get(db.collection(collection)
                         .whereEqualTo("ownerId", owner)).get();
                 for (QueryDocumentSnapshot existing : screeners.getDocuments()) {
-                    if (!id.equals(existing.getId()) && normalizeScreenerName(name)
-                            .equals(normalizeScreenerName(existing.getString("screenerName")))) {
+                    if (!id.equals(existing.getId()) && Screener.normalizeName(name)
+                            .equals(Screener.normalizeName(existing.getString("screenerName")))) {
                         throw new DuplicateScreenerNameException();
                     }
                 }
@@ -272,10 +273,6 @@ public class FirestoreUtils {
             }
             throw failure;
         }
-    }
-
-    public static String normalizeScreenerName(String name) {
-        return name == null ? "" : name.strip().toLowerCase(Locale.ROOT);
     }
 
     public static void updateDocument(String collectionName, Map<String, Object> data, String docId) throws Exception {

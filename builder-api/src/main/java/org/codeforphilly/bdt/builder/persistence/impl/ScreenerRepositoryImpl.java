@@ -105,6 +105,14 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
         // It is saved separately on in cloud storage.
         data.remove("formSchema");
 
+        FirestoreUtils.updateDocument(CollectionNames.WORKING_SCREENER_COLLECTION, data, screener.getId());
+    }
+
+    @Override
+    public void renameWorkingScreener(Screener screener) throws Exception {
+        ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Map<String, Object> data = mapper.convertValue(screener, Map.class);
+        data.remove("formSchema");
         validateName(screener);
         data.put("screenerName", screener.getScreenerName());
         FirestoreUtils.saveScreenerWithUniqueName(CollectionNames.WORKING_SCREENER_COLLECTION,

@@ -34,6 +34,11 @@ public class Screener {
     return s;
   }
 
+  /* Screener names are unique per owner, ignoring case and surrounding spaces. */
+  public static String normalizeName(String name) {
+    return name == null ? "" : name.strip().toLowerCase(java.util.Locale.ROOT);
+  }
+
   public Map<String, Object> getFormSchema() {
     return formSchema;
   }

@@ -144,12 +144,17 @@ public class ScreenerResource {
     Log.info(request.toString());
 
     // Update Screener fields from request
+    // Only a changed name is checked for uniqueness, so screeners that already share a name stay editable.
+    boolean renamed = request.screenerName() != null
+        && !Screener.normalizeName(request.screenerName())
+            .equals(Screener.normalizeName(screener.getScreenerName()));
     if (request.screenerName() != null) {
-      screener.setScreenerName(request.screenerName());
+      screener.setScreenerName(request.screenerName().strip());
     }
 
     try {
-      screenerRepository.updateWorkingScreener(screener);
+      if (renamed) screenerRepository.renameWorkingScreener(screener);
+      else screenerRepository.updateWorkingScreener(screener);
       return Response.ok(screener, MediaType.APPLICATION_JSON).build();
     } catch (DuplicateScreenerNameException duplicate) {
       return Response.status(409).entity(Map.of("error", duplicate.getMessage())).build();
