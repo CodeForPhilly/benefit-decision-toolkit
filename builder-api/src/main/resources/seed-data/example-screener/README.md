@@ -31,10 +31,10 @@ Try these scenarios in Preview:
 - Spouse age: applicant under 65, spouse Yes with birth date over 65 years ago.
 - Existing enrollment: select one program to fail only its enrollment check.
 
-The current library returns unknown for an empty enrollment list, even when
-None of these is explicitly selected. The form explains this behavior rather
-than changing library rules. Selecting an existing program makes that program
-fail and allows the other enrollment checks to pass.
+Selecting None of these sends an empty enrollment list, which the library
+treats as not enrolled in any program, so each enrollment check passes. Leaving
+the question blank keeps enrollment unknown. Selecting an existing program
+makes that program fail and allows the other enrollment checks to pass.
 
 Run `mvn test -Dtest=ExampleScreenerImportServiceTest,ExampleScreenerSeedTest`
 in builder-api to check account import, resource integrity, and custom DMN
