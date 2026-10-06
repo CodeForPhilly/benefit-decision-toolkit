@@ -1,6 +1,6 @@
 import EditorNavigation from "@/components/shared/EditorNavigation";
 import { createSignal, createResource, Accessor } from "solid-js";
-import { useParams } from "@solidjs/router";
+import { A, useParams } from "@solidjs/router";
 
 import FormEditorView from "./FormEditorView";
 import Loading from "../Loading";
@@ -83,13 +83,32 @@ function ScreenerEditor() {
   return (
     <div class="h-screen flex flex-col">
       <EditorNavigation
-        navProps={screener.loading ? undefined : navbarDefs}
+        navProps={screener.loading || screener.error ? undefined : navbarDefs}
         items={[
           { label: "Screeners", href: "/screeners" },
           { label: screenerLabel() },
         ]}
       />
-      {screener.loading ? (
+      {screener.error ? (
+        <div role="alert" class="m-6 rounded-lg border border-gray-300 p-6">
+          <h1 class="text-xl font-bold">Unable to load this screener</h1>
+          <p class="mt-2">
+            The screener may no longer exist, or the service may be unavailable.
+          </p>
+          <div class="mt-4 flex gap-4">
+            <A href="/screeners" class="text-blue-600 underline">
+              Back to screeners
+            </A>
+            <button
+              type="button"
+              class="text-blue-600 underline"
+              onClick={() => setForceUpdate((prev) => prev + 1)}
+            >
+              Try again
+            </button>
+          </div>
+        </div>
+      ) : screener.loading ? (
         <Loading />
       ) : (
         <>

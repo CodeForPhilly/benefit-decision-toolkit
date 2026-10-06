@@ -49,6 +49,10 @@ describe("ScreenerEditor", () => {
       () => (
         <MetaProvider>
           <MemoryRouter history={history}>
+            <Route
+              path="/screeners"
+              component={() => <div>Screeners list</div>}
+            />
             <Route path="/screeners/:screenerId" component={ScreenerEditor} />
           </MemoryRouter>
         </MetaProvider>
@@ -88,5 +92,41 @@ describe("ScreenerEditor", () => {
     button("Manage Benefits").click();
     expect(container.textContent).not.toContain("Configuring benefit-1");
     expect(button("Configure benefit-1")).toBeDefined();
+  });
+
+  it("shows a recovery link when loading fails and can return to the list", async () => {
+    vi.mocked(fetchScreener).mockRejectedValueOnce(new Error("Fetch failed"));
+    const container = mount();
+
+    await vi.waitFor(() => {
+      expect(currentCrumb(container)).toBe("Screener unavailable");
+      expect(container.querySelector('[role="alert"]')?.textContent).toContain(
+        "Unable to load this screener",
+      );
+    });
+    expect(container.textContent).not.toContain("Loading ...");
+    const back = [...container.querySelectorAll("a")].find(
+      (link) => link.textContent === "Back to screeners",
+    )!;
+    back.click();
+    await vi.waitFor(() =>
+      expect(container.textContent).toContain("Screeners list"),
+    );
+  });
+
+  it("can retry a failed load", async () => {
+    vi.mocked(fetchScreener).mockRejectedValueOnce(new Error("Fetch failed"));
+    const container = mount();
+    await vi.waitFor(() =>
+      expect(container.querySelector('[role="alert"]')).not.toBeNull(),
+    );
+    const retry = [...container.querySelectorAll("button")].find(
+      (button) => button.textContent === "Try again",
+    )!;
+    retry.click();
+
+    await vi.waitFor(() => expect(currentCrumb(container)).toBe("My screener"));
+    expect(container.querySelector('[role="alert"]')).toBeNull();
+    expect(container.textContent).toContain("Configure benefit-1");
   });
 });
