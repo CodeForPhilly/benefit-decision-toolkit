@@ -112,6 +112,52 @@ public class OpenAPISchemaPatternTest {
     }
 
     @Test
+    public void testAllSixPropertyTaxBenefitsPublishResolvableComposition() {
+        Map<String, String> benefits = Map.of(
+            "homestead-exemption", "PhlHomesteadExemptionService",
+            "owner-occupied-payment-agreement", "PhlOwnerOccupiedPaymentAgreementService",
+            "senior-citizen-tax-freeze", "PhlSeniorCitizenTaxFreezeService",
+            "low-income-tax-freeze", "PhlLowIncomeTaxFreezeService",
+            "loop", "PhlLoopService",
+            "retip", "PhlRetipService");
+
+        Map<String, Map<String, Object>> paths = openApiSpec.getMap("paths");
+        Map<String, String> checkPathsByService = modelRegistry.getAllModels().values().stream()
+            .filter(model -> model.getPath().startsWith("checks/"))
+            .filter(model -> model.getDecisionServices().contains(model.getModelName() + "Service"))
+            .collect(Collectors.toMap(model -> model.getModelName() + "Service", ModelInfo::getPath));
+
+        benefits.forEach((slug, service) -> {
+            String operation = "paths.'/api/v1/benefits/pa/phl/" + slug + "'.post";
+            assertEquals(service, openApiSpec.getString(operation + ".operationId"));
+            List<Map<String, Object>> checks = openApiSpec.getList(operation + ".'x-bdt-benefit'.checks");
+            assertNotNull(checks, slug + " must expose its composition to the builder");
+            assertFalse(checks.isEmpty(), slug + " must have checks");
+            for (Map<String, Object> check : checks) {
+                String checkService = (String) check.get("operationId");
+                String checkPath = checkPathsByService.get(checkService);
+                assertNotNull(checkPath, slug + " references an undiscovered check: " + checkService);
+                assertTrue(paths.containsKey("/api/v1/" + checkPath), checkService + " must be callable");
+                Map<String, String> bindings = (Map<String, String>) check.get("parameterBindings");
+                assertTrue(bindings.values().stream().allMatch("primaryPersonId"::equals),
+                    slug + " must use parameter bindings the builder can resolve");
+            }
+        });
+
+        List<Map<String, Object>> loopChecks = openApiSpec.getList(
+            "paths.'/api/v1/benefits/pa/phl/loop'.post.'x-bdt-benefit'.checks");
+        assertEquals(9, loopChecks.size());
+        Map<String, Object> years = loopChecks.stream()
+            .filter(check -> "MinYearsOwnerOccupantService".equals(check.get("operationId")))
+            .findFirst().orElseThrow();
+        assertEquals(Map.of("minYears", 10), years.get("parameters"));
+        Map<String, Object> assessment = loopChecks.stream()
+            .filter(check -> "PropertyAssessmentIncreaseService".equals(check.get("operationId")))
+            .findFirst().orElseThrow();
+        assertEquals(Map.of("oneYearPercent", 50, "fiveYearPercent", 75), assessment.get("parameters"));
+    }
+
+    @Test
     public void testAllCheckEndpointsHaveCheckResultInExamples() {
         Map<String, ModelInfo> allModels = modelRegistry.getAllModels();
 

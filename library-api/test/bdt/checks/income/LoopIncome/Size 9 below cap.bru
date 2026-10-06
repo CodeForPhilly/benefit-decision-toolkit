@@ -1,0 +1,25 @@
+meta {
+  name: Size 9 below cap
+  type: http
+  seq: 20
+}
+
+post {
+  url: {{host}}/checks/income/loop-income
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "householdIncome": 206099.99,
+      "householdSize": 9
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq true
+}

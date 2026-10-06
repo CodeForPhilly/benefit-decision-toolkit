@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dmn:definitions xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:kie="https://kie.org/dmn/extensions/1.0" id="_65ED10DA-1CAC-41CC-9649-1B10AFF5A97B" name="NoDisqualifyingTaxAbatement" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_5B6F0640-F1FF-4AFF-9D7A-A58FCA052672" xmlns="https://kie.apache.org/dmn/_5B6F0640-F1FF-4AFF-9D7A-A58FCA052672" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1">
+  <dmn:description>LOOP excludes an abatement received on this property by the current owner or a previous owner who is a close relative; includes historical abatements.</dmn:description>
+  <dmn:extensionElements />
+  <dmn:import id="_566F90C8-0157-490B-84EF-82F935EFD230" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:import id="_7E40F7A4-112E-4CBE-B6F2-09F9E6E93B51" name="Residence" namespace="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1" locationURI="Residence.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:itemDefinition id="_9A7C8E45-BCFC-422D-8B42-6B8A6E04BBE2" name="tSituation" isCollection="false">
+    <dmn:itemComponent id="_8C2B9F5C-B4AE-4FCA-BAC7-648548A80B07" name="simpleChecks" isCollection="false">
+      <dmn:typeRef>tSimpleChecks</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_03251E1E-0A78-4CD5-8773-63DFE1B45C11" name="tSimpleChecks" isCollection="false">
+    <dmn:itemComponent id="_1518DB3D-D563-4819-BE0E-76AB36D46403" name="disqualifyingTaxAbatement" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:decisionService id="_3B748852-FBA3-428F-9C75-1D024EEE30A9" name="NoDisqualifyingTaxAbatementService">
+    <dmn:extensionElements />
+    <dmn:variable id="_D3BD5DF5-EBFF-4D66-A941-58A3E96DB846" name="NoDisqualifyingTaxAbatementService" typeRef="BDT.tCheckResponse" />
+    <dmn:outputDecision href="#_285A7324-8165-46FA-A322-BC3B22C19A79" />
+    <dmn:inputData href="#_0A59467B-A86E-4014-9CA9-C39219EA7E0E" />
+  </dmn:decisionService>
+  <dmn:decision id="_285A7324-8165-46FA-A322-BC3B22C19A79" name="checkResult">
+    <dmn:extensionElements />
+    <dmn:variable id="_CB76D081-081B-4792-9C6F-D327045BBF43" name="checkResult" typeRef="boolean" />
+    <dmn:informationRequirement id="_A37311CF-CC4B-47DD-8F68-AEA82CF9CD33">
+      <dmn:requiredInput href="#_0A59467B-A86E-4014-9CA9-C39219EA7E0E" />
+    </dmn:informationRequirement>
+    <dmn:literalExpression id="_E702ADB9-DD38-4336-B070-CBC6ADF8A693">
+      <dmn:text>if situation.simpleChecks.disqualifyingTaxAbatement = null then null
+else not(situation.simpleChecks.disqualifyingTaxAbatement)</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmn:inputData id="_0A59467B-A86E-4014-9CA9-C39219EA7E0E" name="situation">
+    <dmn:extensionElements />
+    <dmn:variable id="_647F77FD-8986-48C2-894A-A4B5E5D7D125" name="situation" typeRef="tSituation" />
+  </dmn:inputData>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_F7A2E301-DD6B-4F37-8FA5-B3C133E869D0" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_E702ADB9-DD38-4336-B070-CBC6ADF8A693">
+            <kie:width>917</kie:width>
+          </kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="_E87936CA-A731-42DF-8160-708917038649" dmnElementRef="_3B748852-FBA3-428F-9C75-1D024EEE30A9" isCollapsed="false">
+        <dc:Bounds x="100.0" y="140" width="448" height="280" />
+        <dmndi:DMNLabel />
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="100.0" y="280" />
+          <di:waypoint x="548.0" y="280" />
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_731DD395-47C7-4768-9EF5-62B0A70F0FEC" dmnElementRef="_285A7324-8165-46FA-A322-BC3B22C19A79" isCollapsed="false">
+        <dc:Bounds x="244.0" y="170" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_BD493573-928E-4BA6-99F9-30DE18F29A25" dmnElementRef="_0A59467B-A86E-4014-9CA9-C39219EA7E0E" isCollapsed="false">
+        <dc:Bounds x="244.0" y="520" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="_1D31D194-8F00-40E4-B51F-A1CA6B621ADA" dmnElementRef="_A37311CF-CC4B-47DD-8F68-AEA82CF9CD33" sourceElement="_BD493573-928E-4BA6-99F9-30DE18F29A25" targetElement="_731DD395-47C7-4768-9EF5-62B0A70F0FEC">
+        <di:waypoint x="324.0" y="520" />
+        <di:waypoint x="324.0" y="250" />
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>

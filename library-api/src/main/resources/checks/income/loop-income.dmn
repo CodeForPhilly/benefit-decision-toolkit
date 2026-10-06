@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dmn:definitions xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:kie="https://kie.org/dmn/extensions/1.0" id="_9BA070E9-D072-4278-92F2-D928A423ADC2" name="LoopIncome" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_E6D4D573-2C2C-4EE3-BC52-4351F39E5E06" xmlns="https://kie.apache.org/dmn/_E6D4D573-2C2C-4EE3-BC52-4351F39E5E06" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5">
+  <dmn:description>New LOOP applicants: household annual income below the 120% AMI cap; pre-2023 renewals use different limits. City income table verified 2026-10-05.</dmn:description>
+  <dmn:extensionElements />
+  <dmn:import id="_37A3A7B5-3977-439C-AB99-F028623998A6" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:import id="_294E49EF-533A-41AA-906B-A4C1BE010574" name="Income" namespace="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5" locationURI="Income.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:itemDefinition id="_858203ED-D076-4F08-9C9E-2A9D14FA7AC8" name="tSituation" isCollection="false">
+    <dmn:itemComponent id="_989AEB94-CD9C-4052-BE44-EBA0F0A83727" name="householdIncome" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_611F50EA-85A9-4609-9401-9E090ED9FEED" name="householdSize" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:decisionService id="_17B4DC5A-D23D-4116-9163-BE57C068D80E" name="LoopIncomeService">
+    <dmn:extensionElements />
+    <dmn:variable id="_A551B9F6-9B1A-47F9-8B8B-608BC9C8393A" name="LoopIncomeService" typeRef="BDT.tCheckResponse" />
+    <dmn:outputDecision href="#_9F9451CA-C707-461A-81C1-EF816A8B4FFA" />
+    <dmn:inputData href="#_E83712B9-7AAF-49CF-B844-2C81414375AB" />
+  </dmn:decisionService>
+  <dmn:decision id="_9F9451CA-C707-461A-81C1-EF816A8B4FFA" name="checkResult">
+    <dmn:extensionElements />
+    <dmn:variable id="_3828A95E-2F80-4784-8D1B-90C71CF485AA" name="checkResult" typeRef="boolean" />
+    <dmn:informationRequirement id="_0E9CC6C5-07AB-4EC9-8985-6EA4230EDC30">
+      <dmn:requiredInput href="#_E83712B9-7AAF-49CF-B844-2C81414375AB" />
+    </dmn:informationRequirement>
+    <dmn:literalExpression id="_BA464CDF-932F-42BB-9D23-EE8B90076A3C">
+      <dmn:text>if situation.householdIncome = null or situation.householdIncome &lt; 0 or situation.householdSize = null then null
+else if situation.householdSize &lt; 1 or situation.householdSize &gt; 10 or floor(situation.householdSize) != situation.householdSize then null
+else situation.householdIncome &lt; [103050, 117800, 132500, 147200, 159000, 170800, 182550, 194350, 206100, 217900][situation.householdSize]</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmn:inputData id="_E83712B9-7AAF-49CF-B844-2C81414375AB" name="situation">
+    <dmn:extensionElements />
+    <dmn:variable id="_B3AB25AF-8194-4BA9-962E-E301D11EE4BD" name="situation" typeRef="tSituation" />
+  </dmn:inputData>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_8EB23DFD-DF4F-45FA-9C00-88DADD0BFDAA" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_BA464CDF-932F-42BB-9D23-EE8B90076A3C">
+            <kie:width>917</kie:width>
+          </kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="_DC19F198-0006-415B-81C6-65AE4705DF3A" dmnElementRef="_17B4DC5A-D23D-4116-9163-BE57C068D80E" isCollapsed="false">
+        <dc:Bounds x="100.0" y="140" width="280" height="280" />
+        <dmndi:DMNLabel />
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="100.0" y="280" />
+          <di:waypoint x="380.0" y="280" />
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_148BEE2D-BFEA-45CA-BBDA-1DEB5C2E0BA5" dmnElementRef="_9F9451CA-C707-461A-81C1-EF816A8B4FFA" isCollapsed="false">
+        <dc:Bounds x="160.0" y="170" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_720D272E-59AA-4A33-B571-C558F641645D" dmnElementRef="_E83712B9-7AAF-49CF-B844-2C81414375AB" isCollapsed="false">
+        <dc:Bounds x="160.0" y="520" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="_6C89EC14-A677-4879-96BA-23FF368C74FF" dmnElementRef="_0E9CC6C5-07AB-4EC9-8985-6EA4230EDC30" sourceElement="_720D272E-59AA-4A33-B571-C558F641645D" targetElement="_148BEE2D-BFEA-45CA-BBDA-1DEB5C2E0BA5">
+        <di:waypoint x="240.0" y="520" />
+        <di:waypoint x="240.0" y="250" />
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>

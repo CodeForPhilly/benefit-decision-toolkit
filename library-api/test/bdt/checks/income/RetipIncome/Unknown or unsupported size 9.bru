@@ -1,0 +1,25 @@
+meta {
+  name: Unknown or unsupported size 9
+  type: http
+  seq: 23
+}
+
+post {
+  url: {{host}}/checks/income/retip-income
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "householdIncome": 10000,
+      "householdSize": 9
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq null
+}

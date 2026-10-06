@@ -1,0 +1,27 @@
+meta {
+  name: Null
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/checks/income/tax-freeze-income
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "householdIncome": 30000,
+      "simpleChecks": {
+        "isMarried": null
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq null
+}

@@ -1,0 +1,27 @@
+meta {
+  name: Married over limit
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{host}}/checks/income/tax-freeze-income
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "householdIncome": 41500.01,
+      "simpleChecks": {
+        "isMarried": true
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq false
+}

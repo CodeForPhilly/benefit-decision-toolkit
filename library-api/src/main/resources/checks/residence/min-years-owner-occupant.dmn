@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dmn:definitions xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:kie="https://kie.org/dmn/extensions/1.0" id="_1D0E68F9-595C-4B1F-ABA8-4078075C37D3" name="MinYearsOwnerOccupant" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_7CF18264-8908-42B1-8D1B-838863020556" xmlns="https://kie.apache.org/dmn/_7CF18264-8908-42B1-8D1B-838863020556" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1">
+  <dmn:description>Checks that the applicant has owned and occupied the primary residence for at least the specified number of years.</dmn:description>
+  <dmn:extensionElements />
+  <dmn:import id="_4B3E33D7-1C19-45BE-9268-7397989D041C" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:import id="_DD414496-6FA6-4DE4-A89E-401CE24F648D" name="Residence" namespace="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1" locationURI="Residence.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:itemDefinition id="_16C8414D-EEC3-4827-84D6-B3B8D4D0B417" name="tSituation" isCollection="false">
+    <dmn:itemComponent id="_195CC847-02C7-42C5-A562-7B8B8E0C1FEC" name="yearsOwnerOccupied" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_91B23658-E28E-4EAF-84B6-A7FE691AEF63" name="tParameters" isCollection="false">
+    <dmn:itemComponent id="_33825710-C2CB-4A22-86FD-E832D8BD74D1" name="minYears" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:decisionService id="_D22362E8-8207-40A8-A967-044DE8693E4E" name="MinYearsOwnerOccupantService">
+    <dmn:extensionElements />
+    <dmn:variable id="_30158FA2-D41D-4DE5-8A2C-C3FCAF65D5D2" name="MinYearsOwnerOccupantService" typeRef="BDT.tCheckResponse" />
+    <dmn:outputDecision href="#_5038BC28-9443-449C-B6AA-FFF361E90BBD" />
+    <dmn:inputData href="#_22C28902-170A-451D-A21F-DD04D156E503" />
+    <dmn:inputData href="#_5C32E232-D785-45B7-89F3-64D672E38A43" />
+  </dmn:decisionService>
+  <dmn:decision id="_5038BC28-9443-449C-B6AA-FFF361E90BBD" name="checkResult">
+    <dmn:extensionElements />
+    <dmn:variable id="_64149E97-4847-42AA-96AB-1E5A14A91733" name="checkResult" typeRef="boolean" />
+    <dmn:informationRequirement id="_8FE9925D-1A27-440D-885D-AE4034D2690B">
+      <dmn:requiredInput href="#_22C28902-170A-451D-A21F-DD04D156E503" />
+    </dmn:informationRequirement>
+    <dmn:informationRequirement id="_2BC9B25F-6285-4A1B-98EC-3EBD68FFA360">
+      <dmn:requiredInput href="#_5C32E232-D785-45B7-89F3-64D672E38A43" />
+    </dmn:informationRequirement>
+    <dmn:literalExpression id="_ECB73134-B879-4A00-91C6-8DFC0030823D">
+      <dmn:text>if situation.yearsOwnerOccupied = null or situation.yearsOwnerOccupied &lt; 0 or parameters.minYears = null or parameters.minYears &lt; 0 then null
+else situation.yearsOwnerOccupied &gt;= parameters.minYears</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmn:inputData id="_22C28902-170A-451D-A21F-DD04D156E503" name="situation">
+    <dmn:extensionElements />
+    <dmn:variable id="_396B82F7-4D5F-4D49-AA6F-5558CDFDE8FB" name="situation" typeRef="tSituation" />
+  </dmn:inputData>
+  <dmn:inputData id="_5C32E232-D785-45B7-89F3-64D672E38A43" name="parameters">
+    <dmn:extensionElements />
+    <dmn:variable id="_3AB3D7C0-3813-4D74-960F-A1E7E89D1FCE" name="parameters" typeRef="tParameters" />
+  </dmn:inputData>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_12EA081B-6722-4DB4-8984-C538C1D010B3" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_ECB73134-B879-4A00-91C6-8DFC0030823D">
+            <kie:width>917</kie:width>
+          </kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="_4C86E058-7883-4532-A602-072EDEF08559" dmnElementRef="_D22362E8-8207-40A8-A967-044DE8693E4E" isCollapsed="false">
+        <dc:Bounds x="100.0" y="140" width="376" height="280" />
+        <dmndi:DMNLabel />
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="100.0" y="280" />
+          <di:waypoint x="476.0" y="280" />
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_614401CB-E125-4C66-808D-29243521E104" dmnElementRef="_5038BC28-9443-449C-B6AA-FFF361E90BBD" isCollapsed="false">
+        <dc:Bounds x="208.0" y="170" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_FAF0C685-5A25-459D-AEC8-6D43385D339D" dmnElementRef="_22C28902-170A-451D-A21F-DD04D156E503" isCollapsed="false">
+        <dc:Bounds x="98.0" y="520" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_E408E733-2107-4E51-9BAC-0BFABEFCE934" dmnElementRef="_5C32E232-D785-45B7-89F3-64D672E38A43" isCollapsed="false">
+        <dc:Bounds x="318.0" y="520" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="_4F79459D-7A6C-400B-B27D-DCD528CE2937" dmnElementRef="_8FE9925D-1A27-440D-885D-AE4034D2690B" sourceElement="_FAF0C685-5A25-459D-AEC8-6D43385D339D" targetElement="_614401CB-E125-4C66-808D-29243521E104">
+        <di:waypoint x="178.0" y="520" />
+        <di:waypoint x="279.2" y="250" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="_DB688841-7BE3-407B-9008-EF53483D9F70" dmnElementRef="_2BC9B25F-6285-4A1B-98EC-3EBD68FFA360" sourceElement="_E408E733-2107-4E51-9BAC-0BFABEFCE934" targetElement="_614401CB-E125-4C66-808D-29243521E104">
+        <di:waypoint x="398.0" y="520" />
+        <di:waypoint x="296.8" y="250" />
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>

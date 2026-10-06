@@ -61,6 +61,10 @@ File: src/main/resources/checks/age/person-min-age.dmn
 
 ### Checks + Benefits Architecture
 
+The library includes all six Philadelphia property-tax benefits. See
+[Property tax benefits](PROPERTY_TAX_BENEFITS.md) for their compositions,
+input fields, policy sources, and income-table maintenance.
+
 **Checks** = Reusable eligibility logic (e.g., "is person 65+?")
 - Location: `src/main/resources/checks/{category}/`
 - Example: `checks/age/person-min-age.dmn` → `/api/v1/checks/age/person-min-age`

@@ -1,0 +1,30 @@
+meta {
+  name: Zero baseline
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{host}}/checks/residence/property-assessment-increase
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "propertyAssessment": 150000,
+      "previousYearPropertyAssessment": 0,
+      "lowestPropertyAssessmentLastFiveYears": 0
+    },
+    "parameters": {
+      "oneYearPercent": 50,
+      "fiveYearPercent": 75
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq null
+}

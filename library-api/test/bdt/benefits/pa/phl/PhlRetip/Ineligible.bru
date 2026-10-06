@@ -1,0 +1,41 @@
+meta {
+  name: Ineligible
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/benefits/pa/phl/retip
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "enrollments": [
+        {
+          "personId": "p1",
+          "benefit": "OtherBenefit"
+        }
+      ],
+      "simpleChecks": {
+        "ownerOccupant": false,
+        "livesInPhiladelphiaPa": true
+      },
+      "people": [
+        {
+          "id": "p1",
+          "dateOfBirth": "1940-01-01"
+        }
+      ]
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.isEligible: eq false
+  res.body.checks.OwnerOccupant: eq false
+}

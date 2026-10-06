@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dmn:definitions xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" id="_F3B91F5D-6EEC-4DBC-AE47-BA91DD2C9E5D" name="Income" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5" xmlns="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/">
+  <dmn:description>Shared definitions for income eligibility checks.</dmn:description>
+  <dmn:extensionElements />
+</dmn:definitions>

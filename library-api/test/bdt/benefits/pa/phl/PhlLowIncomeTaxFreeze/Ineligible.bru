@@ -1,0 +1,37 @@
+meta {
+  name: Ineligible
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/benefits/pa/phl/low-income-tax-freeze
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "enrollments": [
+        {
+          "personId": "p1",
+          "benefit": "OtherBenefit"
+        }
+      ],
+      "simpleChecks": {
+        "ownerOccupant": false,
+        "livesInPhiladelphiaPa": true,
+        "isMarried": false
+      },
+      "householdIncome": 33500
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.isEligible: eq false
+  res.body.checks.OwnerOccupant: eq false
+}

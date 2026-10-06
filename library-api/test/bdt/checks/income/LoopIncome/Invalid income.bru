@@ -1,0 +1,25 @@
+meta {
+  name: Invalid income
+  type: http
+  seq: 29
+}
+
+post {
+  url: {{host}}/checks/income/loop-income
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "householdIncome": -1,
+      "householdSize": 1
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq null
+}

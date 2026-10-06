@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dmn:definitions xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:kie="https://kie.org/dmn/extensions/1.0" id="_E65037DB-000B-4A01-80EA-D54B56D118C2" name="PropertyTaxesCurrentOrPaymentPlan" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_70055967-EC4F-4900-B499-53DFE6337AA6" xmlns="https://kie.apache.org/dmn/_70055967-EC4F-4900-B499-53DFE6337AA6" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1" xmlns:included3="https://kie.apache.org/dmn/_F26CE0F4-1FF7-404A-9EF3-788224C69FE5">
+  <dmn:description>Checks whether property taxes are current or covered by an active OOPA or Real Estate Tax installment plan.</dmn:description>
+  <dmn:extensionElements />
+  <dmn:import id="_C11847C2-4D2E-4E35-8B21-4C42448E5932" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:import id="_800C3E7A-2AE4-41E6-85A6-4D7970674B22" name="Residence" namespace="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1" locationURI="Residence.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:import id="_45F151E9-00AD-41F0-B690-94D338474E80" name="TaxDelinquent" namespace="https://kie.apache.org/dmn/_F26CE0F4-1FF7-404A-9EF3-788224C69FE5" locationURI="tax-delinquent.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:itemDefinition id="_881DB85A-792A-433D-9F14-CCF5EEFE436D" name="tSituation" isCollection="false">
+    <dmn:itemComponent id="_2EC7A1D5-7C28-47B6-A429-8C855AB82D5F" name="simpleChecks" isCollection="false">
+      <dmn:typeRef>tSimpleChecks</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_C6C12EAC-4CCF-4630-B035-B33FE1EF454A" name="tSimpleChecks" isCollection="false">
+    <dmn:itemComponent id="_02FFEE02-CAD4-48D6-AA04-45C75D688AB8" name="taxDelinquent" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_42A75FB8-9FE4-44EA-8FC7-714DFF5AAE27" name="propertyTaxPaymentPlan" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:decisionService id="_3DB44F95-F290-47A3-890C-686F02A3B861" name="PropertyTaxesCurrentOrPaymentPlanService">
+    <dmn:extensionElements />
+    <dmn:variable id="_ACBE1C8A-B640-4064-9206-D20DED635A0A" name="PropertyTaxesCurrentOrPaymentPlanService" typeRef="BDT.tCheckResponse" />
+    <dmn:outputDecision href="#_FDFB4A3B-E85B-4B2F-B7DF-22205A3E3C4C" />
+    <dmn:inputData href="#_0E1E4E91-93D3-4958-9F33-0E6900A729C1" />
+  </dmn:decisionService>
+  <dmn:decision id="_FDFB4A3B-E85B-4B2F-B7DF-22205A3E3C4C" name="checkResult">
+    <dmn:extensionElements />
+    <dmn:variable id="_23AEBB05-AAA1-40E1-B87F-D3E29F36017C" name="checkResult" typeRef="boolean" />
+    <dmn:informationRequirement id="_B234BFD9-C4A0-40BD-A822-BD5EA5C311E5">
+      <dmn:requiredInput href="#_0E1E4E91-93D3-4958-9F33-0E6900A729C1" />
+    </dmn:informationRequirement>
+    <dmn:knowledgeRequirement id="_489E72A3-0E80-449A-B9D0-B7D2CE68E17D">
+      <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_F26CE0F4-1FF7-404A-9EF3-788224C69FE5#_C41C2468-7290-4E8E-895F-8D0F648C6E26" />
+    </dmn:knowledgeRequirement>
+    <dmn:literalExpression id="_45D4E118-051E-418D-AB1B-7EA840305C72">
+      <dmn:text>not(TaxDelinquent.TaxDelinquentService(situation: situation)) or situation.simpleChecks.propertyTaxPaymentPlan</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmn:inputData id="_0E1E4E91-93D3-4958-9F33-0E6900A729C1" name="situation">
+    <dmn:extensionElements />
+    <dmn:variable id="_3ADC4713-896A-4FCE-8F21-5A65992BB260" name="situation" typeRef="tSituation" />
+  </dmn:inputData>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_576D9E31-D628-4E00-812A-C7F99A47A90F" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_45D4E118-051E-418D-AB1B-7EA840305C72">
+            <kie:width>917</kie:width>
+          </kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="_54F797F4-1C92-406B-A1AF-F0B62C43CD9A" dmnElementRef="_3DB44F95-F290-47A3-890C-686F02A3B861" isCollapsed="false">
+        <dc:Bounds x="100.0" y="140" width="520" height="280" />
+        <dmndi:DMNLabel />
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="100.0" y="280" />
+          <di:waypoint x="620.0" y="280" />
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_A1C1F9D8-B6B0-4ABF-A46A-5D2A488FEF62" dmnElementRef="_FDFB4A3B-E85B-4B2F-B7DF-22205A3E3C4C" isCollapsed="false">
+        <dc:Bounds x="280.0" y="170" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_351305FA-B247-49D8-AA71-9E9E6CF20312" dmnElementRef="_0E1E4E91-93D3-4958-9F33-0E6900A729C1" isCollapsed="false">
+        <dc:Bounds x="280.0" y="520" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_C2B7B749-C0CF-4240-A8A5-950567C2CBBC" dmnElementRef="included3:_C41C2468-7290-4E8E-895F-8D0F648C6E26" isCollapsed="true">
+        <dc:Bounds x="80" y="0" width="300" height="100" />
+        <dmndi:DMNLabel />
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="80" y="50" />
+          <di:waypoint x="380" y="50" />
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="_AA6B39C7-533C-4268-9D09-EC6359C2578A" dmnElementRef="_B234BFD9-C4A0-40BD-A822-BD5EA5C311E5" sourceElement="_351305FA-B247-49D8-AA71-9E9E6CF20312" targetElement="_A1C1F9D8-B6B0-4ABF-A46A-5D2A488FEF62">
+        <di:waypoint x="360.0" y="520" />
+        <di:waypoint x="360.0" y="250" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="_9CEDEA58-805C-439B-A250-C76853A7BEB0" dmnElementRef="_489E72A3-0E80-449A-B9D0-B7D2CE68E17D" sourceElement="_C2B7B749-C0CF-4240-A8A5-950567C2CBBC" targetElement="_A1C1F9D8-B6B0-4ABF-A46A-5D2A488FEF62">
+        <di:waypoint x="230.0" y="100" />
+        <di:waypoint x="358.0" y="170" />
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>

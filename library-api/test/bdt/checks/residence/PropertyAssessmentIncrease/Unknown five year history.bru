@@ -1,0 +1,29 @@
+meta {
+  name: Unknown five year history
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{host}}/checks/residence/property-assessment-increase
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "propertyAssessment": 149999,
+      "previousYearPropertyAssessment": 100000
+    },
+    "parameters": {
+      "oneYearPercent": 50,
+      "fiveYearPercent": 75
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq null
+}

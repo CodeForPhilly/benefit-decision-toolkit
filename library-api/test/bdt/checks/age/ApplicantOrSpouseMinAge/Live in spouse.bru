@@ -1,0 +1,47 @@
+meta {
+  name: Live in spouse
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/checks/age/applicant-or-spouse-min-age
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "people": [
+        {
+          "id": "p1",
+          "dateOfBirth": "2000-01-01"
+        },
+        {
+          "id": "p2",
+          "dateOfBirth": "1940-01-01"
+        }
+      ],
+      "relationships": [
+        {
+          "personId": "p1",
+          "relatedPersonId": "p2",
+          "type": "spouse"
+        }
+      ],
+      "simpleChecks": {
+        "spouseLivesInHousehold": true
+      }
+    },
+    "parameters": {
+      "minAge": 65
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq true
+}

@@ -1,0 +1,36 @@
+meta {
+  name: Married at limit
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{host}}/benefits/pa/phl/low-income-tax-freeze
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "enrollments": [
+        {
+          "personId": "p1",
+          "benefit": "OtherBenefit"
+        }
+      ],
+      "simpleChecks": {
+        "ownerOccupant": true,
+        "livesInPhiladelphiaPa": true,
+        "isMarried": true
+      },
+      "householdIncome": 41500
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.isEligible: eq true
+}
