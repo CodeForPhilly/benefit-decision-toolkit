@@ -70,7 +70,8 @@ class ScreenerTransferServiceTest {
         source.setBenefits(List.of(new BenefitDetail("benefit-a", "First", "A description"),
                 new BenefitDetail("benefit-b", "Second", "Another description")));
         when(screeners.getWorkingScreenerMetaDataOnly(source.getId())).thenReturn(Optional.of(source));
-        when(screeners.getWorkingScreener(source.getId())).thenReturn(Optional.of(source));
+        when(storage.readFormSchema("form/working/" + source.getId() + ".json"))
+                .thenReturn(Optional.of(source.getFormSchema()));
         when(screeners.getBenefitsInScreener(source)).thenReturn(benefits);
     }
 
@@ -151,7 +152,6 @@ class ScreenerTransferServiceTest {
         // Re-export from the recipient, then bring that file back to the original account.
         // The origin remains stable even though local family IDs and the draft's name changed.
         when(screeners.getWorkingScreenerMetaDataOnly(two.getId())).thenReturn(Optional.of(two));
-        when(screeners.getWorkingScreener(two.getId())).thenReturn(Optional.of(two));
         when(screeners.getBenefitsInScreener(two)).thenReturn(importedBenefits.getAllValues());
         ScreenerTransfer reexported = service.exportScreener("recipient", two.getId());
         assertTrue(reexported.customChecks().stream().allMatch(c -> "example".equals(c.getOriginCheckId())));
@@ -293,7 +293,6 @@ class ScreenerTransferServiceTest {
         var importedBenefits = ArgumentCaptor.forClass(Benefit.class);
         verify(screeners, times(2)).saveNewCustomBenefit(eq(legacyCopy.getId()), importedBenefits.capture());
         when(screeners.getWorkingScreenerMetaDataOnly(legacyCopy.getId())).thenReturn(Optional.of(legacyCopy));
-        when(screeners.getWorkingScreener(legacyCopy.getId())).thenReturn(Optional.of(legacyCopy));
         when(screeners.getBenefitsInScreener(legacyCopy)).thenReturn(importedBenefits.getAllValues());
         doReturn(List.of(draft, check("P-family-1.0.0", "1.0.0"), check("P-family-2.0.0", "2.0.0")))
                 .when(checks).getCustomChecksForImport("sender");
@@ -431,9 +430,22 @@ class ScreenerTransferServiceTest {
     }
 
     @Test
+    void unreadableFormFailsTheExportInsteadOfDroppingTheForm() throws Exception {
+        when(storage.readFormSchema(anyString())).thenThrow(new Exception("Storage unavailable"));
+        assertThrows(Exception.class, () -> service.exportScreener("sender", source.getId()));
+    }
+
+    @Test
+    void screenerWithoutASavedFormExportsWithoutOne() throws Exception {
+        when(storage.readFormSchema(anyString())).thenReturn(Optional.empty());
+        ScreenerTransfer export = service.exportScreener("sender", source.getId());
+        assertTrue(export.formSchema() == null || export.formSchema().isNull());
+    }
+
+    @Test
     void refusesExportsForOtherUsersBeforeReadingArtifacts() throws Exception {
         assertThrows(ForbiddenException.class, () -> service.exportScreener("recipient", source.getId()));
-        verify(screeners, never()).getWorkingScreener(anyString());
+        verify(storage, never()).readFormSchema(anyString());
         verify(screeners, never()).getBenefitsInScreener(any());
     }
 
@@ -513,7 +525,8 @@ class ScreenerTransferServiceTest {
             exampleBenefits.add(readResource(path.asText(), Benefit.class));
         }
         when(screeners.getWorkingScreenerMetaDataOnly(example.getId())).thenReturn(Optional.of(example));
-        when(screeners.getWorkingScreener(example.getId())).thenReturn(Optional.of(example));
+        when(storage.readFormSchema("form/working/" + example.getId() + ".json"))
+                .thenReturn(Optional.of(example.getFormSchema()));
         when(screeners.getBenefitsInScreener(example)).thenReturn(exampleBenefits);
         for (String group : List.of("workingCustomChecks", "publishedCustomChecks")) {
             for (var path : manifest.path(group)) {

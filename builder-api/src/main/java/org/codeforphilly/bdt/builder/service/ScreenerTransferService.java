@@ -32,9 +32,10 @@ public class ScreenerTransferService {
 
     public ScreenerTransfer exportScreener(String owner, String id) throws Exception {
         // Authorize before fetching the form, benefits, or check models.
-        Screener metadata = screeners.getWorkingScreenerMetaDataOnly(id).orElseThrow(NotFoundException::new);
-        if (!owner.equals(metadata.getOwnerId())) throw new ForbiddenException();
-        Screener screener = screeners.getWorkingScreener(id).orElseThrow(NotFoundException::new);
+        Screener screener = screeners.getWorkingScreenerMetaDataOnly(id).orElseThrow(NotFoundException::new);
+        if (!owner.equals(screener.getOwnerId())) throw new ForbiddenException();
+        // A failed read must fail the export rather than silently drop the form.
+        Map<String, Object> formSchema = storage.readFormSchema(storage.getScreenerWorkingFormSchemaPath(id)).orElse(null);
         List<Benefit> benefits = new ArrayList<>();
         Map<String, Benefit> byId = new HashMap<>();
         for (Benefit benefit : screeners.getBenefitsInScreener(screener)) byId.put(benefit.getId(), benefit);
@@ -63,7 +64,7 @@ public class ScreenerTransferService {
             }
         }
         return new ScreenerTransfer(ScreenerTransfer.FORMAT, ScreenerTransfer.VERSION,
-                screener.getScreenerName(), mapper.valueToTree(screener.getFormSchema()),
+                screener.getScreenerName(), mapper.valueToTree(formSchema),
                 benefits, new ArrayList<>(customChecks.values()));
     }
 

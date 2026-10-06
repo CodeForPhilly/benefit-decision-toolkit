@@ -29,5 +29,8 @@ public interface StorageService {
 
     Map<String, Object> getFormSchemaFromStorage(String filePath);
 
+    /* Empty when no form has been saved. Unlike getFormSchemaFromStorage, read failures are thrown. */
+    Optional<Map<String, Object>> readFormSchema(String filePath) throws Exception;
+
     void updatePublishedFormSchemaArtifact(String screenerId, String publishedScreenerId) throws Exception;
 }
