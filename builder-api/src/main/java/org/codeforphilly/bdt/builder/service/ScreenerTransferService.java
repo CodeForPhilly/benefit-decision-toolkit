@@ -19,15 +19,17 @@ public class ScreenerTransferService {
     private final EligibilityCheckRepository checks;
     private final StorageService storage;
     private final LibraryApiService library;
+    private final DmnService dmn;
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Inject
     public ScreenerTransferService(ScreenerRepository screeners, EligibilityCheckRepository checks,
-            StorageService storage, LibraryApiService library) {
+            StorageService storage, LibraryApiService library, DmnService dmn) {
         this.screeners = screeners;
         this.checks = checks;
         this.storage = storage;
         this.library = library;
+        this.dmn = dmn;
     }
 
     public ScreenerTransfer exportScreener(String owner, String id) throws Exception {
@@ -101,6 +103,7 @@ public class ScreenerTransferService {
                 name.equalsIgnoreCase(existing.getScreenerName() == null ? "" : existing.getScreenerName().strip()))) {
             throw new DuplicateScreenerNameException();
         }
+        validateModels(originals.values());
         Map<String, EligibilityCheck> libraryChecks = new HashMap<>();
         for (Benefit benefit : transfer.benefits()) {
             for (CheckConfig config : configs(benefit)) {
@@ -280,7 +283,6 @@ public class ScreenerTransferService {
         try {
             same = Objects.equals(incoming.getName(), existing.getName())
                     && Objects.equals(incoming.getVersion(), existing.getVersion())
-                    && Objects.equals(normalizeInputDefinition(incoming), normalizeInputDefinition(existing))
                     && mapper.valueToTree(incoming.getParameterDefinitions() == null ? List.of() : incoming.getParameterDefinitions())
                         .equals(mapper.valueToTree(existing.getParameterDefinitions() == null ? List.of() : existing.getParameterDefinitions()))
                     && !blank(existing.getDmnModel())
@@ -293,11 +295,6 @@ public class ScreenerTransferService {
                     + " that differs from your draft. Publish and use a check version before exporting."
                 : "Check " + incoming.getName() + " version " + incoming.getVersion()
                     + " already exists with different rules or parameter definitions. The screener was not imported.");
-    }
-
-    private com.fasterxml.jackson.databind.JsonNode normalizeInputDefinition(EligibilityCheck check) {
-        var definition = check.getInputDefinition();
-        return definition == null || definition.isNull() ? null : definition;
     }
 
     private void saveCheck(EligibilityCheck check, boolean published, Deque<Cleanup> cleanup) throws Exception {
@@ -412,6 +409,30 @@ public class ScreenerTransferService {
                 throw new BadRequestException("The file contains an unrelated custom check.");
         }
         return byId;
+    }
+
+    /* Compiles each model as publishing does and replaces the file's input definition with the one derived
+       from it, so a check whose model cannot run, or whose inputs disagree with it, is never created. */
+    private void validateModels(Collection<EligibilityCheck> imported) {
+        Map<String, com.fasterxml.jackson.databind.JsonNode> derived = new HashMap<>();
+        for (EligibilityCheck check : imported) {
+            // Versions of one check often share a model, so compile each distinct model once.
+            String key = check.getName() + "\u0000" + check.getDmnModel();
+            if (!derived.containsKey(key)) {
+                List<String> errors;
+                try {
+                    errors = dmn.validateDmnXml(check.getDmnModel(), Map.of(), check.getName(), check.getName());
+                    if (errors.isEmpty())
+                        derived.put(key, dmn.extractInputSchema(check.getDmnModel(), Map.of(), check.getName()));
+                } catch (Exception failure) {
+                    errors = List.of("the model could not be compiled.");
+                }
+                if (!errors.isEmpty())
+                    throw new BadRequestException("Invalid DMN model for check " + check.getName() + ": "
+                            + errors.getFirst());
+            }
+            check.setInputDefinition(derived.get(key));
+        }
     }
 
     private List<CheckConfig> configs(Benefit benefit) {

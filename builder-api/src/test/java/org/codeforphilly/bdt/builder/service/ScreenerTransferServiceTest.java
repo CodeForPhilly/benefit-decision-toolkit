@@ -22,11 +22,14 @@ class ScreenerTransferServiceTest {
     private final EligibilityCheckRepository checks = mock(EligibilityCheckRepositoryImpl.class, CALLS_REAL_METHODS);
     private final StorageService storage = mock(StorageService.class);
     private final LibraryApiService library = mock(LibraryApiService.class);
-    private final ScreenerTransferService service = new ScreenerTransferService(screeners, checks, storage, library);
+    private final DmnService dmn = mock(DmnService.class);
+    private final ScreenerTransferService service = new ScreenerTransferService(screeners, checks, storage, library, dmn);
     private final ObjectMapper mapper = new ObjectMapper();
     private Screener source;
     private List<Benefit> benefits;
     private EligibilityCheck draft;
+    private final com.fasterxml.jackson.databind.JsonNode derivedInputs =
+            new ObjectMapper().createObjectNode().put("type", "object");
 
     @BeforeEach
     void setup() throws Exception {
@@ -43,6 +46,8 @@ class ScreenerTransferServiceTest {
         when(storage.getCheckDmnModelPath(anyString())).thenAnswer(i -> "check/" + i.getArgument(0) + ".dmn");
         when(storage.getScreenerWorkingFormSchemaPath(anyString())).thenAnswer(i -> "form/working/" + i.getArgument(0) + ".json");
         when(screeners.saveNewWorkingScreener(any())).thenAnswer(i -> i.<Screener>getArgument(0).getId());
+        when(dmn.validateDmnXml(anyString(), anyMap(), anyString(), anyString())).thenReturn(List.of());
+        when(dmn.extractInputSchema(anyString(), anyMap(), anyString())).thenReturn(derivedInputs);
         source = Screener.create("sender", "Housing screener", null);
         source.setId("source-screener");
         source.setPublishedScreenerId("public-link");
@@ -410,6 +415,29 @@ class ScreenerTransferServiceTest {
     }
 
     @Test
+    void modelThatDoesNotCompileIsRejectedBeforeAnyWrites() throws Exception {
+        ScreenerTransfer export = service.exportScreener("sender", source.getId());
+        when(dmn.validateDmnXml(anyString(), anyMap(), anyString(), anyString()))
+                .thenReturn(List.of("The Result DataType of Decision 'Income' must be of type 'boolean'."));
+        var failure = assertThrows(BadRequestException.class, () -> service.importScreener("recipient", export));
+        assertTrue(failure.getMessage().contains("must be of type 'boolean'"));
+        verify(checks, never()).reserveCheckName(anyString(), anyString(), anyString(), anyString());
+        verify(storage, never()).writeStringToStorage(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    void inputDefinitionsAreDerivedFromTheModelRatherThanTakenFromTheFile() throws Exception {
+        ScreenerTransfer export = service.exportScreener("sender", source.getId());
+        export.customChecks().forEach(c -> c.setInputDefinition(mapper.createObjectNode().put("forged", true)));
+        service.importScreener("recipient", export);
+        var saved = ArgumentCaptor.forClass(EligibilityCheck.class);
+        verify(checks, times(2)).saveNewPublishedCustomCheck(saved.capture());
+        assertTrue(saved.getAllValues().stream().allMatch(c -> derivedInputs.equals(c.getInputDefinition())));
+        // Both versions share one model, so it is compiled once.
+        verify(dmn).validateDmnXml(anyString(), anyMap(), anyString(), anyString());
+    }
+
+    @Test
     void rejectsUnsupportedFormatAndUnresolvedReferences() throws Exception {
         assertThrows(BadRequestException.class, () -> service.importScreener("recipient",
                 new ScreenerTransfer(ScreenerTransfer.FORMAT, 99, "Name", null, List.of(), List.of())));
@@ -547,7 +575,7 @@ class ScreenerTransferServiceTest {
         actualLibrary.loadBenefitsMetadata(mapper.writeValueAsString(exampleBenefits));
         String internalId = "L-internal-sctf-age-requirement-0.9.0";
         assertTrue(actualLibrary.getById(internalId).isEmpty());
-        ScreenerTransferService transferService = new ScreenerTransferService(screeners, checks, storage, actualLibrary);
+        ScreenerTransferService transferService = new ScreenerTransferService(screeners, checks, storage, actualLibrary, dmn);
         var exported = transferService.exportScreener("sender", example.getId());
         var imported = transferService.importScreener("recipient",
                 mapper.readValue(mapper.writeValueAsString(exported), ScreenerTransfer.class));

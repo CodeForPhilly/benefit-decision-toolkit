@@ -66,4 +66,6 @@ and recipient draft edits are preserved. Conflicting published content (or a
 referenced draft that differs) returns a readable 409 error. Unrelated checks
 with the same name remain separate and receive an `imported` module suffix.
 Older exports without `originCheckId` use their original working family ID.
+Imported DMN models must compile as they would on publish, and each check's input
+definition is derived from its model rather than taken from the file.
 Library check references are resolved against the receiving server's library.
