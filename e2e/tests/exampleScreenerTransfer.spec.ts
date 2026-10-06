@@ -81,6 +81,17 @@ test("the bundled example can be chosen, exported, and imported with its interna
   await expect(
     page.getByText("example.bdt.json", { exact: true }),
   ).toBeVisible();
+  await expect(page.getByLabel("Screener name", { exact: true })).toHaveValue(
+    exported.screenerName,
+  );
+  await expect(
+    page.getByText(
+      "You already have a screener with this name. Choose a different name.",
+    ),
+  ).toBeVisible();
+  await page
+    .getByLabel("Screener name", { exact: true })
+    .fill(`${exported.screenerName} - Copy`);
   const importPromise = page.waitForResponse(
     (response) =>
       response.url().endsWith("/api/screener/import") &&
@@ -94,6 +105,43 @@ test("the bundled example can be chosen, exported, and imported with its interna
   expect(response.status(), await response.text()).toBe(201);
   const imported = await response.json();
   expect(imported.benefits).toHaveLength(4);
+  expect(imported.screenerName).toBe(`${exported.screenerName} - Copy`);
+  const headers = { Authorization: `Bearer ${account.idToken}` };
+  const duplicateCreate = await request.post(
+    "http://localhost:8081/api/screener",
+    {
+      headers,
+      data: { screenerName: ` ${exported.screenerName.toUpperCase()} ` },
+    },
+  );
+  expect(duplicateCreate.status(), await duplicateCreate.text()).toBe(409);
+  const duplicateRename = await request.patch(
+    `http://localhost:8081/api/screener/${imported.id}`,
+    {
+      headers,
+      data: { screenerName: exported.screenerName },
+    },
+  );
+  expect(duplicateRename.status(), await duplicateRename.text()).toBe(409);
+  const unchangedRename = await request.patch(
+    `http://localhost:8081/api/screener/${imported.id}`,
+    {
+      headers,
+      data: { screenerName: imported.screenerName },
+    },
+  );
+  expect(unchangedRename.status(), await unchangedRename.text()).toBe(200);
+  const competingCreates = await Promise.all(
+    ["Race name", " race NAME "].map((screenerName) =>
+      request.post("http://localhost:8081/api/screener", {
+        headers,
+        data: { screenerName },
+      }),
+    ),
+  );
+  expect(competingCreates.map((result) => result.status()).sort()).toEqual([
+    200, 409,
+  ]);
   await expect(page).toHaveURL(`/screeners/${imported.id}`);
   await expect(page.locator("#manage-benefits-title")).toBeVisible();
   await expect(

@@ -32,7 +32,7 @@ After the screener is created, you are automatically taken to the **Screener Das
 
 Save your changes, then return to **Screeners**, open the menu on the screener's card, and select **Export screener**. BDT downloads one `.bdt.json` file containing the saved benefits, configured check versions, parameters, aliases, custom-check rules and drafts, and form. Share this file with the recipient.
 
-To open a shared screener, select **Import screener** on the **Screeners** page, choose the JSON file (up to 10 MB), and select **Import screener** in the dialog. BDT opens a new editable draft owned by your account. You can preview, edit, and publish it with its own public URL.
+To open a shared screener, select **Import screener** on the **Screeners** page, choose the JSON file (up to 10 MB), and review the prefilled **Screener name**. If that name already exists in your account, choose a different name before selecting **Import screener** in the dialog. Screener names are unique within your account, ignoring case and surrounding spaces. BDT opens a new editable draft owned by your account. You can preview, edit, and publish it with its own public URL.
 
 Each import creates independent copies of the custom checks. If a custom check's name and module already exist in your account, the copy goes into a module with an `imported` suffix. The screener keeps the check versions used by the sender. Library checks use your BDT server's library and must be available there; a file with missing checks is rejected before anything is imported.
 

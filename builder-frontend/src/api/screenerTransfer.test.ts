@@ -27,6 +27,7 @@ describe("screener transfer API", () => {
     const data = {
       format: "bdt-screener",
       formatVersion: 1,
+      screenerName: "Example",
       benefits: [],
       customChecks: [],
     };
@@ -65,9 +66,9 @@ describe("screener transfer API", () => {
         status: 400,
       }),
     );
-    await expect(importScreener(file("{}"))).rejects.toThrow(
-      "Missing custom check",
-    );
+    await expect(
+      importScreener(file('{"screenerName":"Example"}')),
+    ).rejects.toThrow("Missing custom check");
   });
 
   it("reports non-JSON export failures", async () => {
@@ -78,4 +79,20 @@ describe("screener transfer API", () => {
       "Could not export",
     );
   });
+});
+
+it("uses the chosen name without changing the file", async () => {
+  vi.mocked(authPost).mockResolvedValue(
+    new Response('{"id":"copy"}', { status: 201 }),
+  );
+  const original = file(
+    '{"screenerName":"Example","benefits":[],"customChecks":[]}',
+  );
+  await importScreener(original, " Example - Copy ");
+  expect(authPost).toHaveBeenLastCalledWith(expect.any(String), {
+    screenerName: "Example - Copy",
+    benefits: [],
+    customChecks: [],
+  });
+  expect(JSON.parse(await original.text()).screenerName).toBe("Example");
 });

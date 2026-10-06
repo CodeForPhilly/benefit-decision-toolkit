@@ -1,24 +1,34 @@
 import { createSignal, Show } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { Button } from "@/components/shared/Button";
-import { importScreener } from "@/api/screenerTransfer";
+import { importScreener, readScreenerFile } from "@/api/screenerTransfer";
 
-export default function ImportScreenerForm() {
+export default function ImportScreenerForm(props: {
+  existingNames?: string[];
+}) {
   const navigate = useNavigate();
   const [file, setFile] = createSignal<File>();
   const [loading, setLoading] = createSignal(false);
   const [error, setError] = createSignal("");
+  const [name, setName] = createSignal("");
+  const [reading, setReading] = createSignal(false);
+  const duplicate = () =>
+    props.existingNames?.some(
+      (existing) =>
+        existing.trim().toLowerCase() === name().trim().toLowerCase(),
+    );
   let fileInput!: HTMLInputElement;
 
   return (
     <form
       onSubmit={async (event) => {
         event.preventDefault();
-        if (!file() || loading()) return;
+        if (!file() || !name().trim() || reading() || duplicate() || loading())
+          return;
         setError("");
         setLoading(true);
         try {
-          const screener = await importScreener(file()!);
+          const screener = await importScreener(file()!, name());
           navigate(`/screeners/${screener.id}`);
         } catch (failure) {
           setError(
@@ -45,9 +55,29 @@ export default function ImportScreenerForm() {
           type="file"
           accept=".json,application/json"
           disabled={loading()}
-          onChange={(event) => {
-            setFile(event.currentTarget.files?.[0]);
+          onChange={async (event) => {
+            const selected = event.currentTarget.files?.[0];
+            setFile(selected);
+            setName("");
             setError("");
+            if (!selected) {
+              setReading(false);
+              return;
+            }
+            setReading(true);
+            try {
+              const data = await readScreenerFile(selected);
+              if (file() === selected) setName(data.screenerName as string);
+            } catch (failure) {
+              if (file() === selected)
+                setError(
+                  failure instanceof Error
+                    ? failure.message
+                    : "Could not read this file.",
+                );
+            } finally {
+              if (file() === selected) setReading(false);
+            }
           }}
         />
         <div class="flex flex-wrap items-center gap-3">
@@ -63,12 +93,46 @@ export default function ImportScreenerForm() {
           </span>
         </div>
       </div>
+      <Show when={file() && !reading()}>
+        <label class="block mb-4">
+          Screener name
+          <input
+            class="block w-full rounded border border-gray-400 px-3 py-2 mt-1"
+            name="screenerName"
+            required
+            value={name()}
+            disabled={loading()}
+            aria-invalid={duplicate() ? "true" : undefined}
+            aria-describedby={
+              duplicate() ? "screener-name-collision" : undefined
+            }
+            onInput={(event) => {
+              setName(event.currentTarget.value);
+              setError("");
+            }}
+          />
+        </label>
+        <Show when={duplicate()}>
+          <p
+            id="screener-name-collision"
+            role="alert"
+            class="text-red-700 mb-3"
+          >
+            You already have a screener with this name. Choose a different name.
+          </p>
+        </Show>
+      </Show>
       <Show when={error()}>
         <p role="alert" class="text-red-700 mb-3">
           {error()}
         </p>
       </Show>
-      <Button type="submit" disabled={!file() || loading()}>
+      <Button
+        type="submit"
+        disabled={
+          !file() || !name().trim() || reading() || duplicate() || loading()
+        }
+      >
         {loading() ? "Importing…" : "Import screener"}
       </Button>
     </form>

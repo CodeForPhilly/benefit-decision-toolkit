@@ -120,13 +120,14 @@ test.describe("Screener sharing", () => {
     await page
       .getByRole("button", { name: "Import screener", exact: true })
       .click();
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "shared.bdt.json",
+      mimeType: "application/json",
+      buffer,
+    });
     await page
-      .locator('input[type="file"]')
-      .setInputFiles({
-        name: "shared.bdt.json",
-        mimeType: "application/json",
-        buffer,
-      });
+      .getByLabel("Screener name", { exact: true })
+      .fill(`${exported.screenerName} - Copy`);
     const responsePromise = page.waitForResponse(
       (response) =>
         response.url().endsWith("/api/screener/import") &&

@@ -98,6 +98,11 @@ public class ScreenerTransferService {
     public Screener importScreener(String owner, ScreenerTransfer transfer) throws Exception {
         // Validate the complete file and resolve library references before any writes.
         Map<String, EligibilityCheck> originals = validate(transfer);
+        String name = transfer.screenerName().strip();
+        if (screeners.getWorkingScreeners(owner).stream().anyMatch(existing ->
+                name.equalsIgnoreCase(existing.getScreenerName() == null ? "" : existing.getScreenerName().strip()))) {
+            throw new DuplicateScreenerNameException();
+        }
         Map<String, EligibilityCheck> libraryChecks = new HashMap<>();
         for (Benefit benefit : transfer.benefits()) {
             for (CheckConfig config : configs(benefit)) {
@@ -174,7 +179,7 @@ public class ScreenerTransferService {
                 benefits.add(benefit);
                 details.add(new BenefitDetail(benefit.getId(), benefit.getName(), benefit.getDescription()));
             }
-            Screener screener = Screener.create(owner, transfer.screenerName(), null);
+            Screener screener = Screener.create(owner, name, null);
             // Make the draft visible only once all its artifacts have been saved.
             screener.setId(UUID.randomUUID().toString());
             String id = screener.getId();

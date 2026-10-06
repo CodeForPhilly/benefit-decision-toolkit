@@ -3,7 +3,7 @@ import { env } from "@/config/environment";
 
 export const MAX_SCREENER_FILE_BYTES = 10 * 1024 * 1024;
 
-async function errorMessage(response: Response, fallback: string) {
+export async function errorMessage(response: Response, fallback: string) {
   try {
     const body = await response.json();
     if (typeof body.error === "string") return body.error;
@@ -25,7 +25,9 @@ export async function exportScreener(screenerId: string): Promise<Blob> {
   return response.blob();
 }
 
-export async function importScreener(file: File): Promise<{ id: string }> {
+export async function readScreenerFile(
+  file: File,
+): Promise<Record<string, unknown>> {
   if (file.size > MAX_SCREENER_FILE_BYTES) {
     throw new Error("Choose a screener file smaller than 10 MB.");
   }
@@ -37,6 +39,23 @@ export async function importScreener(file: File): Promise<{ id: string }> {
       "This file is not valid JSON. Choose a BDT screener export.",
     );
   }
+  if (
+    !data ||
+    typeof data !== "object" ||
+    Array.isArray(data) ||
+    typeof (data as Record<string, unknown>).screenerName !== "string"
+  ) {
+    throw new Error("Choose a BDT screener export with a screener name.");
+  }
+  return data as Record<string, unknown>;
+}
+
+export async function importScreener(
+  file: File,
+  name?: string,
+): Promise<{ id: string }> {
+  const data = await readScreenerFile(file);
+  if (name !== undefined) data.screenerName = name.trim();
   const response = await authPost(`${env.apiUrl}/screener/import`, data);
   if (!response.ok) {
     throw new Error(

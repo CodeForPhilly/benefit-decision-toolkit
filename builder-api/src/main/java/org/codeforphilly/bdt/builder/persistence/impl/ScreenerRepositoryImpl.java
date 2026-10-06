@@ -86,10 +86,13 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> data = mapper.convertValue(screener, Map.class);
         data.remove("formSchema");
-        if (screener.getId() != null) {
-            return FirestoreUtils.persistDocumentWithId(CollectionNames.WORKING_SCREENER_COLLECTION, screener.getId(), data);
-        }
-        return FirestoreUtils.persistDocument(CollectionNames.WORKING_SCREENER_COLLECTION, data);
+        if (screener.getId() == null) screener.setId(java.util.UUID.randomUUID().toString());
+        validateName(screener);
+        data.put("screenerName", screener.getScreenerName());
+        data.put("id", screener.getId());
+        FirestoreUtils.saveScreenerWithUniqueName(CollectionNames.WORKING_SCREENER_COLLECTION,
+                screener.getId(), data, true);
+        return screener.getId();
     }
 
     @Override
@@ -102,7 +105,16 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
         // It is saved separately on in cloud storage.
         data.remove("formSchema");
 
-        FirestoreUtils.updateDocument(CollectionNames.WORKING_SCREENER_COLLECTION, data, screener.getId());
+        validateName(screener);
+        data.put("screenerName", screener.getScreenerName());
+        FirestoreUtils.saveScreenerWithUniqueName(CollectionNames.WORKING_SCREENER_COLLECTION,
+                screener.getId(), data, false);
+    }
+
+    private void validateName(Screener screener) {
+        if (screener.getScreenerName() == null || screener.getScreenerName().isBlank())
+            throw new jakarta.ws.rs.BadRequestException("Please enter a screener name.");
+        screener.setScreenerName(screener.getScreenerName().strip());
     }
 
     public void addBenefitDetailToWorkingScreener(String screenerId, BenefitDetail benefitDetail) throws Exception {

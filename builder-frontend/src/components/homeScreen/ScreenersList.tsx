@@ -73,13 +73,9 @@ export default function ScreenersList() {
     screenerId: string,
     screenerData: { screenerName: string },
   ) => {
-    try {
-      await updateScreener(screenerId, screenerData);
-      refetchScreenerList();
-      setIsEditModalVisible(false);
-    } catch (e) {
-      console.log("Error editing screener", e);
-    }
+    await updateScreener(screenerId, screenerData);
+    refetchScreenerList();
+    setIsEditModalVisible(false);
   };
 
   const handleDeleteScreener = async (screenerData) => {
@@ -131,7 +127,11 @@ export default function ScreenersList() {
           show={isImportModalVisible()}
           onClose={() => setIsImportModalVisible(false)}
         >
-          <ImportScreenerForm />
+          <ImportScreenerForm
+            existingNames={
+              screeners()?.map((screener) => screener.screenerName) ?? []
+            }
+          />
         </Modal>
         <Modal
           show={isNewScreenerModalVisible()}

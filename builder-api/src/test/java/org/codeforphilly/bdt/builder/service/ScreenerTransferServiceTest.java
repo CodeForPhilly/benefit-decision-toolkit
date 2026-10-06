@@ -135,6 +135,19 @@ class ScreenerTransferServiceTest {
     }
 
     @Test
+    void duplicateNameRejectsImportBeforeWritingArtifacts() throws Exception {
+        ScreenerTransfer export = service.exportScreener("sender", source.getId());
+        when(screeners.getWorkingScreeners("recipient"))
+                .thenReturn(List.of(Screener.create("recipient", " housing SCREENER ", null)));
+        assertThrows(DuplicateScreenerNameException.class, () -> service.importScreener("recipient", export));
+        verify(checks, never()).reserveCheckName(anyString(), anyString(), anyString(), anyString());
+        verify(storage, never()).writeStringToStorage(anyString(), anyString(), anyString());
+        var renamed = new ScreenerTransfer(export.format(), export.formatVersion(), " Housing screener - Copy ",
+                export.formSchema(), export.benefits(), export.customChecks());
+        assertEquals("Housing screener - Copy", service.importScreener("recipient", renamed).getScreenerName());
+    }
+
+    @Test
     void missingModelIsRejectedBeforeAnyWrites() throws Exception {
         ScreenerTransfer export = service.exportScreener("sender", source.getId());
         export.customChecks().getFirst().setDmnModel(null);

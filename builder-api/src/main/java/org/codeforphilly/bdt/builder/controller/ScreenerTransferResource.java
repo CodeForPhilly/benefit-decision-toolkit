@@ -9,6 +9,7 @@ import org.codeforphilly.bdt.builder.auth.AuthUtils;
 import org.codeforphilly.bdt.builder.model.dto.screener.ScreenerTransfer;
 import org.codeforphilly.bdt.builder.service.ScreenerTransferService;
 import java.util.Map;
+import org.codeforphilly.bdt.builder.persistence.DuplicateScreenerNameException;
 
 @Path("/api")
 @Produces(MediaType.APPLICATION_JSON)
@@ -38,6 +39,8 @@ public class ScreenerTransferResource {
         if (owner == null) return Response.status(Response.Status.UNAUTHORIZED).build();
         try {
             return Response.status(Response.Status.CREATED).entity(transferService.importScreener(owner, transfer)).build();
+        } catch (DuplicateScreenerNameException duplicate) {
+            return Response.status(409).entity(Map.of("error", duplicate.getMessage())).build();
         } catch (BadRequestException rejected) {
             return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", rejected.getMessage())).build();
         } catch (Exception failure) {

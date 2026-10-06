@@ -34,7 +34,7 @@ export default function EditScreenerForm(props: Props) {
     setError("");
     const form = new FormData(e.currentTarget);
     const screenerName = form.get("screenerName");
-    if (!screenerName) {
+    if (!screenerName?.toString().trim()) {
       setError("Please enter a screener name.");
     } else {
       try {
@@ -43,6 +43,9 @@ export default function EditScreenerForm(props: Props) {
         await props.handleEditScreener(props.modalData.screenerId, data);
         setIsLoading(false);
       } catch (e) {
+        setError(
+          e instanceof Error ? e.message : "Could not update the screener.",
+        );
         if (isLoading()) {
           setIsLoading(false);
         }

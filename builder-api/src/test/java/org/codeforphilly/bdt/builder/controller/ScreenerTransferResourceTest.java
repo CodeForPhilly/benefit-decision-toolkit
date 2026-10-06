@@ -46,6 +46,16 @@ class ScreenerTransferResourceTest {
     }
 
     @Test
+    void duplicateNameReturnsConflictWithAnActionableMessage() throws Exception {
+        when(service.importScreener("recipient", null))
+                .thenThrow(new org.codeforphilly.bdt.builder.persistence.DuplicateScreenerNameException());
+        try (var response = resource.importScreener(identity, null)) {
+            assertEquals(409, response.getStatus());
+            assertTrue(response.getEntity().toString().contains("Choose a different name"));
+        }
+    }
+
+    @Test
     void forbiddenExportReturnsForbidden() throws Exception {
         when(service.exportScreener("recipient", "other-screener")).thenThrow(new ForbiddenException());
         try (var response = resource.exportScreener(identity, "other-screener")) {
