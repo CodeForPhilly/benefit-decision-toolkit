@@ -39,13 +39,14 @@ export async function readScreenerFile(
   return data as Record<string, unknown>;
 }
 
+/* Uploads a file already parsed by readScreenerFile, optionally under a new name. */
 export async function importScreener(
-  file: File,
+  data: Record<string, unknown>,
   name?: string,
 ): Promise<{ id: string }> {
-  const data = await readScreenerFile(file);
-  if (name !== undefined) data.screenerName = name.trim();
-  const response = await authPost(`${env.apiUrl}/screener/import`, data);
+  const body =
+    name === undefined ? data : { ...data, screenerName: name.trim() };
+  const response = await authPost(`${env.apiUrl}/screener/import`, body);
   if (!response.ok) {
     throw await apiErrorFrom(response, "Could not import the screener");
   }

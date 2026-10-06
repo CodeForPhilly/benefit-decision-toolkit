@@ -8,6 +8,7 @@ export default function ImportScreenerForm(props: {
 }) {
   const navigate = useNavigate();
   const [file, setFile] = createSignal<File>();
+  const [data, setData] = createSignal<Record<string, unknown>>();
   const [loading, setLoading] = createSignal(false);
   const [error, setError] = createSignal("");
   const [name, setName] = createSignal("");
@@ -23,12 +24,12 @@ export default function ImportScreenerForm(props: {
     <form
       onSubmit={async (event) => {
         event.preventDefault();
-        if (!file() || !name().trim() || reading() || duplicate() || loading())
+        if (!data() || !name().trim() || reading() || duplicate() || loading())
           return;
         setError("");
         setLoading(true);
         try {
-          const screener = await importScreener(file()!, name());
+          const screener = await importScreener(data()!, name());
           navigate(`/screeners/${screener.id}`);
         } catch (failure) {
           setError(
@@ -58,6 +59,7 @@ export default function ImportScreenerForm(props: {
           onChange={async (event) => {
             const selected = event.currentTarget.files?.[0];
             setFile(selected);
+            setData(undefined);
             setName("");
             setError("");
             if (!selected) {
@@ -66,8 +68,11 @@ export default function ImportScreenerForm(props: {
             }
             setReading(true);
             try {
-              const data = await readScreenerFile(selected);
-              if (file() === selected) setName(data.screenerName as string);
+              const parsed = await readScreenerFile(selected);
+              if (file() === selected) {
+                setData(parsed);
+                setName(parsed.screenerName as string);
+              }
             } catch (failure) {
               if (file() === selected)
                 setError(
@@ -130,7 +135,7 @@ export default function ImportScreenerForm(props: {
       <Button
         type="submit"
         disabled={
-          !file() || !name().trim() || reading() || duplicate() || loading()
+          !data() || !name().trim() || reading() || duplicate() || loading()
         }
       >
         {loading() ? "Importing…" : "Import screener"}

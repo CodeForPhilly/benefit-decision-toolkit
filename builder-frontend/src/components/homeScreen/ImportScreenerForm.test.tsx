@@ -59,7 +59,13 @@ it("requires a file and opens the imported screener", async () => {
   await vi.waitFor(() =>
     expect(navigate).toHaveBeenCalledWith("/screeners/new-screener"),
   );
-  expect(importScreener).toHaveBeenCalledWith(file, "Example");
+  // The file is parsed once, when chosen, and that result is uploaded.
+  expect(readScreenerFile).toHaveBeenCalledOnce();
+  expect(readScreenerFile).toHaveBeenCalledWith(file);
+  expect(importScreener).toHaveBeenCalledWith(
+    { screenerName: "Example" },
+    "Example",
+  );
 });
 
 it("shows a failure and allows retrying the same file", async () => {
@@ -127,7 +133,7 @@ it("requires a different name on collision, treating case and spaces alike", asy
     expect(navigate).toHaveBeenCalledWith("/screeners/copy"),
   );
   expect(importScreener).toHaveBeenCalledWith(
-    expect.any(File),
+    { screenerName: "Example" },
     "Example - Copy",
   );
 });

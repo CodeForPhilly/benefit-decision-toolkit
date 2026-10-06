@@ -6,6 +6,7 @@ import {
   exportScreener,
   importScreener,
   MAX_SCREENER_FILE_BYTES,
+  readScreenerFile,
 } from "./screenerTransfer";
 
 const file = (content: string) =>
@@ -34,7 +35,9 @@ describe("screener transfer API", () => {
     vi.mocked(authPost).mockResolvedValue(
       new Response(JSON.stringify({ id: "new-screener" }), { status: 201 }),
     );
-    await expect(importScreener(file(JSON.stringify(data)))).resolves.toEqual({
+    await expect(
+      importScreener(await readScreenerFile(file(JSON.stringify(data)))),
+    ).resolves.toEqual({
       id: "new-screener",
     });
     expect(authPost).toHaveBeenCalledWith(
@@ -48,16 +51,14 @@ describe("screener transfer API", () => {
       size: MAX_SCREENER_FILE_BYTES + 1,
       text: vi.fn(),
     } as unknown as File;
-    await expect(importScreener(oversized)).rejects.toThrow("10 MB");
+    await expect(readScreenerFile(oversized)).rejects.toThrow("10 MB");
     expect(oversized.text).not.toHaveBeenCalled();
-    expect(authPost).not.toHaveBeenCalled();
   });
 
   it("reports invalid JSON without uploading it", async () => {
-    await expect(importScreener(file("not JSON"))).rejects.toThrow(
+    await expect(readScreenerFile(file("not JSON"))).rejects.toThrow(
       "not valid JSON",
     );
-    expect(authPost).not.toHaveBeenCalled();
   });
 
   it("shows the server's validation error", async () => {
@@ -66,9 +67,9 @@ describe("screener transfer API", () => {
         status: 400,
       }),
     );
-    await expect(
-      importScreener(file('{"screenerName":"Example"}')),
-    ).rejects.toThrow("Missing custom check");
+    await expect(importScreener({ screenerName: "Example" })).rejects.toThrow(
+      "Missing custom check",
+    );
   });
 
   it("reports non-JSON export failures", async () => {
@@ -81,18 +82,20 @@ describe("screener transfer API", () => {
   });
 });
 
-it("uses the chosen name without changing the file", async () => {
+it("uses the chosen name without changing the parsed file", async () => {
   vi.mocked(authPost).mockResolvedValue(
     new Response('{"id":"copy"}', { status: 201 }),
   );
-  const original = file(
-    '{"screenerName":"Example","benefits":[],"customChecks":[]}',
-  );
+  const original = {
+    screenerName: "Example",
+    benefits: [],
+    customChecks: [],
+  };
   await importScreener(original, " Example - Copy ");
   expect(authPost).toHaveBeenLastCalledWith(expect.any(String), {
     screenerName: "Example - Copy",
     benefits: [],
     customChecks: [],
   });
-  expect(JSON.parse(await original.text()).screenerName).toBe("Example");
+  expect(original.screenerName).toBe("Example");
 });
