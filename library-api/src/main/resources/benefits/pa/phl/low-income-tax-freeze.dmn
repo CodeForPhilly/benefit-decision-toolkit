@@ -1,0 +1,313 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dmn:definitions xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:kie="https://kie.org/dmn/extensions/1.0" id="_0FA74C12-2C73-4CD4-BEEC-A63F3FEF547B" name="PhlLowIncomeTaxFreeze" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_BDAE664A-A1E5-46F9-A470-90B8C34D7FB2" xmlns="https://kie.apache.org/dmn/_BDAE664A-A1E5-46F9-A470-90B8C34D7FB2" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:included1="https://kie.apache.org/dmn/_9514D95A-63FB-4345-911B-D83E1867F709" xmlns:included2="https://kie.apache.org/dmn/_3B9E68B5-63FA-437C-AF93-CC12DDD00BC5" xmlns:included3="https://kie.apache.org/dmn/_47ECD886-CEBE-47BC-BD4F-06113DCDE5D8" xmlns:included4="https://kie.apache.org/dmn/_5FD5AE82-65B3-44EF-98CC-651E88F93786" xmlns:included5="https://kie.apache.org/dmn/_325E4AAB-C41A-49BA-9078-57738900C2C3" xmlns:included6="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included7="https://kie.apache.org/dmn/_6E9D53A6-E99A-4060-9E3E-1AE12EAB5465">
+  <dmn:description>Philadelphia Low-Income Real Estate Tax Freeze for owner-occupants whose income plus any spouse&apos;s income meets the single/married gross annual limits.</dmn:description>
+  <dmn:extensionElements />
+  <dmn:import id="_4B71F9A6-D075-4F7E-B831-42AD572135DE" name="Benefits" namespace="https://kie.apache.org/dmn/_9514D95A-63FB-4345-911B-D83E1867F709" locationURI="../../Benefits.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:import id="_340D37C8-7EEF-460D-A206-4BF33C4C306E" name="PersonNotEnrolledInBenefit" namespace="https://kie.apache.org/dmn/_3B9E68B5-63FA-437C-AF93-CC12DDD00BC5" locationURI="../../../checks/enrollment/person-not-enrolled-in-benefit.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:import id="_AAF3CAB1-D43D-4D77-B054-A097F19945EB" name="OwnerOccupant" namespace="https://kie.apache.org/dmn/_47ECD886-CEBE-47BC-BD4F-06113DCDE5D8" locationURI="../../../checks/residence/owner-occupant.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:import id="_ABB47539-F9E3-46CC-BD1F-DBC17C857D71" name="LivesInPhiladelphiaPa" namespace="https://kie.apache.org/dmn/_5FD5AE82-65B3-44EF-98CC-651E88F93786" locationURI="../../../checks/residence/lives-in-philadelphia-pa.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:import id="_43FAF863-86AF-43FC-A44A-1516CC657A64" name="TaxFreezeIncome" namespace="https://kie.apache.org/dmn/_325E4AAB-C41A-49BA-9078-57738900C2C3" locationURI="../../../checks/income/tax-freeze-income.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:import id="_26E6B4E0-6D5B-4AD4-B4D2-21F77BDD544E" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:import id="_B00C9427-4801-461D-B6D8-08DA5CC14A55" name="Enrollment" namespace="https://kie.apache.org/dmn/_6E9D53A6-E99A-4060-9E3E-1AE12EAB5465" locationURI="../../../checks/enrollment/Enrollment.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:itemDefinition id="_358520D4-1EF5-4F60-BEE9-FACD41E3BC28" name="tSituation" isCollection="false">
+    <dmn:itemComponent id="_6052BEEF-46B1-41A5-B121-D2444A4A4724" name="enrollments" isCollection="false">
+      <dmn:typeRef>Enrollment.tEnrollmentList</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_32E766F9-B2CD-41CC-8E2A-BBAB9D7ED13C" name="simpleChecks" isCollection="false">
+      <dmn:typeRef>tSimpleChecks</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_29749574-1DF0-4732-9498-791A22AB93FD" name="applicantAndSpouseIncome" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_7C2E9B14-5A63-4F8D-B0E7-3D96A1C4F825" name="relationships" isCollection="false">
+      <dmn:typeRef>BDT.tRelationshipList</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_0BF4F49C-B7CC-4F66-8CE0-3097D502F79B" name="primaryPersonId" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_2AAB089C-5E00-473F-8CE1-463BD5C0A585" name="tSimpleChecks" isCollection="false">
+    <dmn:itemComponent id="_003D4279-B567-4B2C-934F-9D1AC43FFF32" name="ownerOccupant" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_46C7EAD4-CC49-459E-BB18-A62222D4694A" name="livesInPhiladelphiaPa" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:decisionService id="_BB0585AE-AD21-44F8-84CF-C00CD188BBC6" name="PhlLowIncomeTaxFreezeService">
+    <dmn:extensionElements />
+    <dmn:variable id="_1B0E7358-C7FD-44B4-9981-922FF0FB347C" name="PhlLowIncomeTaxFreezeService" typeRef="Benefits.tBenefitResponse" />
+    <dmn:outputDecision href="#_3E944A78-3B86-4D82-98A9-5D03B71D9208" />
+    <dmn:outputDecision href="#_1D72B951-1F93-4F8B-B9F9-8F2F99CC13D6" />
+    <dmn:inputData href="#_FCFED5D1-47D3-48D4-BE13-A8DA3CFA215B" />
+  </dmn:decisionService>
+  <dmn:decision id="_3E944A78-3B86-4D82-98A9-5D03B71D9208" name="checks">
+    <dmn:extensionElements />
+    <dmn:variable id="_B10EDCEC-5BEF-413D-97D0-91EB86E2820B" name="checks" typeRef="context" />
+    <dmn:informationRequirement id="_A9150312-B2F7-498D-BBFB-65B279EBA8F3">
+      <dmn:requiredInput href="#_FCFED5D1-47D3-48D4-BE13-A8DA3CFA215B" />
+    </dmn:informationRequirement>
+    <dmn:knowledgeRequirement id="_59F402A9-AC3A-4F94-80DE-D22172C78223">
+      <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_3B9E68B5-63FA-437C-AF93-CC12DDD00BC5#_513F29D9-6F29-4B8A-AD8D-F5C339B354DE" />
+    </dmn:knowledgeRequirement>
+    <dmn:knowledgeRequirement id="_3B4FE475-4183-4698-B147-9CED88DABCC7">
+      <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_47ECD886-CEBE-47BC-BD4F-06113DCDE5D8#_B514A3B6-6E48-4558-B6AA-CCB4084EA48F" />
+    </dmn:knowledgeRequirement>
+    <dmn:knowledgeRequirement id="_F80E1EB8-C27F-4FA6-8B07-A0435FD61641">
+      <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_5FD5AE82-65B3-44EF-98CC-651E88F93786#_C4355049-6C5C-452D-A767-0F103ED2893E" />
+    </dmn:knowledgeRequirement>
+    <dmn:knowledgeRequirement id="_2BD9631A-FDB6-4D2D-BB92-4BAC7779461F">
+      <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_325E4AAB-C41A-49BA-9078-57738900C2C3#_8FCBEB34-FBA5-4684-AA73-8FC6B9C7E86F" />
+    </dmn:knowledgeRequirement>
+    <dmn:context id="_5E1567F2-0D92-4B5B-88BA-139D21F08DDB">
+      <dmn:contextEntry>
+        <dmn:variable id="_0AA0597D-8705-447B-B7BE-0DC4C8ECB09D" name="NotAlreadyEnrolled" typeRef="boolean" />
+        <dmn:invocation id="_065E4CDA-8FC3-4657-AC79-F85E34C29F4E">
+          <dmn:literalExpression id="_FF6D1AC3-3A68-4B9A-A682-4F8749D7FBC1">
+            <dmn:text>PersonNotEnrolledInBenefit.PersonNotEnrolledInBenefitService</dmn:text>
+          </dmn:literalExpression>
+          <dmn:binding>
+            <dmn:parameter id="_89916526-787B-4CF2-ABF5-C170CEA0B621" name="situation" typeRef="PersonNotEnrolledInBenefit.tSituation" />
+            <dmn:literalExpression id="_1451EBC1-00BF-4A0B-8E3F-14736AFB8487">
+              <dmn:text>situation</dmn:text>
+            </dmn:literalExpression>
+          </dmn:binding>
+          <dmn:binding>
+            <dmn:parameter id="_7BC781D4-9D53-4986-A3C1-97F64FC4B428" name="parameters" typeRef="PersonNotEnrolledInBenefit.tParameters" />
+            <dmn:context id="_B8B65D39-83A9-4FB0-9C08-0D0409DC7533">
+              <dmn:contextEntry>
+                <dmn:variable id="_36A4A90B-71A3-4DC7-86E7-143886F1E170" name="personId" typeRef="string" />
+                <dmn:literalExpression id="_F702BB6A-2BB4-4AA5-B49D-CAAEEE4813AA">
+                  <dmn:text>situation.primaryPersonId</dmn:text>
+                </dmn:literalExpression>
+              </dmn:contextEntry>
+              <dmn:contextEntry>
+                <dmn:variable id="_D3D006F8-05BD-40E5-B3A0-9B3FE743B4EE" name="benefit" typeRef="string" />
+                <dmn:literalExpression id="_08710C26-AC03-4C16-AB10-6D228E1D5277">
+                  <dmn:text>"PhlLowIncomeTaxFreeze"</dmn:text>
+                </dmn:literalExpression>
+              </dmn:contextEntry>
+            </dmn:context>
+          </dmn:binding>
+        </dmn:invocation>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_70E9767D-EEDE-4075-B737-7529B9646731" name="OwnerOccupant" typeRef="boolean" />
+        <dmn:invocation id="_3671348F-566D-4355-AC58-8F405E3BAA17">
+          <dmn:literalExpression id="_DF75B63F-992B-40CE-8F05-5FDABC7FF417">
+            <dmn:text>OwnerOccupant.OwnerOccupantService</dmn:text>
+          </dmn:literalExpression>
+          <dmn:binding>
+            <dmn:parameter id="_8FC915B2-D220-4E7A-A668-7383BDBE7419" name="situation" typeRef="OwnerOccupant.tSituation" />
+            <dmn:literalExpression id="_15476759-BEC1-4C5C-95F8-A607D2CE6139">
+              <dmn:text>situation</dmn:text>
+            </dmn:literalExpression>
+          </dmn:binding>
+        </dmn:invocation>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_AE229F9F-E646-420B-8112-04FC69D0A3DA" name="LivesInPhiladelphiaPa" typeRef="boolean" />
+        <dmn:invocation id="_2F1A43A1-6422-4BCC-8EC5-19499FC21FAF">
+          <dmn:literalExpression id="_E11458E1-0820-49E3-9672-716E62C7C745">
+            <dmn:text>LivesInPhiladelphiaPa.LivesInPhiladelphiaPaService</dmn:text>
+          </dmn:literalExpression>
+          <dmn:binding>
+            <dmn:parameter id="_D61E1736-C60D-4778-8CCA-AF42ABF7E4D0" name="situation" typeRef="LivesInPhiladelphiaPa.tSituation" />
+            <dmn:literalExpression id="_8AA7BD4D-87D1-4CA3-A16F-EA864A79DECE">
+              <dmn:text>situation</dmn:text>
+            </dmn:literalExpression>
+          </dmn:binding>
+        </dmn:invocation>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_615EF7D4-B09B-4ECF-B04F-EA22467A8829" name="MeetsIncomeRequirement" typeRef="boolean" />
+        <dmn:invocation id="_961EAD0C-1139-42BE-92DA-98FB064440CD">
+          <dmn:literalExpression id="_42952570-78D4-417D-90BF-1E9E4715422B">
+            <dmn:text>TaxFreezeIncome.TaxFreezeIncomeService</dmn:text>
+          </dmn:literalExpression>
+          <dmn:binding>
+            <dmn:parameter id="_09752B16-A0A3-449F-9BA0-165FCF90BC65" name="situation" typeRef="TaxFreezeIncome.tSituation" />
+            <dmn:literalExpression id="_21457D70-0DD5-490F-99E4-9312B1FBAB41">
+              <dmn:text>situation</dmn:text>
+            </dmn:literalExpression>
+          </dmn:binding>
+        </dmn:invocation>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
+  <dmn:decision id="_1D72B951-1F93-4F8B-B9F9-8F2F99CC13D6" name="isEligible">
+    <dmn:extensionElements />
+    <dmn:variable id="_53E3E588-A011-44A9-AC1E-1113EBD9C35E" name="isEligible" typeRef="boolean" />
+    <dmn:informationRequirement id="_18B4BA71-1C1E-4A5A-AFA7-CA1DD4E7F5D9">
+      <dmn:requiredDecision href="#_3E944A78-3B86-4D82-98A9-5D03B71D9208" />
+    </dmn:informationRequirement>
+    <dmn:context id="_E41D2E88-252A-42B3-83DB-944A4DB33F80">
+      <dmn:contextEntry>
+        <dmn:variable id="_9AB79B5A-EBEA-4188-A826-74D22F7DDA02" name="checksAsList" typeRef="BDT.tBooleanList" />
+        <dmn:literalExpression id="_840AC0C4-F9A6-4CD2-8E0D-3E412F68F41B">
+          <dmn:text>for check in get entries(checks) return check.value</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:literalExpression id="_A75B8322-BD7D-4389-A751-E12068132A71">
+          <dmn:text>all(checksAsList)</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
+  <dmn:inputData id="_FCFED5D1-47D3-48D4-BE13-A8DA3CFA215B" name="situation">
+    <dmn:extensionElements />
+    <dmn:variable id="_72D5B76F-A910-4A4F-8D4C-AB95BEEA4438" name="situation" typeRef="tSituation" />
+  </dmn:inputData>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_00BCAEEA-D659-4ECD-B38B-73502E072F50" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_5E1567F2-0D92-4B5B-88BA-139D21F08DDB">
+            <kie:width>50</kie:width>
+            <kie:width>376</kie:width>
+            <kie:width>599</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_065E4CDA-8FC3-4657-AC79-F85E34C29F4E">
+            <kie:width>50</kie:width>
+            <kie:width>239</kie:width>
+            <kie:width>290</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_FF6D1AC3-3A68-4B9A-A682-4F8749D7FBC1">
+            </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_1451EBC1-00BF-4A0B-8E3F-14736AFB8487">
+            <kie:width>290</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_B8B65D39-83A9-4FB0-9C08-0D0409DC7533">
+            <kie:width>50</kie:width>
+            <kie:width>120</kie:width>
+            <kie:width>100</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_F702BB6A-2BB4-4AA5-B49D-CAAEEE4813AA">
+            <kie:width>100</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_08710C26-AC03-4C16-AB10-6D228E1D5277">
+            <kie:width>100</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_3671348F-566D-4355-AC58-8F405E3BAA17">
+            <kie:width>50</kie:width>
+            <kie:width>239</kie:width>
+            <kie:width>290</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_DF75B63F-992B-40CE-8F05-5FDABC7FF417">
+            </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_15476759-BEC1-4C5C-95F8-A607D2CE6139">
+            <kie:width>290</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_2F1A43A1-6422-4BCC-8EC5-19499FC21FAF">
+            <kie:width>50</kie:width>
+            <kie:width>239</kie:width>
+            <kie:width>290</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E11458E1-0820-49E3-9672-716E62C7C745">
+            </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_8AA7BD4D-87D1-4CA3-A16F-EA864A79DECE">
+            <kie:width>290</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_961EAD0C-1139-42BE-92DA-98FB064440CD">
+            <kie:width>50</kie:width>
+            <kie:width>239</kie:width>
+            <kie:width>290</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_42952570-78D4-417D-90BF-1E9E4715422B">
+            </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_21457D70-0DD5-490F-99E4-9312B1FBAB41">
+            <kie:width>290</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E41D2E88-252A-42B3-83DB-944A4DB33F80">
+            <kie:width>50</kie:width>
+            <kie:width>222</kie:width>
+            <kie:width>504</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_840AC0C4-F9A6-4CD2-8E0D-3E412F68F41B">
+            <kie:width>504</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_A75B8322-BD7D-4389-A751-E12068132A71">
+            <kie:width>504</kie:width>
+          </kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="_E0061831-FD8F-4E33-8E5F-156642152213" dmnElementRef="_BB0585AE-AD21-44F8-84CF-C00CD188BBC6" isCollapsed="false">
+        <dc:Bounds x="550.0" y="140" width="440" height="280" />
+        <dmndi:DMNLabel />
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="550.0" y="280" />
+          <di:waypoint x="990.0" y="280" />
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_7E5F32B0-5B46-4EB2-ABDA-357A50B46CF5" dmnElementRef="_3E944A78-3B86-4D82-98A9-5D03B71D9208" isCollapsed="false">
+        <dc:Bounds x="580.0" y="170" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_50E3E40A-91AD-4873-B30D-E052DCA35516" dmnElementRef="_1D72B951-1F93-4F8B-B9F9-8F2F99CC13D6" isCollapsed="false">
+        <dc:Bounds x="800.0" y="170" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_32A1CF79-C4DF-41BB-91EE-3AABB53B18DB" dmnElementRef="_FCFED5D1-47D3-48D4-BE13-A8DA3CFA215B" isCollapsed="false">
+        <dc:Bounds x="690.0" y="520" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_8EFD0507-ED6C-4B96-A476-C4CFDABDC5D6" dmnElementRef="included2:_513F29D9-6F29-4B8A-AD8D-F5C339B354DE" isCollapsed="true">
+        <dc:Bounds x="80" y="0" width="300" height="100" />
+        <dmndi:DMNLabel />
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="80" y="50" />
+          <di:waypoint x="380" y="50" />
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_F76070C1-F477-470A-88F6-CE05F8F8FAE2" dmnElementRef="included3:_B514A3B6-6E48-4558-B6AA-CCB4084EA48F" isCollapsed="true">
+        <dc:Bounds x="440" y="0" width="300" height="100" />
+        <dmndi:DMNLabel />
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="440" y="50" />
+          <di:waypoint x="740" y="50" />
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_82CD8BB3-14CC-41E8-AB67-C7AEAEA8E009" dmnElementRef="included4:_C4355049-6C5C-452D-A767-0F103ED2893E" isCollapsed="true">
+        <dc:Bounds x="800" y="0" width="300" height="100" />
+        <dmndi:DMNLabel />
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="800" y="50" />
+          <di:waypoint x="1100" y="50" />
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_AFA5529A-F964-4557-8EB7-1AD46E8864E9" dmnElementRef="included5:_8FCBEB34-FBA5-4684-AA73-8FC6B9C7E86F" isCollapsed="true">
+        <dc:Bounds x="1160" y="0" width="300" height="100" />
+        <dmndi:DMNLabel />
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="1160" y="50" />
+          <di:waypoint x="1460" y="50" />
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="_A99F5D6E-A254-4481-A307-A3310DBA19F1" dmnElementRef="_A9150312-B2F7-498D-BBFB-65B279EBA8F3" sourceElement="_32A1CF79-C4DF-41BB-91EE-3AABB53B18DB" targetElement="_7E5F32B0-5B46-4EB2-ABDA-357A50B46CF5">
+        <di:waypoint x="770.0" y="520" />
+        <di:waypoint x="668.8" y="250" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="_1D1D9A5A-26AF-4E12-883E-83E300A41B8E" dmnElementRef="_59F402A9-AC3A-4F94-80DE-D22172C78223" sourceElement="_8EFD0507-ED6C-4B96-A476-C4CFDABDC5D6" targetElement="_7E5F32B0-5B46-4EB2-ABDA-357A50B46CF5">
+        <di:waypoint x="230.0" y="100" />
+        <di:waypoint x="655.0" y="170" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="_02DE9DDE-01A8-4FA0-B268-DB948088E213" dmnElementRef="_3B4FE475-4183-4698-B147-9CED88DABCC7" sourceElement="_F76070C1-F477-470A-88F6-CE05F8F8FAE2" targetElement="_7E5F32B0-5B46-4EB2-ABDA-357A50B46CF5">
+        <di:waypoint x="590.0" y="100" />
+        <di:waypoint x="658.6" y="170" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="_A34D85D2-9AD2-45CC-8D36-DDA93923537E" dmnElementRef="_F80E1EB8-C27F-4FA6-8B07-A0435FD61641" sourceElement="_82CD8BB3-14CC-41E8-AB67-C7AEAEA8E009" targetElement="_7E5F32B0-5B46-4EB2-ABDA-357A50B46CF5">
+        <di:waypoint x="950.0" y="100" />
+        <di:waypoint x="662.2" y="170" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="_4659A92E-542F-4435-A491-5E0F96EACC5A" dmnElementRef="_2BD9631A-FDB6-4D2D-BB92-4BAC7779461F" sourceElement="_AFA5529A-F964-4557-8EB7-1AD46E8864E9" targetElement="_7E5F32B0-5B46-4EB2-ABDA-357A50B46CF5">
+        <di:waypoint x="1310.0" y="100" />
+        <di:waypoint x="665.8" y="170" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="_2099540C-3BF4-42CE-87ED-E2B9D7D08367" dmnElementRef="_18B4BA71-1C1E-4A5A-AFA7-CA1DD4E7F5D9" sourceElement="_7E5F32B0-5B46-4EB2-ABDA-357A50B46CF5" targetElement="_50E3E40A-91AD-4873-B30D-E052DCA35516">
+        <di:waypoint x="740.0" y="210.0" />
+        <di:waypoint x="800.0" y="210.0" />
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>

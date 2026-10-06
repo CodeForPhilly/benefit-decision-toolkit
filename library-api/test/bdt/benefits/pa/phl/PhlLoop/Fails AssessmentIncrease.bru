@@ -1,0 +1,43 @@
+meta {
+  name: Fails AssessmentIncrease
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{host}}/benefits/pa/phl/loop
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "enrollments": [
+        {
+          "personId": "p1",
+          "benefit": "OtherBenefit"
+        }
+      ],
+      "simpleChecks": {
+        "ownerOccupant": true,
+        "livesInPhiladelphiaPa": true,
+        "taxDelinquent": false,
+        "disqualifyingTaxAbatement": false
+      },
+      "householdIncome": 100000,
+      "householdSize": 1,
+      "yearsOwnerOccupied": 10,
+      "propertyAssessment": 149999,
+      "previousYearPropertyAssessment": 100000,
+      "lowestPropertyAssessmentLastFiveYears": 100000
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.isEligible: eq false
+  res.body.checks.AssessmentIncrease: eq false
+}

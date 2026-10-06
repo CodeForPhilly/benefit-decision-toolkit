@@ -1,0 +1,26 @@
+meta {
+  name: Pass
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/checks/residence/property-taxes-current-or-payment-plan
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "simpleChecks": {
+        "taxDelinquent": false
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq true
+}

@@ -1,6 +1,6 @@
 import EditorNavigation from "@/components/shared/EditorNavigation";
 import { createSignal, createResource, Accessor } from "solid-js";
-import { useParams } from "@solidjs/router";
+import { A, useParams } from "@solidjs/router";
 
 import FormEditorView from "./FormEditorView";
 import Loading from "../Loading";
@@ -26,9 +26,18 @@ function ScreenerEditor() {
   const [formSchema, setFormSchema] = createSignal();
   const [forceUpdate, setForceUpdate] = createSignal(0);
 
+  // The last screener loaded for this route. Keeping it lets the editor stay
+  // open when a later refetch (such as after publishing) fails.
+  const [loaded, setLoaded] = createSignal<{ id: string; screener: any }>();
+  const loadedScreener = () =>
+    loaded()?.id === params.screenerId ? loaded()?.screener : undefined;
+
   const fetchAndCacheScreener = async (keys) => {
     const screenerData = await fetchScreener(keys[0]);
-    setFormSchema(screenerData.formSchema);
+    // Only take the form from the server on first load so that refetches
+    // don't discard unsaved form edits.
+    if (loaded()?.id !== keys[0]) setFormSchema(screenerData.formSchema);
+    setLoaded({ id: keys[0], screener: screenerData });
     return screenerData;
   };
 
@@ -37,17 +46,15 @@ function ScreenerEditor() {
     // However resources only refetch when key has changed.
     // In order to force refetch even thought he screenerId hasn't change,
     // including a dummy signal 'forceUpdate' that can be unique for
-    // each call to the refetch
-    () => [params.screenerId, forceUpdate()],
+    // each call to the refetch. Navigating away clears screenerId before the
+    // editor unmounts, so skip fetching without one.
+    () => params.screenerId && [params.screenerId, forceUpdate()],
     fetchAndCacheScreener,
   );
 
-  // `latest` keeps the loaded screener during refetches; reading it after a
-  // failed load would throw, so check the error first.
-  const screenerLabel = () => {
-    if (screener.error) return "Screener unavailable";
-    return screener.latest?.screenerName ?? "Loading screener…";
-  };
+  const screenerLabel = () =>
+    loadedScreener()?.screenerName ??
+    (screener.loading ? "Loading screener…" : "Screener unavailable");
 
   const navbarDefs: Accessor<NavbarProps> = () => {
     return {
@@ -83,7 +90,9 @@ function ScreenerEditor() {
   return (
     <div class="h-screen flex flex-col">
       <EditorNavigation
-        navProps={screener.loading ? undefined : navbarDefs}
+        navProps={
+          screener.loading || !loadedScreener() ? undefined : navbarDefs
+        }
         items={[
           { label: "Screeners", href: "/screeners" },
           { label: screenerLabel() },
@@ -91,9 +100,9 @@ function ScreenerEditor() {
       />
       {screener.loading ? (
         <Loading />
-      ) : (
+      ) : loadedScreener() ? (
         <>
-          <Title>BDT - {screener().screenerName}</Title>
+          <Title>BDT - {loadedScreener()?.screenerName}</Title>
           {activeTab() == "formEditor" && (
             <FormEditorView
               formSchema={formSchema}
@@ -107,15 +116,34 @@ function ScreenerEditor() {
             />
           )}
           {activeTab() == "preview" && (
-            <Preview screener={screener} formSchema={formSchema} />
+            <Preview screener={loadedScreener} formSchema={formSchema} />
           )}
           {activeTab() == "publish" && (
             <Publish
-              screener={screener}
+              screener={loadedScreener}
               refetchScreener={() => setForceUpdate((prev) => prev + 1)}
             />
           )}
         </>
+      ) : (
+        <div role="alert" class="m-6 rounded-lg border border-gray-300 p-6">
+          <h1 class="text-xl font-bold">Unable to load this screener</h1>
+          <p class="mt-2">
+            The screener may no longer exist, or the service may be unavailable.
+          </p>
+          <div class="mt-4 flex gap-4">
+            <A href="/screeners" class="text-blue-600 underline">
+              Back to screeners
+            </A>
+            <button
+              type="button"
+              class="text-blue-600 underline"
+              onClick={() => setForceUpdate((prev) => prev + 1)}
+            >
+              Try again
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -1,0 +1,30 @@
+meta {
+  name: Five year path
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/checks/residence/property-assessment-increase
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "propertyAssessment": 175000,
+      "previousYearPropertyAssessment": 175000,
+      "lowestPropertyAssessmentLastFiveYears": 100000
+    },
+    "parameters": {
+      "oneYearPercent": 50,
+      "fiveYearPercent": 75
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq true
+}

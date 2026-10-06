@@ -1,0 +1,26 @@
+meta {
+  name: Pass
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/checks/residence/no-disqualifying-tax-abatement
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "simpleChecks": {
+        "disqualifyingTaxAbatement": false
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq true
+}

@@ -1,0 +1,25 @@
+meta {
+  name: Income unknown
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{host}}/checks/income/tax-freeze-income
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "relationships": []
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq null
+}

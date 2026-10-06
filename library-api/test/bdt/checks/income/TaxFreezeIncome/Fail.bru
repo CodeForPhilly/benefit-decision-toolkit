@@ -1,0 +1,26 @@
+meta {
+  name: Fail
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/checks/income/tax-freeze-income
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "applicantAndSpouseIncome": 33500.01,
+      "relationships": []
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq false
+}

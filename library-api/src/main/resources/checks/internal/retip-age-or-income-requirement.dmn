@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dmn:definitions xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:kie="https://kie.org/dmn/extensions/1.0" id="_3EB1B963-A44D-461C-B630-17ABEA96BF01" name="RetipAgeOrIncomeRequirement" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_F215D4C4-6D59-4557-88FA-9ADEFD5CA3D6" xmlns="https://kie.apache.org/dmn/_F215D4C4-6D59-4557-88FA-9ADEFD5CA3D6" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_15EDFFFA-F0BA-433C-9CFF-2A86EEA4F439" xmlns:included3="https://kie.apache.org/dmn/_32004365-F30E-4E68-B7EF-6E87FC2EA724" xmlns:included4="https://kie.apache.org/dmn/_0F40186A-672E-4BF8-8481-957F70A70DF4">
+  <dmn:description>RETIP eligibility through applicant/live-in spouse age 65 or low household income. No late-spouse age pathway.</dmn:description>
+  <dmn:extensionElements />
+  <dmn:import id="_EA2E6E9C-F2D4-4AC8-B853-1DDE9D03F407" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:import id="_811CDAB8-1963-45A5-9F79-C9526B8834CD" name="Internal" namespace="https://kie.apache.org/dmn/_15EDFFFA-F0BA-433C-9CFF-2A86EEA4F439" locationURI="Internal.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:import id="_4ACD5814-CF4B-40C9-9397-909F756142F9" name="ApplicantOrSpouseMinAge" namespace="https://kie.apache.org/dmn/_32004365-F30E-4E68-B7EF-6E87FC2EA724" locationURI="../age/applicant-or-spouse-min-age.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:import id="_894108D5-885C-4B23-82E6-94AC707DD68A" name="RetipIncome" namespace="https://kie.apache.org/dmn/_0F40186A-672E-4BF8-8481-957F70A70DF4" locationURI="../income/retip-income.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:itemDefinition id="_9E479959-5D58-42B8-B98B-46D02C2A2940" name="tSituation" isCollection="false">
+    <dmn:itemComponent id="_EE94E024-8065-4538-8F55-41B9E91D1679" name="primaryPersonId" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_BD1B416E-EBBF-42B4-940F-658627E069C8" name="people" isCollection="false">
+      <dmn:typeRef>tPersonList</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_1D007CA8-0687-4D5E-99E6-519363E9E521" name="relationships" isCollection="false">
+      <dmn:typeRef>BDT.tRelationshipList</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_418AB92A-ADD6-4D8C-B731-5C78FA5CAA94" name="simpleChecks" isCollection="false">
+      <dmn:typeRef>tSimpleChecks</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_7503963B-4C2A-4230-A6CB-79F47625B109" name="householdSize" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_CE4DD6EC-51B6-47D4-A3E0-7F942E58E629" name="householdIncome" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_392F400F-FB0B-405F-9D21-FDD41F6B9572" name="tSimpleChecks" isCollection="false">
+    <dmn:itemComponent id="_E48AB165-A3AC-4199-AF27-1DB581C54122" name="spouseLivesInHousehold" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_21EB4B78-8B1F-4A06-9222-1A07D718AF8A" name="tPerson" isCollection="false">
+    <dmn:itemComponent id="_3A5434C1-AEE9-4EFD-A360-71F66BDA9CED" name="id" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_062EA1AA-F507-4AC6-B4D5-5BB3D576D91B" name="dateOfBirth" isCollection="false">
+      <dmn:typeRef>date</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_3AB60E9D-A848-42F5-B8FD-7C331447DD4F" name="tPersonList" isCollection="true">
+    <dmn:typeRef>tPerson</dmn:typeRef>
+  </dmn:itemDefinition>
+  <dmn:decisionService id="_BA58546D-4E8A-4FCE-8A39-42A1F5A69762" name="RetipAgeOrIncomeRequirementService">
+    <dmn:extensionElements />
+    <dmn:variable id="_8FA7B6A2-1E01-42E3-B1D1-EF9C59DCA12A" name="RetipAgeOrIncomeRequirementService" typeRef="BDT.tCheckResponse" />
+    <dmn:outputDecision href="#_174BF905-2497-4A91-9B26-359677BECF14" />
+    <dmn:inputData href="#_0F3A7B00-32F3-4596-9AF8-3A2129B7E514" />
+  </dmn:decisionService>
+  <dmn:decision id="_174BF905-2497-4A91-9B26-359677BECF14" name="checkResult">
+    <dmn:extensionElements />
+    <dmn:variable id="_9BD13164-7193-4B52-952B-39DF262BF71E" name="checkResult" typeRef="boolean" />
+    <dmn:informationRequirement id="_98A808D7-0074-4031-B5B7-1B7B304EFFC4">
+      <dmn:requiredInput href="#_0F3A7B00-32F3-4596-9AF8-3A2129B7E514" />
+    </dmn:informationRequirement>
+    <dmn:knowledgeRequirement id="_1A12578D-176B-4729-962F-0BE20B62A8C7">
+      <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_32004365-F30E-4E68-B7EF-6E87FC2EA724#_6A22FC6F-9E65-48FF-A538-7A886D125EDA" />
+    </dmn:knowledgeRequirement>
+    <dmn:knowledgeRequirement id="_6969E091-4650-407D-B77B-965781782E13">
+      <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_0F40186A-672E-4BF8-8481-957F70A70DF4#_30D72817-12C9-4432-A513-97E56AF4F837" />
+    </dmn:knowledgeRequirement>
+    <dmn:literalExpression id="_C0020626-4DD0-47C3-A4B3-736935708EF7">
+      <dmn:text>ApplicantOrSpouseMinAge.ApplicantOrSpouseMinAgeService(situation: situation, parameters: {minAge: 65}) or RetipIncome.RetipIncomeService(situation: situation)</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmn:inputData id="_0F3A7B00-32F3-4596-9AF8-3A2129B7E514" name="situation">
+    <dmn:extensionElements />
+    <dmn:variable id="_4E683D91-1BE0-4065-B340-0F3374C990CD" name="situation" typeRef="tSituation" />
+  </dmn:inputData>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_4DC889EA-FE0E-410F-A250-40257B2E66FC" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_C0020626-4DD0-47C3-A4B3-736935708EF7">
+            <kie:width>917</kie:width>
+          </kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="_384023E2-14CF-4AE8-8BD1-BE8D0E2847E1" dmnElementRef="_BA58546D-4E8A-4FCE-8A39-42A1F5A69762" isCollapsed="false">
+        <dc:Bounds x="186.0" y="140" width="448" height="280" />
+        <dmndi:DMNLabel />
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="186.0" y="280" />
+          <di:waypoint x="634.0" y="280" />
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_F151397B-8A68-4273-BA0E-075151030D25" dmnElementRef="_174BF905-2497-4A91-9B26-359677BECF14" isCollapsed="false">
+        <dc:Bounds x="330.0" y="170" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_AE3E2BDA-A1A6-488F-9284-DFC05247D370" dmnElementRef="_0F3A7B00-32F3-4596-9AF8-3A2129B7E514" isCollapsed="false">
+        <dc:Bounds x="330.0" y="520" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_16DC4D63-53BF-4976-8F42-355324A5A90C" dmnElementRef="included3:_6A22FC6F-9E65-48FF-A538-7A886D125EDA" isCollapsed="true">
+        <dc:Bounds x="80" y="0" width="300" height="100" />
+        <dmndi:DMNLabel />
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="80" y="50" />
+          <di:waypoint x="380" y="50" />
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_80F4AB52-6E0F-49D0-9403-4D867D5FEB79" dmnElementRef="included4:_30D72817-12C9-4432-A513-97E56AF4F837" isCollapsed="true">
+        <dc:Bounds x="440" y="0" width="300" height="100" />
+        <dmndi:DMNLabel />
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="440" y="50" />
+          <di:waypoint x="740" y="50" />
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="_16D8B058-1602-415A-B551-ACF45126CCBB" dmnElementRef="_98A808D7-0074-4031-B5B7-1B7B304EFFC4" sourceElement="_AE3E2BDA-A1A6-488F-9284-DFC05247D370" targetElement="_F151397B-8A68-4273-BA0E-075151030D25">
+        <di:waypoint x="410.0" y="520" />
+        <di:waypoint x="410.0" y="250" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="_E1E7888B-BEF2-4089-97B0-86F9DF637699" dmnElementRef="_1A12578D-176B-4729-962F-0BE20B62A8C7" sourceElement="_16DC4D63-53BF-4976-8F42-355324A5A90C" targetElement="_F151397B-8A68-4273-BA0E-075151030D25">
+        <di:waypoint x="230.0" y="100" />
+        <di:waypoint x="407.5" y="170" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="_4694D943-CA81-43FB-B957-AA2313ABFD06" dmnElementRef="_6969E091-4650-407D-B77B-965781782E13" sourceElement="_80F4AB52-6E0F-49D0-9403-4D867D5FEB79" targetElement="_F151397B-8A68-4273-BA0E-075151030D25">
+        <di:waypoint x="590.0" y="100" />
+        <di:waypoint x="411.1" y="170" />
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>

@@ -1,0 +1,25 @@
+meta {
+  name: Low income without age
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/checks/internal/retip-age-or-income-requirement
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "householdSize": 1,
+      "householdIncome": 30000
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq true
+}

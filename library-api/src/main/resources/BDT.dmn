@@ -19,6 +19,27 @@
     <dmn:itemComponent id="_02DAA70A-534A-4529-82DE-DCC9677306C4" name="simpleChecks" isCollection="false">
       <dmn:typeRef>tSimpleChecks</dmn:typeRef>
     </dmn:itemComponent>
+    <dmn:itemComponent id="_AEDFA692-7D67-420E-880C-9BE2A90F19FC" name="householdIncome" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_22C1E901-82D4-49BD-97DB-6B9AD024AF98" name="householdSize" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_5D9A2C71-3E84-4B6F-A0D2-8C17F4E9B356" name="applicantAndSpouseIncome" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_18279532-DA32-4A27-88A7-0C026E8E6249" name="yearsOwnerOccupied" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_908B3EF5-1367-4428-B417-1E92B903990A" name="propertyAssessment" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_F3EBDB14-4913-404F-8D12-8D4593DC9DE4" name="previousYearPropertyAssessment" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_8BC16C99-D877-49D4-B961-99232A5B185D" name="lowestPropertyAssessmentLastFiveYears" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
   </dmn:itemDefinition>
   <dmn:itemDefinition id="_47681CD3-2FA0-4694-B03B-F381DA457BD3" name="tPerson" isCollection="false">
     <dmn:itemComponent id="_CAC97D8B-FF24-4C38-8F32-C1507705112D" name="dateOfBirth" isCollection="false">
@@ -96,6 +117,15 @@
       <dmn:typeRef>boolean</dmn:typeRef>
     </dmn:itemComponent>
     <dmn:itemComponent id="_587DCE99-9448-4BE2-BBAC-8E1946049A23" name="taxDelinquent" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_7A5563AC-B0D3-4C38-B61E-F5677B291054" name="spouseLivesInHousehold" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_5C13C2F7-672C-4517-8A3A-05AFA7BB78CE" name="propertyTaxPaymentPlan" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_D281E9C9-D457-4A01-B146-2E88794454BB" name="disqualifyingTaxAbatement" isCollection="false">
       <dmn:typeRef>boolean</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>

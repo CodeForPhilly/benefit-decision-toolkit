@@ -1,0 +1,25 @@
+meta {
+  name: Size 4 at cap
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{host}}/checks/income/retip-income
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "householdIncome": 61350,
+      "householdSize": 4
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq false
+}

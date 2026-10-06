@@ -1,0 +1,27 @@
+meta {
+  name: Smoke Test
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/benefits/pa/phl/retip
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "simpleChecks": {
+        "livesInPhiladelphiaPa": true
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.isEligible: eq null
+}

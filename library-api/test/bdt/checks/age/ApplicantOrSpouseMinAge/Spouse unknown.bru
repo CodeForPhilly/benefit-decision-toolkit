@@ -1,0 +1,33 @@
+meta {
+  name: Spouse unknown
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{host}}/checks/age/applicant-or-spouse-min-age
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "people": [
+        {
+          "id": "p1",
+          "dateOfBirth": "2000-01-01"
+        }
+      ]
+    },
+    "parameters": {
+      "minAge": 65
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq null
+}

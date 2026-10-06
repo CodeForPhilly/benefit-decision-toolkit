@@ -1,0 +1,33 @@
+meta {
+  name: Fail
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/checks/internal/retip-age-or-income-requirement
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "people": [
+        {
+          "id": "p1",
+          "dateOfBirth": "2000-01-01"
+        }
+      ],
+      "relationships": [],
+      "householdSize": 1,
+      "householdIncome": 100000
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq false
+}

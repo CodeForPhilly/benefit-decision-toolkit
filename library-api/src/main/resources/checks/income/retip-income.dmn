@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dmn:definitions xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:kie="https://kie.org/dmn/extensions/1.0" id="_6669A3AF-250A-42D6-B30A-C03CAF5AB81E" name="RetipIncome" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_0F40186A-672E-4BF8-8481-957F70A70DF4" xmlns="https://kie.apache.org/dmn/_0F40186A-672E-4BF8-8481-957F70A70DF4" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5">
+  <dmn:description>RETIP non-senior applicants: household annual income below the family-size cap. City income table verified 2026-10-05.</dmn:description>
+  <dmn:extensionElements />
+  <dmn:import id="_1B7B0927-7EAD-428F-8A67-09A89CBB6A3B" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:import id="_F46B736B-24F8-4098-ADBA-3D2C4DDCD9B1" name="Income" namespace="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5" locationURI="Income.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:itemDefinition id="_5F3D7DC4-A265-4179-90F2-8E20038F62FA" name="tSituation" isCollection="false">
+    <dmn:itemComponent id="_7B8E6ED2-8D9F-45A9-B508-9633EF200D25" name="householdIncome" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_28D25A44-4986-441E-8445-BBE183AAEE30" name="householdSize" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:decisionService id="_30D72817-12C9-4432-A513-97E56AF4F837" name="RetipIncomeService">
+    <dmn:extensionElements />
+    <dmn:variable id="_BCF3EAF7-EC9B-4D62-9A3F-2E814B471602" name="RetipIncomeService" typeRef="BDT.tCheckResponse" />
+    <dmn:outputDecision href="#_2DE0F4EC-F328-46A7-8496-1B328B3F7F73" />
+    <dmn:inputData href="#_2257EFFE-5A67-468E-A268-B21235E29BAB" />
+  </dmn:decisionService>
+  <dmn:decision id="_2DE0F4EC-F328-46A7-8496-1B328B3F7F73" name="checkResult">
+    <dmn:extensionElements />
+    <dmn:variable id="_230CD4CC-3D52-4711-A603-55798AC66635" name="checkResult" typeRef="boolean" />
+    <dmn:informationRequirement id="_DE314296-4599-42F6-BD7D-7206B445A409">
+      <dmn:requiredInput href="#_2257EFFE-5A67-468E-A268-B21235E29BAB" />
+    </dmn:informationRequirement>
+    <dmn:knowledgeRequirement id="_C7D2A9E5-3F18-4B64-9E1C-5A8B0D3F6E92">
+      <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5#_2C8F5A13-94D6-4E7B-B1A0-6F3E8D2C7B95" />
+    </dmn:knowledgeRequirement>
+    <dmn:literalExpression id="_E6B3255B-05FD-42CE-8307-29717730A817">
+      <dmn:text>Income.below household income limit(situation.householdIncome, situation.householdSize, [42950, 49100, 55250, 61350, 66300, 71200, 76100, 81000])</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmn:inputData id="_2257EFFE-5A67-468E-A268-B21235E29BAB" name="situation">
+    <dmn:extensionElements />
+    <dmn:variable id="_87C82B49-72A3-4B8B-80ED-91F1584F0300" name="situation" typeRef="tSituation" />
+  </dmn:inputData>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_A209A358-A29D-46E1-972E-34E9B9922793" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_E6B3255B-05FD-42CE-8307-29717730A817">
+            <kie:width>917</kie:width>
+          </kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="_1F1672E2-ED3B-4AE0-B85C-BBCE329F0FC9" dmnElementRef="_30D72817-12C9-4432-A513-97E56AF4F837" isCollapsed="false">
+        <dc:Bounds x="100.0" y="140" width="280" height="280" />
+        <dmndi:DMNLabel />
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="100.0" y="280" />
+          <di:waypoint x="380.0" y="280" />
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_3B01288A-0B9A-4F65-83A6-60B7F90929DB" dmnElementRef="_2DE0F4EC-F328-46A7-8496-1B328B3F7F73" isCollapsed="false">
+        <dc:Bounds x="160.0" y="170" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_D5182EEE-A9A5-488B-9BC3-1AAE723CF6A4" dmnElementRef="_2257EFFE-5A67-468E-A268-B21235E29BAB" isCollapsed="false">
+        <dc:Bounds x="160.0" y="520" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_7700F6AE-6ED0-4325-AA34-6989DB073582" dmnElementRef="included2:_2C8F5A13-94D6-4E7B-B1A0-6F3E8D2C7B95" isCollapsed="false">
+        <dc:Bounds x="160" y="20" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="_D9FF5EA5-90A7-4D7F-BAC8-613D87A8E107" dmnElementRef="_DE314296-4599-42F6-BD7D-7206B445A409" sourceElement="_D5182EEE-A9A5-488B-9BC3-1AAE723CF6A4" targetElement="_3B01288A-0B9A-4F65-83A6-60B7F90929DB">
+        <di:waypoint x="240.0" y="520" />
+        <di:waypoint x="240.0" y="250" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="_9BB9D81E-1914-4747-96D9-9D0CDAB1FD89" dmnElementRef="_C7D2A9E5-3F18-4B64-9E1C-5A8B0D3F6E92" sourceElement="_7700F6AE-6ED0-4325-AA34-6989DB073582" targetElement="_3B01288A-0B9A-4F65-83A6-60B7F90929DB">
+        <di:waypoint x="240" y="100" />
+        <di:waypoint x="240" y="170" />
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>

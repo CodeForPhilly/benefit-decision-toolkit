@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dmn:definitions xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:kie="https://kie.org/dmn/extensions/1.0" id="_763A8AF1-9F47-45C4-844A-6A3860E510CF" name="TaxFreezeIncome" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_325E4AAB-C41A-49BA-9078-57738900C2C3" xmlns="https://kie.apache.org/dmn/_325E4AAB-C41A-49BA-9078-57738900C2C3" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5">
+  <dmn:description>Philadelphia tax freeze gross annual income: at most $33,500 single or $41,500 married (city guidance verified 2026-10-05). Counts the applicant&apos;s income plus a spouse&apos;s; a spouse in relationships means the married limit applies. An empty relationships list means no spouse; omitted relationships mean unknown.</dmn:description>
+  <dmn:extensionElements />
+  <dmn:import id="_9986C569-813C-46D3-A7AA-8519D72F0182" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:import id="_8C8A5EAB-BE99-4098-B58F-37EE3E1F98B3" name="Income" namespace="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5" locationURI="Income.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:itemDefinition id="_2CBCC35C-346F-4D89-B9DE-C7989BD7D0B6" name="tSituation" isCollection="false">
+    <dmn:itemComponent id="_76B3CE75-3112-45DF-BEB0-1DA3269324A3" name="applicantAndSpouseIncome" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_14677E3C-4DFE-4F88-9E62-1761F57FFF5F" name="primaryPersonId" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_27CDB064-2721-4095-B851-2A99E4BE99C9" name="relationships" isCollection="false">
+      <dmn:typeRef>BDT.tRelationshipList</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:decisionService id="_8FCBEB34-FBA5-4684-AA73-8FC6B9C7E86F" name="TaxFreezeIncomeService">
+    <dmn:extensionElements />
+    <dmn:variable id="_A198816C-4DF0-40E0-89BB-DC167D48D0BB" name="TaxFreezeIncomeService" typeRef="BDT.tCheckResponse" />
+    <dmn:outputDecision href="#_7A7542CB-9FC6-412E-990C-2295A28974A1" />
+    <dmn:inputData href="#_8C376723-0FFC-490D-B1CE-9E20E7B84537" />
+  </dmn:decisionService>
+  <dmn:decision id="_7A7542CB-9FC6-412E-990C-2295A28974A1" name="checkResult">
+    <dmn:extensionElements />
+    <dmn:variable id="_05F8A761-A242-41FB-83CA-8C30CC69D698" name="checkResult" typeRef="boolean" />
+    <dmn:informationRequirement id="_8D4DED9E-E8B3-4175-97CA-812C5EF50762">
+      <dmn:requiredInput href="#_8C376723-0FFC-490D-B1CE-9E20E7B84537" />
+    </dmn:informationRequirement>
+    <dmn:knowledgeRequirement id="_A6F1C0D8-2B47-4E93-8C5A-71D3E9B4F026">
+      <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79#_14EAB512-0E33-419C-9630-BA0265476B6E" />
+    </dmn:knowledgeRequirement>
+    <dmn:literalExpression id="_0387D68E-9425-46B8-A8F3-3FBE526872D0">
+      <dmn:text>if situation.applicantAndSpouseIncome = null or situation.applicantAndSpouseIncome &lt; 0 or situation.relationships = null or situation.primaryPersonId = null then null
+else situation.applicantAndSpouseIncome &lt;= (if BDT.spouse id(situation.relationships, situation.primaryPersonId) = null then 33500 else 41500)</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmn:inputData id="_8C376723-0FFC-490D-B1CE-9E20E7B84537" name="situation">
+    <dmn:extensionElements />
+    <dmn:variable id="_8FF2B8C5-9A9E-475E-AA24-C2DCDCF2DB4C" name="situation" typeRef="tSituation" />
+  </dmn:inputData>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_17755210-C879-4F9A-BC76-E8F8D0DD5984" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_0387D68E-9425-46B8-A8F3-3FBE526872D0">
+            <kie:width>917</kie:width>
+          </kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="_CCF172C9-84B1-4231-953A-6748E8C9914E" dmnElementRef="_8FCBEB34-FBA5-4684-AA73-8FC6B9C7E86F" isCollapsed="false">
+        <dc:Bounds x="100.0" y="140" width="304" height="280" />
+        <dmndi:DMNLabel />
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="100.0" y="280" />
+          <di:waypoint x="404.0" y="280" />
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_527F699B-E9B9-452C-ABC4-FD4CAF3F03A9" dmnElementRef="_7A7542CB-9FC6-412E-990C-2295A28974A1" isCollapsed="false">
+        <dc:Bounds x="172.0" y="170" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_F25A7772-863C-41D5-A7B1-F64F0878EA82" dmnElementRef="_8C376723-0FFC-490D-B1CE-9E20E7B84537" isCollapsed="false">
+        <dc:Bounds x="172.0" y="520" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_CB6E2B97-02F5-4090-ABE6-E5E21D995D88" dmnElementRef="included1:_14EAB512-0E33-419C-9630-BA0265476B6E" isCollapsed="false">
+        <dc:Bounds x="172" y="20" width="160" height="80" />
+        <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="_45E6EE7A-2337-4093-B17A-CEE45BC0C9DA" dmnElementRef="_8D4DED9E-E8B3-4175-97CA-812C5EF50762" sourceElement="_F25A7772-863C-41D5-A7B1-F64F0878EA82" targetElement="_527F699B-E9B9-452C-ABC4-FD4CAF3F03A9">
+        <di:waypoint x="252.0" y="520" />
+        <di:waypoint x="252.0" y="250" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="_BC45676E-B1BC-4E17-9452-080C62DA8655" dmnElementRef="_A6F1C0D8-2B47-4E93-8C5A-71D3E9B4F026" sourceElement="_CB6E2B97-02F5-4090-ABE6-E5E21D995D88" targetElement="_527F699B-E9B9-452C-ABC4-FD4CAF3F03A9">
+        <di:waypoint x="252" y="100" />
+        <di:waypoint x="252" y="170" />
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>
