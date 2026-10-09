@@ -2,6 +2,13 @@ package org.codeforphilly.bdt.builder.controller;
 
 import io.quarkus.security.identity.SecurityIdentity;
 import org.codeforphilly.bdt.builder.model.domain.Screener;
+import org.codeforphilly.bdt.builder.model.domain.Benefit;
+import org.codeforphilly.bdt.builder.model.domain.FormPath;
+import org.codeforphilly.bdt.builder.persistence.StorageService;
+import org.codeforphilly.bdt.builder.service.InputSchemaService;
+import org.codeforphilly.bdt.builder.service.ScreenerFormDraftService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.ws.rs.NotFoundException;
 import org.codeforphilly.bdt.builder.model.dto.screener.EditScreenerRequest;
 import org.codeforphilly.bdt.builder.persistence.DuplicateScreenerNameException;
 import org.codeforphilly.bdt.builder.persistence.ScreenerRepository;
@@ -10,8 +17,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -19,11 +28,17 @@ class ScreenerResourceTest {
     private final ScreenerRepository screenerRepository = mock(ScreenerRepository.class);
     private final SecurityIdentity identity = mock(SecurityIdentity.class);
     private final ScreenerResource resource = new ScreenerResource();
+    private final InputSchemaService inputSchemaService = mock(InputSchemaService.class);
+    private final ScreenerFormDraftService draftService = mock(ScreenerFormDraftService.class);
+    private final StorageService storage = mock(StorageService.class);
     private Screener screener;
 
     @BeforeEach
     void setUp() {
         resource.screenerRepository = screenerRepository;
+        resource.inputSchemaService = inputSchemaService;
+        resource.screenerFormDraftService = draftService;
+        resource.storageService = storage;
         JsonWebToken token = mock(JsonWebToken.class);
         when(identity.getPrincipal()).thenReturn(token);
         when(token.getClaim("user_id")).thenReturn("owner");
@@ -50,5 +65,44 @@ class ScreenerResourceTest {
         verify(screenerRepository).updateWorkingScreener(screener);
         assertEquals("housing", screener.getScreenerName());
         verify(screenerRepository, never()).renameWorkingScreener(any());
+    }
+
+    @Test
+    void draftChecksOwnershipBeforeReadingBenefitsOrCallingGemini() throws Exception {
+        screener.setOwnerId("someone-else");
+        try (var response = resource.draftForm(identity, "screener-1")) {
+            assertEquals(401, response.getStatus());
+        }
+        verifyNoInteractions(inputSchemaService, draftService, storage);
+        verify(screenerRepository, never()).getBenefitsInScreener(any());
+    }
+
+    @Test
+    void draftRejectsUnknownScreenersAndMissingCheckInputs() throws Exception {
+        assertThrows(NotFoundException.class, () -> resource.draftForm(identity, "missing"));
+        when(screenerRepository.getBenefitsInScreener(screener)).thenReturn(List.of());
+        try (var response = resource.draftForm(identity, "screener-1")) {
+            assertEquals(400, response.getStatus());
+        }
+        verifyNoInteractions(draftService, storage);
+    }
+
+    @Test
+    void draftReturnsUnsavedSchemaAndReportsUnavailableGeneration() throws Exception {
+        var benefits = List.of(new Benefit("benefit", "Benefit", null, "owner", List.of()));
+        when(screenerRepository.getBenefitsInScreener(screener)).thenReturn(benefits);
+        when(inputSchemaService.extractUniqueInputPaths(benefits)).thenReturn(List.of(new FormPath("custom.income", "number")));
+        var schema = new ObjectMapper().readTree("{\"components\":[]}");
+        when(draftService.generate(benefits)).thenReturn(Optional.of(schema));
+        try (var response = resource.draftForm(identity, "screener-1")) {
+            assertEquals(200, response.getStatus());
+            assertEquals(java.util.Map.of("schema", schema), response.getEntity());
+        }
+        when(draftService.generate(benefits)).thenReturn(Optional.empty());
+        try (var response = resource.draftForm(identity, "screener-1")) {
+            assertEquals(503, response.getStatus());
+        }
+        verifyNoInteractions(storage);
+        verify(screenerRepository, never()).updateWorkingScreener(any());
     }
 }

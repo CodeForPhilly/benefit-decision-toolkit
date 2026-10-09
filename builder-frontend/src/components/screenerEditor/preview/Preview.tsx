@@ -8,6 +8,7 @@ import { evaluateScreener } from "../../../api/screener";
 import { PreviewFormData, ScreenerResult } from "./types";
 import Tooltip from "@/components/shared/Tooltip";
 import HiddenQuestionsNotice from "@/components/shared/HiddenQuestionsNotice";
+import ScreeningComplete from "@/components/shared/ScreeningComplete";
 import {
   getUnneededQuestionPaths,
   haveSameQuestionPaths,
@@ -18,6 +19,7 @@ const Preview = ({ screener, formSchema }) => {
     createSignal<PreviewFormData>({});
   const [results, setResults] = createSignal<ScreenerResult>();
   const [resultsLoading, setResultsLoading] = createSignal(false);
+  let evaluationVersion = 0;
   const [showAllQuestions, setShowAllQuestions] = createSignal(false);
   const unneededQuestionPaths = createMemo(
     () => getUnneededQuestionPaths(results()),
@@ -44,12 +46,18 @@ const Preview = ({ screener, formSchema }) => {
   };
 
   const handleSubmitForm = async (data: PreviewFormData) => {
+    const version = ++evaluationVersion;
     setLastInputDataSent(data);
     setResultsLoading(true);
-
-    let apiResult: ScreenerResult = await evaluateScreener(screener().id, data);
-    setResults(apiResult);
-    setResultsLoading(false);
+    try {
+      const apiResult = await evaluateScreener(screener().id, data);
+      if (version === evaluationVersion) setResults(apiResult);
+    } catch (error) {
+      if (version === evaluationVersion) setResults(undefined);
+      console.error("Could not evaluate the screener", error);
+    } finally {
+      if (version === evaluationVersion) setResultsLoading(false);
+    }
   };
 
   return (
@@ -61,7 +69,12 @@ const Preview = ({ screener, formSchema }) => {
           formData={lastInputDataSent}
           hiddenQuestionPaths={hiddenQuestionPaths}
           submitForm={handleSubmitForm}
+          onDataChange={() => {
+            evaluationVersion++;
+            setResultsLoading(true);
+          }}
         />
+        <ScreeningComplete results={results} pending={resultsLoading} />
         <HiddenQuestionsNotice
           unneededQuestionCount={() => unneededQuestionPaths().length}
           showAllQuestions={showAllQuestions}

@@ -113,6 +113,17 @@ export const saveFormSchema = async (screenerId: string, schema: any) => {
   }
 };
 
+export const draftFormSchema = async (screenerId: string): Promise<any> => {
+  const response = await authPost(
+    `${apiUrl}/screener/${encodeURIComponent(screenerId)}/draft-form`,
+    {},
+  );
+  if (!response.ok) {
+    throw await apiErrorFrom(response, "Could not draft the form with AI");
+  }
+  return (await response.json()).schema;
+};
+
 export const publishScreener = async (screenerId: string): Promise<void> => {
   const url = apiUrl + "/publish";
   try {
