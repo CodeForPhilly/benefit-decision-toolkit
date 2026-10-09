@@ -70,11 +70,12 @@ public class ScreenerResource {
     try {
       // Return an editable draft; saving remains an explicit editor action.
       List<Benefit> benefits = screenerRepository.getBenefitsInScreener(screener);
-      if (benefits.isEmpty() || inputSchemaService.extractUniqueInputPaths(benefits).isEmpty()) {
+      List<FormPath> paths = inputSchemaService.extractUniqueInputPaths(benefits);
+      if (benefits.isEmpty() || paths.isEmpty()) {
         return Response.status(Response.Status.BAD_REQUEST)
             .entity(Map.of("error", "Add benefits with configured checks before drafting a form.")).build();
       }
-      var draft = screenerFormDraftService.generate(benefits);
+      var draft = screenerFormDraftService.generate(benefits, paths);
       if (draft.isEmpty()) {
         return Response.status(Response.Status.SERVICE_UNAVAILABLE)
             .entity(Map.of("error", "Could not draft the form with AI. Check the Gemini configuration or try again.")).build();

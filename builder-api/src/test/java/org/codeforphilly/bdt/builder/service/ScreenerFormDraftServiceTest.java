@@ -89,7 +89,7 @@ class ScreenerFormDraftServiceTest {
     @Test
     void generatesUsingConfiguredChecksAndDeduplicatedTransformedSchemas() throws Exception {
         startGemini(200, DRAFT, "STOP");
-        var form = service.generate(benefits()).orElseThrow();
+        var form = service.generate(benefits(), paths).orElseThrow();
         assertEquals(4, form.path("components").size());
         assertEquals("test-key", requestKey.get());
         var config = request.get().path("generationConfig");
@@ -115,25 +115,25 @@ class ScreenerFormDraftServiceTest {
     void skipsRequestsWithoutConfigurationOrWhenDisabled() throws Exception {
         startGemini(200, DRAFT, "STOP");
         service.geminiClient.apiKey = Optional.empty();
-        assertTrue(service.generate(benefits()).isEmpty());
+        assertTrue(service.generate(benefits(), paths).isEmpty());
         service.geminiClient.apiKey = Optional.of(" ");
-        assertTrue(service.generate(benefits()).isEmpty());
+        assertTrue(service.generate(benefits(), paths).isEmpty());
         service.geminiClient.apiKey = Optional.of("test-key");
         service.enabled = false;
-        assertTrue(service.generate(benefits()).isEmpty());
+        assertTrue(service.generate(benefits(), paths).isEmpty());
         assertNull(request.get());
     }
 
     @Test
     void rejectsFailedTruncatedAndMalformedProviderResponses() throws Exception {
         startGemini(500, DRAFT, "STOP");
-        assertTrue(service.generate(benefits()).isEmpty());
+        assertTrue(service.generate(benefits(), paths).isEmpty());
         server.stop(0);
         startGemini(200, DRAFT, "MAX_TOKENS");
-        assertTrue(service.generate(benefits()).isEmpty());
+        assertTrue(service.generate(benefits(), paths).isEmpty());
         server.stop(0);
         startGemini(200, "not json", "STOP");
-        assertTrue(service.generate(benefits()).isEmpty());
+        assertTrue(service.generate(benefits(), paths).isEmpty());
     }
 
     @Test
@@ -141,7 +141,7 @@ class ScreenerFormDraftServiceTest {
         startGemini(200, DRAFT, "STOP");
         var configured = benefits();
         configured.get(1).setChecks(List.of(new CheckConfig()));
-        assertTrue(service.generate(configured).isEmpty());
+        assertTrue(service.generate(configured, paths).isEmpty());
         assertNull(request.get());
     }
 
@@ -149,7 +149,7 @@ class ScreenerFormDraftServiceTest {
     void rejectsOmittedInputsEvenWhenTheModelConsidersThemUnnecessary() throws Exception {
         var draft = keyedDraft(DRAFT);
         ((com.fasterxml.jackson.databind.node.ObjectNode) draft.get("questions")).remove("q0");
-        assertThrows(IllegalArgumentException.class, () -> service.orderQuestions(draft, paths));
+        assertThrows(IllegalArgumentException.class, () -> service.orderQuestions(draft, service.questionPaths(paths)));
     }
 
     @Test
@@ -157,7 +157,7 @@ class ScreenerFormDraftServiceTest {
         var draft = keyedDraft(DRAFT);
         ((com.fasterxml.jackson.databind.node.ObjectNode) draft).putArray("order")
             .add("q3").add("q3");
-        var ordered = service.orderQuestions(draft, paths);
+        var ordered = service.orderQuestions(draft, service.questionPaths(paths));
         assertEquals(4, ordered.path("questions").size());
         assertEquals("simpleChecks.resident", ordered.path("questions").get(0).path("key").asText());
         assertEquals(4, service.toFormSchema(ordered, paths).path("components").size());

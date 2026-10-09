@@ -91,14 +91,15 @@ class ScreenerResourceTest {
     void draftReturnsUnsavedSchemaAndReportsUnavailableGeneration() throws Exception {
         var benefits = List.of(new Benefit("benefit", "Benefit", null, "owner", List.of()));
         when(screenerRepository.getBenefitsInScreener(screener)).thenReturn(benefits);
-        when(inputSchemaService.extractUniqueInputPaths(benefits)).thenReturn(List.of(new FormPath("custom.income", "number")));
+        var paths = List.of(new FormPath("custom.income", "number"));
+        when(inputSchemaService.extractUniqueInputPaths(benefits)).thenReturn(paths);
         var schema = new ObjectMapper().readTree("{\"components\":[]}");
-        when(draftService.generate(benefits)).thenReturn(Optional.of(schema));
+        when(draftService.generate(benefits, paths)).thenReturn(Optional.of(schema));
         try (var response = resource.draftForm(identity, "screener-1")) {
             assertEquals(200, response.getStatus());
             assertEquals(java.util.Map.of("schema", schema), response.getEntity());
         }
-        when(draftService.generate(benefits)).thenReturn(Optional.empty());
+        when(draftService.generate(benefits, paths)).thenReturn(Optional.empty());
         try (var response = resource.draftForm(identity, "screener-1")) {
             assertEquals(503, response.getStatus());
         }
