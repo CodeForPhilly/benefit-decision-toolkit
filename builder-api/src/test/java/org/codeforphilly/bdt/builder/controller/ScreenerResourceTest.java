@@ -103,6 +103,12 @@ class ScreenerResourceTest {
         try (var response = resource.draftForm(identity, "screener-1")) {
             assertEquals(503, response.getStatus());
         }
+        when(draftService.generate(benefits, paths))
+            .thenThrow(new ScreenerFormDraftService.UndraftableFormException("Unsupported input"));
+        try (var response = resource.draftForm(identity, "screener-1")) {
+            assertEquals(400, response.getStatus());
+            assertEquals(java.util.Map.of("error", "Unsupported input"), response.getEntity());
+        }
         verifyNoInteractions(storage);
         verify(screenerRepository, never()).updateWorkingScreener(any());
     }

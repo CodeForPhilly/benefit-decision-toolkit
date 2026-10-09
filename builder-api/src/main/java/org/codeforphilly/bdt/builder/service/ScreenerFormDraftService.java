@@ -20,6 +20,8 @@ public class ScreenerFormDraftService {
 
     @Inject GeminiClient geminiClient;
 
+    private static final Set<String> SUPPORTED_TYPES = Set.of("boolean", "integer", "number", "date",
+        "date-time", "time", "string", "array:string", "array:any", "any");
     // The model picks a field for inputs whose schema declares no type, as the input's effective type.
     private static final Map<String, String> ANSWER_TYPES = Map.of(
         "yes_no", "boolean", "number", "number", "date", "date", "text", "string");
@@ -27,11 +29,22 @@ public class ScreenerFormDraftService {
     @ConfigProperty(name = "form-generation.enabled", defaultValue = "true")
     boolean enabled;
 
+    /** The configured checks cannot be drafted; the message tells the builder why. */
+    public static class UndraftableFormException extends IllegalArgumentException {
+        public UndraftableFormException(String message) {
+            super(message);
+        }
+    }
+
     /**
      * Drafts a form-js schema with one question for each of the given input paths, which the
-     * caller extracts from the same benefits.
+     * caller extracts from the same benefits. Returns empty when Gemini is unavailable or does
+     * not produce a valid draft.
+     *
+     * @throws UndraftableFormException before calling Gemini, when retrying cannot help
      */
     public Optional<JsonNode> generate(List<Benefit> benefits, List<FormPath> paths) {
+        requireDraftable(benefits, paths);
         if (!enabled || !geminiClient.isConfigured()) {
             Log.warnf("AI form generation unavailable: enabled=%s, API key configured=%s", enabled,
                 geminiClient.isConfigured());
@@ -54,6 +67,27 @@ public class ScreenerFormDraftService {
         }
     }
 
+    private void requireDraftable(List<Benefit> benefits, List<FormPath> paths) {
+        // Input path extraction skips checks without an input schema, so a draft would silently
+        // leave out their questions.
+        for (Benefit benefit : benefits) {
+            if (benefit.getChecks() == null) continue;
+            for (var check : benefit.getChecks()) {
+                if (check.getInputDefinition() == null || !check.getInputDefinition().has("properties")) {
+                    String name = check.getAliasName() != null ? check.getAliasName() : check.getCheckName();
+                    throw new UndraftableFormException("The check \"%s\" in %s has no input definition. Finish configuring it before drafting a form."
+                        .formatted(name, benefit.getName()));
+                }
+            }
+        }
+        List<String> unsupported = paths.stream().filter(path -> !SUPPORTED_TYPES.contains(path.getType()))
+            .map(path -> path.getPath() + " (" + path.getType() + ")").sorted().toList();
+        if (!unsupported.isEmpty()) {
+            throw new UndraftableFormException("AI drafting does not support these inputs yet: %s. Build the form manually instead."
+                .formatted(String.join(", ", unsupported)));
+        }
+    }
+
     private String buildPrompt(List<Benefit> benefits, Map<String, FormPath> questionPaths) throws Exception {
         var context = objectMapper.createArrayNode();
         for (Benefit benefit : benefits) {
@@ -63,9 +97,6 @@ public class ScreenerFormDraftService {
             var checks = entry.putArray("checks");
             if (benefit.getChecks() == null) continue;
             for (var check : benefit.getChecks()) {
-                if (check.getInputDefinition() == null || !check.getInputDefinition().has("properties")) {
-                    throw new IllegalArgumentException("Check input schema is unavailable");
-                }
                 ObjectNode detail = checks.addObject();
                 detail.put("name", check.getCheckName());
                 detail.put("alias", check.getAliasName());

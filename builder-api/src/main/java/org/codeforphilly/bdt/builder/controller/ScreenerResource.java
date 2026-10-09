@@ -81,6 +81,8 @@ public class ScreenerResource {
             .entity(Map.of("error", "Could not draft the form with AI. Check the Gemini configuration or try again.")).build();
       }
       return Response.ok(Map.of("schema", draft.get())).build();
+    } catch (ScreenerFormDraftService.UndraftableFormException e) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", e.getMessage())).build();
     } catch (Exception e) {
       Log.error("Could not prepare a screener form draft", e);
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

@@ -177,8 +177,23 @@ class ScreenerFormDraftServiceTest {
     void doesNotDraftAPartialFormWhenACheckSchemaIsMissing() throws Exception {
         startGemini(200, DRAFT, "STOP");
         var configured = benefits();
-        configured.get(1).setChecks(List.of(new CheckConfig()));
-        assertTrue(service.generate(configured, paths).isEmpty());
+        var unconfigured = new CheckConfig();
+        unconfigured.setCheckName("Unfinished check");
+        configured.get(1).setChecks(List.of(unconfigured));
+        var error = assertThrows(ScreenerFormDraftService.UndraftableFormException.class,
+            () -> service.generate(configured, paths));
+        assertTrue(error.getMessage().contains("\"Unfinished check\" in Food"));
+        assertNull(request.get());
+    }
+
+    @Test
+    void namesUnsupportedInputTypesWithoutCallingGemini() throws Exception {
+        startGemini(200, DRAFT, "STOP");
+        var unsupported = List.of(new FormPath("custom.amounts", "array:number"), new FormPath("custom.income", "number"));
+        var error = assertThrows(ScreenerFormDraftService.UndraftableFormException.class,
+            () -> service.generate(benefits(), unsupported));
+        assertTrue(error.getMessage().contains("custom.amounts (array:number)"));
+        assertFalse(error.getMessage().contains("custom.income"));
         assertNull(request.get());
     }
 
