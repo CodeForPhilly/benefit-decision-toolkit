@@ -20,6 +20,10 @@ public class ScreenerFormDraftService {
 
     @Inject GeminiClient geminiClient;
 
+    // The model picks a field for inputs whose schema declares no type, as the input's effective type.
+    private static final Map<String, String> ANSWER_TYPES = Map.of(
+        "yes_no", "boolean", "number", "number", "date", "date", "text", "string");
+
     @ConfigProperty(name = "form-generation.enabled", defaultValue = "true")
     boolean enabled;
 
@@ -86,6 +90,9 @@ public class ScreenerFormDraftService {
             Return a questions object with one entry for EVERY required question ID in the mapping
             below. Each entry has label, description, and values (an array of
             {label,value} string options; empty for free text, dates, numbers, and booleans).
+            Inputs of type any have no declared type, so also choose their answerType (yes_no, number,
+            date, or text) from the check names, parameters and descriptions. For example, a check
+            comparing an input with a numeric limit needs a number; one expecting true needs yes_no.
             Also return an order array containing those question IDs in the desired display order.
             Do not omit any required input, including relationship fields, even if it seems technical
             or another question seems similar. Use exact enum values from the schemas for choices.
@@ -108,22 +115,35 @@ public class ScreenerFormDraftService {
     }
 
     private Map<String, Object> responseSchema(Map<String, FormPath> questionPaths) {
-        var string = Map.of("type", "string");
-        var option = Map.of("type", "object", "properties", Map.of("label", string, "value", string),
-            "required", List.of("label", "value"), "additionalProperties", false);
-        var question = Map.of("type", "object", "properties", Map.of(
-            "label", string, "description", string,
-            "values", Map.of("type", "array", "items", option)),
-            "required", List.of("label", "description", "values"), "additionalProperties", false);
         List<String> keys = new ArrayList<>(questionPaths.keySet());
         Map<String, Object> questions = new LinkedHashMap<>();
-        keys.forEach(key -> questions.put(key, question));
+        questionPaths.forEach((key, path) -> questions.put(key, questionSchema(path)));
         return Map.of("type", "object", "properties", Map.of(
             "questions", Map.of("type", "object", "properties", questions,
                 "required", keys, "additionalProperties", false),
             "order", Map.of("type", "array", "items", Map.of("type", "string", "enum", keys),
                 "minItems", keys.size(), "maxItems", keys.size())),
             "required", List.of("questions", "order"), "additionalProperties", false);
+    }
+
+    private Map<String, Object> questionSchema(FormPath path) {
+        var string = Map.of("type", "string");
+        var option = Map.of("type", "object", "properties", Map.of("label", string, "value", string),
+            "required", List.of("label", "value"), "additionalProperties", false);
+        Map<String, Object> values = new LinkedHashMap<>(Map.of("type", "array", "items", option));
+        Map<String, Object> properties = new LinkedHashMap<>();
+        properties.put("label", string);
+        properties.put("description", string);
+        properties.put("values", values);
+        switch (path.getType()) {
+            case "string" -> { }
+            case "array:string", "array:any" -> values.put("minItems", 1);
+            case "any" -> properties.put("answerType", Map.of("type", "string", "enum",
+                ANSWER_TYPES.keySet().stream().sorted().toList()));
+            default -> values.put("maxItems", 0);
+        }
+        return Map.of("type", "object", "properties", properties,
+            "required", List.copyOf(properties.keySet()), "additionalProperties", false);
     }
 
     // Construct form-js fields ourselves: the model supplies wording, choices and ordering,
@@ -163,17 +183,20 @@ public class ScreenerFormDraftService {
             if (!description.isBlank()) field.put("description", description);
             JsonNode values = question.path("values");
             if (!values.isArray()) throw new IllegalArgumentException();
-            switch (path.getType()) {
+            String type = "any".equals(path.getType())
+                ? ANSWER_TYPES.get(question.path("answerType").asText()) : path.getType();
+            if (type == null) throw new IllegalArgumentException();
+            switch (type) {
                 case "boolean" -> field.put("type", "yes_no");
                 case "integer" -> field.put("type", "number").put("decimalDigits", 0);
                 case "number" -> field.put("type", "number");
                 case "date", "date-time", "time" -> {
                     field.put("type", "datetime");
-                    field.put("subtype", "date-time".equals(path.getType()) ? "datetime" : path.getType());
+                    field.put("subtype", "date-time".equals(type) ? "datetime" : type);
                     field.put("dateLabel", label).put("timeLabel", label);
                 }
                 case "string" -> field.put("type", values.isEmpty() ? "textfield" : "radio");
-                case "array:string" -> {
+                case "array:string", "array:any" -> {
                     if (values.isEmpty()) throw new IllegalArgumentException();
                     field.put("type", "checklist_none");
                 }

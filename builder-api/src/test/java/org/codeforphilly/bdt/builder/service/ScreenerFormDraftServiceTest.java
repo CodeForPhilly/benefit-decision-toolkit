@@ -88,6 +88,42 @@ class ScreenerFormDraftServiceTest {
     }
 
     @Test
+    void buildsFieldsForUntypedInputsFromTheModelsAnswerType() throws Exception {
+        var untyped = service.questionPaths(List.of(new FormPath("custom.wantsExtraCash", "any"),
+            new FormPath("custom.householdIncome", "any"), new FormPath("custom.county", "any"),
+            new FormPath("custom.programs", "array:any")));
+        var draft = mapper.readTree("""
+            {"order":["q0","q1","q2","q3"],"questions":{
+              "q0":{"label":"County","description":"","answerType":"text",
+                    "values":[{"label":"Philadelphia","value":"Philadelphia"}]},
+              "q1":{"label":"Household income","description":"","answerType":"number","values":[]},
+              "q2":{"label":"Programs","description":"","values":[{"label":"SNAP","value":"SNAP"}]},
+              "q3":{"label":"Want extra cash?","description":"","answerType":"yes_no","values":[]}}}
+            """);
+        var fields = service.toFormSchema(draft, untyped).path("components");
+        assertEquals("radio", fields.get(0).path("type").asText());
+        assertEquals("number", fields.get(1).path("type").asText());
+        assertEquals("checklist_none", fields.get(2).path("type").asText());
+        assertEquals("yes_no", fields.get(3).path("type").asText());
+
+        ((com.fasterxml.jackson.databind.node.ObjectNode) draft.path("questions").path("q1")).remove("answerType");
+        assertThrows(IllegalArgumentException.class, () -> service.toFormSchema(draft, untyped));
+    }
+
+    @Test
+    void asksTheModelForAnAnswerTypeOnlyForUntypedInputs() throws Exception {
+        startGemini(200, DRAFT, "STOP");
+        var untyped = List.of(new FormPath("custom.income", "any"), new FormPath("people.client.enrollments", "array:string"));
+        service.generate(benefits(), untyped);
+        var questions = request.get().path("generationConfig").path("responseJsonSchema")
+            .path("properties").path("questions").path("properties");
+        assertTrue(questions.path("q0").path("properties").has("answerType"));
+        assertTrue(questions.path("q0").path("required").toString().contains("answerType"));
+        assertFalse(questions.path("q1").path("properties").has("answerType"));
+        assertEquals(1, questions.path("q1").path("properties").path("values").path("minItems").asInt());
+    }
+
+    @Test
     void generatesUsingConfiguredChecksAndDeduplicatedTransformedSchemas() throws Exception {
         startGemini(200, DRAFT, "STOP");
         var form = service.generate(benefits(), paths).orElseThrow();
