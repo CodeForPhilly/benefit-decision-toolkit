@@ -81,7 +81,7 @@ public class ScreenerResource {
       }
       return Response.ok(Map.of("schema", draft.get())).build();
     } catch (Exception e) {
-      Log.error("Could not prepare a screener form draft");
+      Log.error("Could not prepare a screener form draft", e);
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
           .entity(Map.of("error", "Could not load the configured benefits and checks.")).build();
     }
