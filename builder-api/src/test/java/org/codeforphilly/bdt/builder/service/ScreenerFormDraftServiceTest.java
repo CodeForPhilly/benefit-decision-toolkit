@@ -57,7 +57,7 @@ class ScreenerFormDraftServiceTest {
 
     @Test
     void buildsTypedFieldsWithSharedKeysAndNoDefaultAnswers() throws Exception {
-        var form = service.toFormSchema(mapper.readTree(DRAFT), paths);
+        var form = service.toFormSchema(keyedDraft(DRAFT), service.questionPaths(paths));
         assertEquals("default", form.path("type").asText());
         assertEquals(18, form.path("schemaVersion").asInt());
         var fields = form.path("components");
@@ -73,7 +73,7 @@ class ScreenerFormDraftServiceTest {
     }
 
     @Test
-    void rejectsMissingDuplicateInventedAndUnanswerableInputs() throws Exception {
+    void rejectsMissingDuplicateInventedAndUnanswerableQuestions() throws Exception {
         for (String invalid : List.of(
             "{\"questions\":[]}",
             DRAFT.replace("custom.income", "simpleChecks.resident"),
@@ -82,7 +82,8 @@ class ScreenerFormDraftServiceTest {
             DRAFT.replace("Do you live here?", "= true"),
             DRAFT.replace("[{\"label\":\"Housing assistance\",\"value\":\"Housing\"},{\"label\":\"Food assistance\",\"value\":\"Food\"}]", "[]")
         )) {
-            assertThrows(IllegalArgumentException.class, () -> service.toFormSchema(mapper.readTree(invalid), paths));
+            assertThrows(IllegalArgumentException.class,
+                () -> service.toFormSchema(keyedDraft(invalid), service.questionPaths(paths)));
         }
     }
 
@@ -149,7 +150,7 @@ class ScreenerFormDraftServiceTest {
     void rejectsOmittedInputsEvenWhenTheModelConsidersThemUnnecessary() throws Exception {
         var draft = keyedDraft(DRAFT);
         ((com.fasterxml.jackson.databind.node.ObjectNode) draft.get("questions")).remove("q0");
-        assertThrows(IllegalArgumentException.class, () -> service.orderQuestions(draft, service.questionPaths(paths)));
+        assertThrows(IllegalArgumentException.class, () -> service.toFormSchema(draft, service.questionPaths(paths)));
     }
 
     @Test
@@ -157,10 +158,10 @@ class ScreenerFormDraftServiceTest {
         var draft = keyedDraft(DRAFT);
         ((com.fasterxml.jackson.databind.node.ObjectNode) draft).putArray("order")
             .add("q3").add("q3");
-        var ordered = service.orderQuestions(draft, service.questionPaths(paths));
-        assertEquals(4, ordered.path("questions").size());
-        assertEquals("simpleChecks.resident", ordered.path("questions").get(0).path("key").asText());
-        assertEquals(4, service.toFormSchema(ordered, paths).path("components").size());
+        var fields = service.toFormSchema(draft, service.questionPaths(paths)).path("components");
+        assertEquals(4, fields.size());
+        assertEquals("simpleChecks.resident", fields.get(0).path("key").asText());
+        assertEquals(4, fields.findValuesAsText("key").stream().distinct().count());
     }
 
     private JsonNode keyedDraft(String text) throws Exception {

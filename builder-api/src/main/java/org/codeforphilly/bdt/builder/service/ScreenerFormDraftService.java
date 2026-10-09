@@ -39,7 +39,7 @@ public class ScreenerFormDraftService {
             Optional<String> generated = geminiClient.generateJson("form generation",
                 buildPrompt(benefits, questionPaths), responseSchema(questionPaths), 16384, Duration.ofSeconds(60));
             if (generated.isEmpty()) return Optional.empty();
-            return Optional.of(toFormSchema(orderQuestions(objectMapper.readTree(generated.get()), questionPaths), paths));
+            return Optional.of(toFormSchema(objectMapper.readTree(generated.get()), questionPaths));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return Optional.empty();
@@ -126,73 +126,50 @@ public class ScreenerFormDraftService {
             "required", List.of("questions", "order"), "additionalProperties", false);
     }
 
+    // Construct form-js fields ourselves: the model supplies wording, choices and ordering,
+    // while exact keys, types, unique IDs and full input coverage come from questionPaths.
     // Keyed required properties make coverage a provider constraint, instead of relying
     // on the model to enumerate every input correctly in a free-form question array.
-    JsonNode orderQuestions(JsonNode draft, Map<String, FormPath> questionPaths) {
-        Set<String> required = questionPaths.keySet();
+    JsonNode toFormSchema(JsonNode draft, Map<String, FormPath> questionPaths) {
         JsonNode questions = draft.path("questions");
         JsonNode order = draft.path("order");
-        if (!questions.isObject() || questions.size() != required.size()
-            || !required.stream().allMatch(questions::has) || !order.isArray()) {
+        if (!order.isArray() || !questionPaths.keySet().stream().allMatch(id -> questions.path(id).isObject())) {
+            Log.warn("AI draft is missing required questions");
             throw new IllegalArgumentException();
         }
         Set<String> ordered = new LinkedHashSet<>();
-        for (JsonNode key : order) {
-            if (!key.isTextual() || !required.contains(key.asText())) throw new IllegalArgumentException();
-            ordered.add(key.asText());
+        for (JsonNode id : order) {
+            if (!questionPaths.containsKey(id.asText())) throw new IllegalArgumentException();
+            ordered.add(id.asText());
         }
         // A repeated ordering entry must never drop a valid, already generated question.
-        ordered.addAll(required);
-        ObjectNode result = objectMapper.createObjectNode();
-        var array = result.putArray("questions");
-        for (String key : ordered) {
-            if (!questions.get(key).isObject()) throw new IllegalArgumentException();
-            ObjectNode question = questions.get(key).deepCopy();
-            question.put("key", questionPaths.get(key).getPath());
-            array.add(question);
-        }
-        return result;
-    }
+        ordered.addAll(questionPaths.keySet());
 
-    // Construct form-js fields ourselves: the model supplies wording, choices and ordering,
-    // while exact keys, types, unique IDs and full input coverage are enforced here.
-    JsonNode toFormSchema(JsonNode draft, List<FormPath> paths) {
-        Map<String, String> expected = new HashMap<>();
-        paths.forEach(path -> expected.put(path.getPath(), path.getType()));
-        Set<String> seen = new HashSet<>();
-        JsonNode questions = draft.path("questions");
-        if (!questions.isArray() || questions.size() != expected.size()) {
-            Log.warnf("AI draft has %d questions for %d required inputs", questions.size(), expected.size());
-            throw new IllegalArgumentException();
-        }
         ObjectNode form = objectMapper.createObjectNode();
         form.put("id", "BDT_Form").put("type", "default").put("schemaVersion", 18);
         form.set("exporter", objectMapper.valueToTree(Map.of("name", "form-js", "version", "1.15.2")));
         var components = form.putArray("components");
         int index = 0;
-        for (JsonNode question : questions) {
-            String key = question.path("key").asText();
-            if (!expected.containsKey(key) || !seen.add(key)
-                || Arrays.stream(key.split("\\.")).anyMatch(p -> Set.of("__proto__", "prototype", "constructor").contains(p))) {
-                throw new IllegalArgumentException();
-            }
+        for (String id : ordered) {
+            JsonNode question = questions.get(id);
+            FormPath path = questionPaths.get(id);
             String label = question.path("label").asText().strip();
             if (label.isBlank() || label.startsWith("=")) throw new IllegalArgumentException();
             ObjectNode field = components.addObject();
-            field.put("id", "Field_draft_" + index).put("key", key).put("label", label);
+            field.put("id", "Field_draft_" + index).put("key", path.getPath()).put("label", label);
             field.putObject("layout").put("row", "Row_draft_" + index++);
             String description = question.path("description").asText().strip();
             if (description.startsWith("=")) throw new IllegalArgumentException();
             if (!description.isBlank()) field.put("description", description);
             JsonNode values = question.path("values");
             if (!values.isArray()) throw new IllegalArgumentException();
-            switch (expected.get(key)) {
+            switch (path.getType()) {
                 case "boolean" -> field.put("type", "yes_no");
                 case "integer" -> field.put("type", "number").put("decimalDigits", 0);
                 case "number" -> field.put("type", "number");
                 case "date", "date-time", "time" -> {
                     field.put("type", "datetime");
-                    field.put("subtype", "date-time".equals(expected.get(key)) ? "datetime" : expected.get(key));
+                    field.put("subtype", "date-time".equals(path.getType()) ? "datetime" : path.getType());
                     field.put("dateLabel", label).put("timeLabel", label);
                 }
                 case "string" -> field.put("type", values.isEmpty() ? "textfield" : "radio");
