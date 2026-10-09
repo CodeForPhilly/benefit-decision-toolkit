@@ -1,4 +1,4 @@
-import { Accessor, createMemo, createSignal } from "solid-js";
+import { Accessor, createMemo, createSignal, Show } from "solid-js";
 
 import FormRenderer from "./FormRenderer";
 import Results from "./Results";
@@ -22,6 +22,7 @@ const Preview = ({ screener, formSchema }) => {
   // True from an edit until results for the latest answers arrive. Hides the completion
   // message without blanking the Results panel on every keystroke.
   const [resultsStale, setResultsStale] = createSignal(false);
+  const [evaluationFailed, setEvaluationFailed] = createSignal(false);
   let evaluationVersion = 0;
   const [showAllQuestions, setShowAllQuestions] = createSignal(false);
   const unneededQuestionPaths = createMemo(
@@ -58,9 +59,10 @@ const Preview = ({ screener, formSchema }) => {
       if (version === evaluationVersion) {
         setResults(apiResult);
         setResultsStale(false);
+        setEvaluationFailed(false);
       }
     } catch (error) {
-      if (version === evaluationVersion) setResults(undefined);
+      if (version === evaluationVersion) setEvaluationFailed(true);
       console.error("Could not evaluate the screener", error);
     } finally {
       if (version === evaluationVersion) setResultsLoading(false);
@@ -81,6 +83,12 @@ const Preview = ({ screener, formSchema }) => {
             setResultsStale(true);
           }}
         />
+        <Show when={evaluationFailed()}>
+          <p role="alert" class="my-4 text-red-800">
+            Could not evaluate the latest answers. Results below are from the
+            last successful evaluation.
+          </p>
+        </Show>
         <ScreeningComplete results={results} pending={resultsStale} />
         <HiddenQuestionsNotice
           unneededQuestionCount={() => unneededQuestionPaths().length}

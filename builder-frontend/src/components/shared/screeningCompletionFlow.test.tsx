@@ -33,7 +33,11 @@ vi.mock("@/components/screenerEditor/preview/Results", () => ({
   },
 }));
 vi.mock("@/components/screener/EligibilityResults", () => ({
-  default: () => <div />,
+  default: (props: any) => (
+    <div data-testid="eligibility-results">
+      {Object.keys(props.screenerResult() ?? {}).join(",")}
+    </div>
+  ),
 }));
 vi.mock("@/components/shared/Tooltip", () => ({ default: () => <div /> }));
 
@@ -131,6 +135,36 @@ describe.each(["preview", "published"])("completion in %s", (mode) => {
       expect(container.querySelector('[role="status"]')).toBeNull();
       await renderer.props.submitForm({ answer: false });
       expect(container.querySelector('[role="status"]')).toBeNull();
+    } finally {
+      vi.restoreAllMocks();
+    }
+  });
+
+  it("keeps the last results and reports a failed evaluation", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    try {
+      api()
+        .mockResolvedValueOnce(decided)
+        .mockRejectedValueOnce(new Error("Unavailable"))
+        .mockResolvedValueOnce(decided);
+      const container = await mount();
+      await renderer.props.submitForm({ answer: true });
+      renderer.props.onDataChange();
+      await renderer.props.submitForm({ answer: false });
+      expect(container.querySelector('[role="alert"]')).not.toBeNull();
+      if (mode === "preview") {
+        expect(previewResults.props.results()).toEqual(decided);
+      } else {
+        expect(
+          container.querySelector('[data-testid="eligibility-results"]')
+            ?.textContent,
+        ).toBe("benefit");
+      }
+      renderer.props.onDataChange();
+      await renderer.props.submitForm({ answer: true });
+      expect(container.querySelector('[role="alert"]')).toBeNull();
+      expect(container.querySelector('[role="status"]')).not.toBeNull();
     } finally {
       vi.restoreAllMocks();
     }

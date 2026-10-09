@@ -27,7 +27,10 @@ export default function Screener() {
   );
   const [screenerResult, setScreenerResult] = createSignal<ScreenerResult>();
   const [formData, setFormData] = createSignal<any>({});
-  const [evaluationPending, setEvaluationPending] = createSignal(false);
+  // True from an edit until results for the latest answers arrive, so a failed evaluation
+  // keeps the previous results visible without announcing that screening is complete.
+  const [resultsStale, setResultsStale] = createSignal(false);
+  const [evaluationFailed, setEvaluationFailed] = createSignal(false);
   let evaluationVersion = 0;
   const [showAllQuestions, setShowAllQuestions] = createSignal(false);
   const unneededQuestionPaths = createMemo(
@@ -43,19 +46,21 @@ export default function Screener() {
 
   const submitForm = async (data: any) => {
     const version = ++evaluationVersion;
-    setEvaluationPending(true);
+    setResultsStale(true);
     try {
       setFormData(data);
       let evaluationResult: ScreenerResult = await evaluatePublishedScreener(
         params.publishedScreenerId,
         data,
       );
-      if (version === evaluationVersion) setScreenerResult(evaluationResult);
+      if (version === evaluationVersion) {
+        setScreenerResult(evaluationResult);
+        setResultsStale(false);
+        setEvaluationFailed(false);
+      }
     } catch (err) {
-      if (version === evaluationVersion) setScreenerResult(undefined);
+      if (version === evaluationVersion) setEvaluationFailed(true);
       console.log(err);
-    } finally {
-      if (version === evaluationVersion) setEvaluationPending(false);
     }
   };
 
@@ -72,12 +77,18 @@ export default function Screener() {
               submitForm={submitForm}
               onDataChange={() => {
                 evaluationVersion++;
-                setEvaluationPending(true);
+                setResultsStale(true);
               }}
             />
+            <Show when={evaluationFailed()}>
+              <p role="alert" class="my-4 text-red-800">
+                We couldn't update your results. Check your connection, then
+                change an answer to try again.
+              </p>
+            </Show>
             <ScreeningComplete
               results={screenerResult}
-              pending={evaluationPending}
+              pending={resultsStale}
             />
             <HiddenQuestionsNotice
               unneededQuestionCount={() => unneededQuestionPaths().length}
