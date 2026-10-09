@@ -57,7 +57,7 @@ class ScreenerFormDraftServiceTest {
 
     @Test
     void buildsTypedFieldsWithSharedKeysAndNoDefaultAnswers() throws Exception {
-        var form = service.toFormSchema(keyedDraft(DRAFT), service.questionPaths(paths));
+        var form = service.toFormSchema(keyedDraft(DRAFT), service.questionPaths(paths), Map.of());
         assertEquals("default", form.path("type").asText());
         assertEquals(18, form.path("schemaVersion").asInt());
         var fields = form.path("components");
@@ -83,7 +83,7 @@ class ScreenerFormDraftServiceTest {
             DRAFT.replace("[{\"label\":\"Housing assistance\",\"value\":\"Housing\"},{\"label\":\"Food assistance\",\"value\":\"Food\"}]", "[]")
         )) {
             assertThrows(IllegalArgumentException.class,
-                () -> service.toFormSchema(keyedDraft(invalid), service.questionPaths(paths)));
+                () -> service.toFormSchema(keyedDraft(invalid), service.questionPaths(paths), Map.of()));
         }
     }
 
@@ -100,14 +100,14 @@ class ScreenerFormDraftServiceTest {
               "q2":{"label":"Programs","description":"","values":[{"label":"SNAP","value":"SNAP"}]},
               "q3":{"label":"Want extra cash?","description":"","answerType":"yes_no","values":[]}}}
             """);
-        var fields = service.toFormSchema(draft, untyped).path("components");
+        var fields = service.toFormSchema(draft, untyped, Map.of()).path("components");
         assertEquals("radio", fields.get(0).path("type").asText());
         assertEquals("number", fields.get(1).path("type").asText());
         assertEquals("checklist_none", fields.get(2).path("type").asText());
         assertEquals("yes_no", fields.get(3).path("type").asText());
 
         ((com.fasterxml.jackson.databind.node.ObjectNode) draft.path("questions").path("q1")).remove("answerType");
-        assertThrows(IllegalArgumentException.class, () -> service.toFormSchema(draft, untyped));
+        assertThrows(IllegalArgumentException.class, () -> service.toFormSchema(draft, untyped, Map.of()));
     }
 
     @Test
@@ -121,6 +121,48 @@ class ScreenerFormDraftServiceTest {
         assertTrue(questions.path("q0").path("required").toString().contains("answerType"));
         assertFalse(questions.path("q1").path("properties").has("answerType"));
         assertEquals(1, questions.path("q1").path("properties").path("values").path("minItems").asInt());
+    }
+
+    @Test
+    void restrictsChoicesToSchemaEnumsAndConfiguredBenefitCodes() throws Exception {
+        var check = new CheckConfig();
+        check.setCheckName("person-not-enrolled-in-benefit");
+        check.setParameters(Map.of("personId", "client", "benefit", "PhlHomesteadExemption"));
+        check.setInputDefinition(mapper.readTree("""
+            {"type":"object","properties":{
+              "enrollments":{"type":"array","items":{"type":"object","properties":{
+                "personId":{"type":"string"},"benefit":{"type":"string"}}}},
+              "custom":{"type":"object","properties":{"relationship":{"type":"string","enum":["spouse","child"]}}}
+            }}
+            """));
+        var configured = List.of(new Benefit("homestead", "Homestead", null, "owner", List.of(check)));
+        var questions = service.questionPaths(service.inputSchemaService.extractUniqueInputPaths(configured));
+        assertEquals("custom.relationship", questions.get("q0").getPath());
+        assertEquals("people.client.enrollments", questions.get("q1").getPath());
+        var allowed = service.allowedOptionValues(configured, questions);
+        assertEquals(Map.of("q0", List.of("child", "spouse"), "q1", List.of("PhlHomesteadExemption")), allowed);
+
+        String valid = """
+            {"order":["q0","q1"],"questions":{
+              "q0":{"label":"Relationship","description":"","values":[{"label":"Spouse","value":"spouse"}]},
+              "q1":{"label":"Enrolled in","description":"","values":[{"label":"Homestead","value":"PhlHomesteadExemption"}]}}}
+            """;
+        assertEquals(2, service.toFormSchema(mapper.readTree(valid), questions, allowed).path("components").size());
+        for (String invalid : List.of(
+            valid.replace("\"value\":\"spouse\"", "\"value\":\"Spouse\""),
+            valid.replace("\"value\":\"PhlHomesteadExemption\"", "\"value\":\"Homestead\""),
+            valid.replace("[{\"label\":\"Spouse\",\"value\":\"spouse\"}]", "[]")
+        )) {
+            assertThrows(IllegalArgumentException.class,
+                () -> service.toFormSchema(mapper.readTree(invalid), questions, allowed));
+        }
+
+        startGemini(200, DRAFT, "STOP");
+        service.generate(configured, List.copyOf(questions.values()));
+        var enrollmentValue = request.get().path("generationConfig").path("responseJsonSchema").path("properties")
+            .path("questions").path("properties").path("q1").path("properties").path("values")
+            .path("items").path("properties").path("value");
+        assertEquals("[\"PhlHomesteadExemption\"]", enrollmentValue.path("enum").toString());
     }
 
     @Test
@@ -201,7 +243,7 @@ class ScreenerFormDraftServiceTest {
     void rejectsOmittedInputsEvenWhenTheModelConsidersThemUnnecessary() throws Exception {
         var draft = keyedDraft(DRAFT);
         ((com.fasterxml.jackson.databind.node.ObjectNode) draft.get("questions")).remove("q0");
-        assertThrows(IllegalArgumentException.class, () -> service.toFormSchema(draft, service.questionPaths(paths)));
+        assertThrows(IllegalArgumentException.class, () -> service.toFormSchema(draft, service.questionPaths(paths), Map.of()));
     }
 
     @Test
@@ -209,7 +251,7 @@ class ScreenerFormDraftServiceTest {
         var draft = keyedDraft(DRAFT);
         ((com.fasterxml.jackson.databind.node.ObjectNode) draft).putArray("order")
             .add("q3").add("q3");
-        var fields = service.toFormSchema(draft, service.questionPaths(paths)).path("components");
+        var fields = service.toFormSchema(draft, service.questionPaths(paths), Map.of()).path("components");
         assertEquals(4, fields.size());
         assertEquals("simpleChecks.resident", fields.get(0).path("key").asText());
         assertEquals(4, fields.findValuesAsText("key").stream().distinct().count());

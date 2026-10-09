@@ -12,6 +12,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.Stream;
 
 @ApplicationScoped
 public class ScreenerFormDraftService {
@@ -53,10 +54,12 @@ public class ScreenerFormDraftService {
         if (paths.isEmpty()) return Optional.empty();
         try {
             Map<String, FormPath> questionPaths = questionPaths(paths);
+            Map<String, List<String>> optionValues = allowedOptionValues(benefits, questionPaths);
             Optional<String> generated = geminiClient.generateJson("form generation",
-                buildPrompt(benefits, questionPaths), responseSchema(questionPaths), 16384, Duration.ofSeconds(60));
+                buildPrompt(benefits, questionPaths), responseSchema(questionPaths, optionValues),
+                16384, Duration.ofSeconds(60));
             if (generated.isEmpty()) return Optional.empty();
-            return Optional.of(toFormSchema(objectMapper.readTree(generated.get()), questionPaths));
+            return Optional.of(toFormSchema(objectMapper.readTree(generated.get()), questionPaths, optionValues));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return Optional.empty();
@@ -145,10 +148,66 @@ public class ScreenerFormDraftService {
         return questions;
     }
 
-    private Map<String, Object> responseSchema(Map<String, FormPath> questionPaths) {
+    // Choice values must match what the checks compare against: the schema's enum or, for arrays
+    // without one (such as enrollments), the configured string parameters of the checks reading
+    // the input (such as benefit codes). Questions without an entry accept any option values.
+    Map<String, List<String>> allowedOptionValues(List<Benefit> benefits, Map<String, FormPath> questionPaths) {
+        Map<String, Set<String>> enums = new HashMap<>();
+        Map<String, Set<String>> parameters = new HashMap<>();
+        for (Benefit benefit : benefits) {
+            if (benefit.getChecks() == null) continue;
+            for (var check : benefit.getChecks()) {
+                JsonNode schema = inputSchemaService.transformInputDefinitionSchema(check);
+                Set<String> parameterValues = stringParameterValues(check.getParameters());
+                for (FormPath path : inputSchemaService.extractInputPaths(check)) {
+                    boolean array = path.getType().startsWith("array:");
+                    JsonNode node = schemaAt(schema, path.getPath());
+                    for (JsonNode value : (array ? node.path("items") : node).path("enum")) {
+                        if (value.isTextual()) enums.computeIfAbsent(path.getPath(), p -> new TreeSet<>()).add(value.asText());
+                    }
+                    if (array) parameters.computeIfAbsent(path.getPath(), p -> new TreeSet<>()).addAll(parameterValues);
+                }
+            }
+        }
+        Map<String, List<String>> allowed = new HashMap<>();
+        questionPaths.forEach((id, path) -> {
+            Set<String> values = enums.getOrDefault(path.getPath(), parameters.getOrDefault(path.getPath(), Set.of()));
+            if (!values.isEmpty() && Set.of("string", "array:string", "array:any").contains(path.getType())) {
+                allowed.put(id, List.copyOf(values));
+            }
+        });
+        return allowed;
+    }
+
+    private Set<String> stringParameterValues(Map<String, Object> parameters) {
+        Set<String> values = new TreeSet<>();
+        if (parameters == null) return values;
+        parameters.forEach((name, value) -> {
+            // Person IDs select whose data a check reads; they are never answers.
+            if ("personId".equals(name) || "peopleIds".equals(name)) return;
+            (value instanceof List<?> list ? list.stream() : Stream.of(value))
+                .filter(item -> item instanceof String text && !text.isBlank())
+                .forEach(item -> values.add((String) item));
+        });
+        return values;
+    }
+
+    // Follows a path from InputSchemaService.extractJsonSchemaPaths, which passes through arrays of objects.
+    private JsonNode schemaAt(JsonNode schema, String path) {
+        JsonNode node = schema;
+        for (String segment : path.split("\\.")) {
+            node = node.path("properties").path(segment);
+            if (!node.has("properties") && node.path("items").has("properties")) node = node.path("items");
+        }
+        return node;
+    }
+
+    private Map<String, Object> responseSchema(Map<String, FormPath> questionPaths,
+                                               Map<String, List<String>> optionValues) {
         List<String> keys = new ArrayList<>(questionPaths.keySet());
         Map<String, Object> questions = new LinkedHashMap<>();
-        questionPaths.forEach((key, path) -> questions.put(key, questionSchema(path)));
+        questionPaths.forEach((key, path) ->
+            questions.put(key, questionSchema(path, optionValues.getOrDefault(key, List.of()))));
         return Map.of("type", "object", "properties", Map.of(
             "questions", Map.of("type", "object", "properties", questions,
                 "required", keys, "additionalProperties", false),
@@ -157,9 +216,10 @@ public class ScreenerFormDraftService {
             "required", List.of("questions", "order"), "additionalProperties", false);
     }
 
-    private Map<String, Object> questionSchema(FormPath path) {
+    private Map<String, Object> questionSchema(FormPath path, List<String> optionValues) {
         var string = Map.of("type", "string");
-        var option = Map.of("type", "object", "properties", Map.of("label", string, "value", string),
+        Map<String, ?> value = optionValues.isEmpty() ? string : Map.of("type", "string", "enum", optionValues);
+        var option = Map.of("type", "object", "properties", Map.of("label", string, "value", value),
             "required", List.of("label", "value"), "additionalProperties", false);
         Map<String, Object> values = new LinkedHashMap<>(Map.of("type", "array", "items", option));
         Map<String, Object> properties = new LinkedHashMap<>();
@@ -167,7 +227,9 @@ public class ScreenerFormDraftService {
         properties.put("description", string);
         properties.put("values", values);
         switch (path.getType()) {
-            case "string" -> { }
+            case "string" -> {
+                if (!optionValues.isEmpty()) values.put("minItems", 1);
+            }
             case "array:string", "array:any" -> values.put("minItems", 1);
             case "any" -> properties.put("answerType", Map.of("type", "string", "enum",
                 ANSWER_TYPES.keySet().stream().sorted().toList()));
@@ -181,7 +243,8 @@ public class ScreenerFormDraftService {
     // while exact keys, types, unique IDs and full input coverage come from questionPaths.
     // Keyed required properties make coverage a provider constraint, instead of relying
     // on the model to enumerate every input correctly in a free-form question array.
-    JsonNode toFormSchema(JsonNode draft, Map<String, FormPath> questionPaths) {
+    JsonNode toFormSchema(JsonNode draft, Map<String, FormPath> questionPaths,
+                          Map<String, List<String>> optionValues) {
         JsonNode questions = draft.path("questions");
         JsonNode order = draft.path("order");
         if (!order.isArray() || !questionPaths.keySet().stream().allMatch(id -> questions.path(id).isObject())) {
@@ -213,7 +276,8 @@ public class ScreenerFormDraftService {
             if (description.startsWith("=")) throw new IllegalArgumentException();
             if (!description.isBlank()) field.put("description", description);
             JsonNode values = question.path("values");
-            if (!values.isArray()) throw new IllegalArgumentException();
+            List<String> allowed = optionValues.getOrDefault(id, List.of());
+            if (!values.isArray() || (!allowed.isEmpty() && values.isEmpty())) throw new IllegalArgumentException();
             String type = "any".equals(path.getType())
                 ? ANSWER_TYPES.get(question.path("answerType").asText()) : path.getType();
             if (type == null) throw new IllegalArgumentException();
@@ -234,13 +298,14 @@ public class ScreenerFormDraftService {
                 default -> throw new IllegalArgumentException();
             }
             if (Set.of("radio", "checklist_none").contains(field.path("type").asText())) {
-                Set<String> optionValues = new HashSet<>();
+                Set<String> seenValues = new HashSet<>();
                 for (JsonNode value : values) {
                     if (!value.path("label").isTextual() || value.path("label").asText().isBlank()
                         || value.path("label").asText().startsWith("=") || !value.path("value").isTextual()
                         || value.path("value").asText().isBlank()
                         || "__bdt_none_of_these__".equals(value.path("value").asText())
-                        || !optionValues.add(value.path("value").asText())) {
+                        || (!allowed.isEmpty() && !allowed.contains(value.path("value").asText()))
+                        || !seenValues.add(value.path("value").asText())) {
                         throw new IllegalArgumentException();
                     }
                 }
