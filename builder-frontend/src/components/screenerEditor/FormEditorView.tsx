@@ -97,18 +97,18 @@ function FormEditorView({ formSchema, setFormSchema }) {
     eventBus.on("formField.add", (event: { formField: any }) => {
       const field = event.formField;
 
-      // Only set key if the field supports keys and doesn't already have one set
+      // Imports also emit formField.add; keep the keys of imported fields.
       // Skip group components as they don't use keys
       if (
+        !importingDraft &&
         field &&
         field.id &&
-        !field.key &&
         field.type !== "group" &&
         field.type !== "default"
       ) {
         // Use setTimeout to ensure the field is fully added before modifying
         setTimeout(() => {
-          if (!disposed && !field.key) {
+          if (!disposed) {
             modeling.editFormField(field, "key", field.id);
           }
         }, 0);

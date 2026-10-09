@@ -127,3 +127,21 @@ it("keeps every required binding after the actual editor finishes importing and 
     paths.map(({ path }) => path),
   );
 });
+
+it("defaults the key of a newly added field to its ID", async () => {
+  vi.mocked(fetchFormPaths).mockResolvedValue({ paths: [] });
+  const [schema, setSchema] = createSignal<any>();
+  const container = document.body.appendChild(document.createElement("div"));
+  dispose = render(
+    () => <FormEditorView formSchema={schema} setFormSchema={setSchema} />,
+    container,
+  );
+  await vi.waitFor(() => expect(editor.instance).toBeDefined());
+  const formField = editor.instance.get("formFieldRegistry").getAll()[0];
+  const added = editor.instance
+    .get("modeling")
+    .addFormField({ type: "textfield" }, formField, 0);
+  // The palette's field factory assigns a random key before formField.add fires.
+  expect(added.key).toMatch(/^textfield_/);
+  await vi.waitFor(() => expect(added.key).toBe(added.id));
+});
