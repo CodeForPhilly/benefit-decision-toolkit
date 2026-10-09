@@ -19,6 +19,9 @@ const Preview = ({ screener, formSchema }) => {
     createSignal<PreviewFormData>({});
   const [results, setResults] = createSignal<ScreenerResult>();
   const [resultsLoading, setResultsLoading] = createSignal(false);
+  // True from an edit until results for the latest answers arrive. Hides the completion
+  // message without blanking the Results panel on every keystroke.
+  const [resultsStale, setResultsStale] = createSignal(false);
   let evaluationVersion = 0;
   const [showAllQuestions, setShowAllQuestions] = createSignal(false);
   const unneededQuestionPaths = createMemo(
@@ -48,10 +51,14 @@ const Preview = ({ screener, formSchema }) => {
   const handleSubmitForm = async (data: PreviewFormData) => {
     const version = ++evaluationVersion;
     setLastInputDataSent(data);
+    setResultsStale(true);
     setResultsLoading(true);
     try {
       const apiResult = await evaluateScreener(screener().id, data);
-      if (version === evaluationVersion) setResults(apiResult);
+      if (version === evaluationVersion) {
+        setResults(apiResult);
+        setResultsStale(false);
+      }
     } catch (error) {
       if (version === evaluationVersion) setResults(undefined);
       console.error("Could not evaluate the screener", error);
@@ -71,10 +78,10 @@ const Preview = ({ screener, formSchema }) => {
           submitForm={handleSubmitForm}
           onDataChange={() => {
             evaluationVersion++;
-            setResultsLoading(true);
+            setResultsStale(true);
           }}
         />
-        <ScreeningComplete results={results} pending={resultsLoading} />
+        <ScreeningComplete results={results} pending={resultsStale} />
         <HiddenQuestionsNotice
           unneededQuestionCount={() => unneededQuestionPaths().length}
           showAllQuestions={showAllQuestions}

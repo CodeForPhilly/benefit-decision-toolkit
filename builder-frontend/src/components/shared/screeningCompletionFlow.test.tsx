@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ScreenerResult } from "@/types";
 
 const renderer = vi.hoisted(() => ({ props: undefined as any }));
+const previewResults = vi.hoisted(() => ({ props: undefined as any }));
 vi.mock("@solidjs/router", () => ({
   useParams: () => ({ publishedScreenerId: "published" }),
 }));
@@ -26,7 +27,10 @@ vi.mock("@/components/screener/FormRenderer", () => ({
   },
 }));
 vi.mock("@/components/screenerEditor/preview/Results", () => ({
-  default: () => <div />,
+  default: (props: any) => {
+    previewResults.props = props;
+    return <div />;
+  },
 }));
 vi.mock("@/components/screener/EligibilityResults", () => ({
   default: () => <div />,
@@ -130,5 +134,36 @@ describe.each(["preview", "published"])("completion in %s", (mode) => {
     } finally {
       vi.restoreAllMocks();
     }
+  });
+});
+
+describe("preview results while typing", () => {
+  let dispose: (() => void) | undefined;
+  afterEach(() => {
+    dispose?.();
+    document.body.replaceChildren();
+  });
+
+  it("keeps showing results until the debounced evaluation starts", async () => {
+    vi.clearAllMocks();
+    renderer.props = undefined;
+    vi.mocked(evaluateScreener).mockResolvedValue({
+      benefit: { name: "Benefit", result: "TRUE", check_results: {} },
+    });
+    const container = document.body.appendChild(document.createElement("div"));
+    dispose = render(
+      () => (
+        <Preview
+          screener={() => ({ id: "working" })}
+          formSchema={() => ({ components: [] })}
+        />
+      ),
+      container,
+    );
+    await vi.waitFor(() => expect(renderer.props).toBeDefined());
+    await renderer.props.submitForm({ answer: true });
+    renderer.props.onDataChange();
+    expect(previewResults.props.resultsLoading()).toBe(false);
+    expect(container.querySelector('[role="status"]')).toBeNull();
   });
 });
