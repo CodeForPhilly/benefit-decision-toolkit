@@ -44,8 +44,10 @@ class ScreenerFormDraftServiceTest {
         service.objectMapper = mapper;
         service.inputSchemaService = new InputSchemaService();
         service.enabled = true;
-        service.apiKey = Optional.empty();
-        service.model = "test-model";
+        service.geminiClient = new GeminiClient();
+        service.geminiClient.objectMapper = mapper;
+        service.geminiClient.apiKey = Optional.empty();
+        service.geminiClient.model = "test-model";
     }
 
     @AfterEach
@@ -112,11 +114,11 @@ class ScreenerFormDraftServiceTest {
     @Test
     void skipsRequestsWithoutConfigurationOrWhenDisabled() throws Exception {
         startGemini(200, DRAFT, "STOP");
-        service.apiKey = Optional.empty();
+        service.geminiClient.apiKey = Optional.empty();
         assertTrue(service.generate(benefits()).isEmpty());
-        service.apiKey = Optional.of(" ");
+        service.geminiClient.apiKey = Optional.of(" ");
         assertTrue(service.generate(benefits()).isEmpty());
-        service.apiKey = Optional.of("test-key");
+        service.geminiClient.apiKey = Optional.of("test-key");
         service.enabled = false;
         assertTrue(service.generate(benefits()).isEmpty());
         assertNull(request.get());
@@ -213,7 +215,7 @@ class ScreenerFormDraftServiceTest {
             exchange.close();
         });
         server.start();
-        service.baseUrl = "http://127.0.0.1:" + server.getAddress().getPort() + "/";
-        service.apiKey = Optional.of("test-key");
+        service.geminiClient.baseUrl = "http://127.0.0.1:" + server.getAddress().getPort() + "/";
+        service.geminiClient.apiKey = Optional.of("test-key");
     }
 }

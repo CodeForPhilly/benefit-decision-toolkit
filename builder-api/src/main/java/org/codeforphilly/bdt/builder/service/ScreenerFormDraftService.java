@@ -10,10 +10,6 @@ import org.codeforphilly.bdt.builder.model.domain.Benefit;
 import org.codeforphilly.bdt.builder.model.domain.FormPath;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.*;
 
@@ -22,57 +18,24 @@ public class ScreenerFormDraftService {
     @Inject ObjectMapper objectMapper;
     @Inject InputSchemaService inputSchemaService;
 
+    @Inject GeminiClient geminiClient;
+
     @ConfigProperty(name = "form-generation.enabled", defaultValue = "true")
     boolean enabled;
-    // Share the existing Gemini connection with eligibility check alias generation.
-    @ConfigProperty(name = "alias-generation.gemini.api-key")
-    Optional<String> apiKey;
-    @ConfigProperty(name = "alias-generation.gemini.model")
-    String model;
-    @ConfigProperty(name = "alias-generation.gemini.base-url",
-        defaultValue = "https://generativelanguage.googleapis.com/v1beta/models/")
-    String baseUrl;
-
-    private final HttpClient httpClient = HttpClient.newBuilder()
-        .connectTimeout(Duration.ofSeconds(3)).build();
 
     public Optional<JsonNode> generate(List<Benefit> benefits) {
-        if (!enabled || apiKey.isEmpty() || apiKey.get().isBlank()) {
+        if (!enabled || !geminiClient.isConfigured()) {
             Log.warnf("AI form generation unavailable: enabled=%s, API key configured=%s", enabled,
-                apiKey.isPresent() && !apiKey.get().isBlank());
+                geminiClient.isConfigured());
             return Optional.empty();
         }
         try {
             List<FormPath> paths = inputSchemaService.extractUniqueInputPaths(benefits);
             if (paths.isEmpty()) return Optional.empty();
-            Map<String, Object> body = Map.of(
-                "contents", List.of(Map.of("parts", List.of(Map.of("text", buildPrompt(benefits, paths))))),
-                "generationConfig", Map.of(
-                    "temperature", 0.2,
-                    "maxOutputTokens", 16384,
-                    "responseMimeType", "application/json",
-                    "responseJsonSchema", responseSchema(paths)
-                )
-            );
-            HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(baseUrl + model + ":generateContent"))
-                .timeout(Duration.ofSeconds(60))
-                .header("Content-Type", "application/json")
-                .header("x-goog-api-key", apiKey.get())
-                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body)))
-                .build();
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                Log.warnf("Gemini form generation returned HTTP %d", response.statusCode());
-                return Optional.empty();
-            }
-            JsonNode candidate = objectMapper.readTree(response.body()).path("candidates").path(0);
-            if (!"STOP".equals(candidate.path("finishReason").asText())) {
-                Log.warnf("Gemini form generation did not finish: %s", candidate.path("finishReason").asText("no candidate"));
-                return Optional.empty();
-            }
-            String generated = candidate.path("content").path("parts").path(0).path("text").asText();
-            return Optional.of(toFormSchema(orderQuestions(objectMapper.readTree(generated), paths), paths));
+            Optional<String> generated = geminiClient.generateJson("form generation",
+                buildPrompt(benefits, paths), responseSchema(paths), 16384, Duration.ofSeconds(60));
+            if (generated.isEmpty()) return Optional.empty();
+            return Optional.of(toFormSchema(orderQuestions(objectMapper.readTree(generated.get()), paths), paths));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return Optional.empty();

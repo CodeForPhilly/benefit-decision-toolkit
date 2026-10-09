@@ -29,8 +29,10 @@ class EligibilityCheckAliasServiceTest {
         service = new EligibilityCheckAliasService();
         service.objectMapper = new ObjectMapper();
         service.enabled = true;
-        service.apiKey = Optional.empty();
-        service.model = "test-model";
+        service.geminiClient = new GeminiClient();
+        service.geminiClient.objectMapper = service.objectMapper;
+        service.geminiClient.apiKey = Optional.empty();
+        service.geminiClient.model = "test-model";
     }
 
     @AfterEach
@@ -47,7 +49,7 @@ class EligibilityCheckAliasServiceTest {
 
     @Test
     void generateReturnsNothingWithABlankApiKey() {
-        service.apiKey = Optional.of(" ");
+        service.geminiClient.apiKey = Optional.of(" ");
 
         assertEquals(Optional.empty(), service.generate("IncomeThreshold", Map.of("limit", 50_000)));
     }
@@ -91,6 +93,16 @@ class EligibilityCheckAliasServiceTest {
     }
 
     @Test
+    void generateReturnsNothingWhenGeminiStopsAtTheTokenLimit() throws Exception {
+        startGemini(200, new ObjectMapper().writeValueAsString(Map.of("candidates", new Object[] {
+            Map.of("finishReason", "MAX_TOKENS",
+                "content", Map.of("parts", new Object[] {Map.of("text", "{\"alias\":\"Income under\"}")}))
+        })));
+
+        assertEquals(Optional.empty(), service.generate("IncomeThreshold", Map.of("limit", 50_000)));
+    }
+
+    @Test
     void generateReturnsNothingWhenGeminiReturnsMalformedJson() throws Exception {
         startGemini(200, geminiResponse("not json"));
 
@@ -109,14 +121,15 @@ class EligibilityCheckAliasServiceTest {
         });
         server.start();
 
-        service.apiKey = Optional.of("test-key");
-        service.baseUrl = "http://127.0.0.1:" + server.getAddress().getPort() + "/";
+        service.geminiClient.apiKey = Optional.of("test-key");
+        service.geminiClient.baseUrl = "http://127.0.0.1:" + server.getAddress().getPort() + "/";
     }
 
     private static String geminiResponse(String generatedText) throws IOException {
         return new ObjectMapper().writeValueAsString(Map.of(
             "candidates", new Object[] {
-                Map.of("content", Map.of("parts", new Object[] {Map.of("text", generatedText)}))
+                Map.of("finishReason", "STOP",
+                    "content", Map.of("parts", new Object[] {Map.of("text", generatedText)}))
             }
         ));
     }
