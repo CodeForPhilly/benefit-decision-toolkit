@@ -1,4 +1,4 @@
-import { Accessor, createMemo, createSignal } from "solid-js";
+import { Accessor, createMemo, createSignal, Show } from "solid-js";
 
 import FormRenderer from "./FormRenderer";
 import Results from "./Results";
@@ -8,6 +8,7 @@ import { evaluateScreener } from "../../../api/screener";
 import { PreviewFormData, ScreenerResult } from "./types";
 import Tooltip from "@/components/shared/Tooltip";
 import HiddenQuestionsNotice from "@/components/shared/HiddenQuestionsNotice";
+import ScreeningComplete from "@/components/shared/ScreeningComplete";
 import {
   getUnneededQuestionPaths,
   haveSameQuestionPaths,
@@ -18,6 +19,11 @@ const Preview = ({ screener, formSchema }) => {
     createSignal<PreviewFormData>({});
   const [results, setResults] = createSignal<ScreenerResult>();
   const [resultsLoading, setResultsLoading] = createSignal(false);
+  // True from an edit until results for the latest answers arrive. Hides the completion
+  // message without blanking the Results panel on every keystroke.
+  const [resultsStale, setResultsStale] = createSignal(false);
+  const [evaluationFailed, setEvaluationFailed] = createSignal(false);
+  let evaluationVersion = 0;
   const [showAllQuestions, setShowAllQuestions] = createSignal(false);
   const unneededQuestionPaths = createMemo(
     () => getUnneededQuestionPaths(results()),
@@ -44,12 +50,23 @@ const Preview = ({ screener, formSchema }) => {
   };
 
   const handleSubmitForm = async (data: PreviewFormData) => {
+    const version = ++evaluationVersion;
     setLastInputDataSent(data);
+    setResultsStale(true);
     setResultsLoading(true);
-
-    let apiResult: ScreenerResult = await evaluateScreener(screener().id, data);
-    setResults(apiResult);
-    setResultsLoading(false);
+    try {
+      const apiResult = await evaluateScreener(screener().id, data);
+      if (version === evaluationVersion) {
+        setResults(apiResult);
+        setResultsStale(false);
+        setEvaluationFailed(false);
+      }
+    } catch (error) {
+      if (version === evaluationVersion) setEvaluationFailed(true);
+      console.error("Could not evaluate the screener", error);
+    } finally {
+      if (version === evaluationVersion) setResultsLoading(false);
+    }
   };
 
   return (
@@ -61,7 +78,18 @@ const Preview = ({ screener, formSchema }) => {
           formData={lastInputDataSent}
           hiddenQuestionPaths={hiddenQuestionPaths}
           submitForm={handleSubmitForm}
+          onDataChange={() => {
+            evaluationVersion++;
+            setResultsStale(true);
+          }}
         />
+        <Show when={evaluationFailed()}>
+          <p role="alert" class="my-4 text-red-800">
+            Could not evaluate the latest answers. Results below are from the
+            last successful evaluation.
+          </p>
+        </Show>
+        <ScreeningComplete results={results} pending={resultsStale} />
         <HiddenQuestionsNotice
           unneededQuestionCount={() => unneededQuestionPaths().length}
           showAllQuestions={showAllQuestions}

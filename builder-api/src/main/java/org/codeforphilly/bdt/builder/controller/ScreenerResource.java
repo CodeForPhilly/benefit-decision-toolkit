@@ -22,6 +22,7 @@ import org.codeforphilly.bdt.builder.persistence.PublishedScreenerRepository;
 import org.codeforphilly.bdt.builder.persistence.StorageService;
 import org.codeforphilly.bdt.builder.service.DmnService;
 import org.codeforphilly.bdt.builder.service.InputSchemaService;
+import org.codeforphilly.bdt.builder.service.ScreenerFormDraftService;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,6 +51,44 @@ public class ScreenerResource {
 
   @Inject
   InputSchemaService inputSchemaService;
+
+  @Inject ScreenerFormDraftService screenerFormDraftService;
+
+  @POST
+  @Path("/screener/{screenerId}/draft-form")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response draftForm(@Context SecurityIdentity identity,
+                            @PathParam("screenerId") String screenerId) {
+    String userId = AuthUtils.getUserId(identity);
+    if (userId == null) return Response.status(Response.Status.UNAUTHORIZED).build();
+    Optional<Screener> existing = screenerRepository.getWorkingScreener(screenerId);
+    if (existing.isEmpty()) throw new NotFoundException();
+    Screener screener = existing.get();
+    if (!isUserAuthorizedToAccessScreenerByScreener(userId, screener)) {
+      return Response.status(Response.Status.UNAUTHORIZED).build();
+    }
+    try {
+      // Return an editable draft; saving remains an explicit editor action.
+      List<Benefit> benefits = screenerRepository.getBenefitsInScreener(screener);
+      List<FormPath> paths = inputSchemaService.extractUniqueInputPaths(benefits);
+      if (benefits.isEmpty() || paths.isEmpty()) {
+        return Response.status(Response.Status.BAD_REQUEST)
+            .entity(Map.of("error", "Add benefits with configured checks before drafting a form.")).build();
+      }
+      var draft = screenerFormDraftService.generate(benefits, paths);
+      if (draft.isEmpty()) {
+        return Response.status(Response.Status.SERVICE_UNAVAILABLE)
+            .entity(Map.of("error", "Could not draft the form with AI. Check the Gemini configuration or try again.")).build();
+      }
+      return Response.ok(Map.of("schema", draft.get())).build();
+    } catch (ScreenerFormDraftService.UndraftableFormException e) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", e.getMessage())).build();
+    } catch (Exception e) {
+      Log.error("Could not prepare a screener form draft", e);
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+          .entity(Map.of("error", "Could not load the configured benefits and checks.")).build();
+    }
+  }
 
   @GET
   @Path("/screeners")

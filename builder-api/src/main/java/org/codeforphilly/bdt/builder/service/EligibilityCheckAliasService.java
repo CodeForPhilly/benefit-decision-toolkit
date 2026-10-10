@@ -1,16 +1,11 @@
 package org.codeforphilly.bdt.builder.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -21,24 +16,11 @@ public class EligibilityCheckAliasService {
     @Inject
     ObjectMapper objectMapper;
 
+    @Inject
+    GeminiClient geminiClient;
+
     @ConfigProperty(name = "alias-generation.enabled", defaultValue = "true")
     boolean enabled;
-
-    @ConfigProperty(name = "alias-generation.gemini.api-key")
-    Optional<String> apiKey;
-
-    @ConfigProperty(name = "alias-generation.gemini.model", defaultValue = "gemini-3.5-flash-lite")
-    String model;
-
-    @ConfigProperty(
-        name = "alias-generation.gemini.base-url",
-        defaultValue = "https://generativelanguage.googleapis.com/v1beta/models/"
-    )
-    String baseUrl;
-
-    private final HttpClient httpClient = HttpClient.newBuilder()
-        .connectTimeout(Duration.ofSeconds(3))
-        .build();
 
     /**
      * Generates a display alias with Gemini. Returns empty when generation is disabled, no API
@@ -48,44 +30,27 @@ public class EligibilityCheckAliasService {
         if (!enabled) {
             return Optional.empty();
         }
-        if (apiKey.isEmpty() || apiKey.get().isBlank()) {
+        if (!geminiClient.isConfigured()) {
             Log.warn("GEMINI_API_KEY is not configured; skipping eligibility check alias generation");
             return Optional.empty();
         }
 
         try {
-            String prompt = buildPrompt(checkName, parameters);
-            Map<String, Object> body = Map.of(
-                "contents", List.of(Map.of("parts", List.of(Map.of("text", prompt)))),
-                "generationConfig", Map.of(
-                    "temperature", 0.2,
-                    "maxOutputTokens", 60,
-                    "responseMimeType", "application/json",
-                    "responseJsonSchema", Map.of(
-                        "type", "object",
-                        "properties", Map.of("alias", Map.of("type", "string")),
-                        "required", List.of("alias")
-                    )
-                )
+            Map<String, Object> responseSchema = Map.of(
+                "type", "object",
+                "properties", Map.of("alias", Map.of("type", "string")),
+                "required", List.of("alias")
             );
-            HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(baseUrl + model + ":generateContent"))
-                .timeout(Duration.ofSeconds(8))
-                .header("Content-Type", "application/json")
-                .header("x-goog-api-key", apiKey.get())
-                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body)))
-                .build();
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                Log.warnf("Gemini alias generation returned HTTP %d", response.statusCode());
+            Optional<String> generatedJson = geminiClient.generateJson(
+                "alias generation", buildPrompt(checkName, parameters), responseSchema, 60, Duration.ofSeconds(8));
+            if (generatedJson.isEmpty()) {
                 return Optional.empty();
             }
-
-            JsonNode responseJson = objectMapper.readTree(response.body());
-            String generatedJson = responseJson.path("candidates").path(0).path("content")
-                .path("parts").path(0).path("text").asText();
-            String alias = objectMapper.readTree(generatedJson).path("alias").asText().trim();
+            String alias = objectMapper.readTree(generatedJson.get()).path("alias").asText().trim();
             return alias.isBlank() ? Optional.empty() : Optional.of(alias);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return Optional.empty();
         } catch (Exception e) {
             Log.warn("Could not generate an eligibility check alias with Gemini", e);
             return Optional.empty();

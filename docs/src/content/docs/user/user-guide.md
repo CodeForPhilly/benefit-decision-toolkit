@@ -147,6 +147,36 @@ To remove an eligibility check from a benefit, select the **X** button in the to
 
 The **Form Editor** tab is where you build the user-facing form that collects the information needed to evaluate eligibility.
 
+You can start with an AI draft or build the form yourself. Both approaches use
+the same editor to refine questions and connect them to your eligibility checks.
+
+### 5.1 Starting with an AI Draft
+
+**An AI-drafted form is a starting point, not a finished screener.** Review and
+refine it for your applicants, then test the eligibility results before
+publishing.
+
+After configuring your benefits and checks in **Manage Benefits**, open a blank
+form in **Form Editor** and click **Draft with AI**. The button appears only
+when the form is blank.
+
+This feature uses an LLM to generate question wording, answer choices, and
+question order from your configured benefits and checks.
+
+Inputs shared by multiple checks get one question. Each question is assigned
+its required input key and field type, all required inputs are checked before
+accepting the draft. These checks verify input coverage; you
+still need to review whether the questions and answer choices are clear,
+accurate, and appropriate for your applicants.
+
+Use the editing tools described below to improve the wording, choices, and order.
+Then open **Validate Form Outputs**, select **Save**, and test several scenarios in
+**Preview**, including eligible and ineligible answers.
+
+Note: AI drafting does not save or publish the form automatically.
+
+### 5.2 Editing the Form
+
 The editor provides a visual drag-and-drop canvas powered by Form-JS. You can add, arrange, and configure form fields without writing any code.
 
 ![Form Editor showing the component palette and the start of the example screener's form.](../../../assets/screenshots/form-editor-components.png)
@@ -159,7 +189,7 @@ A **Checkbox group** or **Tag list** with nothing selected also sends `null`, be
 
 Select **Save** to persist your form. The save button turns yellow when there are unsaved changes, so you can tell at a glance whether your current edits have been saved.
 
-### 5.1 Connecting Form Fields to Eligibility Checks
+### 5.3 Connecting Form Fields to Eligibility Checks
 
 For the screener to evaluate eligibility correctly, the form must collect all of the inputs that the configured eligibility checks require. Each form field has a **key** that identifies the data it collects — this key must match the input name expected by the corresponding eligibility check.
 
@@ -210,6 +240,11 @@ For example, if an answer makes a benefit ineligible, later questions used only
 by that benefit no longer need to be answered. Use **Show all questions** to
 review the complete form, and **Hide questions that aren't needed** to return
 to the adaptive view.
+
+When every benefit has an **Eligible** or **Ineligible** result, the form shows
+**Screening complete**. This message appears in both Preview and published
+screeners. It waits until all benefits have a decision; a **Need more
+information** result means screening is still incomplete.
 
 ---
 

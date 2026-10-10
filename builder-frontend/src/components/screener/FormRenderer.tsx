@@ -17,11 +17,13 @@ function FormRenderer({
   formData,
   hiddenQuestionPaths,
   submitForm,
+  onDataChange,
 }: {
   schema: { [key: string]: any };
   formData: Accessor<any>;
   hiddenQuestionPaths: Accessor<string[]>;
   submitForm: (data: any) => void;
+  onDataChange?: () => void;
 }) {
   let container: Element | null = null;
   let form: Form | undefined;
@@ -63,6 +65,7 @@ function FormRenderer({
           const dataChanged = !isEqual(currentData, event.data);
           currentData = cloneDeep(event.data);
           if (importing || !dataChanged) return;
+          onDataChange?.();
           debouncedSubmit(event.data);
         });
       })

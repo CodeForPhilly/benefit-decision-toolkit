@@ -19,9 +19,14 @@ import CustomFormFieldsModule from "./formJsExtensions/customFormFields";
 import { customKeyModule } from "./formJsExtensions/customKeyDropdown/customKeyDropdownProvider";
 import PathOptionsService, {
   pathOptionsModule,
+  isTypeCompatible,
 } from "./formJsExtensions/customKeyDropdown/pathOptionsService";
 
-import { saveFormSchema, fetchFormPaths } from "../../api/screener";
+import {
+  saveFormSchema,
+  fetchFormPaths,
+  draftFormSchema,
+} from "../../api/screener";
 import { extractFormPaths } from "../../utils/formSchemaUtils";
 import Loading from "../Loading";
 
@@ -32,6 +37,10 @@ import { FormPath } from "@/types";
 function FormEditorView({ formSchema, setFormSchema }) {
   const [isUnsaved, setIsUnsaved] = createSignal(false);
   const [isSaving, setIsSaving] = createSignal(false);
+  const [isDrafting, setIsDrafting] = createSignal(false);
+  const [draftError, setDraftError] = createSignal("");
+  let disposed = false;
+  let importingDraft = false;
   const params = useParams();
 
   // Fetch form paths from backend (replaces local transformation logic)
@@ -77,6 +86,7 @@ function FormEditorView({ formSchema, setFormSchema }) {
     }
 
     formEditor.on("changed", (e) => {
+      if (importingDraft) return;
       setIsUnsaved(true);
       setFormSchema(e.schema);
     });
@@ -87,9 +97,10 @@ function FormEditorView({ formSchema, setFormSchema }) {
     eventBus.on("formField.add", (event: { formField: any }) => {
       const field = event.formField;
 
-      // Only set key if the field supports keys and doesn't already have one set
+      // Imports also emit formField.add; keep the keys of imported fields.
       // Skip group components as they don't use keys
       if (
+        !importingDraft &&
         field &&
         field.id &&
         field.type !== "group" &&
@@ -97,12 +108,15 @@ function FormEditorView({ formSchema, setFormSchema }) {
       ) {
         // Use setTimeout to ensure the field is fully added before modifying
         setTimeout(() => {
-          modeling.editFormField(field, "key", field.id);
+          if (!disposed) {
+            modeling.editFormField(field, "key", field.id);
+          }
         }, 0);
       }
     });
 
     onCleanup(() => {
+      disposed = true;
       if (formEditor) {
         formEditor.destroy();
         formEditor = null;
@@ -147,8 +161,104 @@ function FormEditorView({ formSchema, setFormSchema }) {
     }
   };
 
+  const isBlank = () => !formSchema()?.components?.length;
+  const assertDraftBindings = (schema: any) => {
+    const required = new Map(
+      (formPaths() || []).map(({ path, type }) => [path, type]),
+    );
+    const components = schema?.components;
+    if (
+      !required.size ||
+      !Array.isArray(components) ||
+      components.length !== required.size ||
+      !components.every(
+        (field) =>
+          required.has(field.key) &&
+          isTypeCompatible(required.get(field.key), field.type),
+      ) ||
+      extractFormPaths(schema).length !== required.size
+    ) {
+      throw new Error(
+        "The AI draft is incomplete: every question must be connected to a required input. Please try again.",
+      );
+    }
+  };
+  const handleDraft = async () => {
+    if (isDrafting() || !isBlank()) return;
+    const screenerId = params.screenerId;
+    setIsDrafting(true);
+    setDraftError("");
+    try {
+      const schema = await draftFormSchema(screenerId);
+      if (disposed || params.screenerId !== screenerId) return;
+      // The user can keep editing while generation runs. Preserve anything added meanwhile.
+      if (!isBlank()) {
+        setDraftError(
+          "The form changed while AI was drafting. Clear the form to try again.",
+        );
+        return;
+      }
+      assertDraftBindings(schema);
+      const previousSchema = formSchema() || emptySchema;
+      const previouslyUnsaved = isUnsaved();
+      importingDraft = true;
+      try {
+        await formEditor.importSchema(schema);
+        if (disposed) return;
+        const importedSchema = formEditor.saveSchema();
+        assertDraftBindings(importedSchema);
+        setFormSchema(importedSchema);
+        setIsUnsaved(true);
+      } catch (error) {
+        if (!disposed) {
+          await formEditor.importSchema(previousSchema);
+          setFormSchema(previousSchema);
+          setIsUnsaved(previouslyUnsaved);
+        }
+        throw error;
+      } finally {
+        importingDraft = false;
+      }
+    } catch (error) {
+      if (!disposed)
+        setDraftError(
+          error instanceof Error
+            ? error.message
+            : "Could not draft the form with AI",
+        );
+    } finally {
+      if (!disposed) setIsDrafting(false);
+    }
+  };
+
   return (
     <>
+      <Show when={isBlank() || isDrafting() || draftError()}>
+        <div class="m-4 flex flex-col gap-2 items-start">
+          <Show when={isBlank()}>
+            <button
+              type="button"
+              class="btn-default btn-blue disabled:opacity-50"
+              disabled={
+                isDrafting() || formPaths.loading || !formPaths()?.length
+              }
+              onClick={handleDraft}
+            >
+              {isDrafting() ? "Drafting…" : "Draft with AI"}
+            </button>
+            <p class="text-sm text-gray-600">
+              {formPaths()?.length
+                ? "Draft questions from your benefits and checks, then review and save the form."
+                : "Add benefits with configured checks to draft a form."}
+            </p>
+          </Show>
+          <Show when={draftError()}>
+            <p role="alert" class="text-red-800">
+              {draftError()}
+            </p>
+          </Show>
+        </div>
+      </Show>
       <Show when={formPaths.loading}>
         <Loading />
       </Show>
