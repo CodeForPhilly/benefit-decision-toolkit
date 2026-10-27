@@ -68,10 +68,6 @@ export class ScreeningResultsService {
 
   isNextStepsShown = (): boolean => this.reportedNextStepsShown;
 
-  /** Whether this Next steps field is rendered, so not hidden by a condition. */
-  isNextStepsFieldShown = (fieldId: string): boolean =>
-    this.nextStepsShown.includes(fieldId);
-
   private reportNextStepsShown(): void {
     const shown = this.nextStepsShown.length > 0;
     if (shown === this.reportedNextStepsShown) return;

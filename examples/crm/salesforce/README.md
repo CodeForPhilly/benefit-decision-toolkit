@@ -120,3 +120,18 @@ Salesforce references:
 - [Objects proxied by Lightning Web Security](https://developer.salesforce.com/docs/platform/lightning-components-security/guide/lws-proxies.html)
 - [Iframe access with Lightning Web Security](https://developer.salesforce.com/docs/platform/lightning-components-security/guide/lws-iframes.html)
 - [Trusted URLs and third-party JavaScript](https://developer.salesforce.com/docs/platform/lwc/guide/js-api-calls)
+
+## Saved next steps
+
+New result messages may include `nextSteps` alongside `results`. The example
+saves both on the user's explicit Save action and shows application/help links,
+contact numbers, instructions, and unmet requirements from that snapshot.
+Markdown is displayed as plain text rather than inserted as HTML. Links pass
+through the adapter's `safeHttpUrl`, which accepts only the HTTP(S) links the
+screener sends. Older saved records
+without `nextSteps` continue to display their benefit decisions. If the
+snapshot with `nextSteps` exceeds the field size, the example saves the
+decisions without `nextSteps` and says so.
+
+Only visible screener content is sent. A missing `nextSteps` field or `{}` in a
+new snapshot clears previous instructions; it does not mean to keep stale ones.

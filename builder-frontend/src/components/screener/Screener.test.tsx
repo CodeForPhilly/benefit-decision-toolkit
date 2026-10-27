@@ -21,6 +21,7 @@ const integration = vi.hoisted(() => ({
   error: vi.fn(),
   fail: vi.fn(),
   origin: "https://crm.example",
+  registerNextStepsProvider: undefined as unknown,
 }));
 
 vi.mock("@solidjs/router", () => ({
@@ -49,17 +50,22 @@ vi.mock("@/integrations/screenerBridge", () => ({
 }));
 vi.mock("./FormRenderer", () => ({
   default: (props: any) => {
+    integration.registerNextStepsProvider = props.registerNextStepsProvider;
     onMount(() => {
       if (props.evaluateInitialData) props.submitForm(props.formData());
     });
     return (
       <>
         <button
-          onClick={() => props.submitForm({ custom: { householdIncome: 50000 } })}
+          onClick={() =>
+            props.submitForm({ custom: { householdIncome: 50000 } })
+          }
         >
           Change answer
         </button>
-        <button onClick={() => props.onDataChange?.()}>Edit before submit</button>
+        <button onClick={() => props.onDataChange?.()}>
+          Edit before submit
+        </button>
       </>
     );
   },
@@ -110,11 +116,13 @@ describe("published screener integration lifecycle", () => {
         initialData,
       ),
     );
+    expect(integration.registerNextStepsProvider).toBeTypeOf("function");
     container.querySelector("button")!.click();
     await vi.waitFor(() => expect(integration.result).toHaveBeenCalledOnce());
     expect(integration.result).toHaveBeenLastCalledWith(
       { custom: { householdIncome: 50000 } },
       result("FALSE"),
+      undefined,
     );
     old.resolve(result("TRUE"));
     await old.promise;
@@ -256,5 +264,6 @@ describe("published screener integration lifecycle", () => {
     container.querySelector("button")!.click();
     await vi.waitFor(() => expect(container.textContent).toContain("Eligible"));
     expect(integration.result).not.toHaveBeenCalled();
+    expect(integration.registerNextStepsProvider).toBeUndefined();
   });
 });

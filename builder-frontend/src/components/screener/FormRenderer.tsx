@@ -11,6 +11,11 @@ import {
   connectScreeningResults,
   screeningResultsModule,
 } from "../screenerEditor/formJsExtensions/screeningResults/screeningResults";
+import { firstVisibleNextSteps } from "../screenerEditor/formJsExtensions/nextSteps/selection";
+import {
+  projectNextSteps,
+  type NextStepsProvider,
+} from "@/integrations/nextSteps";
 import type { ScreenerResult } from "@/types";
 import { hideQuestions } from "@/utils/questionVotes";
 import { normalizeArrayFieldData } from "@/utils/arrayFieldData";
@@ -34,7 +39,9 @@ function FormRenderer({
   failed = () => false,
   onNextStepsShownChange,
   screenerName,
+  registerNextStepsProvider,
 }: {
+  registerNextStepsProvider?: (provider: NextStepsProvider | undefined) => void;
   schema: { [key: string]: any };
   formData: Accessor<any>;
   hiddenQuestionPaths: Accessor<string[]>;
@@ -53,6 +60,7 @@ function FormRenderer({
   let form: Form | undefined;
   let currentData: any = {};
   let importing = false;
+  let disposed = false;
   let unknownPaths: string[][] = [];
   const evaluationData = (data: any) =>
     normalizeArrayFieldData(schema, restoreUnknownAnswers(data, unknownPaths));
@@ -98,6 +106,13 @@ function FormRenderer({
     form
       .importSchema(hideQuestions(schema, hiddenQuestionPaths()), formData())
       .then(() => {
+        if (disposed) return;
+        registerNextStepsProvider?.((results) =>
+          projectNextSteps(
+            results,
+            firstVisibleNextSteps((name) => form!.get(name)),
+          ),
+        );
         currentData = cloneDeep(form?._getState().data || formData());
         if (evaluateInitialData) {
           unknownPaths = findFilledUnknownPaths(formData(), currentData);
@@ -115,6 +130,8 @@ function FormRenderer({
       .catch(console.error);
 
     onCleanup(() => {
+      disposed = true;
+      registerNextStepsProvider?.(undefined);
       debouncedSubmit.cancel();
       form?.destroy();
     });

@@ -141,12 +141,20 @@ export default class BdtScreening extends LightningElement {
   async save() {
     if (this.cannotSave) return;
     const { recordId, message } = this.latest;
-    const snapshot = JSON.stringify({
+    const decisions = {
       screenerId: message.screenerId,
       requestId: message.requestId,
       evaluatedAt: message.evaluatedAt,
       results: message.results,
+    };
+    let snapshot = JSON.stringify({
+      ...decisions,
+      nextSteps: message.nextSteps,
     });
+    // Keep the decisions when instructions push the snapshot past the field size.
+    const droppedNextSteps =
+      snapshot.length > 131072 && message.nextSteps !== undefined;
+    if (droppedNextSteps) snapshot = JSON.stringify(decisions);
     if (snapshot.length > 131072) {
       this.status =
         "Results exceed the configured field size; use a related screening object.";
@@ -158,7 +166,9 @@ export default class BdtScreening extends LightningElement {
         fields: { Id: recordId, [SCREENING.fieldApiName]: snapshot },
       });
       if (this.recordId === recordId)
-        this.status = "Screening results saved to the client record.";
+        this.status = droppedNextSteps
+          ? "Screening results saved without next steps, which exceed the configured field size."
+          : "Screening results saved to the client record.";
     } catch {
       if (this.recordId === recordId)
         this.status = "Could not save. Check field permissions and try again.";

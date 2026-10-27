@@ -1,6 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CONNECT_TIMEOUT_MS, createScreeningBridge } from "./screenerBridge";
-import { createCrmIntegration } from "../../public/integrations/host.js";
+import {
+  createCrmIntegration,
+  safeHttpUrl,
+} from "../../public/integrations/host.js";
+import { normalizeHttpUrl } from "@/utils/httpUrl";
 
 const results = {
   benefit: { name: "Benefit", result: "TRUE" as const, check_results: {} },
@@ -79,6 +83,69 @@ afterEach(() => {
 });
 
 describe("published screener CRM bridge", () => {
+  it.each([
+    "https://example.org/apply",
+    "http://example.org/a b",
+    "javascript:alert(1)",
+    "https://user:secret@example.org/",
+    "http://under_score/",
+    "file:///etc/passwd",
+    "not a url",
+  ])("checks saved links as the screener does (%s)", (value) => {
+    expect(safeHttpUrl(value) !== null).toBe(normalizeHttpUrl(value) !== null);
+  });
+  it.each([false, true])(
+    "round-trips optional next steps without changing protocol version (JSON=%s)",
+    (serializeMessages) => {
+      const s = setup();
+      const onResult = vi.fn();
+      const host = createCrmIntegration({
+        screenerUrl: "https://bdt.example/screener/published-id",
+        getTargetWindow: () => s.child as any,
+        initialData: {},
+        requestId: "request-1",
+        serializeMessages,
+        onResult,
+        hostWindow: s.host as any,
+      });
+      s.bridge.start();
+      s.receive(s.hostPost.mock.calls[0][0]);
+      s.send(s.childPost.mock.calls[0][0]);
+      s.receive(s.hostPost.mock.calls[1][0]);
+      const nextSteps = {
+        benefit: {
+          status: "eligible" as const,
+          applyUrl: null,
+          help: { url: null, phone: null },
+          body: { format: "markdown" as const, text: "Bring **ID**." },
+          unmetRequirements: [],
+          note: null,
+        },
+      };
+      s.bridge.result({}, results, nextSteps);
+      s.receive(s.hostPost.mock.lastCall![0]);
+      expect(onResult).toHaveBeenLastCalledWith(
+        expect.objectContaining({ version: 1, nextSteps }),
+      );
+      const last = serializeMessages
+        ? JSON.parse(s.hostPost.mock.lastCall![0])
+        : s.hostPost.mock.lastCall![0];
+      for (const malformed of [[], null, "Bring ID"]) {
+        s.receive(
+          serializeMessages
+            ? JSON.stringify({ ...last, nextSteps: malformed })
+            : { ...last, nextSteps: malformed },
+        );
+        expect(onResult.mock.lastCall![0]).toMatchObject({ results });
+        expect(onResult.mock.lastCall![0]).not.toHaveProperty("nextSteps");
+      }
+      s.bridge.result({}, results);
+      s.receive(s.hostPost.mock.lastCall![0]);
+      expect(onResult.mock.lastCall![0]).not.toHaveProperty("nextSteps");
+      host.dispose();
+      s.bridge.dispose();
+    },
+  );
   it("repeats ready until a host initializes it", () => {
     const s = setup();
     s.bridge.start();

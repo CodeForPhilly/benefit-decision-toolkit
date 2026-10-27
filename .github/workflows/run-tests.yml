@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [builder-frontend, builder-api, library-api, e2e]
+        suite: [builder-frontend, builder-api, library-api, examples, e2e]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,7 +25,7 @@ jobs:
         uses: ./.github/actions/devbox-setup
 
       - name: Cache Maven dependencies
-        if: matrix.suite != 'builder-frontend'
+        if: matrix.suite != 'builder-frontend' && matrix.suite != 'examples'
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository

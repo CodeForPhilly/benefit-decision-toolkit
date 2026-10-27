@@ -7,6 +7,30 @@ function randomId() {
 }
 
 /**
+ * Returns a saved next-steps link if it's one the screener would send: HTTP(S)
+ * with a hostname (no underscores) and no credentials. Otherwise returns null.
+ * Validate saved snapshots with this before making a link clickable.
+ * @param {unknown} value
+ * @returns {string | null}
+ */
+export function safeHttpUrl(value) {
+  if (typeof value !== "string") return null;
+  let url;
+  try {
+    url = new URL(value);
+  } catch {
+    return null;
+  }
+  return ["http:", "https:"].includes(url.protocol) &&
+    url.hostname &&
+    !url.hostname.includes("_") &&
+    !url.username &&
+    !url.password
+    ? url.href
+    : null;
+}
+
+/**
  * BDT CRM host adapter. Install the listener before navigating the iframe/popup.
  * Copy this module into your CRM's source tree if remote modules are restricted.
  * @param {{
@@ -145,7 +169,16 @@ export function createCrmIntegration({
       !Array.isArray(message.inputData) &&
       typeof message.evaluatedAt === "string"
     ) {
-      onResult(message);
+      // nextSteps is optional: drop a malformed one, never the results.
+      const { nextSteps, ...rest } = message;
+      onResult(
+        nextSteps === undefined ||
+          (nextSteps &&
+            typeof nextSteps === "object" &&
+            !Array.isArray(nextSteps))
+          ? message
+          : rest,
+      );
     } else if (
       message.type === "error" &&
       ["SCREENER_UNAVAILABLE", "ORIGIN_NOT_ALLOWED"].includes(message.code)

@@ -6,6 +6,9 @@ let demoServer: ChildProcess | undefined;
 let demoUrl: string;
 // Origins the mocked published screener allows; the demo's by default.
 let integrationOrigins: string[];
+let includeNextSteps: boolean;
+let hideNextSteps: boolean;
+let showWhen: string;
 
 // Only this spec needs the CRM host example, so it starts its own server on a
 // free port instead of making every Playwright project reserve one.
@@ -40,6 +43,9 @@ test.afterAll(() => {
 // Public browser integration tests use intercepted API responses, not Firebase.
 test.beforeEach(async ({ context }) => {
   integrationOrigins = [new URL(demoUrl).origin];
+  includeNextSteps = true;
+  hideNextSteps = false;
+  showWhen = "whenDecided";
   await context.route("**/api/published/**", async (route) => {
     const request = route.request();
     const headers = {
@@ -84,6 +90,31 @@ test.beforeEach(async ({ context }) => {
                 key: "custom.wantsExtraCash",
                 label: "Interested in cash assistance",
               },
+              ...(includeNextSteps
+                ? [
+                    {
+                      id: "next",
+                      type: "next_steps",
+                      showWhen,
+                      conditional: {
+                        hide: hideNextSteps
+                          ? "=true"
+                          : "=not(custom.wantsExtraCash)",
+                      },
+                      benefitContent: {
+                        benefit: {
+                          eligible: {
+                            applyUrl: "https://example.org/apply",
+                            helpUrl: "https://example.org/help",
+                            helpPhone: "215-555-0100",
+                            body: "Screener-specific application instructions.",
+                          },
+                          ineligible: { note: "Ask about other assistance." },
+                        },
+                      },
+                    },
+                  ]
+                : []),
             ],
           },
         },
@@ -96,7 +127,18 @@ test.beforeEach(async ({ context }) => {
           benefit: {
             name: "Example benefit",
             result: input.custom.householdIncome <= 40000 ? "TRUE" : "FALSE",
-            check_results: {},
+            check_results:
+              input.custom.householdIncome <= 40000
+                ? {}
+                : {
+                    income: {
+                      name: "Income",
+                      aliasName: "Income must be below $40,000",
+                      result: "FALSE",
+                      inputPaths: [],
+                      parameters: {},
+                    },
+                  },
           },
         },
       });
@@ -208,6 +250,15 @@ for (const serializeMessages of [false, true]) {
       await expect(
         record.getByText("Ineligible", { exact: true }),
       ).toBeVisible();
+      await expect(
+        record.getByText("Ask about other assistance.", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        record.getByText("Income must be below $40,000", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        record.getByRole("link", { name: "Apply for this benefit" }),
+      ).toHaveCount(0);
       await expect(record.locator("#saved-screener")).toHaveText("crm-test");
       await expect(record.locator("#saved-at")).toHaveAttribute(
         "datetime",
@@ -246,6 +297,29 @@ for (const serializeMessages of [false, true]) {
       ).toBeVisible();
       await page.locator("#save").click();
       await expect(record.getByText("Eligible", { exact: true })).toBeVisible();
+      await expect(
+        record.getByText("Screener-specific application instructions.", {
+          exact: true,
+        }),
+      ).toBeVisible();
+      await expect(
+        record.getByRole("link", { name: "Apply for this benefit" }),
+      ).toHaveAttribute("href", "https://example.org/apply");
+      // Hiding the component omits the extension; explicitly saving replaces old instructions.
+      await screener.getByLabel("Interested in cash assistance").uncheck();
+      await expect(page.locator("#save")).toBeEnabled();
+      await page.locator("#save").click();
+      await expect(
+        record.getByText("Screener-specific application instructions.", {
+          exact: true,
+        }),
+      ).toHaveCount(0);
+      const stored = await page.evaluate(
+        () =>
+          JSON.parse(localStorage.getItem("bdt.crm.browser-demo.record.v1")!)
+            .screening,
+      );
+      expect(stored).not.toHaveProperty("nextSteps");
       const savedAt = await record
         .locator("#saved-at")
         .getAttribute("datetime");
@@ -316,3 +390,53 @@ test("standalone screener still evaluates edited answers", async ({ page }) => {
   await page.getByLabel("Household income").fill("30000");
   await expect(page.getByText("Eligible", { exact: true })).toBeVisible();
 });
+
+for (const scenario of ["absent", "hidden", "whenComplete"] as const) {
+  test(`CRM next steps are omitted or empty when ${scenario}`, async ({
+    page,
+    baseURL,
+    context,
+  }) => {
+    includeNextSteps = scenario !== "absent";
+    hideNextSteps = scenario === "hidden";
+    showWhen = scenario === "whenComplete" ? "whenComplete" : "whenDecided";
+    if (scenario === "whenComplete")
+      await context.route(
+        "**/api/published/crm-test/evaluate",
+        async (route) => {
+          if (route.request().method() !== "POST") return route.fallback();
+          await route.fulfill({
+            headers: { "Access-Control-Allow-Origin": "*" },
+            json: {
+              benefit: {
+                name: "Example benefit",
+                result: "TRUE",
+                check_results: {},
+              },
+              utility: {
+                name: "Utility help",
+                result: "UNABLE_TO_DETERMINE",
+                check_results: {},
+              },
+            },
+          });
+        },
+      );
+    await page.goto(demoUrl);
+    await page
+      .locator("#screener-url")
+      .fill(new URL("/screener/crm-test", baseURL).href);
+    await page.locator("#monthly-income").fill("2000");
+    await page.locator("#cash-interest").selectOption("requested");
+    await page.locator("#embed").click();
+    await expect(page.locator("#save")).toBeEnabled({ timeout: 15000 });
+    await page.locator("#save").click();
+    const stored = await page.evaluate(
+      () =>
+        JSON.parse(localStorage.getItem("bdt.crm.browser-demo.record.v1")!)
+          .screening,
+    );
+    if (scenario === "whenComplete") expect(stored.nextSteps).toEqual({});
+    else expect(stored).not.toHaveProperty("nextSteps");
+  });
+}

@@ -3,7 +3,8 @@ import { render } from "preact";
 import { useContext, useLayoutEffect, useRef, useState } from "preact/hooks";
 import { FormContext, iconsByType, Text } from "@bpmn-io/form-js-viewer";
 import { NextStepsBody, type NextStepsField } from "../nextSteps/NextSteps";
-import { NEXT_STEPS_TYPE, webLink } from "../nextSteps/content";
+import { isDecided, webLink } from "../nextSteps/content";
+import { firstVisibleNextSteps } from "../nextSteps/selection";
 import type { ScreeningResultsService } from "../screeningResults/screeningResults";
 import { useScreeningResults } from "../screeningResults/useScreeningResults";
 import "./printSummary.css";
@@ -74,21 +75,8 @@ export function PrintSummary() {
     const benefits = Object.entries(current.results ?? {});
     setError("");
     // Print what the person sees: skip Next steps hidden by a condition.
-    const firstNextSteps = (fields: any[]): NextStepsField | undefined => {
-      for (const field of fields) {
-        if (
-          field.type === NEXT_STEPS_TYPE &&
-          service.isNextStepsFieldShown(field.id)
-        )
-          return field;
-        const nested = firstNextSteps(field.components ?? []);
-        if (nested) return nested;
-      }
-    };
     const source: NextStepsField =
-      firstNextSteps(
-        context.getService("formFieldRegistry").getForm()?.components ?? [],
-      ) ?? {};
+      firstVisibleNextSteps(context.getService) ?? {};
     const root = document.createElement("article");
     root.className = "bdt-print-root";
     const printMedia = window.matchMedia?.("print");
@@ -118,9 +106,7 @@ export function PrintSummary() {
           <${NextStepsBody}
             field=${source}
             benefits=${benefits}
-            complete=${benefits.every(([, benefit]) =>
-              ["TRUE", "FALSE"].includes(benefit.result),
-            )}
+            complete=${benefits.every(([, benefit]) => isDecided(benefit))}
             pending=${false}
             failed=${false}
             mode="live"

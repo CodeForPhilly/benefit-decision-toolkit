@@ -1,3 +1,5 @@
+import { safeHttpUrl } from "c/bdtCrmHost";
+
 const isObject = (value) =>
   value !== null && typeof value === "object" && !Array.isArray(value);
 
@@ -26,6 +28,52 @@ function checkName(check) {
     .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
     .replace(/[-_]+/g, " ")
     .trim();
+}
+
+function markdownText(value) {
+  return isObject(value) &&
+    value.format === "markdown" &&
+    typeof value.text === "string"
+    ? value.text
+    : "";
+}
+function nextStepsView(steps, result) {
+  if (
+    !isObject(steps) ||
+    (result !== "TRUE" && result !== "FALSE") ||
+    steps.status !== (result === "TRUE" ? "eligible" : "ineligible")
+  )
+    return {};
+  const eligible = result === "TRUE";
+  const applyUrl = eligible ? safeHttpUrl(steps.applyUrl) : null;
+  const helpUrl = eligible ? safeHttpUrl(steps.help?.url) : null;
+  const phone =
+    eligible && typeof steps.help?.phone === "string" ? steps.help.phone : "";
+  const body = eligible ? markdownText(steps.body) : "";
+  const note = eligible ? "" : markdownText(steps.note);
+  const unmetRequirements =
+    !eligible && Array.isArray(steps.unmetRequirements)
+      ? steps.unmetRequirements
+          .filter((item) => typeof item === "string")
+          .map((name, index) => ({ id: String(index), name }))
+      : [];
+  return {
+    hasNextSteps: !!(
+      applyUrl ||
+      helpUrl ||
+      phone ||
+      body ||
+      note ||
+      unmetRequirements.length
+    ),
+    hasUnmetRequirements: unmetRequirements.length > 0,
+    applyUrl,
+    helpUrl,
+    phone,
+    body,
+    note,
+    unmetRequirements,
+  };
 }
 
 export function formatSavedResults(raw) {
@@ -64,6 +112,7 @@ export function formatSavedResults(raw) {
       checks,
       hasChecks: checks.length > 0,
       checksLabel: `View checks (${checks.length})`,
+      ...nextStepsView(snapshot.nextSteps?.[id], benefit.result),
     };
   });
   const timestamp =

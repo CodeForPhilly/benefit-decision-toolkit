@@ -6,11 +6,12 @@
 #   1. builder-frontend - Vitest unit tests (npm test)
 #   2. builder-api      - JVM unit/integration tests (mvn test)
 #   3. library-api      - JVM unit/integration tests (mvn test)
-#   4. e2e              - bin/run-e2e-tests, which boots the full dev stack with
+#   4. examples         - Node tests for the CRM examples (node --test)
+#   5. e2e              - bin/run-e2e-tests, which boots the full dev stack with
 #                         devbox services and then runs the library-api Bruno
 #                         collection followed by the Playwright suite.
 #
-# The unit suites run first because they need nothing but npm and Maven, while
+# The unit suites run first because they need nothing but Node and Maven, while
 # the e2e suite takes exclusive ownership of the local service ports and swaps
 # the root emulator-data directory for the e2e fixtures.
 #
@@ -27,7 +28,7 @@ source "$SCRIPT_DIR/functions"
 
 cd "$PROJECT_ROOT"
 
-ALL_SUITES=(builder-frontend builder-api library-api e2e)
+ALL_SUITES=(builder-frontend builder-api library-api examples e2e)
 FAIL_FAST=0
 
 usage() {
@@ -42,6 +43,7 @@ Suites:
   builder-frontend  builder-frontend Vitest tests (npm test)
   builder-api       builder-api JVM tests (mvn test)
   library-api       library-api JVM tests (mvn test)
+  examples          CRM example Node tests (node --test)
   e2e               full dev stack, library-api Bruno collection, Playwright suite
 
 With no suite arguments, all suites run in the order listed above.
@@ -154,6 +156,10 @@ if suite_selected builder-api || suite_selected library-api; then
   require_command mvn
 fi
 
+if suite_selected examples; then
+  require_command node
+fi
+
 # The JVM suites read component .env files directly, and bin/run-e2e-tests needs
 # the root .env for the Devbox service graph. Create any that are missing from
 # the checked-in examples before the first suite runs.
@@ -193,6 +199,10 @@ run_library_api_suite() {
     cd library-api
     mvn test
   )
+}
+
+run_examples_suite() {
+  node --test examples/crm/*/tests/*.test.mjs
 }
 
 run_e2e_suite() {
@@ -264,6 +274,10 @@ fi
 
 if suite_selected library-api; then
   run_suite "library-api" run_library_api_suite
+fi
+
+if suite_selected examples; then
+  run_suite "examples" run_examples_suite
 fi
 
 if suite_selected e2e; then
