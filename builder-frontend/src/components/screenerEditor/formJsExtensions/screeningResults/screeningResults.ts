@@ -1,5 +1,6 @@
 import { Accessor, createEffect } from "solid-js";
 import cloneDeep from "lodash/cloneDeep";
+import type { UnansweredQuestions } from "@/utils/unansweredQuestions";
 import type {
   BenefitDetail,
   BenefitResult,
@@ -17,6 +18,8 @@ export interface ScreeningResultsSnapshot {
   /** True when the latest evaluation failed, until one succeeds. Pending stays true meanwhile. */
   readonly failed: boolean;
   readonly mode: "live" | "editor";
+  /** Question labels still needed for undecided benefits; contains no answers. */
+  readonly unansweredQuestions?: UnansweredQuestions;
 }
 
 interface EventBus {
@@ -41,6 +44,8 @@ export class ScreeningResultsService {
   // Fields get a frozen copy so they can't change the parent's results.
   private liveSource: ScreenerResult | undefined;
   private liveCopy: ScreenerResult | undefined;
+  private questionsSource: UnansweredQuestions | undefined;
+  private questionsCopy: UnansweredQuestions | undefined;
   // IDs of the rendered Next steps fields, once per rendering.
   private nextStepsShown: string[] = [];
   private screenerName: string | undefined;
@@ -93,16 +98,25 @@ export class ScreeningResultsService {
     results: ScreenerResult | undefined,
     pending: boolean,
     failed = false,
+    unansweredQuestions?: UnansweredQuestions,
   ): void {
     if (results !== this.liveSource) {
       this.liveSource = results;
       this.liveCopy = results && deepFreeze(cloneDeep(results));
+    }
+    if (unansweredQuestions !== this.questionsSource) {
+      this.questionsSource = unansweredQuestions;
+      this.questionsCopy =
+        unansweredQuestions && deepFreeze(cloneDeep(unansweredQuestions));
     }
     this.publish({
       results: this.liveCopy,
       pending,
       failed,
       mode: "live",
+      ...(this.questionsCopy === undefined
+        ? {}
+        : { unansweredQuestions: this.questionsCopy }),
     });
   }
 
@@ -120,7 +134,8 @@ export class ScreeningResultsService {
       next.results === this.snapshot.results &&
       next.pending === this.snapshot.pending &&
       next.failed === this.snapshot.failed &&
-      next.mode === this.snapshot.mode
+      next.mode === this.snapshot.mode &&
+      next.unansweredQuestions === this.snapshot.unansweredQuestions
     )
       return;
     this.snapshot = Object.freeze(next);
@@ -210,12 +225,18 @@ export function connectScreeningResults(
     pending: Accessor<boolean>;
     failed: Accessor<boolean>;
     screenerName?: Accessor<string>;
+    unansweredQuestions?: Accessor<UnansweredQuestions>;
     onNextStepsShownChange?: (shown: boolean) => void;
   },
 ): void {
   const service = form.get<ScreeningResultsService>("screeningResults");
   createEffect(() =>
-    service.update(live.results(), live.pending(), live.failed()),
+    service.update(
+      live.results(),
+      live.pending(),
+      live.failed(),
+      live.unansweredQuestions?.(),
+    ),
   );
   createEffect(() => service.setScreenerName(live.screenerName?.()));
   const { onNextStepsShownChange } = live;

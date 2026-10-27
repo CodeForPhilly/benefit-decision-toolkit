@@ -96,6 +96,34 @@ it("shows decided benefits immediately, preserves answers/schema, and lists unde
   expect((form as any)._getState().data).toEqual({});
 });
 
+it("lists missing questions for undecided benefits and hides stale questions while pending", async () => {
+  const { container, service } = await mount();
+  const current = result();
+  service.update(current, false, false, {
+    food: ["Your date of birth", "Annual income"],
+  });
+  await vi.waitFor(() =>
+    expect(container.textContent).toContain("Find answers to these questions"),
+  );
+  expect(container.textContent).toContain("Your date of birth");
+  service.update(current, true, false, { food: ["Your date of birth"] });
+  await vi.waitFor(() =>
+    expect(container.textContent).not.toContain("Your date of birth"),
+  );
+  service.update(
+    { ...current, food: { ...current.food, result: "TRUE" } },
+    false,
+    false,
+    {},
+  );
+  await vi.waitFor(() =>
+    expect(container.textContent).toContain("Screening complete"),
+  );
+  expect(container.textContent).not.toContain(
+    "Find answers to these questions",
+  );
+});
+
 it("uses failed check aliases with name fallback and the analyst's note", async () => {
   const { container, service } = await mount();
   const results = result("FALSE");

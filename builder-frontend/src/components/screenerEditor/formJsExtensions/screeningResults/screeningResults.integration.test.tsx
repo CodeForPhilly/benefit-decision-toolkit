@@ -67,7 +67,7 @@ describe.each(["published", "preview"])(
       document.body.replaceChildren();
     });
 
-    async function mount() {
+    async function mount(data = { answer: "Keep this answer" }) {
       const [results, setResults] = createSignal<ScreenerResult>();
       const [pending, setPending] = createSignal(false);
       const [failed, setFailed] = createSignal(false);
@@ -75,7 +75,7 @@ describe.each(["published", "preview"])(
         document.createElement("div"),
       );
       const common = {
-        formData: () => ({ answer: "Keep this answer" }),
+        formData: () => data,
         hiddenQuestionPaths: () => [],
         submitForm: vi.fn(),
         results,
@@ -109,6 +109,34 @@ describe.each(["published", "preview"])(
         common,
       };
     }
+
+    it("maps unanswered inputs to question labels and clears them after a decision", async () => {
+      const s = await mount({ answer: "" });
+      s.setResults({
+        benefit: {
+          name: "Benefit",
+          result: "UNABLE_TO_DETERMINE",
+          check_results: {
+            missing: {
+              result: "UNABLE_TO_DETERMINE",
+              inputPaths: ["answer"],
+            } as any,
+          },
+        },
+      });
+      await vi.waitFor(() =>
+        expect(s.snapshot().unansweredQuestions).toEqual({
+          benefit: ["Answer"],
+        }),
+      );
+      expect(s.snapshot()).not.toHaveProperty("answers");
+      s.setResults({
+        benefit: { name: "Benefit", result: "TRUE", check_results: {} },
+      });
+      await vi.waitFor(() =>
+        expect(s.snapshot().unansweredQuestions).toEqual({}),
+      );
+    });
 
     it("updates custom fields without reimporting the schema or submitting answers", async () => {
       const s = await mount();

@@ -104,3 +104,19 @@ The component renders sanitized Markdown without template evaluation. Web links
 accept HTTP(S) URLs and open in a new tab. Pending or failed evaluations hide old
 instructions until fresh decisions arrive. Forms containing the component use
 its progress heading; existing forms without it keep the legacy completion message.
+
+## Unanswered questions in Next steps
+
+For an undecided benefit, Next steps lists the form's question labels for missing
+inputs used by that benefit's undecided checks. Shared inputs are deduplicated;
+inputs used only by decided checks are omitted. Zero, No, and explicit None
+answers remain answered. The list uses the same normalized data sent to the
+eligibility service, including unknown CRM prefill preserved as null.
+
+Published screeners, Preview, and the print summary share these labels. Pending
+or failed evaluations suppress old prompts along with old instructions, and
+prompts disappear when the benefit is decided. Labels are kept separately from
+answers in the results snapshot; answers and technical input paths are never
+printed by this feature. If an input has no static form label, Next steps keeps
+its general need-more-information message rather than inventing a question.
+The CRM `nextSteps` extension continues to contain decided benefits only.

@@ -30,10 +30,10 @@ for (const showWhen of ["whenDecided", "whenComplete"]) {
                   label: "Household income",
                 },
                 {
-                  id: "done",
-                  type: "checkbox",
-                  key: "done",
-                  label: "Answer remaining question",
+                  id: "household-size",
+                  type: "number",
+                  key: "householdSize",
+                  label: "Number of people in your household",
                 },
                 { id: "print", type: "print_summary" },
                 {
@@ -76,8 +76,19 @@ for (const showWhen of ["whenDecided", "whenComplete"]) {
           },
           food: {
             name: "Food assistance",
-            result: answers.done ? "TRUE" : "UNABLE_TO_DETERMINE",
-            check_results: {},
+            result:
+              answers.householdSize == null ? "UNABLE_TO_DETERMINE" : "TRUE",
+            check_results: {
+              size: {
+                name: "Household size",
+                result:
+                  answers.householdSize == null
+                    ? "UNABLE_TO_DETERMINE"
+                    : "TRUE",
+                inputPaths: ["householdSize"],
+                parameters: {},
+              },
+            },
           },
         },
       });
@@ -105,13 +116,42 @@ for (const showWhen of ["whenDecided", "whenComplete"]) {
         page.getByRole("link", { name: "Apply for this benefit" }),
       ).toHaveCount(0);
     }
-    await page.getByLabel("Answer remaining question", { exact: true }).check();
+    const nextSteps = page.getByRole("region", {
+      name: "Your next steps",
+      exact: true,
+    });
+    await expect(
+      nextSteps.getByText("Number of people in your household", {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await page.evaluate(() => {
+      window.print = () => {
+        (window as any).partialPrint =
+          document.querySelector(".bdt-print-root")!.textContent;
+        window.dispatchEvent(new Event("afterprint"));
+      };
+    });
+    await page.getByRole("button", { name: "Print / Save as PDF" }).click();
+    const partialPrint = await page.evaluate(
+      () => (window as any).partialPrint,
+    );
+    expect(partialPrint).toContain("Number of people in your household");
+    expect(partialPrint).not.toContain("Household income");
+    await page
+      .getByLabel("Number of people in your household", { exact: true })
+      .fill("2");
     await expect(
       page.getByRole("heading", {
         name: "Screening complete — your next steps",
         exact: true,
       }),
     ).toBeVisible();
+    await expect(
+      nextSteps.getByText("Find answers to these questions to continue:", {
+        exact: true,
+      }),
+    ).toHaveCount(0);
     const next = page.getByRole("region", {
       name: "Your next steps",
       exact: true,
@@ -132,7 +172,9 @@ for (const showWhen of ["whenDecided", "whenComplete"]) {
         (window as any).printed = {
           text: root.textContent,
           summaryDisplay: getComputedStyle(root).display,
-          otherDisplays: Array.from(document.body.children).filter(el => el !== root).map(el => getComputedStyle(el).display),
+          otherDisplays: Array.from(document.body.children)
+            .filter((el) => el !== root)
+            .map((el) => getComputedStyle(el).display),
         };
       };
     });
@@ -144,14 +186,18 @@ for (const showWhen of ["whenDecided", "whenComplete"]) {
     expect(printed.text).toContain("https://example.org/help");
     expect(printed.text).not.toContain("Household income");
     expect(printed.summaryDisplay).toBe("block");
-    expect(printed.otherDisplays.every((display: string) => display === "none")).toBe(true);
+    expect(
+      printed.otherDisplays.every((display: string) => display === "none"),
+    ).toBe(true);
     // Like mobile browsers, this print() returns before printing ends, so the tree stays
     // until the print media query stops matching.
     await expect(page.locator(".bdt-print-root")).toHaveCount(1);
     await page.emulateMedia({ media: "screen" });
     await expect(page.locator(".bdt-print-root")).toHaveCount(0);
     await income.fill("2000");
-    await expect(page.getByRole("button", { name: "Print / Save as PDF" })).toBeDisabled();
+    await expect(
+      page.getByRole("button", { name: "Print / Save as PDF" }),
+    ).toBeDisabled();
     await expect(
       page.getByText("Updating your next steps…", { exact: true }),
     ).toBeVisible();
