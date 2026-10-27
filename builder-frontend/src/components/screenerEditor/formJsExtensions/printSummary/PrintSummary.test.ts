@@ -21,6 +21,7 @@ beforeEach(() => {
   );
 });
 afterEach(() => {
+  window.dispatchEvent(new Event("afterprint"));
   form?.destroy();
   document.body.replaceChildren();
   vi.restoreAllMocks();
@@ -124,6 +125,22 @@ it("prints current results and copied content with full URLs, without answers, a
   expect(document.querySelector(".bdt-print-root")).toBeNull();
   expect(document.body.classList.contains("bdt-printing")).toBe(false);
   expect(form._getState().data).toEqual({ private: "Sensitive answer" });
+});
+
+it("keeps the print tree until the browser reports that printing ended", async () => {
+  const { button, service } = await mount();
+  service.update(results, false);
+  await vi.waitFor(() => expect(button.disabled).toBe(false));
+  vi.spyOn(window, "print").mockImplementation(() => {});
+  button.click();
+  expect(document.querySelector(".bdt-print-root")).not.toBeNull();
+  expect(document.body.classList.contains("bdt-printing")).toBe(true);
+  // A browser that never sends afterprint must not leave two print trees.
+  button.click();
+  expect(document.querySelectorAll(".bdt-print-root")).toHaveLength(1);
+  window.dispatchEvent(new Event("afterprint"));
+  expect(document.querySelector(".bdt-print-root")).toBeNull();
+  expect(document.body.classList.contains("bdt-printing")).toBe(false);
 });
 
 it("blocks stale and failed results and respects whenComplete in the printout", async () => {

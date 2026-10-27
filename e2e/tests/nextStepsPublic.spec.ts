@@ -145,8 +145,11 @@ for (const showWhen of ["whenDecided", "whenComplete"]) {
     expect(printed.text).not.toContain("Household income");
     expect(printed.summaryDisplay).toBe("block");
     expect(printed.otherDisplays.every((display: string) => display === "none")).toBe(true);
-    await expect(page.locator(".bdt-print-root")).toHaveCount(0);
+    // Like mobile browsers, this print() returns before printing ends, so the tree stays
+    // until the print media query stops matching.
+    await expect(page.locator(".bdt-print-root")).toHaveCount(1);
     await page.emulateMedia({ media: "screen" });
+    await expect(page.locator(".bdt-print-root")).toHaveCount(0);
     await income.fill("2000");
     await expect(page.getByRole("button", { name: "Print / Save as PDF" })).toBeDisabled();
     await expect(

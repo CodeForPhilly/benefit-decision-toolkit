@@ -10,6 +10,9 @@ import "./printSummary.css";
 
 export const PRINT_SUMMARY_TYPE = "print_summary";
 
+// Printing is page-wide, so at most one print tree exists at a time.
+let endPrint: (() => void) | undefined;
+
 /** A temporary, local-only print tree. It never receives the person's answers. */
 export function PrintSummary() {
   const context = useContext(FormContext);
@@ -32,10 +35,11 @@ export function PrintSummary() {
       current.mode === "editor" ||
       current.pending ||
       current.failed ||
-      !Object.keys(current.results ?? {}).length ||
-      document.querySelector(".bdt-print-root")
+      !Object.keys(current.results ?? {}).length
     )
       return;
+    // Some browsers never send afterprint; replace a print tree left behind.
+    endPrint?.();
     const benefits = Object.entries(current.results ?? {});
     setError("");
     const firstNextSteps = (fields: any[]): NextStepsField | undefined => {
@@ -51,11 +55,17 @@ export function PrintSummary() {
       ) ?? {};
     const root = document.createElement("article");
     root.className = "bdt-print-root";
+    const printMedia = window.matchMedia?.("print");
+    const onPrintMediaChange = (event: MediaQueryListEvent) => {
+      if (!event.matches) cleanup();
+    };
     const cleanup = () => {
       render(null, root);
       root.remove();
       document.body.classList.remove("bdt-printing");
       window.removeEventListener("afterprint", cleanup);
+      printMedia?.removeEventListener("change", onPrintMediaChange);
+      if (endPrint === cleanup) endPrint = undefined;
     };
     try {
       render(
@@ -95,12 +105,15 @@ export function PrintSummary() {
         });
       document.body.append(root);
       document.body.classList.add("bdt-printing");
+      endPrint = cleanup;
+      // Mobile browsers return from print() before taking the snapshot, so
+      // keep the print tree until the browser reports that printing ended.
       window.addEventListener("afterprint", cleanup);
+      printMedia?.addEventListener("change", onPrintMediaChange);
       window.print();
     } catch {
-      setError("Could not open printing. Please try again.");
-    } finally {
       cleanup();
+      setError("Could not open printing. Please try again.");
     }
   };
 
