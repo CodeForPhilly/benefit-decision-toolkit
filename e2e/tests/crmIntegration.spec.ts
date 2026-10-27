@@ -298,6 +298,10 @@ test("a CRM whose origin the screener doesn't allow gets no prefill or results",
     .fill("2000");
   await page.locator("#embed").click();
   const screener = page.frameLocator("#screener");
+  // Match the other CRM tests' startup budget before asserting connection state.
+  await expect(screener.getByLabel("Household income")).toBeVisible({
+    timeout: 15000,
+  });
   await expect(screener.getByRole("alert")).toContainText(
     "isn’t set up to send results",
   );
