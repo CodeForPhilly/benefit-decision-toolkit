@@ -103,7 +103,7 @@ export function PrintSummary() {
     try {
       render(
         html`<${FormContext.Provider} value=${context}>
-          <h1>${current.screenerName || "Benefit screening"}</h1>
+          <h1>${service.getScreenerName() || "Benefit screening"}</h1>
           <p>
             ${new Date().toLocaleDateString(undefined, {
               year: "numeric",

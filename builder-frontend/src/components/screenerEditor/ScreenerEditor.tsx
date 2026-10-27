@@ -106,7 +106,6 @@ function ScreenerEditor() {
           <Title>BDT - {loadedScreener()?.screenerName}</Title>
           {activeTab() == "formEditor" && (
             <FormEditorView
-              screenerName={() => loadedScreener()?.screenerName ?? ""}
               formSchema={formSchema}
               setFormSchema={setFormSchema}
               benefits={() => loadedScreener()?.benefits ?? []}

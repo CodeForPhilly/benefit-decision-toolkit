@@ -95,7 +95,8 @@ async function mount(showWhen?: string) {
 it("prints current results and copied content with full URLs, without answers, and cleans up", async () => {
   const { button, service, container } = await mount();
   expect(button.disabled).toBe(true);
-  service.update(results, false, false, "Local benefit screener");
+  service.setScreenerName("Local benefit screener");
+  service.update(results, false);
   await vi.waitFor(() => expect(button.disabled).toBe(false));
   let root!: HTMLElement;
   let printing = false;

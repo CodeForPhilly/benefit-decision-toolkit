@@ -17,7 +17,6 @@ export interface ScreeningResultsSnapshot {
   /** True when the latest evaluation failed, until one succeeds. Pending stays true meanwhile. */
   readonly failed: boolean;
   readonly mode: "live" | "editor";
-  readonly screenerName?: string;
 }
 
 interface EventBus {
@@ -44,6 +43,7 @@ export class ScreeningResultsService {
   private liveCopy: ScreenerResult | undefined;
   // IDs of the rendered Next steps fields, once per rendering.
   private nextStepsShown: string[] = [];
+  private screenerName: string | undefined;
   private reportedNextStepsShown = false;
 
   constructor(private eventBus: EventBus) {}
@@ -81,6 +81,13 @@ export class ScreeningResultsService {
 
   getSnapshot = (): ScreeningResultsSnapshot => this.snapshot;
 
+  /** Read when needed; a rename isn't a results change, so it notifies no one. */
+  getScreenerName = (): string | undefined => this.screenerName;
+
+  setScreenerName(name: string | undefined): void {
+    this.screenerName = name;
+  }
+
   subscribe = (listener: () => void): (() => void) => {
     this.eventBus.on(SCREENING_RESULTS_CHANGED, listener);
     return () => this.eventBus.off(SCREENING_RESULTS_CHANGED, listener);
@@ -90,7 +97,6 @@ export class ScreeningResultsService {
     results: ScreenerResult | undefined,
     pending: boolean,
     failed = false,
-    screenerName?: string,
   ): void {
     if (results !== this.liveSource) {
       this.liveSource = results;
@@ -101,17 +107,15 @@ export class ScreeningResultsService {
       pending,
       failed,
       mode: "live",
-      ...(screenerName === undefined ? {} : { screenerName }),
     });
   }
 
-  showEditorSamples(benefits: BenefitDetail[], screenerName?: string): void {
+  showEditorSamples(benefits: BenefitDetail[]): void {
     this.publish({
       results: deepFreeze(createEditorResults(benefits)),
       pending: false,
       failed: false,
       mode: "editor",
-      ...(screenerName === undefined ? {} : { screenerName }),
     });
   }
 
@@ -120,8 +124,7 @@ export class ScreeningResultsService {
       next.results === this.snapshot.results &&
       next.pending === this.snapshot.pending &&
       next.failed === this.snapshot.failed &&
-      next.mode === this.snapshot.mode &&
-      next.screenerName === this.snapshot.screenerName
+      next.mode === this.snapshot.mode
     )
       return;
     this.snapshot = Object.freeze(next);
@@ -216,13 +219,9 @@ export function connectScreeningResults(
 ): void {
   const service = form.get<ScreeningResultsService>("screeningResults");
   createEffect(() =>
-    service.update(
-      live.results(),
-      live.pending(),
-      live.failed(),
-      live.screenerName?.(),
-    ),
+    service.update(live.results(), live.pending(), live.failed()),
   );
+  createEffect(() => service.setScreenerName(live.screenerName?.()));
   const { onNextStepsShownChange } = live;
   if (onNextStepsShownChange) {
     form
