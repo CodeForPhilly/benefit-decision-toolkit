@@ -128,7 +128,9 @@ saves both on the user's explicit Save action and shows application/help links,
 contact numbers, instructions, and unmet requirements from that snapshot.
 Markdown is displayed as plain text rather than inserted as HTML. Links accept
 only HTTP(S) destinations without embedded credentials. Older saved records
-without `nextSteps` continue to display their benefit decisions.
+without `nextSteps` continue to display their benefit decisions. If the
+snapshot with `nextSteps` exceeds the field size, the example saves the
+decisions without `nextSteps` and says so.
 
 Only visible screener content is sent. A missing `nextSteps` field or `{}` in a
 new snapshot clears previous instructions; it does not mean to keep stale ones.
