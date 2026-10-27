@@ -1,6 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CONNECT_TIMEOUT_MS, createScreeningBridge } from "./screenerBridge";
-import { createCrmIntegration } from "../../public/integrations/host.js";
+import {
+  createCrmIntegration,
+  safeHttpUrl,
+} from "../../public/integrations/host.js";
+import { normalizeHttpUrl } from "@/utils/httpUrl";
 
 const results = {
   benefit: { name: "Benefit", result: "TRUE" as const, check_results: {} },
@@ -79,6 +83,17 @@ afterEach(() => {
 });
 
 describe("published screener CRM bridge", () => {
+  it.each([
+    "https://example.org/apply",
+    "http://example.org/a b",
+    "javascript:alert(1)",
+    "https://user:secret@example.org/",
+    "http://under_score/",
+    "file:///etc/passwd",
+    "not a url",
+  ])("checks saved links as the screener does (%s)", (value) => {
+    expect(safeHttpUrl(value) !== null).toBe(normalizeHttpUrl(value) !== null);
+  });
   it.each([false, true])(
     "round-trips optional next steps without changing protocol version (JSON=%s)",
     (serializeMessages) => {

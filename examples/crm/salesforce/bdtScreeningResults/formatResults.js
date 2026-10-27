@@ -1,3 +1,5 @@
+import { safeHttpUrl } from "c/bdtCrmHost";
+
 const isObject = (value) =>
   value !== null && typeof value === "object" && !Array.isArray(value);
 
@@ -28,19 +30,6 @@ function checkName(check) {
     .trim();
 }
 
-function safeUrl(value) {
-  if (typeof value !== "string") return null;
-  try {
-    const url = new URL(value);
-    return ["http:", "https:"].includes(url.protocol) &&
-      !url.username &&
-      !url.password
-      ? url.href
-      : null;
-  } catch {
-    return null;
-  }
-}
 function markdownText(value) {
   return isObject(value) &&
     value.format === "markdown" &&
@@ -56,8 +45,8 @@ function nextStepsView(steps, result) {
   )
     return {};
   const eligible = result === "TRUE";
-  const applyUrl = eligible ? safeUrl(steps.applyUrl) : null;
-  const helpUrl = eligible ? safeUrl(steps.help?.url) : null;
+  const applyUrl = eligible ? safeHttpUrl(steps.applyUrl) : null;
+  const helpUrl = eligible ? safeHttpUrl(steps.help?.url) : null;
   const phone =
     eligible && typeof steps.help?.phone === "string" ? steps.help.phone : "";
   const body = eligible ? markdownText(steps.body) : "";

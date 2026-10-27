@@ -1,4 +1,4 @@
-import { createCrmIntegration } from "./host.js";
+import { createCrmIntegration, safeHttpUrl } from "./host.js";
 import { clientToScreenerData } from "./clientMapping.mjs";
 
 const element = (id) => document.getElementById(id);
@@ -94,26 +94,16 @@ function appendNextSteps(item, steps, outcome) {
     section.append(p);
   };
   const link = (value, label) => {
-    if (typeof value !== "string") return;
-    try {
-      const url = new URL(value);
-      if (
-        !["http:", "https:"].includes(url.protocol) ||
-        url.username ||
-        url.password
-      )
-        return;
-      const a = document.createElement("a");
-      a.href = url.href;
-      a.textContent = label;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      const p = document.createElement("p");
-      p.append(a);
-      section.append(p);
-    } catch {
-      /* Ignore invalid saved URLs. */
-    }
+    const href = safeHttpUrl(value);
+    if (!href) return;
+    const a = document.createElement("a");
+    a.href = href;
+    a.textContent = label;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    const p = document.createElement("p");
+    p.append(a);
+    section.append(p);
   };
   if (outcome === "eligible") {
     link(steps.applyUrl, "Apply for this benefit");

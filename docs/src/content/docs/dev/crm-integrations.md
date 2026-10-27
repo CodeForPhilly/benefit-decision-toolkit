@@ -228,7 +228,7 @@ The payload contains structured data, never rendered HTML. Treat Markdown as
 untrusted content: display it as plain text (as the examples do), or use a
 sanitizing Markdown renderer. Validate links before making them clickable. The
 screener emits only HTTP(S) application/help URLs, but hosts must still validate
-any saved snapshot they read. Save `nextSteps` alongside `results` only when the
+any saved snapshot they read; `host.js` exports `safeHttpUrl` for this. Save `nextSteps` alongside `results` only when the
 user chooses to save; the protocol does not change persistence authorization.
 
 The screener repeats `ready` about every 500 ms until it's initialized, so a

@@ -87,8 +87,9 @@ Firebase emulators, login, published screener, or CRM account.
 New result messages may include `nextSteps` alongside `results`. The example
 saves both on the user's explicit Save action and shows application/help links,
 contact numbers, instructions, and unmet requirements from that snapshot.
-Markdown is displayed as plain text rather than inserted as HTML. Links accept
-only HTTP(S) destinations without embedded credentials. Older saved records
+Markdown is displayed as plain text rather than inserted as HTML. Links pass
+through the adapter's `safeHttpUrl`, which accepts only the HTTP(S) links the
+screener sends. Older saved records
 without `nextSteps` continue to display their benefit decisions.
 
 Only visible screener content is sent. A missing `nextSteps` field or `{}` in a
