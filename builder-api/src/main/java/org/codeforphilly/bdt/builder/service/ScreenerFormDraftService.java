@@ -59,7 +59,7 @@ public class ScreenerFormDraftService {
                 buildPrompt(benefits, questionPaths), responseSchema(questionPaths, optionValues),
                 16384, Duration.ofSeconds(60));
             if (generated.isEmpty()) return Optional.empty();
-            JsonNode form = toFormSchema(objectMapper.readTree(generated.get()), questionPaths, optionValues);
+            ObjectNode form = toFormSchema(objectMapper.readTree(generated.get()), questionPaths, optionValues);
             appendResultsComponents(form, benefits);
             return Optional.of(form);
         } catch (InterruptedException e) {
@@ -145,8 +145,8 @@ public class ScreenerFormDraftService {
     }
 
     /** Trusted benefit content is copied after generation, never supplied or rewritten by Gemini. */
-    private void appendResultsComponents(JsonNode form, List<Benefit> benefits) {
-        var components = (com.fasterxml.jackson.databind.node.ArrayNode) form.path("components");
+    private void appendResultsComponents(ObjectNode form, List<Benefit> benefits) {
+        var components = form.withArrayProperty("components");
         ObjectNode nextSteps = components.addObject();
         nextSteps.put("id", "Field_draft_next_steps").put("type", "next_steps")
             .put("showWhen", "whenDecided");
@@ -268,7 +268,7 @@ public class ScreenerFormDraftService {
     // while exact keys, types, unique IDs and full input coverage come from questionPaths.
     // Keyed required properties make coverage a provider constraint, instead of relying
     // on the model to enumerate every input correctly in a free-form question array.
-    JsonNode toFormSchema(JsonNode draft, Map<String, FormPath> questionPaths,
+    ObjectNode toFormSchema(JsonNode draft, Map<String, FormPath> questionPaths,
                           Map<String, List<String>> optionValues) {
         JsonNode questions = draft.path("questions");
         JsonNode order = draft.path("order");
