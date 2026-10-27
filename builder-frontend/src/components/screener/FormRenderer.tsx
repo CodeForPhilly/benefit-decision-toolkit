@@ -33,6 +33,7 @@ function FormRenderer({
   pending = () => false,
   failed = () => false,
   onNextStepsShownChange,
+  screenerName,
 }: {
   schema: { [key: string]: any };
   formData: Accessor<any>;
@@ -41,6 +42,7 @@ function FormRenderer({
   /** Evaluate host prefill on load, keeping its unknown answers null until answered. */
   evaluateInitialData?: boolean;
   onDataChange?: () => void;
+  screenerName?: Accessor<string>;
   results?: Accessor<ScreenerResult | undefined>;
   pending?: Accessor<boolean>;
   failed?: Accessor<boolean>;
@@ -82,6 +84,7 @@ function FormRenderer({
     });
     connectScreeningResults(form, {
       results,
+      screenerName,
       pending,
       failed,
       onNextStepsShownChange,

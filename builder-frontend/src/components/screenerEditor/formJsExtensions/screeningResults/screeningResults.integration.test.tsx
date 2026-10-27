@@ -210,6 +210,6 @@ it("renders editor samples through the same custom-field hook", async () => {
   } finally {
     editor.destroy();
     container.remove();
-    vi.unstubAllGlobals();
+    // form-js schedules deferred effects; retain the DOM shim for this file's environment.
   }
 });

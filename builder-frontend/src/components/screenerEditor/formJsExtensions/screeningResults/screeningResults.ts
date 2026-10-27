@@ -17,6 +17,7 @@ export interface ScreeningResultsSnapshot {
   /** True when the latest evaluation failed, until one succeeds. Pending stays true meanwhile. */
   readonly failed: boolean;
   readonly mode: "live" | "editor";
+  readonly screenerName?: string;
 }
 
 interface EventBus {
@@ -84,20 +85,28 @@ export class ScreeningResultsService {
     results: ScreenerResult | undefined,
     pending: boolean,
     failed = false,
+    screenerName?: string,
   ): void {
     if (results !== this.liveSource) {
       this.liveSource = results;
       this.liveCopy = results && deepFreeze(cloneDeep(results));
     }
-    this.publish({ results: this.liveCopy, pending, failed, mode: "live" });
+    this.publish({
+      results: this.liveCopy,
+      pending,
+      failed,
+      mode: "live",
+      ...(screenerName === undefined ? {} : { screenerName }),
+    });
   }
 
-  showEditorSamples(benefits: BenefitDetail[]): void {
+  showEditorSamples(benefits: BenefitDetail[], screenerName?: string): void {
     this.publish({
       results: deepFreeze(createEditorResults(benefits)),
       pending: false,
       failed: false,
       mode: "editor",
+      ...(screenerName === undefined ? {} : { screenerName }),
     });
   }
 
@@ -106,7 +115,8 @@ export class ScreeningResultsService {
       next.results === this.snapshot.results &&
       next.pending === this.snapshot.pending &&
       next.failed === this.snapshot.failed &&
-      next.mode === this.snapshot.mode
+      next.mode === this.snapshot.mode &&
+      next.screenerName === this.snapshot.screenerName
     )
       return;
     this.snapshot = Object.freeze(next);
@@ -195,12 +205,18 @@ export function connectScreeningResults(
     results: Accessor<ScreenerResult | undefined>;
     pending: Accessor<boolean>;
     failed: Accessor<boolean>;
+    screenerName?: Accessor<string>;
     onNextStepsShownChange?: (shown: boolean) => void;
   },
 ): void {
   const service = form.get<ScreeningResultsService>("screeningResults");
   createEffect(() =>
-    service.update(live.results(), live.pending(), live.failed()),
+    service.update(
+      live.results(),
+      live.pending(),
+      live.failed(),
+      live.screenerName?.(),
+    ),
   );
   const { onNextStepsShownChange } = live;
   if (onNextStepsShownChange) {

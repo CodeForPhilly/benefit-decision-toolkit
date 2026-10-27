@@ -25,6 +25,16 @@ const decided: ScreenerResult = {
 };
 
 describe("screening results service", () => {
+  it("updates the screener name independently of results and keeps it local to the form", () => {
+    const { service } = setup();
+    const other = setup().service;
+    service.update(decided, false, false, "Housing screener");
+    const results = service.getSnapshot().results;
+    service.update(decided, false, false, "Renamed screener");
+    expect(service.getSnapshot().screenerName).toBe("Renamed screener");
+    expect(service.getSnapshot().results).toBe(results);
+    expect(other.getSnapshot().screenerName).toBeUndefined();
+  });
   it("retains previous results while the latest answers are pending", () => {
     const { bus, service } = setup();
     const listener = vi.fn();

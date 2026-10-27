@@ -17,12 +17,21 @@ import {
 import "./nextSteps.css";
 
 /** No template evaluation: analyst Markdown is content, never a FEEL expression. */
-function Markdown({ text }: { text?: string | null }) {
+function Markdown({
+  text,
+  forPrint = false,
+}: {
+  text?: string | null;
+  forPrint?: boolean;
+}) {
   const { getService } = useContext(FormContext);
   const renderer = getService("markdownRenderer");
   const markup = useMemo(() => {
     const container = document.createElement("div");
     container.innerHTML = sanitizeHTML(renderer.render(text ?? ""));
+    // A printout needs the instructions, without loading remote images again.
+    if (forPrint)
+      container.querySelectorAll("img").forEach((image) => image.remove());
     container.querySelectorAll("a").forEach((link) => {
       const safe = webLink(link.getAttribute("href"));
       const contact = contactLink(link.getAttribute("href"));
@@ -39,14 +48,20 @@ function Markdown({ text }: { text?: string | null }) {
       }
     });
     return { __html: container.innerHTML };
-  }, [renderer, text]);
+  }, [renderer, text, forPrint]);
   return html`<div
     class="bdt-next-steps-markdown"
     dangerouslySetInnerHTML=${markup}
   />`;
 }
 
-function Eligible({ content }: { content?: Content }) {
+function Eligible({
+  content,
+  forPrint,
+}: {
+  content?: Content;
+  forPrint?: boolean;
+}) {
   const apply = webLink(content?.eligible?.applyUrl);
   const help = webLink(content?.eligible?.helpUrl);
   const phone = content?.eligible?.helpPhone?.trim();
@@ -71,13 +86,16 @@ function Eligible({ content }: { content?: Content }) {
         ${dial ? html`<a href=${`tel:${dial}`}>${phone}</a>` : phone}</span
       >`}
     </div>
-    <${Markdown} text=${content?.eligible?.body} />
+    <${Markdown} text=${content?.eligible?.body} forPrint=${forPrint} />
   `;
 }
 
-type Field = { showWhen?: string; benefitContent?: BenefitContent };
+export type NextStepsField = {
+  showWhen?: string;
+  benefitContent?: BenefitContent;
+};
 
-export function NextSteps({ field }: { field: Field }) {
+export function NextSteps({ field }: { field: NextStepsField }) {
   const { getService } = useContext(FormContext);
   useLayoutEffect(
     () => getService("screeningResults", false)?.showNextSteps(),
@@ -95,7 +113,7 @@ export function NextSteps({ field }: { field: Field }) {
         ? "Screening complete. Your next steps are below."
         : ""}
     </p>
-    <${Body}
+    <${NextStepsBody}
       field=${field}
       benefits=${benefits}
       complete=${complete}
@@ -106,20 +124,22 @@ export function NextSteps({ field }: { field: Field }) {
   </div>`;
 }
 
-function Body({
+export function NextStepsBody({
   field,
   benefits,
   complete,
   pending,
   failed,
   mode,
+  forPrint = false,
 }: {
-  field: Field;
+  field: NextStepsField;
   benefits: [string, BenefitResult][];
   complete: boolean;
   pending: boolean;
   failed: boolean;
   mode: "live" | "editor";
+  forPrint?: boolean;
 }) {
   if (failed)
     return html`<div class="fjs-form-field bdt-next-steps">
@@ -167,7 +187,7 @@ function Body({
       return html` <section key=${id} class="bdt-next-steps-benefit">
         <h3>${benefit.name}</h3>
         ${benefit.result === "TRUE"
-          ? html`<${Eligible} content=${content} />`
+          ? html`<${Eligible} content=${content} forPrint=${forPrint} />`
           : html`
               <p class="bdt-next-steps-outcome">
                 You do not appear to be eligible.
@@ -180,7 +200,10 @@ function Body({
                       html`<li>${check.aliasName?.trim() || check.name}</li>`,
                   )}
                 </ul>`}
-              <${Markdown} text=${content?.ineligible?.note} />
+              <${Markdown}
+                text=${content?.ineligible?.note}
+                forPrint=${forPrint}
+              />
             `}
       </section>`;
     })}

@@ -64,6 +64,53 @@ afterEach(async () => {
 });
 // form-js has deferred Preact effects; keep the DOM shim for this file's environment.
 
+it("imports drafted result components without treating them as answer bindings", async () => {
+  vi.mocked(fetchFormPaths).mockResolvedValue({
+    paths: [{ path: "custom.resident", type: "boolean" }],
+  });
+  vi.mocked(draftFormSchema).mockResolvedValue({
+    id: "draft",
+    type: "default",
+    schemaVersion: 18,
+    components: [
+      {
+        id: "question",
+        type: "yes_no",
+        key: "custom.resident",
+        label: "Resident?",
+      },
+      {
+        id: "next",
+        type: "next_steps",
+        showWhen: "whenDecided",
+        benefitContent: {},
+      },
+      { id: "print", type: "print_summary" },
+    ],
+  });
+  const [schema, setSchema] = createSignal<any>();
+  const host = document.body.appendChild(document.createElement("div"));
+  dispose = render(
+    () => <FormEditorView formSchema={schema} setFormSchema={setSchema} />,
+    host,
+  );
+  await vi.waitFor(() => expect(editor.instance).toBeDefined());
+  await vi.waitFor(() =>
+    expect(
+      Array.from(host.querySelectorAll("button")).find((b) =>
+        b.textContent?.includes("Draft with AI"),
+      )?.disabled,
+    ).toBe(false),
+  );
+  Array.from(host.querySelectorAll("button"))
+    .find((b) => b.textContent?.includes("Draft with AI"))!
+    .click();
+  await vi.waitFor(() =>
+    expect(schema()?.components.at(-1)?.type).toBe("print_summary"),
+  );
+  expect(extractFormPaths(schema())).toEqual(["custom.resident"]);
+});
+
 it("preserves saved component content after a failed source load and retry", async () => {
   vi.mocked(fetchFormPaths).mockResolvedValue({ paths: [] });
   const benefit = {

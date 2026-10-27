@@ -169,7 +169,7 @@ class ScreenerFormDraftServiceTest {
     void generatesUsingConfiguredChecksAndDeduplicatedTransformedSchemas() throws Exception {
         startGemini(200, DRAFT, "STOP");
         var form = service.generate(benefits(), paths).orElseThrow();
-        assertEquals(4, form.path("components").size());
+        assertEquals(6, form.path("components").size());
         assertEquals("test-key", requestKey.get());
         var config = request.get().path("generationConfig");
         assertEquals("application/json", config.path("responseMimeType").asText());
@@ -188,6 +188,34 @@ class ScreenerFormDraftServiceTest {
         assertTrue(prompt.contains("\"incomeLimit\":40000"));
         assertTrue(prompt.contains("people.client.dateOfBirth"));
         assertTrue(prompt.contains("Residency and income"));
+    }
+
+    @Test
+    void appendsResultsComponentsWithTrustedContentInsteadOfModelInstructions() throws Exception {
+        var configured = benefits();
+        var content = new org.codeforphilly.bdt.builder.model.domain.NextSteps(
+            new org.codeforphilly.bdt.builder.model.domain.NextSteps.Eligible(
+                "https://example.org/apply", "https://example.org/help", "215-555-0100", "Bring **ID**."),
+            new org.codeforphilly.bdt.builder.model.domain.NextSteps.Ineligible("Ask about other help."));
+        configured.get(0).setNextSteps(content);
+        startGemini(200, DRAFT, "STOP");
+        var form = service.generate(configured, paths).orElseThrow();
+        var components = form.path("components");
+        var next = components.get(4);
+        assertEquals("next_steps", next.path("type").asText());
+        assertEquals("whenDecided", next.path("showWhen").asText());
+        assertEquals(mapper.valueToTree(content), next.path("benefitContent").get(configured.get(0).getId()));
+        assertFalse(next.path("benefitContent").has(configured.get(1).getId()));
+        assertEquals("print_summary", components.get(5).path("type").asText());
+        assertFalse(next.has("key"));
+        assertFalse(components.get(5).has("key"));
+        assertEquals(6, components.findValuesAsText("id").stream().distinct().count());
+        String prompt = request.get().path("contents").get(0).path("parts").get(0).path("text").asText();
+        assertTrue(prompt.contains("server adds Next steps and Print summary"));
+        assertFalse(prompt.contains("https://example.org/apply"));
+        configured.get(0).setNextSteps(null);
+        assertEquals("https://example.org/apply", next.path("benefitContent").get(configured.get(0).getId())
+            .path("eligible").path("applyUrl").asText());
     }
 
     @Test

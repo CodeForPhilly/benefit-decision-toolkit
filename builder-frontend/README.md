@@ -58,6 +58,27 @@ viewer fields. Consumers outside Preact can use `getSnapshot()` and `subscribe()
 on the service; `subscribe()` returns an unsubscribe function and updates fire
 `screeningResults.changed` on the form's event bus.
 
+## Print summary
+
+Analysts can place a **Print summary** component anywhere in the form. It opens
+the browser's Print / Save as PDF dialog after screening results arrive. The
+summary includes the screener name, current date, benefit decisions, and the
+content from the first Next steps component in schema order (including groups).
+It respects that component's `showWhen` setting. Without a Next steps component,
+it prints decisions and unmet requirements without application instructions.
+
+The print renderer shares the on-screen Next steps renderer and adds full HTTP(S)
+URLs next to link text. Printing hides the rest of the page and excludes answers.
+It uses no PDF service or upload, and removes the temporary print tree after the
+dialog closes. Printing is disabled for editor samples and while evaluations are
+pending or failed. Use Preview to print real results while building a screener.
+
+AI-drafted schemas append Next steps (`whenDecided`) and Print summary after the
+questions. The server copies benefit content into the schema after generation;
+the model neither receives nor generates application instructions or contacts.
+Benefits without configured next-steps content remain missing so the editor can
+warn the analyst.
+
 ## Next steps component
 
 Analysts can place **Next steps** from the presentation palette. Its `next_steps`

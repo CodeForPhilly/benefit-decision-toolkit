@@ -45,7 +45,12 @@ import "@bpmn-io/form-js/dist/assets/form-js.css";
 import "@bpmn-io/form-js-editor/dist/assets/form-js-editor.css";
 import { Benefit, FormPath } from "@/types";
 
-function FormEditorView({ formSchema, setFormSchema, benefits = () => [] }) {
+function FormEditorView({
+  formSchema,
+  setFormSchema,
+  benefits = () => [],
+  screenerName = () => "",
+}) {
   const [isUnsaved, setIsUnsaved] = createSignal(false);
   const [isSaving, setIsSaving] = createSignal(false);
   const [saveError, setSaveError] = createSignal("");
@@ -159,7 +164,9 @@ function FormEditorView({ formSchema, setFormSchema, benefits = () => [] }) {
     });
     const screeningResults =
       formEditor.get<ScreeningResultsService>("screeningResults");
-    createEffect(() => screeningResults.showEditorSamples(benefits()));
+    createEffect(() =>
+      screeningResults.showEditorSamples(benefits(), screenerName()),
+    );
 
     if (formSchema()) {
       formEditor.importSchema(formSchema()).catch((err) => {
@@ -191,6 +198,7 @@ function FormEditorView({ formSchema, setFormSchema, benefits = () => [] }) {
         field &&
         field.id &&
         field.type !== NEXT_STEPS_TYPE &&
+        field.type !== "print_summary" &&
         field.type !== "group" &&
         field.type !== "default"
       ) {
@@ -326,14 +334,24 @@ function FormEditorView({ formSchema, setFormSchema, benefits = () => [] }) {
       (formPaths() || []).map(({ path, type }) => [path, type]),
     );
     const components = schema?.components;
+    const questions = Array.isArray(components)
+      ? components.filter(
+          (field) => ![NEXT_STEPS_TYPE, "print_summary"].includes(field.type),
+        )
+      : [];
     if (
       !required.size ||
       !Array.isArray(components) ||
-      components.length !== required.size ||
-      !components.every(
+      questions.length !== required.size ||
+      !questions.every(
         (field) =>
           required.has(field.key) &&
           isTypeCompatible(required.get(field.key), field.type),
+      ) ||
+      components.some(
+        (field) =>
+          [NEXT_STEPS_TYPE, "print_summary"].includes(field.type) &&
+          field.key !== undefined,
       ) ||
       extractFormPaths(schema).length !== required.size
     ) {
