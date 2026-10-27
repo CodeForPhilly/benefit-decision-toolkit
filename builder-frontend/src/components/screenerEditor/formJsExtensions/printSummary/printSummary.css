@@ -1,0 +1,56 @@
+.bdt-print-summary button {
+  border: 1px solid #1d4ed8;
+  border-radius: 4px;
+  background: #1d4ed8;
+  color: white;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+.bdt-print-summary button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.bdt-print-summary p {
+  margin-top: 8px;
+}
+.bdt-print-root {
+  display: none;
+}
+@media print {
+  body.bdt-printing > :not(.bdt-print-root) {
+    display: none !important;
+  }
+  body.bdt-printing {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: white !important;
+  }
+  body.bdt-printing > .bdt-print-root {
+    display: block !important;
+    font: 12pt/1.5 sans-serif;
+    color: black;
+    padding: 0;
+  }
+  .bdt-print-root h1 {
+    font-size: 20pt;
+    font-weight: bold;
+  }
+  .bdt-print-root .bdt-next-steps {
+    border: 0;
+    padding: 0;
+  }
+  .bdt-print-root h2,
+  .bdt-print-root h3,
+  .bdt-print-root h4 {
+    break-after: avoid;
+  }
+  .bdt-print-root a,
+  .bdt-print-url {
+    color: black;
+    overflow-wrap: anywhere;
+  }
+  .bdt-print-url {
+    font-size: 10pt;
+  }
+}

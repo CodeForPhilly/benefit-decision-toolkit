@@ -3,6 +3,7 @@ import { Portal } from "solid-js/web";
 import cloneDeep from "lodash/cloneDeep";
 import type { Benefit, BenefitDetail, NextSteps } from "@/types";
 import type { BenefitContent } from "./formJsExtensions/nextSteps/content";
+import { hasNextStepsContent } from "./formJsExtensions/nextSteps/content";
 import NextStepsEditor from "./manageBenefits/configureBenefit/NextStepsEditor";
 
 export default function NextStepsContentModal(props: {
@@ -25,7 +26,9 @@ export default function NextStepsContentModal(props: {
     !dirty() ||
     window.confirm("Discard the next steps changes you haven't saved?");
   const missing = () =>
-    props.benefits().filter((benefit) => !Object.hasOwn(content(), benefit.id));
+    props
+      .benefits()
+      .filter((benefit) => !hasNextStepsContent(content()[benefit.id]));
   const current = () =>
     props.benefits().find((benefit) => benefit.id === selected());
   const update = (nextSteps: NextSteps) => {
@@ -76,7 +79,7 @@ export default function NextStepsContentModal(props: {
         </Show>
         <Show when={missing().length}>
           <p role="alert" class="my-4 text-amber-900">
-            No content copied for:{" "}
+            No next steps content for:{" "}
             {missing()
               .map((benefit) => benefit.name)
               .join(", ")}

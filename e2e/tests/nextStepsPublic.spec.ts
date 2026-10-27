@@ -35,6 +35,7 @@ for (const showWhen of ["whenDecided", "whenComplete"]) {
                   key: "done",
                   label: "Answer remaining question",
                 },
+                { id: "print", type: "print_summary" },
                 {
                   id: "next",
                   type: "next_steps",
@@ -123,7 +124,34 @@ for (const showWhen of ["whenDecided", "whenComplete"]) {
       page.getByText("Screening complete. All benefits", { exact: false }),
     ).toHaveCount(0);
     expect(await page.evaluate(() => (window as any).bad)).toBeUndefined();
+    // Capture the real print tree and print-media visibility without opening a dialog.
+    await page.emulateMedia({ media: "print" });
+    await page.evaluate(() => {
+      window.print = () => {
+        const root = document.querySelector(".bdt-print-root")!;
+        (window as any).printed = {
+          text: root.textContent,
+          summaryDisplay: getComputedStyle(root).display,
+          otherDisplays: Array.from(document.body.children).filter(el => el !== root).map(el => getComputedStyle(el).display),
+        };
+      };
+    });
+    await page.getByRole("button", { name: "Print / Save as PDF" }).click();
+    const printed = await page.evaluate(() => (window as any).printed);
+    expect(printed.text).toContain("Next steps test");
+    expect(printed.text).toContain("photo ID");
+    expect(printed.text).toContain("https://example.org/apply");
+    expect(printed.text).toContain("https://example.org/help");
+    expect(printed.text).not.toContain("Household income");
+    expect(printed.summaryDisplay).toBe("block");
+    expect(printed.otherDisplays.every((display: string) => display === "none")).toBe(true);
+    // Like mobile browsers, this print() returns before printing ends, so the tree stays
+    // until the print media query stops matching.
+    await expect(page.locator(".bdt-print-root")).toHaveCount(1);
+    await page.emulateMedia({ media: "screen" });
+    await expect(page.locator(".bdt-print-root")).toHaveCount(0);
     await income.fill("2000");
+    await expect(page.getByRole("button", { name: "Print / Save as PDF" })).toBeDisabled();
     await expect(
       page.getByText("Updating your next steps…", { exact: true }),
     ).toBeVisible();

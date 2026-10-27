@@ -41,7 +41,9 @@ export class ScreeningResultsService {
   // Fields get a frozen copy so they can't change the parent's results.
   private liveSource: ScreenerResult | undefined;
   private liveCopy: ScreenerResult | undefined;
-  private nextStepsShown = 0;
+  // IDs of the rendered Next steps fields, once per rendering.
+  private nextStepsShown: string[] = [];
+  private screenerName: string | undefined;
   private reportedNextStepsShown = false;
 
   constructor(private eventBus: EventBus) {}
@@ -51,14 +53,14 @@ export class ScreeningResultsService {
    * message only when one is actually showing (not hidden by a condition). Returns the
    * call to make when the field is removed.
    */
-  showNextSteps = (): (() => void) => {
-    this.nextStepsShown++;
+  showNextSteps = (fieldId: string): (() => void) => {
+    this.nextStepsShown.push(fieldId);
     this.reportNextStepsShown();
     let removed = false;
     return () => {
       if (removed) return;
       removed = true;
-      this.nextStepsShown--;
+      this.nextStepsShown.splice(this.nextStepsShown.indexOf(fieldId), 1);
       // A re-import replaces the field in one render; don't report the gap.
       queueMicrotask(() => this.reportNextStepsShown());
     };
@@ -66,14 +68,25 @@ export class ScreeningResultsService {
 
   isNextStepsShown = (): boolean => this.reportedNextStepsShown;
 
+  /** Whether this Next steps field is rendered, so not hidden by a condition. */
+  isNextStepsFieldShown = (fieldId: string): boolean =>
+    this.nextStepsShown.includes(fieldId);
+
   private reportNextStepsShown(): void {
-    const shown = this.nextStepsShown > 0;
+    const shown = this.nextStepsShown.length > 0;
     if (shown === this.reportedNextStepsShown) return;
     this.reportedNextStepsShown = shown;
     this.eventBus.fire(NEXT_STEPS_SHOWN_CHANGED, { shown });
   }
 
   getSnapshot = (): ScreeningResultsSnapshot => this.snapshot;
+
+  /** Read when needed; a rename isn't a results change, so it notifies no one. */
+  getScreenerName = (): string | undefined => this.screenerName;
+
+  setScreenerName(name: string | undefined): void {
+    this.screenerName = name;
+  }
 
   subscribe = (listener: () => void): (() => void) => {
     this.eventBus.on(SCREENING_RESULTS_CHANGED, listener);
@@ -89,7 +102,12 @@ export class ScreeningResultsService {
       this.liveSource = results;
       this.liveCopy = results && deepFreeze(cloneDeep(results));
     }
-    this.publish({ results: this.liveCopy, pending, failed, mode: "live" });
+    this.publish({
+      results: this.liveCopy,
+      pending,
+      failed,
+      mode: "live",
+    });
   }
 
   showEditorSamples(benefits: BenefitDetail[]): void {
@@ -195,6 +213,7 @@ export function connectScreeningResults(
     results: Accessor<ScreenerResult | undefined>;
     pending: Accessor<boolean>;
     failed: Accessor<boolean>;
+    screenerName?: Accessor<string>;
     onNextStepsShownChange?: (shown: boolean) => void;
   },
 ): void {
@@ -202,6 +221,7 @@ export function connectScreeningResults(
   createEffect(() =>
     service.update(live.results(), live.pending(), live.failed()),
   );
+  createEffect(() => service.setScreenerName(live.screenerName?.()));
   const { onNextStepsShownChange } = live;
   if (onNextStepsShownChange) {
     form

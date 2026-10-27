@@ -64,6 +64,53 @@ afterEach(async () => {
 });
 // form-js has deferred Preact effects; keep the DOM shim for this file's environment.
 
+it("imports drafted result components without treating them as answer bindings", async () => {
+  vi.mocked(fetchFormPaths).mockResolvedValue({
+    paths: [{ path: "custom.resident", type: "boolean" }],
+  });
+  vi.mocked(draftFormSchema).mockResolvedValue({
+    id: "draft",
+    type: "default",
+    schemaVersion: 18,
+    components: [
+      {
+        id: "question",
+        type: "yes_no",
+        key: "custom.resident",
+        label: "Resident?",
+      },
+      {
+        id: "next",
+        type: "next_steps",
+        showWhen: "whenDecided",
+        benefitContent: {},
+      },
+      { id: "print", type: "print_summary" },
+    ],
+  });
+  const [schema, setSchema] = createSignal<any>();
+  const host = document.body.appendChild(document.createElement("div"));
+  dispose = render(
+    () => <FormEditorView formSchema={schema} setFormSchema={setSchema} />,
+    host,
+  );
+  await vi.waitFor(() => expect(editor.instance).toBeDefined());
+  await vi.waitFor(() =>
+    expect(
+      Array.from(host.querySelectorAll("button")).find((b) =>
+        b.textContent?.includes("Draft with AI"),
+      )?.disabled,
+    ).toBe(false),
+  );
+  Array.from(host.querySelectorAll("button"))
+    .find((b) => b.textContent?.includes("Draft with AI"))!
+    .click();
+  await vi.waitFor(() =>
+    expect(schema()?.components.at(-1)?.type).toBe("print_summary"),
+  );
+  expect(extractFormPaths(schema())).toEqual(["custom.resident"]);
+});
+
 it("preserves saved component content after a failed source load and retry", async () => {
   vi.mocked(fetchFormPaths).mockResolvedValue({ paths: [] });
   const benefit = {
@@ -195,7 +242,7 @@ it("keeps every required binding after the actual editor finishes importing and 
   );
 });
 
-it("defaults the key of a newly added field to its ID", async () => {
+it("defaults the key of a newly added field to its ID, only for fields that store answers", async () => {
   vi.mocked(fetchFormPaths).mockResolvedValue({ paths: [] });
   const [schema, setSchema] = createSignal<any>();
   const container = document.body.appendChild(document.createElement("div"));
@@ -210,7 +257,17 @@ it("defaults the key of a newly added field to its ID", async () => {
     .addFormField({ type: "textfield" }, formField, 0);
   // The palette's field factory assigns a random key before formField.add fires.
   expect(added.key).toMatch(/^textfield_/);
+  const unkeyed = [
+    "text",
+    "spacer",
+    "group",
+    "next_steps",
+    "print_summary",
+  ].map((type) =>
+    editor.instance.get("modeling").addFormField({ type }, formField, 0),
+  );
   await vi.waitFor(() => expect(added.key).toBe(added.id));
+  for (const field of unkeyed) expect(field.key).toBeUndefined();
 });
 
 it("can explicitly save the initialized form before any fields are edited", async () => {

@@ -144,6 +144,7 @@ export default function Screener() {
         <div class="flex flex-col lg:flex-row">
           <section class="flex-1 overflow-y-auto p-4">
             <FormRenderer
+              screenerName={() => screener()?.screenerName ?? ""}
               schema={screener()?.formSchema || {}}
               formData={formData}
               hiddenQuestionPaths={hiddenQuestionPaths}

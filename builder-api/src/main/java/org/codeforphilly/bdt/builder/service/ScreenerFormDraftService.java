@@ -59,7 +59,9 @@ public class ScreenerFormDraftService {
                 buildPrompt(benefits, questionPaths), responseSchema(questionPaths, optionValues),
                 16384, Duration.ofSeconds(60));
             if (generated.isEmpty()) return Optional.empty();
-            return Optional.of(toFormSchema(objectMapper.readTree(generated.get()), questionPaths, optionValues));
+            ObjectNode form = toFormSchema(objectMapper.readTree(generated.get()), questionPaths, optionValues);
+            appendResultsComponents(form, benefits);
+            return Optional.of(form);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return Optional.empty();
@@ -118,8 +120,11 @@ public class ScreenerFormDraftService {
             when needed. Do not over-explain commonly understood things. Keep dates and numeric
             inputs in their original units; do not replace a birth date or income with a yes/no proxy.
             Do not supply default answers, invent eligibility rules, or ask for configured parameters.
-            The runtime evaluates the actual checks, hides questions no longer needed, and displays
-            a clear 'Screening complete' message only when ALL benefits are eligible or ineligible.
+            The runtime evaluates the actual checks and hides questions no longer needed.
+            The server adds Next steps and Print summary components after your questions.
+            Next steps shows each benefit as it is decided, and announces completion only when
+            ALL benefits are eligible or ineligible. Do not write application instructions,
+            application URLs, help contacts, or ineligibility notes; the server copies configured content.
             Do not include an unconditional completion message or try to calculate eligibility yourself.
             Return a questions object with one entry for EVERY required question ID in the mapping
             below. Each entry has label, description, and values (an array of
@@ -137,6 +142,26 @@ public class ScreenerFormDraftService {
             Required question IDs and input paths: %s
             Configured benefits and checks: %s
             """.formatted(objectMapper.writeValueAsString(questionPaths), objectMapper.writeValueAsString(context));
+    }
+
+    /** Trusted benefit content is copied after generation, never supplied or rewritten by Gemini. */
+    private void appendResultsComponents(ObjectNode form, List<Benefit> benefits) {
+        var components = form.withArrayProperty("components");
+        ObjectNode nextSteps = components.addObject();
+        nextSteps.put("id", "Field_draft_next_steps").put("type", "next_steps")
+            .put("showWhen", "whenDecided");
+        nextSteps.putObject("layout").put("row", "Row_draft_next_steps");
+        ObjectNode content = nextSteps.putObject("benefitContent");
+        for (Benefit benefit : benefits) {
+            // Matches copyBenefitContent in the editor: a loaded benefit without content copies as
+            // empty. The editor flags missing or empty content for the analyst to review.
+            content.set(benefit.getId(), benefit.getNextSteps() == null
+                ? objectMapper.createObjectNode()
+                : objectMapper.valueToTree(benefit.getNextSteps()));
+        }
+        ObjectNode printSummary = components.addObject();
+        printSummary.put("id", "Field_draft_print_summary").put("type", "print_summary");
+        printSummary.putObject("layout").put("row", "Row_draft_print_summary");
     }
 
     // Short question IDs keep provider property names simple. Actual form bindings are assigned
@@ -243,7 +268,7 @@ public class ScreenerFormDraftService {
     // while exact keys, types, unique IDs and full input coverage come from questionPaths.
     // Keyed required properties make coverage a provider constraint, instead of relying
     // on the model to enumerate every input correctly in a free-form question array.
-    JsonNode toFormSchema(JsonNode draft, Map<String, FormPath> questionPaths,
+    ObjectNode toFormSchema(JsonNode draft, Map<String, FormPath> questionPaths,
                           Map<String, List<String>> optionValues) {
         JsonNode questions = draft.path("questions");
         JsonNode order = draft.path("order");

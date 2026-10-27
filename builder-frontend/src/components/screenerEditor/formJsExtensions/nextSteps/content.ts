@@ -5,6 +5,17 @@ import { normalizeHttpUrl } from "@/utils/httpUrl";
 export const NEXT_STEPS_TYPE = "next_steps";
 export type BenefitContent = Record<string, NextSteps>;
 
+/** An empty copied record is still missing instructions for the analyst to review. */
+export function hasNextStepsContent(content?: NextSteps): boolean {
+  return [
+    content?.eligible?.applyUrl,
+    content?.eligible?.helpUrl,
+    content?.eligible?.helpPhone,
+    content?.eligible?.body,
+    content?.ineligible?.note,
+  ].some((value) => typeof value === "string" && value.trim().length > 0);
+}
+
 export function copyBenefitContent(benefits: Benefit[]): BenefitContent {
   return Object.fromEntries(
     benefits.map((benefit) => [benefit.id, cloneDeep(benefit.nextSteps ?? {})]),

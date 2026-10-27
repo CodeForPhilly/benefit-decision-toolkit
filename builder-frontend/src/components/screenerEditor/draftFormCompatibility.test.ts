@@ -76,6 +76,13 @@ it("imports the draft's generated field types into the real editor and viewer", 
           { label: "Own", value: "own" },
         ],
       },
+      {
+        id: "Field_draft_next_steps",
+        type: "next_steps",
+        showWhen: "whenDecided",
+        benefitContent: {},
+      },
+      { id: "Field_draft_print_summary", type: "print_summary" },
     ],
   };
   try {

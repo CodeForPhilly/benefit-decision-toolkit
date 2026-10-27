@@ -42,11 +42,30 @@ it("warns about screener benefits whose content failed to load", () => {
 
 it("does not warn when every screener benefit has content", () => {
   const container = panelFor(
-    { type: NEXT_STEPS_TYPE, benefitContent: { food: {} } },
+    {
+      type: NEXT_STEPS_TYPE,
+      benefitContent: { food: { eligible: { body: "Apply online" } } },
+    },
     {
       benefits: [{ id: "food", name: "Food", description: "" }],
       sources: [],
     },
   );
   expect(container.querySelector('[role="alert"]')).toBeNull();
+});
+
+it("warns when a copied record contains no configured content", () => {
+  for (const content of [
+    {},
+    { eligible: { body: " ", applyUrl: null }, ineligible: { note: "" } },
+  ]) {
+    const container = panelFor(
+      { type: NEXT_STEPS_TYPE, benefitContent: { food: content } },
+      {
+        benefits: [{ id: "food", name: "Food", description: "" }],
+        sources: [],
+      },
+    );
+    expect(container.querySelector('[role="alert"]')).not.toBeNull();
+  }
 });

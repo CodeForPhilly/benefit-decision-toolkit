@@ -27,12 +27,14 @@ function FormRenderer({
   pending = () => false,
   failed = () => false,
   onNextStepsShownChange,
+  screenerName,
 }: {
   schema: Accessor<any>;
   formData: Accessor<PreviewFormData>;
   hiddenQuestionPaths: Accessor<string[]>;
   submitForm: (data: PreviewFormData) => void;
   onDataChange?: () => void;
+  screenerName?: Accessor<string>;
   results?: Accessor<ScreenerResult | undefined>;
   pending?: Accessor<boolean>;
   failed?: Accessor<boolean>;
@@ -75,6 +77,7 @@ function FormRenderer({
     });
     connectScreeningResults(form, {
       results,
+      screenerName,
       pending,
       failed,
       onNextStepsShownChange,
