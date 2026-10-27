@@ -10,6 +10,8 @@ import org.codeforphilly.bdt.builder.service.ScreenerFormDraftService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.NotFoundException;
 import org.codeforphilly.bdt.builder.model.dto.screener.EditScreenerRequest;
+import org.codeforphilly.bdt.builder.model.dto.screener.PublishScreenerRequest;
+import org.codeforphilly.bdt.builder.model.dto.screener.SaveSchemaRequest;
 import org.codeforphilly.bdt.builder.persistence.DuplicateScreenerNameException;
 import org.codeforphilly.bdt.builder.persistence.ScreenerRepository;
 import org.eclipse.microprofile.jwt.JsonWebToken;
@@ -48,6 +50,32 @@ class ScreenerResourceTest {
         screener = Screener.create("owner", "Housing", null);
         screener.setId("screener-1");
         when(screenerRepository.getWorkingScreener("screener-1")).thenReturn(Optional.of(screener));
+    }
+
+    @Test
+    void publishReturnsAnActionableErrorForAnUnsavedForm() throws Exception {
+        when(screenerRepository.getWorkingScreenerMetaDataOnly("screener-1")).thenReturn(Optional.of(screener));
+        doThrow(new jakarta.ws.rs.BadRequestException("Save the form in Form Editor before publishing."))
+                .when(screenerRepository).publishScreener(screener);
+        var request = new PublishScreenerRequest();
+        request.screenerId = "screener-1";
+        try (var response = resource.publishScreener(identity, request)) {
+            assertEquals(400, response.getStatus());
+            assertEquals(Map.of("error", "Save the form in Form Editor before publishing."), response.getEntity());
+        }
+    }
+
+    @Test
+    void failedFormSaveDoesNotReturnSuccess() throws Exception {
+        resource.validator = mock(jakarta.validation.Validator.class);
+        var request = new SaveSchemaRequest(new ObjectMapper().readTree("{\"components\":[]}"));
+        when(resource.validator.validate(request)).thenReturn(java.util.Set.of());
+        when(storage.getScreenerWorkingFormSchemaPath("screener-1")).thenReturn("form/working/screener-1.json");
+        doThrow(new Exception("Storage write failed")).when(storage).writeJsonToStorage("form/working/screener-1.json", request.schema());
+        try (var response = resource.saveFormSchema(identity, "screener-1", request)) {
+            assertEquals(500, response.getStatus());
+            assertTrue(((Map<?, ?>) response.getEntity()).get("error").toString().contains("Could not save the form"));
+        }
     }
 
     @Test

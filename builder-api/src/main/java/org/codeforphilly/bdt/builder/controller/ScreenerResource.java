@@ -253,8 +253,9 @@ public class ScreenerResource {
       storageService.writeJsonToStorage(filePath, request.schema());
       return Response.ok().build();
     } catch (Exception e) {
-      Log.info(("Failed to save form for screener " + screenerId));
-      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+      Log.error("Failed to save form for screener " + screenerId, e);
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+          .entity(Map.of("error", "Could not save the form. Please try again.")).build();
     }
   }
 
@@ -283,9 +284,12 @@ public class ScreenerResource {
       Screener screener = screenerOpt.get();
       screenerRepository.publishScreener(screener);
       return Response.ok().build();
+    } catch (BadRequestException e) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", e.getMessage())).build();
     } catch (Exception e) {
-      Log.error("Error: Error updating screener to published. Screener: " + screenerId);
-      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+      Log.error("Error updating screener to published. Screener: " + screenerId, e);
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+          .entity(Map.of("error", "Could not publish the screener. Please try again.")).build();
     }
   }
 

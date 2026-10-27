@@ -213,6 +213,36 @@ it("defaults the key of a newly added field to its ID", async () => {
   await vi.waitFor(() => expect(added.key).toBe(added.id));
 });
 
+it("can explicitly save the initialized form before any fields are edited", async () => {
+  vi.mocked(fetchFormPaths).mockResolvedValue({ paths: [] });
+  const [schema, setSchema] = createSignal<any>();
+  const container = document.body.appendChild(document.createElement("div"));
+  dispose = render(
+    () => <FormEditorView formSchema={schema} setFormSchema={setSchema} />,
+    container,
+  );
+  await vi.waitFor(() =>
+    expect(
+      editor.instance?.get("formFieldRegistry").get("BDT_Form"),
+    ).toBeDefined(),
+  );
+  container
+    .querySelector<HTMLButtonElement>(
+      '[data-testid="form-editor-save-button"]',
+    )!
+    .click();
+  await vi.waitFor(() =>
+    expect(saveFormSchema).toHaveBeenCalledWith(
+      "screener-1",
+      expect.objectContaining({
+        type: "default",
+        schemaVersion: 18,
+        components: [],
+      }),
+    ),
+  );
+});
+
 it("provides reactive editor samples keyed to the screener's benefits", async () => {
   vi.mocked(fetchFormPaths).mockResolvedValue({ paths: [] });
   const [schema, setSchema] = createSignal<any>();

@@ -48,6 +48,7 @@ import { Benefit, FormPath } from "@/types";
 function FormEditorView({ formSchema, setFormSchema, benefits = () => [] }) {
   const [isUnsaved, setIsUnsaved] = createSignal(false);
   const [isSaving, setIsSaving] = createSignal(false);
+  const [saveError, setSaveError] = createSignal("");
   const [isDrafting, setIsDrafting] = createSignal(false);
   const [draftError, setDraftError] = createSignal("");
   let disposed = false;
@@ -296,8 +297,9 @@ function FormEditorView({ formSchema, setFormSchema, benefits = () => [] }) {
 
   const handleSave = async () => {
     if (isSaving() || hasPendingSourceCopy()) return;
+    setSaveError("");
     const screenerId = params.screenerId;
-    const schema = formSchema();
+    const schema = formSchema() ?? formEditor.saveSchema();
     const revision = schemaRevision();
     setIsSaving(true);
     clearTimeout(timeoutId);
@@ -309,6 +311,9 @@ function FormEditorView({ formSchema, setFormSchema, benefits = () => [] }) {
       // Keep the form marked as unsaved so a failed request is not presented
       // to the user as a successful save.
       setIsUnsaved(true);
+      setSaveError(
+        "Could not save the form. Your changes are still here. Please try again.",
+      );
       console.error("Failed to save form schema", error);
     } finally {
       setIsSaving(false);
@@ -387,6 +392,11 @@ function FormEditorView({ formSchema, setFormSchema, benefits = () => [] }) {
 
   return (
     <>
+      <Show when={saveError()}>
+        <p role="alert" class="m-4 text-red-800">
+          {saveError()}
+        </p>
+      </Show>
       <Show when={benefitContentError()}>
         <p role="alert" class="m-4">
           Some benefit content could not be loaded. Existing component content

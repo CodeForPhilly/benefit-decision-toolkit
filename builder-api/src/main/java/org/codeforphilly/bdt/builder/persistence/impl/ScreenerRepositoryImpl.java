@@ -188,23 +188,31 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
     /* Publishing logic */
     @Override
     public void publishScreener(Screener screener) throws Exception {
-        if (screener.getPublishedScreenerId() == null || screener.getPublishedScreenerId().isEmpty()) {
+        // A working screener can exist before its form has ever been saved. Check
+        // storage before creating a public record or changing publication metadata.
+        String workingFormPath = storageService.getScreenerWorkingFormSchemaPath(screener.getId());
+        if (storageService.readFormSchema(workingFormPath).isEmpty()) {
+            throw new jakarta.ws.rs.BadRequestException("Save the form in Form Editor before publishing.");
+        }
+        List<Benefit> benefits = this.getBenefitsInScreener(screener);
+        boolean firstPublish = screener.getPublishedScreenerId() == null || screener.getPublishedScreenerId().isEmpty();
+        if (firstPublish) {
             String publishedScreenerId = publishedScreenerRepository.createPublishedScreener(screener);
             screener.setPublishedScreenerId(publishedScreenerId);
-        } else {
-            publishedScreenerRepository.updatePublishedScreener(screener.getPublishedScreenerId(), screener);
         }
-
-        screener.setLastPublishDate(Instant.now().toString());
-        this.updateWorkingScreener(screener);
-
-        publishedScreenerRepository.refreshPublishedScreenerbenefits(
-            screener.getPublishedScreenerId(),
-            this.getBenefitsInScreener(screener)
-        );
 
         storageService.updatePublishedFormSchemaArtifact(
             screener.getId(), screener.getPublishedScreenerId()
         );
+        publishedScreenerRepository.refreshPublishedScreenerbenefits(
+            screener.getPublishedScreenerId(),
+            benefits
+        );
+
+        screener.setLastPublishDate(Instant.now().toString());
+        if (!firstPublish) {
+            publishedScreenerRepository.updatePublishedScreener(screener.getPublishedScreenerId(), screener);
+        }
+        this.updateWorkingScreener(screener);
     }
 }

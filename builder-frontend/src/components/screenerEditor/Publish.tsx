@@ -1,9 +1,10 @@
-import { createSignal } from "solid-js";
+import { createSignal, Show } from "solid-js";
 import { useParams } from "@solidjs/router";
 import { publishScreener } from "../../api/screener";
 import Tooltip from "../shared/Tooltip";
 import { Button } from "@/components/shared/Button";
 import IntegrationOrigins from "./IntegrationOrigins";
+import { ApiError } from "@/api/check";
 
 export default function Publish({
   screener,
@@ -11,12 +12,13 @@ export default function Publish({
   setIntegrationOrigins,
 }) {
   const [isLoading, setIsLoading] = createSignal(false);
+  const [publishError, setPublishError] = createSignal("");
 
   const screenerName = () => {
     return screener()?.screenerName;
   };
   const isPublished = () => {
-    return screener()?.publishedScreenerId !== null;
+    return !!screener()?.publishedScreenerId;
   };
   const lastPublishDate = () => {
     return screener()?.lastPublishDate;
@@ -34,12 +36,19 @@ export default function Publish({
   const { screenerId } = useParams();
 
   const handlePublish = async () => {
+    if (isLoading()) return;
+    setPublishError("");
     try {
       setIsLoading(true);
       await publishScreener(screenerId);
       refetchScreener();
-      setIsLoading(false);
     } catch (e) {
+      setPublishError(
+        e instanceof ApiError && e.status === 400
+          ? e.message
+          : "Could not publish the screener. Please try again.",
+      );
+    } finally {
       setIsLoading(false);
     }
   };
@@ -59,6 +68,11 @@ export default function Publish({
       <div class="px-8 py-4 w-xl border-1 shadow-sm border-gray-200">
         <div class="text-xl">{screenerName()}</div>
         <div class="mt-4 flex flex-col gap-2">
+          <Show when={publishError()}>
+            <p role="alert" class="text-red-800">
+              {publishError()}
+            </p>
+          </Show>
           <div id="screener-url-info" class="flex gap-4">
             <div class="text-sm font-bold">Screener URL:</div>
             {isPublished() ? (

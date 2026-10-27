@@ -130,6 +130,28 @@ describe("AI form drafting", () => {
     expect(button()?.disabled).toBe(false);
   });
 
+  it("reports failed form saves without discarding edits and clears the error on retry", async () => {
+    vi.mocked(saveFormSchema)
+      .mockRejectedValueOnce(new Error("Storage failed"))
+      .mockResolvedValueOnce(undefined);
+    const { container, schema } = await mount(draft);
+    const save = () =>
+      container.querySelector<HTMLButtonElement>(
+        '[data-testid="form-editor-save-button"]',
+      )!;
+    save().click();
+    await vi.waitFor(() =>
+      expect(container.querySelector('[role="alert"]')?.textContent).toContain(
+        "Could not save the form",
+      ),
+    );
+    expect(schema()).toEqual(draft);
+    expect(save().className).toContain("btn-yellow");
+    save().click();
+    await vi.waitFor(() => expect(save().className).toContain("btn-blue"));
+    expect(container.querySelector('[role="alert"]')).toBeNull();
+  });
+
   it("prevents duplicate form saves and keeps edits made during a save unsaved", async () => {
     let finishSave!: () => void;
     vi.mocked(saveFormSchema).mockReturnValueOnce(
