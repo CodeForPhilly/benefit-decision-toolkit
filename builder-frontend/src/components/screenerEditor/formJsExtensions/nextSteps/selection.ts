@@ -38,7 +38,10 @@ export function firstVisibleNextSteps(
       )
         continue;
       if (field.type === NEXT_STEPS_TYPE) return field;
-      if (!formFields.get(field.type)?.config.repeatable) {
+      if (
+        !formFields.get(field.type)?.config.repeatable ||
+        !field.isRepeating
+      ) {
         const nested = find(field.components, context, indexes);
         if (nested) return nested;
         continue;

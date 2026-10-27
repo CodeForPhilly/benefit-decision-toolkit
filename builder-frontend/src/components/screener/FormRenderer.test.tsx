@@ -142,6 +142,58 @@ describe("FormRenderer host prefill", () => {
     expect(provider(results).benefit.body.text).toBe("Shown group");
   });
 
+  it("exports visible instructions from a dynamic list with repetition disabled", async () => {
+    const register = vi.fn();
+    const container = document.body.appendChild(document.createElement("div"));
+    dispose = render(
+      () => (
+        <FormRenderer
+          schema={{
+            type: "default",
+            id: "single-person",
+            schemaVersion: 18,
+            components: [
+              {
+                id: "person",
+                type: "dynamiclist",
+                path: "person",
+                isRepeating: false,
+                components: [
+                  {
+                    id: "show",
+                    type: "checkbox",
+                    key: "show",
+                    label: "Show instructions",
+                  },
+                  {
+                    id: "next",
+                    type: "next_steps",
+                    conditional: { hide: "=not(person.show)" },
+                    benefitContent: {
+                      benefit: {
+                        eligible: { body: "Single-person instructions" },
+                      },
+                    },
+                  },
+                ],
+              },
+            ],
+          }}
+          formData={() => ({ person: { show: true } })}
+          hiddenQuestionPaths={() => []}
+          submitForm={() => {}}
+          registerNextStepsProvider={register}
+        />
+      ),
+      container,
+    );
+    await vi.waitFor(() => expect(register).toHaveBeenCalledOnce());
+    const exported = register.mock.calls[0][0]({
+      benefit: { name: "Benefit", result: "TRUE", check_results: {} },
+    });
+    expect(exported.benefit.body.text).toBe("Single-person instructions");
+  });
+
   it.each([
     [[{ show: false }, { show: true }], "Per item"],
     [[{ show: false }], undefined],
