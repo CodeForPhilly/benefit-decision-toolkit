@@ -1,6 +1,6 @@
 import { Accessor, Component, createEffect, ParentProps, Show } from "solid-js";
 import { Portal } from "solid-js/web";
-import { CircleX } from "lucide-solid";
+import CircleX from "lucide-solid/icons/circle-x";
 
 import styles from "./Modal.module.css";
 

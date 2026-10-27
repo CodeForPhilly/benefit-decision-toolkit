@@ -6,7 +6,7 @@ import { HamburgerMenu } from "@/components/shared/HamburgerMenu";
 import ANavBar from "@/components/shared/ANavbar";
 
 import "./Header.css";
-import { Menu } from "lucide-solid";
+import Menu from "lucide-solid/icons/menu";
 import { Button } from "@/components/shared/Button";
 import { Modal } from "@/components/shared/Modal";
 import { ExportExampleScreener } from "@/components/Header/ExportExampleScreener";
