@@ -3,7 +3,7 @@ import { render } from "preact";
 import { useContext, useState } from "preact/hooks";
 import { FormContext, iconsByType, Text } from "@bpmn-io/form-js-viewer";
 import { NextStepsBody, type NextStepsField } from "../nextSteps/NextSteps";
-import { NEXT_STEPS_TYPE } from "../nextSteps/content";
+import { NEXT_STEPS_TYPE, webLink } from "../nextSteps/content";
 import type { ScreeningResultsSnapshot } from "../screeningResults/screeningResults";
 import { useScreeningResults } from "../screeningResults/useScreeningResults";
 import "./printSummary.css";
@@ -23,9 +23,13 @@ const decode = (value: string) => {
 
 /** What a printed link must add so a paper copy still works, if anything. */
 function printedDestination(link: HTMLAnchorElement): string | undefined {
-  if (["http:", "https:"].includes(link.protocol)) return link.href;
+  // Nothing to add when the link text already shows the destination.
+  if (["http:", "https:"].includes(link.protocol))
+    return webLink(link.textContent?.trim()) === webLink(link.href)
+      ? undefined
+      : link.href;
   if (!["mailto:", "tel:"].includes(link.protocol)) return;
-  // Print the address or number alone, unless the link text already shows it.
+  // Print the address or number alone.
   const contact = decode(link.pathname);
   const shown =
     link.protocol === "tel:"

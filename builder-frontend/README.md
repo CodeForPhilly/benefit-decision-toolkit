@@ -68,7 +68,8 @@ It respects that component's `showWhen` setting. Without a Next steps component,
 it prints decisions and unmet requirements without application instructions.
 
 The print renderer shares the on-screen Next steps renderer and adds full HTTP(S)
-URLs, email addresses and phone numbers next to link text. Printing hides the rest of the page and excludes answers.
+URLs, email addresses and phone numbers next to link text that doesn't already
+show them. Printing hides the rest of the page and excludes answers.
 It uses no PDF service or upload, and removes the temporary print tree after the
 dialog closes. Printing is disabled for editor samples and while evaluations are
 pending or failed. Use Preview to print real results while building a screener.
