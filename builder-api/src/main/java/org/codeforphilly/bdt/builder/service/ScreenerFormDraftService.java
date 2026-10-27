@@ -154,7 +154,7 @@ public class ScreenerFormDraftService {
         ObjectNode content = nextSteps.putObject("benefitContent");
         for (Benefit benefit : benefits) {
             // Matches copyBenefitContent in the editor: a loaded benefit without content copies as
-            // empty, and only benefits whose content was never copied are flagged as missing.
+            // empty. The editor flags missing or empty content for the analyst to review.
             content.set(benefit.getId(), benefit.getNextSteps() == null
                 ? objectMapper.createObjectNode()
                 : objectMapper.valueToTree(benefit.getNextSteps()));

@@ -79,8 +79,8 @@ AI-drafted schemas append Next steps (`whenDecided`) and Print summary after the
 questions. The server copies benefit content into the schema after generation;
 the model neither receives nor generates application instructions or contacts.
 As when an analyst places the component, a benefit without configured next-steps
-content is copied as empty. The editor warns only about benefits whose content
-was never copied.
+content is copied as empty. The editor warns about missing or empty content so
+analysts can add instructions before publishing.
 
 ## Next steps component
 

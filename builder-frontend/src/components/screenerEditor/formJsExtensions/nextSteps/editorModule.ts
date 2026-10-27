@@ -1,5 +1,9 @@
 import { html } from "htm/preact";
-import { NEXT_STEPS_TYPE, copyBenefitContent } from "./content";
+import {
+  NEXT_STEPS_TYPE,
+  copyBenefitContent,
+  hasNextStepsContent,
+} from "./content";
 import type { Benefit, BenefitDetail } from "@/types";
 
 /** Editor-only wiring. Imports and duplicates retain their saved per-screener copy. */
@@ -79,7 +83,9 @@ export function nextStepsEditorModule(options: {
                     .benefits()
                     .some(
                       (benefit) =>
-                        !Object.hasOwn(field.benefitContent ?? {}, benefit.id),
+                        !hasNextStepsContent(
+                          field.benefitContent?.[benefit.id],
+                        ),
                     ) &&
                   html`<p role="alert">
                     Some benefits have no content in this component. Edit

@@ -296,3 +296,20 @@ it("skips Next steps components hidden by a condition", async () => {
   expect(text).toContain("Shown instructions");
   expect(text).not.toContain("Bring ID");
 });
+
+it("removes the print tree when navigating away even without afterprint", async () => {
+  const { button, service } = await mount();
+  service.update(results, false);
+  await vi.waitFor(() => expect(button.disabled).toBe(false));
+  vi.spyOn(window, "print").mockImplementation(() => {});
+  button.click();
+  expect(document.querySelector(".bdt-print-root")).not.toBeNull();
+  await form.importSchema({
+    id: "next-person",
+    type: "default",
+    schemaVersion: 18,
+    components: [],
+  });
+  expect(document.querySelector(".bdt-print-root")).toBeNull();
+  expect(document.body.classList.contains("bdt-printing")).toBe(false);
+});

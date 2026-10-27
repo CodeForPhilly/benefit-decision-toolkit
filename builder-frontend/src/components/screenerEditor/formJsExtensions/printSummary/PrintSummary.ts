@@ -1,6 +1,6 @@
 import { html } from "htm/preact";
 import { render } from "preact";
-import { useContext, useState } from "preact/hooks";
+import { useContext, useLayoutEffect, useRef, useState } from "preact/hooks";
 import { FormContext, iconsByType, Text } from "@bpmn-io/form-js-viewer";
 import { NextStepsBody, type NextStepsField } from "../nextSteps/NextSteps";
 import { NEXT_STEPS_TYPE, webLink } from "../nextSteps/content";
@@ -43,6 +43,9 @@ export function PrintSummary() {
   const context = useContext(FormContext);
   const snapshot = useScreeningResults();
   const [error, setError] = useState("");
+  const activePrint = useRef<(() => void) | undefined>();
+  // Navigating away must not leave a previous person's print tree on the page.
+  useLayoutEffect(() => () => activePrint.current?.(), []);
   const benefits = Object.entries(snapshot.results ?? {});
   const disabled =
     snapshot.mode === "editor" ||
@@ -99,6 +102,7 @@ export function PrintSummary() {
       window.removeEventListener("afterprint", cleanup);
       printMedia?.removeEventListener("change", onPrintMediaChange);
       if (endPrint === cleanup) endPrint = undefined;
+      if (activePrint.current === cleanup) activePrint.current = undefined;
     };
     try {
       render(
@@ -137,6 +141,7 @@ export function PrintSummary() {
       document.body.append(root);
       document.body.classList.add("bdt-printing");
       endPrint = cleanup;
+      activePrint.current = cleanup;
       // Mobile browsers return from print() before taking the snapshot, so
       // keep the print tree until the browser reports that printing ended.
       window.addEventListener("afterprint", cleanup);
