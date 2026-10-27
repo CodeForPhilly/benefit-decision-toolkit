@@ -150,9 +150,13 @@ export default function Screener() {
         <div class="flex flex-col lg:flex-row">
           <section class="flex-1 overflow-y-auto p-4">
             <FormRenderer
-              registerNextStepsProvider={(provider) => {
-                nextStepsProvider = provider;
-              }}
+              // Only a CRM host receives next steps; standalone screeners skip the projection.
+              registerNextStepsProvider={
+                bridge &&
+                ((provider) => {
+                  nextStepsProvider = provider;
+                })
+              }
               screenerName={() => screener()?.screenerName ?? ""}
               schema={screener()?.formSchema || {}}
               formData={formData}
