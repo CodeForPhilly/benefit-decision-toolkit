@@ -122,19 +122,20 @@ function appendNextSteps(item, steps, outcome) {
       paragraph(`Help phone: ${steps.help.phone}`);
     if (steps.body?.format === "markdown") paragraph(steps.body.text);
   } else {
-    if (Array.isArray(steps.unmetRequirements)) {
-      const list = document.createElement("ul");
-      for (const requirement of steps.unmetRequirements) {
-        if (typeof requirement !== "string") continue;
-        const li = document.createElement("li");
-        li.textContent = requirement;
-        list.append(li);
-      }
-      section.append(list);
+    const list = document.createElement("ul");
+    for (const requirement of Array.isArray(steps.unmetRequirements)
+      ? steps.unmetRequirements
+      : []) {
+      if (typeof requirement !== "string") continue;
+      const li = document.createElement("li");
+      li.textContent = requirement;
+      list.append(li);
     }
+    if (list.childElementCount) section.append(list);
     if (steps.note?.format === "markdown") paragraph(steps.note.text);
   }
-  item.append(section);
+  // Leave out a benefit with no usable saved content, rather than an empty region.
+  if (section.childElementCount) item.append(section);
 }
 
 function renderRecord() {
