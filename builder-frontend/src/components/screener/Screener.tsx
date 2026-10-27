@@ -102,12 +102,14 @@ export default function Screener() {
         data,
       );
       if (sequence !== evaluationSequence) return;
-      // Read visible content before setting results can re-import the form to hide questions.
-      const nextSteps = nextStepsProvider?.(evaluationResult);
       setScreenerResult(evaluationResult);
       setResultsStale(false);
       setEvaluationFailed(false);
-      bridge?.result(data, evaluationResult, nextSteps);
+      bridge?.result(
+        data,
+        evaluationResult,
+        nextStepsProvider?.(evaluationResult),
+      );
     } catch (err) {
       if (sequence !== evaluationSequence) return;
       setEvaluationFailed(true);

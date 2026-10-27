@@ -76,10 +76,7 @@ export function PrintSummary() {
     setError("");
     // Print what the person sees: skip Next steps hidden by a condition.
     const source: NextStepsField =
-      firstVisibleNextSteps(
-        context.getService("formFieldRegistry").getForm()?.components ?? [],
-        service.isNextStepsFieldShown,
-      ) ?? {};
+      firstVisibleNextSteps(context.getService) ?? {};
     const root = document.createElement("article");
     root.className = "bdt-print-root";
     const printMedia = window.matchMedia?.("print");

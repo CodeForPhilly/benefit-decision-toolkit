@@ -16,7 +16,6 @@ import {
   projectNextSteps,
   type NextStepsProvider,
 } from "@/integrations/nextSteps";
-import type { ScreeningResultsService } from "../screenerEditor/formJsExtensions/screeningResults/screeningResults";
 import type { ScreenerResult } from "@/types";
 import { hideQuestions } from "@/utils/questionVotes";
 import { normalizeArrayFieldData } from "@/utils/arrayFieldData";
@@ -108,16 +107,12 @@ function FormRenderer({
       .importSchema(hideQuestions(schema, hiddenQuestionPaths()), formData())
       .then(() => {
         if (disposed) return;
-        registerNextStepsProvider?.((results) => {
-          const service =
-            form!.get<ScreeningResultsService>("screeningResults");
-          const fields =
-            (form!.get("formFieldRegistry") as any).getForm()?.components ?? [];
-          return projectNextSteps(
+        registerNextStepsProvider?.((results) =>
+          projectNextSteps(
             results,
-            firstVisibleNextSteps(fields, service.isNextStepsFieldShown),
-          );
-        });
+            firstVisibleNextSteps((name) => form!.get(name)),
+          ),
+        );
         currentData = cloneDeep(form?._getState().data || formData());
         if (evaluateInitialData) {
           unknownPaths = findFilledUnknownPaths(formData(), currentData);
