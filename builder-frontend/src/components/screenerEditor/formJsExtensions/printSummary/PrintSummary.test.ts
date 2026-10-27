@@ -64,7 +64,8 @@ const schema = (showWhen = "whenDecided") => ({
         housing: {
           eligible: {
             applyUrl: "https://example.org/apply?program=housing",
-            body: "Bring **ID**. [Guide](https://example.org/guide)",
+            helpPhone: "(215) 555-0100",
+            body: "Bring **ID**. [Guide](https://example.org/guide) [Email us](mailto:help@example.org?subject=Housing) [Call us](tel:+12155550199)",
           },
         },
         food: { ineligible: { note: "Ask about other help." } },
@@ -116,6 +117,10 @@ it("prints current results and copied content with full URLs, without answers, a
     "https://example.org/apply?program=housing",
   );
   expect(root.textContent).toContain("https://example.org/guide");
+  expect(root.textContent).toContain("Email us (help@example.org)");
+  expect(root.textContent).toContain("Call us (+12155550199)");
+  expect(root.textContent).toContain("(215) 555-0100");
+  expect(root.textContent).not.toContain("2155550100");
   expect(root.querySelector("strong")?.textContent).toBe("ID");
   expect(root.textContent).not.toMatch(
     /Sensitive answer|Private answer|Removed instructions/,

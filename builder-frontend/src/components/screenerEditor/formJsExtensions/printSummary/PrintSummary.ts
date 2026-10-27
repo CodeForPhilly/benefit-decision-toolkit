@@ -13,6 +13,27 @@ export const PRINT_SUMMARY_TYPE = "print_summary";
 // Printing is page-wide, so at most one print tree exists at a time.
 let endPrint: (() => void) | undefined;
 
+const decode = (value: string) => {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+};
+
+/** What a printed link must add so a paper copy still works, if anything. */
+function printedDestination(link: HTMLAnchorElement): string | undefined {
+  if (["http:", "https:"].includes(link.protocol)) return link.href;
+  if (!["mailto:", "tel:"].includes(link.protocol)) return;
+  // Print the address or number alone, unless the link text already shows it.
+  const contact = decode(link.pathname);
+  const shown =
+    link.protocol === "tel:"
+      ? (value: string) => value.replace(/[^+\d]/g, "")
+      : (value: string) => value.trim().toLowerCase();
+  return shown(link.textContent ?? "") === shown(contact) ? undefined : contact;
+}
+
 /** A temporary, local-only print tree. It never receives the person's answers. */
 export function PrintSummary() {
   const context = useContext(FormContext);
@@ -93,16 +114,14 @@ export function PrintSummary() {
         root,
       );
       // Printed links need their full destination. Use text nodes, never HTML.
-      root
-        .querySelectorAll<HTMLAnchorElement>(
-          'a[href^="http:"] , a[href^="https:"]',
-        )
-        .forEach((link) => {
-          const url = document.createElement("span");
-          url.className = "bdt-print-url";
-          url.textContent = ` (${link.href})`;
-          link.after(url);
-        });
+      root.querySelectorAll<HTMLAnchorElement>("a[href]").forEach((link) => {
+        const destination = printedDestination(link);
+        if (!destination) return;
+        const url = document.createElement("span");
+        url.className = "bdt-print-url";
+        url.textContent = ` (${destination})`;
+        link.after(url);
+      });
       document.body.append(root);
       document.body.classList.add("bdt-printing");
       endPrint = cleanup;
