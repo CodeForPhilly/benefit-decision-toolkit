@@ -190,7 +190,9 @@ Every message is a plain object with these envelope fields:
 
 Version 1 includes an optional, additive `nextSteps` field. Existing hosts may
 ignore it; no protocol version change or new handshake is required. The host
-adapter forwards the field unchanged in both object and JSON message modes.
+adapter forwards the field unchanged in both object and JSON message modes. If
+`nextSteps` isn't an object, the adapter drops that field and still delivers the
+result.
 
 ```json
 {

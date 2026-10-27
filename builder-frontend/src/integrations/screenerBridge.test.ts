@@ -115,8 +115,15 @@ describe("published screener CRM bridge", () => {
       const last = serializeMessages
         ? JSON.parse(s.hostPost.mock.lastCall![0])
         : s.hostPost.mock.lastCall![0];
-      s.receive({ ...last, nextSteps: [] });
-      expect(onResult).toHaveBeenCalledOnce();
+      for (const malformed of [[], null, "Bring ID"]) {
+        s.receive(
+          serializeMessages
+            ? JSON.stringify({ ...last, nextSteps: malformed })
+            : { ...last, nextSteps: malformed },
+        );
+        expect(onResult.mock.lastCall![0]).toMatchObject({ results });
+        expect(onResult.mock.lastCall![0]).not.toHaveProperty("nextSteps");
+      }
       s.bridge.result({}, results);
       s.receive(s.hostPost.mock.lastCall![0]);
       expect(onResult.mock.lastCall![0]).not.toHaveProperty("nextSteps");

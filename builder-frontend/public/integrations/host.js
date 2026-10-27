@@ -143,13 +143,18 @@ export function createCrmIntegration({
       message.inputData &&
       typeof message.inputData === "object" &&
       !Array.isArray(message.inputData) &&
-      typeof message.evaluatedAt === "string" &&
-      (message.nextSteps === undefined ||
-        (message.nextSteps !== null &&
-          typeof message.nextSteps === "object" &&
-          !Array.isArray(message.nextSteps)))
+      typeof message.evaluatedAt === "string"
     ) {
-      onResult(message);
+      // nextSteps is optional: drop a malformed one, never the results.
+      const { nextSteps, ...rest } = message;
+      onResult(
+        nextSteps === undefined ||
+          (nextSteps &&
+            typeof nextSteps === "object" &&
+            !Array.isArray(nextSteps))
+          ? message
+          : rest,
+      );
     } else if (
       message.type === "error" &&
       ["SCREENER_UNAVAILABLE", "ORIGIN_NOT_ALLOWED"].includes(message.code)
