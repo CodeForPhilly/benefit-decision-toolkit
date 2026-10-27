@@ -77,6 +77,7 @@ function nextStepsView(steps, result) {
       note ||
       unmetRequirements.length
     ),
+    hasUnmetRequirements: unmetRequirements.length > 0,
     applyUrl,
     helpUrl,
     phone,

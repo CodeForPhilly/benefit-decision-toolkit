@@ -55,11 +55,13 @@
                         value={benefit.body}
                       ></lightning-formatted-text></p>
                     </template>
-                    <ul>
-                      <template for:each={benefit.unmetRequirements} for:item="requirement">
-                        <li key={requirement.id}>{requirement.name}</li>
-                      </template>
-                    </ul>
+                    <template lwc:if={benefit.hasUnmetRequirements}>
+                      <ul>
+                        <template for:each={benefit.unmetRequirements} for:item="requirement">
+                          <li key={requirement.id}>{requirement.name}</li>
+                        </template>
+                      </ul>
+                    </template>
                     <template lwc:if={benefit.note}>
                       <p><lightning-formatted-text
                         value={benefit.note}

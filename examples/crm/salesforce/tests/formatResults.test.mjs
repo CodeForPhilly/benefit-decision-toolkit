@@ -40,9 +40,11 @@ test("formats saved contacts, instructions and requirements while excluding unde
   assert.equal(view.benefits[0].applyUrl, "https://example.org/apply");
   assert.equal(view.benefits[0].body, "Bring **ID**.");
   assert.equal(view.benefits[0].phone, "215-555-0100");
+  assert.equal(view.benefits[0].hasUnmetRequirements, false);
   assert.deepEqual(view.benefits[1].unmetRequirements, [
     { id: "0", name: "Income limit" },
   ]);
+  assert.equal(view.benefits[1].hasUnmetRequirements, true);
   assert.equal(view.benefits[1].note, "Ask about other help.");
   assert.equal(view.benefits[2].hasNextSteps, undefined);
 });
