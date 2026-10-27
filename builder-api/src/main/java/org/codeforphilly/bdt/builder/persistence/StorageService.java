@@ -11,9 +11,9 @@ public interface StorageService {
 
     void writeStringToStorage(String filePath, String content, String contentType) throws Exception;
 
-    void writeBytesToStorage(String filePath, byte[] content, String contentType);
+    void writeBytesToStorage(String filePath, byte[] content, String contentType) throws Exception;
 
-    void writeJsonToStorage(String filePath, JsonNode json);
+    void writeJsonToStorage(String filePath, JsonNode json) throws Exception;
 
     Optional<InputStream> getFileInputStreamFromStorage(String filePath);
 

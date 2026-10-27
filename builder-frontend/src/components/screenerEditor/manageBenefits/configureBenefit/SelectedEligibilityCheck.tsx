@@ -10,7 +10,7 @@ import type {
   ParameterDefinition,
   ParameterValues,
 } from "@/types";
-import { PencilIcon } from "lucide-solid";
+import PencilIcon from "lucide-solid/icons/pencil";
 
 const SelectedEligibilityCheck = ({
   checkConfig,

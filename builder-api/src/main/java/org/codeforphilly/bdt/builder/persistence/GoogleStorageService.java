@@ -47,7 +47,7 @@ public class GoogleStorageService implements StorageService {
     }
 
     @Override
-    public void writeBytesToStorage(String filePath, byte[] content, String contentType){
+    public void writeBytesToStorage(String filePath, byte[] content, String contentType) throws Exception {
         try {
             BlobId blobId = BlobId.of(bucketName, filePath);
             BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
@@ -57,11 +57,12 @@ public class GoogleStorageService implements StorageService {
             Log.info("Uploaded to GCS: " + filePath);
         } catch (Exception e){
             Log.error("Error writing bytes to GCS: " + e.getMessage());
+            throw new Exception("Could not write file to cloud storage", e);
         }
     }
 
     @Override
-    public void writeJsonToStorage(String filePath, JsonNode json){
+    public void writeJsonToStorage(String filePath, JsonNode json) throws Exception {
         try {
             ObjectMapper mapper = new ObjectMapper();
             byte[] content = mapper.writeValueAsBytes(json);
@@ -73,6 +74,7 @@ public class GoogleStorageService implements StorageService {
             Log.info("Uploaded to GCS: " + filePath);
         } catch (Exception e){
             Log.error("Error writing JSON to GCS: " + e.getMessage());
+            throw new Exception("Could not save JSON to cloud storage", e);
         }
     }
 
@@ -189,7 +191,7 @@ public class GoogleStorageService implements StorageService {
             Log.info("Working form schema copied to published artifact path for screener: " + screenerId);
         } catch (Exception e) {
             Log.error("Error updating published form schema in cloud storage:", e);
-            throw new Exception("Error updating published form schema in cloud storage");
+            throw new Exception("Error updating published form schema in cloud storage", e);
         }
     }
 }

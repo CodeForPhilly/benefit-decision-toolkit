@@ -1,6 +1,6 @@
 import { Component, JSX, Show } from "solid-js";
 import { useHamburgerMenuContext } from "./HamburgerMenuWrapper";
-import { X } from "lucide-solid";
+import X from "lucide-solid/icons/x";
 
 interface Props {
   children: JSX.Element;

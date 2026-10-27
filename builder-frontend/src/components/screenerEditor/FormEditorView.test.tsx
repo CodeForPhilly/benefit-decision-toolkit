@@ -24,7 +24,12 @@ vi.mock("@bpmn-io/form-js-editor", () => ({
     }
     get(name: string) {
       if (name === "screeningResults") return editor.screeningResults;
-      return { on: vi.fn(), editFormField: vi.fn(), setOptions: vi.fn() };
+      return {
+        on: vi.fn(),
+        fire: vi.fn(),
+        editFormField: vi.fn(),
+        setOptions: vi.fn(),
+      };
     }
   },
 }));
@@ -123,6 +128,55 @@ describe("AI form drafting", () => {
     );
     expect(schema()).toEqual({ components: [] });
     expect(button()?.disabled).toBe(false);
+  });
+
+  it("reports failed form saves without discarding edits and clears the error on retry", async () => {
+    vi.mocked(saveFormSchema)
+      .mockRejectedValueOnce(new Error("Storage failed"))
+      .mockResolvedValueOnce(undefined);
+    const { container, schema } = await mount(draft);
+    const save = () =>
+      container.querySelector<HTMLButtonElement>(
+        '[data-testid="form-editor-save-button"]',
+      )!;
+    save().click();
+    await vi.waitFor(() =>
+      expect(container.querySelector('[role="alert"]')?.textContent).toContain(
+        "Could not save the form",
+      ),
+    );
+    expect(schema()).toEqual(draft);
+    expect(save().className).toContain("btn-yellow");
+    save().click();
+    await vi.waitFor(() => expect(save().className).toContain("btn-blue"));
+    expect(container.querySelector('[role="alert"]')).toBeNull();
+  });
+
+  it("prevents duplicate form saves and keeps edits made during a save unsaved", async () => {
+    let finishSave!: () => void;
+    vi.mocked(saveFormSchema).mockReturnValueOnce(
+      new Promise<void>((resolve) => {
+        finishSave = resolve;
+      }),
+    );
+    const { container } = await mount(draft);
+    editor.handlers.changed({ schema: draft });
+    const saveButton = () =>
+      container.querySelector<HTMLButtonElement>(
+        '[data-testid="form-editor-save-button"]',
+      )!;
+    saveButton().click();
+    expect(saveButton().disabled).toBe(true);
+    saveButton().click();
+    expect(saveFormSchema).toHaveBeenCalledTimes(1);
+    const newer = {
+      ...draft,
+      components: [...draft.components, { id: "next", type: "next_steps" }],
+    };
+    editor.handlers.changed({ schema: newer });
+    finishSave();
+    await vi.waitFor(() => expect(saveButton().disabled).toBe(false));
+    expect(saveButton().className).toContain("btn-yellow");
   });
 
   it("does not offer drafting on an existing form", async () => {

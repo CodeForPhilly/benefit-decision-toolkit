@@ -299,4 +299,44 @@ test.describe("Screener Builder Tests", () => {
       ).toBeVisible();
     });
   });
+
+  test("publishing an unsaved form explains how to recover", async ({
+    page,
+  }) => {
+    await seedScreenerWithConfiguredBenefit();
+    await page.goto(`/screeners/${TEST_SCREENER_ID}`);
+    await navigateToPublish(page);
+    await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.url().endsWith("/api/publish") && response.status() === 400,
+      ),
+      publishScreener(page),
+    ]);
+    await expect(page.getByRole("alert")).toHaveText(
+      "Save the form in Form Editor before publishing.",
+    );
+    await expect(page.locator("#screener-url-info a[href]")).toHaveCount(0);
+    await expect(page.locator("#screener-last-published-info")).toContainText(
+      "Not yet published",
+    );
+
+    await navigateToFormEditor(page);
+    await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.url().includes("/api/save-form-schema?") &&
+          response.request().method() === "POST" &&
+          response.ok(),
+      ),
+      createFormWithCheckbox(page),
+    ]);
+    await navigateToPublish(page);
+    await publishScreener(page);
+    await expect(page.locator("#screener-url-info a[href]")).toHaveAttribute(
+      "href",
+      /\/screener\/.+/,
+    );
+    await expect(page.getByRole("alert")).toHaveCount(0);
+  });
 });

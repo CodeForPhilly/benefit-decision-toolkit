@@ -106,7 +106,7 @@ export const saveFormSchema = async (screenerId: string, schema: any) => {
     const response = await authPost(url.toString(), requestData);
 
     if (!response.ok) {
-      throw new Error(`Post failed with status: ${response.status}`);
+      throw await apiErrorFrom(response, "Could not save the form");
     }
   } catch (error) {
     console.error("Error saving form schema:", error);
@@ -131,7 +131,7 @@ export const publishScreener = async (screenerId: string): Promise<void> => {
     const response = await authPost(url, { screenerId: screenerId });
 
     if (!response.ok) {
-      throw new Error(`Submit failed with status: ${response.status}`);
+      throw await apiErrorFrom(response, "Could not publish the screener");
     }
   } catch (error) {
     console.error("Error submitting form:", error);
