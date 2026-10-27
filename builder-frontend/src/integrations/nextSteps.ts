@@ -61,7 +61,9 @@ export function projectNextSteps(
               ? []
               : Object.values(benefit.check_results ?? {})
                   .filter((check) => check.result === "FALSE")
-                  .map((check) => check.aliasName?.trim() || check.name),
+                  .map((check) => check.aliasName?.trim() || check.name)
+                  // An unnamed check has nothing to show the host.
+                  .filter((name): name is string => !!name?.trim()),
             note: eligible ? null : markdown(content?.ineligible?.note),
           },
         ],

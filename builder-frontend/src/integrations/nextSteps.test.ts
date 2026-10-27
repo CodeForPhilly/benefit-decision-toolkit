@@ -11,6 +11,7 @@ const results: ScreenerResult = {
       a: { result: "FALSE", name: "Income", aliasName: "Income limit" } as any,
       b: { result: "FALSE", name: "Residence", aliasName: " " } as any,
       c: { result: "TRUE", name: "Other requirement" } as any,
+      d: { result: "FALSE", aliasName: " " } as any,
     },
   },
   utility: {
