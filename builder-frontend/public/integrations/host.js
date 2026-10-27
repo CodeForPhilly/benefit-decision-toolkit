@@ -143,7 +143,11 @@ export function createCrmIntegration({
       message.inputData &&
       typeof message.inputData === "object" &&
       !Array.isArray(message.inputData) &&
-      typeof message.evaluatedAt === "string"
+      typeof message.evaluatedAt === "string" &&
+      (message.nextSteps === undefined ||
+        (message.nextSteps !== null &&
+          typeof message.nextSteps === "object" &&
+          !Array.isArray(message.nextSteps)))
     ) {
       onResult(message);
     } else if (

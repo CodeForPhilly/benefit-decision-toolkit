@@ -32,6 +32,41 @@
                   <h3>{benefit.name}</h3>
                   <span class={benefit.statusClass}>{benefit.status}</span>
                 </div>
+                <template lwc:if={benefit.hasNextSteps}>
+                  <section class="next-steps" aria-label="Saved next steps">
+                    <h4>Next steps</h4>
+                    <template lwc:if={benefit.applyUrl}>
+                      <p><lightning-formatted-url value={benefit.applyUrl}
+                        label="Apply for this benefit" target="_blank"
+                      ></lightning-formatted-url></p>
+                    </template>
+                    <template lwc:if={benefit.helpUrl}>
+                      <p><lightning-formatted-url value={benefit.helpUrl}
+                        label="Get help" target="_blank"
+                      ></lightning-formatted-url></p>
+                    </template>
+                    <template lwc:if={benefit.phone}>
+                      <p>Help phone: <lightning-formatted-text
+                        value={benefit.phone}
+                      ></lightning-formatted-text></p>
+                    </template>
+                    <template lwc:if={benefit.body}>
+                      <p><lightning-formatted-text
+                        value={benefit.body}
+                      ></lightning-formatted-text></p>
+                    </template>
+                    <ul>
+                      <template for:each={benefit.unmetRequirements} for:item="requirement">
+                        <li key={requirement.id}>{requirement.name}</li>
+                      </template>
+                    </ul>
+                    <template lwc:if={benefit.note}>
+                      <p><lightning-formatted-text
+                        value={benefit.note}
+                      ></lightning-formatted-text></p>
+                    </template>
+                  </section>
+                </template>
                 <template lwc:if={benefit.hasChecks}>
                   <details class="check-details">
                     <summary>{benefit.checksLabel}</summary>

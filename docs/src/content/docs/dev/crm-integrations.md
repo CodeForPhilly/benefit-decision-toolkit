@@ -101,6 +101,7 @@ const connection = createCrmIntegration({
       screenerId: message.screenerId,
       evaluatedAt: message.evaluatedAt,
       results: message.results,
+      nextSteps: message.nextSteps,
     });
   },
   onError: () => showEvaluationError(),
@@ -181,9 +182,52 @@ Every message is a plain object with these envelope fields:
 | Screener → host | `ready`       | Repeated until initialized; send prefill for this `sessionId` |
 | Host → screener | `initialize`  | `inputData`: a JSON form-data object; use `{}` for no prefill |
 | Screener → host | `initialized` | Prefill accepted; form loads and evaluates                    |
-| Screener → host | `result`      | `inputData`, `results`, `evaluatedAt` (ISO 8601 timestamp)    |
+| Screener → host | `result`      | `inputData`, `results`, `evaluatedAt` (ISO 8601 timestamp), optional `nextSteps`    |
 | Screener → host | `error`       | `code`: see below                                             |
 | Host → screener | `disconnect`  | Host closed the connection; screener stops and says so        |
+
+### Next steps in result messages
+
+Version 1 includes an optional, additive `nextSteps` field. Existing hosts may
+ignore it; no protocol version change or new handshake is required. The host
+adapter forwards the field unchanged in both object and JSON message modes.
+
+```json
+{
+  "nextSteps": {
+    "benefit-id": {
+      "status": "eligible",
+      "applyUrl": "https://example.org/apply",
+      "help": { "url": "https://example.org/help", "phone": "215-555-0100" },
+      "body": { "format": "markdown", "text": "Bring **proof of residence**." },
+      "unmetRequirements": [],
+      "note": null
+    }
+  }
+}
+```
+
+Only decided benefits are included, keyed by their evaluation benefit IDs.
+Eligible entries contain application/help contacts and `body`; ineligible entries
+have `status: "ineligible"`, `unmetRequirements` (the failed checks' display names),
+and `note` with the same `{ format: "markdown", text }` structure. Unused contacts
+and text fields are `null`; unused requirements are an empty array. Missing
+instructions remain empty rather than being invented.
+
+Content comes from the first **visible** Next steps component in schema order,
+including nested groups, just like printing. It uses the screener's saved copy,
+not current benefit defaults or content in an evaluation response. Hidden
+components are skipped. If none is visible, `nextSteps` is omitted. If the
+component uses `whenComplete`, `nextSteps` is `{}` until every benefit is decided.
+As with `results`, each new message replaces the previous snapshot: an omitted
+field or empty object must clear any previous instructions in the host.
+
+The payload contains structured data, never rendered HTML. Treat Markdown as
+untrusted content: display it as plain text (as the examples do), or use a
+sanitizing Markdown renderer. Validate links before making them clickable. The
+screener emits only HTTP(S) application/help URLs, but hosts must still validate
+any saved snapshot they read. Save `nextSteps` alongside `results` only when the
+user chooses to save; the protocol does not change persistence authorization.
 
 The screener repeats `ready` about every 500 ms until it's initialized, so a
 host that starts listening late still connects. Ignore repeated `ready` messages

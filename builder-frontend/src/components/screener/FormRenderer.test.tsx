@@ -31,6 +31,56 @@ describe("FormRenderer host prefill", () => {
     document.body.innerHTML = "";
   });
 
+  it("exports only the currently visible saved content and unregisters on unmount", async () => {
+    const register = vi.fn();
+    const container = document.body.appendChild(document.createElement("div"));
+    dispose = render(
+      () => (
+        <FormRenderer
+          schema={{
+            type: "default",
+            id: "next-steps-form",
+            schemaVersion: 18,
+            components: [
+              {
+                id: "show",
+                type: "checkbox",
+                key: "show",
+                label: "Show instructions",
+              },
+              {
+                id: "next",
+                type: "next_steps",
+                conditional: { hide: "=not(show)" },
+                benefitContent: {
+                  benefit: { eligible: { body: "Saved instructions" } },
+                },
+              },
+            ],
+          }}
+          formData={() => ({ show: true })}
+          hiddenQuestionPaths={() => []}
+          submitForm={() => {}}
+          registerNextStepsProvider={register}
+        />
+      ),
+      container,
+    );
+    await vi.waitFor(() => expect(register).toHaveBeenCalledOnce());
+    const results = {
+      benefit: { name: "Benefit", result: "TRUE" as const, check_results: {} },
+    };
+    const provider = register.mock.calls[0][0];
+    expect(provider(results).benefit.body.text).toBe("Saved instructions");
+    container
+      .querySelector<HTMLInputElement>('input[type="checkbox"]')!
+      .click();
+    await vi.waitFor(() => expect(provider(results)).toBeUndefined());
+    dispose();
+    dispose = undefined;
+    expect(register).toHaveBeenLastCalledWith(undefined);
+  });
+
   it("evaluates unknown host answers as null until the user answers them", async () => {
     const submitForm = vi.fn();
     const container = document.body.appendChild(document.createElement("div"));

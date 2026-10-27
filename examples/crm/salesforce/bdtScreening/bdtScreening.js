@@ -146,6 +146,7 @@ export default class BdtScreening extends LightningElement {
       requestId: message.requestId,
       evaluatedAt: message.evaluatedAt,
       results: message.results,
+      nextSteps: message.nextSteps,
     });
     if (snapshot.length > 131072) {
       this.status =

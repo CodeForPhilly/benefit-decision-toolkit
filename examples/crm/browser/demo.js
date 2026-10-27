@@ -76,6 +76,67 @@ function renderTime(id, value) {
   }
 }
 
+// Render Markdown as plain text in this dependency-free demo; never inject HTML.
+function appendNextSteps(item, steps, outcome) {
+  if (
+    !steps ||
+    !["eligible", "ineligible"].includes(outcome) ||
+    steps.status !== outcome
+  )
+    return;
+  const section = document.createElement("section");
+  section.setAttribute("aria-label", "Saved next steps");
+  const paragraph = (value) => {
+    if (typeof value !== "string" || !value.trim()) return;
+    const p = document.createElement("p");
+    p.className = "instructions";
+    p.textContent = value;
+    section.append(p);
+  };
+  const link = (value, label) => {
+    if (typeof value !== "string") return;
+    try {
+      const url = new URL(value);
+      if (
+        !["http:", "https:"].includes(url.protocol) ||
+        url.username ||
+        url.password
+      )
+        return;
+      const a = document.createElement("a");
+      a.href = url.href;
+      a.textContent = label;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      const p = document.createElement("p");
+      p.append(a);
+      section.append(p);
+    } catch {
+      /* Ignore invalid saved URLs. */
+    }
+  };
+  if (outcome === "eligible") {
+    link(steps.applyUrl, "Apply for this benefit");
+    link(steps.help?.url, "Get help");
+    if (typeof steps.help?.phone === "string")
+      paragraph(`Help phone: ${steps.help.phone}`);
+    if (steps.body?.format === "markdown") paragraph(steps.body.text);
+  } else {
+    if (Array.isArray(steps.unmetRequirements)) {
+      const list = document.createElement("ul");
+      for (const requirement of steps.unmetRequirements) {
+        if (typeof requirement !== "string") continue;
+        const li = document.createElement("li");
+        li.textContent = requirement;
+        list.append(li);
+      }
+      section.append(list);
+    }
+    if (steps.note?.format === "markdown") paragraph(steps.note.text);
+  }
+  item.append(section);
+}
+
 function renderRecord() {
   // Read the stored record, rather than displaying the latest unsaved message.
   const snapshot = readRecord().screening;
@@ -106,6 +167,15 @@ function renderRecord() {
     status.className = `outcome ${outcome.style}`;
     status.textContent = outcome.label;
     item.append(name, status);
+    appendNextSteps(
+      item,
+      snapshot.nextSteps?.[id],
+      benefit.result === "TRUE"
+        ? "eligible"
+        : benefit.result === "FALSE"
+          ? "ineligible"
+          : "unknown",
+    );
     element("saved-results").append(item);
   }
 }
@@ -182,6 +252,7 @@ element("save").addEventListener("click", () => {
           evaluatedAt: latest.evaluatedAt,
           savedAt: new Date().toISOString(),
           results: latest.results,
+          nextSteps: latest.nextSteps,
         },
       }),
     );

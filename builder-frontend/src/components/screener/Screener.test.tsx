@@ -55,11 +55,15 @@ vi.mock("./FormRenderer", () => ({
     return (
       <>
         <button
-          onClick={() => props.submitForm({ custom: { householdIncome: 50000 } })}
+          onClick={() =>
+            props.submitForm({ custom: { householdIncome: 50000 } })
+          }
         >
           Change answer
         </button>
-        <button onClick={() => props.onDataChange?.()}>Edit before submit</button>
+        <button onClick={() => props.onDataChange?.()}>
+          Edit before submit
+        </button>
       </>
     );
   },
@@ -115,6 +119,7 @@ describe("published screener integration lifecycle", () => {
     expect(integration.result).toHaveBeenLastCalledWith(
       { custom: { householdIncome: 50000 } },
       result("FALSE"),
+      undefined,
     );
     old.resolve(result("TRUE"));
     await old.promise;

@@ -124,3 +124,19 @@
   font-size: 0.75rem;
   overflow-wrap: anywhere;
 }
+
+.next-steps {
+  margin-top: 0.75rem;
+  overflow-wrap: anywhere;
+}
+.next-steps h4 {
+  font-weight: 600;
+}
+.next-steps p {
+  margin-top: 0.5rem;
+  white-space: pre-wrap;
+}
+.next-steps ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}

@@ -1,5 +1,6 @@
 import type { ScreenerResult } from "@/types";
 import { isUnsafeObjectKey } from "@/utils/unsafeObjectKeys";
+import type { CrmNextSteps } from "./nextSteps";
 
 const CHANNEL = "bdt.crm";
 const VERSION = 1;
@@ -28,7 +29,11 @@ export interface ScreeningBridge {
   readonly origin: string;
   start(): void;
   dispose(): void;
-  result(inputData: Record<string, unknown>, results: ScreenerResult): void;
+  result(
+    inputData: Record<string, unknown>,
+    results: ScreenerResult,
+    nextSteps?: CrmNextSteps,
+  ): void;
   error(): void;
   /** Call before start(): answer the host's initialize with this error, then stop. */
   fail(code: ConnectionFailure): void;
@@ -169,11 +174,12 @@ export function createScreeningBridge(
       }, CONNECT_TIMEOUT_MS);
     },
     dispose,
-    result(inputData, results) {
+    result(inputData, results, nextSteps) {
       if (requestId)
         send("result", {
           inputData,
           results,
+          ...(nextSteps === undefined ? {} : { nextSteps }),
           evaluatedAt: new Date().toISOString(),
         });
     },

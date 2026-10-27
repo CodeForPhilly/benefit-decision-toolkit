@@ -25,6 +25,7 @@ import {
   getUnneededQuestionPaths,
   haveSameQuestionPaths,
 } from "@/utils/questionVotes";
+import type { NextStepsProvider } from "@/integrations/nextSteps";
 import { createScreeningBridge } from "@/integrations/screenerBridge";
 
 export default function Screener() {
@@ -51,6 +52,7 @@ export default function Screener() {
   });
   const [integrationReady, setIntegrationReady] = createSignal(!bridge);
   let evaluationSequence = 0;
+  let nextStepsProvider: NextStepsProvider | undefined;
   // Start once the screener loads, so the host's origin can be checked against
   // the origins its builder allowed. Only an allowed host gets answers.
   let bridgeStarted = false;
@@ -100,10 +102,12 @@ export default function Screener() {
         data,
       );
       if (sequence !== evaluationSequence) return;
+      // Read visible content before setting results can re-import the form to hide questions.
+      const nextSteps = nextStepsProvider?.(evaluationResult);
       setScreenerResult(evaluationResult);
       setResultsStale(false);
       setEvaluationFailed(false);
-      bridge?.result(data, evaluationResult);
+      bridge?.result(data, evaluationResult, nextSteps);
     } catch (err) {
       if (sequence !== evaluationSequence) return;
       setEvaluationFailed(true);
@@ -144,6 +148,9 @@ export default function Screener() {
         <div class="flex flex-col lg:flex-row">
           <section class="flex-1 overflow-y-auto p-4">
             <FormRenderer
+              registerNextStepsProvider={(provider) => {
+                nextStepsProvider = provider;
+              }}
               screenerName={() => screener()?.screenerName ?? ""}
               schema={screener()?.formSchema || {}}
               formData={formData}

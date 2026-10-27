@@ -79,6 +79,51 @@ afterEach(() => {
 });
 
 describe("published screener CRM bridge", () => {
+  it.each([false, true])(
+    "round-trips optional next steps without changing protocol version (JSON=%s)",
+    (serializeMessages) => {
+      const s = setup();
+      const onResult = vi.fn();
+      const host = createCrmIntegration({
+        screenerUrl: "https://bdt.example/screener/published-id",
+        getTargetWindow: () => s.child as any,
+        initialData: {},
+        requestId: "request-1",
+        serializeMessages,
+        onResult,
+        hostWindow: s.host as any,
+      });
+      s.bridge.start();
+      s.receive(s.hostPost.mock.calls[0][0]);
+      s.send(s.childPost.mock.calls[0][0]);
+      s.receive(s.hostPost.mock.calls[1][0]);
+      const nextSteps = {
+        benefit: {
+          status: "eligible" as const,
+          applyUrl: null,
+          help: { url: null, phone: null },
+          body: { format: "markdown" as const, text: "Bring **ID**." },
+          unmetRequirements: [],
+          note: null,
+        },
+      };
+      s.bridge.result({}, results, nextSteps);
+      s.receive(s.hostPost.mock.lastCall![0]);
+      expect(onResult).toHaveBeenLastCalledWith(
+        expect.objectContaining({ version: 1, nextSteps }),
+      );
+      const last = serializeMessages
+        ? JSON.parse(s.hostPost.mock.lastCall![0])
+        : s.hostPost.mock.lastCall![0];
+      s.receive({ ...last, nextSteps: [] });
+      expect(onResult).toHaveBeenCalledOnce();
+      s.bridge.result({}, results);
+      s.receive(s.hostPost.mock.lastCall![0]);
+      expect(onResult.mock.lastCall![0]).not.toHaveProperty("nextSteps");
+      host.dispose();
+      s.bridge.dispose();
+    },
+  );
   it("repeats ready until a host initializes it", () => {
     const s = setup();
     s.bridge.start();

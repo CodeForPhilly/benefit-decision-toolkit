@@ -28,6 +28,64 @@ function checkName(check) {
     .trim();
 }
 
+function safeUrl(value) {
+  if (typeof value !== "string") return null;
+  try {
+    const url = new URL(value);
+    return ["http:", "https:"].includes(url.protocol) &&
+      !url.username &&
+      !url.password
+      ? url.href
+      : null;
+  } catch {
+    return null;
+  }
+}
+function markdownText(value) {
+  return isObject(value) &&
+    value.format === "markdown" &&
+    typeof value.text === "string"
+    ? value.text
+    : "";
+}
+function nextStepsView(steps, result) {
+  if (
+    !isObject(steps) ||
+    (result !== "TRUE" && result !== "FALSE") ||
+    steps.status !== (result === "TRUE" ? "eligible" : "ineligible")
+  )
+    return {};
+  const eligible = result === "TRUE";
+  const applyUrl = eligible ? safeUrl(steps.applyUrl) : null;
+  const helpUrl = eligible ? safeUrl(steps.help?.url) : null;
+  const phone =
+    eligible && typeof steps.help?.phone === "string" ? steps.help.phone : "";
+  const body = eligible ? markdownText(steps.body) : "";
+  const note = eligible ? "" : markdownText(steps.note);
+  const unmetRequirements =
+    !eligible && Array.isArray(steps.unmetRequirements)
+      ? steps.unmetRequirements
+          .filter((item) => typeof item === "string")
+          .map((name, index) => ({ id: String(index), name }))
+      : [];
+  return {
+    hasNextSteps: !!(
+      applyUrl ||
+      helpUrl ||
+      phone ||
+      body ||
+      note ||
+      unmetRequirements.length
+    ),
+    applyUrl,
+    helpUrl,
+    phone,
+    body,
+    note,
+    unmetRequirements,
+  };
+}
+
 export function formatSavedResults(raw) {
   const snapshot = JSON.parse(raw);
   if (!isObject(snapshot) || !isObject(snapshot.results))
@@ -64,6 +122,7 @@ export function formatSavedResults(raw) {
       checks,
       hasChecks: checks.length > 0,
       checksLabel: `View checks (${checks.length})`,
+      ...nextStepsView(snapshot.nextSteps?.[id], benefit.result),
     };
   });
   const timestamp =
