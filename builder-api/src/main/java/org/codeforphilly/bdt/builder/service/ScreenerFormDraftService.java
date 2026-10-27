@@ -153,10 +153,11 @@ public class ScreenerFormDraftService {
         nextSteps.putObject("layout").put("row", "Row_draft_next_steps");
         ObjectNode content = nextSteps.putObject("benefitContent");
         for (Benefit benefit : benefits) {
-            // Omit missing content so the editor can flag it for the analyst.
-            if (benefit.getNextSteps() != null) {
-                content.set(benefit.getId(), objectMapper.valueToTree(benefit.getNextSteps()));
-            }
+            // Matches copyBenefitContent in the editor: a loaded benefit without content copies as
+            // empty, and only benefits whose content was never copied are flagged as missing.
+            content.set(benefit.getId(), benefit.getNextSteps() == null
+                ? objectMapper.createObjectNode()
+                : objectMapper.valueToTree(benefit.getNextSteps()));
         }
         ObjectNode printSummary = components.addObject();
         printSummary.put("id", "Field_draft_print_summary").put("type", "print_summary");

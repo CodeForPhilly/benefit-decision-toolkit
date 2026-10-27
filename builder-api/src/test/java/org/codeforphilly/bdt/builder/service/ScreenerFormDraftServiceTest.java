@@ -205,7 +205,7 @@ class ScreenerFormDraftServiceTest {
         assertEquals("next_steps", next.path("type").asText());
         assertEquals("whenDecided", next.path("showWhen").asText());
         assertEquals(mapper.valueToTree(content), next.path("benefitContent").get(configured.get(0).getId()));
-        assertFalse(next.path("benefitContent").has(configured.get(1).getId()));
+        assertEquals(mapper.createObjectNode(), next.path("benefitContent").get(configured.get(1).getId()));
         assertEquals("print_summary", components.get(5).path("type").asText());
         assertFalse(next.has("key"));
         assertFalse(components.get(5).has("key"));

@@ -78,8 +78,9 @@ pending or failed. Use Preview to print real results while building a screener.
 AI-drafted schemas append Next steps (`whenDecided`) and Print summary after the
 questions. The server copies benefit content into the schema after generation;
 the model neither receives nor generates application instructions or contacts.
-Benefits without configured next-steps content remain missing so the editor can
-warn the analyst.
+As when an analyst places the component, a benefit without configured next-steps
+content is copied as empty. The editor warns only about benefits whose content
+was never copied.
 
 ## Next steps component
 
