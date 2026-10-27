@@ -165,4 +165,6 @@ PrintSummary.config = {
   name: "Print summary",
   icon: iconsByType("button"),
   propertiesPanelEntries: [],
+  // Text's create would add placeholder text this field never shows.
+  create: (options = {}) => ({ ...options }),
 };

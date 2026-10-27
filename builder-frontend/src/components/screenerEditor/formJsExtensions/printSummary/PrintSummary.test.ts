@@ -3,6 +3,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { Form } from "@bpmn-io/form-js-viewer";
 import { FormEditor } from "@bpmn-io/form-js-editor";
 import CustomFormFieldsModule from "../customFormFields";
+import { PrintSummary } from "./PrintSummary";
 import {
   screeningResultsModule,
   ScreeningResultsService,
@@ -215,6 +216,7 @@ it("is available in the editor palette, survives save, and does not print sample
   expect((form as FormEditor).saveSchema().components.at(-1).type).toBe(
     "print_summary",
   );
+  expect(PrintSummary.config.create({ id: "new" })).toEqual({ id: "new" });
 });
 
 it("checks for stale results again when clicked before the button repaints", async () => {
