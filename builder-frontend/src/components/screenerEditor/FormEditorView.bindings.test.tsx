@@ -242,7 +242,7 @@ it("keeps every required binding after the actual editor finishes importing and 
   );
 });
 
-it("defaults the key of a newly added field to its ID", async () => {
+it("defaults the key of a newly added field to its ID, only for fields that store answers", async () => {
   vi.mocked(fetchFormPaths).mockResolvedValue({ paths: [] });
   const [schema, setSchema] = createSignal<any>();
   const container = document.body.appendChild(document.createElement("div"));
@@ -257,7 +257,17 @@ it("defaults the key of a newly added field to its ID", async () => {
     .addFormField({ type: "textfield" }, formField, 0);
   // The palette's field factory assigns a random key before formField.add fires.
   expect(added.key).toMatch(/^textfield_/);
+  const unkeyed = [
+    "text",
+    "spacer",
+    "group",
+    "next_steps",
+    "print_summary",
+  ].map((type) =>
+    editor.instance.get("modeling").addFormField({ type }, formField, 0),
+  );
   await vi.waitFor(() => expect(added.key).toBe(added.id));
+  for (const field of unkeyed) expect(field.key).toBeUndefined();
 });
 
 it("can explicitly save the initialized form before any fields are edited", async () => {

@@ -24,6 +24,12 @@ vi.mock("@bpmn-io/form-js-editor", () => ({
     }
     get(name: string) {
       if (name === "screeningResults") return editor.screeningResults;
+      if (name === "formFields")
+        return {
+          get: (type: string) => ({
+            config: { keyed: ["yes_no", "textfield"].includes(type) },
+          }),
+        };
       return {
         on: vi.fn(),
         fire: vi.fn(),

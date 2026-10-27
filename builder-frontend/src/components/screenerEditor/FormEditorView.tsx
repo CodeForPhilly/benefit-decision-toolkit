@@ -36,10 +36,7 @@ import Loading from "../Loading";
 import { fetchScreenerBenefit } from "@/api/benefit";
 import NextStepsContentModal from "./NextStepsContentModal";
 import { nextStepsEditorModule } from "./formJsExtensions/nextSteps/editorModule";
-import {
-  NEXT_STEPS_TYPE,
-  copyBenefitContent,
-} from "./formJsExtensions/nextSteps/content";
+import { copyBenefitContent } from "./formJsExtensions/nextSteps/content";
 
 import "@bpmn-io/form-js/dist/assets/form-js.css";
 import "@bpmn-io/form-js-editor/dist/assets/form-js-editor.css";
@@ -127,6 +124,10 @@ function FormEditorView({
   let timeoutId;
   let container;
   let formEditor: FormEditor;
+  // Only fields that store an answer have a key. Groups, text, Next steps and the like don't.
+  const isKeyed = (field: any) =>
+    (formEditor.get("formFields") as any).get(field?.type)?.config.keyed ===
+    true;
   let emptySchema = {
     components: [],
     exporter: { name: "form-js (https://demo.bpmn.io)", version: "1.15.0" },
@@ -192,16 +193,7 @@ function FormEditorView({
       const field = event.formField;
 
       // Imports also emit formField.add; keep the keys of imported fields.
-      // Skip group components as they don't use keys
-      if (
-        !importingDraft &&
-        field &&
-        field.id &&
-        field.type !== NEXT_STEPS_TYPE &&
-        field.type !== "print_summary" &&
-        field.type !== "group" &&
-        field.type !== "default"
-      ) {
+      if (!importingDraft && field?.id && isKeyed(field)) {
         // Use setTimeout to ensure the field is fully added before modifying
         setTimeout(() => {
           if (!disposed) {
@@ -335,9 +327,7 @@ function FormEditorView({
     );
     const components = schema?.components;
     const questions = Array.isArray(components)
-      ? components.filter(
-          (field) => ![NEXT_STEPS_TYPE, "print_summary"].includes(field.type),
-        )
+      ? components.filter(isKeyed)
       : [];
     if (
       !required.size ||
@@ -348,11 +338,7 @@ function FormEditorView({
           required.has(field.key) &&
           isTypeCompatible(required.get(field.key), field.type),
       ) ||
-      components.some(
-        (field) =>
-          [NEXT_STEPS_TYPE, "print_summary"].includes(field.type) &&
-          field.key !== undefined,
-      ) ||
+      components.some((field) => !isKeyed(field) && field.key !== undefined) ||
       extractFormPaths(schema).length !== required.size
     ) {
       throw new Error(
