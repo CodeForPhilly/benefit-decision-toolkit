@@ -262,3 +262,34 @@ it("uses the first Next steps component in schema order, including nested groups
   expect(text).toContain("Bring ID");
   expect(text).not.toContain("Other instructions");
 });
+
+it("skips Next steps components hidden by a condition", async () => {
+  const { service, container } = await mount();
+  const original = schema();
+  await form.importSchema({
+    ...original,
+    components: [
+      { ...original.components[1], conditional: { hide: "=true" } },
+      {
+        id: "other",
+        type: "next_steps",
+        benefitContent: {
+          housing: { eligible: { body: "Shown instructions" } },
+        },
+      },
+      original.components[2],
+    ],
+  });
+  service.update(results, false);
+  const button = container.querySelector<HTMLButtonElement>(
+    ".bdt-print-summary button",
+  )!;
+  await vi.waitFor(() => expect(button.disabled).toBe(false));
+  let text: string | null = null;
+  vi.spyOn(window, "print").mockImplementation(() => {
+    text = document.querySelector(".bdt-print-root")!.textContent;
+  });
+  button.click();
+  expect(text).toContain("Shown instructions");
+  expect(text).not.toContain("Bring ID");
+});

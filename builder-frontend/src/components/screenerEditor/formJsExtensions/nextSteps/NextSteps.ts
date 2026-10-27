@@ -91,6 +91,7 @@ function Eligible({
 }
 
 export type NextStepsField = {
+  id?: string;
   showWhen?: string;
   benefitContent?: BenefitContent;
 };
@@ -98,8 +99,8 @@ export type NextStepsField = {
 export function NextSteps({ field }: { field: NextStepsField }) {
   const { getService } = useContext(FormContext);
   useLayoutEffect(
-    () => getService("screeningResults", false)?.showNextSteps(),
-    [getService],
+    () => getService("screeningResults", false)?.showNextSteps(field.id),
+    [getService, field.id],
   );
   const { results, pending, failed, mode } = useScreeningResults();
   const benefits = Object.entries(results ?? {});

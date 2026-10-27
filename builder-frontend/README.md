@@ -63,9 +63,10 @@ on the service; `subscribe()` returns an unsubscribe function and updates fire
 Analysts can place a **Print summary** component anywhere in the form. It opens
 the browser's Print / Save as PDF dialog after screening results arrive. The
 summary includes the screener name, current date, benefit decisions, and the
-content from the first Next steps component in schema order (including groups).
-It respects that component's `showWhen` setting. Without a Next steps component,
-it prints decisions and unmet requirements without application instructions.
+content from the first Next steps component the person can see, in schema order
+(including groups). Components hidden by a condition are skipped. It respects that
+component's `showWhen` setting. Without a visible Next steps component, it prints
+decisions and unmet requirements without application instructions.
 
 The print renderer shares the on-screen Next steps renderer and adds full HTTP(S)
 URLs, email addresses and phone numbers next to link text that doesn't already

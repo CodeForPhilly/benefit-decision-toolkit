@@ -4,7 +4,7 @@ import { useContext, useState } from "preact/hooks";
 import { FormContext, iconsByType, Text } from "@bpmn-io/form-js-viewer";
 import { NextStepsBody, type NextStepsField } from "../nextSteps/NextSteps";
 import { NEXT_STEPS_TYPE, webLink } from "../nextSteps/content";
-import type { ScreeningResultsSnapshot } from "../screeningResults/screeningResults";
+import type { ScreeningResultsService } from "../screeningResults/screeningResults";
 import { useScreeningResults } from "../screeningResults/useScreeningResults";
 import "./printSummary.css";
 
@@ -51,11 +51,14 @@ export function PrintSummary() {
     !benefits.length;
 
   const print = () => {
+    const service: ScreeningResultsService | undefined = context.getService(
+      "screeningResults",
+      false,
+    );
     // An answer edit can update the service before Preact repaints the button.
-    const current: ScreeningResultsSnapshot | undefined = context
-      .getService("screeningResults", false)
-      ?.getSnapshot();
+    const current = service?.getSnapshot();
     if (
+      !service ||
       !current ||
       current.mode === "editor" ||
       current.pending ||
@@ -67,9 +70,14 @@ export function PrintSummary() {
     endPrint?.();
     const benefits = Object.entries(current.results ?? {});
     setError("");
+    // Print what the person sees: skip Next steps hidden by a condition.
     const firstNextSteps = (fields: any[]): NextStepsField | undefined => {
       for (const field of fields) {
-        if (field.type === NEXT_STEPS_TYPE) return field;
+        if (
+          field.type === NEXT_STEPS_TYPE &&
+          service.isNextStepsFieldShown(field.id)
+        )
+          return field;
         const nested = firstNextSteps(field.components ?? []);
         if (nested) return nested;
       }
