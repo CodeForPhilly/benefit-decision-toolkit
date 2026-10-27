@@ -6,13 +6,17 @@ import {
   sanitizeHTML,
   Text,
 } from "@bpmn-io/form-js-viewer";
-import type { BenefitResult, NextSteps as Content } from "@/types";
+import type { BenefitResult } from "@/types";
 import { useScreeningResults } from "../screeningResults/useScreeningResults";
 import {
   NEXT_STEPS_TYPE,
+  benefitNextSteps,
   contactLink,
+  isDecided,
+  showsDecided,
   webLink,
   type BenefitContent,
+  type BenefitNextSteps,
 } from "./content";
 import "./nextSteps.css";
 
@@ -56,15 +60,15 @@ function Markdown({
 }
 
 function Eligible({
-  content,
+  steps,
   forPrint,
 }: {
-  content?: Content;
+  steps: BenefitNextSteps;
   forPrint?: boolean;
 }) {
-  const apply = webLink(content?.eligible?.applyUrl);
-  const help = webLink(content?.eligible?.helpUrl);
-  const phone = content?.eligible?.helpPhone?.trim();
+  const apply = steps.applyUrl;
+  const help = steps.help.url;
+  const phone = steps.help.phone;
   const dial =
     phone && /^[+\d\s().-]+$/.test(phone)
       ? phone.replace(/[^+\d]/g, "")
@@ -86,7 +90,7 @@ function Eligible({
         ${dial ? html`<a href=${`tel:${dial}`}>${phone}</a>` : phone}</span
       >`}
     </div>
-    <${Markdown} text=${content?.eligible?.body} forPrint=${forPrint} />
+    <${Markdown} text=${steps.body?.text} forPrint=${forPrint} />
   `;
 }
 
@@ -105,8 +109,7 @@ export function NextSteps({ field }: { field: NextStepsField }) {
   const { results, pending, failed, mode } = useScreeningResults();
   const benefits = Object.entries(results ?? {});
   const complete =
-    benefits.length > 0 &&
-    benefits.every(([, benefit]) => ["TRUE", "FALSE"].includes(benefit.result));
+    benefits.length > 0 && benefits.every(([, benefit]) => isDecided(benefit));
   // Stays in the DOM so screen readers announce completion, as the page's message did.
   return html`<div>
     <p role="status" class="bdt-next-steps-visually-hidden">
@@ -158,7 +161,10 @@ export function NextStepsBody({
           Next steps will appear after screening.
         </div>`
       : null;
-  const hideDecided = field.showWhen === "whenComplete" && !complete;
+  const hideDecided = !showsDecided(
+    field,
+    benefits.map(([, benefit]) => benefit),
+  );
   return html` <section
     class="fjs-form-field bdt-next-steps"
     aria-label="Your next steps"
@@ -175,20 +181,18 @@ export function NextStepsBody({
     ${hideDecided &&
     html`<p>Answer the remaining questions to see your next steps.</p>`}
     ${benefits.map(([id, benefit]) => {
-      const content = field.benefitContent?.[id];
-      if (benefit.result === "UNABLE_TO_DETERMINE")
+      const steps = benefitNextSteps(benefit, field.benefitContent?.[id]);
+      if (!steps)
         return html`<section key=${id}>
           <h3>${benefit.name}</h3>
           <p>Still needs more information.</p>
         </section>`;
       if (hideDecided) return null;
-      const unmet = Object.values(benefit.check_results ?? {}).filter(
-        (check) => check.result === "FALSE",
-      );
+      const unmet = steps.unmetRequirements;
       return html` <section key=${id} class="bdt-next-steps-benefit">
         <h3>${benefit.name}</h3>
-        ${benefit.result === "TRUE"
-          ? html`<${Eligible} content=${content} forPrint=${forPrint} />`
+        ${steps.status === "eligible"
+          ? html`<${Eligible} steps=${steps} forPrint=${forPrint} />`
           : html`
               <p class="bdt-next-steps-outcome">
                 You do not appear to be eligible.
@@ -196,15 +200,9 @@ export function NextStepsBody({
               ${unmet.length > 0 &&
               html`<h4>Requirements not met</h4>
                 <ul>
-                  ${unmet.map(
-                    (check) =>
-                      html`<li>${check.aliasName?.trim() || check.name}</li>`,
-                  )}
+                  ${unmet.map((name) => html`<li>${name}</li>`)}
                 </ul>`}
-              <${Markdown}
-                text=${content?.ineligible?.note}
-                forPrint=${forPrint}
-              />
+              <${Markdown} text=${steps.note?.text} forPrint=${forPrint} />
             `}
       </section>`;
     })}

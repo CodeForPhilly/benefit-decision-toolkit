@@ -3,7 +3,7 @@ import { render } from "preact";
 import { useContext, useLayoutEffect, useRef, useState } from "preact/hooks";
 import { FormContext, iconsByType, Text } from "@bpmn-io/form-js-viewer";
 import { NextStepsBody, type NextStepsField } from "../nextSteps/NextSteps";
-import { webLink } from "../nextSteps/content";
+import { isDecided, webLink } from "../nextSteps/content";
 import { firstVisibleNextSteps } from "../nextSteps/selection";
 import type { ScreeningResultsService } from "../screeningResults/screeningResults";
 import { useScreeningResults } from "../screeningResults/useScreeningResults";
@@ -109,9 +109,7 @@ export function PrintSummary() {
           <${NextStepsBody}
             field=${source}
             benefits=${benefits}
-            complete=${benefits.every(([, benefit]) =>
-              ["TRUE", "FALSE"].includes(benefit.result),
-            )}
+            complete=${benefits.every(([, benefit]) => isDecided(benefit))}
             pending=${false}
             failed=${false}
             mode="live"
