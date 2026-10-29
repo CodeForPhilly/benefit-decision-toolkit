@@ -61,13 +61,28 @@ export function hideQuestions(
 ): any {
   const hidden = new Set(hiddenPaths);
 
-  const filterComponents = (components: any[] | undefined): any[] =>
+  // Match the full path, as checks name inputs: a group's path prefixes its fields' keys.
+  const filterComponents = (
+    components: any[] | undefined,
+    parentPath = "",
+  ): any[] =>
     (components ?? [])
-      .filter((component) => !component.key || !hidden.has(component.key))
+      .filter(
+        (component) =>
+          !component.key ||
+          !hidden.has(
+            [parentPath, component.path, component.key]
+              .filter(Boolean)
+              .join("."),
+          ),
+      )
       .map((component) => {
         const copy = { ...component };
         if (Array.isArray(component.components)) {
-          copy.components = filterComponents(component.components);
+          copy.components = filterComponents(
+            component.components,
+            [parentPath, component.path].filter(Boolean).join("."),
+          );
         }
         return copy;
       });

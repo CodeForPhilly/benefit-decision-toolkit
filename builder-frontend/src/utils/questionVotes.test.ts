@@ -100,4 +100,27 @@ describe("question votes", () => {
     expect(filtered.components[1].components).toEqual([]);
     expect(schema.components[1].components).toHaveLength(1);
   });
+
+  it("matches fields by their full path, including group paths", () => {
+    const schema = {
+      components: [
+        { key: "age", type: "number" },
+        {
+          type: "dynamiclist",
+          path: "people",
+          components: [{ key: "age", type: "number" }],
+        },
+      ],
+    };
+
+    expect(hideQuestions(schema, ["age"]).components).toEqual([
+      schema.components[1],
+    ]);
+    expect(
+      hideQuestions(schema, ["people.age"]).components[1].components,
+    ).toEqual([]);
+    expect(hideQuestions(schema, ["people.age"]).components[0]).toEqual(
+      schema.components[0],
+    );
+  });
 });
