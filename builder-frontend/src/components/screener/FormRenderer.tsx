@@ -1,11 +1,4 @@
-import {
-  Accessor,
-  createMemo,
-  createEffect,
-  on,
-  onCleanup,
-  onMount,
-} from "solid-js";
+import { Accessor, createEffect, on, onCleanup, onMount } from "solid-js";
 
 import debounce from "lodash.debounce";
 import cloneDeep from "lodash/cloneDeep";
@@ -24,7 +17,6 @@ import {
   type NextStepsProvider,
 } from "@/integrations/nextSteps";
 import type { ScreenerResult } from "@/types";
-import { unansweredQuestions } from "@/utils/unansweredQuestions";
 import { hideQuestions } from "@/utils/questionVotes";
 import { normalizeArrayFieldData } from "@/utils/arrayFieldData";
 import {
@@ -98,16 +90,14 @@ function FormRenderer({
       container,
       additionalModules: [CustomFormFieldsModule, screeningResultsModule],
     });
-    const missingQuestions = createMemo(() =>
-      unansweredQuestions(schema, formData(), results()),
-    );
     connectScreeningResults(form, {
+      schema: () => schema,
+      evaluatedAnswers: formData,
       results,
       screenerName,
       pending,
       failed,
       onNextStepsShownChange,
-      unansweredQuestions: missingQuestions,
     });
     currentData = cloneDeep(formData());
 

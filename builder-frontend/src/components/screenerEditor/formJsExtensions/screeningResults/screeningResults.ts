@@ -1,6 +1,9 @@
-import { Accessor, createEffect } from "solid-js";
+import { Accessor, createEffect, createMemo } from "solid-js";
 import cloneDeep from "lodash/cloneDeep";
-import type { UnansweredQuestions } from "@/utils/unansweredQuestions";
+import {
+  unansweredQuestions,
+  type UnansweredQuestions,
+} from "@/utils/unansweredQuestions";
 import type {
   BenefitDetail,
   BenefitResult,
@@ -221,22 +224,22 @@ function deepFreeze<T>(value: T): T {
 export function connectScreeningResults(
   form: { get<T>(name: string): T },
   live: {
+    schema: Accessor<Parameters<typeof unansweredQuestions>[0]>;
+    /** The normalized answers last sent for evaluation. */
+    evaluatedAnswers: Accessor<unknown>;
     results: Accessor<ScreenerResult | undefined>;
     pending: Accessor<boolean>;
     failed: Accessor<boolean>;
     screenerName?: Accessor<string>;
-    unansweredQuestions?: Accessor<UnansweredQuestions>;
     onNextStepsShownChange?: (shown: boolean) => void;
   },
 ): void {
   const service = form.get<ScreeningResultsService>("screeningResults");
+  const questions = createMemo(() =>
+    unansweredQuestions(live.schema(), live.evaluatedAnswers(), live.results()),
+  );
   createEffect(() =>
-    service.update(
-      live.results(),
-      live.pending(),
-      live.failed(),
-      live.unansweredQuestions?.(),
-    ),
+    service.update(live.results(), live.pending(), live.failed(), questions()),
   );
   createEffect(() => service.setScreenerName(live.screenerName?.()));
   const { onNextStepsShownChange } = live;
