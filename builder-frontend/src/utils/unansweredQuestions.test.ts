@@ -133,6 +133,19 @@ it("handles repeated sections and shared votes without exposing paths or values"
   });
 });
 
+it("treats whitespace as answered, as the eligibility service receives it", () => {
+  expect(
+    unansweredQuestions(
+      schema,
+      {
+        custom: { income: "  ", resident: false, programs: ["x"] },
+        client: { birthdate: "1950-01-01" },
+      },
+      results,
+    ),
+  ).toEqual({});
+});
+
 it("does not prompt for missing inputs in already decided checks", () => {
   expect(
     unansweredQuestions(

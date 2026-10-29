@@ -65,9 +65,9 @@ export function unansweredQuestions(
       );
       const questions = new Set<string>();
       for (const path of paths) {
+        // Match what the eligibility service receives: whitespace is sent as typed.
         const missing = valuesAt(evaluatedAnswers, path.split(".")).some(
-          (value) =>
-            value == null || (typeof value === "string" && !value.trim()),
+          (value) => value == null || value === "",
         );
         if (missing)
           for (const label of labels.get(path) ?? []) questions.add(label);
