@@ -1,5 +1,6 @@
 import { Accessor, createEffect, createMemo } from "solid-js";
 import cloneDeep from "lodash/cloneDeep";
+import isEqual from "lodash/isEqual";
 import {
   unansweredQuestions,
   type UnansweredQuestions,
@@ -235,8 +236,17 @@ export function connectScreeningResults(
   },
 ): void {
   const service = form.get<ScreeningResultsService>("screeningResults");
-  const questions = createMemo(() =>
-    unansweredQuestions(live.schema(), live.evaluatedAnswers(), live.results()),
+  // Keep the same questions while their content is unchanged, so the service
+  // doesn't copy and republish them for every answer edit.
+  const questions = createMemo(
+    () =>
+      unansweredQuestions(
+        live.schema(),
+        live.evaluatedAnswers(),
+        live.results(),
+      ),
+    undefined,
+    { equals: isEqual },
   );
   createEffect(() =>
     service.update(live.results(), live.pending(), live.failed(), questions()),

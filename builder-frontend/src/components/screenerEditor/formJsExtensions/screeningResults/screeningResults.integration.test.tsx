@@ -130,6 +130,21 @@ describe.each(["published", "preview"])(
         }),
       );
       expect(s.snapshot()).not.toHaveProperty("answers");
+      const service = s.form.get("screeningResults") as ScreeningResultsService;
+      const questions = service.getSnapshot().unansweredQuestions;
+      s.setResults({
+        benefit: {
+          name: "Benefit",
+          result: "UNABLE_TO_DETERMINE",
+          check_results: {
+            missing: {
+              result: "UNABLE_TO_DETERMINE",
+              inputPaths: ["answer"],
+            } as any,
+          },
+        },
+      });
+      expect(service.getSnapshot().unansweredQuestions).toBe(questions);
       s.setResults({
         benefit: { name: "Benefit", result: "TRUE", check_results: {} },
       });
