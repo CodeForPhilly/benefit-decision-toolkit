@@ -124,44 +124,46 @@ export default function Results({
                                   </Switch>
                                 </div>
                                 <div class="flex flex-col">
-                                  <Show
-                                    when={check.aliasName}
-                                    fallback={
+                                  <div class="flex items-center">
+                                    <Show
+                                      when={check.aliasName}
+                                      fallback={
+                                        <div>
+                                          {check.name}
+                                          <Show
+                                            when={check.module || check.version}
+                                          >
+                                            <span class="text-gray-500 ml-1">
+                                              (
+                                              {[check.module, check.version]
+                                                .filter(Boolean)
+                                                .join(", v")}
+                                              )
+                                            </span>
+                                          </Show>
+                                        </div>
+                                      }
+                                    >
                                       <div>
-                                        {check.name}
-                                        <Show
-                                          when={check.module || check.version}
-                                        >
-                                          <span class="text-gray-500 ml-1">
-                                            (
-                                            {[check.module, check.version]
-                                              .filter(Boolean)
-                                              .join(", v")}
-                                            )
-                                          </span>
-                                        </Show>
+                                        {titleCase(check.aliasName!)}
+                                        <span class="text-gray-500 text-sm ml-1">
+                                          ({check.name},{" "}
+                                          {[check.module, check.version]
+                                            .filter(Boolean)
+                                            .join(", v")}
+                                          )
+                                        </span>
                                       </div>
-                                    }
-                                  >
-                                    <div>
-                                      {titleCase(check.aliasName!)}
-                                      <span class="text-gray-500 text-sm ml-1">
-                                        ({check.name},{" "}
-                                        {[check.module, check.version]
-                                          .filter(Boolean)
-                                          .join(", v")}
-                                        )
-                                      </span>
-                                    </div>
-                                  </Show>
-                                  <CheckExplanation
-                                    explanation={check.explanation}
-                                    name={
-                                      check.aliasName
-                                        ? titleCase(check.aliasName)
-                                        : check.name
-                                    }
-                                  />
+                                    </Show>
+                                    <CheckExplanation
+                                      explanation={check.explanation}
+                                      name={
+                                        check.aliasName
+                                          ? titleCase(check.aliasName)
+                                          : check.name
+                                      }
+                                    />
+                                  </div>
                                   <Show
                                     when={
                                       (check.effectiveParameters &&
