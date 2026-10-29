@@ -98,3 +98,16 @@ it("does not invent missing content or pass unsafe application links", () => {
   });
   expect(exported.food.note).toBeNull();
 });
+
+it("uses plain-language explanations for unmet requirements with alias and name fallbacks", () => {
+  const explained = structuredClone(results);
+  explained.food.check_results.a.explanation =
+    " Your income must be within the program limit. ";
+  explained.food.check_results.b.explanation = " ";
+  explained.food.check_results.c.explanation =
+    "A passing check is not an unmet requirement.";
+  expect(projectNextSteps(explained, field)!.food.unmetRequirements).toEqual([
+    "Your income must be within the program limit.",
+    "Residence",
+  ]);
+});

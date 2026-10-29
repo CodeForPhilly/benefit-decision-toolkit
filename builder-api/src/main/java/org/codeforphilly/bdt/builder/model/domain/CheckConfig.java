@@ -2,6 +2,7 @@ package org.codeforphilly.bdt.builder.model.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.validation.constraints.Size;
 
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,9 @@ public class CheckConfig {
     private List<ParameterDefinition> parameterDefinitions;
     // optional alias name for this check instance
     private String aliasName;
+    // Plain-language guidance for the person being screened, per configured check.
+    @Size(max = 2000)
+    private String explanation;
     // true when aliasName came from alias generation and hasn't been hand-edited,
     // so it can be regenerated when parameters change
     private boolean aliasGenerated;
@@ -137,6 +141,14 @@ public class CheckConfig {
 
     public void setAliasName(String aliasName) {
         this.aliasName = aliasName;
+    }
+
+    public String getExplanation() {
+        return explanation;
+    }
+
+    public void setExplanation(String explanation) {
+        this.explanation = explanation == null || explanation.isBlank() ? null : explanation.trim();
     }
 
     public boolean isAliasGenerated() {

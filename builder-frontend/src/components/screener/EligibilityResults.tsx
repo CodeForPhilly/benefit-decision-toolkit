@@ -2,6 +2,8 @@ import { Switch, Match, For, Accessor, Show } from "solid-js";
 
 import type { ScreenerResult, BenefitResult } from "@/types";
 
+import CheckExplanation from "@/components/shared/CheckExplanation";
+
 import checkIcon from "@/assets/images/checkIcon.svg";
 import questionIcon from "@/assets/images/questionIcon.svg";
 import xIcon from "@/assets/images/xIcon.svg";
@@ -63,6 +65,12 @@ function BenefitResult({ benefitResult }: { benefitResult: BenefitResult }) {
               <div class="flex flex-col text-xs">
                 <div>
                   {check.aliasName ? titleCase(check.aliasName) : check.name}
+                  <CheckExplanation
+                    explanation={check.explanation}
+                    name={
+                      check.aliasName ? titleCase(check.aliasName) : check.name
+                    }
+                  />
                 </div>
               </div>
             </div>

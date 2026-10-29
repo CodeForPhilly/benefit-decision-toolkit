@@ -67,7 +67,8 @@ for (const showWhen of ["whenDecided", "whenComplete"]) {
             check_results: {
               income: {
                 name: "Income",
-                aliasName: "Income must be below $1,000",
+                aliasName: "Income limit",
+                explanation: "Your household income must be below $1,000.",
                 result: answers.income < 1000 ? "TRUE" : "FALSE",
                 inputPaths: [],
                 parameters: {},
@@ -204,11 +205,38 @@ for (const showWhen of ["whenDecided", "whenComplete"]) {
       nextSteps.getByText("Requirements not met", { exact: true }),
     ).toBeVisible();
     await expect(nextSteps.getByRole("listitem")).toHaveText(
-      "Income must be below $1,000",
+      "Your household income must be below $1,000.",
     );
     await expect(
       nextSteps.getByText("Ask about other assistance."),
     ).toBeVisible();
+    const explanation = page.getByRole("button", {
+      name: "About Income limit",
+      exact: true,
+    });
+    await explanation.focus();
+    const tooltip = page.getByRole("tooltip");
+    await expect(tooltip).toBeVisible();
+    await expect(tooltip).toHaveText(
+      "Your household income must be below $1,000.",
+    );
+    await expect(explanation).toHaveAccessibleDescription(
+      "Your household income must be below $1,000.",
+    );
+    await explanation.press("Escape");
+    await expect(tooltip).toBeHidden();
+    await expect(explanation).toBeFocused();
+    await page.evaluate(() => {
+      window.print = () => {
+        (window as any).explainedPrint =
+          document.querySelector(".bdt-print-root")!.textContent;
+        window.dispatchEvent(new Event("afterprint"));
+      };
+    });
+    await page.getByRole("button", { name: "Print / Save as PDF" }).click();
+    expect(await page.evaluate(() => (window as any).explainedPrint)).toContain(
+      "Your household income must be below $1,000.",
+    );
     fail = true;
     await income.fill("600");
     await expect(

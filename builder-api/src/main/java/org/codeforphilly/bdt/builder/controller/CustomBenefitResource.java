@@ -4,6 +4,7 @@ import io.quarkus.logging.Log;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -13,6 +14,7 @@ import org.codeforphilly.bdt.builder.model.domain.*;
 import org.codeforphilly.bdt.builder.model.dto.custombenefit.AddCheckRequest;
 import org.codeforphilly.bdt.builder.model.dto.custombenefit.CreateCustomBenefitRequest;
 import org.codeforphilly.bdt.builder.model.dto.custombenefit.UpdateCheckAliasRequest;
+import org.codeforphilly.bdt.builder.model.dto.custombenefit.UpdateCheckExplanationRequest;
 import org.codeforphilly.bdt.builder.model.dto.custombenefit.UpdateCheckParametersRequest;
 import org.codeforphilly.bdt.builder.model.dto.custombenefit.UpdateCustomBenefitRequest;
 import org.codeforphilly.bdt.builder.persistence.EligibilityCheckRepository;
@@ -577,6 +579,38 @@ public class CustomBenefitResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(Map.of("error", "Could not update check alias"))
                     .build();
+        }
+    }
+
+    @PATCH
+    @Path("/screener/{screenerId}/benefit/{benefitId}/check/{checkId}/explanation")
+    public Response updateCheckExplanation(
+        @Context SecurityIdentity identity,
+        @PathParam("screenerId") String screenerId,
+        @PathParam("benefitId") String benefitId,
+        @PathParam("checkId") String checkId,
+        @NotNull @Valid UpdateCheckExplanationRequest request
+    ) {
+        if (!isUserAuthorizedForScreener(AuthUtils.getUserId(identity), screenerId)) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+        try {
+            Optional<Benefit> benefitOpt = screenerRepository.getCustomBenefit(screenerId, benefitId);
+            if (benefitOpt.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND).entity(Map.of("error", "Benefit not found")).build();
+            }
+            Benefit benefit = benefitOpt.get();
+            Optional<CheckConfig> check = benefit.getChecks() == null ? Optional.empty() : benefit.getChecks().stream()
+                .filter(config -> checkId.equals(config.getCheckId())).findFirst();
+            if (check.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND).entity(Map.of("error", "Check not found in benefit")).build();
+            }
+            check.get().setExplanation(request.explanation());
+            screenerRepository.updateCustomBenefit(screenerId, benefit);
+            return Response.ok().build();
+        } catch (Exception e) {
+            Log.error(e);
+            return Response.serverError().entity(Map.of("error", "Could not update check explanation")).build();
         }
     }
 

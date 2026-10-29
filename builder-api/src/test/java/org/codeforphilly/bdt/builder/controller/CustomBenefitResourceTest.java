@@ -12,6 +12,7 @@ import org.codeforphilly.bdt.builder.model.dto.custombenefit.CreateCustomBenefit
 import org.codeforphilly.bdt.builder.model.dto.custombenefit.UpdateCustomBenefitRequest;
 import org.codeforphilly.bdt.builder.model.dto.custombenefit.AddCheckRequest;
 import org.codeforphilly.bdt.builder.model.dto.custombenefit.UpdateCheckAliasRequest;
+import org.codeforphilly.bdt.builder.model.dto.custombenefit.UpdateCheckExplanationRequest;
 import org.codeforphilly.bdt.builder.model.dto.custombenefit.UpdateCheckParametersRequest;
 import org.codeforphilly.bdt.builder.persistence.EligibilityCheckRepository;
 import org.codeforphilly.bdt.builder.persistence.ScreenerRepository;
@@ -305,6 +306,42 @@ class CustomBenefitResourceTest {
             new UpdateCheckAliasRequest(null, true)
         );
         assertFalse(check.isAliasGenerated());
+    }
+
+    @Test
+    void explanationIsScopedToTheConfiguredCheckAndCanBeCleared() throws Exception {
+        CheckConfig check = configuredIncomeCheck("My income check", false);
+        CheckConfig other = configuredIncomeCheck("Other check", false);
+        other.setCheckId("other-instance");
+        other.setExplanation("Other explanation");
+        Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(check, other));
+        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+
+        Response saved = resource.updateCheckExplanation(identity, SCREENER_ID, BENEFIT_ID, "configured-check",
+            new UpdateCheckExplanationRequest("  Your household income must be below $50,000.  "));
+        assertEquals(200, saved.getStatus());
+        assertEquals("Your household income must be below $50,000.", check.getExplanation());
+        assertEquals("Other explanation", other.getExplanation());
+        assertEquals("My income check", check.getAliasName());
+        assertEquals(Map.of("limit", 50_000), check.getParameters());
+        verify(screenerRepository).updateCustomBenefit(SCREENER_ID, benefit);
+
+        assertEquals(200, resource.updateCheckExplanation(identity, SCREENER_ID, BENEFIT_ID, "configured-check",
+            new UpdateCheckExplanationRequest(" ")).getStatus());
+        assertNull(check.getExplanation());
+    }
+
+    @Test
+    void explanationUpdateRequiresOwnershipAndAnExistingCheck() throws Exception {
+        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(
+            new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of())));
+        assertEquals(404, resource.updateCheckExplanation(identity, SCREENER_ID, BENEFIT_ID, "missing",
+            new UpdateCheckExplanationRequest("Text")).getStatus());
+        assertEquals(404, resource.updateCheckExplanation(identity, SCREENER_ID, "missing", "missing",
+            new UpdateCheckExplanationRequest("Text")).getStatus());
+        assertEquals(401, resource.updateCheckExplanation(identity, "not-owned", BENEFIT_ID, "configured-check",
+            new UpdateCheckExplanationRequest("Text")).getStatus());
+        verify(screenerRepository, never()).updateCustomBenefit(any(), any());
     }
 
     private static CheckConfig configuredIncomeCheck(String aliasName, boolean aliasGenerated) {

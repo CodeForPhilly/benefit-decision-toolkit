@@ -123,3 +123,17 @@ answers in the results snapshot; answers and technical input paths are never
 printed by this feature. If an input has no static form label, Next steps keeps
 its general need-more-information message rather than inventing a question.
 The CRM `nextSteps` extension continues to contain decided benefits only.
+
+### Check explanations
+
+Each configured check on a benefit can have an optional plain-language explanation,
+separate from its technical description and alias. In Configure Benefit, choose
+**Edit explanation** beside the alias. Explanations are plain text (up to 2,000
+characters); clearing the field removes one. They belong to that check instance,
+so the same rule can have different explanations for different benefits.
+
+Published and preview results show an information button for checks with saved
+explanations. Hover, focus with the keyboard, or tap to read it; Escape dismisses
+the tooltip. Its text is associated with the button for screen readers. Failed
+checks use the explanation in **Requirements not met**, including print summaries
+and CRM Next steps. Checks without one keep their alias or original name.
