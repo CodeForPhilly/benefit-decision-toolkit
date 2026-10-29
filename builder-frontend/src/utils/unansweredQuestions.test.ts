@@ -133,6 +133,59 @@ it("handles repeated sections and shared votes without exposing paths or values"
   });
 });
 
+it("tells apart fields sharing a label and items of a repeated section", () => {
+  const form = {
+    components: [
+      {
+        path: "client",
+        label: "You",
+        components: [{ key: "birthdate", label: "Date of birth" }],
+      },
+      {
+        path: "spouse",
+        label: "Your spouse",
+        components: [{ key: "birthdate", label: "Date of birth" }],
+      },
+      {
+        path: "people",
+        label: "Household member",
+        isRepeating: true,
+        components: [{ key: "age", label: "Age" }],
+      },
+    ],
+  };
+  const result: ScreenerResult = {
+    benefit: {
+      name: "Benefit",
+      result: "UNABLE_TO_DETERMINE",
+      check_results: {
+        a: check(["client.birthdate", "spouse.birthdate", "people.age"]),
+      },
+    },
+  };
+  expect(
+    unansweredQuestions(
+      form,
+      { client: {}, spouse: {}, people: [{ age: 4 }, { age: null }, {}] },
+      result,
+    ),
+  ).toEqual({
+    benefit: [
+      "Date of birth (You)",
+      "Date of birth (Your spouse)",
+      "Age (Household member #2)",
+      "Age (Household member #3)",
+    ],
+  });
+  expect(
+    unansweredQuestions(
+      form,
+      { client: { birthdate: "1950-01-01" }, people: [{ age: null }] },
+      result,
+    ),
+  ).toEqual({ benefit: ["Date of birth (Your spouse)", "Age"] });
+});
+
 it("treats whitespace as answered, as the eligibility service receives it", () => {
   expect(
     unansweredQuestions(
