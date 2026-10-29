@@ -1,15 +1,14 @@
 import type { ScreenerResult } from "@/types";
+import { forEachKeyedField, type FormComponent } from "@/utils/formFields";
+import { isUnsafeObjectKey } from "@/utils/unsafeObjectKeys";
 
 export type UnansweredQuestions = Readonly<Record<string, readonly string[]>>;
-type Field = {
-  key?: string;
-  path?: string;
+interface Field extends FormComponent {
   label?: string;
   dateLabel?: string;
   timeLabel?: string;
   subtype?: string;
-  components?: Field[];
-};
+}
 
 // A repeated section may hold several answers at the same schema path.
 function valuesAt(value: unknown, segments: string[]): unknown[] {
@@ -18,8 +17,9 @@ function valuesAt(value: unknown, segments: string[]): unknown[] {
     return value.length
       ? value.flatMap((item) => valuesAt(item, segments))
       : [undefined];
-  if (!value || typeof value !== "object") return [undefined];
   const [key, ...rest] = segments;
+  if (!value || typeof value !== "object" || isUnsafeObjectKey(key))
+    return [undefined];
   return valuesAt(
     Object.hasOwn(value, key)
       ? (value as Record<string, unknown>)[key]
@@ -35,26 +35,18 @@ export function unansweredQuestions(
   results: ScreenerResult | undefined,
 ): UnansweredQuestions {
   const labels = new Map<string, string[]>();
-  const visit = (fields: Field[], parent = "") => {
-    for (const field of fields) {
-      const prefix = [parent, field.path].filter(Boolean).join(".");
-      const label =
-        field.label ||
-        (field.subtype === "time" ? field.timeLabel : field.dateLabel);
-      if (
-        field.key &&
-        typeof label === "string" &&
-        label.trim() &&
-        !label.trim().startsWith("=") &&
-        !/{{[\s\S]*?}}/.test(label)
-      ) {
-        const path = [prefix, field.key].filter(Boolean).join(".");
-        labels.set(path, [...(labels.get(path) ?? []), label.trim()]);
-      }
-      visit(field.components ?? [], prefix);
-    }
-  };
-  visit(schema.components ?? []);
+  forEachKeyedField(schema.components, (field, path) => {
+    const label =
+      field.label ||
+      (field.subtype === "time" ? field.timeLabel : field.dateLabel);
+    if (
+      typeof label === "string" &&
+      label.trim() &&
+      !label.trim().startsWith("=") &&
+      !/{{[\s\S]*?}}/.test(label)
+    )
+      labels.set(path, [...(labels.get(path) ?? []), label.trim()]);
+  });
   return Object.fromEntries(
     Object.entries(results ?? {}).flatMap(([id, benefit]) => {
       if (benefit.result !== "UNABLE_TO_DETERMINE") return [];

@@ -1,4 +1,5 @@
 import type { BenefitResult, ScreenerResult } from "@/types";
+import { joinPath } from "@/utils/formFields";
 
 export function haveSameQuestionPaths(
   previous: readonly string[] | undefined,
@@ -70,18 +71,14 @@ export function hideQuestions(
       .filter(
         (component) =>
           !component.key ||
-          !hidden.has(
-            [parentPath, component.path, component.key]
-              .filter(Boolean)
-              .join("."),
-          ),
+          !hidden.has(joinPath(parentPath, component.path, component.key)),
       )
       .map((component) => {
         const copy = { ...component };
         if (Array.isArray(component.components)) {
           copy.components = filterComponents(
             component.components,
-            [parentPath, component.path].filter(Boolean).join("."),
+            joinPath(parentPath, component.path),
           );
         }
         return copy;
