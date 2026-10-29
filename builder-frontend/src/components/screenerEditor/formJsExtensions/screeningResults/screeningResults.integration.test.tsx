@@ -67,7 +67,10 @@ describe.each(["published", "preview"])(
       document.body.replaceChildren();
     });
 
-    async function mount() {
+    async function mount(
+      data: object = { answer: "Keep this answer" },
+      formSchema: object = schema,
+    ) {
       const [results, setResults] = createSignal<ScreenerResult>();
       const [pending, setPending] = createSignal(false);
       const [failed, setFailed] = createSignal(false);
@@ -75,7 +78,7 @@ describe.each(["published", "preview"])(
         document.createElement("div"),
       );
       const common = {
-        formData: () => ({ answer: "Keep this answer" }),
+        formData: () => data,
         hiddenQuestionPaths: () => [],
         submitForm: vi.fn(),
         results,
@@ -86,9 +89,9 @@ describe.each(["published", "preview"])(
         render(
           () =>
             mode === "published" ? (
-              <PublishedForm schema={schema} {...common} />
+              <PublishedForm schema={formSchema} {...common} />
             ) : (
-              <PreviewForm schema={() => schema} {...common} />
+              <PreviewForm schema={() => formSchema} {...common} />
             ),
           container,
         ),
@@ -109,6 +112,91 @@ describe.each(["published", "preview"])(
         common,
       };
     }
+
+    it("maps unanswered inputs to question labels and clears them after a decision", async () => {
+      const s = await mount({ answer: "" });
+      s.setResults({
+        benefit: {
+          name: "Benefit",
+          result: "UNABLE_TO_DETERMINE",
+          check_results: {
+            missing: {
+              result: "UNABLE_TO_DETERMINE",
+              inputPaths: ["answer"],
+            } as any,
+          },
+        },
+      });
+      await vi.waitFor(() =>
+        expect(s.snapshot().unansweredQuestions).toEqual({
+          benefit: ["Answer"],
+        }),
+      );
+      expect(s.snapshot()).not.toHaveProperty("answers");
+      const service = s.form.get("screeningResults") as ScreeningResultsService;
+      const questions = service.getSnapshot().unansweredQuestions;
+      s.setResults({
+        benefit: {
+          name: "Benefit",
+          result: "UNABLE_TO_DETERMINE",
+          check_results: {
+            missing: {
+              result: "UNABLE_TO_DETERMINE",
+              inputPaths: ["answer"],
+            } as any,
+          },
+        },
+      });
+      expect(service.getSnapshot().unansweredQuestions).toBe(questions);
+      s.setResults({
+        benefit: { name: "Benefit", result: "TRUE", check_results: {} },
+      });
+      await vi.waitFor(() =>
+        expect(s.snapshot().unansweredQuestions).toEqual({}),
+      );
+    });
+
+    it("leaves out unanswered questions a condition hides", async () => {
+      const s = await mount(
+        { answer: "", married: false },
+        {
+          ...schema,
+          components: [
+            ...schema.components,
+            {
+              id: "married",
+              type: "checkbox",
+              key: "married",
+              label: "Married",
+            },
+            {
+              id: "spouseIncome",
+              type: "number",
+              key: "spouse.income",
+              label: "Spouse income",
+              conditional: { hide: "=married != true" },
+            },
+          ],
+        },
+      );
+      s.setResults({
+        benefit: {
+          name: "Benefit",
+          result: "UNABLE_TO_DETERMINE",
+          check_results: {
+            missing: {
+              result: "UNABLE_TO_DETERMINE",
+              inputPaths: ["answer", "spouse.income"],
+            } as any,
+          },
+        },
+      });
+      await vi.waitFor(() =>
+        expect(s.snapshot().unansweredQuestions).toEqual({
+          benefit: ["Answer"],
+        }),
+      );
+    });
 
     it("updates custom fields without reimporting the schema or submitting answers", async () => {
       const s = await mount();

@@ -111,6 +111,7 @@ export function PrintSummary() {
             failed=${false}
             mode="live"
             forPrint=${true}
+            unansweredQuestions=${current.unansweredQuestions}
           />
         <//>`,
         root,

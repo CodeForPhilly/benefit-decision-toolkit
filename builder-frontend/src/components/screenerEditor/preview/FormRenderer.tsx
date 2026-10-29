@@ -76,6 +76,8 @@ function FormRenderer({
       additionalModules: [CustomFormFieldsModule, screeningResultsModule],
     });
     connectScreeningResults(form, {
+      schema,
+      evaluatedAnswers: formData,
       results,
       screenerName,
       pending,

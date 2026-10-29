@@ -2,14 +2,8 @@ import {
   CHECKLIST_WITH_NONE_TYPE,
   NONE_OF_THESE_VALUE,
 } from '@/components/screenerEditor/formJsExtensions/customFormFields/ChecklistWithNone';
+import { forEachKeyedField, type FormComponent } from '@/utils/formFields';
 import { isUnsafeObjectKey } from '@/utils/unsafeObjectKeys';
-
-interface FormComponent {
-  type: string;
-  key?: string;
-  path?: string;
-  components?: FormComponent[];
-}
 
 // Field types whose answers are arrays of selected options.
 const ARRAY_FIELD_TYPES = ['checklist', 'taglist', CHECKLIST_WITH_NONE_TYPE];
@@ -47,19 +41,10 @@ export function normalizeArrayFieldData<T extends object>(
       : Array.isArray(value) && value.length > 0 ? value : null;
   }
 
-  function visit(components: FormComponent[] | undefined, parentPath = '') {
-    for (const component of components ?? []) {
-      const prefix = [parentPath, component.path].filter(Boolean).join('.');
-
-      if (ARRAY_FIELD_TYPES.includes(component.type) && component.key) {
-        const path = [prefix, component.key].filter(Boolean).join('.');
-        normalizeAtPath(result, path.split('.'));
-      }
-
-      visit(component.components, prefix);
+  forEachKeyedField(schema?.components, (component, path) => {
+    if (ARRAY_FIELD_TYPES.includes(component.type ?? '')) {
+      normalizeAtPath(result, path.split('.'));
     }
-  }
-
-  visit(schema?.components);
+  });
   return result;
 }

@@ -1,5 +1,11 @@
-import { Accessor, createEffect } from "solid-js";
+import { Accessor, createEffect, createMemo, createSignal } from "solid-js";
 import cloneDeep from "lodash/cloneDeep";
+import isEqual from "lodash/isEqual";
+import {
+  indexQuestions,
+  unansweredQuestions,
+  type UnansweredQuestions,
+} from "@/utils/unansweredQuestions";
 import type {
   BenefitDetail,
   BenefitResult,
@@ -17,6 +23,8 @@ export interface ScreeningResultsSnapshot {
   /** True when the latest evaluation failed, until one succeeds. Pending stays true meanwhile. */
   readonly failed: boolean;
   readonly mode: "live" | "editor";
+  /** Question labels still needed for undecided benefits; contains no answers. */
+  readonly unansweredQuestions?: UnansweredQuestions;
 }
 
 interface EventBus {
@@ -89,10 +97,12 @@ export class ScreeningResultsService {
     return () => this.eventBus.off(SCREENING_RESULTS_CHANGED, listener);
   };
 
+  /** Freezes `unansweredQuestions` in place: pass questions built for this form alone. */
   update(
     results: ScreenerResult | undefined,
     pending: boolean,
     failed = false,
+    unansweredQuestions?: UnansweredQuestions,
   ): void {
     if (results !== this.liveSource) {
       this.liveSource = results;
@@ -103,6 +113,8 @@ export class ScreeningResultsService {
       pending,
       failed,
       mode: "live",
+      unansweredQuestions:
+        unansweredQuestions && deepFreeze(unansweredQuestions),
     });
   }
 
@@ -120,7 +132,8 @@ export class ScreeningResultsService {
       next.results === this.snapshot.results &&
       next.pending === this.snapshot.pending &&
       next.failed === this.snapshot.failed &&
-      next.mode === this.snapshot.mode
+      next.mode === this.snapshot.mode &&
+      next.unansweredQuestions === this.snapshot.unansweredQuestions
     )
       return;
     this.snapshot = Object.freeze(next);
@@ -202,10 +215,30 @@ function deepFreeze<T>(value: T): T {
   return value;
 }
 
+/** Value paths, such as "people.1.age", of the fields and repeated sections a condition hides. */
+function hiddenAnswerPaths(form: { get<T>(name: string): T }): Set<string> {
+  const hidden = new Set<string>();
+  if (!form.get<any>("formFieldRegistry").getForm()) return hidden;
+  const pathRegistry = form.get<any>("pathRegistry");
+  const { data } = form.get<any>("form")._getState();
+  // form-js asks for the path of each field it clears because a condition hides it.
+  form.get<any>("conditionChecker").applyConditions(data, data, {
+    getFilterPath: (field: unknown, indexes: Record<string, number>) => {
+      const path = pathRegistry.getValuePath(field, { indexes });
+      hidden.add(path.join("."));
+      return path;
+    },
+  });
+  return hidden;
+}
+
 /** Keeps a live form's service in step with its parent's results; call from the owning component. */
 export function connectScreeningResults(
   form: { get<T>(name: string): T },
   live: {
+    schema: Accessor<Parameters<typeof indexQuestions>[0]>;
+    /** The normalized answers last sent for evaluation. */
+    evaluatedAnswers: Accessor<unknown>;
     results: Accessor<ScreenerResult | undefined>;
     pending: Accessor<boolean>;
     failed: Accessor<boolean>;
@@ -214,8 +247,29 @@ export function connectScreeningResults(
   },
 ): void {
   const service = form.get<ScreeningResultsService>("screeningResults");
+  const questionIndex = createMemo(() => indexQuestions(live.schema()));
+  // Conditions are judged against the imported schema, so judge again after each import.
+  const [imports, setImports] = createSignal(0);
+  form
+    .get<EventBus>("eventBus")
+    .on("import.done", () => setImports((count) => count + 1));
+  // Keep the same questions while their content is unchanged, so the service
+  // doesn't copy and republish them for every answer edit.
+  const questions = createMemo(
+    () => {
+      imports();
+      return unansweredQuestions(
+        questionIndex(),
+        live.evaluatedAnswers(),
+        live.results(),
+        hiddenAnswerPaths(form),
+      );
+    },
+    undefined,
+    { equals: isEqual },
+  );
   createEffect(() =>
-    service.update(live.results(), live.pending(), live.failed()),
+    service.update(live.results(), live.pending(), live.failed(), questions()),
   );
   createEffect(() => service.setScreenerName(live.screenerName?.()));
   const { onNextStepsShownChange } = live;

@@ -7,6 +7,7 @@ import {
   Text,
 } from "@bpmn-io/form-js-viewer";
 import type { BenefitResult } from "@/types";
+import type { UnansweredQuestions } from "@/utils/unansweredQuestions";
 import { useScreeningResults } from "../screeningResults/useScreeningResults";
 import {
   NEXT_STEPS_TYPE,
@@ -106,7 +107,8 @@ export function NextSteps({ field }: { field: NextStepsField }) {
     () => getService("screeningResults", false)?.showNextSteps(field.id),
     [getService, field.id],
   );
-  const { results, pending, failed, mode } = useScreeningResults();
+  const { results, pending, failed, mode, unansweredQuestions } =
+    useScreeningResults();
   const benefits = Object.entries(results ?? {});
   const complete =
     benefits.length > 0 && benefits.every(([, benefit]) => isDecided(benefit));
@@ -124,6 +126,7 @@ export function NextSteps({ field }: { field: NextStepsField }) {
       pending=${pending}
       failed=${failed}
       mode=${mode}
+      unansweredQuestions=${unansweredQuestions}
     />
   </div>`;
 }
@@ -136,6 +139,7 @@ export function NextStepsBody({
   failed,
   mode,
   forPrint = false,
+  unansweredQuestions,
 }: {
   field: NextStepsField;
   benefits: [string, BenefitResult][];
@@ -144,6 +148,7 @@ export function NextStepsBody({
   failed: boolean;
   mode: "live" | "editor";
   forPrint?: boolean;
+  unansweredQuestions?: UnansweredQuestions;
 }) {
   if (failed)
     return html`<div class="fjs-form-field bdt-next-steps">
@@ -186,6 +191,13 @@ export function NextStepsBody({
         return html`<section key=${id}>
           <h3>${benefit.name}</h3>
           <p>Still needs more information.</p>
+          ${!!unansweredQuestions?.[id]?.length &&
+          html`
+            <p>Find answers to these questions to continue:</p>
+            <ul>
+              ${unansweredQuestions[id].map((label) => html`<li>${label}</li>`)}
+            </ul>
+          `}
         </section>`;
       if (hideDecided) return null;
       const unmet = steps.unmetRequirements;

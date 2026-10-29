@@ -91,6 +91,8 @@ function FormRenderer({
       additionalModules: [CustomFormFieldsModule, screeningResultsModule],
     });
     connectScreeningResults(form, {
+      schema: () => schema,
+      evaluatedAnswers: formData,
       results,
       screenerName,
       pending,

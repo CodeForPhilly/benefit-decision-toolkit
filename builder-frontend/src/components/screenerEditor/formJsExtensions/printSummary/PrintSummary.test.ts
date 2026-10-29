@@ -96,7 +96,7 @@ it("prints current results and copied content with full URLs, without answers, a
   const { button, service, container } = await mount();
   expect(button.disabled).toBe(true);
   service.setScreenerName("Local benefit screener");
-  service.update(results, false);
+  service.update(results, false, false, { utility: ["Your date of birth"] });
   await vi.waitFor(() => expect(button.disabled).toBe(false));
   let root!: HTMLElement;
   let printing = false;
@@ -115,6 +115,7 @@ it("prints current results and copied content with full URLs, without answers, a
   expect(root.textContent).toContain("Income limit");
   expect(root.textContent).toContain("Ask about other help");
   expect(root.textContent).toContain("Still needs more information");
+  expect(root.textContent).toContain("Your date of birth");
   expect(root.textContent).toContain(
     "https://example.org/apply?program=housing",
   );

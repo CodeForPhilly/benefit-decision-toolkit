@@ -25,6 +25,18 @@ const decided: ScreenerResult = {
 };
 
 describe("screening results service", () => {
+  it("publishes immutable question labels without storing the evaluated answers", () => {
+    const { service } = setup();
+    const questions = { benefit: ["Annual income"] };
+    service.update(decided, false, false, questions);
+    expect(service.getSnapshot().unansweredQuestions).toBe(questions);
+    expect(() => questions.benefit.push("Later edit")).toThrow(TypeError);
+    expect(service.getSnapshot().unansweredQuestions).toEqual({
+      benefit: ["Annual income"],
+    });
+    service.update(decided, false);
+    expect(service.getSnapshot().unansweredQuestions).toBeUndefined();
+  });
   it("keeps the screener name local to the form without notifying results subscribers", () => {
     const { service } = setup();
     const other = setup().service;

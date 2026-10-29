@@ -1,4 +1,5 @@
 import type { BenefitResult, ScreenerResult } from "@/types";
+import { joinPath } from "@/utils/formFields";
 
 export function haveSameQuestionPaths(
   previous: readonly string[] | undefined,
@@ -61,13 +62,24 @@ export function hideQuestions(
 ): any {
   const hidden = new Set(hiddenPaths);
 
-  const filterComponents = (components: any[] | undefined): any[] =>
+  // Match the full path, as checks name inputs: a group's path prefixes its fields' keys.
+  const filterComponents = (
+    components: any[] | undefined,
+    parentPath = "",
+  ): any[] =>
     (components ?? [])
-      .filter((component) => !component.key || !hidden.has(component.key))
+      .filter(
+        (component) =>
+          !component.key ||
+          !hidden.has(joinPath(parentPath, component.path, component.key)),
+      )
       .map((component) => {
         const copy = { ...component };
         if (Array.isArray(component.components)) {
-          copy.components = filterComponents(component.components);
+          copy.components = filterComponents(
+            component.components,
+            joinPath(parentPath, component.path),
+          );
         }
         return copy;
       });
