@@ -1,4 +1,4 @@
-import { Accessor, createEffect, createMemo } from "solid-js";
+import { Accessor, createEffect, createMemo, createSignal } from "solid-js";
 import cloneDeep from "lodash/cloneDeep";
 import isEqual from "lodash/isEqual";
 import {
@@ -215,6 +215,23 @@ function deepFreeze<T>(value: T): T {
   return value;
 }
 
+/** Value paths, such as "people.1.age", of the fields and repeated sections a condition hides. */
+function hiddenAnswerPaths(form: { get<T>(name: string): T }): Set<string> {
+  const hidden = new Set<string>();
+  if (!form.get<any>("formFieldRegistry").getForm()) return hidden;
+  const pathRegistry = form.get<any>("pathRegistry");
+  const { data } = form.get<any>("form")._getState();
+  // form-js asks for the path of each field it clears because a condition hides it.
+  form.get<any>("conditionChecker").applyConditions(data, data, {
+    getFilterPath: (field: unknown, indexes: Record<string, number>) => {
+      const path = pathRegistry.getValuePath(field, { indexes });
+      hidden.add(path.join("."));
+      return path;
+    },
+  });
+  return hidden;
+}
+
 /** Keeps a live form's service in step with its parent's results; call from the owning component. */
 export function connectScreeningResults(
   form: { get<T>(name: string): T },
@@ -231,15 +248,23 @@ export function connectScreeningResults(
 ): void {
   const service = form.get<ScreeningResultsService>("screeningResults");
   const questionIndex = createMemo(() => indexQuestions(live.schema()));
+  // Conditions are judged against the imported schema, so judge again after each import.
+  const [imports, setImports] = createSignal(0);
+  form
+    .get<EventBus>("eventBus")
+    .on("import.done", () => setImports((count) => count + 1));
   // Keep the same questions while their content is unchanged, so the service
   // doesn't copy and republish them for every answer edit.
   const questions = createMemo(
-    () =>
-      unansweredQuestions(
+    () => {
+      imports();
+      return unansweredQuestions(
         questionIndex(),
         live.evaluatedAnswers(),
         live.results(),
-      ),
+        hiddenAnswerPaths(form),
+      );
+    },
     undefined,
     { equals: isEqual },
   );

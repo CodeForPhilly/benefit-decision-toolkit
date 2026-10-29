@@ -67,7 +67,10 @@ describe.each(["published", "preview"])(
       document.body.replaceChildren();
     });
 
-    async function mount(data = { answer: "Keep this answer" }) {
+    async function mount(
+      data: object = { answer: "Keep this answer" },
+      formSchema: object = schema,
+    ) {
       const [results, setResults] = createSignal<ScreenerResult>();
       const [pending, setPending] = createSignal(false);
       const [failed, setFailed] = createSignal(false);
@@ -86,9 +89,9 @@ describe.each(["published", "preview"])(
         render(
           () =>
             mode === "published" ? (
-              <PublishedForm schema={schema} {...common} />
+              <PublishedForm schema={formSchema} {...common} />
             ) : (
-              <PreviewForm schema={() => schema} {...common} />
+              <PreviewForm schema={() => formSchema} {...common} />
             ),
           container,
         ),
@@ -150,6 +153,48 @@ describe.each(["published", "preview"])(
       });
       await vi.waitFor(() =>
         expect(s.snapshot().unansweredQuestions).toEqual({}),
+      );
+    });
+
+    it("leaves out unanswered questions a condition hides", async () => {
+      const s = await mount(
+        { answer: "", married: false },
+        {
+          ...schema,
+          components: [
+            ...schema.components,
+            {
+              id: "married",
+              type: "checkbox",
+              key: "married",
+              label: "Married",
+            },
+            {
+              id: "spouseIncome",
+              type: "number",
+              key: "spouse.income",
+              label: "Spouse income",
+              conditional: { hide: "=married != true" },
+            },
+          ],
+        },
+      );
+      s.setResults({
+        benefit: {
+          name: "Benefit",
+          result: "UNABLE_TO_DETERMINE",
+          check_results: {
+            missing: {
+              result: "UNABLE_TO_DETERMINE",
+              inputPaths: ["answer", "spouse.income"],
+            } as any,
+          },
+        },
+      });
+      await vi.waitFor(() =>
+        expect(s.snapshot().unansweredQuestions).toEqual({
+          benefit: ["Answer"],
+        }),
       );
     });
 

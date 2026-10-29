@@ -111,7 +111,8 @@ For an undecided benefit, Next steps lists the form's question labels for missin
 inputs used by that benefit's undecided checks. Shared inputs are deduplicated;
 inputs used only by decided checks are omitted. Fields sharing a label add their
 group's label, and items of a repeated section with more than one item are
-numbered, such as "Age (Household member #2)". Zero, No, and explicit None
+numbered, such as "Age (Household member #2)". Questions a form condition
+currently hides are left out, since no one can answer them. Zero, No, and explicit None
 answers remain answered. The list uses the same normalized data sent to the
 eligibility service, including unknown CRM prefill preserved as null.
 

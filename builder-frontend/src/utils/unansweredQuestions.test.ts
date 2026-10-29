@@ -194,6 +194,37 @@ it("tells apart fields sharing a label and items of a repeated section", () => {
   ).toEqual({ benefit: ["Date of birth (Your spouse)", "Age"] });
 });
 
+it("skips fields and repeated sections hidden by a condition", () => {
+  const form = {
+    components: [
+      {
+        path: "spouse",
+        components: [{ key: "income", label: "Spouse income" }],
+      },
+      {
+        path: "people",
+        label: "Household member",
+        isRepeating: true,
+        components: [{ key: "age", label: "Age" }],
+      },
+    ],
+  };
+  const result: ScreenerResult = {
+    benefit: {
+      name: "Benefit",
+      result: "UNABLE_TO_DETERMINE",
+      check_results: { a: check(["spouse.income", "people.age"]) },
+    },
+  };
+  const answers = { people: [{ age: null }, { age: null }] };
+  const ask = (hidden: string[]) =>
+    fromIndex(indexQuestions(form), answers, result, new Set(hidden)).benefit;
+  expect(ask(["spouse.income", "people.0.age"])).toEqual([
+    "Age (Household member #2)",
+  ]);
+  expect(ask(["spouse.income", "people"])).toBeUndefined();
+});
+
 it("treats whitespace as answered, as the eligibility service receives it", () => {
   expect(
     unansweredQuestions(

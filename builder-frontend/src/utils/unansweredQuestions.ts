@@ -27,28 +27,37 @@ function staticLabel(label: unknown): string | undefined {
   if (text && !text.startsWith("=") && !/{{[\s\S]*?}}/.test(text)) return text;
 }
 
+type Answer = { value: unknown; items: Item[]; path: (string | number)[] };
+
 // A repeated section may hold several answers at the same schema path.
 function valuesAt(
   value: unknown,
   segments: string[],
   items: Item[] = [],
-): { value: unknown; items: Item[] }[] {
-  if (!segments.length) return [{ value, items }];
+  path: (string | number)[] = [],
+): Answer[] {
+  if (!segments.length) return [{ value, items, path }];
   if (Array.isArray(value))
     return value.length
       ? value.flatMap((item, index) =>
-          valuesAt(item, segments, [...items, { index, count: value.length }]),
+          valuesAt(
+            item,
+            segments,
+            [...items, { index, count: value.length }],
+            [...path, index],
+          ),
         )
-      : [{ value: undefined, items }];
+      : [{ value: undefined, items, path: [...path, ...segments] }];
   const [key, ...rest] = segments;
   if (!value || typeof value !== "object" || isUnsafeObjectKey(key))
-    return [{ value: undefined, items }];
+    return [{ value: undefined, items, path: [...path, ...segments] }];
   return valuesAt(
     Object.hasOwn(value, key)
       ? (value as Record<string, unknown>)[key]
       : undefined,
     rest,
     items,
+    [...path, key],
   );
 }
 
@@ -102,12 +111,21 @@ function describe(question: Question, items: Item[]): string {
     : question.label;
 }
 
-/** Labels only: never expose answers, technical paths, or evaluated label templates. */
+/**
+ * Labels only: never expose answers, technical paths, or evaluated label templates.
+ * `hiddenAnswerPaths` are value paths, such as "people.1.age", of fields or repeated
+ * sections hidden by a condition: no one can answer them, so they're never listed.
+ */
 export function unansweredQuestions(
   questionsAt: QuestionIndex,
   evaluatedAnswers: unknown,
   results: ScreenerResult | undefined,
+  hiddenAnswerPaths: ReadonlySet<string> = new Set(),
 ): UnansweredQuestions {
+  const isHidden = (path: (string | number)[]) =>
+    path.some((_, end) =>
+      hiddenAnswerPaths.has(path.slice(0, end + 1).join(".")),
+    );
   return Object.fromEntries(
     Object.entries(results ?? {}).flatMap(([id, benefit]) => {
       if (benefit.result !== "UNABLE_TO_DETERMINE") return [];
@@ -118,14 +136,14 @@ export function unansweredQuestions(
       );
       const questions = new Set<string>();
       for (const path of paths)
-        for (const { value, items } of valuesAt(
-          evaluatedAnswers,
-          path.split("."),
-        ))
+        for (const answer of valuesAt(evaluatedAnswers, path.split(".")))
           // Match what the eligibility service receives: whitespace is sent as typed.
-          if (value == null || value === "")
+          if (
+            (answer.value == null || answer.value === "") &&
+            !isHidden(answer.path)
+          )
             for (const question of questionsAt.get(path) ?? [])
-              questions.add(describe(question, items));
+              questions.add(describe(question, answer.items));
       return questions.size ? [[id, [...questions]]] : [];
     }),
   );
