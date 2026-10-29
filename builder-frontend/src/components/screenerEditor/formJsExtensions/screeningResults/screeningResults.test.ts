@@ -29,15 +29,11 @@ describe("screening results service", () => {
     const { service } = setup();
     const questions = { benefit: ["Annual income"] };
     service.update(decided, false, false, questions);
-    questions.benefit.push("Later edit");
+    expect(service.getSnapshot().unansweredQuestions).toBe(questions);
+    expect(() => questions.benefit.push("Later edit")).toThrow(TypeError);
     expect(service.getSnapshot().unansweredQuestions).toEqual({
       benefit: ["Annual income"],
     });
-    expect(() =>
-      (service.getSnapshot().unansweredQuestions!.benefit as string[]).push(
-        "Edit",
-      ),
-    ).toThrow(TypeError);
     service.update(decided, false);
     expect(service.getSnapshot().unansweredQuestions).toBeUndefined();
   });

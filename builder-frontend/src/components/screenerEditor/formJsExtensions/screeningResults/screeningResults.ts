@@ -49,8 +49,6 @@ export class ScreeningResultsService {
   // Fields get a frozen copy so they can't change the parent's results.
   private liveSource: ScreenerResult | undefined;
   private liveCopy: ScreenerResult | undefined;
-  private questionsSource: UnansweredQuestions | undefined;
-  private questionsCopy: UnansweredQuestions | undefined;
   // IDs of the rendered Next steps fields, once per rendering.
   private nextStepsShown: string[] = [];
   private screenerName: string | undefined;
@@ -99,6 +97,7 @@ export class ScreeningResultsService {
     return () => this.eventBus.off(SCREENING_RESULTS_CHANGED, listener);
   };
 
+  /** Freezes `unansweredQuestions` in place: pass questions built for this form alone. */
   update(
     results: ScreenerResult | undefined,
     pending: boolean,
@@ -109,19 +108,13 @@ export class ScreeningResultsService {
       this.liveSource = results;
       this.liveCopy = results && deepFreeze(cloneDeep(results));
     }
-    if (unansweredQuestions !== this.questionsSource) {
-      this.questionsSource = unansweredQuestions;
-      this.questionsCopy =
-        unansweredQuestions && deepFreeze(cloneDeep(unansweredQuestions));
-    }
     this.publish({
       results: this.liveCopy,
       pending,
       failed,
       mode: "live",
-      ...(this.questionsCopy === undefined
-        ? {}
-        : { unansweredQuestions: this.questionsCopy }),
+      unansweredQuestions:
+        unansweredQuestions && deepFreeze(unansweredQuestions),
     });
   }
 
