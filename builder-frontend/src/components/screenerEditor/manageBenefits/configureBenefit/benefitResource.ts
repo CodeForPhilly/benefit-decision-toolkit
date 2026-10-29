@@ -8,6 +8,7 @@ import {
   removeCheckFromBenefit,
   updateCheckParameters,
   updateCheckAlias,
+  updateCheckExplanation,
   generateCheckAlias,
   updateScreenerBenefit,
 } from "@/api/benefit";
@@ -29,6 +30,10 @@ interface ScreenerBenefitsResource {
       aliasName: string | null,
       aliasGenerated: boolean,
     ) => void;
+    updateCheckConfigExplanation: (
+      checkId: string,
+      explanation: string | null,
+    ) => Promise<void>;
     generateCheckConfigAlias: (checkId: string) => Promise<string>;
     updateNextSteps: (nextSteps: NextSteps) => Promise<void>;
   };
@@ -154,6 +159,19 @@ const createScreenerBenefits = (
     setActionInProgress(false);
   };
 
+  const updateCheckConfigExplanation = async (
+    checkId: string,
+    explanation: string | null,
+  ) => {
+    await updateCheckExplanation(
+      screenerId(),
+      benefitId(),
+      checkId,
+      explanation,
+    );
+    await refetch();
+  };
+
   const generateCheckConfigAlias = (checkId: string) =>
     generateCheckAlias(screenerId(), benefitId(), checkId);
 
@@ -188,6 +206,7 @@ const createScreenerBenefits = (
       updateCheckConfigParams,
       updateCheckConfigAlias,
       generateCheckConfigAlias,
+      updateCheckConfigExplanation,
       updateNextSteps,
     },
     actionInProgress,

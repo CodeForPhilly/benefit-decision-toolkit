@@ -4,6 +4,8 @@ import { PreviewFormData, ScreenerResult } from "./types";
 import type { ParameterValues } from "@/types";
 import { titleCase } from "@/utils/title_case";
 
+import CheckExplanation from "@/components/shared/CheckExplanation";
+
 import checkIcon from "../../../assets/images/checkIcon.svg";
 import questionIcon from "../../../assets/images/questionIcon.svg";
 import xIcon from "../../../assets/images/xIcon.svg";
@@ -152,6 +154,14 @@ export default function Results({
                                       </span>
                                     </div>
                                   </Show>
+                                  <CheckExplanation
+                                    explanation={check.explanation}
+                                    name={
+                                      check.aliasName
+                                        ? titleCase(check.aliasName)
+                                        : check.name
+                                    }
+                                  />
                                   <Show
                                     when={
                                       (check.effectiveParameters &&

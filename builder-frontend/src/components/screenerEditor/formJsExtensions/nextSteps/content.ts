@@ -93,7 +93,10 @@ export function benefitNextSteps(
     body: null,
     unmetRequirements: Object.values(benefit.check_results ?? {})
       .filter((check) => check.result === "FALSE")
-      .map((check) => check.aliasName?.trim() || check.name)
+      .map(
+        (check) =>
+          check.explanation?.trim() || check.aliasName?.trim() || check.name,
+      )
       // An unnamed check has nothing to show.
       .filter((name): name is string => !!name?.trim()),
     note: markdown(content?.ineligible?.note),
