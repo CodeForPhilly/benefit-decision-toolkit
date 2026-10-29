@@ -152,13 +152,9 @@ for (const showWhen of ["whenDecided", "whenComplete"]) {
         exact: true,
       }),
     ).toHaveCount(0);
-    const next = page.getByRole("region", {
-      name: "Your next steps",
-      exact: true,
-    });
-    await expect(next.locator("strong")).toHaveText("photo ID");
+    await expect(nextSteps.locator("strong")).toHaveText("photo ID");
     await expect(
-      next.getByRole("link", { name: "Help", exact: true }),
+      nextSteps.getByRole("link", { name: "Help", exact: true }),
     ).toHaveAttribute("target", "_blank");
     await expect(
       page.getByText("Screening complete. All benefits", { exact: false }),
@@ -205,12 +201,14 @@ for (const showWhen of ["whenDecided", "whenComplete"]) {
       page.getByRole("link", { name: "Apply for this benefit" }),
     ).toHaveCount(0);
     await expect(
-      next.getByText("Requirements not met", { exact: true }),
+      nextSteps.getByText("Requirements not met", { exact: true }),
     ).toBeVisible();
-    await expect(next.getByRole("listitem")).toHaveText(
+    await expect(nextSteps.getByRole("listitem")).toHaveText(
       "Income must be below $1,000",
     );
-    await expect(next.getByText("Ask about other assistance.")).toBeVisible();
+    await expect(
+      nextSteps.getByText("Ask about other assistance."),
+    ).toBeVisible();
     fail = true;
     await income.fill("600");
     await expect(
