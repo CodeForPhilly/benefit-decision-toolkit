@@ -1,11 +1,19 @@
 import { expect, it } from "vitest";
-import { unansweredQuestions } from "./unansweredQuestions";
+import {
+  indexQuestions,
+  unansweredQuestions as fromIndex,
+} from "./unansweredQuestions";
 import { normalizeArrayFieldData } from "./arrayFieldData";
 import {
   findFilledUnknownPaths,
   restoreUnknownAnswers,
 } from "./unknownAnswers";
 import type { ScreenerResult } from "@/types";
+
+const unansweredQuestions = (
+  schema: Parameters<typeof indexQuestions>[0],
+  ...rest: [unknown, ScreenerResult | undefined]
+) => fromIndex(indexQuestions(schema), ...rest);
 
 const schema = {
   components: [

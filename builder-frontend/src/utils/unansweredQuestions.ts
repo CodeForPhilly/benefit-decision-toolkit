@@ -12,7 +12,7 @@ interface Field extends FormComponent {
 }
 interface Question {
   label: string;
-  // Labels of the field's groups, to tell apart fields sharing a label.
+  // Labels of the field's groups, kept only to tell apart fields sharing a label.
   groups: string[];
   // Labels of its repeated sections, outermost first, to number their items.
   repeats: string[];
@@ -52,12 +52,12 @@ function valuesAt(
   );
 }
 
-/** Labels only: never expose answers, technical paths, or evaluated label templates. */
-export function unansweredQuestions(
-  schema: { components?: Field[] },
-  evaluatedAnswers: unknown,
-  results: ScreenerResult | undefined,
-): UnansweredQuestions {
+/** A form's question labels by input path; build once per schema. */
+export type QuestionIndex = ReadonlyMap<string, readonly Question[]>;
+
+export function indexQuestions(schema: {
+  components?: Field[];
+}): QuestionIndex {
   const questionsAt = new Map<string, Question[]>();
   const labelPaths = new Map<string, Set<string>>();
   forEachKeyedField(schema.components, (field, path, ancestors) => {
@@ -80,21 +80,34 @@ export function unansweredQuestions(
       },
     ]);
   });
-  // Name a field's groups only when another field shares its label, and number
-  // a repeated section's items only when it has more than one.
-  const describe = (question: Question, items: Item[]) => {
-    const context = [
-      ...items.flatMap(({ index, count }, depth) =>
-        count > 1 && question.repeats[depth]
-          ? [`${question.repeats[depth]} #${index + 1}`]
-          : [],
-      ),
-      ...(labelPaths.get(question.label)!.size > 1 ? question.groups : []),
-    ];
-    return context.length
-      ? `${question.label} (${context.join(", ")})`
-      : question.label;
-  };
+  // Name a field's groups only when another field shares its label.
+  for (const questions of questionsAt.values())
+    for (const question of questions)
+      if (labelPaths.get(question.label)!.size === 1) question.groups = [];
+  return questionsAt;
+}
+
+// Number a repeated section's items only when it has more than one.
+function describe(question: Question, items: Item[]): string {
+  const context = [
+    ...items.flatMap(({ index, count }, depth) =>
+      count > 1 && question.repeats[depth]
+        ? [`${question.repeats[depth]} #${index + 1}`]
+        : [],
+    ),
+    ...question.groups,
+  ];
+  return context.length
+    ? `${question.label} (${context.join(", ")})`
+    : question.label;
+}
+
+/** Labels only: never expose answers, technical paths, or evaluated label templates. */
+export function unansweredQuestions(
+  questionsAt: QuestionIndex,
+  evaluatedAnswers: unknown,
+  results: ScreenerResult | undefined,
+): UnansweredQuestions {
   return Object.fromEntries(
     Object.entries(results ?? {}).flatMap(([id, benefit]) => {
       if (benefit.result !== "UNABLE_TO_DETERMINE") return [];

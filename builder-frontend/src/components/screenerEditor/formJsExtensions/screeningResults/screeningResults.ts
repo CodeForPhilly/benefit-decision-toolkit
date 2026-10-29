@@ -2,6 +2,7 @@ import { Accessor, createEffect, createMemo } from "solid-js";
 import cloneDeep from "lodash/cloneDeep";
 import isEqual from "lodash/isEqual";
 import {
+  indexQuestions,
   unansweredQuestions,
   type UnansweredQuestions,
 } from "@/utils/unansweredQuestions";
@@ -225,7 +226,7 @@ function deepFreeze<T>(value: T): T {
 export function connectScreeningResults(
   form: { get<T>(name: string): T },
   live: {
-    schema: Accessor<Parameters<typeof unansweredQuestions>[0]>;
+    schema: Accessor<Parameters<typeof indexQuestions>[0]>;
     /** The normalized answers last sent for evaluation. */
     evaluatedAnswers: Accessor<unknown>;
     results: Accessor<ScreenerResult | undefined>;
@@ -236,12 +237,13 @@ export function connectScreeningResults(
   },
 ): void {
   const service = form.get<ScreeningResultsService>("screeningResults");
+  const questionIndex = createMemo(() => indexQuestions(live.schema()));
   // Keep the same questions while their content is unchanged, so the service
   // doesn't copy and republish them for every answer edit.
   const questions = createMemo(
     () =>
       unansweredQuestions(
-        live.schema(),
+        questionIndex(),
         live.evaluatedAnswers(),
         live.results(),
       ),
