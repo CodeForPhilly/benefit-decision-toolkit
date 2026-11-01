@@ -47,6 +47,7 @@ The response is keyed by benefit ID:
       "check-id0": {
         "name": "ExampleCheck",
         "aliasName": null,
+        "explanation": null,
         "result": "UNABLE_TO_DETERMINE",
         "module": "ExampleModule",
         "version": "1.0.0",
@@ -59,6 +60,10 @@ The response is keyed by benefit ID:
   }
 }
 ```
+
+`explanation` is the author's optional plain-language text for that check: plain
+text of up to 2,000 characters that can span multiple lines, or `null` when there
+is none.
 
 Results are `TRUE`, `FALSE`, or `UNABLE_TO_DETERMINE`. They represent eligibility
 checks, not a submitted application or an approval. An unknown screener returns
@@ -211,10 +216,13 @@ result.
 
 Only decided benefits are included, keyed by their evaluation benefit IDs.
 Eligible entries contain application/help contacts and `body`; ineligible entries
-have `status: "ineligible"`, `unmetRequirements` (the failed checks' display names),
-and `note` with the same `{ format: "markdown", text }` structure. Unused contacts
-and text fields are `null`; unused requirements are an empty array. Missing
-instructions remain empty rather than being invented.
+have `status: "ineligible"`, `unmetRequirements` (each failed check's `explanation`
+when it has one, otherwise its display name), and `note` with the same
+`{ format: "markdown", text }` structure. Requirements are text to display, not
+identifiers: an explanation can be long and span multiple lines, and adding one
+changes the value, so don't match on them. Use `check_results` in `results` to
+identify a check. Unused contacts and text fields are `null`; unused requirements
+are an empty array. Missing instructions remain empty rather than being invented.
 
 Content comes from the first **visible** Next steps component in schema order,
 including nested groups, just like printing. It uses the screener's saved copy,
