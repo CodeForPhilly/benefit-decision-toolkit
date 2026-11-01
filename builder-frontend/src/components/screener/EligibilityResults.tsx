@@ -7,7 +7,7 @@ import CheckExplanation from "@/components/shared/CheckExplanation";
 import checkIcon from "@/assets/images/checkIcon.svg";
 import questionIcon from "@/assets/images/questionIcon.svg";
 import xIcon from "@/assets/images/xIcon.svg";
-import { titleCase } from "@/utils/title_case";
+import { checkDisplayName } from "@/utils/checkDisplayName";
 
 export default function EligibilityResults({
   screenerResult,
@@ -64,12 +64,10 @@ function BenefitResult({ benefitResult }: { benefitResult: BenefitResult }) {
               </div>
               <div class="flex flex-col text-xs">
                 <div>
-                  {check.aliasName ? titleCase(check.aliasName) : check.name}
+                  {checkDisplayName(check)}
                   <CheckExplanation
                     explanation={check.explanation}
-                    name={
-                      check.aliasName ? titleCase(check.aliasName) : check.name
-                    }
+                    name={checkDisplayName(check)}
                   />
                 </div>
               </div>

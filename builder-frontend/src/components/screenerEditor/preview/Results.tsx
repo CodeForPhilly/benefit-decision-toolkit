@@ -2,7 +2,7 @@ import { Accessor, For, Match, Show, Switch } from "solid-js";
 
 import { PreviewFormData, ScreenerResult } from "./types";
 import type { ParameterValues } from "@/types";
-import { titleCase } from "@/utils/title_case";
+import { checkDisplayName } from "@/utils/checkDisplayName";
 
 import CheckExplanation from "@/components/shared/CheckExplanation";
 
@@ -129,7 +129,7 @@ export default function Results({
                                       when={check.aliasName}
                                       fallback={
                                         <div>
-                                          {check.name}
+                                          {checkDisplayName(check)}
                                           <Show
                                             when={check.module || check.version}
                                           >
@@ -145,7 +145,7 @@ export default function Results({
                                       }
                                     >
                                       <div>
-                                        {titleCase(check.aliasName!)}
+                                        {checkDisplayName(check)}
                                         <span class="text-gray-500 text-sm ml-1">
                                           ({check.name},{" "}
                                           {[check.module, check.version]
@@ -157,11 +157,7 @@ export default function Results({
                                     </Show>
                                     <CheckExplanation
                                       explanation={check.explanation}
-                                      name={
-                                        check.aliasName
-                                          ? titleCase(check.aliasName)
-                                          : check.name
-                                      }
+                                      name={checkDisplayName(check)}
                                     />
                                   </div>
                                   <Show
