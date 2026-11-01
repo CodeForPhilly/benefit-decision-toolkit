@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { render } from "solid-js/web";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import Tooltip from "./Tooltip";
 
@@ -63,5 +63,60 @@ describe("Tooltip", () => {
     // Scroll events don't bubble, so this reaches the window only while capturing.
     document.body.dispatchEvent(new Event("scroll"));
     expect(tooltip.style.top).toBe("88px");
+  });
+
+  const press = (target: EventTarget, pointerType: string) =>
+    target.dispatchEvent(
+      Object.assign(new Event("pointerdown", { bubbles: true }), {
+        pointerType,
+      }),
+    );
+  const hover = (trigger: HTMLElement) =>
+    trigger.parentElement!.dispatchEvent(new MouseEvent("mouseenter"));
+  const tap = (trigger: HTMLElement) => {
+    press(trigger, "touch");
+    hover(trigger);
+    trigger.click();
+  };
+
+  it("dismisses a hovered tooltip with Escape without focusing it", () => {
+    const { trigger, tooltip } = setup();
+    const outerKeydown = vi.fn();
+    document.body.addEventListener("keydown", outerKeydown);
+    hover(trigger);
+    expect(tooltip.hidden).toBe(false);
+    document.body.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+    );
+    expect(tooltip.hidden).toBe(true);
+    expect(outerKeydown).not.toHaveBeenCalled();
+    document.body.removeEventListener("keydown", outerKeydown);
+  });
+
+  it("toggles on repeated taps", () => {
+    const { trigger, tooltip } = setup();
+    tap(trigger);
+    expect(tooltip.hidden).toBe(false);
+    tap(trigger);
+    expect(tooltip.hidden).toBe(true);
+    tap(trigger);
+    expect(tooltip.hidden).toBe(false);
+  });
+
+  it("closes when a press lands outside it, but not inside it", () => {
+    const { trigger, tooltip, link } = setup();
+    tap(trigger);
+    press(link, "touch");
+    expect(tooltip.hidden).toBe(false);
+    press(document.body, "touch");
+    expect(tooltip.hidden).toBe(true);
+  });
+
+  it("stays open when a mouse clicks a hovered trigger", () => {
+    const { trigger, tooltip } = setup();
+    hover(trigger);
+    press(trigger, "mouse");
+    trigger.click();
+    expect(tooltip.hidden).toBe(false);
   });
 });

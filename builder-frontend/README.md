@@ -133,7 +133,8 @@ characters); clearing the field removes one. They belong to that check instance,
 so the same rule can have different explanations for different benefits.
 
 Published and preview results show an information button for checks with saved
-explanations. Hover, focus with the keyboard, or tap to read it; Escape dismisses
-the tooltip. Its text is associated with the button for screen readers. Failed
-checks use the explanation in **Requirements not met**, including print summaries
-and CRM Next steps. Checks without one keep their alias or original name.
+explanations. Hover, focus with the keyboard, or tap to read it. Escape dismisses
+the tooltip, as does a second tap or a tap elsewhere. Its text is associated with
+the button for screen readers. Failed checks use the explanation in **Requirements
+not met**, including print summaries and CRM Next steps. Checks without one keep
+their alias or original name.

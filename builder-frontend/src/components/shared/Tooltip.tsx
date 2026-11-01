@@ -30,6 +30,8 @@ export default function QuestionTooltip(props: TooltipProps) {
 
   let containerRef: HTMLDivElement | undefined;
   let hideTimeout: ReturnType<typeof setTimeout> | undefined;
+  // A tap opens through emulated hover, so only a tap on an open tooltip should close it
+  let closeOnTap = false;
 
   // Clean up any pending timeout when the component unmounts
   onCleanup(() => {
@@ -70,6 +72,26 @@ export default function QuestionTooltip(props: TooltipProps) {
     });
   });
 
+  // Hover and tap leave focus elsewhere, so dismissing can't rely on the trigger's own events
+  createEffect(() => {
+    if (!isVisible()) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setDismissed(true);
+        e.stopPropagation();
+      }
+    };
+    const onPointerDown = (e: PointerEvent) => {
+      if (!containerRef?.contains(e.target as Node)) setDismissed(true);
+    };
+    document.addEventListener("keydown", onKeyDown, true);
+    document.addEventListener("pointerdown", onPointerDown, true);
+    onCleanup(() => {
+      document.removeEventListener("keydown", onKeyDown, true);
+      document.removeEventListener("pointerdown", onPointerDown, true);
+    });
+  });
+
   return (
     <div
       ref={containerRef}
@@ -96,19 +118,19 @@ export default function QuestionTooltip(props: TooltipProps) {
           setFocused(false);
         }
       }}
-      onKeyDown={(e: KeyboardEvent) => {
-        if (e.key === "Escape") {
-          setDismissed(true);
-          e.stopPropagation();
-        }
-      }}
     >
       <button
         type="button"
         aria-label={props.ariaLabel ?? "More information"}
         aria-describedby={id}
         class="inline-flex rounded cursor-help focus-visible:outline-2 focus-visible:outline-offset-2"
-        onClick={() => setDismissed(false)}
+        onPointerDown={(e: PointerEvent) => {
+          closeOnTap = e.pointerType !== "mouse" && isVisible();
+        }}
+        onClick={() => {
+          setDismissed(closeOnTap);
+          closeOnTap = false;
+        }}
       >
         {props.label ?? (
           <QuestionMarkIcon class="size-5 text-gray-500 hover:text-gray-700 transition-colors" />
