@@ -163,13 +163,26 @@ const createScreenerBenefits = (
     checkId: string,
     explanation: string | null,
   ) => {
+    const targetScreenerId = screenerId();
+    const targetBenefitId = benefitId();
     await updateCheckExplanation(
-      screenerId(),
-      benefitId(),
+      targetScreenerId,
+      targetBenefitId,
       checkId,
       explanation,
     );
-    await refetch();
+    // A reload could report a failed read as a failed save, and would re-render every row.
+    if (
+      screenerId() === targetScreenerId &&
+      benefitId() === targetBenefitId
+    ) {
+      setBenefit(
+        "checks",
+        (check) => check.checkId === checkId,
+        "explanation",
+        explanation,
+      );
+    }
   };
 
   const generateCheckConfigAlias = (checkId: string) =>

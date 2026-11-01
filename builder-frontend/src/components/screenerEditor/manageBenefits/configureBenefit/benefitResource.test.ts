@@ -5,9 +5,10 @@ import BenefitResource from "./benefitResource";
 import {
   addCheckToBenefit,
   fetchScreenerBenefit,
+  updateCheckExplanation,
   updateScreenerBenefit,
 } from "@/api/benefit";
-import type { Benefit } from "@/types";
+import type { Benefit, CheckConfig } from "@/types";
 
 vi.mock("@/api/benefit", () => ({
   fetchScreenerBenefit: vi.fn(),
@@ -16,6 +17,7 @@ vi.mock("@/api/benefit", () => ({
   removeCheckFromBenefit: vi.fn(),
   updateCheckParameters: vi.fn(),
   updateCheckAlias: vi.fn(),
+  updateCheckExplanation: vi.fn(),
   generateCheckAlias: vi.fn(),
 }));
 
@@ -26,12 +28,12 @@ describe("benefit next-steps updates", () => {
     vi.clearAllMocks();
   });
 
-  function setup() {
+  function setup(checks: CheckConfig[] = []) {
     const benefit: Benefit = {
       id: "benefit-1",
       name: "Benefit",
       description: "Description",
-      checks: [],
+      checks,
     };
     vi.mocked(fetchScreenerBenefit).mockImplementation(
       async (_screenerId, id) => ({ ...benefit, id }),
@@ -130,5 +132,63 @@ describe("benefit next-steps updates", () => {
     finish(s.benefit);
     await saving;
     expect(s.resource.benefit().id).toBe("benefit-2");
+  });
+
+  const checks = [
+    { checkId: "check-1", checkName: "Income" },
+    { checkId: "check-2", checkName: "Age", explanation: "Be at least 65." },
+  ] as CheckConfig[];
+
+  it("shows a saved explanation without reloading or replacing rows", async () => {
+    const s = setup(structuredClone(checks));
+    await vi.waitFor(() => expect(s.resource.benefit()?.id).toBe("benefit-1"));
+    vi.mocked(updateCheckExplanation).mockResolvedValue(undefined);
+    const row = s.resource.benefit().checks[0];
+    await s.resource.actions.updateCheckConfigExplanation(
+      "check-1",
+      "Income must be low.",
+    );
+    expect(updateCheckExplanation).toHaveBeenCalledWith(
+      "screener-1",
+      "benefit-1",
+      "check-1",
+      "Income must be low.",
+    );
+    expect(s.resource.benefit().checks[0]).toBe(row);
+    expect(row.explanation).toBe("Income must be low.");
+    expect(s.resource.benefit().checks[1].explanation).toBe("Be at least 65.");
+    expect(fetchScreenerBenefit).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the explanation when saving fails and rejects for the modal", async () => {
+    const s = setup(structuredClone(checks));
+    await vi.waitFor(() => expect(s.resource.benefit()?.id).toBe("benefit-1"));
+    vi.mocked(updateCheckExplanation).mockRejectedValueOnce(
+      new Error("Offline"),
+    );
+    await expect(
+      s.resource.actions.updateCheckConfigExplanation("check-2", null),
+    ).rejects.toThrow("Offline");
+    expect(s.resource.benefit().checks[1].explanation).toBe("Be at least 65.");
+  });
+
+  it("leaves a different benefit alone when an explanation save finishes", async () => {
+    const s = setup(structuredClone(checks));
+    await vi.waitFor(() => expect(s.resource.benefit()?.id).toBe("benefit-1"));
+    let finish!: () => void;
+    vi.mocked(updateCheckExplanation).mockReturnValueOnce(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
+    const saving = s.resource.actions.updateCheckConfigExplanation(
+      "check-1",
+      "Stale",
+    );
+    s.switchBenefit("benefit-2");
+    await vi.waitFor(() => expect(s.resource.benefit()?.id).toBe("benefit-2"));
+    finish();
+    await saving;
+    expect(s.resource.benefit().checks[0].explanation).toBeUndefined();
   });
 });
