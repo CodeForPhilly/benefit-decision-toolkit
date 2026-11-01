@@ -1,0 +1,43 @@
+// @vitest-environment jsdom
+import { render } from "solid-js/web";
+import { afterEach, expect, it, vi } from "vitest";
+import SelectedEligibilityCheck from "./SelectedEligibilityCheck";
+import type { CheckConfig } from "@/types";
+
+let dispose: () => void;
+afterEach(() => {
+  dispose?.();
+  document.body.replaceChildren();
+});
+
+const buttonNamed = (name: string) =>
+  Array.from(document.querySelectorAll("button")).find(
+    (button) => button.textContent === name,
+  )!;
+
+it("returns focus to the edit button when the explanation modal closes", async () => {
+  dispose = render(
+    () => (
+      <SelectedEligibilityCheck
+        checkConfig={() =>
+          ({ checkName: "Income", checkVersion: "1.0.0" }) as CheckConfig
+        }
+        updateCheckConfigParams={vi.fn()}
+        updateCheckConfigAlias={null}
+        updateCheckConfigExplanation={vi.fn().mockResolvedValue(undefined)}
+        onRemove={vi.fn()}
+      />
+    ),
+    document.body,
+  );
+  const edit = buttonNamed("Edit explanation");
+
+  edit.click();
+  buttonNamed("Cancel").click();
+  expect(document.activeElement).toBe(edit);
+
+  edit.click();
+  document.querySelector("form")!.requestSubmit();
+  await vi.waitFor(() => expect(document.querySelector("form")).toBeNull());
+  expect(document.activeElement).toBe(edit);
+});

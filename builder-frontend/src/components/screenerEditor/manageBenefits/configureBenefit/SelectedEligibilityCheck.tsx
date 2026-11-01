@@ -36,6 +36,7 @@ const SelectedEligibilityCheck = ({
   const [editAliasModalOpen, setEditAliasModalOpen] = createSignal(false);
 
   const [editExplanationOpen, setEditExplanationOpen] = createSignal(false);
+  let editExplanationButton: HTMLButtonElement | undefined;
 
   const displayName = () => checkConfig().aliasName || checkConfig().checkName;
 
@@ -95,6 +96,7 @@ const SelectedEligibilityCheck = ({
           </Show>
           <Show when={updateCheckConfigExplanation}>
             <button
+              ref={editExplanationButton}
               type="button"
               class="text-sm text-gray-600 underline"
               onClick={(event) => {
@@ -166,7 +168,10 @@ const SelectedEligibilityCheck = ({
           <EditExplanationModal
             checkConfig={checkConfig}
             save={save()}
-            closeModal={() => setEditExplanationOpen(false)}
+            closeModal={() => {
+              setEditExplanationOpen(false);
+              editExplanationButton?.focus();
+            }}
           />
         )}
       </Show>
