@@ -583,6 +583,7 @@ public class CustomBenefitResource {
     }
 
     @PATCH
+    @Consumes(MediaType.APPLICATION_JSON)
     @Path("/screener/{screenerId}/benefit/{benefitId}/check/{checkId}/explanation")
     public Response updateCheckExplanation(
         @Context SecurityIdentity identity,
