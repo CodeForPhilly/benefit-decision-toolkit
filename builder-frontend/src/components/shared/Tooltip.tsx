@@ -1,4 +1,10 @@
-import { createSignal, createUniqueId, JSX, onCleanup } from "solid-js";
+import {
+  createEffect,
+  createSignal,
+  createUniqueId,
+  JSX,
+  onCleanup,
+} from "solid-js";
 import QuestionMarkIcon from "../icon/QuestionMarkIcon";
 
 interface TooltipProps {
@@ -15,7 +21,11 @@ export default function QuestionTooltip(props: TooltipProps) {
   const [focused, setFocused] = createSignal(false);
   const [hovered, setHovered] = createSignal(false);
   const [dismissed, setDismissed] = createSignal(false);
-  const [position, setPosition] = createSignal({ left: 0, arrowLeft: 0 });
+  const [position, setPosition] = createSignal({
+    top: 0,
+    left: 0,
+    arrowLeft: 0,
+  });
   const isVisible = () => (focused() || hovered()) && !dismissed();
 
   let containerRef: HTMLDivElement | undefined;
@@ -41,25 +51,36 @@ export default function QuestionTooltip(props: TooltipProps) {
         window.innerWidth - padding - tooltipWidth,
       ),
     );
-    setPosition({ left: left - rect.left, arrowLeft: center - left - 6 });
+    setPosition({
+      top: rect.bottom + 8,
+      left,
+      arrowLeft: center - left - 6,
+    });
   };
 
-  const show = () => {
+  // Fixed so a scrolling ancestor can't clip it, which means it has to follow the trigger
+  createEffect(() => {
+    if (!isVisible()) return;
     updatePosition();
-    setDismissed(false);
-  };
+    window.addEventListener("scroll", updatePosition, true);
+    window.addEventListener("resize", updatePosition);
+    onCleanup(() => {
+      window.removeEventListener("scroll", updatePosition, true);
+      window.removeEventListener("resize", updatePosition);
+    });
+  });
 
   return (
     <div
       ref={containerRef}
-      class="relative inline-flex items-center justify-center"
+      class="inline-flex items-center justify-center"
       onMouseEnter={() => {
         if (hideTimeout) {
           clearTimeout(hideTimeout);
           hideTimeout = undefined;
         }
         setHovered(true);
-        show();
+        setDismissed(false);
       }}
       onMouseLeave={() => {
         // Small delay so the user can move their cursor into the popover
@@ -67,7 +88,7 @@ export default function QuestionTooltip(props: TooltipProps) {
       }}
       onFocusIn={() => {
         setFocused(true);
-        show();
+        setDismissed(false);
       }}
       onFocusOut={(e: FocusEvent) => {
         // Only hide if focus is leaving the entire tooltip container
@@ -98,8 +119,8 @@ export default function QuestionTooltip(props: TooltipProps) {
         id={id}
         role="tooltip"
         hidden={!isVisible()}
-        style={{ left: `${position().left}px` }}
-        class="absolute z-50 w-64 max-w-[calc(100vw-2rem)] p-3 mt-2 text-sm font-normal text-gray-800 bg-white border border-gray-200 rounded-lg shadow-lg top-full fade-in"
+        style={{ top: `${position().top}px`, left: `${position().left}px` }}
+        class="fixed z-50 w-64 max-w-[calc(100vw-2rem)] p-3 text-sm font-normal text-gray-800 bg-white border border-gray-200 rounded-lg shadow-lg fade-in"
       >
         {props.children}
         {/* Decorative arrow pointing up */}

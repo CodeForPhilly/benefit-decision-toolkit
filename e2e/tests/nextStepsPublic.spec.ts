@@ -214,9 +214,25 @@ for (const showWhen of ["whenDecided", "whenComplete"]) {
       name: "About Income limit",
       exact: true,
     });
+    // Results scroll inside their own section, which must not clip the tooltip.
+    await explanation.evaluate((button) => {
+      const section = button.closest("section")!;
+      section.style.flex = "none";
+      section.style.height = `${
+        button.getBoundingClientRect().bottom -
+        section.getBoundingClientRect().top +
+        4
+      }px`;
+    });
     await explanation.focus();
     const tooltip = page.getByRole("tooltip");
     await expect(tooltip).toBeVisible();
+    await expect(tooltip).toBeInViewport({ ratio: 1 });
+    await explanation.evaluate((button) => {
+      const section = button.closest("section")!;
+      section.style.flex = "";
+      section.style.height = "";
+    });
     await expect(tooltip).toHaveText(
       "Your household income must be below $1,000.",
     );

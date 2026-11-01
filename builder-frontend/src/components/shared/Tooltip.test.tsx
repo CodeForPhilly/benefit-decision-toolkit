@@ -49,4 +49,19 @@ describe("Tooltip", () => {
     link.blur();
     expect(tooltip.hidden).toBe(true);
   });
+
+  it("is placed against the viewport and follows its trigger while scrolling", () => {
+    const { trigger, tooltip } = setup();
+    let top = 100;
+    trigger.parentElement!.getBoundingClientRect = () =>
+      new DOMRect(300, top, 20, 20);
+    trigger.focus();
+    expect(tooltip.className).toContain("fixed");
+    expect(tooltip.style.top).toBe("128px");
+    expect(tooltip.style.left).toBe("182px");
+    top = 60;
+    // Scroll events don't bubble, so this reaches the window only while capturing.
+    document.body.dispatchEvent(new Event("scroll"));
+    expect(tooltip.style.top).toBe("88px");
+  });
 });
