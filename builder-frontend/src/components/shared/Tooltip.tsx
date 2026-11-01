@@ -22,13 +22,18 @@ export default function QuestionTooltip(props: TooltipProps) {
   const [hovered, setHovered] = createSignal(false);
   const [dismissed, setDismissed] = createSignal(false);
   const [position, setPosition] = createSignal({
-    top: 0,
+    above: false,
+    offset: 0,
     left: 0,
     arrowLeft: 0,
+    maxHeight: 0,
+    scrollable: false,
   });
   const isVisible = () => (focused() || hovered()) && !dismissed();
 
   let containerRef: HTMLDivElement | undefined;
+  let triggerRef: HTMLButtonElement | undefined;
+  let contentRef: HTMLDivElement | undefined;
   let hideTimeout: ReturnType<typeof setTimeout> | undefined;
   // A tap opens through emulated hover, so only a tap on an open tooltip should close it
   let closeOnTap = false;
@@ -39,9 +44,10 @@ export default function QuestionTooltip(props: TooltipProps) {
   });
 
   const updatePosition = () => {
-    if (!containerRef) return;
+    if (!containerRef || !contentRef) return;
     const rect = containerRef.getBoundingClientRect();
     const padding = 16; // 16px safety padding from screen edges
+    const gap = 8;
     const tooltipWidth = Math.min(256, window.innerWidth - padding * 2); // w-64 is 16rem = 256px
 
     // Center on the trigger, then keep the tooltip inside the viewport
@@ -53,10 +59,20 @@ export default function QuestionTooltip(props: TooltipProps) {
         window.innerWidth - padding - tooltipWidth,
       ),
     );
+
+    // Open upward only when the content doesn't fit below and there's more room above
+    const spaceBelow = window.innerHeight - rect.bottom - gap - padding;
+    const spaceAbove = rect.top - gap - padding;
+    const contentHeight = contentRef.scrollHeight;
+    const above = contentHeight > spaceBelow && spaceAbove > spaceBelow;
+    const maxHeight = Math.max(0, above ? spaceAbove : spaceBelow);
     setPosition({
-      top: rect.bottom + 8,
+      above,
+      offset: above ? window.innerHeight - rect.top + gap : rect.bottom + gap,
       left,
       arrowLeft: center - left - 6,
+      maxHeight,
+      scrollable: contentHeight > maxHeight,
     });
   };
 
@@ -77,6 +93,8 @@ export default function QuestionTooltip(props: TooltipProps) {
     if (!isVisible()) return;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
+        // Hiding the content would otherwise drop keyboard focus
+        if (contentRef?.contains(document.activeElement)) triggerRef?.focus();
         setDismissed(true);
         e.stopPropagation();
       }
@@ -120,6 +138,7 @@ export default function QuestionTooltip(props: TooltipProps) {
       }}
     >
       <button
+        ref={triggerRef}
         type="button"
         aria-label={props.ariaLabel ?? "More information"}
         aria-describedby={id}
@@ -141,13 +160,28 @@ export default function QuestionTooltip(props: TooltipProps) {
         id={id}
         role="tooltip"
         hidden={!isVisible()}
-        style={{ top: `${position().top}px`, left: `${position().left}px` }}
-        class="fixed z-50 w-64 max-w-[calc(100vw-2rem)] p-3 text-sm font-normal text-gray-800 bg-white border border-gray-200 rounded-lg shadow-lg fade-in"
+        style={{
+          [position().above ? "bottom" : "top"]: `${position().offset}px`,
+          left: `${position().left}px`,
+        }}
+        class="fixed z-50 w-64 max-w-[calc(100vw-2rem)] text-sm font-normal text-gray-800 bg-white border border-gray-200 rounded-lg shadow-lg fade-in"
       >
-        {props.children}
-        {/* Decorative arrow pointing up */}
         <div
-          class="absolute w-3 h-3 bg-white border-t border-l border-gray-200 rotate-45 -top-[7px]"
+          ref={contentRef}
+          // Keyboard users can only scroll content they can focus
+          tabIndex={position().scrollable ? 0 : undefined}
+          style={{ "max-height": `${position().maxHeight}px` }}
+          class="p-3 overflow-y-auto break-words rounded-lg"
+        >
+          {props.children}
+        </div>
+        {/* Decorative arrow pointing at the trigger */}
+        <div
+          class="absolute w-3 h-3 bg-white border-gray-200 rotate-45"
+          classList={{
+            "-top-[7px] border-t border-l": !position().above,
+            "-bottom-[7px] border-b border-r": position().above,
+          }}
           style={{ left: `${position().arrowLeft}px` }}
         />
       </div>

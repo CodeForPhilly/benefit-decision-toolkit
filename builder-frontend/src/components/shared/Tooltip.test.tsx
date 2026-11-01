@@ -65,6 +65,45 @@ describe("Tooltip", () => {
     expect(tooltip.style.top).toBe("88px");
   });
 
+  function setupTall(triggerTop: number, contentHeight: number) {
+    const elements = setup();
+    elements.trigger.parentElement!.getBoundingClientRect = () =>
+      new DOMRect(300, triggerTop, 20, 20);
+    const content = elements.tooltip.firstElementChild as HTMLElement;
+    Object.defineProperty(content, "scrollHeight", { value: contentHeight });
+    return { ...elements, content };
+  }
+
+  it("opens upward when only the space above fits the content", () => {
+    const { trigger, tooltip, content } = setupTall(700, 400);
+    trigger.focus();
+    expect(tooltip.style.bottom).toBe("76px");
+    expect(tooltip.style.top).toBe("");
+    expect(content.style.maxHeight).toBe("676px");
+    expect(content.hasAttribute("tabindex")).toBe(false);
+  });
+
+  it("stays below when the content would fit better there", () => {
+    const { trigger, tooltip } = setupTall(100, 900);
+    trigger.focus();
+    expect(tooltip.style.top).toBe("128px");
+    expect(tooltip.style.bottom).toBe("");
+  });
+
+  it("lets keyboard users scroll content that overflows the viewport", () => {
+    const { trigger, tooltip, content } = setupTall(100, 1100);
+    trigger.focus();
+    expect(content.style.maxHeight).toBe("624px");
+    expect(content.tabIndex).toBe(0);
+    content.focus();
+    expect(tooltip.hidden).toBe(false);
+    content.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+    );
+    expect(tooltip.hidden).toBe(true);
+    expect(document.activeElement).toBe(trigger);
+  });
+
   const press = (target: EventTarget, pointerType: string) =>
     target.dispatchEvent(
       Object.assign(new Event("pointerdown", { bubbles: true }), {
