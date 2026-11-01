@@ -207,6 +207,11 @@ for (const showWhen of ["whenDecided", "whenComplete"]) {
     await expect(nextSteps.getByRole("listitem")).toHaveText(
       "Your household income must be below $1,000.",
     );
+    // Explanations can span lines, which the print summary shares through this style.
+    await expect(nextSteps.getByRole("listitem")).toHaveCSS(
+      "white-space",
+      "pre-wrap",
+    );
     await expect(
       nextSteps.getByText("Ask about other assistance."),
     ).toBeVisible();

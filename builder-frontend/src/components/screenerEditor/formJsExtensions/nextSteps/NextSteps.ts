@@ -211,7 +211,7 @@ export function NextStepsBody({
               </p>
               ${unmet.length > 0 &&
               html`<h4>Requirements not met</h4>
-                <ul>
+                <ul class="bdt-next-steps-requirements">
                   ${unmet.map((name) => html`<li>${name}</li>`)}
                 </ul>`}
               <${Markdown} text=${steps.note?.text} forPrint=${forPrint} />

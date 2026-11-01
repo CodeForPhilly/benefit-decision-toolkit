@@ -109,7 +109,7 @@ const SelectedEligibilityCheck = ({
           </Show>
         </div>
         <Show when={checkConfig().explanation}>
-          <p class="text-sm text-gray-600 mb-2">
+          <p class="text-sm text-gray-600 mb-2 whitespace-pre-wrap">
             Explanation: {checkConfig().explanation}
           </p>
         </Show>

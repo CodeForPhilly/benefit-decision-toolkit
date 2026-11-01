@@ -42,6 +42,9 @@
 .bdt-next-steps ol {
   list-style: decimal;
 }
+.bdt-next-steps-requirements li {
+  white-space: pre-wrap;
+}
 .bdt-next-steps-contacts {
   display: flex;
   flex-wrap: wrap;
