@@ -65,3 +65,35 @@ it("moves focus into the explanation when it opens", async () => {
     expect(document.activeElement).toBe(document.querySelector("textarea")),
   );
 });
+
+it("keeps unsaved edits from a backdrop click, but Cancel still discards them", () => {
+  const close = vi.fn();
+  dispose = render(
+    () => (
+      <EditExplanationModal
+        checkConfig={() =>
+          ({ checkName: "Income", explanation: "Saved text" }) as CheckConfig
+        }
+        save={vi.fn()}
+        closeModal={close}
+      />
+    ),
+    document.body,
+  );
+  const textarea = document.querySelector("textarea")!;
+  const backdrop = document.querySelector<HTMLElement>("[data-modal-root]")!;
+  const edit = (value: string) => {
+    textarea.value = value;
+    textarea.dispatchEvent(new InputEvent("input", { bubbles: true }));
+  };
+  edit("Edited text");
+  backdrop.click();
+  expect(close).not.toHaveBeenCalled();
+  [...document.querySelectorAll("button")]
+    .find((button) => button.textContent === "Cancel")!
+    .click();
+  expect(close).toHaveBeenCalledOnce();
+  edit("Saved text");
+  backdrop.click();
+  expect(close).toHaveBeenCalledTimes(2);
+});

@@ -8,7 +8,8 @@ export default function EditExplanationModal(props: {
   closeModal: () => void;
 }) {
   const id = createUniqueId();
-  const [draft, setDraft] = createSignal(props.checkConfig().explanation ?? "");
+  const savedExplanation = () => props.checkConfig().explanation ?? "";
+  const [draft, setDraft] = createSignal(savedExplanation());
   const [saving, setSaving] = createSignal(false);
   const [error, setError] = createSignal("");
   const save = async (event: SubmitEvent) => {
@@ -28,7 +29,12 @@ export default function EditExplanationModal(props: {
     }
   };
   return (
-    <Modal show={true} onClose={props.closeModal} dismissible={!saving()}>
+    <Modal
+      show={true}
+      onClose={props.closeModal}
+      // A text selection dragged past the dialog counts as a backdrop click.
+      dismissible={!saving() && draft() === savedExplanation()}
+    >
       <form onSubmit={save}>
         <h2 class="text-2xl font-bold mb-4">Edit explanation</h2>
         <p id={`${id}-help`} class="text-gray-600 mb-3">
