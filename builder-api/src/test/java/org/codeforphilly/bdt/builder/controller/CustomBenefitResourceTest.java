@@ -421,6 +421,22 @@ class CustomBenefitResourceTest {
         assertEquals(404, resource.removeCheckFromBenefit(identity, SCREENER_ID, BENEFIT_ID, "configured-check").getStatus());
     }
 
+    @Test
+    void aCheckWithoutAnIdDoesNotBreakTheOthers() throws Exception {
+        CheckConfig withoutId = configuredIncomeCheck("No ID", false);
+        withoutId.setCheckId(null);
+        CheckConfig check = configuredIncomeCheck("Income limit", false);
+        Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(withoutId, check));
+        stored(benefit);
+        when(aliasService.generate(any(), any())).thenReturn(Optional.of("Generated"));
+
+        assertEquals(200, resource.updateCheckParameters(identity, SCREENER_ID, BENEFIT_ID, "configured-check",
+            new UpdateCheckParametersRequest(Map.of("limit", 60_000))).getStatus());
+        assertEquals(200, resource.generateCheckAlias(identity, SCREENER_ID, BENEFIT_ID, "configured-check").getStatus());
+        assertEquals(200, resource.removeCheckFromBenefit(identity, SCREENER_ID, BENEFIT_ID, "configured-check").getStatus());
+        assertEquals(List.of(withoutId), benefit.getChecks());
+    }
+
     // Runs each transaction against the benefit, as Firestore would against the stored document.
     private void stored(Benefit benefit) throws Exception {
         when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));

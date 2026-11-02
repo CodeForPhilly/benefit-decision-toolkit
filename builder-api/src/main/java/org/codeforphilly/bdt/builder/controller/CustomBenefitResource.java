@@ -398,7 +398,7 @@ public class CustomBenefitResource {
             // Remove the check with the matching checkId
             boolean removed = screenerRepository.updateCustomBenefitChecks(screenerId, benefitId, checks -> {
                 List<CheckConfig> updatedChecks = new ArrayList<>(checks);
-                return updatedChecks.removeIf(check -> check.getCheckId().equals(checkId)) ? updatedChecks : null;
+                return updatedChecks.removeIf(check -> checkId.equals(check.getCheckId())) ? updatedChecks : null;
             });
 
             if (!removed) {
@@ -446,7 +446,7 @@ public class CustomBenefitResource {
             // Hand-written aliases are left alone. Generating takes seconds, too long for the
             // transaction below, which keeps any check edit made in the meantime.
             Optional<CheckConfig> staleAlias = (checks == null ? List.<CheckConfig>of() : checks).stream()
-                .filter(check -> check.getCheckId().equals(checkId) && check.isAliasGenerated())
+                .filter(check -> checkId.equals(check.getCheckId()) && check.isAliasGenerated())
                 .filter(check -> !sameParameterValues(check.getParameters(), parameters))
                 .findFirst();
             Optional<String> aliasName = staleAlias.isPresent()
@@ -563,7 +563,7 @@ public class CustomBenefitResource {
 
             List<CheckConfig> checks = benefitOpt.get().getChecks();
             Optional<CheckConfig> checkOpt = (checks == null ? List.<CheckConfig>of() : checks).stream()
-                .filter(check -> check.getCheckId().equals(checkId))
+                .filter(check -> checkId.equals(check.getCheckId()))
                 .findFirst();
             if (checkOpt.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND)
