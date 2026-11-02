@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 
+import { createSignal } from "solid-js";
 import { render } from "solid-js/web";
 import { afterEach, describe, expect, it } from "vitest";
 
@@ -56,6 +57,28 @@ describe("eligibility result aliases", () => {
 
     expect(container.textContent).toContain("Applicant Age Requirement");
   });
+  it("keeps focus on an explanation when a new evaluation arrives", () => {
+    const container = document.body.appendChild(document.createElement("div"));
+    const [result, setResult] = createSignal(results);
+    dispose = render(
+      () => <EligibilityResults screenerResult={result} />,
+      container,
+    );
+    const trigger = container.querySelector("button")!;
+    trigger.focus();
+
+    const updated = structuredClone(results);
+    updated.benefit.result = "FALSE";
+    updated.benefit.check_results.check.explanation = "You must be 66.";
+    setResult(updated);
+
+    expect(container.textContent).toContain("Ineligible");
+    expect(container.textContent).toContain("You must be 66.");
+    expect(container.querySelector("button")).toBe(trigger);
+    expect(document.activeElement).toBe(trigger);
+    container.remove();
+  });
+
   it.each(["published", "preview"])(
     "provides keyboard and screen-reader explanations in %s results",
     (mode) => {

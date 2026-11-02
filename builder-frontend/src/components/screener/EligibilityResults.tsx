@@ -1,4 +1,5 @@
-import { Switch, Match, For, Accessor, Show } from "solid-js";
+import { Switch, Match, For, Accessor, createComputed } from "solid-js";
+import { createStore, reconcile } from "solid-js/store";
 
 import type { ScreenerResult, BenefitResult } from "@/types";
 
@@ -14,10 +15,17 @@ export default function EligibilityResults({
 }: {
   screenerResult: Accessor<ScreenerResult | undefined>;
 }) {
+  // Reconciled so a new evaluation updates rows in place, keeping keyboard focus and tooltips.
+  // Copied because the store writes into what it was given, which the caller still owns.
+  const [results, setResults] = createStore<ScreenerResult>({});
+  createComputed(() =>
+    setResults(reconcile(structuredClone(screenerResult() ?? {}))),
+  );
+
   return (
     <div class="my-2 mx-12">
       <h2 class="text-gray-600 font-bold">Eligibility Results</h2>
-      <For each={Object.values(screenerResult() ?? {})}>
+      <For each={Object.values(results)}>
         {(benefitResult) => <BenefitResult benefitResult={benefitResult} />}
       </For>
     </div>
