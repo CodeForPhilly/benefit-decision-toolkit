@@ -11,6 +11,7 @@ describe("Tooltip", () => {
   afterEach(() => {
     dispose?.();
     document.body.replaceChildren();
+    vi.unstubAllGlobals();
   });
 
   function setup(ariaLabel?: string) {
@@ -115,6 +116,85 @@ describe("Tooltip", () => {
     document.body.dispatchEvent(new Event("scroll"));
     await nextFrame();
     expect(tooltip.hidden).toBe(true);
+  });
+
+  function observeLayout() {
+    const observer = {
+      changeLayout: () => {},
+      observed: [] as Element[],
+      disconnected: false,
+    };
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        constructor(callback: () => void) {
+          observer.changeLayout = callback;
+        }
+        observe(element: Element) {
+          observer.observed.push(element);
+        }
+        disconnect() {
+          observer.disconnected = true;
+        }
+      },
+    );
+    return observer;
+  }
+
+  it("follows its trigger when the page changes around it", () => {
+    const observer = observeLayout();
+    const { trigger, tooltip } = setup();
+    let top = 100;
+    trigger.parentElement!.getBoundingClientRect = () =>
+      new DOMRect(300, top, 20, 20);
+    trigger.focus();
+    expect(observer.observed).toContain(trigger.parentElement!.parentElement);
+    expect(observer.observed).toContain(document.body);
+    top = 300;
+    observer.changeLayout();
+    expect(tooltip.style.top).toBe("328px");
+  });
+
+  it("fits new text arriving while it is open", () => {
+    const observer = observeLayout();
+    const { trigger, tooltip } = setup();
+    const content = tooltip.firstElementChild as HTMLElement;
+    let contentHeight = 100;
+    Object.defineProperty(content, "scrollHeight", {
+      get: () => contentHeight,
+    });
+    trigger.parentElement!.getBoundingClientRect = () =>
+      new DOMRect(300, 100, 20, 20);
+    trigger.focus();
+    expect(observer.observed).toContain(content.firstElementChild);
+    expect(content.hasAttribute("tabindex")).toBe(false);
+    contentHeight = 1100;
+    observer.changeLayout();
+    expect(content.tabIndex).toBe(0);
+  });
+
+  it("closes when the page change moves its trigger out of a scrolling ancestor", () => {
+    const observer = observeLayout();
+    const { trigger, tooltip } = setup();
+    const scroller = trigger.parentElement!.parentElement!;
+    scroller.style.overflow = "auto";
+    scroller.getBoundingClientRect = () => new DOMRect(0, 200, 800, 300);
+    let top = 250;
+    trigger.parentElement!.getBoundingClientRect = () =>
+      new DOMRect(300, top, 20, 20);
+    trigger.focus();
+    top = 170;
+    observer.changeLayout();
+    expect(tooltip.hidden).toBe(true);
+  });
+
+  it("stops watching the page when it closes", () => {
+    const observer = observeLayout();
+    const { trigger } = setup();
+    trigger.focus();
+    expect(observer.disconnected).toBe(false);
+    trigger.blur();
+    expect(observer.disconnected).toBe(true);
   });
 
   function setupTall(triggerTop: number, contentHeight: number) {

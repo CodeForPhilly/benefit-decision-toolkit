@@ -32,4 +32,7 @@ export default defineConfig({
   resolve: {
     dedupe: ["preact", "preact/hooks", "preact/compat"],
   },
+  test: {
+    setupFiles: ["./src/testSetup.ts"],
+  },
 });

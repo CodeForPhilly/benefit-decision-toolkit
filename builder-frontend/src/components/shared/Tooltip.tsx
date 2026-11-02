@@ -34,6 +34,7 @@ export default function QuestionTooltip(props: TooltipProps) {
   let containerRef: HTMLDivElement | undefined;
   let triggerRef: HTMLButtonElement | undefined;
   let contentRef: HTMLDivElement | undefined;
+  let bodyRef: HTMLDivElement | undefined;
   let hideTimeout: ReturnType<typeof setTimeout> | undefined;
   // A tap opens through emulated hover, so only a tap on an open tooltip should close it
   let closeOnTap = false;
@@ -106,6 +107,11 @@ export default function QuestionTooltip(props: TooltipProps) {
     return false;
   };
 
+  const reposition = () => {
+    if (triggerScrolledOutOfView()) dismiss();
+    else updatePosition();
+  };
+
   // Fixed so a scrolling ancestor can't clip it, which means it has to follow the trigger
   createEffect(() => {
     if (!isVisible()) return;
@@ -118,16 +124,26 @@ export default function QuestionTooltip(props: TooltipProps) {
       }
       scrollFrame = requestAnimationFrame(() => {
         scrollFrame = undefined;
-        if (triggerScrolledOutOfView()) dismiss();
-        else updatePosition();
+        reposition();
       });
     };
     window.addEventListener("scroll", onScroll, true);
     window.addEventListener("resize", updatePosition);
+    // Results update in place, moving the trigger or changing the text without a scroll
+    const layoutObserver = new ResizeObserver(reposition);
+    if (bodyRef) layoutObserver.observe(bodyRef);
+    for (
+      let ancestor = containerRef?.parentElement;
+      ancestor;
+      ancestor = ancestor.parentElement
+    ) {
+      layoutObserver.observe(ancestor);
+    }
     onCleanup(() => {
       if (scrollFrame !== undefined) cancelAnimationFrame(scrollFrame);
       window.removeEventListener("scroll", onScroll, true);
       window.removeEventListener("resize", updatePosition);
+      layoutObserver.disconnect();
     });
   });
 
@@ -214,7 +230,7 @@ export default function QuestionTooltip(props: TooltipProps) {
           style={{ "max-height": `${position().maxHeight}px` }}
           class="p-3 overflow-y-auto break-words rounded-lg"
         >
-          {props.children}
+          <div ref={bodyRef}>{props.children}</div>
         </div>
         {/* Decorative arrow pointing at the trigger */}
         <div
