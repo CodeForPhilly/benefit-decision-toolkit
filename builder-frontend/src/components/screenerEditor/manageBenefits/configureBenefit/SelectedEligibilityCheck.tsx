@@ -4,6 +4,7 @@ import ConfigureCheckModal from "./modals/ConfigureCheckModal";
 import EditExplanationModal from "./modals/EditExplanationModal";
 import EditAliasModal from "./modals/EditAliasModal";
 
+import { checkDisplayName } from "@/utils/checkDisplayName";
 import { titleCase } from "@/utils/title_case";
 
 import type {
@@ -38,7 +39,11 @@ const SelectedEligibilityCheck = ({
   const [editExplanationOpen, setEditExplanationOpen] = createSignal(false);
   let editExplanationButton: HTMLButtonElement | undefined;
 
-  const displayName = () => checkConfig().aliasName || checkConfig().checkName;
+  const displayName = () =>
+    checkDisplayName({
+      aliasName: checkConfig().aliasName,
+      name: titleCase(checkConfig().checkName),
+    });
 
   const isBlankParameterValue = (value: unknown) => {
     return value === undefined || value === null || value === "";
@@ -80,7 +85,7 @@ const SelectedEligibilityCheck = ({
           </div>
         </Show>
         <div class="text-xl font-bold mb-2 flex items-center gap-2">
-          <span>{titleCase(displayName())}</span>
+          <span>{displayName()}</span>
           <span class="text-gray-500">- {checkConfig().checkVersion}</span>
           <Show when={updateCheckConfigAlias}>
             <div

@@ -107,6 +107,22 @@ it("names unmet requirements the way results do", () => {
   ).toBe("Income Limit");
 });
 
+it("keeps an author's wording in unmet requirements", () => {
+  const aliased = structuredClone(results);
+  aliased.food.check_results.a.aliasName = "Age 18-64";
+  expect(
+    projectNextSteps(aliased, field)!.food.unmetRequirements[0],
+  ).toBe("Age 18-64");
+});
+
+it("lists a failed check whose alias is only punctuation", () => {
+  const aliased = structuredClone(results);
+  aliased.food.check_results.a.aliasName = "--";
+  expect(
+    projectNextSteps(aliased, field)!.food.unmetRequirements[0],
+  ).toBe("--");
+});
+
 it("uses plain-language explanations for unmet requirements with alias and name fallbacks", () => {
   const explained = structuredClone(results);
   explained.food.check_results.a.explanation =

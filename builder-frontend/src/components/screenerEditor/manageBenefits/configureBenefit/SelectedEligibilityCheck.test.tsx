@@ -41,3 +41,28 @@ it("returns focus to the edit button when the explanation modal closes", async (
   await vi.waitFor(() => expect(document.querySelector("form")).toBeNull());
   expect(document.activeElement).toBe(edit);
 });
+
+it.each([
+  ["Age 18-64", "Age 18-64"],
+  ["PrimaryResidence", "Primary Residence"],
+  [undefined, "Income threshold"],
+])("names a check with the alias %s as %s", (aliasName, name) => {
+  dispose = render(
+    () => (
+      <SelectedEligibilityCheck
+        checkConfig={() =>
+          ({
+            checkName: "income-threshold",
+            checkVersion: "1.0.0",
+            aliasName,
+          }) as CheckConfig
+        }
+        updateCheckConfigParams={vi.fn()}
+        updateCheckConfigAlias={null}
+        onRemove={vi.fn()}
+      />
+    ),
+    document.body,
+  );
+  expect(document.querySelector(".text-xl span")?.textContent).toBe(name);
+});
