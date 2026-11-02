@@ -61,23 +61,24 @@ const createScreenerBenefits = (
       const explanationsBefore = explanationSaves;
       const fetched = await fetchScreenerBenefit(sId, bId);
       if (benefit?.id !== fetched.id) return fetched;
-      const explanations = new Map(
-        benefit.checks.map((check) => [check.checkId, check.explanation]),
-      );
+      let checks = fetched.checks;
+      if (explanationSaves !== explanationsBefore) {
+        const explanations = new Map(
+          benefit.checks.map((check) => [check.checkId, check.explanation]),
+        );
+        checks = checks.map((check) =>
+          explanations.has(check.checkId)
+            ? { ...check, explanation: explanations.get(check.checkId) }
+            : check,
+        );
+      }
       return {
         ...fetched,
         nextSteps:
           nextStepsSaves === nextStepsBefore
             ? fetched.nextSteps
             : benefit.nextSteps,
-        checks:
-          explanationSaves === explanationsBefore
-            ? fetched.checks
-            : fetched.checks.map((check) =>
-                explanations.has(check.checkId)
-                  ? { ...check, explanation: explanations.get(check.checkId) }
-                  : check,
-              ),
+        checks,
       };
     },
   );
