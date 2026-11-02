@@ -160,6 +160,60 @@ describe("benefit next-steps updates", () => {
     expect(fetchScreenerBenefit).toHaveBeenCalledTimes(1);
   });
 
+  it("keeps a saved explanation when an older refetch resolves afterwards", async () => {
+    const s = setup(structuredClone(checks));
+    await vi.waitFor(() => expect(s.resource.benefit()?.id).toBe("benefit-1"));
+    vi.mocked(addCheckToBenefit).mockResolvedValue({ aliasGenerated: true });
+    vi.mocked(updateCheckExplanation).mockResolvedValue(undefined);
+    let finishFetch!: (benefit: Benefit) => void;
+    vi.mocked(fetchScreenerBenefit).mockReturnValueOnce(
+      new Promise((resolve) => {
+        finishFetch = resolve;
+      }),
+    );
+    const adding = s.resource.actions.addCheck("check-3", {});
+    await vi.waitFor(() =>
+      expect(fetchScreenerBenefit).toHaveBeenCalledTimes(2),
+    );
+    await s.resource.actions.updateCheckConfigExplanation("check-1", "Saved");
+    finishFetch({
+      ...s.benefit,
+      name: "Refetched",
+      checks: [
+        ...structuredClone(checks),
+        { checkId: "check-3", checkName: "Added" } as CheckConfig,
+      ],
+    });
+    await adding;
+    expect(s.resource.benefit().name).toBe("Refetched");
+    const saved = s.resource.benefit().checks;
+    expect(saved.map((check) => check.explanation)).toEqual([
+      "Saved",
+      "Be at least 65.",
+      undefined,
+    ]);
+  });
+
+  it("keeps rows in place when a refetch returns new objects", async () => {
+    const s = setup(structuredClone(checks));
+    await vi.waitFor(() => expect(s.resource.benefit()?.id).toBe("benefit-1"));
+    const [first, second] = s.resource.benefit().checks;
+    vi.mocked(addCheckToBenefit).mockResolvedValue({ aliasGenerated: true });
+    vi.mocked(fetchScreenerBenefit).mockResolvedValueOnce({
+      ...s.benefit,
+      checks: [
+        { checkId: "check-3", checkName: "Added" } as CheckConfig,
+        { ...structuredClone(checks[1]), aliasName: "Age" },
+        structuredClone(checks[0]),
+      ],
+    });
+    await s.resource.actions.addCheck("check-3", {});
+    const refreshed = s.resource.benefit().checks;
+    expect(refreshed[1]).toBe(second);
+    expect(refreshed[2]).toBe(first);
+    expect(second.aliasName).toBe("Age");
+  });
+
   it("keeps the explanation when saving fails and rejects for the modal", async () => {
     const s = setup(structuredClone(checks));
     await vi.waitFor(() => expect(s.resource.benefit()?.id).toBe("benefit-1"));

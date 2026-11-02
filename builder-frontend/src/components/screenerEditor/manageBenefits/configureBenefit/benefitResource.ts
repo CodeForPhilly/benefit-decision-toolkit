@@ -1,5 +1,5 @@
 import { createResource, createEffect, Accessor, createSignal } from "solid-js";
-import { createStore } from "solid-js/store";
+import { createStore, reconcile } from "solid-js/store";
 import toast from "solid-toast";
 
 import {
@@ -51,16 +51,34 @@ const createScreenerBenefits = (
   // Local fine-grained store
   const [benefit, setBenefit] = createStore<Benefit | null>(null);
 
-  // A refetch that started before a next-steps save finished returns the old content.
+  // A refetch that started before a save finished returns the old content.
   let nextStepsSaves = 0;
+  let explanationSaves = 0;
   const [benefitResource, { refetch }] = createResource<Benefit, string[]>(
     () => [screenerId(), benefitId()],
     async ([sId, bId]) => {
-      const savesBefore = nextStepsSaves;
+      const nextStepsBefore = nextStepsSaves;
+      const explanationsBefore = explanationSaves;
       const fetched = await fetchScreenerBenefit(sId, bId);
-      return nextStepsSaves !== savesBefore && benefit?.id === fetched.id
-        ? { ...fetched, nextSteps: benefit.nextSteps }
-        : fetched;
+      if (benefit?.id !== fetched.id) return fetched;
+      const explanations = new Map(
+        benefit.checks.map((check) => [check.checkId, check.explanation]),
+      );
+      return {
+        ...fetched,
+        nextSteps:
+          nextStepsSaves === nextStepsBefore
+            ? fetched.nextSteps
+            : benefit.nextSteps,
+        checks:
+          explanationSaves === explanationsBefore
+            ? fetched.checks
+            : fetched.checks.map((check) =>
+                explanations.has(check.checkId)
+                  ? { ...check, explanation: explanations.get(check.checkId) }
+                  : check,
+              ),
+      };
     },
   );
 
@@ -70,7 +88,8 @@ const createScreenerBenefits = (
   createEffect(() => {
     if (benefitResource()) {
       console.log("Benefit resource loaded:", benefitResource());
-      setBenefit(benefitResource()!);
+      // Reconciled so rows keep their identity, and any open modal its draft.
+      setBenefit(reconcile(benefitResource()!, { key: "checkId" }));
     }
   });
 
@@ -176,6 +195,7 @@ const createScreenerBenefits = (
       screenerId() === targetScreenerId &&
       benefitId() === targetBenefitId
     ) {
+      explanationSaves++;
       setBenefit(
         "checks",
         (check) => check.checkId === checkId,
