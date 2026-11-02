@@ -332,6 +332,20 @@ class CustomBenefitResourceTest {
     }
 
     @Test
+    void explanationReachesEveryConfigSharingTheCheckId() throws Exception {
+        CheckConfig first = configuredIncomeCheck("First", false);
+        CheckConfig second = configuredIncomeCheck("Second", false);
+        Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(first, second));
+        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+
+        resource.updateCheckExplanation(identity, SCREENER_ID, BENEFIT_ID, "configured-check",
+            new UpdateCheckExplanationRequest("Text"));
+
+        assertEquals("Text", first.getExplanation());
+        assertEquals("Text", second.getExplanation());
+    }
+
+    @Test
     void explanationUpdateRequiresOwnershipAndAnExistingCheck() throws Exception {
         when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(
             new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of())));

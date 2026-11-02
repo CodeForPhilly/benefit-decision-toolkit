@@ -601,12 +601,12 @@ public class CustomBenefitResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(Map.of("error", "Benefit not found")).build();
             }
             Benefit benefit = benefitOpt.get();
-            Optional<CheckConfig> check = benefit.getChecks() == null ? Optional.empty() : benefit.getChecks().stream()
-                .filter(config -> checkId.equals(config.getCheckId())).findFirst();
-            if (check.isEmpty()) {
+            List<CheckConfig> matching = benefit.getChecks() == null ? List.of() : benefit.getChecks().stream()
+                .filter(config -> checkId.equals(config.getCheckId())).toList();
+            if (matching.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).entity(Map.of("error", "Check not found in benefit")).build();
             }
-            check.get().setExplanation(request.explanation());
+            matching.forEach(check -> check.setExplanation(request.explanation()));
             screenerRepository.updateCustomBenefit(screenerId, benefit);
             return Response.ok().build();
         } catch (Exception e) {
