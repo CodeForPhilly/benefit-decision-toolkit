@@ -453,20 +453,33 @@ public class CustomBenefitResource {
                 ? eligibilityCheckAliasService.generate(staleAlias.get().getCheckName(), parameters)
                 : Optional.empty();
 
-            boolean checkUpdated = updateMatchingChecks(screenerId, benefitId, checkId, check -> {
-                check.setParameters(parameters);
-                if (staleAlias.isPresent() && check.isAliasGenerated()) {
-                    check.setAliasName(aliasName.orElse(null));
-                    check.setAliasGenerated(aliasName.isPresent());
+            boolean[] aliasCleared = { false };
+            boolean checkUpdated = screenerRepository.updateCustomBenefitChecks(screenerId, benefitId, storedChecks -> {
+                // Firestore can rerun this callback; report only the committed attempt.
+                aliasCleared[0] = false;
+                List<CheckConfig> matching = storedChecks.stream()
+                    .filter(check -> checkId.equals(check.getCheckId()))
+                    .toList();
+                for (CheckConfig check : matching) {
+                    if (check.isAliasGenerated() && !sameParameterValues(check.getParameters(), parameters)) {
+                        // An intervening edit may have made an initially unchanged alias stale.
+                        // Without a preview for these parameters, use the original name rather
+                        // than leave an alias describing a different rule.
+                        Optional<String> replacement = staleAlias.isPresent() ? aliasName : Optional.empty();
+                        check.setAliasName(replacement.orElse(null));
+                        check.setAliasGenerated(replacement.isPresent());
+                        aliasCleared[0] |= replacement.isEmpty();
+                    }
+                    check.setParameters(parameters);
                 }
+                return matching.isEmpty() ? null : storedChecks;
             });
 
             if (!checkUpdated) {
                 return checkOrBenefitNotFound(screenerId, benefitId);
             }
 
-            boolean aliasCleared = staleAlias.isPresent() && aliasName.isEmpty();
-            return Response.ok(Map.of("aliasCleared", aliasCleared)).build();
+            return Response.ok(Map.of("aliasCleared", aliasCleared[0])).build();
         } catch (Exception e) {
             Log.error(e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

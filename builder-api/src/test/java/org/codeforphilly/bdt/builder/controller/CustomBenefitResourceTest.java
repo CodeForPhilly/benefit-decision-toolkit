@@ -408,6 +408,44 @@ class CustomBenefitResourceTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    void aConcurrentManualAliasDoesNotReportAFailedGenerationAsCleared() throws Exception {
+        CheckConfig read = configuredIncomeCheck("Income under $50,000", true);
+        CheckConfig current = configuredIncomeCheck("Written by hand", false);
+        stored(new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(current)));
+        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID))
+            .thenReturn(Optional.of(new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(read))));
+        when(aliasService.generate(any(), any())).thenReturn(Optional.empty());
+
+        Response response = resource.updateCheckParameters(identity, SCREENER_ID, BENEFIT_ID, "configured-check",
+            new UpdateCheckParametersRequest(Map.of("limit", 60_000)));
+
+        assertEquals("Written by hand", current.getAliasName());
+        assertEquals(false, ((Map<String, Object>) response.getEntity()).get("aliasCleared"));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void aConcurrentParameterEditCannotLeaveTheWrongGeneratedAlias() throws Exception {
+        CheckConfig read = configuredIncomeCheck("Income under $50,000", true);
+        CheckConfig current = configuredIncomeCheck("Income under $60,000", true);
+        current.setParameters(Map.of("limit", 60_000));
+        stored(new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(current)));
+        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID))
+            .thenReturn(Optional.of(new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(read))));
+
+        Response response = resource.updateCheckParameters(identity, SCREENER_ID, BENEFIT_ID, "configured-check",
+            new UpdateCheckParametersRequest(Map.of("limit", 50_000)));
+
+        assertEquals(200, response.getStatus());
+        assertEquals(Map.of("limit", 50_000), current.getParameters());
+        assertNull(current.getAliasName(), "Do not describe a $50,000 rule with a $60,000 alias");
+        assertFalse(current.isAliasGenerated());
+        assertEquals(true, ((Map<String, Object>) response.getEntity()).get("aliasCleared"));
+        verify(aliasService, never()).generate(any(), any());
+    }
+
+    @Test
     void removingACheckKeepsTheOthersAndReportsAMissingOne() throws Exception {
         CheckConfig kept = configuredIncomeCheck("Kept", false);
         kept.setCheckId("kept");
