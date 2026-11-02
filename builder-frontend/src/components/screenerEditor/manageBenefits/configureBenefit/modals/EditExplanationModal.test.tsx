@@ -124,6 +124,41 @@ it.each([
   );
 });
 
+it("locks the draft during a save and refocuses it after a failure", async () => {
+  let failSave!: (reason: Error) => void;
+  dispose = render(
+    () => (
+      <EditExplanationModal
+        checkConfig={() => ({ checkName: "Income" }) as CheckConfig}
+        save={() =>
+          new Promise<void>((_, reject) => {
+            failSave = reject;
+          })
+        }
+        closeModal={vi.fn()}
+      />
+    ),
+    document.body,
+  );
+  const textarea = document.querySelector("textarea")!;
+  const saveButton = document.querySelector<HTMLButtonElement>(
+    'button[type="submit"]',
+  )!;
+  saveButton.focus();
+  document
+    .querySelector("form")!
+    .dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  expect(textarea.readOnly).toBe(true);
+  saveButton.blur();
+
+  failSave(new Error("offline"));
+  await vi.waitFor(() =>
+    expect(document.querySelector('[role="alert"]')).not.toBeNull(),
+  );
+  expect(document.activeElement).toBe(textarea);
+  expect(textarea.readOnly).toBe(false);
+});
+
 it("names the check the way results do", () => {
   dispose = render(
     () => (

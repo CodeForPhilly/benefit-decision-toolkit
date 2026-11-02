@@ -14,6 +14,7 @@ export default function EditExplanationModal(props: {
   const [draft, setDraft] = createSignal(savedExplanation());
   const [saving, setSaving] = createSignal(false);
   const [error, setError] = createSignal("");
+  let textarea: HTMLTextAreaElement | undefined;
   const save = async (event: SubmitEvent) => {
     event.preventDefault();
     if (saving()) return;
@@ -30,6 +31,8 @@ export default function EditExplanationModal(props: {
           ? `Could not save the explanation. ${error.message}`
           : "Could not save the explanation. Your edits are still here. Please try again.",
       );
+      // The Save button is disabled at this point, which dropped focus to the body.
+      textarea?.focus();
     } finally {
       setSaving(false);
     }
@@ -57,7 +60,10 @@ export default function EditExplanationModal(props: {
         </label>
         <textarea
           // The Modal's Portal attaches this only after creating it.
-          ref={(element) => queueMicrotask(() => element.focus())}
+          ref={(element) => {
+            textarea = element;
+            queueMicrotask(() => element.focus());
+          }}
           id={id}
           aria-describedby={`${id}-help`}
           class="form-input-custom w-full"
@@ -65,7 +71,8 @@ export default function EditExplanationModal(props: {
           maxLength={2000}
           value={draft()}
           onInput={(event) => setDraft(event.currentTarget.value)}
-          disabled={saving()}
+          // Not disabled, which couldn't take focus back after a failed save.
+          readOnly={saving()}
         />
         <Show when={error()}>
           <p role="alert" class="text-red-700 mt-2">
