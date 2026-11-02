@@ -79,6 +79,57 @@ describe("eligibility result aliases", () => {
     container.remove();
   });
 
+  it("keeps focus on a preview explanation while new results load", () => {
+    const container = document.body.appendChild(document.createElement("div"));
+    const [result, setResult] = createSignal(results);
+    const [loading, setLoading] = createSignal(false);
+    dispose = render(
+      () => (
+        <PreviewResults
+          inputData={() => ({})}
+          results={result}
+          resultsLoading={loading}
+        />
+      ),
+      container,
+    );
+    const trigger = container.querySelector("button")!;
+    trigger.focus();
+
+    setLoading(true);
+    expect(container.textContent).toContain("Loading results...");
+    expect(container.querySelector("button")).toBe(trigger);
+
+    const updated = structuredClone(results);
+    updated.benefit.result = "FALSE";
+    updated.benefit.check_results.check.explanation = "You must be 66.";
+    setResult(updated);
+    setLoading(false);
+
+    expect(container.textContent).not.toContain("Loading results...");
+    expect(container.textContent).toContain("Ineligible");
+    expect(container.textContent).toContain("You must be 66.");
+    expect(container.querySelector("button")).toBe(trigger);
+    expect(document.activeElement).toBe(trigger);
+    container.remove();
+  });
+
+  it("shows only the loading message before the first preview results", () => {
+    const container = document.createElement("div");
+    dispose = render(
+      () => (
+        <PreviewResults
+          inputData={() => ({})}
+          results={() => undefined}
+          resultsLoading={() => true}
+        />
+      ),
+      container,
+    );
+    expect(container.textContent).toContain("Loading results...");
+    expect(container.textContent).not.toContain("Benefits");
+  });
+
   it.each(["published", "preview"])(
     "provides keyboard and screen-reader explanations in %s results",
     (mode) => {

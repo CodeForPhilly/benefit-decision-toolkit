@@ -3,6 +3,7 @@ import { Accessor, For, Match, Show, Switch } from "solid-js";
 import { PreviewFormData, ScreenerResult } from "./types";
 import type { ParameterValues } from "@/types";
 import { checkDisplayName } from "@/utils/checkDisplayName";
+import { createReconciledResults } from "@/utils/reconciledResults";
 
 import CheckExplanation from "@/components/shared/CheckExplanation";
 
@@ -33,6 +34,8 @@ export default function Results({
   results: Accessor<ScreenerResult | undefined>;
   resultsLoading: Accessor<boolean>;
 }) {
+  const reconciled = createReconciledResults(results);
+  const hasResults = () => Object.keys(reconciled).length > 0;
   return (
     <div class="ml-3">
       <div id="screener-input-data" class="mt-3">
@@ -56,20 +59,20 @@ export default function Results({
           </>
         )}
         <div id="screener-results" class="mt-3">
-          <Show when={resultsLoading()}>
+          <Show when={resultsLoading() && !hasResults()}>
             <div class="text-gray-600">Loading results...</div>
           </Show>
-          <Show
-            when={
-              !resultsLoading() &&
-              results() &&
-              Object.keys(results()).length > 0
-            }
-          >
-            <div class="text-md font-semibold text-gray-600">Benefits</div>
+          <Show when={hasResults()}>
+            {/* Beside the heading, so rows stay put while the next results load */}
+            <div class="flex items-baseline gap-2">
+              <div class="text-md font-semibold text-gray-600">Benefits</div>
+              <Show when={resultsLoading()}>
+                <div class="text-sm text-gray-600">Loading results...</div>
+              </Show>
+            </div>
             <div class="p-2">
               <div class="flex flex-col space-y-2">
-                <For each={Object.values(results())}>
+                <For each={Object.values(reconciled)}>
                   {(benefit, benefitResultIdx) => (
                     <div class="border-2 border-gray-200 rounded p-3">
                       <div
