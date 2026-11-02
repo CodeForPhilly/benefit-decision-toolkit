@@ -50,7 +50,9 @@ describe("Tooltip", () => {
     expect(tooltip.hidden).toBe(true);
   });
 
-  it("is placed against the viewport and follows its trigger while scrolling", () => {
+  const nextFrame = () => new Promise(requestAnimationFrame);
+
+  it("is placed against the viewport and follows its trigger while scrolling", async () => {
     const { trigger, tooltip } = setup();
     let top = 100;
     trigger.parentElement!.getBoundingClientRect = () =>
@@ -62,10 +64,40 @@ describe("Tooltip", () => {
     top = 60;
     // Scroll events don't bubble, so this reaches the window only while capturing.
     document.body.dispatchEvent(new Event("scroll"));
+    await nextFrame();
     expect(tooltip.style.top).toBe("88px");
   });
 
-  it("closes when its trigger scrolls out of a scrolling ancestor", () => {
+  it("repositions once per frame and ignores scrolling inside itself", async () => {
+    const { trigger, tooltip } = setup();
+    const rect = vi.fn(() => new DOMRect(300, 100, 20, 20));
+    trigger.parentElement!.getBoundingClientRect = rect;
+    trigger.focus();
+    rect.mockClear();
+    tooltip.firstElementChild!.dispatchEvent(new Event("scroll"));
+    await nextFrame();
+    expect(rect).not.toHaveBeenCalled();
+    document.body.dispatchEvent(new Event("scroll"));
+    document.body.dispatchEvent(new Event("scroll"));
+    await nextFrame();
+    // Once to check the trigger is in view and once to place the tooltip
+    expect(rect).toHaveBeenCalledTimes(2);
+  });
+
+  it("drops a pending reposition when it closes", async () => {
+    const { trigger, tooltip } = setup();
+    const rect = vi.fn(() => new DOMRect(300, 100, 20, 20));
+    trigger.parentElement!.getBoundingClientRect = rect;
+    trigger.focus();
+    document.body.dispatchEvent(new Event("scroll"));
+    trigger.blur();
+    expect(tooltip.hidden).toBe(true);
+    rect.mockClear();
+    await nextFrame();
+    expect(rect).not.toHaveBeenCalled();
+  });
+
+  it("closes when its trigger scrolls out of a scrolling ancestor", async () => {
     const { trigger, tooltip } = setup();
     const scroller = trigger.parentElement!.parentElement!;
     scroller.style.overflow = "auto";
@@ -77,9 +109,11 @@ describe("Tooltip", () => {
     expect(tooltip.hidden).toBe(false);
     top = 190;
     document.body.dispatchEvent(new Event("scroll"));
+    await nextFrame();
     expect(tooltip.hidden).toBe(false);
     top = 170;
     document.body.dispatchEvent(new Event("scroll"));
+    await nextFrame();
     expect(tooltip.hidden).toBe(true);
   });
 

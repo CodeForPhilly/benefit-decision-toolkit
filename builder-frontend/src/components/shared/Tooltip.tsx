@@ -106,18 +106,26 @@ export default function QuestionTooltip(props: TooltipProps) {
     return false;
   };
 
-  const onScroll = () => {
-    if (triggerScrolledOutOfView()) dismiss();
-    else updatePosition();
-  };
-
   // Fixed so a scrolling ancestor can't clip it, which means it has to follow the trigger
   createEffect(() => {
     if (!isVisible()) return;
     updatePosition();
+    let scrollFrame: number | undefined;
+    const onScroll = (e: Event) => {
+      // Scrolling the tooltip's own content leaves the trigger where it is
+      if (scrollFrame !== undefined || contentRef?.contains(e.target as Node)) {
+        return;
+      }
+      scrollFrame = requestAnimationFrame(() => {
+        scrollFrame = undefined;
+        if (triggerScrolledOutOfView()) dismiss();
+        else updatePosition();
+      });
+    };
     window.addEventListener("scroll", onScroll, true);
     window.addEventListener("resize", updatePosition);
     onCleanup(() => {
+      if (scrollFrame !== undefined) cancelAnimationFrame(scrollFrame);
       window.removeEventListener("scroll", onScroll, true);
       window.removeEventListener("resize", updatePosition);
     });
