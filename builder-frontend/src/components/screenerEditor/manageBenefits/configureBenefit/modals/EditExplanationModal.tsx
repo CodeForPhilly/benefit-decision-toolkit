@@ -1,4 +1,5 @@
 import { Accessor, createSignal, createUniqueId, Show } from "solid-js";
+import { ApiError } from "@/api/check";
 import { Modal } from "@/components/shared/Modal";
 import type { CheckConfig } from "@/types";
 
@@ -20,9 +21,13 @@ export default function EditExplanationModal(props: {
     try {
       await props.save(draft().trim() || null);
       props.closeModal();
-    } catch {
+    } catch (error) {
+      console.error("Failed to save check explanation", error);
+      // A rejected request fails the same way on a retry, and its message says why.
       setError(
-        "Could not save the explanation. Your edits are still here. Please try again.",
+        error instanceof ApiError && error.status < 500
+          ? `Could not save the explanation. ${error.message}`
+          : "Could not save the explanation. Your edits are still here. Please try again.",
       );
     } finally {
       setSaving(false);

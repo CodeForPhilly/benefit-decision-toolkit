@@ -2,6 +2,7 @@
 import { render } from "solid-js/web";
 import { afterEach, expect, it, vi } from "vitest";
 import EditExplanationModal from "./EditExplanationModal";
+import { ApiError } from "@/api/check";
 import type { CheckConfig } from "@/types";
 
 let dispose: () => void;
@@ -96,4 +97,29 @@ it("keeps unsaved edits from a backdrop click, but Cancel still discards them", 
   edit("Saved text");
   backdrop.click();
   expect(close).toHaveBeenCalledTimes(2);
+});
+
+it.each([
+  [new ApiError("Check not found in benefit", 404), "Check not found in benefit"],
+  [new ApiError("Could not update check explanation", 500), "Please try again."],
+  [new TypeError("Failed to fetch"), "Please try again."],
+])("explains a failed save: %s", async (failure, message) => {
+  dispose = render(
+    () => (
+      <EditExplanationModal
+        checkConfig={() => ({ checkName: "Income" }) as CheckConfig}
+        save={vi.fn().mockRejectedValue(failure)}
+        closeModal={vi.fn()}
+      />
+    ),
+    document.body,
+  );
+  document
+    .querySelector("form")!
+    .dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  await vi.waitFor(() =>
+    expect(document.querySelector('[role="alert"]')?.textContent).toContain(
+      message,
+    ),
+  );
 });
