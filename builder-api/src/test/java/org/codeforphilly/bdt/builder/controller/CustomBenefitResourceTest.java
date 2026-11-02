@@ -347,6 +347,31 @@ class CustomBenefitResourceTest {
     }
 
     @Test
+    void aMissingCheckAndAMissingBenefitReportDifferentErrors() throws Exception {
+        stored(new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of()));
+        UpdateCheckExplanationRequest explanation = new UpdateCheckExplanationRequest("Text");
+        UpdateCheckAliasRequest alias = new UpdateCheckAliasRequest("Alias", false);
+
+        for (Response response : List.of(
+            resource.updateCheckExplanation(identity, SCREENER_ID, BENEFIT_ID, "missing", explanation),
+            resource.updateCheckAlias(identity, SCREENER_ID, BENEFIT_ID, "missing", alias),
+            resource.removeCheckFromBenefit(identity, SCREENER_ID, BENEFIT_ID, "missing")
+        )) {
+            assertEquals(404, response.getStatus());
+            assertEquals(Map.of("error", "Check not found in benefit"), response.getEntity());
+        }
+
+        for (Response response : List.of(
+            resource.updateCheckExplanation(identity, SCREENER_ID, "deleted", "missing", explanation),
+            resource.updateCheckAlias(identity, SCREENER_ID, "deleted", "missing", alias),
+            resource.removeCheckFromBenefit(identity, SCREENER_ID, "deleted", "missing")
+        )) {
+            assertEquals(404, response.getStatus());
+            assertEquals(Map.of("error", "Benefit not found"), response.getEntity());
+        }
+    }
+
+    @Test
     void anExplanationSavedWhileAnAliasGeneratesIsKept() throws Exception {
         CheckConfig read = configuredIncomeCheck("Income under $50,000", true);
         CheckConfig current = configuredIncomeCheck("Income under $50,000", true);

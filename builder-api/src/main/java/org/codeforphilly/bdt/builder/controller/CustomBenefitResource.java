@@ -402,7 +402,7 @@ public class CustomBenefitResource {
             });
 
             if (!removed) {
-                return checkNotFound();
+                return checkOrBenefitNotFound(screenerId, benefitId);
             }
 
             return Response.ok().build();
@@ -462,7 +462,7 @@ public class CustomBenefitResource {
             });
 
             if (!checkUpdated) {
-                return checkNotFound();
+                return checkOrBenefitNotFound(screenerId, benefitId);
             }
 
             boolean aliasCleared = staleAlias.isPresent() && aliasName.isEmpty();
@@ -501,7 +501,7 @@ public class CustomBenefitResource {
             });
 
             if (!checkUpdated) {
-                return checkNotFound();
+                return checkOrBenefitNotFound(screenerId, benefitId);
             }
 
             return Response.ok().build();
@@ -530,7 +530,7 @@ public class CustomBenefitResource {
             boolean checkUpdated = updateMatchingChecks(screenerId, benefitId, checkId,
                 check -> check.setExplanation(request.explanation()));
             if (!checkUpdated) {
-                return checkNotFound();
+                return checkOrBenefitNotFound(screenerId, benefitId);
             }
             return Response.ok().build();
         } catch (Exception e) {
@@ -601,9 +601,13 @@ public class CustomBenefitResource {
         });
     }
 
-    private static Response checkNotFound() {
+    // updateCustomBenefitChecks reports both as false, and authors see this message.
+    private Response checkOrBenefitNotFound(String screenerId, String benefitId) throws Exception {
+        String error = screenerRepository.getCustomBenefit(screenerId, benefitId).isPresent()
+            ? "Check not found in benefit"
+            : "Benefit not found";
         return Response.status(Response.Status.NOT_FOUND)
-            .entity(Map.of("error", "Check not found in benefit"))
+            .entity(Map.of("error", error))
             .build();
     }
 
