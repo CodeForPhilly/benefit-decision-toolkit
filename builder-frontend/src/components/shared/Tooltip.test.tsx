@@ -65,6 +65,24 @@ describe("Tooltip", () => {
     expect(tooltip.style.top).toBe("88px");
   });
 
+  it("closes when its trigger scrolls out of a scrolling ancestor", () => {
+    const { trigger, tooltip } = setup();
+    const scroller = trigger.parentElement!.parentElement!;
+    scroller.style.overflow = "auto";
+    scroller.getBoundingClientRect = () => new DOMRect(0, 200, 800, 300);
+    let top = 250;
+    trigger.parentElement!.getBoundingClientRect = () =>
+      new DOMRect(300, top, 20, 20);
+    trigger.focus();
+    expect(tooltip.hidden).toBe(false);
+    top = 190;
+    document.body.dispatchEvent(new Event("scroll"));
+    expect(tooltip.hidden).toBe(false);
+    top = 170;
+    document.body.dispatchEvent(new Event("scroll"));
+    expect(tooltip.hidden).toBe(true);
+  });
+
   function setupTall(triggerTop: number, contentHeight: number) {
     const elements = setup();
     elements.trigger.parentElement!.getBoundingClientRect = () =>

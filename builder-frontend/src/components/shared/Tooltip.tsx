@@ -76,14 +76,49 @@ export default function QuestionTooltip(props: TooltipProps) {
     });
   };
 
+  const dismiss = () => {
+    // Hiding the content would otherwise drop keyboard focus
+    if (contentRef?.contains(document.activeElement)) {
+      triggerRef?.focus({ preventScroll: true });
+    }
+    setDismissed(true);
+  };
+
+  const triggerScrolledOutOfView = () => {
+    if (!containerRef) return false;
+    const trigger = containerRef.getBoundingClientRect();
+    for (
+      let ancestor = containerRef.parentElement;
+      ancestor;
+      ancestor = ancestor.parentElement
+    ) {
+      if (!/auto|scroll/.test(getComputedStyle(ancestor).overflow)) continue;
+      const bounds = ancestor.getBoundingClientRect();
+      if (
+        trigger.bottom <= bounds.top ||
+        trigger.top >= bounds.bottom ||
+        trigger.right <= bounds.left ||
+        trigger.left >= bounds.right
+      ) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const onScroll = () => {
+    if (triggerScrolledOutOfView()) dismiss();
+    else updatePosition();
+  };
+
   // Fixed so a scrolling ancestor can't clip it, which means it has to follow the trigger
   createEffect(() => {
     if (!isVisible()) return;
     updatePosition();
-    window.addEventListener("scroll", updatePosition, true);
+    window.addEventListener("scroll", onScroll, true);
     window.addEventListener("resize", updatePosition);
     onCleanup(() => {
-      window.removeEventListener("scroll", updatePosition, true);
+      window.removeEventListener("scroll", onScroll, true);
       window.removeEventListener("resize", updatePosition);
     });
   });
@@ -93,9 +128,7 @@ export default function QuestionTooltip(props: TooltipProps) {
     if (!isVisible()) return;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        // Hiding the content would otherwise drop keyboard focus
-        if (contentRef?.contains(document.activeElement)) triggerRef?.focus();
-        setDismissed(true);
+        dismiss();
         e.stopPropagation();
       }
     };
