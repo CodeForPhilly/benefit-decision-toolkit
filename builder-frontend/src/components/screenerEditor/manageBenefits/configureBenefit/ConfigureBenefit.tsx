@@ -120,6 +120,12 @@ const ConfigureBenefit = ({
                               aliasGenerated,
                             );
                           }}
+                          updateCheckConfigExplanation={(explanation) =>
+                            actions.updateCheckConfigExplanation(
+                              checkConfig.checkId,
+                              explanation,
+                            )
+                          }
                           generateCheckConfigAlias={() =>
                             actions.generateCheckConfigAlias(
                               checkConfig.checkId,

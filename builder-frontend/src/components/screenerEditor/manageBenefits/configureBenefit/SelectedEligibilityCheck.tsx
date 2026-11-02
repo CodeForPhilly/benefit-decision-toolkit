@@ -1,8 +1,10 @@
 import { Accessor, createSignal, For, Show } from "solid-js";
 
 import ConfigureCheckModal from "./modals/ConfigureCheckModal";
+import EditExplanationModal from "./modals/EditExplanationModal";
 import EditAliasModal from "./modals/EditAliasModal";
 
+import { checkDisplayName } from "@/utils/checkDisplayName";
 import { titleCase } from "@/utils/title_case";
 
 import type {
@@ -18,6 +20,7 @@ const SelectedEligibilityCheck = ({
   updateCheckConfigParams,
   updateCheckConfigAlias,
   generateCheckConfigAlias,
+  updateCheckConfigExplanation,
 }: {
   checkConfig: Accessor<CheckConfig>;
   updateCheckConfigParams: (newCheckData: ParameterValues) => void;
@@ -25,6 +28,7 @@ const SelectedEligibilityCheck = ({
   updateCheckConfigAlias:
     | ((aliasName: string | null, aliasGenerated: boolean) => void)
     | null;
+  updateCheckConfigExplanation?: (explanation: string | null) => Promise<void>;
   generateCheckConfigAlias?: () => Promise<string>;
   onRemove: () => void | null;
 }) => {
@@ -32,7 +36,14 @@ const SelectedEligibilityCheck = ({
     createSignal(false);
   const [editAliasModalOpen, setEditAliasModalOpen] = createSignal(false);
 
-  const displayName = () => checkConfig().aliasName || checkConfig().checkName;
+  const [editExplanationOpen, setEditExplanationOpen] = createSignal(false);
+  let editExplanationButton: HTMLButtonElement | undefined;
+
+  const displayName = () =>
+    checkDisplayName({
+      aliasName: checkConfig().aliasName,
+      name: titleCase(checkConfig().checkName),
+    });
 
   const isBlankParameterValue = (value: unknown) => {
     return value === undefined || value === null || value === "";
@@ -74,7 +85,7 @@ const SelectedEligibilityCheck = ({
           </div>
         </Show>
         <div class="text-xl font-bold mb-2 flex items-center gap-2">
-          <span>{titleCase(displayName())}</span>
+          <span>{displayName()}</span>
           <span class="text-gray-500">- {checkConfig().checkVersion}</span>
           <Show when={updateCheckConfigAlias}>
             <div
@@ -88,7 +99,25 @@ const SelectedEligibilityCheck = ({
               <PencilIcon size={16} />
             </div>
           </Show>
+          <Show when={updateCheckConfigExplanation}>
+            <button
+              ref={editExplanationButton}
+              type="button"
+              class="text-sm text-gray-600 underline"
+              onClick={(event) => {
+                event.stopPropagation();
+                setEditExplanationOpen(true);
+              }}
+            >
+              Edit explanation
+            </button>
+          </Show>
         </div>
+        <Show when={checkConfig().explanation}>
+          <p class="text-sm text-gray-600 mb-2 whitespace-pre-wrap">
+            Explanation: {checkConfig().explanation}
+          </p>
+        </Show>
         <Show when={checkConfig().aliasName}>
           <div class="text-sm text-gray-500 mb-1">
             Original: {checkConfig().checkName}
@@ -139,6 +168,18 @@ const SelectedEligibilityCheck = ({
         )}
       </div>
 
+      <Show when={editExplanationOpen() && updateCheckConfigExplanation}>
+        {(save) => (
+          <EditExplanationModal
+            checkConfig={checkConfig}
+            save={save()}
+            closeModal={() => {
+              setEditExplanationOpen(false);
+              editExplanationButton?.focus();
+            }}
+          />
+        )}
+      </Show>
       {configuringCheckModalOpen() && (
         <ConfigureCheckModal
           checkConfig={checkConfig}

@@ -1,5 +1,6 @@
 import cloneDeep from "lodash/cloneDeep";
 import type { Benefit, BenefitResult, NextSteps } from "@/types";
+import { checkDisplayName } from "@/utils/checkDisplayName";
 import { normalizeHttpUrl } from "@/utils/httpUrl";
 import type { NextStepsField } from "./NextSteps";
 
@@ -93,7 +94,7 @@ export function benefitNextSteps(
     body: null,
     unmetRequirements: Object.values(benefit.check_results ?? {})
       .filter((check) => check.result === "FALSE")
-      .map((check) => check.aliasName?.trim() || check.name)
+      .map((check) => check.explanation?.trim() || checkDisplayName(check))
       // An unnamed check has nothing to show.
       .filter((name): name is string => !!name?.trim()),
     note: markdown(content?.ineligible?.note),

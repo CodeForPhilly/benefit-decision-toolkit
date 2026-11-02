@@ -1,0 +1,102 @@
+import { Accessor, createSignal, createUniqueId, Show } from "solid-js";
+import { ApiError } from "@/api/check";
+import { Modal } from "@/components/shared/Modal";
+import type { CheckConfig } from "@/types";
+import { checkDisplayName } from "@/utils/checkDisplayName";
+
+export default function EditExplanationModal(props: {
+  checkConfig: Accessor<CheckConfig>;
+  save: (explanation: string | null) => Promise<void>;
+  closeModal: () => void;
+}) {
+  const id = createUniqueId();
+  const savedExplanation = () => props.checkConfig().explanation ?? "";
+  const [draft, setDraft] = createSignal(savedExplanation());
+  const [saving, setSaving] = createSignal(false);
+  const [error, setError] = createSignal("");
+  let textarea: HTMLTextAreaElement | undefined;
+  const save = async (event: SubmitEvent) => {
+    event.preventDefault();
+    if (saving()) return;
+    setSaving(true);
+    setError("");
+    try {
+      await props.save(draft().trim() || null);
+      props.closeModal();
+    } catch (error) {
+      console.error("Failed to save check explanation", error);
+      // A rejected request fails the same way on a retry, and its message says why.
+      setError(
+        error instanceof ApiError && error.status < 500
+          ? `Could not save the explanation. ${error.message}`
+          : "Could not save the explanation. Your edits are still here. Please try again.",
+      );
+      // The Save button is disabled at this point, which dropped focus to the body.
+      textarea?.focus();
+    } finally {
+      setSaving(false);
+    }
+  };
+  return (
+    <Modal
+      show={true}
+      onClose={props.closeModal}
+      // A text selection dragged past the dialog counts as a backdrop click.
+      dismissible={!saving() && draft() === savedExplanation()}
+    >
+      <form onSubmit={save}>
+        <h2 class="text-2xl font-bold mb-4">Edit explanation</h2>
+        <p id={`${id}-help`} class="text-gray-600 mb-3">
+          Explain this requirement in plain language for the person being
+          screened. It appears in the results and in Requirements not met. Leave
+          empty to remove it.
+        </p>
+        <label for={id} class="block font-semibold mb-2">
+          Explanation for{" "}
+          {checkDisplayName({
+            aliasName: props.checkConfig().aliasName,
+            name: props.checkConfig().checkName,
+          })}
+        </label>
+        <textarea
+          // The Modal's Portal attaches this only after creating it.
+          ref={(element) => {
+            textarea = element;
+            queueMicrotask(() => element.focus());
+          }}
+          id={id}
+          aria-describedby={`${id}-help`}
+          class="form-input-custom w-full"
+          rows={5}
+          maxLength={2000}
+          value={draft()}
+          onInput={(event) => setDraft(event.currentTarget.value)}
+          // Not disabled, which couldn't take focus back after a failed save.
+          readOnly={saving()}
+        />
+        <Show when={error()}>
+          <p role="alert" class="text-red-700 mt-2">
+            {error()}
+          </p>
+        </Show>
+        <div class="flex justify-end gap-2 mt-4">
+          <button
+            type="button"
+            class="btn-default btn-gray"
+            onClick={props.closeModal}
+            disabled={saving()}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="btn-default btn-blue"
+            disabled={saving()}
+          >
+            {saving() ? "Saving…" : "Save"}
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+}

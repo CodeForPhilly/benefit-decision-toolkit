@@ -1,5 +1,5 @@
 import { createResource, createEffect, Accessor, createSignal } from "solid-js";
-import { createStore } from "solid-js/store";
+import { createStore, reconcile } from "solid-js/store";
 import toast from "solid-toast";
 
 import {
@@ -8,6 +8,7 @@ import {
   removeCheckFromBenefit,
   updateCheckParameters,
   updateCheckAlias,
+  updateCheckExplanation,
   generateCheckAlias,
   updateScreenerBenefit,
 } from "@/api/benefit";
@@ -29,6 +30,10 @@ interface ScreenerBenefitsResource {
       aliasName: string | null,
       aliasGenerated: boolean,
     ) => void;
+    updateCheckConfigExplanation: (
+      checkId: string,
+      explanation: string | null,
+    ) => Promise<void>;
     generateCheckConfigAlias: (checkId: string) => Promise<string>;
     updateNextSteps: (nextSteps: NextSteps) => Promise<void>;
   };
@@ -46,16 +51,35 @@ const createScreenerBenefits = (
   // Local fine-grained store
   const [benefit, setBenefit] = createStore<Benefit | null>(null);
 
-  // A refetch that started before a next-steps save finished returns the old content.
+  // A refetch that started before a save finished returns the old content.
   let nextStepsSaves = 0;
+  let explanationSaves = 0;
   const [benefitResource, { refetch }] = createResource<Benefit, string[]>(
     () => [screenerId(), benefitId()],
     async ([sId, bId]) => {
-      const savesBefore = nextStepsSaves;
+      const nextStepsBefore = nextStepsSaves;
+      const explanationsBefore = explanationSaves;
       const fetched = await fetchScreenerBenefit(sId, bId);
-      return nextStepsSaves !== savesBefore && benefit?.id === fetched.id
-        ? { ...fetched, nextSteps: benefit.nextSteps }
-        : fetched;
+      if (benefit?.id !== fetched.id) return fetched;
+      let checks = fetched.checks;
+      if (explanationSaves !== explanationsBefore) {
+        const explanations = new Map(
+          benefit.checks.map((check) => [check.checkId, check.explanation]),
+        );
+        checks = checks.map((check) =>
+          explanations.has(check.checkId)
+            ? { ...check, explanation: explanations.get(check.checkId) }
+            : check,
+        );
+      }
+      return {
+        ...fetched,
+        nextSteps:
+          nextStepsSaves === nextStepsBefore
+            ? fetched.nextSteps
+            : benefit.nextSteps,
+        checks,
+      };
     },
   );
 
@@ -65,7 +89,8 @@ const createScreenerBenefits = (
   createEffect(() => {
     if (benefitResource()) {
       console.log("Benefit resource loaded:", benefitResource());
-      setBenefit(benefitResource()!);
+      // Reconciled so rows keep their identity, and any open modal its draft.
+      setBenefit(reconcile(benefitResource()!, { key: "checkId" }));
     }
   });
 
@@ -154,6 +179,33 @@ const createScreenerBenefits = (
     setActionInProgress(false);
   };
 
+  const updateCheckConfigExplanation = async (
+    checkId: string,
+    explanation: string | null,
+  ) => {
+    const targetScreenerId = screenerId();
+    const targetBenefitId = benefitId();
+    await updateCheckExplanation(
+      targetScreenerId,
+      targetBenefitId,
+      checkId,
+      explanation,
+    );
+    // A reload could report a failed read as a failed save, and would re-render every row.
+    if (
+      screenerId() === targetScreenerId &&
+      benefitId() === targetBenefitId
+    ) {
+      explanationSaves++;
+      setBenefit(
+        "checks",
+        (check) => check.checkId === checkId,
+        "explanation",
+        explanation,
+      );
+    }
+  };
+
   const generateCheckConfigAlias = (checkId: string) =>
     generateCheckAlias(screenerId(), benefitId(), checkId);
 
@@ -188,6 +240,7 @@ const createScreenerBenefits = (
       updateCheckConfigParams,
       updateCheckConfigAlias,
       generateCheckConfigAlias,
+      updateCheckConfigExplanation,
       updateNextSteps,
     },
     actionInProgress,

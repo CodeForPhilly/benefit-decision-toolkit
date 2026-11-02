@@ -43,6 +43,8 @@ export interface CheckConfig {
   parameterDefinitions: ParameterDefinition[];
   // Optional user-defined alias for display purposes
   aliasName?: string;
+  /** Plain-language explanation for the person being screened. */
+  explanation?: string | null;
   // True when aliasName was generated and not hand-edited
   aliasGenerated?: boolean;
 }
@@ -133,6 +135,8 @@ export interface BenefitResult {
 export interface CheckResult {
   name: string;
   aliasName?: string;
+  /** Plain-language explanation for the person being screened. */
+  explanation?: string | null;
   result: OptionalBoolean;
   module: string;
   version: string;

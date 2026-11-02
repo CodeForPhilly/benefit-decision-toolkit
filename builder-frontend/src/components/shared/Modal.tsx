@@ -7,7 +7,7 @@ import styles from "./Modal.module.css";
 interface Props {
   show: boolean;
   onClose: () => void;
-  // False while the content is busy, e.g. saving, so it cannot be dismissed.
+  // False while dismissing would lose work, e.g. while saving or with unsaved edits.
   dismissible?: boolean;
 }
 export const Modal: Component<ParentProps<Props>> = (props) => {

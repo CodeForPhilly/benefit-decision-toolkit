@@ -8,6 +8,7 @@ import org.codeforphilly.bdt.builder.constants.CollectionNames;
 import org.codeforphilly.bdt.builder.constants.FieldNames;
 import org.codeforphilly.bdt.builder.model.domain.Benefit;
 import org.codeforphilly.bdt.builder.model.domain.BenefitDetail;
+import org.codeforphilly.bdt.builder.model.domain.CheckConfig;
 import org.codeforphilly.bdt.builder.model.domain.Screener;
 import org.codeforphilly.bdt.builder.persistence.FirestoreUtils;
 import org.codeforphilly.bdt.builder.persistence.ScreenerRepository;
@@ -15,9 +16,11 @@ import org.codeforphilly.bdt.builder.persistence.StorageService;
 import org.codeforphilly.bdt.builder.persistence.PublishedScreenerRepository;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 @ApplicationScoped
 public class ScreenerRepositoryImpl implements ScreenerRepository {
@@ -160,18 +163,18 @@ public class ScreenerRepositoryImpl implements ScreenerRepository {
         ).toList();
     }
 
-    public void updateCustomBenefit(String screenerId, Benefit benefit) throws Exception {
-        ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        Map<String, Object> data = mapper.convertValue(benefit, Map.class);
-        String benefitDocId = benefit.getId();
-        System.out.println("Updating custom benefit: " + benefit.getId());
-
-        FirestoreUtils.updateDocument(calculateCustomBenefitCollection(screenerId), data, benefitDocId);
-    }
-
     public void updateCustomBenefitFields(String screenerId, String benefitId, Map<String, Object> fields) throws Exception {
         Map<String, Object> data = new ObjectMapper().convertValue(fields, Map.class);
         FirestoreUtils.updateDocument(calculateCustomBenefitCollection(screenerId), data, benefitId);
+    }
+
+    public boolean updateCustomBenefitChecks(String screenerId, String benefitId, UnaryOperator<List<CheckConfig>> update) throws Exception {
+        ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        return FirestoreUtils.updateDocumentFields(calculateCustomBenefitCollection(screenerId), benefitId, document -> {
+            List<CheckConfig> checks = mapper.convertValue(document, Benefit.class).getChecks();
+            List<CheckConfig> updated = update.apply(checks == null ? new ArrayList<>() : checks);
+            return updated == null ? null : Map.of("checks", mapper.convertValue(updated, List.class));
+        });
     }
 
     public String saveNewCustomBenefit(String screenerId, Benefit benefit) throws Exception{

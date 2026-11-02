@@ -1,21 +1,26 @@
-import { Switch, Match, For, Accessor, Show } from "solid-js";
+import { Switch, Match, For, Accessor } from "solid-js";
 
 import type { ScreenerResult, BenefitResult } from "@/types";
+
+import CheckExplanation from "@/components/shared/CheckExplanation";
 
 import checkIcon from "@/assets/images/checkIcon.svg";
 import questionIcon from "@/assets/images/questionIcon.svg";
 import xIcon from "@/assets/images/xIcon.svg";
-import { titleCase } from "@/utils/title_case";
+import { checkDisplayName } from "@/utils/checkDisplayName";
+import { createReconciledResults } from "@/utils/reconciledResults";
 
 export default function EligibilityResults({
   screenerResult,
 }: {
   screenerResult: Accessor<ScreenerResult | undefined>;
 }) {
+  const results = createReconciledResults(screenerResult);
+
   return (
     <div class="my-2 mx-12">
       <h2 class="text-gray-600 font-bold">Eligibility Results</h2>
-      <For each={Object.values(screenerResult() ?? {})}>
+      <For each={Object.values(results)}>
         {(benefitResult) => <BenefitResult benefitResult={benefitResult} />}
       </For>
     </div>
@@ -62,7 +67,11 @@ function BenefitResult({ benefitResult }: { benefitResult: BenefitResult }) {
               </div>
               <div class="flex flex-col text-xs">
                 <div>
-                  {check.aliasName ? titleCase(check.aliasName) : check.name}
+                  {checkDisplayName(check)}
+                  <CheckExplanation
+                    explanation={check.explanation}
+                    name={checkDisplayName(check)}
+                  />
                 </div>
               </div>
             </div>

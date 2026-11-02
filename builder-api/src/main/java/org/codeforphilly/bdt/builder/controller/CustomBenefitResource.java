@@ -4,6 +4,7 @@ import io.quarkus.logging.Log;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -13,6 +14,7 @@ import org.codeforphilly.bdt.builder.model.domain.*;
 import org.codeforphilly.bdt.builder.model.dto.custombenefit.AddCheckRequest;
 import org.codeforphilly.bdt.builder.model.dto.custombenefit.CreateCustomBenefitRequest;
 import org.codeforphilly.bdt.builder.model.dto.custombenefit.UpdateCheckAliasRequest;
+import org.codeforphilly.bdt.builder.model.dto.custombenefit.UpdateCheckExplanationRequest;
 import org.codeforphilly.bdt.builder.model.dto.custombenefit.UpdateCheckParametersRequest;
 import org.codeforphilly.bdt.builder.model.dto.custombenefit.UpdateCustomBenefitRequest;
 import org.codeforphilly.bdt.builder.persistence.EligibilityCheckRepository;
@@ -31,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 @Path("/api")
 public class CustomBenefitResource {
@@ -318,7 +321,6 @@ public class CustomBenefitResource {
             }
 
             EligibilityCheck check = checkOpt.get();
-            Benefit benefit = benefitOpt.get();
             Map<String, Object> parameters = request.parameters() != null
                 ? new HashMap<>(request.parameters())
                 : new HashMap<>();
@@ -358,17 +360,16 @@ public class CustomBenefitResource {
             checkConfig.setAliasGenerated(aliasName.isPresent());
 
             // Add the check to the benefit
-            List<CheckConfig> checks = benefit.getChecks();
-            if (checks == null) {
-                checks = new ArrayList<>();
-            } else {
-                checks = new ArrayList<>(checks);
+            boolean added = screenerRepository.updateCustomBenefitChecks(screenerId, benefitId, checks -> {
+                List<CheckConfig> updatedChecks = new ArrayList<>(checks);
+                updatedChecks.add(checkConfig);
+                return updatedChecks;
+            });
+            if (!added) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity(Map.of("error", "Benefit not found"))
+                        .build();
             }
-            checks.add(checkConfig);
-            benefit.setChecks(checks);
-
-            // Save the updated benefit
-            screenerRepository.updateCustomBenefit(screenerId, benefit);
 
             return Response.ok(Map.of("aliasGenerated", aliasName.isPresent())).build();
         } catch (Exception e) {
@@ -394,38 +395,15 @@ public class CustomBenefitResource {
         }
 
         try {
-            // Get the benefit
-            Optional<Benefit> benefitOpt = screenerRepository.getCustomBenefit(screenerId, benefitId);
-            if (benefitOpt.isEmpty()) {
-                return Response.status(Response.Status.NOT_FOUND)
-                        .entity(Map.of("error", "Benefit not found"))
-                        .build();
-            }
-
-            Benefit benefit = benefitOpt.get();
-            List<CheckConfig> checks = benefit.getChecks();
-
-            if (checks == null || checks.isEmpty()) {
-                return Response.status(Response.Status.NOT_FOUND)
-                        .entity(Map.of("error", "Check not found in benefit"))
-                        .build();
-            }
-
             // Remove the check with the matching checkId
-            List<CheckConfig> updatedChecks = checks.stream()
-                    .filter(check -> !check.getCheckId().equals(checkId))
-                    .toList();
+            boolean removed = screenerRepository.updateCustomBenefitChecks(screenerId, benefitId, checks -> {
+                List<CheckConfig> updatedChecks = new ArrayList<>(checks);
+                return updatedChecks.removeIf(check -> checkId.equals(check.getCheckId())) ? updatedChecks : null;
+            });
 
-            if (updatedChecks.size() == checks.size()) {
-                return Response.status(Response.Status.NOT_FOUND)
-                        .entity(Map.of("error", "Check not found in benefit"))
-                        .build();
+            if (!removed) {
+                return checkOrBenefitNotFound(screenerId, benefitId);
             }
-
-            benefit.setChecks(new ArrayList<>(updatedChecks));
-
-            // Save the updated benefit
-            screenerRepository.updateCustomBenefit(screenerId, benefit);
 
             return Response.ok().build();
         } catch (Exception e) {
@@ -461,49 +439,47 @@ public class CustomBenefitResource {
                         .build();
             }
 
-            Benefit benefit = benefitOpt.get();
-            List<CheckConfig> checks = benefit.getChecks();
+            List<CheckConfig> checks = benefitOpt.get().getChecks();
+            Map<String, Object> parameters = request.parameters() != null ? request.parameters() : new HashMap<>();
 
-            if (checks == null || checks.isEmpty()) {
-                return Response.status(Response.Status.NOT_FOUND)
-                        .entity(Map.of("error", "Check not found in benefit"))
-                        .build();
-            }
+            // A generated alias describes the old parameter values, so refresh it.
+            // Hand-written aliases are left alone. Generating takes seconds, too long for the
+            // transaction below, which keeps any check edit made in the meantime.
+            Optional<CheckConfig> staleAlias = (checks == null ? List.<CheckConfig>of() : checks).stream()
+                .filter(check -> checkId.equals(check.getCheckId()) && check.isAliasGenerated())
+                .filter(check -> !sameParameterValues(check.getParameters(), parameters))
+                .findFirst();
+            Optional<String> aliasName = staleAlias.isPresent()
+                ? eligibilityCheckAliasService.generate(staleAlias.get().getCheckName(), parameters)
+                : Optional.empty();
 
-            // Find and update the check with the matching checkId
-            Boolean checkUpdated = false;
-            boolean aliasCleared = false;
-            List<CheckConfig> checkListAfterUpdate = new ArrayList<>();
-            for (CheckConfig check : checks) {
-                if (check.getCheckId().equals(checkId)) {
-                    Map<String, Object> parameters = request.parameters() != null ? request.parameters() : new HashMap<>();
-                    boolean parametersChanged = !sameParameterValues(check.getParameters(), parameters);
-                    check.setParameters(parameters);
-                    // A generated alias describes the old parameter values, so refresh it.
-                    // Hand-written aliases are left alone.
-                    if (parametersChanged && check.isAliasGenerated()) {
-                        Optional<String> aliasName = eligibilityCheckAliasService.generate(check.getCheckName(), parameters);
-                        check.setAliasName(aliasName.orElse(null));
-                        check.setAliasGenerated(aliasName.isPresent());
-                        aliasCleared = aliasName.isEmpty();
+            boolean[] aliasCleared = { false };
+            boolean checkUpdated = screenerRepository.updateCustomBenefitChecks(screenerId, benefitId, storedChecks -> {
+                // Firestore can rerun this callback; report only the committed attempt.
+                aliasCleared[0] = false;
+                List<CheckConfig> matching = storedChecks.stream()
+                    .filter(check -> checkId.equals(check.getCheckId()))
+                    .toList();
+                for (CheckConfig check : matching) {
+                    if (check.isAliasGenerated() && !sameParameterValues(check.getParameters(), parameters)) {
+                        // An intervening edit may have made an initially unchanged alias stale.
+                        // Without a preview for these parameters, use the original name rather
+                        // than leave an alias describing a different rule.
+                        Optional<String> replacement = staleAlias.isPresent() ? aliasName : Optional.empty();
+                        check.setAliasName(replacement.orElse(null));
+                        check.setAliasGenerated(replacement.isPresent());
+                        aliasCleared[0] |= replacement.isEmpty();
                     }
-                    checkUpdated = true;
+                    check.setParameters(parameters);
                 }
-                checkListAfterUpdate.add(check);
-            }
+                return matching.isEmpty() ? null : storedChecks;
+            });
 
             if (!checkUpdated) {
-                return Response.status(Response.Status.NOT_FOUND)
-                        .entity(Map.of("error", "Check not found in benefit"))
-                        .build();
+                return checkOrBenefitNotFound(screenerId, benefitId);
             }
 
-            benefit.setChecks(checkListAfterUpdate);
-
-            // Save the updated benefit
-            screenerRepository.updateCustomBenefit(screenerId, benefit);
-
-            return Response.ok(Map.of("aliasCleared", aliasCleared)).build();
+            return Response.ok(Map.of("aliasCleared", aliasCleared[0])).build();
         } catch (Exception e) {
             Log.error(e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -529,47 +505,17 @@ public class CustomBenefitResource {
         }
 
         try {
-            // Get the benefit
-            Optional<Benefit> benefitOpt = screenerRepository.getCustomBenefit(screenerId, benefitId);
-            if (benefitOpt.isEmpty()) {
-                return Response.status(Response.Status.NOT_FOUND)
-                        .entity(Map.of("error", "Benefit not found"))
-                        .build();
-            }
-
-            Benefit benefit = benefitOpt.get();
-            List<CheckConfig> checks = benefit.getChecks();
-
-            if (checks == null || checks.isEmpty()) {
-                return Response.status(Response.Status.NOT_FOUND)
-                        .entity(Map.of("error", "Check not found in benefit"))
-                        .build();
-            }
-
             // Find and update the check with the matching checkId
-            Boolean checkUpdated = false;
-            List<CheckConfig> checkListAfterUpdate = new ArrayList<>();
-            for (CheckConfig check : checks) {
-                if (check.getCheckId().equals(checkId)) {
-                    check.setAliasName(request.aliasName());
-                    check.setAliasGenerated(
-                        request.aliasName() != null && Boolean.TRUE.equals(request.aliasGenerated())
-                    );
-                    checkUpdated = true;
-                }
-                checkListAfterUpdate.add(check);
-            }
+            boolean checkUpdated = updateMatchingChecks(screenerId, benefitId, checkId, check -> {
+                check.setAliasName(request.aliasName());
+                check.setAliasGenerated(
+                    request.aliasName() != null && Boolean.TRUE.equals(request.aliasGenerated())
+                );
+            });
 
             if (!checkUpdated) {
-                return Response.status(Response.Status.NOT_FOUND)
-                        .entity(Map.of("error", "Check not found in benefit"))
-                        .build();
+                return checkOrBenefitNotFound(screenerId, benefitId);
             }
-
-            benefit.setChecks(checkListAfterUpdate);
-
-            // Save the updated benefit
-            screenerRepository.updateCustomBenefit(screenerId, benefit);
 
             return Response.ok().build();
         } catch (Exception e) {
@@ -577,6 +523,32 @@ public class CustomBenefitResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(Map.of("error", "Could not update check alias"))
                     .build();
+        }
+    }
+
+    @PATCH
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/screener/{screenerId}/benefit/{benefitId}/check/{checkId}/explanation")
+    public Response updateCheckExplanation(
+        @Context SecurityIdentity identity,
+        @PathParam("screenerId") String screenerId,
+        @PathParam("benefitId") String benefitId,
+        @PathParam("checkId") String checkId,
+        @NotNull @Valid UpdateCheckExplanationRequest request
+    ) {
+        if (!isUserAuthorizedForScreener(AuthUtils.getUserId(identity), screenerId)) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+        try {
+            boolean checkUpdated = updateMatchingChecks(screenerId, benefitId, checkId,
+                check -> check.setExplanation(request.explanation()));
+            if (!checkUpdated) {
+                return checkOrBenefitNotFound(screenerId, benefitId);
+            }
+            return Response.ok().build();
+        } catch (Exception e) {
+            Log.error(e);
+            return Response.serverError().entity(Map.of("error", "Could not update check explanation")).build();
         }
     }
 
@@ -604,7 +576,7 @@ public class CustomBenefitResource {
 
             List<CheckConfig> checks = benefitOpt.get().getChecks();
             Optional<CheckConfig> checkOpt = (checks == null ? List.<CheckConfig>of() : checks).stream()
-                .filter(check -> check.getCheckId().equals(checkId))
+                .filter(check -> checkId.equals(check.getCheckId()))
                 .findFirst();
             if (checkOpt.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND)
@@ -629,6 +601,28 @@ public class CustomBenefitResource {
     }
 
     // ========== Private Helper Methods ==========
+
+    // Updates every config with this ID, since configs can share one. False when there are none.
+    private boolean updateMatchingChecks(String screenerId, String benefitId, String checkId,
+                                         Consumer<CheckConfig> update) throws Exception {
+        return screenerRepository.updateCustomBenefitChecks(screenerId, benefitId, checks -> {
+            List<CheckConfig> matching = checks.stream()
+                .filter(check -> checkId.equals(check.getCheckId()))
+                .toList();
+            matching.forEach(update);
+            return matching.isEmpty() ? null : checks;
+        });
+    }
+
+    // updateCustomBenefitChecks reports both as false, and authors see this message.
+    private Response checkOrBenefitNotFound(String screenerId, String benefitId) throws Exception {
+        String error = screenerRepository.getCustomBenefit(screenerId, benefitId).isPresent()
+            ? "Check not found in benefit"
+            : "Benefit not found";
+        return Response.status(Response.Status.NOT_FOUND)
+            .entity(Map.of("error", error))
+            .build();
+    }
 
     private static boolean usesEvaluationDateDefault(EligibilityCheck check, ParameterDefinition parameter) {
         return check.getEvaluationUrl() != null

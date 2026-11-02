@@ -179,3 +179,17 @@ export const generateCheckAlias = async (
   const data = (await response.json()) as { aliasName: string };
   return data.aliasName;
 };
+
+export const updateCheckExplanation = async (
+  screenerId: string,
+  benefitId: string,
+  checkId: string,
+  explanation: string | null,
+): Promise<void> => {
+  const response = await authPatch(
+    `${apiUrl}/screener/${screenerId}/benefit/${benefitId}/check/${checkId}/explanation`,
+    { explanation },
+  );
+  if (!response.ok)
+    throw await apiErrorFrom(response, "Update explanation failed");
+};

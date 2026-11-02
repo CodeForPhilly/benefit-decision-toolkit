@@ -2,7 +2,10 @@ import { Accessor, For, Match, Show, Switch } from "solid-js";
 
 import { PreviewFormData, ScreenerResult } from "./types";
 import type { ParameterValues } from "@/types";
-import { titleCase } from "@/utils/title_case";
+import { checkDisplayName } from "@/utils/checkDisplayName";
+import { createReconciledResults } from "@/utils/reconciledResults";
+
+import CheckExplanation from "@/components/shared/CheckExplanation";
 
 import checkIcon from "../../../assets/images/checkIcon.svg";
 import questionIcon from "../../../assets/images/questionIcon.svg";
@@ -31,6 +34,8 @@ export default function Results({
   results: Accessor<ScreenerResult | undefined>;
   resultsLoading: Accessor<boolean>;
 }) {
+  const reconciled = createReconciledResults(results);
+  const hasResults = () => Object.keys(reconciled).length > 0;
   return (
     <div class="ml-3">
       <div id="screener-input-data" class="mt-3">
@@ -54,20 +59,20 @@ export default function Results({
           </>
         )}
         <div id="screener-results" class="mt-3">
-          <Show when={resultsLoading()}>
+          <Show when={resultsLoading() && !hasResults()}>
             <div class="text-gray-600">Loading results...</div>
           </Show>
-          <Show
-            when={
-              !resultsLoading() &&
-              results() &&
-              Object.keys(results()).length > 0
-            }
-          >
-            <div class="text-md font-semibold text-gray-600">Benefits</div>
+          <Show when={hasResults()}>
+            {/* Beside the heading, so rows stay put while the next results load */}
+            <div class="flex items-baseline gap-2">
+              <div class="text-md font-semibold text-gray-600">Benefits</div>
+              <Show when={resultsLoading()}>
+                <div class="text-sm text-gray-600">Loading results...</div>
+              </Show>
+            </div>
             <div class="p-2">
               <div class="flex flex-col space-y-2">
-                <For each={Object.values(results())}>
+                <For each={Object.values(reconciled)}>
                   {(benefit, benefitResultIdx) => (
                     <div class="border-2 border-gray-200 rounded p-3">
                       <div
@@ -122,36 +127,42 @@ export default function Results({
                                   </Switch>
                                 </div>
                                 <div class="flex flex-col">
-                                  <Show
-                                    when={check.aliasName}
-                                    fallback={
+                                  <div class="flex items-center">
+                                    <Show
+                                      when={check.aliasName}
+                                      fallback={
+                                        <div>
+                                          {checkDisplayName(check)}
+                                          <Show
+                                            when={check.module || check.version}
+                                          >
+                                            <span class="text-gray-500 ml-1">
+                                              (
+                                              {[check.module, check.version]
+                                                .filter(Boolean)
+                                                .join(", v")}
+                                              )
+                                            </span>
+                                          </Show>
+                                        </div>
+                                      }
+                                    >
                                       <div>
-                                        {check.name}
-                                        <Show
-                                          when={check.module || check.version}
-                                        >
-                                          <span class="text-gray-500 ml-1">
-                                            (
-                                            {[check.module, check.version]
-                                              .filter(Boolean)
-                                              .join(", v")}
-                                            )
-                                          </span>
-                                        </Show>
+                                        {checkDisplayName(check)}
+                                        <span class="text-gray-500 text-sm ml-1">
+                                          ({check.name},{" "}
+                                          {[check.module, check.version]
+                                            .filter(Boolean)
+                                            .join(", v")}
+                                          )
+                                        </span>
                                       </div>
-                                    }
-                                  >
-                                    <div>
-                                      {titleCase(check.aliasName!)}
-                                      <span class="text-gray-500 text-sm ml-1">
-                                        ({check.name},{" "}
-                                        {[check.module, check.version]
-                                          .filter(Boolean)
-                                          .join(", v")}
-                                        )
-                                      </span>
-                                    </div>
-                                  </Show>
+                                    </Show>
+                                    <CheckExplanation
+                                      explanation={check.explanation}
+                                      name={checkDisplayName(check)}
+                                    />
+                                  </div>
                                   <Show
                                     when={
                                       (check.effectiveParameters &&

@@ -39,6 +39,7 @@ class DecisionResourceTest {
         CheckConfig check = new CheckConfig();
         check.setCheckId("income-check");
         check.setCheckName("IncomeCheck");
+        check.setExplanation("Your income must be within the program limit.");
         check.setParameters(Map.of());
         check.setInputDefinition(new ObjectMapper().readTree("""
             {
@@ -77,5 +78,6 @@ class DecisionResourceTest {
         Map<String, Object> checkResults = (Map<String, Object>) benefitResult.get("check_results");
         Map<String, Object> checkResult = (Map<String, Object>) checkResults.get("income-check0");
         assertEquals(List.of("custom.householdIncome"), checkResult.get("inputPaths"));
+        assertEquals("Your income must be within the program limit.", checkResult.get("explanation"));
     }
 }

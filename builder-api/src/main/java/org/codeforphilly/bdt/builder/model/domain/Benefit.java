@@ -10,6 +10,7 @@ public class Benefit {
     private String id;
     private String description;
     private String name;
+    @Valid
     private List<CheckConfig> checks;
     private String ownerId;
     @Valid
