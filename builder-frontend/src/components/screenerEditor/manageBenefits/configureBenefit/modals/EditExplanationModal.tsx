@@ -2,6 +2,7 @@ import { Accessor, createSignal, createUniqueId, Show } from "solid-js";
 import { ApiError } from "@/api/check";
 import { Modal } from "@/components/shared/Modal";
 import type { CheckConfig } from "@/types";
+import { checkDisplayName } from "@/utils/checkDisplayName";
 
 export default function EditExplanationModal(props: {
   checkConfig: Accessor<CheckConfig>;
@@ -49,7 +50,10 @@ export default function EditExplanationModal(props: {
         </p>
         <label for={id} class="block font-semibold mb-2">
           Explanation for{" "}
-          {props.checkConfig().aliasName || props.checkConfig().checkName}
+          {checkDisplayName({
+            aliasName: props.checkConfig().aliasName,
+            name: props.checkConfig().checkName,
+          })}
         </label>
         <textarea
           // The Modal's Portal attaches this only after creating it.

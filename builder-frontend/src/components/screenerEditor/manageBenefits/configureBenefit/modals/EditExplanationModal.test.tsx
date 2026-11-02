@@ -123,3 +123,21 @@ it.each([
     ),
   );
 });
+
+it("names the check the way results do", () => {
+  dispose = render(
+    () => (
+      <EditExplanationModal
+        checkConfig={() =>
+          ({ checkName: "Income", aliasName: "IncomeLimit" }) as CheckConfig
+        }
+        save={vi.fn()}
+        closeModal={vi.fn()}
+      />
+    ),
+    document.body,
+  );
+  expect(document.querySelector("label")?.textContent).toBe(
+    "Explanation for Income Limit",
+  );
+});

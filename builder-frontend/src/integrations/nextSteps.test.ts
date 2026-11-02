@@ -99,6 +99,14 @@ it("does not invent missing content or pass unsafe application links", () => {
   expect(exported.food.note).toBeNull();
 });
 
+it("names unmet requirements the way results do", () => {
+  const aliased = structuredClone(results);
+  aliased.food.check_results.a.aliasName = "IncomeLimit";
+  expect(
+    projectNextSteps(aliased, field)!.food.unmetRequirements[0],
+  ).toBe("Income Limit");
+});
+
 it("uses plain-language explanations for unmet requirements with alias and name fallbacks", () => {
   const explained = structuredClone(results);
   explained.food.check_results.a.explanation =
