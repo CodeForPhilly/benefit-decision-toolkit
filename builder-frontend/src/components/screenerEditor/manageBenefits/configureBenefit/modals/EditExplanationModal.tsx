@@ -41,6 +41,8 @@ export default function EditExplanationModal(props: {
           {props.checkConfig().aliasName || props.checkConfig().checkName}
         </label>
         <textarea
+          // The Modal's Portal attaches this only after creating it.
+          ref={(element) => queueMicrotask(() => element.focus())}
           id={id}
           aria-describedby={`${id}-help`}
           class="form-input-custom w-full"

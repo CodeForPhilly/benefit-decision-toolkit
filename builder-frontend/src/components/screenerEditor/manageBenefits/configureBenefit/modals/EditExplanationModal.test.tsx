@@ -49,3 +49,19 @@ it("keeps a failed save editable, retries, and supports clearing the explanation
   await vi.waitFor(() => expect(close).toHaveBeenCalledOnce());
   expect(save).toHaveBeenLastCalledWith(null);
 });
+
+it("moves focus into the explanation when it opens", async () => {
+  dispose = render(
+    () => (
+      <EditExplanationModal
+        checkConfig={() => ({ checkName: "Income" }) as CheckConfig}
+        save={vi.fn()}
+        closeModal={vi.fn()}
+      />
+    ),
+    document.body,
+  );
+  await vi.waitFor(() =>
+    expect(document.activeElement).toBe(document.querySelector("textarea")),
+  );
+});
