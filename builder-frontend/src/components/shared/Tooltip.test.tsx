@@ -98,25 +98,44 @@ describe("Tooltip", () => {
     expect(rect).not.toHaveBeenCalled();
   });
 
-  it("closes when its trigger scrolls out of a scrolling ancestor", async () => {
+  it("closes when the window scrolls its trigger out of view", async () => {
     const { trigger, tooltip } = setup();
-    const scroller = trigger.parentElement!.parentElement!;
-    scroller.style.overflow = "auto";
-    scroller.getBoundingClientRect = () => new DOMRect(0, 200, 800, 300);
-    let top = 250;
+    let top = 100;
     trigger.parentElement!.getBoundingClientRect = () =>
       new DOMRect(300, top, 20, 20);
     trigger.focus();
-    expect(tooltip.hidden).toBe(false);
-    top = 190;
+    top = -10;
     document.body.dispatchEvent(new Event("scroll"));
     await nextFrame();
     expect(tooltip.hidden).toBe(false);
-    top = 170;
+    top = -30;
     document.body.dispatchEvent(new Event("scroll"));
     await nextFrame();
     expect(tooltip.hidden).toBe(true);
   });
+
+  it.each(["auto", "scroll", "hidden", "clip"])(
+    "closes when its trigger leaves an ancestor with %s overflow",
+    async (overflow) => {
+      const { trigger, tooltip } = setup();
+      const scroller = trigger.parentElement!.parentElement!;
+      scroller.style.overflow = overflow;
+      scroller.getBoundingClientRect = () => new DOMRect(0, 200, 800, 300);
+      let top = 250;
+      trigger.parentElement!.getBoundingClientRect = () =>
+        new DOMRect(300, top, 20, 20);
+      trigger.focus();
+      expect(tooltip.hidden).toBe(false);
+      top = 190;
+      document.body.dispatchEvent(new Event("scroll"));
+      await nextFrame();
+      expect(tooltip.hidden).toBe(false);
+      top = 170;
+      document.body.dispatchEvent(new Event("scroll"));
+      await nextFrame();
+      expect(tooltip.hidden).toBe(true);
+    },
+  );
 
   function observeLayout() {
     const observer = {

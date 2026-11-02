@@ -88,18 +88,23 @@ export default function QuestionTooltip(props: TooltipProps) {
   const triggerScrolledOutOfView = () => {
     if (!containerRef) return false;
     const trigger = containerRef.getBoundingClientRect();
+    const outside = (bounds: DOMRect) =>
+      trigger.bottom <= bounds.top ||
+      trigger.top >= bounds.bottom ||
+      trigger.right <= bounds.left ||
+      trigger.left >= bounds.right;
+    // On a phone the window is usually what scrolls
+    if (outside(new DOMRect(0, 0, window.innerWidth, window.innerHeight))) {
+      return true;
+    }
     for (
       let ancestor = containerRef.parentElement;
       ancestor;
       ancestor = ancestor.parentElement
     ) {
-      if (!/auto|scroll/.test(getComputedStyle(ancestor).overflow)) continue;
-      const bounds = ancestor.getBoundingClientRect();
       if (
-        trigger.bottom <= bounds.top ||
-        trigger.top >= bounds.bottom ||
-        trigger.right <= bounds.left ||
-        trigger.left >= bounds.right
+        /auto|scroll|hidden|clip/.test(getComputedStyle(ancestor).overflow) &&
+        outside(ancestor.getBoundingClientRect())
       ) {
         return true;
       }
