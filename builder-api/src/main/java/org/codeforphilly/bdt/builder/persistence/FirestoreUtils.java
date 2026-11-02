@@ -10,6 +10,7 @@ import org.codeforphilly.bdt.builder.model.domain.Screener;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.function.UnaryOperator;
 
 public class FirestoreUtils {
 
@@ -298,6 +299,30 @@ public class FirestoreUtils {
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt(); // preserve interrupt status
+            throw new Exception("Thread interrupted while saving to Firestore", e);
+        } catch (ExecutionException e) {
+            throw new Exception("Failed to write document to Firestore", e);
+        }
+    }
+
+    /* Reads a document and writes the fields update returns, in one transaction that reruns update
+       if the document changes before commit. Returns false, writing nothing, when the document is
+       missing or update returns null. */
+    public static boolean updateDocumentFields(String collection, String documentId,
+                                               UnaryOperator<Map<String, Object>> update) throws Exception {
+        DocumentReference documentRef = db.collection(collection).document(documentId);
+        try {
+            return db.runTransaction(transaction -> {
+                DocumentSnapshot existing = transaction.get(documentRef).get();
+                Map<String, Object> fields = existing.exists() ? update.apply(existing.getData()) : null;
+                if (fields == null) {
+                    return false;
+                }
+                transaction.set(documentRef, fields, SetOptions.merge());
+                return true;
+            }).get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new Exception("Thread interrupted while saving to Firestore", e);
         } catch (ExecutionException e) {
             throw new Exception("Failed to write document to Firestore", e);

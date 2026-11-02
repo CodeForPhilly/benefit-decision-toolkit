@@ -21,18 +21,19 @@ import org.codeforphilly.bdt.builder.service.LibraryApiService;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -94,7 +95,7 @@ class CustomBenefitResourceTest {
         assertEquals("Benefit", benefit.getName());
         assertEquals(List.of(check), benefit.getChecks());
         verify(screenerRepository).updateCustomBenefitFields(SCREENER_ID, benefit.getId(), Map.of("nextSteps", cleared));
-        verify(screenerRepository, never()).updateCustomBenefit(any(), any());
+        verify(screenerRepository, never()).updateCustomBenefitChecks(any(), any(), any());
         verify(screenerRepository, never()).updateWorkingScreener(any());
 
         resource.updateCustomBenefit(identity, SCREENER_ID, benefit.getId(),
@@ -117,7 +118,7 @@ class CustomBenefitResourceTest {
             "benefit", "PhlHomesteadExemption"
         );
 
-        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+        stored(benefit);
         when(checkRepository.getPublishedCustomCheck(USER_ID, "published-check")).thenReturn(Optional.of(check));
         when(aliasService.generate(check.getName(), parameters))
             .thenReturn(Optional.of("Client not already enrolled in Homestead Exemption"));
@@ -130,12 +131,7 @@ class CustomBenefitResourceTest {
         );
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        ArgumentCaptor<Benefit> benefitCaptor = ArgumentCaptor.forClass(Benefit.class);
-        verify(screenerRepository).updateCustomBenefit(
-            org.mockito.ArgumentMatchers.eq(SCREENER_ID),
-            benefitCaptor.capture()
-        );
-        CheckConfig savedCheck = benefitCaptor.getValue().getChecks().getFirst();
+        CheckConfig savedCheck = benefit.getChecks().getFirst();
         assertEquals(parameters, savedCheck.getParameters());
         assertEquals("Client not already enrolled in Homestead Exemption", savedCheck.getAliasName());
         assertTrue(savedCheck.isAliasGenerated());
@@ -151,7 +147,7 @@ class CustomBenefitResourceTest {
         check.setAliasName("Manual alias");
         Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(check));
 
-        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+        stored(benefit);
         when(aliasService.generate("IncomeThreshold", check.getParameters())).thenReturn(Optional.of("Income under $50,000"));
 
         Response response = resource.generateCheckAlias(identity, SCREENER_ID, BENEFIT_ID, "configured-check");
@@ -159,7 +155,7 @@ class CustomBenefitResourceTest {
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals("Income under $50,000", ((Map<String, String>) response.getEntity()).get("aliasName"));
         assertEquals("Manual alias", check.getAliasName());
-        verify(screenerRepository, never()).updateCustomBenefit(any(), any());
+        verify(screenerRepository, never()).updateCustomBenefitChecks(any(), any(), any());
     }
 
     @Test
@@ -171,7 +167,7 @@ class CustomBenefitResourceTest {
         check.setName("OwnerOccupant");
         check.setParameterDefinitions(List.of());
 
-        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+        stored(benefit);
         when(checkRepository.getPublishedCustomCheck(USER_ID, "published-check")).thenReturn(Optional.of(check));
         when(aliasService.generate(any(), any())).thenReturn(Optional.empty());
 
@@ -184,12 +180,7 @@ class CustomBenefitResourceTest {
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(false, ((Map<String, Object>) response.getEntity()).get("aliasGenerated"));
-        ArgumentCaptor<Benefit> benefitCaptor = ArgumentCaptor.forClass(Benefit.class);
-        verify(screenerRepository).updateCustomBenefit(
-            org.mockito.ArgumentMatchers.eq(SCREENER_ID),
-            benefitCaptor.capture()
-        );
-        assertEquals(null, benefitCaptor.getValue().getChecks().getFirst().getAliasName());
+        assertEquals(null, benefit.getChecks().getFirst().getAliasName());
     }
 
     @Test
@@ -200,7 +191,7 @@ class CustomBenefitResourceTest {
         check.setParameters(Map.of("limit", 50_000));
         Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(check));
 
-        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+        stored(benefit);
         when(aliasService.generate(any(), any())).thenReturn(Optional.empty());
 
         Response response = resource.generateCheckAlias(identity, SCREENER_ID, BENEFIT_ID, "configured-check");
@@ -215,7 +206,7 @@ class CustomBenefitResourceTest {
         Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(check));
         Map<String, Object> updatedParameters = Map.of("limit", 60_000);
 
-        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+        stored(benefit);
         when(aliasService.generate("IncomeThreshold", updatedParameters))
             .thenReturn(Optional.of("Income under $60,000"));
 
@@ -236,7 +227,7 @@ class CustomBenefitResourceTest {
         CheckConfig check = configuredIncomeCheck("Income under $50,000", true);
         Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(check));
 
-        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+        stored(benefit);
         when(aliasService.generate(any(), any())).thenReturn(Optional.empty());
 
         Response response = resource.updateCheckParameters(
@@ -254,7 +245,7 @@ class CustomBenefitResourceTest {
         CheckConfig check = configuredIncomeCheck("My income check", false);
         Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(check));
 
-        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+        stored(benefit);
 
         resource.updateCheckParameters(
             identity, SCREENER_ID, BENEFIT_ID, "configured-check",
@@ -272,7 +263,7 @@ class CustomBenefitResourceTest {
         check.setParameters(Map.of("limit", 50_000L));
         Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(check));
 
-        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+        stored(benefit);
 
         resource.updateCheckParameters(
             identity, SCREENER_ID, BENEFIT_ID, "configured-check",
@@ -287,7 +278,7 @@ class CustomBenefitResourceTest {
     void updateCheckAliasRecordsWhetherTheAliasWasGenerated() throws Exception {
         CheckConfig check = configuredIncomeCheck("Income under $50,000", true);
         Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(check));
-        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+        stored(benefit);
 
         resource.updateCheckAlias(
             identity, SCREENER_ID, BENEFIT_ID, "configured-check",
@@ -315,7 +306,7 @@ class CustomBenefitResourceTest {
         other.setCheckId("other-instance");
         other.setExplanation("Other explanation");
         Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(check, other));
-        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+        stored(benefit);
 
         Response saved = resource.updateCheckExplanation(identity, SCREENER_ID, BENEFIT_ID, "configured-check",
             new UpdateCheckExplanationRequest("  Your household income must be below $50,000.  "));
@@ -324,7 +315,6 @@ class CustomBenefitResourceTest {
         assertEquals("Other explanation", other.getExplanation());
         assertEquals("My income check", check.getAliasName());
         assertEquals(Map.of("limit", 50_000), check.getParameters());
-        verify(screenerRepository).updateCustomBenefit(SCREENER_ID, benefit);
 
         assertEquals(200, resource.updateCheckExplanation(identity, SCREENER_ID, BENEFIT_ID, "configured-check",
             new UpdateCheckExplanationRequest(" ")).getStatus());
@@ -336,7 +326,7 @@ class CustomBenefitResourceTest {
         CheckConfig first = configuredIncomeCheck("First", false);
         CheckConfig second = configuredIncomeCheck("Second", false);
         Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(first, second));
-        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+        stored(benefit);
 
         resource.updateCheckExplanation(identity, SCREENER_ID, BENEFIT_ID, "configured-check",
             new UpdateCheckExplanationRequest("Text"));
@@ -347,15 +337,77 @@ class CustomBenefitResourceTest {
 
     @Test
     void explanationUpdateRequiresOwnershipAndAnExistingCheck() throws Exception {
-        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(
-            new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of())));
+        stored(new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of()));
         assertEquals(404, resource.updateCheckExplanation(identity, SCREENER_ID, BENEFIT_ID, "missing",
             new UpdateCheckExplanationRequest("Text")).getStatus());
         assertEquals(404, resource.updateCheckExplanation(identity, SCREENER_ID, "missing", "missing",
             new UpdateCheckExplanationRequest("Text")).getStatus());
         assertEquals(401, resource.updateCheckExplanation(identity, "not-owned", BENEFIT_ID, "configured-check",
             new UpdateCheckExplanationRequest("Text")).getStatus());
-        verify(screenerRepository, never()).updateCustomBenefit(any(), any());
+    }
+
+    @Test
+    void anExplanationSavedWhileAnAliasGeneratesIsKept() throws Exception {
+        CheckConfig read = configuredIncomeCheck("Income under $50,000", true);
+        CheckConfig current = configuredIncomeCheck("Income under $50,000", true);
+        Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(current));
+        stored(benefit);
+        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID))
+            .thenReturn(Optional.of(new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(read))));
+        when(aliasService.generate(any(), any())).thenAnswer(invocation -> {
+            current.setExplanation("Saved meanwhile");
+            return Optional.of("Income under $60,000");
+        });
+
+        resource.updateCheckParameters(identity, SCREENER_ID, BENEFIT_ID, "configured-check",
+            new UpdateCheckParametersRequest(Map.of("limit", 60_000)));
+
+        assertEquals("Saved meanwhile", current.getExplanation());
+        assertEquals("Income under $60,000", current.getAliasName());
+        assertEquals(Map.of("limit", 60_000), current.getParameters());
+    }
+
+    @Test
+    void aGeneratedAliasDoesNotReplaceOneWrittenByHandMeanwhile() throws Exception {
+        CheckConfig read = configuredIncomeCheck("Income under $50,000", true);
+        CheckConfig current = configuredIncomeCheck("Written by hand", false);
+        stored(new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(current)));
+        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID))
+            .thenReturn(Optional.of(new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(read))));
+        when(aliasService.generate(any(), any())).thenReturn(Optional.of("Income under $60,000"));
+
+        resource.updateCheckParameters(identity, SCREENER_ID, BENEFIT_ID, "configured-check",
+            new UpdateCheckParametersRequest(Map.of("limit", 60_000)));
+
+        assertEquals("Written by hand", current.getAliasName());
+    }
+
+    @Test
+    void removingACheckKeepsTheOthersAndReportsAMissingOne() throws Exception {
+        CheckConfig kept = configuredIncomeCheck("Kept", false);
+        kept.setCheckId("kept");
+        kept.setExplanation("Saved");
+        CheckConfig removed = configuredIncomeCheck("Removed", false);
+        Benefit benefit = new Benefit(BENEFIT_ID, "Benefit", "", USER_ID, List.of(kept, removed));
+        stored(benefit);
+
+        assertEquals(200, resource.removeCheckFromBenefit(identity, SCREENER_ID, BENEFIT_ID, "configured-check").getStatus());
+        assertEquals(List.of(kept), benefit.getChecks());
+        assertEquals(404, resource.removeCheckFromBenefit(identity, SCREENER_ID, BENEFIT_ID, "configured-check").getStatus());
+    }
+
+    // Runs each transaction against the benefit, as Firestore would against the stored document.
+    private void stored(Benefit benefit) throws Exception {
+        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+        when(screenerRepository.updateCustomBenefitChecks(eq(SCREENER_ID), eq(BENEFIT_ID), any())).thenAnswer(invocation -> {
+            UnaryOperator<List<CheckConfig>> update = invocation.getArgument(2);
+            List<CheckConfig> updated = update.apply(benefit.getChecks());
+            if (updated == null) {
+                return false;
+            }
+            benefit.setChecks(updated);
+            return true;
+        });
     }
 
     private static CheckConfig configuredIncomeCheck(String aliasName, boolean aliasGenerated) {
@@ -380,7 +432,7 @@ class CustomBenefitResourceTest {
         limit.setRequired(true);
         check.setParameterDefinitions(List.of(limit));
 
-        when(screenerRepository.getCustomBenefit(SCREENER_ID, BENEFIT_ID)).thenReturn(Optional.of(benefit));
+        stored(benefit);
         when(checkRepository.getPublishedCustomCheck(USER_ID, "published-check")).thenReturn(Optional.of(check));
 
         Response response = resource.addCheckToBenefit(
@@ -392,6 +444,6 @@ class CustomBenefitResourceTest {
 
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
         verify(aliasService, never()).generate(any(), any());
-        verify(screenerRepository, never()).updateCustomBenefit(any(), any());
+        verify(screenerRepository, never()).updateCustomBenefitChecks(any(), any(), any());
     }
 }
