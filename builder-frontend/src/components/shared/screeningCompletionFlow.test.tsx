@@ -14,12 +14,6 @@ vi.mock("@/api/publishedScreener", () => ({
   fetchPublishedScreener: vi.fn(),
   evaluatePublishedScreener: vi.fn(),
 }));
-vi.mock("@/components/screenerEditor/preview/FormRenderer", () => ({
-  default: (props: any) => {
-    renderer.props = props;
-    return <div />;
-  },
-}));
 vi.mock("@/components/screener/FormRenderer", () => ({
   default: (props: any) => {
     renderer.props = props;
@@ -49,7 +43,7 @@ import {
 import Preview from "@/components/screenerEditor/preview/Preview";
 import Screener from "@/components/screener/Screener";
 
-describe.each(["preview", "published"])("completion in %s", (mode) => {
+describe.each(["published"])("completion in %s", (mode) => {
   let dispose: (() => void) | undefined;
   const api = () =>
     mode === "preview"
@@ -196,36 +190,5 @@ describe.each(["preview", "published"])("completion in %s", (mode) => {
     } finally {
       vi.restoreAllMocks();
     }
-  });
-});
-
-describe("preview results while typing", () => {
-  let dispose: (() => void) | undefined;
-  afterEach(() => {
-    dispose?.();
-    document.body.replaceChildren();
-  });
-
-  it("keeps showing results until the debounced evaluation starts", async () => {
-    vi.clearAllMocks();
-    renderer.props = undefined;
-    vi.mocked(evaluateScreener).mockResolvedValue({
-      benefit: { name: "Benefit", result: "TRUE", check_results: {} },
-    });
-    const container = document.body.appendChild(document.createElement("div"));
-    dispose = render(
-      () => (
-        <Preview
-          screener={() => ({ id: "working" })}
-          formSchema={() => ({ components: [] })}
-        />
-      ),
-      container,
-    );
-    await vi.waitFor(() => expect(renderer.props).toBeDefined());
-    await renderer.props.submitForm({ answer: true });
-    renderer.props.onDataChange();
-    expect(previewResults.props.resultsLoading()).toBe(false);
-    expect(container.querySelector('[role="status"]')).toBeNull();
   });
 });

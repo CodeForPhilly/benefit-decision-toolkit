@@ -9,6 +9,7 @@ import {
   type ScreeningAnswers,
   type ScreeningSessionOptions,
 } from "./screeningSession";
+import { input, settle, type, until } from "./testing";
 
 const schema = {
   type: "default",
@@ -72,26 +73,6 @@ async function start(
   await until(() => expect(input("Answer")).toBeDefined());
   await settle();
   return { session, container, dispose, setSchema };
-}
-
-const input = (label: string) =>
-  Array.from(document.querySelectorAll("label")).find((element) =>
-    element.textContent?.trim().startsWith(label),
-  )?.control as HTMLInputElement | null | undefined;
-
-// form-js renders once more just after an import, resetting what was typed before it.
-const settle = () => new Promise((resolve) => setTimeout(resolve, 100));
-
-// The session waits for answers to stop changing.
-const until = (assertion: () => void) =>
-  vi.waitFor(assertion, { timeout: 3000 });
-
-function type(label: string, value: string) {
-  const field = input(label)!;
-  field.value = value;
-  field.dispatchEvent(new Event("input", { bubbles: true }));
-  // Leaving the field hands the answer to the form without form-js's typing delay.
-  field.dispatchEvent(new FocusEvent("focusout", { bubbles: true }));
 }
 
 describe("screening session", () => {
