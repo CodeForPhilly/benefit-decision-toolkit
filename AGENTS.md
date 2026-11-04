@@ -41,3 +41,17 @@ Repository skills are stored in `.agents/skills/` using the portable Agent Skill
 - `new-dmn-check`: create a reusable check DMN and its Bruno tests.
 
 Claude compatibility is provided through the `.claude/skills` symlink to `.agents/skills`.
+
+## Agent skills
+
+### Issue tracker
+
+Track issues and specs in GitHub Issues. Read `docs/agents/issue-tracker.md` before tracker operations.
+
+### Triage labels
+
+Use the five default triage labels. Read `docs/agents/triage-labels.md` when assigning triage roles.
+
+### Domain docs
+
+Use a single-context layout. Read `docs/agents/domain.md` before exploring domain concepts or architectural decisions.
