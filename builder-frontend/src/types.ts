@@ -121,6 +121,9 @@ export type ParameterDefinition = {
   required: boolean;
 };
 
+/* Answers a person gives a screener, keyed by form field path */
+export type ScreeningAnswers = Record<string, any>;
+
 /* Screener Evaluation Results */
 export interface ScreenerResult {
   [key: string]: BenefitResult;

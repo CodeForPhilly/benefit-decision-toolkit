@@ -1,7 +1,10 @@
 import { Accessor, For, Match, Show, Switch } from "solid-js";
 
-import type { ParameterValues, ScreenerResult } from "@/types";
-import type { ScreeningAnswers } from "@/components/shared/screeningSession/screeningSession";
+import type {
+  ParameterValues,
+  ScreenerResult,
+  ScreeningAnswers,
+} from "@/types";
 import { checkDisplayName } from "@/utils/checkDisplayName";
 import { createReconciledResults } from "@/utils/reconciledResults";
 

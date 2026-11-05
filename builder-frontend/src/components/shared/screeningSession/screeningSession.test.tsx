@@ -3,10 +3,9 @@ import { createRoot, createSignal } from "solid-js";
 import { insert } from "solid-js/web";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { ScreenerResult } from "@/types";
+import type { ScreenerResult, ScreeningAnswers } from "@/types";
 import {
   createScreeningSession,
-  type ScreeningAnswers,
   type ScreeningSessionOptions,
 } from "./screeningSession";
 import { answer, input, until } from "@/testing/formJs";

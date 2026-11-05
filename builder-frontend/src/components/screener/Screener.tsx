@@ -17,12 +17,9 @@ import {
 
 import HiddenQuestionsNotice from "@/components/shared/HiddenQuestionsNotice";
 import ScreeningComplete from "@/components/shared/ScreeningComplete";
-import {
-  createScreeningSession,
-  type ScreeningAnswers,
-} from "@/components/shared/screeningSession/screeningSession";
+import { createScreeningSession } from "@/components/shared/screeningSession/screeningSession";
 
-import type { PublishedScreener } from "@/types";
+import type { PublishedScreener, ScreeningAnswers } from "@/types";
 import {
   createScreeningBridge,
   type ScreeningBridge,

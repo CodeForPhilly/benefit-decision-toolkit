@@ -24,7 +24,7 @@ import {
   projectNextSteps as projectFieldNextSteps,
   type CrmNextSteps,
 } from "@/integrations/nextSteps";
-import type { ScreenerResult } from "@/types";
+import type { ScreenerResult, ScreeningAnswers } from "@/types";
 import { normalizeArrayFieldData } from "@/utils/arrayFieldData";
 import {
   getUnneededQuestionPaths,
@@ -38,8 +38,6 @@ import {
 } from "@/utils/unknownAnswers";
 
 import "@bpmn-io/form-js/dist/assets/form-js.css";
-
-export type ScreeningAnswers = Record<string, any>;
 
 /** How long answers must stay unchanged before they are evaluated. */
 export const EVALUATION_DELAY_MS = 500;
