@@ -17,11 +17,7 @@ export const Modal: Component<ParentProps<Props>> = (props) => {
   return (
     <Show when={props.show}>
       <Portal>
-        <div
-          class={styles["modal-wrapper"]}
-          onClick={close}
-          data-modal-root
-        >
+        <div class={styles["modal-wrapper"]} onClick={close} data-modal-root>
           <div
             class={styles["modal-content"]}
             onClick={(e) => e.stopPropagation()}

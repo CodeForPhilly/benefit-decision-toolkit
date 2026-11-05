@@ -37,9 +37,7 @@ function resolveEnv(): Env {
   }
 
   // Browser-based Codespace: hostname looks like "<name>-<port>.app.github.dev"
-  const codespaceMatch = hostname.match(
-    /^(.+)-\d+\.(app\.github\.dev)$/,
-  );
+  const codespaceMatch = hostname.match(/^(.+)-\d+\.(app\.github\.dev)$/);
   if (codespaceMatch) {
     const codespaceName = codespaceMatch[1];
     const domain = codespaceMatch[2];

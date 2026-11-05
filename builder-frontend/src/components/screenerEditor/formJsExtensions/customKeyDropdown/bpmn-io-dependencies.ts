@@ -1,10 +1,10 @@
 /**
  * WARNING: This Code is rewritten from https://github.com/bpmn-io/properties-panel
- * 
+ *
  * Due to an oddity with using contexts from compiled libraries,
  * SelectEntry and its context-using dependencies need to be
  * rewritten here in order for customKeyDropdownProvider.ts to function properly.
- * 
+ *
  * Specific files used here:
  * - https://github.com/bpmn-io/properties-panel/blob/main/src/components/entries/Select.js
  * - https://github.com/bpmn-io/properties-panel/blob/main/src/hooks/useError.js
@@ -12,17 +12,24 @@
  * - https://github.com/bpmn-io/properties-panel/blob/main/src/hooks/useShowEntryEvent.js
  */
 
-import classNames from 'classnames';
-import { isFunction } from 'min-dash';
+import classNames from "classnames";
+import { isFunction } from "min-dash";
 
-import { html } from 'htm/preact';
+import { html } from "htm/preact";
 import {
-  useCallback, useContext, useEffect, useRef, useState
-} from 'preact/hooks';
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "preact/hooks";
 
 import {
-  useEvent, ErrorsContext, EventContext, PropertiesPanelContext
-} from '@bpmn-io/properties-panel';
+  useEvent,
+  ErrorsContext,
+  EventContext,
+  PropertiesPanelContext,
+} from "@bpmn-io/properties-panel";
 
 export function useEvent(event, callback, eventBus) {
   const eventContext = useContext(EventContext);
@@ -51,7 +58,7 @@ export function useEvent(event, callback, eventBus) {
         eventBus.off(event, callback);
       }
     };
-  }, [ callback, event, eventBus ]);
+  }, [callback, event, eventBus]);
 }
 
 /**
@@ -68,15 +75,18 @@ export function useShowEntryEvent(id) {
 
   const focus = useRef(false);
 
-  const onShowEntry = useCallback((event) => {
-    if (event.id === id) {
-      onShow();
+  const onShowEntry = useCallback(
+    (event) => {
+      if (event.id === id) {
+        onShow();
 
-      if (!focus.current) {
-        focus.current = true;
+        if (!focus.current) {
+          focus.current = true;
+        }
       }
-    }
-  }, [ id ]);
+    },
+    [id],
+  );
 
   useEffect(() => {
     if (focus.current && ref.current) {
@@ -92,7 +102,7 @@ export function useShowEntryEvent(id) {
     }
   });
 
-  useEvent('propertiesPanel.showEntry', onShowEntry);
+  useEvent("propertiesPanel.showEntry", onShowEntry);
 
   return ref;
 }
@@ -100,10 +110,12 @@ export function useShowEntryEvent(id) {
 export function useError(id) {
   const { errors } = useContext(ErrorsContext);
 
-  return errors[ id ];
+  return errors[id];
 }
 
-{ /* Required to break up imports, see https://github.com/babel/babel/issues/15156 */ }
+{
+  /* Required to break up imports, see https://github.com/babel/babel/issues/15156 */
+}
 
 /**
  * @typedef { { value: string, label: string, disabled: boolean, children: { value: string, label: string, disabled: boolean } } } Option
@@ -129,7 +141,7 @@ function Select(props) {
     label,
     onChange,
     options = [],
-    value = '',
+    value = "",
     disabled,
     onFocus,
     onBlur,
@@ -137,10 +149,10 @@ function Select(props) {
 
   const ref = useShowEntryEvent(id);
 
-  const [ localValue, setLocalValue ] = useState(value);
-  const [ isOpen, setIsOpen ] = useState(false);
+  const [localValue, setLocalValue] = useState(value);
+  const [isOpen, setIsOpen] = useState(false);
 
-  const flatOptions = options.flatMap(option => option.children || [ option ]);
+  const flatOptions = options.flatMap((option) => option.children || [option]);
 
   const handleInput = ({ target }) => {
     setLocalValue(target.value);
@@ -159,12 +171,12 @@ function Select(props) {
   };
 
   const handleKeyDown = (event) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       commitValue();
       setIsOpen(false);
     }
 
-    if (event.key === 'ArrowDown') {
+    if (event.key === "ArrowDown") {
       event.preventDefault();
       setIsOpen(true);
     }
@@ -187,64 +199,75 @@ function Select(props) {
     }
 
     setLocalValue(value);
-  }, [ value ]);
+  }, [value]);
 
-  return (html`
-    <div class="bio-properties-panel-textfield" style="position: relative;">
-      <label for=${ prefixId(id) } class="bio-properties-panel-label">
-        ${label}
-      </label>
-      <div style="display: flex;">
-        <input
-          ref=${ ref }
-          id=${ prefixId(id) }
-          name=${ id }
-          class="bio-properties-panel-input"
-          style="flex: 1; min-width: 0;"
-          type="text"
-          role="combobox"
-          aria-autocomplete="list"
-          aria-controls=${ prefixId(`${id}-options`) }
-          aria-expanded=${ isOpen }
-          onInput=${ handleInput }
-          onKeyDown=${ handleKeyDown }
-          onFocus=${ handleFocus }
-          onBlur=${ handleBlur }
-          value=${ localValue }
-          disabled=${ disabled }
-        />
-        <button
-          type="button"
-          class="bio-properties-panel-input"
-          style="flex: 0 0 32px; margin-left: 4px; padding: 0;"
-          aria-label="Show mapped keys"
-          onMouseDown=${ event => event.preventDefault() }
-          onClick=${ () => setIsOpen(!isOpen) }
-          disabled=${ disabled }
-        >⌄</button>
-      </div>
-      ${isOpen && html`
-        <div
-          id=${ prefixId(`${id}-options`) }
-          role="listbox"
-          style="position: absolute; left: 0; right: 0; z-index: 100; max-height: 220px; overflow-y: auto; background: white; border: 1px solid #ccc; box-shadow: 0 2px 6px rgba(0, 0, 0, .15);"
-        >
-          ${flatOptions.map((option, idx) => html`
+  return html` <div
+    class="bio-properties-panel-textfield"
+    style="position: relative;"
+  >
+    <label for=${prefixId(id)} class="bio-properties-panel-label">
+      ${label}
+    </label>
+    <div style="display: flex;">
+      <input
+        ref=${ref}
+        id=${prefixId(id)}
+        name=${id}
+        class="bio-properties-panel-input"
+        style="flex: 1; min-width: 0;"
+        type="text"
+        role="combobox"
+        aria-autocomplete="list"
+        aria-controls=${prefixId(`${id}-options`)}
+        aria-expanded=${isOpen}
+        onInput=${handleInput}
+        onKeyDown=${handleKeyDown}
+        onFocus=${handleFocus}
+        onBlur=${handleBlur}
+        value=${localValue}
+        disabled=${disabled}
+      />
+      <button
+        type="button"
+        class="bio-properties-panel-input"
+        style="flex: 0 0 32px; margin-left: 4px; padding: 0;"
+        aria-label="Show mapped keys"
+        onMouseDown=${(event) => event.preventDefault()}
+        onClick=${() => setIsOpen(!isOpen)}
+        disabled=${disabled}
+      >
+        ⌄
+      </button>
+    </div>
+    ${isOpen &&
+    html`
+      <div
+        id=${prefixId(`${id}-options`)}
+        role="listbox"
+        style="position: absolute; left: 0; right: 0; z-index: 100; max-height: 220px; overflow-y: auto; background: white; border: 1px solid #ccc; box-shadow: 0 2px 6px rgba(0, 0, 0, .15);"
+      >
+        ${flatOptions.map(
+          (option, idx) => html`
             <button
-              key=${ idx }
+              key=${idx}
               type="button"
               role="option"
-              aria-selected=${ option.value === localValue }
-              disabled=${ option.disabled }
-              style="display: block; width: 100%; padding: 6px 8px; border: 0; background: ${option.value === localValue ? '#eee' : 'white'}; text-align: left;"
-              onMouseDown=${ event => event.preventDefault() }
-              onClick=${ () => selectOption(option) }
-            >${option.label}</button>
-          `)}
-        </div>
-      `}
-    </div>`
-  );
+              aria-selected=${option.value === localValue}
+              disabled=${option.disabled}
+              style="display: block; width: 100%; padding: 6px 8px; border: 0; background: ${option.value ===
+              localValue
+                ? "#eee"
+                : "white"}; text-align: left;"
+              onMouseDown=${(event) => event.preventDefault()}
+              onClick=${() => selectOption(option)}
+            >
+              ${option.label}
+            </button>
+          `,
+        )}
+      </div>
+    `}
+  </div>`;
 }
 
 /**
@@ -275,14 +298,14 @@ export default function SelectEntry(props) {
     onFocus,
     onBlur,
     validate,
-    tooltip
+    tooltip,
   } = props;
 
   const options = getOptions(element);
 
   const globalError = useError(id);
 
-  const [ localError, setLocalError ] = useState(null);
+  const [localError, setLocalError] = useState(null);
 
   let value = getValue(element);
 
@@ -292,8 +315,7 @@ export default function SelectEntry(props) {
 
       setLocalError(newValidationError);
     }
-  }, [ value, validate ]);
-
+  }, [value, validate]);
 
   const onChange = (newValue) => {
     let newValidationError = null;
@@ -308,26 +330,23 @@ export default function SelectEntry(props) {
 
   const error = globalError || localError;
 
-  return (html`
-    <div
-      class=${ classNames(
-        'bio-properties-panel-entry',
-        error ? 'has-error' : '')
-      }
-      data-entry-id=${ id }>
-      <${Select}
-        id=${ id }
-        label=${ label }
-        value=${ value }
-        onChange=${ onChange }
-        onFocus=${ onFocus }
-        onBlur=${ onBlur }
-        options=${ options }
-        disabled=${ disabled }
-        element=${ element } />
-      ${ error && html`<div class="bio-properties-panel-error">${ error }</div>` }
-    </div>`
-  );
+  return html` <div
+    class=${classNames("bio-properties-panel-entry", error ? "has-error" : "")}
+    data-entry-id=${id}
+  >
+    <${Select}
+      id=${id}
+      label=${label}
+      value=${value}
+      onChange=${onChange}
+      onFocus=${onFocus}
+      onBlur=${onBlur}
+      options=${options}
+      disabled=${disabled}
+      element=${element}
+    />
+    ${error && html`<div class="bio-properties-panel-error">${error}</div>`}
+  </div>`;
 }
 
 export function isEdited(node) {
@@ -337,5 +356,5 @@ export function isEdited(node) {
 // helpers /////////////////
 
 function prefixId(id) {
-  return `bio-properties-panel-${ id }`;
+  return `bio-properties-panel-${id}`;
 }

@@ -27,11 +27,13 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
 // Connect to emulators in development
-if (import.meta.env.MODE === 'development') {
+if (import.meta.env.MODE === "development") {
   try {
     const prefixes = ["localhost", "127.0.0.1"];
-    const isLocalhost = prefixes.some(prefix => AUTH_DOMAIN.startsWith(prefix));
-    const protocol = isLocalhost ? 'http' : 'https';
+    const isLocalhost = prefixes.some((prefix) =>
+      AUTH_DOMAIN.startsWith(prefix),
+    );
+    const protocol = isLocalhost ? "http" : "https";
     const authEmulatorUrl = `${protocol}://${AUTH_DOMAIN}`;
     connectAuthEmulator(auth, authEmulatorUrl, { disableWarnings: true });
     console.log("🔧 Connected to Firebase auth emulator");

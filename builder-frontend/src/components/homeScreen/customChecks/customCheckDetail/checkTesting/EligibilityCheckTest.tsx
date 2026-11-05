@@ -22,7 +22,7 @@ const EligibilityCheckTest = ({
   eligibilityCheck: Accessor<EligibilityCheck>;
   testEligibility: (
     checkConfg: CheckConfig,
-    inputData: Record<string, any>
+    inputData: Record<string, any>,
   ) => Promise<OptionalBoolean>;
 }) => {
   const [checkConfig, setCheckConfig] = createSignal<CheckConfig>({
@@ -56,7 +56,7 @@ const EligibilityCheckTest = ({
         onClick={async () => {
           const result = await testEligibility(
             checkConfig(),
-            currentJsonContent().json
+            currentJsonContent().json,
           );
           if (!result) {
             return;

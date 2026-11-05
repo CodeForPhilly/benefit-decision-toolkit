@@ -7,4 +7,4 @@ export const titleCase = (str: string) => {
   return words.length === 0
     ? words
     : words.charAt(0).toUpperCase() + words.slice(1);
-}
+};
