@@ -3,12 +3,7 @@ import { render } from "solid-js/web";
 import { afterEach, expect, it, vi } from "vitest";
 
 import type { ScreenerResult } from "@/types";
-import {
-  input,
-  settle,
-  type,
-  until,
-} from "@/components/shared/screeningSession/testing";
+import { input, settle, type, until } from "@/testing/formJs";
 
 const previewResults = vi.hoisted(() => ({ props: undefined as any }));
 vi.mock("@/api/screener", () => ({ evaluateScreener: vi.fn() }));

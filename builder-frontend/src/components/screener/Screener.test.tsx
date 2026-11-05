@@ -7,12 +7,7 @@ import {
   fetchPublishedScreener,
 } from "@/api/publishedScreener";
 import type { ScreenerResult } from "@/types";
-import {
-  input,
-  settle,
-  type,
-  until,
-} from "@/components/shared/screeningSession/testing";
+import { input, settle, type, until } from "@/testing/formJs";
 
 const integration = vi.hoisted(() => ({
   enabled: true,

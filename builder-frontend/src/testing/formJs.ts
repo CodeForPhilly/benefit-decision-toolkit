@@ -1,6 +1,6 @@
 import { vi } from "vitest";
 
-/** Helpers for tests that answer a screening session's form the way a person would. */
+/** Helpers for tests that answer a real form-js form the way a person would. */
 
 export const input = (label: string) =>
   Array.from(document.querySelectorAll("label")).find((element) =>

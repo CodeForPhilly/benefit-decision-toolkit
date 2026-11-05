@@ -9,7 +9,7 @@ import {
   type ScreeningAnswers,
   type ScreeningSessionOptions,
 } from "./screeningSession";
-import { input, settle, type, until } from "./testing";
+import { input, settle, type, until } from "@/testing/formJs";
 
 const schema = {
   type: "default",
