@@ -99,8 +99,7 @@ Then, to startup all the services/apps with the default configuration, run:
 devbox services up
 ```
 
-Access the local app (builder-frontend) at `http://localhost:5173`
-
+Access the local app (builder-frontend) at `http://localhost:5173`. To sign in locally, you don't use a real account; the Firebase Auth emulator stands in for Google. You can type any name and email to create a fake Google account. Fake accounts and screeners live only in the local emulators, which you can inspect at `http://localhost:4000`.
 
 You can also run a shell in the context of Devbox with:
 
