@@ -42,9 +42,10 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-it("evaluates the working screener and keeps the last results when an evaluation fails", async () => {
+it("evaluates the working screener on open and keeps the last results when an evaluation fails", async () => {
   vi.spyOn(console, "error").mockImplementation(() => {});
   vi.mocked(evaluateScreener)
+    .mockResolvedValueOnce(decided)
     .mockResolvedValueOnce(decided)
     .mockRejectedValueOnce(new Error("Unavailable"));
   const container = document.body.appendChild(document.createElement("div"));
@@ -55,15 +56,21 @@ it("evaluates the working screener and keeps the last results when an evaluation
     container,
   );
   await until(() => expect(input("Answer")).toBeDefined());
+  await until(() =>
+    expect(evaluateScreener).toHaveBeenCalledExactlyOnceWith("working", {
+      answer: "",
+    }),
+  );
   await settle();
 
   type("Answer", "first");
+  await until(() => expect(evaluateScreener).toHaveBeenCalledTimes(2));
   await until(() =>
     expect(container.querySelector('[role="status"]')?.textContent).toContain(
       "Screening complete",
     ),
   );
-  expect(evaluateScreener).toHaveBeenCalledWith(
+  expect(evaluateScreener).toHaveBeenLastCalledWith(
     "working",
     expect.objectContaining({ answer: "first" }),
   );

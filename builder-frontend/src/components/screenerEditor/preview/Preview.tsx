@@ -26,6 +26,8 @@ const Preview = ({ screener, formSchema }) => {
   const session = createScreeningSession({
     schema,
     evaluate: (answers) => evaluateScreener(screener().id, answers),
+    // Authors see results for an unanswered form as soon as Preview opens.
+    evaluateOnLoad: true,
     screenerName: () => screener()?.screenerName ?? "",
   });
 

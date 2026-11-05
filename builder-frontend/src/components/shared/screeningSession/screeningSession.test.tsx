@@ -226,6 +226,7 @@ describe("screening session", () => {
       evaluate,
       onResults,
       initialAnswers: { answer: "From the host", married: null },
+      evaluateOnLoad: true,
     });
 
     await until(() => expect(onResults).toHaveBeenCalledOnce());
@@ -251,17 +252,36 @@ describe("screening session", () => {
     );
   });
 
-  it("evaluates empty provided answers on load", async () => {
+  it("treats every missing provided answer as unknown", async () => {
     const evaluate = vi.fn(async () => result("TRUE"));
-    const { session } = await start({ evaluate, initialAnswers: {} });
+    const { session } = await start({
+      evaluate,
+      initialAnswers: {},
+      evaluateOnLoad: true,
+    });
 
     await until(() => expect(session.results()).toEqual(result("TRUE")));
-    expect(evaluate).toHaveBeenCalledOnce();
+    expect(evaluate).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ answer: null, married: null }),
+    );
   });
 
-  it("waits for an edit when no answers were provided", async () => {
+  it("evaluates form-js's empty values on load when no answers were provided", async () => {
+    const evaluate = vi.fn(async () => result("FALSE"));
+    const { session } = await start({ evaluate, evaluateOnLoad: true });
+
+    await until(() => expect(session.results()).toEqual(result("FALSE")));
+    expect(evaluate).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ answer: "", married: false }),
+    );
+  });
+
+  it("waits for an edit unless asked to evaluate on load", async () => {
     const evaluate = vi.fn(async () => result("TRUE"));
-    const { session } = await start({ evaluate });
+    const { session } = await start({
+      evaluate,
+      initialAnswers: { answer: "From the host" },
+    });
 
     await new Promise((resolve) => setTimeout(resolve, 600));
     expect(evaluate).not.toHaveBeenCalled();

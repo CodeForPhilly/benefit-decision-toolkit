@@ -121,6 +121,8 @@ function PublishedScreening(props: {
     evaluate: (answers) =>
       evaluatePublishedScreener(props.publishedScreenerId, answers),
     initialAnswers: props.initialAnswers,
+    // A connected host expects results for its answers right away.
+    evaluateOnLoad: props.initialAnswers !== undefined,
     screenerName: () => props.screener.screenerName ?? "",
     // Only a CRM host receives next steps; standalone screeners skip the projection.
     onResults:

@@ -49,10 +49,12 @@ export interface ScreeningSessionOptions {
   /** Evaluate normalized answers, against the working screener or a published one. */
   evaluate: (answers: ScreeningAnswers) => Promise<ScreenerResult>;
   /**
-   * Answers a host provided. When given, even empty, they are evaluated on load, and
-   * unknown answers stay null until the person answers them.
+   * Answers a host provided. Answers missing or null here stay null until the person
+   * answers them, rather than taking form-js's empty values.
    */
   initialAnswers?: ScreeningAnswers;
+  /** Evaluate as soon as the form loads, rather than waiting for the first edit. */
+  evaluateOnLoad?: boolean;
   screenerName?: Accessor<string>;
   /** Called only for the latest answers, never for an evaluation an edit outdated. */
   onResults?: (answers: ScreeningAnswers, results: ScreenerResult) => void;
@@ -84,8 +86,14 @@ export interface ScreeningSession {
 export function createScreeningSession(
   options: ScreeningSessionOptions,
 ): ScreeningSession {
-  const { schema, evaluate, initialAnswers, onResults, onEvaluationFailed } =
-    options;
+  const {
+    schema,
+    evaluate,
+    initialAnswers,
+    evaluateOnLoad,
+    onResults,
+    onEvaluationFailed,
+  } = options;
   const [results, setResults] = createSignal<ScreenerResult>();
   const [answersSent, setAnswersSent] = createSignal<ScreeningAnswers>(
     initialAnswers ?? {},
@@ -204,8 +212,8 @@ export function createScreeningSession(
           currentData = cloneDeep(mounted._getState().data);
           if (initialAnswers) {
             unknownPaths = findFilledUnknownPaths(initialAnswers, currentData);
-            void submit(evaluationAnswers(currentData));
           }
+          if (evaluateOnLoad) void submit(evaluationAnswers(currentData));
           mounted.on("changed", (event: State) => {
             const dataChanged = !isEqual(currentData, event.data);
             currentData = cloneDeep(event.data);
