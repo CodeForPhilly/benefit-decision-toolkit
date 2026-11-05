@@ -199,7 +199,7 @@ describe("screening session", () => {
     expect(input("Answer")!.value).toBe("kept");
 
     session.toggleShowAllQuestions();
-    await until(() => expect(input("Income")).toBeDefined());
+    await until(() => expect(input("Income")).toBeTruthy());
     expect(session.showAllQuestions()).toBe(true);
     expect(input("Answer")!.value).toBe("kept");
     expect(evaluate).toHaveBeenCalledOnce();
@@ -217,7 +217,7 @@ describe("screening session", () => {
         { id: "age", type: "number", key: "age", label: "Age" },
       ],
     });
-    await until(() => expect(input("Age")).toBeDefined());
+    await until(() => expect(input("Age")).toBeTruthy());
     expect(input("Answer")!.value).toBe("kept");
   });
 

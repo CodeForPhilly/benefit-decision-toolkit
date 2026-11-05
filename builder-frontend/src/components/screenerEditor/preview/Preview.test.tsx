@@ -50,7 +50,7 @@ it("evaluates the working screener on open and keeps the last results when an ev
     ),
     container,
   );
-  await until(() => expect(input("Answer")).toBeDefined());
+  await until(() => expect(input("Answer")).toBeTruthy());
   await until(() =>
     expect(evaluateScreener).toHaveBeenCalledExactlyOnceWith("working", {
       answer: "",

@@ -12,7 +12,8 @@ export const until = (assertion: () => void) =>
   vi.waitFor(assertion, { timeout: 3000 });
 
 export function answer(label: string, value: string) {
-  const field = input(label)!;
+  const field = input(label);
+  if (!field) throw new Error(`No form field labelled ${label}`);
   field.value = value;
   field.dispatchEvent(new Event("input", { bubbles: true }));
   // Leaving the field hands the answer to the form at once, before form-js's typing
