@@ -3,7 +3,7 @@
 # Run every automated test suite in the repository.
 #
 # Suites run in this order:
-#   1. builder-frontend - Vitest unit tests (npm test)
+#   1. builder-frontend - Vitest unit tests, then format and type checks
 #   2. builder-api      - JVM unit/integration tests (mvn test)
 #   3. library-api      - JVM unit/integration tests (mvn test)
 #   4. examples         - Node tests for the CRM examples (node --test)
@@ -40,7 +40,7 @@ Runs every automated test suite in the repository. Run it directly or as
 Devbox on its own.
 
 Suites:
-  builder-frontend  builder-frontend Vitest tests (npm test)
+  builder-frontend  builder-frontend Vitest tests, format check, type check
   builder-api       builder-api JVM tests (mvn test)
   library-api       library-api JVM tests (mvn test)
   examples          CRM example Node tests (node --test)
@@ -183,7 +183,12 @@ run_builder_frontend_suite() {
       print_status "Installing builder-frontend dependencies..."
       npm install
     fi
-    npm test
+    # Run every check so one failure doesn't hide another.
+    local status=0
+    npm test || status=1
+    npm run format:check || status=1
+    npm run typecheck || status=1
+    exit "$status"
   )
 }
 
