@@ -73,10 +73,14 @@ it("evaluates the working screener on open and keeps the last results when an ev
     expect.objectContaining({ answer: "first" }),
   );
 
+  expect(previewResults.props.resultsLoading()).toBe(false);
+
   answer("Answer", "second");
+  expect(previewResults.props.resultsLoading()).toBe(true);
   await until(() =>
     expect(container.querySelector('[role="alert"]')).not.toBeNull(),
   );
   expect(container.querySelector('[role="status"]')).toBeNull();
   expect(previewResults.props.results()).toEqual(decided);
+  expect(previewResults.props.resultsLoading()).toBe(false);
 });

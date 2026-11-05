@@ -76,7 +76,9 @@ const Preview = ({ screener, formSchema }) => {
         <Results
           inputData={session.answersSent}
           results={session.results}
-          resultsLoading={session.loading}
+          // From an edit, not just once the answers are sent, so rows that no
+          // longer match the answers are marked as outdated.
+          resultsLoading={() => session.stale() && !session.failed()}
         />
       </div>
     </div>
