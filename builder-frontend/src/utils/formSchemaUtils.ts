@@ -19,11 +19,13 @@ interface FormSchema {
 export function extractFormPaths(schema: FormSchema): string[] {
   const paths = new Set<string>();
 
-  function traverse(components: FormComponent[], parentPath: string = '') {
+  function traverse(components: FormComponent[], parentPath: string = "") {
     for (const component of components) {
       // Build current path prefix (for groups/lists with path property)
       const currentPrefix = component.path
-        ? (parentPath ? `${parentPath}.${component.path}` : component.path)
+        ? parentPath
+          ? `${parentPath}.${component.path}`
+          : component.path
         : parentPath;
 
       // If component has a key, it's a data field - add its full path

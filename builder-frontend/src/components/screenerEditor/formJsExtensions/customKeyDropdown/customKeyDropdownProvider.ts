@@ -1,4 +1,4 @@
-import SelectEntry from './bpmn-io-dependencies';
+import SelectEntry from "./bpmn-io-dependencies";
 
 /**
  * Custom properties provider that replaces the path entry
@@ -7,7 +7,7 @@ class CustomKeyDropdownProvider {
   private pathOptionsService: any;
   private modeling: any;
 
-  static $inject = ['propertiesPanel', 'pathOptionsService', 'modeling'];
+  static $inject = ["propertiesPanel", "pathOptionsService", "modeling"];
 
   constructor(propertiesPanel: any, pathOptionsService: any, modeling: any) {
     this.pathOptionsService = pathOptionsService;
@@ -19,40 +19,42 @@ class CustomKeyDropdownProvider {
     const pathOptionsService = this.pathOptionsService;
     const modeling = this.modeling;
 
-    return function(groups: any[]) {
+    return function (groups: any[]) {
       // Find and modify the general group that contains the path entry
-      const generalGroup = groups.find(g => g.id === 'general');
+      const generalGroup = groups.find((g) => g.id === "general");
 
       if (!generalGroup) {
         return groups;
       }
 
-
       // For Group components, just remove the key field entirely (don't add dropdown)
-      if (field.type === 'group') {
+      if (field.type === "group") {
         generalGroup.entries = generalGroup.entries.filter(
-          (entry: any) => entry.id !== 'path'
+          (entry: any) => entry.id !== "path",
         );
       }
 
       // For Expression components, keep the original free-text key input
       // (expression keys store computed results, not form input paths)
-      if (field.type === 'expression') {
+      if (field.type === "expression") {
         return groups;
       }
 
-      const curKeyEntry = generalGroup.entries.find((entry: any) => entry.id === 'key');
+      const curKeyEntry = generalGroup.entries.find(
+        (entry: any) => entry.id === "key",
+      );
       // Only replace the Key input with dropdown if it exists
       if (curKeyEntry) {
         // Remove the original key entry
         generalGroup.entries = generalGroup.entries.filter(
-          (entry: any) => entry.id !== 'key'
+          (entry: any) => entry.id !== "key",
         );
 
         // Add our custom dropdown key entry for non-group components
         generalGroup.entries.unshift({
           ...curKeyEntry,
-          component: (props: any) => CustomKeyDropdown({ ...props, pathOptionsService, modeling })
+          component: (props: any) =>
+            CustomKeyDropdown({ ...props, pathOptionsService, modeling }),
         });
       }
       return groups;
@@ -63,37 +65,40 @@ class CustomKeyDropdownProvider {
 function CustomKeyDropdown(props: any) {
   const { element: field, id, pathOptionsService, modeling } = props;
 
-  const getValue = () => { return field.key || '' };
+  const getValue = () => {
+    return field.key || "";
+  };
   const setValue = (value: string) => {
-    return modeling.editFormField(field, 'key', value);
+    return modeling.editFormField(field, "key", value);
   };
 
   const getOptions = () => {
     // Get current field's key so it won't be disabled in the dropdown
-    const currentKey = field.key || '';
+    const currentKey = field.key || "";
 
     // Get the component type to filter compatible options
-    const componentType = field.type || '';
+    const componentType = field.type || "";
 
     // Get options from the injected service, passing current key to exclude from disabling
-    const options = pathOptionsService?.getOptions(currentKey, componentType) || [];
+    const options =
+      pathOptionsService?.getOptions(currentKey, componentType) || [];
 
     return options;
   };
 
   return SelectEntry({
     element: field,
-    id: id || 'key',
-    label: 'Key',
-    description: 'Enter any key or select a mapped data path',
+    id: id || "key",
+    label: "Key",
+    description: "Enter any key or select a mapped data path",
     getValue,
     setValue,
-    getOptions
+    getOptions,
   });
 }
 
 // Module definition for didi
 export const customKeyModule = {
-  __init__: ['customKeyDropdownProvider'],
-  customKeyDropdownProvider: ['type', CustomKeyDropdownProvider]
+  __init__: ["customKeyDropdownProvider"],
+  customKeyDropdownProvider: ["type", CustomKeyDropdownProvider],
 };

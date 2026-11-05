@@ -1,7 +1,7 @@
 type Path = string[];
 
 // form-js's empty values for checkboxes (false) and text fields ('').
-const isFilledEmptyValue = (value: unknown) => value === false || value === '';
+const isFilledEmptyValue = (value: unknown) => value === false || value === "";
 
 const valueAt = (data: unknown, path: Path) =>
   path.reduce<any>(
@@ -21,7 +21,7 @@ export function findFilledUnknownPaths(
   if (isFilledEmptyValue(formData)) {
     return valueAt(prefill, path) == null ? [path] : [];
   }
-  if (formData === null || typeof formData !== 'object') return [];
+  if (formData === null || typeof formData !== "object") return [];
   return Object.entries(formData).flatMap(([key, value]) =>
     findFilledUnknownPaths(prefill, value, [...path, key]),
   );
@@ -40,7 +40,7 @@ export function restoreUnknownAnswers<T>(data: T, paths: Path[]): T {
     const key = path[path.length - 1];
     if (
       parent &&
-      typeof parent === 'object' &&
+      typeof parent === "object" &&
       isFilledEmptyValue(parent[key])
     ) {
       parent[key] = null;

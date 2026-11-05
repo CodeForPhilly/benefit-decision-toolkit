@@ -192,10 +192,7 @@ const createScreenerBenefits = (
       explanation,
     );
     // A reload could report a failed read as a failed save, and would re-render every row.
-    if (
-      screenerId() === targetScreenerId &&
-      benefitId() === targetBenefitId
-    ) {
+    if (screenerId() === targetScreenerId && benefitId() === targetBenefitId) {
       explanationSaves++;
       setBenefit(
         "checks",
