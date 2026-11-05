@@ -221,6 +221,8 @@ export function createScreeningSession(
             unknownPaths = keepUnansweredPaths(unknownPaths, event.data);
             latestEvaluation++;
             setStale(true);
+            // Nothing is evaluating the new answers until the delay ends.
+            setLoading(false);
             debouncedSubmit(event.data);
           });
         })

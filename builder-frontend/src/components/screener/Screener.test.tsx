@@ -7,7 +7,7 @@ import {
   fetchPublishedScreener,
 } from "@/api/publishedScreener";
 import type { ScreenerResult } from "@/types";
-import { input, settle, type, until } from "@/testing/formJs";
+import { answer, input, until } from "@/testing/formJs";
 
 const integration = vi.hoisted(() => ({
   enabled: true,
@@ -98,8 +98,7 @@ describe("published screener integration lifecycle", () => {
     );
     expect(input("City")!.value).toBe("Philadelphia");
 
-    await settle();
-    type("City", "Pittsburgh");
+    answer("City", "Pittsburgh");
     await until(() => expect(integration.result).toHaveBeenCalledTimes(2));
     expect(integration.result).toHaveBeenLastCalledWith(
       { custom: { city: "Pittsburgh" } },
@@ -216,8 +215,7 @@ describe("published screener integration lifecycle", () => {
     await until(() => expect(input("City")).toBeDefined());
     expect(container.textContent).not.toContain("Waiting for information");
     expect(evaluatePublishedScreener).not.toHaveBeenCalled();
-    await settle();
-    type("City", "Pittsburgh");
+    answer("City", "Pittsburgh");
     await until(() => expect(container.textContent).toContain("Eligible"));
     expect(integration.result).not.toHaveBeenCalled();
   });
