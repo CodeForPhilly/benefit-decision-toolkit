@@ -148,11 +148,6 @@ export interface CheckResult {
 }
 export type OptionalBoolean = "TRUE" | "FALSE" | "UNABLE_TO_DETERMINE";
 
-/* Form Data for Preview */
-export interface PreviewFormData {
-  [key: string]: any;
-}
-
 // Published Screener Types
 export interface PublishedScreener {
   screenerName: string;

@@ -91,6 +91,7 @@ export function createScreeningSession(
     evaluate,
     initialAnswers,
     evaluateOnLoad,
+    screenerName,
     onResults,
     onEvaluationFailed,
   } = options;
@@ -191,7 +192,7 @@ export function createScreeningSession(
         schema,
         evaluatedAnswers: answersSent,
         results,
-        screenerName: options.screenerName,
+        screenerName,
         pending: stale,
         failed,
         onNextStepsShownChange: setNextStepsShown,

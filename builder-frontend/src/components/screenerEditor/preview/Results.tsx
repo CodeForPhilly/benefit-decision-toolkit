@@ -1,7 +1,7 @@
 import { Accessor, For, Match, Show, Switch } from "solid-js";
 
-import { PreviewFormData, ScreenerResult } from "./types";
-import type { ParameterValues } from "@/types";
+import type { ParameterValues, ScreenerResult } from "@/types";
+import type { ScreeningAnswers } from "@/components/shared/screeningSession/screeningSession";
 import { checkDisplayName } from "@/utils/checkDisplayName";
 import { createReconciledResults } from "@/utils/reconciledResults";
 
@@ -30,7 +30,7 @@ export default function Results({
   results,
   resultsLoading,
 }: {
-  inputData: Accessor<PreviewFormData>;
+  inputData: Accessor<ScreeningAnswers>;
   results: Accessor<ScreenerResult | undefined>;
   resultsLoading: Accessor<boolean>;
 }) {
