@@ -113,6 +113,10 @@ const BenefitList = ({
         <SelectExistingBenefitModal
           closeModal={() => setSelectExistingBenefitModal(false)}
           importBenefit={actions.importBenefit}
+          // Lets the picker hide library benefits already in this screener.
+          existingBenefitNames={screenerBenefits().map(
+            (benefit) => benefit.name,
+          )}
         />
       )}
       {benefitIdToRemove() !== null && (
