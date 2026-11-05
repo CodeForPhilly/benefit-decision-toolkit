@@ -66,6 +66,7 @@ export interface ScreeningSession {
   results: Accessor<ScreenerResult | undefined>;
   /** True from an edit until results for the latest answers arrive. */
   stale: Accessor<boolean>;
+  /** True once evaluating the latest answers failed, until the next edit. */
   failed: Accessor<boolean>;
   /** True only while the latest answers are being evaluated, not while waiting to send them. */
   loading: Accessor<boolean>;
@@ -222,8 +223,10 @@ export function createScreeningSession(
             unknownPaths = keepUnansweredPaths(unknownPaths, event.data);
             latestEvaluation++;
             setStale(true);
-            // Nothing is evaluating the new answers until the delay ends.
+            // Nothing is evaluating the new answers until the delay ends, and
+            // no evaluation of them has failed.
             setLoading(false);
+            setFailed(false);
             debouncedSubmit(event.data);
           });
         })

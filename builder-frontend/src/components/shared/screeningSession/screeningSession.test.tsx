@@ -145,7 +145,7 @@ describe("screening session", () => {
     expect(onResults).not.toHaveBeenCalled();
   });
 
-  it("keeps the last results when an evaluation fails, until one succeeds", async () => {
+  it("keeps the last results when an evaluation fails, until one succeeds, and clears the failure on an edit", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     const onEvaluationFailed = vi.fn();
     const evaluate = vi
@@ -165,6 +165,7 @@ describe("screening session", () => {
     expect(onEvaluationFailed).toHaveBeenCalledOnce();
 
     answer("Answer", "third");
+    expect(session.failed()).toBe(false);
     await until(() => expect(session.results()).toEqual(result("FALSE")));
     expect(session.failed()).toBe(false);
   });
