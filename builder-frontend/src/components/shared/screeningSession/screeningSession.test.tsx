@@ -3,13 +3,12 @@ import { createRoot, createSignal } from "solid-js";
 import { insert } from "solid-js/web";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { ScreenerResult } from "@/types";
+import type { ScreenerResult, ScreeningAnswers } from "@/types";
 import {
   createScreeningSession,
-  type ScreeningAnswers,
   type ScreeningSessionOptions,
 } from "./screeningSession";
-import { input, settle, type, until } from "@/testing/formJs";
+import { answer, input, until } from "@/testing/formJs";
 
 const schema = {
   type: "default",
@@ -74,7 +73,6 @@ async function start(
   await until(() =>
     expect(container.querySelector(".fjs-form")).not.toBeNull(),
   );
-  await settle();
   return { session, container, dispose, setSchema };
 }
 
@@ -84,9 +82,9 @@ describe("screening session", () => {
     const { session } = await start({ evaluate });
     expect(evaluate).not.toHaveBeenCalled();
 
-    type("Answer", "fir");
+    answer("Answer", "fir");
     await until(() => expect(session.stale()).toBe(true));
-    type("Answer", "first");
+    answer("Answer", "first");
     expect(session.loading()).toBe(false);
 
     await until(() => expect(evaluate).toHaveBeenCalledOnce());
@@ -110,10 +108,10 @@ describe("screening session", () => {
       .mockResolvedValueOnce(result("FALSE"));
     const { session } = await start({ evaluate, onResults });
 
-    type("Answer", "older");
+    answer("Answer", "older");
     await until(() => expect(evaluate).toHaveBeenCalledOnce());
     expect(session.loading()).toBe(true);
-    type("Answer", "newer");
+    answer("Answer", "newer");
     await until(() => expect(session.results()).toEqual(result("FALSE")));
     older.resolve(result("TRUE"));
     await older.promise;
@@ -132,18 +130,21 @@ describe("screening session", () => {
     const evaluate = vi.fn(() => inFlight.promise);
     const { session } = await start({ evaluate, onResults });
 
-    type("Answer", "first");
+    answer("Answer", "first");
     await until(() => expect(evaluate).toHaveBeenCalledOnce());
-    type("Answer", "second");
+    expect(session.loading()).toBe(true);
+    answer("Answer", "second");
+    expect(session.loading()).toBe(false);
     inFlight.resolve(result("TRUE"));
     await inFlight.promise;
 
     expect(session.results()).toBeUndefined();
+    expect(session.loading()).toBe(false);
     expect(session.stale()).toBe(true);
     expect(onResults).not.toHaveBeenCalled();
   });
 
-  it("keeps the last results when an evaluation fails, until one succeeds", async () => {
+  it("keeps the last results when an evaluation fails, until one succeeds, and clears the failure on an edit", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     const onEvaluationFailed = vi.fn();
     const evaluate = vi
@@ -153,16 +154,17 @@ describe("screening session", () => {
       .mockResolvedValueOnce(result("FALSE"));
     const { session } = await start({ evaluate, onEvaluationFailed });
 
-    type("Answer", "first");
+    answer("Answer", "first");
     await until(() => expect(session.results()).toEqual(result("TRUE")));
-    type("Answer", "second");
+    answer("Answer", "second");
     await until(() => expect(session.failed()).toBe(true));
     expect(session.results()).toEqual(result("TRUE"));
     expect(session.stale()).toBe(true);
     expect(session.loading()).toBe(false);
     expect(onEvaluationFailed).toHaveBeenCalledOnce();
 
-    type("Answer", "third");
+    answer("Answer", "third");
+    expect(session.failed()).toBe(false);
     await until(() => expect(session.results()).toEqual(result("FALSE")));
     expect(session.failed()).toBe(false);
   });
@@ -177,9 +179,9 @@ describe("screening session", () => {
       .mockResolvedValueOnce(result("TRUE"));
     const { session } = await start({ evaluate, onEvaluationFailed });
 
-    type("Answer", "older");
+    answer("Answer", "older");
     await until(() => expect(evaluate).toHaveBeenCalledOnce());
-    type("Answer", "newer");
+    answer("Answer", "newer");
     older.reject(new Error("Unavailable"));
     await until(() => expect(session.results()).toEqual(result("TRUE")));
 
@@ -191,13 +193,13 @@ describe("screening session", () => {
     const evaluate = vi.fn(async () => result("FALSE", ["income"]));
     const { session } = await start({ evaluate });
 
-    type("Answer", "kept");
+    answer("Answer", "kept");
     await until(() => expect(input("Income")).toBeUndefined());
     expect(session.unneededQuestionCount()).toBe(1);
     expect(input("Answer")!.value).toBe("kept");
 
     session.toggleShowAllQuestions();
-    await until(() => expect(input("Income")).toBeDefined());
+    await until(() => expect(input("Income")).toBeTruthy());
     expect(session.showAllQuestions()).toBe(true);
     expect(input("Answer")!.value).toBe("kept");
     expect(evaluate).toHaveBeenCalledOnce();
@@ -207,7 +209,7 @@ describe("screening session", () => {
     const evaluate = vi.fn(async () => result("TRUE"));
     const { setSchema } = await start({ evaluate });
 
-    type("Answer", "kept");
+    answer("Answer", "kept");
     setSchema({
       ...schema,
       components: [
@@ -215,7 +217,7 @@ describe("screening session", () => {
         { id: "age", type: "number", key: "age", label: "Age" },
       ],
     });
-    await until(() => expect(input("Age")).toBeDefined());
+    await until(() => expect(input("Age")).toBeTruthy());
     expect(input("Answer")!.value).toBe("kept");
   });
 
@@ -237,7 +239,7 @@ describe("screening session", () => {
       expect.objectContaining({ married: null }),
     );
 
-    type("Answer", "Edited");
+    answer("Answer", "Edited");
     await until(() => expect(evaluate).toHaveBeenCalledTimes(2));
     expect(evaluate).toHaveBeenLastCalledWith(
       expect.objectContaining({ answer: "Edited", married: null }),
@@ -294,7 +296,7 @@ describe("screening session", () => {
     const evaluate = vi.fn(() => inFlight.promise);
     const first = await start({ evaluate, onResults });
 
-    type("Answer", "sent");
+    answer("Answer", "sent");
     await until(() => expect(evaluate).toHaveBeenCalledOnce());
     first.dispose();
     inFlight.resolve(result("TRUE"));
@@ -303,7 +305,7 @@ describe("screening session", () => {
     expect(first.session.results()).toBeUndefined();
 
     const second = await start({ evaluate });
-    type("Answer", "never sent");
+    answer("Answer", "never sent");
     second.dispose();
     await new Promise((resolve) => setTimeout(resolve, 1000));
     expect(evaluate).toHaveBeenCalledOnce();
@@ -374,7 +376,7 @@ describe("next steps for CRM hosts", () => {
       "Shown group",
     );
 
-    type("City", "Philadelphia");
+    answer("City", "Philadelphia");
     await until(() => expect(projected).toHaveLength(1));
     expect(input("City")).toBeUndefined();
     expect(projected[0]).toEqual(session.projectNextSteps(decided));

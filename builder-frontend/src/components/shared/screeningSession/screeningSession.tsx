@@ -24,7 +24,7 @@ import {
   projectNextSteps as projectFieldNextSteps,
   type CrmNextSteps,
 } from "@/integrations/nextSteps";
-import type { ScreenerResult } from "@/types";
+import type { ScreenerResult, ScreeningAnswers } from "@/types";
 import { normalizeArrayFieldData } from "@/utils/arrayFieldData";
 import {
   getUnneededQuestionPaths,
@@ -38,8 +38,6 @@ import {
 } from "@/utils/unknownAnswers";
 
 import "@bpmn-io/form-js/dist/assets/form-js.css";
-
-export type ScreeningAnswers = Record<string, any>;
 
 /** How long answers must stay unchanged before they are evaluated. */
 export const EVALUATION_DELAY_MS = 500;
@@ -66,6 +64,7 @@ export interface ScreeningSession {
   results: Accessor<ScreenerResult | undefined>;
   /** True from an edit until results for the latest answers arrive. */
   stale: Accessor<boolean>;
+  /** True once evaluating the latest answers failed, until the next edit. */
   failed: Accessor<boolean>;
   /** True only while the latest answers are being evaluated, not while waiting to send them. */
   loading: Accessor<boolean>;
@@ -91,6 +90,7 @@ export function createScreeningSession(
     evaluate,
     initialAnswers,
     evaluateOnLoad,
+    screenerName,
     onResults,
     onEvaluationFailed,
   } = options;
@@ -159,17 +159,21 @@ export function createScreeningSession(
 
     const importVisibleSchema = async () => {
       if (!form) return;
+      // form-js imports synchronously, so clearing this before awaiting ignores
+      // only the import's own changes, never an edit made while it settles.
       importing = true;
+      let done: Promise<unknown>;
       try {
         // Preserve the live form state, not the last submitted data: answers
         // typed since the pending submit would otherwise be discarded.
-        await form.importSchema(
+        done = form.importSchema(
           hideQuestions(schema(), hiddenQuestionPaths()),
           cloneDeep(currentData),
         );
       } finally {
         importing = false;
       }
+      await done;
     };
 
     createEffect(
@@ -191,7 +195,7 @@ export function createScreeningSession(
         schema,
         evaluatedAnswers: answersSent,
         results,
-        screenerName: options.screenerName,
+        screenerName,
         pending: stale,
         failed,
         onNextStepsShownChange: setNextStepsShown,
@@ -221,6 +225,10 @@ export function createScreeningSession(
             unknownPaths = keepUnansweredPaths(unknownPaths, event.data);
             latestEvaluation++;
             setStale(true);
+            // Nothing is evaluating the new answers until the delay ends, and
+            // no evaluation of them has failed.
+            setLoading(false);
+            setFailed(false);
             debouncedSubmit(event.data);
           });
         })

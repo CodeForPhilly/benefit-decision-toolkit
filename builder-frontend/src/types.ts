@@ -121,6 +121,9 @@ export type ParameterDefinition = {
   required: boolean;
 };
 
+/* Answers a person gives a screener, keyed by form field path */
+export type ScreeningAnswers = Record<string, any>;
+
 /* Screener Evaluation Results */
 export interface ScreenerResult {
   [key: string]: BenefitResult;
@@ -147,11 +150,6 @@ export interface CheckResult {
   inputPaths: string[];
 }
 export type OptionalBoolean = "TRUE" | "FALSE" | "UNABLE_TO_DETERMINE";
-
-/* Form Data for Preview */
-export interface PreviewFormData {
-  [key: string]: any;
-}
 
 // Published Screener Types
 export interface PublishedScreener {

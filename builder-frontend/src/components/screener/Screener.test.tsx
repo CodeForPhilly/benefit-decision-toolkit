@@ -7,7 +7,7 @@ import {
   fetchPublishedScreener,
 } from "@/api/publishedScreener";
 import type { ScreenerResult } from "@/types";
-import { input, settle, type, until } from "@/testing/formJs";
+import { answer, input, until } from "@/testing/formJs";
 
 const integration = vi.hoisted(() => ({
   enabled: true,
@@ -98,8 +98,7 @@ describe("published screener integration lifecycle", () => {
     );
     expect(input("City")!.value).toBe("Philadelphia");
 
-    await settle();
-    type("City", "Pittsburgh");
+    answer("City", "Pittsburgh");
     await until(() => expect(integration.result).toHaveBeenCalledTimes(2));
     expect(integration.result).toHaveBeenLastCalledWith(
       { custom: { city: "Pittsburgh" } },
@@ -173,7 +172,7 @@ describe("published screener integration lifecycle", () => {
     expect(integration.fail).toHaveBeenCalledExactlyOnceWith(
       "ORIGIN_NOT_ALLOWED",
     );
-    await until(() => expect(input("City")).toBeDefined());
+    await until(() => expect(input("City")).toBeTruthy());
     expect(container.textContent).toContain(
       "isn’t set up to send results to https://crm.example",
     );
@@ -188,7 +187,7 @@ describe("published screener integration lifecycle", () => {
     dispose = render(() => <Screener />, container);
     await vi.waitFor(() => expect(integration.start).toHaveBeenCalledOnce());
     integration.disconnect!("timeout");
-    await until(() => expect(input("City")).toBeDefined());
+    await until(() => expect(input("City")).toBeTruthy());
     expect(container.textContent).not.toContain("Waiting for information");
     expect(container.textContent).toContain("couldn’t connect");
     expect(evaluatePublishedScreener).not.toHaveBeenCalled();
@@ -205,7 +204,7 @@ describe("published screener integration lifecycle", () => {
     await vi.waitFor(() =>
       expect(container.textContent).toContain("no longer connected"),
     );
-    expect(input("City")).toBeDefined();
+    expect(input("City")).toBeTruthy();
     expect(evaluatePublishedScreener).toHaveBeenCalledOnce();
   });
 
@@ -213,11 +212,10 @@ describe("published screener integration lifecycle", () => {
     integration.enabled = false;
     vi.mocked(evaluatePublishedScreener).mockResolvedValue(result("TRUE"));
     dispose = render(() => <Screener />, container);
-    await until(() => expect(input("City")).toBeDefined());
+    await until(() => expect(input("City")).toBeTruthy());
     expect(container.textContent).not.toContain("Waiting for information");
     expect(evaluatePublishedScreener).not.toHaveBeenCalled();
-    await settle();
-    type("City", "Pittsburgh");
+    answer("City", "Pittsburgh");
     await until(() => expect(container.textContent).toContain("Eligible"));
     expect(integration.result).not.toHaveBeenCalled();
   });

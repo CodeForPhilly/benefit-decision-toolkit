@@ -7,17 +7,16 @@ export const input = (label: string) =>
     element.textContent?.trim().startsWith(label),
   )?.control as HTMLInputElement | null | undefined;
 
-// form-js renders once more just after an import, resetting what was typed before it.
-export const settle = () => new Promise((resolve) => setTimeout(resolve, 100));
-
 // The session waits for answers to stop changing.
 export const until = (assertion: () => void) =>
   vi.waitFor(assertion, { timeout: 3000 });
 
-export function type(label: string, value: string) {
-  const field = input(label)!;
+export function answer(label: string, value: string) {
+  const field = input(label);
+  if (!field) throw new Error(`No form field labelled ${label}`);
   field.value = value;
   field.dispatchEvent(new Event("input", { bubbles: true }));
-  // Leaving the field hands the answer to the form without form-js's typing delay.
+  // Leaving the field hands the answer to the form at once, before form-js's typing
+  // delay ends or its redraw after an import can reset the field.
   field.dispatchEvent(new FocusEvent("focusout", { bubbles: true }));
 }

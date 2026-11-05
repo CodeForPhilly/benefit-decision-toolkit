@@ -3,7 +3,7 @@ import { render } from "solid-js/web";
 import { afterEach, expect, it, vi } from "vitest";
 
 import type { ScreenerResult } from "@/types";
-import { input, settle, type, until } from "@/testing/formJs";
+import { answer, input, until } from "@/testing/formJs";
 
 const previewResults = vi.hoisted(() => ({ props: undefined as any }));
 vi.mock("@/api/screener", () => ({ evaluateScreener: vi.fn() }));
@@ -50,15 +50,14 @@ it("evaluates the working screener on open and keeps the last results when an ev
     ),
     container,
   );
-  await until(() => expect(input("Answer")).toBeDefined());
+  await until(() => expect(input("Answer")).toBeTruthy());
   await until(() =>
     expect(evaluateScreener).toHaveBeenCalledExactlyOnceWith("working", {
       answer: "",
     }),
   );
-  await settle();
 
-  type("Answer", "first");
+  answer("Answer", "first");
   await until(() => expect(evaluateScreener).toHaveBeenCalledTimes(2));
   await until(() =>
     expect(container.querySelector('[role="status"]')?.textContent).toContain(
@@ -74,10 +73,14 @@ it("evaluates the working screener on open and keeps the last results when an ev
     expect.objectContaining({ answer: "first" }),
   );
 
-  type("Answer", "second");
+  expect(previewResults.props.resultsLoading()).toBe(false);
+
+  answer("Answer", "second");
+  expect(previewResults.props.resultsLoading()).toBe(true);
   await until(() =>
     expect(container.querySelector('[role="alert"]')).not.toBeNull(),
   );
   expect(container.querySelector('[role="status"]')).toBeNull();
   expect(previewResults.props.results()).toEqual(decided);
+  expect(previewResults.props.resultsLoading()).toBe(false);
 });

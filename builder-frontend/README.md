@@ -74,11 +74,12 @@ on the service; `subscribe()` returns an unsubscribe function and updates fire
 
 ## Testing with a real form-js form
 
-Tests that type into a rendered form-js form use `src/testing/formJs.ts`. form-js
-redraws a form about 60ms after an import, wiping anything typed before then, and
-passes typed text on only after a 300ms pause or when the field loses focus
-(`focusout`, which Preact uses for `onBlur`). The helpers wait out the redraw and
-send `focusout` so each answer reaches the form at once.
+Tests that type into a rendered form-js form use `answer()` from
+`src/testing/formJs.ts`. form-js passes typed text on only after a 300ms pause or
+when the field loses focus (`focusout`, which Preact uses for `onBlur`), and it
+redraws a form about 60ms after an import, resetting any field whose text it
+hasn't received yet. `answer()` sends `focusout`, so each answer reaches the form
+at once and survives the redraw.
 
 ## Print summary
 
