@@ -161,17 +161,21 @@ export function createScreeningSession(
 
     const importVisibleSchema = async () => {
       if (!form) return;
+      // form-js imports synchronously, so clearing this before awaiting ignores
+      // only the import's own changes, never an edit made while it settles.
       importing = true;
+      let done: Promise<unknown>;
       try {
         // Preserve the live form state, not the last submitted data: answers
         // typed since the pending submit would otherwise be discarded.
-        await form.importSchema(
+        done = form.importSchema(
           hideQuestions(schema(), hiddenQuestionPaths()),
           cloneDeep(currentData),
         );
       } finally {
         importing = false;
       }
+      await done;
     };
 
     createEffect(
