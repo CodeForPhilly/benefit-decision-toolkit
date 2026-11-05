@@ -1,14 +1,12 @@
 import {
   createSignal,
   createResource,
-  createMemo,
   createEffect,
   Show,
   onCleanup,
 } from "solid-js";
 import { useParams } from "@solidjs/router";
 
-import FormRenderer from "./FormRenderer";
 import Loading from "@/components/Loading";
 import EligibilityResults from "./EligibilityResults";
 
@@ -19,14 +17,16 @@ import {
 
 import HiddenQuestionsNotice from "@/components/shared/HiddenQuestionsNotice";
 import ScreeningComplete from "@/components/shared/ScreeningComplete";
-
-import type { PublishedScreener, ScreenerResult } from "@/types";
 import {
-  getUnneededQuestionPaths,
-  haveSameQuestionPaths,
-} from "@/utils/questionVotes";
-import type { NextStepsProvider } from "@/integrations/nextSteps";
-import { createScreeningBridge } from "@/integrations/screenerBridge";
+  createScreeningSession,
+  type ScreeningAnswers,
+} from "@/components/shared/screeningSession/screeningSession";
+
+import type { PublishedScreener } from "@/types";
+import {
+  createScreeningBridge,
+  type ScreeningBridge,
+} from "@/integrations/screenerBridge";
 
 export default function Screener() {
   const params = useParams();
@@ -34,14 +34,14 @@ export default function Screener() {
   const [screener] = createResource<PublishedScreener>(() =>
     fetchPublishedScreener(params.publishedScreenerId),
   );
-  const [screenerResult, setScreenerResult] = createSignal<ScreenerResult>();
-  const [formData, setFormData] = createSignal<any>({});
+  // Answers a connected host provided; a standalone screener has none.
+  const [hostAnswers, setHostAnswers] = createSignal<ScreeningAnswers>();
   const [disconnectReason, setDisconnectReason] = createSignal<
     "timeout" | "closed" | "notAllowed"
   >();
   const bridge = createScreeningBridge(params.publishedScreenerId, {
     initialize: (data) => {
-      setFormData(data);
+      setHostAnswers(data);
       setIntegrationReady(true);
     },
     // Keep the form usable, but make clear results no longer reach the host.
@@ -51,8 +51,6 @@ export default function Screener() {
     },
   });
   const [integrationReady, setIntegrationReady] = createSignal(!bridge);
-  let evaluationSequence = 0;
-  let nextStepsProvider: NextStepsProvider | undefined;
   // Start once the screener loads, so the host's origin can be checked against
   // the origins its builder allowed. Only an allowed host gets answers.
   let bridgeStarted = false;
@@ -70,54 +68,7 @@ export default function Screener() {
     bridgeStarted = true;
     bridge.start();
   });
-  onCleanup(() => {
-    evaluationSequence++;
-    bridge?.dispose();
-  });
-  // True from an edit until results for the latest answers arrive, so a failed evaluation
-  // keeps the previous results visible without announcing that screening is complete.
-  const [resultsStale, setResultsStale] = createSignal(false);
-  const [evaluationFailed, setEvaluationFailed] = createSignal(false);
-  const [showAllQuestions, setShowAllQuestions] = createSignal(false);
-  // A rendered Next steps field shows completion in its heading instead.
-  const [nextStepsShown, setNextStepsShown] = createSignal(false);
-  const unneededQuestionPaths = createMemo(
-    () => getUnneededQuestionPaths(screenerResult()),
-    undefined,
-    { equals: haveSameQuestionPaths },
-  );
-  const hiddenQuestionPaths = createMemo(
-    () => (showAllQuestions() ? [] : unneededQuestionPaths()),
-    undefined,
-    { equals: haveSameQuestionPaths },
-  );
-
-  const submitForm = async (data: any) => {
-    const sequence = ++evaluationSequence;
-    setResultsStale(true);
-    try {
-      setFormData(data);
-      let evaluationResult: ScreenerResult = await evaluatePublishedScreener(
-        params.publishedScreenerId,
-        data,
-      );
-      if (sequence !== evaluationSequence) return;
-      setScreenerResult(evaluationResult);
-      setResultsStale(false);
-      setEvaluationFailed(false);
-      bridge?.result(
-        data,
-        evaluationResult,
-        nextStepsProvider?.(evaluationResult),
-      );
-    } catch (err) {
-      if (sequence !== evaluationSequence) return;
-      setEvaluationFailed(true);
-      bridge?.error();
-      console.log(err);
-    }
-  };
-
+  onCleanup(() => bridge?.dispose());
   return (
     <main class="mt-4">
       {screener.loading && <Loading />}
@@ -146,59 +97,68 @@ export default function Screener() {
           </p>
         )}
       </Show>
-      {!screener.error && screener() && integrationReady() && (
-        <div class="flex flex-col lg:flex-row">
-          <section class="flex-1 overflow-y-auto p-4">
-            <FormRenderer
-              // Only a CRM host receives next steps; standalone screeners skip the projection.
-              registerNextStepsProvider={
-                bridge &&
-                ((provider) => {
-                  nextStepsProvider = provider;
-                })
-              }
-              screenerName={() => screener()?.screenerName ?? ""}
-              schema={screener()?.formSchema || {}}
-              formData={formData}
-              hiddenQuestionPaths={hiddenQuestionPaths}
-              results={screenerResult}
-              pending={resultsStale}
-              failed={evaluationFailed}
-              submitForm={submitForm}
-              evaluateInitialData={!!bridge && !disconnectReason()}
-              onNextStepsShownChange={setNextStepsShown}
-              onDataChange={() => {
-                evaluationSequence++;
-                setResultsStale(true);
-              }}
-            />
-            <Show when={evaluationFailed()}>
-              <p role="alert" class="my-4 text-red-800">
-                We couldn't update your results. Check your connection, then
-                change an answer to try again.
-              </p>
-            </Show>
-            <Show when={!nextStepsShown()}>
-              <ScreeningComplete
-                results={screenerResult}
-                pending={resultsStale}
-              />
-            </Show>
-            <HiddenQuestionsNotice
-              unneededQuestionCount={() => unneededQuestionPaths().length}
-              showAllQuestions={showAllQuestions}
-              onToggleShowAllQuestions={() =>
-                setShowAllQuestions((current) => !current)
-              }
-            />
-          </section>
-          <Show when={screenerResult()}>
-            <section class="flex-1 overflow-y-auto p-4">
-              <EligibilityResults screenerResult={screenerResult} />
-            </section>
-          </Show>
-        </div>
-      )}
+      <Show when={!screener.error && screener() && integrationReady()}>
+        <PublishedScreening
+          publishedScreenerId={params.publishedScreenerId}
+          screener={screener()!}
+          initialAnswers={hostAnswers()}
+          bridge={bridge}
+        />
+      </Show>
     </main>
+  );
+}
+
+function PublishedScreening(props: {
+  publishedScreenerId: string;
+  screener: PublishedScreener;
+  initialAnswers?: ScreeningAnswers;
+  bridge?: ScreeningBridge;
+}) {
+  const { bridge } = props;
+  const session = createScreeningSession({
+    schema: () => props.screener.formSchema || {},
+    evaluate: (answers) =>
+      evaluatePublishedScreener(props.publishedScreenerId, answers),
+    initialAnswers: props.initialAnswers,
+    // A connected host expects results for its answers right away.
+    evaluateOnLoad: props.initialAnswers !== undefined,
+    screenerName: () => props.screener.screenerName ?? "",
+    // Only a CRM host receives next steps; standalone screeners skip the projection.
+    onResults:
+      bridge &&
+      ((answers, results) =>
+        bridge.result(answers, results, session.projectNextSteps(results))),
+    onEvaluationFailed: bridge && (() => bridge.error()),
+  });
+
+  return (
+    <div class="flex flex-col lg:flex-row">
+      <section class="flex-1 overflow-y-auto p-4">
+        <session.Form />
+        <Show when={session.failed()}>
+          <p role="alert" class="my-4 text-red-800">
+            We couldn't update your results. Check your connection, then change
+            an answer to try again.
+          </p>
+        </Show>
+        <Show when={!session.nextStepsShown()}>
+          <ScreeningComplete
+            results={session.results}
+            pending={session.stale}
+          />
+        </Show>
+        <HiddenQuestionsNotice
+          unneededQuestionCount={session.unneededQuestionCount}
+          showAllQuestions={session.showAllQuestions}
+          onToggleShowAllQuestions={session.toggleShowAllQuestions}
+        />
+      </section>
+      <Show when={session.results()}>
+        <section class="flex-1 overflow-y-auto p-4">
+          <EligibilityResults screenerResult={session.results} />
+        </section>
+      </Show>
+    </div>
   );
 }

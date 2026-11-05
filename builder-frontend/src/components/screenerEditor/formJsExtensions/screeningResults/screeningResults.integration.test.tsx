@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
-import { createSignal } from "solid-js";
-import { render } from "solid-js/web";
+import { createRoot, createSignal } from "solid-js";
 import { h } from "preact";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ScreenerResult } from "@/types";
 import {
+  connectScreeningResults,
   screeningResultsModule,
   type ScreeningResultsService,
 } from "./screeningResults";
@@ -29,8 +29,6 @@ vi.mock("@bpmn-io/form-js-viewer", async (importOriginal) => {
 });
 import { Form, Text } from "@bpmn-io/form-js-viewer";
 import { FormEditor } from "@bpmn-io/form-js-editor";
-import PublishedForm from "@/components/screener/FormRenderer";
-import PreviewForm from "@/components/screenerEditor/preview/FormRenderer";
 
 function Probe() {
   return h(
@@ -57,187 +55,178 @@ const schema = {
   ],
 };
 
-describe.each(["published", "preview"])(
-  "screening results in the real %s form",
-  (mode) => {
-    const disposers: (() => void)[] = [];
-    afterEach(() => {
-      disposers.splice(0).forEach((dispose) => dispose());
-      forms.length = 0;
-      document.body.replaceChildren();
-    });
+describe("screening results in a real form", () => {
+  const disposers: (() => void)[] = [];
+  afterEach(() => {
+    disposers.splice(0).forEach((dispose) => dispose());
+    forms.length = 0;
+    document.body.replaceChildren();
+  });
 
-    async function mount(
-      data: object = { answer: "Keep this answer" },
-      formSchema: object = schema,
-    ) {
-      const [results, setResults] = createSignal<ScreenerResult>();
-      const [pending, setPending] = createSignal(false);
-      const [failed, setFailed] = createSignal(false);
-      const container = document.body.appendChild(
-        document.createElement("div"),
-      );
-      const common = {
-        formData: () => data,
-        hiddenQuestionPaths: () => [],
-        submitForm: vi.fn(),
+  async function mount(
+    data: object = { answer: "Keep this answer" },
+    formSchema: object = schema,
+  ) {
+    const [results, setResults] = createSignal<ScreenerResult>();
+    const [pending, setPending] = createSignal(false);
+    const [failed, setFailed] = createSignal(false);
+    const container = document.body.appendChild(document.createElement("div"));
+    const form = new Form({
+      container,
+      additionalModules: [screeningResultsModule],
+    });
+    createRoot((dispose) => {
+      disposers.push(() => {
+        dispose();
+        form.destroy();
+      });
+      connectScreeningResults(form, {
+        schema: () => formSchema as any,
+        evaluatedAnswers: () => data,
         results,
         pending,
         failed,
-      };
-      disposers.push(
-        render(
-          () =>
-            mode === "published" ? (
-              <PublishedForm schema={formSchema} {...common} />
-            ) : (
-              <PreviewForm schema={() => formSchema} {...common} />
-            ),
-          container,
-        ),
-      );
-      await vi.waitFor(() =>
-        expect(container.querySelector("output")).not.toBeNull(),
-      );
-      const form = forms[forms.length - 1];
-      const snapshot = () =>
-        JSON.parse(container.querySelector("output")!.textContent!);
-      return {
-        container,
-        form,
-        snapshot,
-        setResults,
-        setPending,
-        setFailed,
-        common,
-      };
-    }
+      });
+    });
+    await form.importSchema(formSchema, data);
+    await vi.waitFor(() =>
+      expect(container.querySelector("output")).not.toBeNull(),
+    );
+    const snapshot = () =>
+      JSON.parse(container.querySelector("output")!.textContent!);
+    return {
+      container,
+      form,
+      snapshot,
+      setResults,
+      setPending,
+      setFailed,
+    };
+  }
 
-    it("maps unanswered inputs to question labels and clears them after a decision", async () => {
-      const s = await mount({ answer: "" });
-      s.setResults({
-        benefit: {
-          name: "Benefit",
-          result: "UNABLE_TO_DETERMINE",
-          check_results: {
-            missing: {
-              result: "UNABLE_TO_DETERMINE",
-              inputPaths: ["answer"],
-            } as any,
+  it("maps unanswered inputs to question labels and clears them after a decision", async () => {
+    const s = await mount({ answer: "" });
+    s.setResults({
+      benefit: {
+        name: "Benefit",
+        result: "UNABLE_TO_DETERMINE",
+        check_results: {
+          missing: {
+            result: "UNABLE_TO_DETERMINE",
+            inputPaths: ["answer"],
+          } as any,
+        },
+      },
+    });
+    await vi.waitFor(() =>
+      expect(s.snapshot().unansweredQuestions).toEqual({
+        benefit: ["Answer"],
+      }),
+    );
+    expect(s.snapshot()).not.toHaveProperty("answers");
+    const service = s.form.get("screeningResults") as ScreeningResultsService;
+    const questions = service.getSnapshot().unansweredQuestions;
+    s.setResults({
+      benefit: {
+        name: "Benefit",
+        result: "UNABLE_TO_DETERMINE",
+        check_results: {
+          missing: {
+            result: "UNABLE_TO_DETERMINE",
+            inputPaths: ["answer"],
+          } as any,
+        },
+      },
+    });
+    expect(service.getSnapshot().unansweredQuestions).toBe(questions);
+    s.setResults({
+      benefit: { name: "Benefit", result: "TRUE", check_results: {} },
+    });
+    await vi.waitFor(() =>
+      expect(s.snapshot().unansweredQuestions).toEqual({}),
+    );
+  });
+
+  it("leaves out unanswered questions a condition hides", async () => {
+    const s = await mount(
+      { answer: "", married: false },
+      {
+        ...schema,
+        components: [
+          ...schema.components,
+          {
+            id: "married",
+            type: "checkbox",
+            key: "married",
+            label: "Married",
           },
-        },
-      });
-      await vi.waitFor(() =>
-        expect(s.snapshot().unansweredQuestions).toEqual({
-          benefit: ["Answer"],
-        }),
-      );
-      expect(s.snapshot()).not.toHaveProperty("answers");
-      const service = s.form.get("screeningResults") as ScreeningResultsService;
-      const questions = service.getSnapshot().unansweredQuestions;
-      s.setResults({
-        benefit: {
-          name: "Benefit",
-          result: "UNABLE_TO_DETERMINE",
-          check_results: {
-            missing: {
-              result: "UNABLE_TO_DETERMINE",
-              inputPaths: ["answer"],
-            } as any,
+          {
+            id: "spouseIncome",
+            type: "number",
+            key: "spouse.income",
+            label: "Spouse income",
+            conditional: { hide: "=married != true" },
           },
+        ],
+      },
+    );
+    s.setResults({
+      benefit: {
+        name: "Benefit",
+        result: "UNABLE_TO_DETERMINE",
+        check_results: {
+          missing: {
+            result: "UNABLE_TO_DETERMINE",
+            inputPaths: ["answer", "spouse.income"],
+          } as any,
         },
-      });
-      expect(service.getSnapshot().unansweredQuestions).toBe(questions);
-      s.setResults({
-        benefit: { name: "Benefit", result: "TRUE", check_results: {} },
-      });
-      await vi.waitFor(() =>
-        expect(s.snapshot().unansweredQuestions).toEqual({}),
-      );
+      },
+    });
+    await vi.waitFor(() =>
+      expect(s.snapshot().unansweredQuestions).toEqual({
+        benefit: ["Answer"],
+      }),
+    );
+  });
+
+  it("updates custom fields without reimporting the schema", async () => {
+    const s = await mount();
+    const importSchema = vi.spyOn(s.form, "importSchema");
+    const decided: ScreenerResult = {
+      benefit: { name: "Benefit", result: "TRUE", check_results: {} },
+    };
+    s.setResults(decided);
+    await vi.waitFor(() => expect(s.snapshot().results).toEqual(decided));
+    s.setPending(true);
+    await vi.waitFor(() => expect(s.snapshot().pending).toBe(true));
+    expect(s.snapshot().results).toEqual(decided);
+    s.setFailed(true);
+    await vi.waitFor(() => expect(s.snapshot().failed).toBe(true));
+    expect(s.snapshot().pending).toBe(true);
+    s.setFailed(false);
+    s.setResults({
+      benefit: { ...decided.benefit, result: "UNABLE_TO_DETERMINE" },
     });
 
-    it("leaves out unanswered questions a condition hides", async () => {
-      const s = await mount(
-        { answer: "", married: false },
-        {
-          ...schema,
-          components: [
-            ...schema.components,
-            {
-              id: "married",
-              type: "checkbox",
-              key: "married",
-              label: "Married",
-            },
-            {
-              id: "spouseIncome",
-              type: "number",
-              key: "spouse.income",
-              label: "Spouse income",
-              conditional: { hide: "=married != true" },
-            },
-          ],
-        },
-      );
-      s.setResults({
-        benefit: {
-          name: "Benefit",
-          result: "UNABLE_TO_DETERMINE",
-          check_results: {
-            missing: {
-              result: "UNABLE_TO_DETERMINE",
-              inputPaths: ["answer", "spouse.income"],
-            } as any,
-          },
-        },
-      });
-      await vi.waitFor(() =>
-        expect(s.snapshot().unansweredQuestions).toEqual({
-          benefit: ["Answer"],
-        }),
-      );
-    });
+    s.setPending(false);
+    await vi.waitFor(() => expect(s.snapshot().pending).toBe(false));
+    expect(s.snapshot().results.benefit.result).toBe("UNABLE_TO_DETERMINE");
+    expect(s.form._getState().data).toEqual({ answer: "Keep this answer" });
+    expect(importSchema).not.toHaveBeenCalled();
+    expect(s.snapshot().mode).toBe("live");
+  });
 
-    it("updates custom fields without reimporting the schema or submitting answers", async () => {
-      const s = await mount();
-      const importSchema = vi.spyOn(s.form, "importSchema");
-      const decided: ScreenerResult = {
-        benefit: { name: "Benefit", result: "TRUE", check_results: {} },
-      };
-      s.setResults(decided);
-      await vi.waitFor(() => expect(s.snapshot().results).toEqual(decided));
-      s.setPending(true);
-      await vi.waitFor(() => expect(s.snapshot().pending).toBe(true));
-      expect(s.snapshot().results).toEqual(decided);
-      s.setFailed(true);
-      await vi.waitFor(() => expect(s.snapshot().failed).toBe(true));
-      expect(s.snapshot().pending).toBe(true);
-      s.setFailed(false);
-      s.setResults({
-        benefit: { ...decided.benefit, result: "UNABLE_TO_DETERMINE" },
-      });
-
-      s.setPending(false);
-      await vi.waitFor(() => expect(s.snapshot().pending).toBe(false));
-      expect(s.snapshot().results.benefit.result).toBe("UNABLE_TO_DETERMINE");
-      expect(s.form._getState().data).toEqual({ answer: "Keep this answer" });
-      expect(importSchema).not.toHaveBeenCalled();
-      expect(s.common.submitForm).not.toHaveBeenCalled();
-      expect(s.snapshot().mode).toBe("live");
-    });
-
-    it("isolates service state between simultaneous forms", async () => {
-      const first = await mount();
-      const second = await mount();
-      first.setPending(true);
-      await vi.waitFor(() => expect(first.snapshot().pending).toBe(true));
-      expect(second.snapshot().pending).toBe(false);
-      expect(first.form.get("screeningResults")).not.toBe(
-        second.form.get("screeningResults"),
-      );
-    });
-  },
-);
+  it("isolates service state between simultaneous forms", async () => {
+    const first = await mount();
+    const second = await mount();
+    first.setPending(true);
+    await vi.waitFor(() => expect(first.snapshot().pending).toBe(true));
+    expect(second.snapshot().pending).toBe(false);
+    expect(first.form.get("screeningResults")).not.toBe(
+      second.form.get("screeningResults"),
+    );
+  });
+});
 
 it("renders custom fields with no results in a form without the module", async () => {
   const container = document.body.appendChild(document.createElement("div"));

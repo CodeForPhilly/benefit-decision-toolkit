@@ -1,5 +1,4 @@
 // @vitest-environment jsdom
-import { onMount } from "solid-js";
 import { render } from "solid-js/web";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Screener from "./Screener";
@@ -8,6 +7,7 @@ import {
   fetchPublishedScreener,
 } from "@/api/publishedScreener";
 import type { ScreenerResult } from "@/types";
+import { input, settle, type, until } from "@/testing/formJs";
 
 const integration = vi.hoisted(() => ({
   enabled: true,
@@ -21,8 +21,15 @@ const integration = vi.hoisted(() => ({
   error: vi.fn(),
   fail: vi.fn(),
   origin: "https://crm.example",
-  registerNextStepsProvider: undefined as unknown,
 }));
+const formSchema = {
+  type: "default",
+  id: "published-test",
+  schemaVersion: 18,
+  components: [
+    { id: "city", type: "textfield", key: "custom.city", label: "City" },
+  ],
+};
 
 vi.mock("@solidjs/router", () => ({
   useParams: () => ({ publishedScreenerId: "published-id" }),
@@ -30,7 +37,7 @@ vi.mock("@solidjs/router", () => ({
 vi.mock("@/api/publishedScreener", () => ({
   fetchPublishedScreener: vi.fn(async () => ({
     screenerName: "Test",
-    formSchema: {},
+    formSchema,
     integrationOrigins: ["https://crm.example"],
   })),
   evaluatePublishedScreener: vi.fn(),
@@ -48,42 +55,10 @@ vi.mock("@/integrations/screenerBridge", () => ({
     return integration.enabled ? integration : undefined;
   },
 }));
-vi.mock("./FormRenderer", () => ({
-  default: (props: any) => {
-    integration.registerNextStepsProvider = props.registerNextStepsProvider;
-    onMount(() => {
-      if (props.evaluateInitialData) props.submitForm(props.formData());
-    });
-    return (
-      <>
-        <button
-          onClick={() =>
-            props.submitForm({ custom: { householdIncome: 50000 } })
-          }
-        >
-          Change answer
-        </button>
-        <button onClick={() => props.onDataChange?.()}>
-          Edit before submit
-        </button>
-      </>
-    );
-  },
-}));
-
 const result = (value: "TRUE" | "FALSE"): ScreenerResult => ({
   benefit: { name: "Benefit", result: value, check_results: {} },
 });
-const initialData = { custom: { householdIncome: 30000 } };
-function deferred() {
-  let resolve!: (value: ScreenerResult) => void;
-  let reject!: (error: Error) => void;
-  const promise = new Promise<ScreenerResult>((yes, no) => {
-    resolve = yes;
-    reject = no;
-  });
-  return { promise, resolve, reject };
-}
+const initialData = { custom: { city: "Philadelphia" } };
 
 describe("published screener integration lifecycle", () => {
   let container: HTMLDivElement;
@@ -98,73 +73,59 @@ describe("published screener integration lifecycle", () => {
   afterEach(() => {
     dispose?.();
     container.remove();
+    vi.restoreAllMocks();
   });
 
-  it("waits for prefill, then ignores an old response when a newer evaluation finishes", async () => {
-    const old = deferred();
+  it("waits for prefill, then sends results for the latest answers to the host", async () => {
     vi.mocked(evaluatePublishedScreener)
-      .mockReturnValueOnce(old.promise)
+      .mockResolvedValueOnce(result("TRUE"))
       .mockResolvedValueOnce(result("FALSE"));
     dispose = render(() => <Screener />, container);
     await vi.waitFor(() => expect(integration.start).toHaveBeenCalledOnce());
     expect(container.textContent).toContain("Waiting for information");
     expect(evaluatePublishedScreener).not.toHaveBeenCalled();
     integration.initialize!(initialData);
-    await vi.waitFor(() =>
-      expect(evaluatePublishedScreener).toHaveBeenCalledWith(
-        "published-id",
+    await until(() =>
+      expect(integration.result).toHaveBeenCalledExactlyOnceWith(
         initialData,
+        result("TRUE"),
+        undefined,
       ),
     );
-    expect(integration.registerNextStepsProvider).toBeTypeOf("function");
-    container.querySelector("button")!.click();
-    await vi.waitFor(() => expect(integration.result).toHaveBeenCalledOnce());
+    expect(evaluatePublishedScreener).toHaveBeenCalledWith(
+      "published-id",
+      initialData,
+    );
+    expect(input("City")!.value).toBe("Philadelphia");
+
+    await settle();
+    type("City", "Pittsburgh");
+    await until(() => expect(integration.result).toHaveBeenCalledTimes(2));
     expect(integration.result).toHaveBeenLastCalledWith(
-      { custom: { householdIncome: 50000 } },
+      { custom: { city: "Pittsburgh" } },
       result("FALSE"),
       undefined,
     );
-    old.resolve(result("TRUE"));
-    await old.promise;
-    expect(integration.result).toHaveBeenCalledOnce();
     expect(container.textContent).toContain("Ineligible");
   });
 
-  it("does not send an old evaluation to the CRM after an edit awaiting submission", async () => {
-    const old = deferred();
-    vi.mocked(evaluatePublishedScreener).mockReturnValueOnce(old.promise);
+  it("tells the person and the host when evaluating the latest answers fails", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.mocked(evaluatePublishedScreener).mockRejectedValueOnce(
+      new Error("Unavailable"),
+    );
     dispose = render(() => <Screener />, container);
     integration.initialize!(initialData);
-    await vi.waitFor(() =>
-      expect(evaluatePublishedScreener).toHaveBeenCalledOnce(),
-    );
-    container.querySelectorAll("button")[1].click();
-    old.resolve(result("TRUE"));
-    await old.promise;
+    await until(() => expect(integration.error).toHaveBeenCalledOnce());
+    expect(container.textContent).toContain("We couldn't update your results");
     expect(integration.result).not.toHaveBeenCalled();
-    expect(container.textContent).not.toContain("Eligible");
   });
 
-  it("ignores old failures and pending responses after unmount", async () => {
-    const old = deferred();
-    const current = deferred();
-    vi.mocked(evaluatePublishedScreener)
-      .mockReturnValueOnce(old.promise)
-      .mockReturnValueOnce(current.promise);
+  it("disposes the bridge when the page closes", async () => {
     dispose = render(() => <Screener />, container);
-    integration.initialize!(initialData);
-    await vi.waitFor(() =>
-      expect(evaluatePublishedScreener).toHaveBeenCalledOnce(),
-    );
-    container.querySelector("button")!.click();
-    old.reject(new Error("Old request failed"));
-    await old.promise.catch(() => {});
-    expect(integration.error).not.toHaveBeenCalled();
+    await vi.waitFor(() => expect(integration.start).toHaveBeenCalledOnce());
     dispose();
     expect(integration.dispose).toHaveBeenCalledOnce();
-    current.resolve(result("TRUE"));
-    await current.promise;
-    expect(integration.result).not.toHaveBeenCalled();
   });
 
   it("tells the user and the host when the screener can't be loaded", async () => {
@@ -180,7 +141,7 @@ describe("published screener integration lifecycle", () => {
     expect(container.textContent).not.toContain("Waiting for information");
     integration.initialize!(initialData);
     await Promise.resolve();
-    expect(container.querySelector("button")).toBeNull();
+    expect(input("City")).toBeUndefined();
   });
 
   it("starts the bridge only after the screener loads", async () => {
@@ -193,7 +154,7 @@ describe("published screener integration lifecycle", () => {
     expect(integration.start).not.toHaveBeenCalled();
     load({
       screenerName: "Test",
-      formSchema: {},
+      formSchema,
       integrationOrigins: ["https://crm.example"],
     });
     await vi.waitFor(() => expect(integration.start).toHaveBeenCalledOnce());
@@ -203,7 +164,7 @@ describe("published screener integration lifecycle", () => {
   it("refuses a host whose origin the screener doesn't allow", async () => {
     vi.mocked(fetchPublishedScreener).mockResolvedValueOnce({
       screenerName: "Test",
-      formSchema: {},
+      formSchema,
       integrationOrigins: ["https://other-crm.example"],
     });
     vi.mocked(evaluatePublishedScreener).mockResolvedValue(result("TRUE"));
@@ -212,9 +173,7 @@ describe("published screener integration lifecycle", () => {
     expect(integration.fail).toHaveBeenCalledExactlyOnceWith(
       "ORIGIN_NOT_ALLOWED",
     );
-    await vi.waitFor(() =>
-      expect(container.querySelector("button")).not.toBeNull(),
-    );
+    await until(() => expect(input("City")).toBeDefined());
     expect(container.textContent).toContain(
       "isn’t set up to send results to https://crm.example",
     );
@@ -229,9 +188,7 @@ describe("published screener integration lifecycle", () => {
     dispose = render(() => <Screener />, container);
     await vi.waitFor(() => expect(integration.start).toHaveBeenCalledOnce());
     integration.disconnect!("timeout");
-    await vi.waitFor(() =>
-      expect(container.querySelector("button")).not.toBeNull(),
-    );
+    await until(() => expect(input("City")).toBeDefined());
     expect(container.textContent).not.toContain("Waiting for information");
     expect(container.textContent).toContain("couldn’t connect");
     expect(evaluatePublishedScreener).not.toHaveBeenCalled();
@@ -248,7 +205,7 @@ describe("published screener integration lifecycle", () => {
     await vi.waitFor(() =>
       expect(container.textContent).toContain("no longer connected"),
     );
-    expect(container.querySelector("button")).not.toBeNull();
+    expect(input("City")).toBeDefined();
     expect(evaluatePublishedScreener).toHaveBeenCalledOnce();
   });
 
@@ -256,14 +213,12 @@ describe("published screener integration lifecycle", () => {
     integration.enabled = false;
     vi.mocked(evaluatePublishedScreener).mockResolvedValue(result("TRUE"));
     dispose = render(() => <Screener />, container);
-    await vi.waitFor(() =>
-      expect(container.querySelector("button")).not.toBeNull(),
-    );
+    await until(() => expect(input("City")).toBeDefined());
     expect(container.textContent).not.toContain("Waiting for information");
     expect(evaluatePublishedScreener).not.toHaveBeenCalled();
-    container.querySelector("button")!.click();
-    await vi.waitFor(() => expect(container.textContent).toContain("Eligible"));
+    await settle();
+    type("City", "Pittsburgh");
+    await until(() => expect(container.textContent).toContain("Eligible"));
     expect(integration.result).not.toHaveBeenCalled();
-    expect(integration.registerNextStepsProvider).toBeUndefined();
   });
 });

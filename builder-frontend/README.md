@@ -29,7 +29,8 @@ Learn more about deploying your application with the [documentations](https://vi
 
 ## Screening results in custom form fields
 
-Both live form renderers and the editor register `screeningResultsModule` from
+The screening session (`src/components/shared/screeningSession/screeningSession.tsx`)
+and the editor register `screeningResultsModule` from
 `src/components/screenerEditor/formJsExtensions/screeningResults/screeningResults.ts`.
 Each form has its own service. Preact custom fields can read its reactive snapshot
 with `useScreeningResults()` from the adjacent `useScreeningResults.ts`:
@@ -44,7 +45,7 @@ arrive, including the debounce interval and failed requests. `failed` is true wh
 the latest evaluation failed, until one succeeds, so a field can show an error
 instead of waiting indefinitely. Previous results remain available while pending.
 Snapshots and their results are frozen copies; copy them before sorting or annotating.
-The parents handle stale responses before updating the service.
+The screening session drops outdated responses before updating the service.
 
 `mode` is `live` for published screeners and preview, and `editor` for sample
 results in the editing canvas. Editor samples use the configured benefit IDs and
@@ -57,6 +58,14 @@ The hook uses the viewer's `FormContext`, shared by both field renderers. The
 viewer fields. Consumers outside Preact can use `getSnapshot()` and `subscribe()`
 on the service; `subscribe()` returns an unsubscribe function and updates fire
 `screeningResults.changed` on the form's event bus.
+
+## Testing with a real form-js form
+
+Tests that type into a rendered form-js form use `src/testing/formJs.ts`. form-js
+redraws a form about 60ms after an import, wiping anything typed before then, and
+passes typed text on only after a 300ms pause or when the field loses focus
+(`focusout`, which Preact uses for `onBlur`). The helpers wait out the redraw and
+send `focusout` so each answer reaches the form at once.
 
 ## Print summary
 
