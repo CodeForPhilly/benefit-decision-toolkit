@@ -1,13 +1,34 @@
-import { createResource, createSignal, For, Show } from "solid-js";
+import { createMemo, createResource, createSignal, For, Show } from "solid-js";
 
 import { fetchLibraryBenefits } from "@/api/benefit";
 import type { Benefit } from "@/types";
 
+// An imported library benefit is saved as an independent copy with a new ID
+// and no link back to the library benefit it came from, so names are the only
+// way the frontend can tell what's already in the screener. Ignore case and
+// surrounding whitespace so small differences still match.
+const normalizeBenefitName = (name: string) => name.trim().toLowerCase();
+
 const SelectExistingBenefitModal = (props: {
   importBenefit: (benefitId: string) => Promise<void>;
   closeModal: () => void;
+  // Names of benefits already in the screener. Library benefits with a
+  // matching name are hidden so the same benefit isn't added twice (#571).
+  existingBenefitNames: string[];
 }) => {
   const [availableBenefits] = createResource<Benefit[]>(fetchLibraryBenefits);
+
+  // Limitation of matching by name: if an imported benefit is renamed, its
+  // library version reappears here. That's the same as the picker's behavior
+  // before this filter existed, so it's an acceptable trade-off.
+  const benefitsNotInScreener = createMemo(() => {
+    const existingNames = new Set(
+      props.existingBenefitNames.map(normalizeBenefitName),
+    );
+    return (availableBenefits() ?? []).filter(
+      (benefit) => !existingNames.has(normalizeBenefitName(benefit.name)),
+    );
+  });
   const [importingId, setImportingId] = createSignal<string | null>(null);
   const [error, setError] = createSignal<string | null>(null);
 
@@ -50,9 +71,21 @@ const SelectExistingBenefitModal = (props: {
         <Show when={availableBenefits()?.length === 0}>
           <div>No library benefits are currently available.</div>
         </Show>
+        {/* Separate from the message above: the library has benefits, but
+            this screener already has every one of them. */}
+        <Show
+          when={
+            (availableBenefits()?.length ?? 0) > 0 &&
+            benefitsNotInScreener().length === 0
+          }
+        >
+          <div>
+            All library benefits have already been added to this screener.
+          </div>
+        </Show>
 
         <div class="max-h-96 space-y-3 overflow-y-auto">
-          <For each={availableBenefits()}>
+          <For each={benefitsNotInScreener()}>
             {(benefit) => (
               <div class="border-2 border-gray-200 rounded p-4">
                 <div class="font-bold text-lg">{benefit.name}</div>
