@@ -58,6 +58,7 @@ public class LibraryBenefitResource {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
 
+        // TODO(High): Store the source library benefit id on the copy and reject duplicate imports
         Optional<Benefit> importedBenefitOpt =
             libraryApiService.copyBenefitForOwner(request.benefitId(), userId);
         if (importedBenefitOpt.isEmpty()) {

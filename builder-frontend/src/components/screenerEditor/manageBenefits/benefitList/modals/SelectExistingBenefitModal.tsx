@@ -3,32 +3,34 @@ import { createMemo, createResource, createSignal, For, Show } from "solid-js";
 import { fetchLibraryBenefits } from "@/api/benefit";
 import type { Benefit } from "@/types";
 
-// An imported library benefit is saved as an independent copy with a new ID
-// and no link back to the library benefit it came from, so names are the only
-// way the frontend can tell what's already in the screener. Ignore case and
-// surrounding whitespace so small differences still match.
-const normalizeBenefitName = (name: string) => name.trim().toLowerCase();
+// Treat a missing name as an empty string
+// TODO(Low): Skip empty names so blank screener names don't hide blank-named library benefits
+const normalizeBenefitName = (name: string | null | undefined) =>
+  (name ?? "").trim().toLowerCase();
 
 const SelectExistingBenefitModal = (props: {
   importBenefit: (benefitId: string) => Promise<void>;
   closeModal: () => void;
-  // Names of benefits already in the screener. Library benefits with a
-  // matching name are hidden so the same benefit isn't added twice (#571).
   existingBenefitNames: string[];
 }) => {
   const [availableBenefits] = createResource<Benefit[]>(fetchLibraryBenefits);
 
-  // Limitation of matching by name: if an imported benefit is renamed, its
-  // library version reappears here. That's the same as the picker's behavior
-  // before this filter existed, so it's an acceptable trade-off.
+  // Library benefits with a matching name are hidden so the same benefit isn't added twice
+  // TODO(Medium): Renamed imports aren't detected, so the library benefit reappears and can be re-imported
+  // TODO(Low): A custom benefit with a library benefit's name hides that library benefit
+  // TODO(Medium): Check availableBenefits.error before reading, since an errored resource throws
   const benefitsNotInScreener = createMemo(() => {
     const existingNames = new Set(
+      // TODO(Low): Remove this and the duplicate comment below; normalizeBenefitName covers it
+      // Ignore case and surrounding whitespace so small differences still match
       props.existingBenefitNames.map(normalizeBenefitName),
     );
     return (availableBenefits() ?? []).filter(
+      // Ignore case and surrounding whitespace so small differences still match
       (benefit) => !existingNames.has(normalizeBenefitName(benefit.name)),
     );
   });
+
   const [importingId, setImportingId] = createSignal<string | null>(null);
   const [error, setError] = createSignal<string | null>(null);
 
@@ -36,6 +38,7 @@ const SelectExistingBenefitModal = (props: {
     setImportingId(benefitId);
     setError(null);
     try {
+      // TODO(Low): The refetch filters out this benefit before the modal closes, so the list flashes
       await props.importBenefit(benefitId);
       props.closeModal();
     } catch (cause) {
@@ -71,8 +74,8 @@ const SelectExistingBenefitModal = (props: {
         <Show when={availableBenefits()?.length === 0}>
           <div>No library benefits are currently available.</div>
         </Show>
-        {/* Separate from the message above: the library has benefits, but
-            this screener already has every one of them. */}
+        {/* Separate from "No library benefits are currently available" */}
+        {/* TODO(Low): Use one Switch/Match over the states so only one message can show */}
         <Show
           when={
             (availableBenefits()?.length ?? 0) > 0 &&

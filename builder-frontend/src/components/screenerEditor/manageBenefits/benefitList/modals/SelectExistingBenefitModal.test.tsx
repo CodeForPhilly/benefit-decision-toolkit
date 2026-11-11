@@ -23,6 +23,7 @@ describe("SelectExistingBenefitModal", () => {
 
   afterEach(() => dispose?.());
 
+  // TODO(Low): Add a test that the list updates when existingBenefitNames changes after an import
   const renderModal = (existingBenefitNames: string[]) => {
     const container = document.createElement("div");
     dispose = render(
@@ -51,6 +52,14 @@ describe("SelectExistingBenefitModal", () => {
     await flush();
 
     expect(container.textContent).not.toContain("SNAP");
+    expect(container.textContent).toContain("LIHEAP");
+  });
+
+  it("still renders when a screener benefit has no name", async () => {
+    const container = renderModal([null as unknown as string]);
+    await flush();
+
+    expect(container.textContent).toContain("SNAP");
     expect(container.textContent).toContain("LIHEAP");
   });
 
