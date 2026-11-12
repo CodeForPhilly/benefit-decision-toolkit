@@ -1,5 +1,6 @@
 import { For, Show } from "solid-js";
 
+import { env } from "@/config/environment";
 import type { LibraryReference as Reference } from "@/types";
 
 // ISO date (YYYY-MM-DD) -> "Nov 2, 2026", independent of the viewer's time zone.
@@ -134,7 +135,7 @@ const LibraryReference = (props: {
           <p class="mt-3 text-gray-600">
             Last reviewed {formatDate(reference().lastReviewed)} ·{" "}
             <a
-              href={reference().docsUrl}
+              href={new URL(reference().docsPath, env.docsBaseUrl).href}
               target="_blank"
               rel="noopener noreferrer"
               class="underline"

@@ -1002,9 +1002,11 @@
       "ns33tParameters" : {
         "properties" : {
           "guidelineYear" : {
+            "description" : "Year of the HHS poverty guidelines to use, for example 2026.",
             "type" : "number"
           },
           "percent" : {
+            "description" : "Percentage of the poverty guideline to use as the income limit, for example 150 for 150%.",
             "type" : "number"
           }
         },
@@ -1583,7 +1585,11 @@
   "paths" : {
     "/api/v1/benefits/pa/liheap-cash" : {
       "post" : {
-        "description" : "Helps Pennsylvania households pay for home heating with a once-a-season grant (LIHEAP Cash, 2026-27 season).",
+        "description" : "Helps Pennsylvania households pay for home heating with a once-a-season grant (LIHEAP Cash, 2026-27 season).\n\nLIHEAP Cash is a grant that helps households pay for home heating during the winter season. This benefit checks the main rules for the 2026-27 season: the household lives in Pennsylvania, its income is at or below 150% of the federal poverty guidelines, it is responsible for its primary heating costs, someone in it is a U.S. citizen or lawfully admitted non-citizen, and it has not already received a Cash grant this season.\n\n**Administered by:** [Pennsylvania Department of Human Services, through the County Assistance Offices](https://www.pa.gov/agencies/dhs/resources/liheap)\n\n**Program year:** 2026-27 season, November 2, 2026 to April 23, 2027\n\n## Checks\n\nEligible when every check passes.\n\n- **Lives in pennsylvania**: LIHEAP Cash is for households that permanently live in Pennsylvania (601.31(3)). (`LivesInPennsylvaniaService`)\n- **Income at or below 150 percent fpl**: Household income must be equal to or less than 150% of the federal poverty guidelines (601.81 to 601.84). (`HouseholdIncomeWithinPovertyGuidelinesService`)\n- **Pays primary heating costs**: The household must be responsible for its primary heating costs. Households whose heat is included in rent based on their income are not eligible (601.31(2)). (`PaysPrimaryHeatingCostsService`)\n- **Has citizen or eligible noncitizen**: Someone in the household must be a U.S. citizen or a lawfully admitted non-citizen (601.31(4)). (`HouseholdHasCitizenOrEligibleNoncitizenService`)\n- **Not already enrolled**: A household can receive one Cash grant per season (601.43). (`PersonNotEnrolledInBenefitService`)\n\n## Limitations\n\n- Living arrangements that make a household ineligible are not checked: temporary stays, institutions, dorms, fraternity or sorority houses, boarding homes, incarceration, and fleeing felons.\n- Heating equipment that is not installed or operating to code is not checked, and neither are the rules for recreational vehicles and home businesses.\n- Household size and income are taken as given. LIHEAP leaves ineligible non-citizens, and people who already got Cash in another household, out of household size but still counts their income.\n- The applicant may choose the prior month or the prior 12 months as the income period. The screener does not compare the two.\n- DHS may change the season dates, and the funds can run out before the season closes.\n- Income limits change each February, when DHS adopts the new federal poverty guidelines.\n\n## Sources\n\n- [Pennsylvania DHS: LIHEAP](https://www.pa.gov/agencies/dhs/resources/liheap) (checked November 12, 2026)\n- [Pennsylvania LIHEAP FFY 2027 Final State Plan](https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf): Appendix B, 601.x eligibility rules: income 601.81 to 601.84; household 601.3 and 601.41; heating responsibility 601.31(2); residency 601.31(3); citizenship 601.31(4); one grant per season 601.43 (checked November 12, 2026)\n- HSEA 1 LIHEAP application: Revised 6/26 (checked November 12, 2026)\n\nLast reviewed November 12, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/benefits/pa/liheap-cash/"
+        },
         "operationId" : "PaLiheapCashService",
         "requestBody" : {
           "content" : {
@@ -3122,7 +3128,11 @@
     },
     "/api/v1/checks/citizenship/household-has-citizen-or-eligible-noncitizen" : {
       "post" : {
-        "description" : "Checks that at least one household member is a U.S. citizen or a lawfully admitted non-citizen.",
+        "description" : "Checks that at least one household member is a U.S. citizen or a lawfully admitted non-citizen.\n\nPasses when the screener answer says someone in the household is a U.S. citizen or a lawfully admitted non-citizen, such as a lawful permanent resident, refugee, asylee, or someone paroled for at least one year. Fails when the answer says no one is, and returns no result when the answer is missing.\n\n## Limitations\n\n- Relies on the screener answer. It does not check immigration documents.\n- The qualifying statuses come from PA LIHEAP, which has no five-year bar. Other programs may accept fewer statuses or apply a waiting period.\n- Does not adjust household size for members who are not lawfully admitted.\n\n## Sources\n\n- [Pennsylvania LIHEAP FFY 2027 Final State Plan](https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf): Appendix B, 601.31(4): citizenship and lawful admission (checked November 12, 2026)\n\nLast reviewed November 12, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/citizenship/household-has-citizen-or-eligible-noncitizen/"
+        },
         "operationId" : "HouseholdHasCitizenOrEligibleNoncitizenService",
         "requestBody" : {
           "content" : {
@@ -3387,7 +3397,11 @@
     },
     "/api/v1/checks/income/household-income-within-poverty-guidelines" : {
       "post" : {
-        "description" : "Checks that annual household income is at or below a percentage of the HHS poverty guidelines for the household's size.",
+        "description" : "Checks that annual household income is at or below a percentage of the HHS poverty guidelines for the household's size.\n\nFinds the HHS poverty guideline for the household's size, multiplies it by the given percent, and passes when annual household income is equal to or less than the result. For 2026 the guideline is $15,960 for one person plus $5,680 for each additional person, so 150% is $23,940 for one person plus $8,520 for each additional person. Returns no result when income or household size is missing or invalid, or when the guideline year is not available.\n\n## Parameters\n\n- `percent` (number): Percentage of the poverty guideline to use as the income limit, for example 150 for 150%.\n- `guidelineYear` (number): Year of the HHS poverty guidelines to use, for example 2026.\n\n## Limitations\n\n- Only the 2026 guidelines are available. Any other guideline year returns no result.\n- Uses the guidelines for the 48 contiguous states and DC, not those for Alaska or Hawaii.\n- Takes household income and size as given. It does not decide whose income counts, which income is excluded, or how pay is annualized.\n- Does not round the limit. A program that publishes rounded limits may differ by a few dollars.\n\n## Sources\n\n- [Pennsylvania LIHEAP FFY 2027 Final State Plan](https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf): Income eligibility: 150% of the 2026 federal poverty guidelines, by household size (checked November 12, 2026)\n- [Pennsylvania DHS: LIHEAP](https://www.pa.gov/agencies/dhs/resources/liheap): Income limits by household size (checked November 12, 2026)\n\nLast reviewed November 12, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/income/household-income-within-poverty-guidelines/"
+        },
         "operationId" : "HouseholdIncomeWithinPovertyGuidelinesService",
         "requestBody" : {
           "content" : {
@@ -3910,7 +3924,11 @@
     },
     "/api/v1/checks/residence/lives-in-pennsylvania" : {
       "post" : {
-        "description" : "Checks that the household lives in Pennsylvania.",
+        "description" : "Checks that the household lives in Pennsylvania.\n\nPasses when the screener answer says the household lives in Pennsylvania, and fails when it says the household does not. Returns no result when the answer is missing.\n\n## Limitations\n\n- Relies on the screener answer. It does not look up or verify an address.\n- Does not tell a permanent home in Pennsylvania apart from a temporary stay.\n\n## Sources\n\n- [Pennsylvania LIHEAP FFY 2027 Final State Plan](https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf): Appendix B, 601.31(3): residency (checked November 12, 2026)\n\nLast reviewed November 12, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/residence/lives-in-pennsylvania/"
+        },
         "operationId" : "LivesInPennsylvaniaService",
         "requestBody" : {
           "content" : {
@@ -4361,7 +4379,11 @@
     },
     "/api/v1/checks/residence/pays-primary-heating-costs" : {
       "post" : {
-        "description" : "Checks that the household pays for its primary heat, and not through income-based rent that includes heat.",
+        "description" : "Checks that the household pays for its primary heat, and not through income-based rent that includes heat.\n\nPasses when the household is responsible for the cost of its primary heat, paid directly to a fuel or utility company or as an undesignated part of its rent, and its heat is not included in rent that is set as a share of its income or by its source of income. Fails when either answer rules the household out, and returns no result when an answer needed to decide is missing.\n\n## Limitations\n\n- Does not check that the heating equipment is installed and operating to code.\n- Does not apply the rules for recreational vehicles or homes used for a business.\n- Relies on the screener answers to say what the primary heat is. Supplemental heat alone does not count.\n- A renter whose rent includes a designated heat portion counts as paying for heat, so the screener question has to cover that case.\n\n## Sources\n\n- [Pennsylvania LIHEAP FFY 2027 Final State Plan](https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf): Appendix B, 601.31(2): responsibility for heating costs; 601.3: definitions (checked November 12, 2026)\n\nLast reviewed November 12, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/residence/pays-primary-heating-costs/"
+        },
         "operationId" : "PaysPrimaryHeatingCostsService",
         "requestBody" : {
           "content" : {

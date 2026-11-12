@@ -39,6 +39,12 @@ processes:
       firebase-emulators:
         condition: process_log_ready
     log_location: ./logs/builder-api.log
+  docs:
+    description: This process runs the docs site (including library references linked from the builder) on port 4321.
+    command: npm run dev -- --host --port 4321
+    working_dir: docs/
+    ready_log_line: "watching for file changes"
+    log_location: ./logs/docs.log
   builder-frontend:
     description: This process runs the builder-frontend in dev mode.
     command: npm run dev -- --host

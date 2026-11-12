@@ -30,7 +30,7 @@ class ReferenceOpenApiTest {
         Map<String, Object> reference = openApi.getMap(LIHEAP + ".'x-bdt-reference'");
         assertNotNull(reference, "PA LIHEAP Cash should publish its reference");
 
-        assertEquals(openApi.getString(LIHEAP + ".description"), reference.get("summary"));
+        assertTrue(openApi.getString(LIHEAP + ".description").startsWith((String) reference.get("summary")));
         assertEquals("2026-11-02", openApi.getString(LIHEAP + ".'x-bdt-reference'.programYear.startDate"));
         assertEquals("2027-04-23", openApi.getString(LIHEAP + ".'x-bdt-reference'.programYear.endDate"));
         assertEquals("https://www.pa.gov/agencies/dhs/resources/liheap",
@@ -56,6 +56,32 @@ class ReferenceOpenApiTest {
         assertEquals("number", parameters.get(0).get("type"));
         assertTrue(((String) parameters.get(1).get("description")).contains("HHS poverty guidelines"));
         assertNull(openApi.get(POVERTY + ".'x-bdt-reference'.administeredBy"));
+    }
+
+    @Test
+    void swaggerUiShowsTheReferenceAsMarkdownAndLinksToTheDocs() {
+        String description = openApi.getString(LIHEAP + ".description");
+        assertTrue(description.contains("## Checks"), description);
+        assertTrue(description.contains("- **Not already enrolled**: "), description);
+        assertTrue(description.contains("## Limitations"), description);
+        assertTrue(description.contains("[Pennsylvania DHS: LIHEAP](https://www.pa.gov/agencies/dhs/resources/liheap)"),
+            description);
+        assertTrue(description.contains("HSEA 1 LIHEAP application: Revised 6/26 (checked November 12, 2026)"),
+            description);
+        assertFalse(description.contains("issues/568"), "implementation notes stay out of the API description");
+
+        assertEquals("https://bdt-docs.web.app/library/benefits/pa/liheap-cash/",
+            openApi.getString(LIHEAP + ".externalDocs.url"));
+    }
+
+    @Test
+    void parameterDescriptionsAppearOnTheParametersSchema() {
+        String schemaRef = openApi.getString(POVERTY + ".requestBody.content.'application/json'.schema.$ref");
+        String inputSchema = schemaRef.substring("#/components/schemas/".length());
+        String parametersRef = openApi.getString("components.schemas." + inputSchema + ".properties.parameters.$ref");
+        String parametersSchema = parametersRef.substring("#/components/schemas/".length());
+        assertTrue(openApi.getString("components.schemas." + parametersSchema + ".properties.guidelineYear.description")
+            .contains("HHS poverty guidelines"));
     }
 
     @Test

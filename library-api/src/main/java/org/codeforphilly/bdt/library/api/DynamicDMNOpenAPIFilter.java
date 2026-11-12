@@ -2,6 +2,7 @@ package org.codeforphilly.bdt.library.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.openapi.OASFactory;
 import org.eclipse.microprofile.openapi.OASFilter;
 import org.eclipse.microprofile.openapi.models.OpenAPI;
@@ -86,6 +87,7 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
         // Add individual paths for each exposed model
         for (ModelInfo model : exposedModels.values()) {
             addPathForModel(openAPI, model);
+            describeParameters(openAPI, model);
         }
 
         LOG.info("OpenAPI spec filtering complete. Total paths: " +
@@ -246,6 +248,40 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
         return schema;
     }
 
+    /** Base URL of the docs site that hosts the library reference pages. */
+    private static String docsBaseUrl() {
+        return ConfigProvider.getConfig().getOptionalValue("bdt.docs.base-url", String.class)
+            .orElse("https://bdt-docs.web.app").replaceAll("/+$", "");
+    }
+
+    /** Copy reference parameter descriptions onto the model's {@code parameters} schema properties. */
+    @SuppressWarnings("unchecked")
+    private void describeParameters(OpenAPI openAPI, ModelInfo model) {
+        Object parameters = model.getReference().get("parameters");
+        if (!(parameters instanceof List<?> list) || list.isEmpty()) {
+            return;
+        }
+        String inputRef = schemaResolver.findInputSchemaRef(model.getModelName(), model.getModelName() + "Service");
+        Schema input = inputRef == null ? null : componentSchema(openAPI, inputRef);
+        Schema parametersRef = input == null || input.getProperties() == null ? null : input.getProperties().get("parameters");
+        Schema parametersSchema = parametersRef == null || parametersRef.getRef() == null
+            ? parametersRef : componentSchema(openAPI, parametersRef.getRef());
+        if (parametersSchema == null || parametersSchema.getProperties() == null) {
+            return;
+        }
+        for (Map<String, Object> parameter : (List<Map<String, Object>>) list) {
+            Schema property = parametersSchema.getProperties().get((String) parameter.get("name"));
+            if (property != null && parameter.get("description") != null) {
+                property.description((String) parameter.get("description"));
+            }
+        }
+    }
+
+    private static Schema componentSchema(OpenAPI openAPI, String ref) {
+        String key = ref.substring(ref.lastIndexOf('/') + 1);
+        return openAPI.getComponents().getSchemas() == null ? null : openAPI.getComponents().getSchemas().get(key);
+    }
+
     private void addPathForModel(OpenAPI openAPI, ModelInfo model) {
         String path = "/api/v1/" + model.getPath();
 
@@ -294,6 +330,10 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
         }
 
         if (!model.getReference().isEmpty()) {
+            operation.description(ReferenceMarkdown.render(model.getReference()));
+            operation.externalDocs(OASFactory.createExternalDocumentation()
+                .description("Full reference on the docs site")
+                .url(docsBaseUrl() + "/library/" + model.getPath() + "/"));
             operation.addExtension("x-bdt-reference", model.getReference());
         }
 
