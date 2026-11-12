@@ -1,0 +1,49 @@
+meta {
+  name: Eligible
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/benefits/pa/liheap-cash
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "enrollments": [
+        {
+          "personId": "p1",
+          "benefit": "OtherBenefit"
+        }
+      ],
+      "householdSize": 1,
+      "householdIncome": 23940,
+      "simpleChecks": {
+        "livesInPennsylvania": true,
+        "paysPrimaryHeatingCosts": true,
+        "heatInIncomeBasedRent": false,
+        "householdHasCitizenOrEligibleNoncitizen": true
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.isEligible: eq true
+}
+
+docs {
+  A one-person household in Pennsylvania with $23,940 a year, exactly 150% of the 2026 poverty
+  guideline. It pays its own heating bill, has a U.S. citizen, and has not received Cash this
+  season, so it is eligible.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

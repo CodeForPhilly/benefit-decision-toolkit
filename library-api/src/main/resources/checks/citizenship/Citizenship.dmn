@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmn:definitions xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns="https://kie.apache.org/dmn/_6DBD26F2-0D05-4F75-88DA-3D456D5A38A6" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:kie="https://kie.org/dmn/extensions/1.0" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" id="_B9C46F07-B52C-4352-BE5A-63B3072CA187" name="Citizenship" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_6DBD26F2-0D05-4F75-88DA-3D456D5A38A6">
+  <dmn:description>Shared definitions for citizenship and immigration status checks.</dmn:description>
+  <dmn:extensionElements/>
+  <dmn:textAnnotation id="_69BB13D7-5F72-4241-811C-457DEC06CCC2" textFormat="text/plain">
+    <dmn:text>Shared definitions for citizenship and immigration status checks.</dmn:text>
+  </dmn:textAnnotation>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_D80EEA00-57C0-420D-8E24-6E0994233F32" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension/>
+      </di:extension>
+      <dmndi:DMNShape id="dmnshape-drg-_69BB13D7-5F72-4241-811C-457DEC06CCC2" dmnElementRef="_69BB13D7-5F72-4241-811C-457DEC06CCC2" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="100" y="40" width="600" height="100"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>

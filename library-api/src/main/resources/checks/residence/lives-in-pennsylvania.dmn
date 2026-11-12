@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmn:definitions xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns="https://kie.apache.org/dmn/_DAF4097B-8AF7-42D1-BAD4-A7133C22F4AE" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:kie="https://kie.org/dmn/extensions/1.0" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1" id="_00B55336-2C0F-4EFF-B8C8-DA5D34824056" name="LivesInPennsylvania" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_DAF4097B-8AF7-42D1-BAD4-A7133C22F4AE">
+  <dmn:description>Checks that the household lives in Pennsylvania.</dmn:description>
+  <dmn:extensionElements/>
+  <dmn:import id="_892B17EF-5DC9-48C4-9DD2-3C3ADA5D6919" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
+  <dmn:import id="_4E31A357-11AA-4499-81F6-470608C71274" name="Residence" namespace="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1" locationURI="Residence.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
+  <dmn:itemDefinition id="_FD163B09-264D-4DC4-91C7-867FE97ED5FF" name="tSimpleChecks" isCollection="false">
+    <dmn:itemComponent id="_CD8DFE2D-C826-4DC7-82F6-8B29B4417856" name="livesInPennsylvania" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_AFD4E3F2-0E61-4568-8328-8D0440E1236C" name="tSituation" isCollection="false">
+    <dmn:itemComponent id="_2538064C-F981-403C-964E-67867BC94BF3" name="simpleChecks" isCollection="false">
+      <dmn:typeRef>tSimpleChecks</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:decisionService id="_E7FE937B-6F8F-4CB3-BAD0-378F704616D5" name="LivesInPennsylvaniaService">
+    <dmn:extensionElements/>
+    <dmn:variable id="_DBB33086-E5C0-4505-9D00-23AFDDEF6A05" name="LivesInPennsylvaniaService" typeRef="BDT.tCheckResponse"/>
+    <dmn:outputDecision href="#_8EFC3D22-CD03-4700-8F38-B6DA134CD174"/>
+    <dmn:inputData href="#_A49317A2-80CE-4ED9-BC2B-F537FF7E585C"/>
+  </dmn:decisionService>
+  <dmn:decision id="_8EFC3D22-CD03-4700-8F38-B6DA134CD174" name="checkResult">
+    <dmn:extensionElements/>
+    <dmn:variable id="_B041AFC8-385D-43A5-97B3-0F6A779C4305" name="checkResult" typeRef="boolean"/>
+    <dmn:informationRequirement id="_9178BE59-1C8C-4C0F-8234-0452C2577A5B">
+      <dmn:requiredInput href="#_A49317A2-80CE-4ED9-BC2B-F537FF7E585C"/>
+    </dmn:informationRequirement>
+    <dmn:literalExpression id="_CEC648A9-871D-4F0A-977D-81F67471EE22">
+      <dmn:text>if situation.simpleChecks != null and situation.simpleChecks.livesInPennsylvania != null then
+  situation.simpleChecks.livesInPennsylvania = true
+else
+  null</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmn:decision id="_AC035827-A226-4485-ADCC-F43D16095F70" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_012E6863-8420-4097-B31B-728B424B4212" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:literalExpression id="_3996FA0C-1BE1-4855-BDE6-6D0797477A40">
+      <dmn:text>{
+  explanation: "Passes when the screener answer says the household lives in Pennsylvania, and fails when it says the household does not. Returns no result when the answer is missing.",
+  sources: [
+    {
+      title: "Pennsylvania LIHEAP FFY 2027 Final State Plan",
+      url: "https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf",
+      citation: "Appendix B, 601.31(3): residency",
+      checkedOn: date("2026-11-12")
+    }
+  ],
+  limitations: [
+    "Relies on the screener answer. It does not look up or verify an address.",
+    "Does not tell a permanent home in Pennsylvania apart from a temporary stay."
+  ],
+  lastReviewed: date("2026-11-12")
+}</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmn:inputData id="_A49317A2-80CE-4ED9-BC2B-F537FF7E585C" name="situation">
+    <dmn:extensionElements/>
+    <dmn:variable id="_AED9E6E3-F3CF-494E-88A0-3D0D7C4C8C47" name="situation" typeRef="tSituation"/>
+  </dmn:inputData>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_08E5D47F-E75E-4469-9FA0-B23B7E36D2CC" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_CEC648A9-871D-4F0A-977D-81F67471EE22"><kie:width>917</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_3996FA0C-1BE1-4855-BDE6-6D0797477A40"><kie:width>800</kie:width></kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="dmnshape-drg-_E7FE937B-6F8F-4CB3-BAD0-378F704616D5" dmnElementRef="_E7FE937B-6F8F-4CB3-BAD0-378F704616D5" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="100" y="100" width="280" height="280"/>
+        <dmndi:DMNLabel/>
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="100" y="240"/>
+          <di:waypoint x="380" y="240"/>
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_8EFC3D22-CD03-4700-8F38-B6DA134CD174" dmnElementRef="_8EFC3D22-CD03-4700-8F38-B6DA134CD174" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="160" y="130" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_AC035827-A226-4485-ADCC-F43D16095F70" dmnElementRef="_AC035827-A226-4485-ADCC-F43D16095F70" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="440" y="130" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_A49317A2-80CE-4ED9-BC2B-F537FF7E585C" dmnElementRef="_A49317A2-80CE-4ED9-BC2B-F537FF7E585C" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="100" y="480" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="dmnedge-drg-_9178BE59-1C8C-4C0F-8234-0452C2577A5B" dmnElementRef="_9178BE59-1C8C-4C0F-8234-0452C2577A5B">
+        <di:waypoint x="180" y="480"/>
+        <di:waypoint x="220" y="210"/>
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>

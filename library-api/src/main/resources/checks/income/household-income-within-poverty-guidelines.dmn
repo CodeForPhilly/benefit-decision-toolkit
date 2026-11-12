@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmn:definitions xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns="https://kie.apache.org/dmn/_5FEF70BB-1C32-42D9-BDEF-A06FDBA542F5" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:kie="https://kie.org/dmn/extensions/1.0" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5" id="_84872783-9E68-43A4-BA84-E47A78E475DC" name="HouseholdIncomeWithinPovertyGuidelines" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_5FEF70BB-1C32-42D9-BDEF-A06FDBA542F5">
+  <dmn:description>Checks that annual household income is at or below a percentage of the HHS poverty guidelines for the household's size.</dmn:description>
+  <dmn:extensionElements/>
+  <dmn:import id="_6C0DCB1D-9BB8-4AE2-841F-D50354ACD1CF" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
+  <dmn:import id="_30FABF7E-517B-47AD-BF07-715788D0C2D6" name="Income" namespace="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5" locationURI="Income.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
+  <dmn:itemDefinition id="_E1D48FCF-1CE6-48B3-89AF-CDA95622D592" name="tGuideline" isCollection="false">
+    <dmn:itemComponent id="_72F55C33-D1D5-48A6-8DCE-E34CFB2E83AA" name="year" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_70574236-8C7C-421A-A518-126559B6AD0A" name="firstPerson" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_10A270BB-1D29-49DA-A6A6-FD44E2B4FF48" name="eachAdditionalPerson" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_3FB7D680-D1B0-4E0E-B6B7-97832FD3E2AB" name="tGuidelineList" isCollection="true">
+    <dmn:typeRef>tGuideline</dmn:typeRef>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_87EEFE15-F313-49A2-BD06-76DC7ACACD3A" name="tParameters" isCollection="false">
+    <dmn:itemComponent id="_A5BEF79E-F933-4FBB-9175-DCA121BAF846" name="percent" isCollection="false">
+      <dmn:description>Percentage of the poverty guideline to use as the income limit, for example 150 for 150%.</dmn:description>
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_2241AA36-0D01-4F91-B037-34148477E516" name="guidelineYear" isCollection="false">
+      <dmn:description>Year of the HHS poverty guidelines to use, for example 2026.</dmn:description>
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_18FD11B9-BFD8-440B-ABC1-027297BC01A0" name="tSituation" isCollection="false">
+    <dmn:itemComponent id="_56131232-C9C1-452C-A22D-D01E97EA31FA" name="householdIncome" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_1A936E9F-310D-4606-8DBC-073AABC9C613" name="householdSize" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:decisionService id="_5A3C462F-4F29-4FBD-804C-726C9D99B4A4" name="HouseholdIncomeWithinPovertyGuidelinesService">
+    <dmn:extensionElements/>
+    <dmn:variable id="_EB4A5EB4-24A6-47CA-817D-61CCA66ACDA1" name="HouseholdIncomeWithinPovertyGuidelinesService" typeRef="BDT.tCheckResponse"/>
+    <dmn:outputDecision href="#_EF53F280-37DC-4889-A9DF-BC71DDD6B3DC"/>
+    <dmn:inputData href="#_FE0EA42F-02F2-4498-9C64-58FC78EAF2CB"/>
+    <dmn:inputData href="#_E45BD616-57E7-4F02-A5A3-BA13D8E82EFF"/>
+  </dmn:decisionService>
+  <dmn:decision id="_EF53F280-37DC-4889-A9DF-BC71DDD6B3DC" name="checkResult">
+    <dmn:extensionElements/>
+    <dmn:variable id="_B987AAB4-B258-452C-B2DB-84E6FC0DBD6D" name="checkResult" typeRef="boolean"/>
+    <dmn:informationRequirement id="_479EFEC9-65F1-4D79-A33B-64BCB1D63369">
+      <dmn:requiredInput href="#_FE0EA42F-02F2-4498-9C64-58FC78EAF2CB"/>
+    </dmn:informationRequirement>
+    <dmn:informationRequirement id="_02E1547A-3530-40B3-9BFD-17A3C623A6DF">
+      <dmn:requiredInput href="#_E45BD616-57E7-4F02-A5A3-BA13D8E82EFF"/>
+    </dmn:informationRequirement>
+    <dmn:context id="_1DF5DE86-A5C3-4532-86B0-F4E11370218C">
+      <dmn:contextEntry>
+        <dmn:variable id="_E8E8FD77-AF82-4EF7-908F-2768E027AB44" name="guidelines" typeRef="tGuidelineList"/>
+        <dmn:literalExpression id="_61532584-F752-4172-A5ED-1B46A36E05F3">
+          <dmn:text>// HHS poverty guidelines for the 48 contiguous states and DC
+[
+  {year: 2026, firstPerson: 15960, eachAdditionalPerson: 5680}
+]</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_3CB5902B-ED03-476F-BE6D-ECF11A4AB093" name="guideline" typeRef="tGuideline"/>
+        <dmn:literalExpression id="_288D715E-B35E-4311-9E38-C96130804D7C">
+          <dmn:text>guidelines[item.year = parameters.guidelineYear][1]</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_815CB8D1-458A-48B1-8A41-83F6773794EF" name="income" typeRef="number"/>
+        <dmn:literalExpression id="_217661AA-55AC-4976-9B08-7E1930F7EC96">
+          <dmn:text>situation.householdIncome</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_5C65684F-51EC-4433-973E-6936DB9E64B8" name="size" typeRef="number"/>
+        <dmn:literalExpression id="_12895214-1910-4919-B9ED-24E07BD1284D">
+          <dmn:text>situation.householdSize</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_D8761ED3-241B-4BDB-A31B-D23BE40B35B4" name="limit" typeRef="number"/>
+        <dmn:literalExpression id="_A978FA9E-EE33-4159-8814-C6D21B6CAC10">
+          <dmn:text>if guideline = null or size = null or parameters.percent = null then null
+else (guideline.firstPerson + (size - 1) * guideline.eachAdditionalPerson) * parameters.percent / 100</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:literalExpression id="_07876CF8-B7DB-44C9-B6AA-FD3B3E9ADFE8">
+          <dmn:text>if income = null or income &lt; 0 or size = null or size &lt; 1 or floor(size) != size then null
+else if parameters.percent = null or parameters.percent &lt; 0 or limit = null then null
+else income &lt;= limit</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
+  <dmn:decision id="_B434F800-478E-48D9-88B1-DF161927E6C3" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_08A35C46-D7AA-440D-9B58-34077C89F1A0" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:literalExpression id="_F44B3C22-0C74-4D67-9B6E-056D618AAAD0">
+      <dmn:text>{
+  explanation: "Finds the HHS poverty guideline for the household's size, multiplies it by the given percent, and passes when annual household income is equal to or less than the result. For 2026 the guideline is $15,960 for one person plus $5,680 for each additional person, so 150% is $23,940 for one person plus $8,520 for each additional person. Returns no result when income or household size is missing or invalid, or when the guideline year is not available.",
+  sources: [
+    {
+      title: "Pennsylvania LIHEAP FFY 2027 Final State Plan",
+      url: "https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf",
+      citation: "Income eligibility: 150% of the 2026 federal poverty guidelines, by household size",
+      checkedOn: date("2026-11-12")
+    },
+    {
+      title: "Pennsylvania DHS: LIHEAP",
+      url: "https://www.pa.gov/agencies/dhs/resources/liheap",
+      citation: "Income limits by household size",
+      checkedOn: date("2026-11-12")
+    }
+  ],
+  limitations: [
+    "Only the 2026 guidelines are available. Any other guideline year returns no result.",
+    "Uses the guidelines for the 48 contiguous states and DC, not those for Alaska or Hawaii.",
+    "Takes household income and size as given. It does not decide whose income counts, which income is excluded, or how pay is annualized.",
+    "Does not round the limit. A program that publishes rounded limits may differ by a few dollars."
+  ],
+  lastReviewed: date("2026-11-12")
+}</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmn:inputData id="_FE0EA42F-02F2-4498-9C64-58FC78EAF2CB" name="situation">
+    <dmn:extensionElements/>
+    <dmn:variable id="_FEBA9985-6291-41E1-AF19-79F35942CC5E" name="situation" typeRef="tSituation"/>
+  </dmn:inputData>
+  <dmn:inputData id="_E45BD616-57E7-4F02-A5A3-BA13D8E82EFF" name="parameters">
+    <dmn:extensionElements/>
+    <dmn:variable id="_1DB2A897-8F5C-4E92-A035-C3129E33621E" name="parameters" typeRef="tParameters"/>
+  </dmn:inputData>
+  <dmn:textAnnotation id="_7EB54519-52E6-4D6D-9F61-4369AB05DA35" textFormat="text/plain">
+    <dmn:text>The 2026 values were derived from PA LIHEAP's published 150% table ($23,940 for one person, plus $8,520 for each additional person). Add each new year to the guidelines list when HHS publishes it in January.</dmn:text>
+  </dmn:textAnnotation>
+  <dmn:association id="_92C4139E-4C5B-4391-8958-334031CFC5F1" associationDirection="None">
+    <dmn:sourceRef href="#_EF53F280-37DC-4889-A9DF-BC71DDD6B3DC"/>
+    <dmn:targetRef href="#_7EB54519-52E6-4D6D-9F61-4369AB05DA35"/>
+  </dmn:association>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_3B3CC5C1-983C-4ED0-94BE-BC00AAE4ACDD" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_1DF5DE86-A5C3-4532-86B0-F4E11370218C"><kie:width>50</kie:width><kie:width>200</kie:width><kie:width>800</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_61532584-F752-4172-A5ED-1B46A36E05F3"><kie:width>800</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_288D715E-B35E-4311-9E38-C96130804D7C"><kie:width>800</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_217661AA-55AC-4976-9B08-7E1930F7EC96"><kie:width>800</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_12895214-1910-4919-B9ED-24E07BD1284D"><kie:width>800</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_A978FA9E-EE33-4159-8814-C6D21B6CAC10"><kie:width>800</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_07876CF8-B7DB-44C9-B6AA-FD3B3E9ADFE8"><kie:width>800</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_F44B3C22-0C74-4D67-9B6E-056D618AAAD0"><kie:width>800</kie:width></kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="dmnshape-drg-_5A3C462F-4F29-4FBD-804C-726C9D99B4A4" dmnElementRef="_5A3C462F-4F29-4FBD-804C-726C9D99B4A4" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="100" y="100" width="280" height="280"/>
+        <dmndi:DMNLabel/>
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="100" y="240"/>
+          <di:waypoint x="380" y="240"/>
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_EF53F280-37DC-4889-A9DF-BC71DDD6B3DC" dmnElementRef="_EF53F280-37DC-4889-A9DF-BC71DDD6B3DC" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="160" y="130" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_B434F800-478E-48D9-88B1-DF161927E6C3" dmnElementRef="_B434F800-478E-48D9-88B1-DF161927E6C3" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="440" y="130" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_FE0EA42F-02F2-4498-9C64-58FC78EAF2CB" dmnElementRef="_FE0EA42F-02F2-4498-9C64-58FC78EAF2CB" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="100" y="480" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_E45BD616-57E7-4F02-A5A3-BA13D8E82EFF" dmnElementRef="_E45BD616-57E7-4F02-A5A3-BA13D8E82EFF" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="300" y="480" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_7EB54519-52E6-4D6D-9F61-4369AB05DA35" dmnElementRef="_7EB54519-52E6-4D6D-9F61-4369AB05DA35" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="660" y="420" width="400" height="100"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="dmnedge-drg-_479EFEC9-65F1-4D79-A33B-64BCB1D63369" dmnElementRef="_479EFEC9-65F1-4D79-A33B-64BCB1D63369">
+        <di:waypoint x="180" y="480"/>
+        <di:waypoint x="220" y="210"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_02E1547A-3530-40B3-9BFD-17A3C623A6DF" dmnElementRef="_02E1547A-3530-40B3-9BFD-17A3C623A6DF">
+        <di:waypoint x="380" y="480"/>
+        <di:waypoint x="260" y="210"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_92C4139E-4C5B-4391-8958-334031CFC5F1" dmnElementRef="_92C4139E-4C5B-4391-8958-334031CFC5F1">
+        <di:waypoint x="320" y="170"/>
+        <di:waypoint x="660" y="470"/>
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>

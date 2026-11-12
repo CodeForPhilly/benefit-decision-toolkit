@@ -293,6 +293,10 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
             operation.addExtension("x-bdt-benefit", benefit);
         }
 
+        if (!model.getReference().isEmpty()) {
+            operation.addExtension("x-bdt-reference", model.getReference());
+        }
+
         // Request body
         operation.requestBody(createRequestBody(model, serviceName, inputRef));
 
@@ -316,12 +320,24 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
             schema.ref(inputRef);
             mediaType.schema(schema);
 
-            // Generate example from schema
-            Map<String, Object> exampleData = schemaResolver.generateExample(inputRef);
-            if (!exampleData.isEmpty()) {
-                Example example = OASFactory.createExample();
-                example.value(convertToOpenAPIValue(exampleData));
-                mediaType.addExample("Example request", example);
+            if (!model.getExamples().isEmpty()) {
+                // Bruno tests with a docs block are the worked examples of a reference
+                for (BrunoExamples.Example brunoExample : model.getExamples()) {
+                    Example example = OASFactory.createExample();
+                    example.summary(brunoExample.name());
+                    example.description(brunoExample.description());
+                    example.value(convertToOpenAPIValue(brunoExample.request()));
+                    example.addExtension("x-bdt-expected", brunoExample.expected());
+                    mediaType.addExample(brunoExample.name(), example);
+                }
+            } else {
+                // Generate example from schema
+                Map<String, Object> exampleData = schemaResolver.generateExample(inputRef);
+                if (!exampleData.isEmpty()) {
+                    Example example = OASFactory.createExample();
+                    example.value(convertToOpenAPIValue(exampleData));
+                    mediaType.addExample("Example request", example);
+                }
             }
         } else {
             // Fallback to generic schema

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmn:definitions xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns="https://kie.apache.org/dmn/_26EEA2C1-9A7D-43BD-8418-8FCF4D1785A7" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:kie="https://kie.org/dmn/extensions/1.0" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1" id="_13D2598C-890D-4464-8A7E-489C1DC84832" name="PaysPrimaryHeatingCosts" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_26EEA2C1-9A7D-43BD-8418-8FCF4D1785A7">
+  <dmn:description>Checks that the household pays for its primary heat, and not through income-based rent that includes heat.</dmn:description>
+  <dmn:extensionElements/>
+  <dmn:import id="_194B417B-94AC-40EF-A143-E397506465BA" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
+  <dmn:import id="_E17F4786-0C14-45DC-8FB6-A066DDBB6257" name="Residence" namespace="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1" locationURI="Residence.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
+  <dmn:itemDefinition id="_A81D833E-C84B-4435-A2FA-CA6B368952C4" name="tSimpleChecks" isCollection="false">
+    <dmn:itemComponent id="_9F7CA051-649E-4867-9839-87DC32BB2937" name="paysPrimaryHeatingCosts" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_5BE8D0FC-AECD-44E6-BEA8-864DDD7765D4" name="heatInIncomeBasedRent" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_3B9D2953-3022-437E-A070-49BD5C91B03A" name="tSituation" isCollection="false">
+    <dmn:itemComponent id="_C3B35DFC-DA50-405A-A169-E78D4ECC646E" name="simpleChecks" isCollection="false">
+      <dmn:typeRef>tSimpleChecks</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:decisionService id="_0B318F9A-7D4C-4D3F-928C-FA1F4F4F1D62" name="PaysPrimaryHeatingCostsService">
+    <dmn:extensionElements/>
+    <dmn:variable id="_8EC1A7F7-F940-448B-B1D9-64303669DC51" name="PaysPrimaryHeatingCostsService" typeRef="BDT.tCheckResponse"/>
+    <dmn:outputDecision href="#_C6E64FD2-AABE-4203-9B39-8CD44FBFE0FD"/>
+    <dmn:inputData href="#_E3434D52-D38B-4773-A419-7ADD2D141AB4"/>
+  </dmn:decisionService>
+  <dmn:decision id="_C6E64FD2-AABE-4203-9B39-8CD44FBFE0FD" name="checkResult">
+    <dmn:extensionElements/>
+    <dmn:variable id="_8E3C384F-1D13-4A4A-BB79-6227F3B69A56" name="checkResult" typeRef="boolean"/>
+    <dmn:informationRequirement id="_A58E89D7-0AAD-4734-A893-39F307297067">
+      <dmn:requiredInput href="#_E3434D52-D38B-4773-A419-7ADD2D141AB4"/>
+    </dmn:informationRequirement>
+    <dmn:literalExpression id="_33347D3B-D2C6-4FFB-936B-B88783305EAA">
+      <dmn:text>if situation.simpleChecks = null then null
+else if situation.simpleChecks.paysPrimaryHeatingCosts = false then false
+else if situation.simpleChecks.heatInIncomeBasedRent = true then false
+else if situation.simpleChecks.paysPrimaryHeatingCosts = true and situation.simpleChecks.heatInIncomeBasedRent = false then true
+else null</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmn:decision id="_4E2192D8-DD10-4A84-BECD-E6A018999DE8" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_91758BC5-178B-45D4-B539-F8B540D66F76" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:literalExpression id="_E308B887-E4FC-4C37-B99B-8A93F31CAB8C">
+      <dmn:text>{
+  explanation: "Passes when the household is responsible for the cost of its primary heat, paid directly to a fuel or utility company or as an undesignated part of its rent, and its heat is not included in rent that is set as a share of its income or by its source of income. Fails when either answer rules the household out, and returns no result when an answer needed to decide is missing.",
+  sources: [
+    {
+      title: "Pennsylvania LIHEAP FFY 2027 Final State Plan",
+      url: "https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf",
+      citation: "Appendix B, 601.31(2): responsibility for heating costs; 601.3: definitions",
+      checkedOn: date("2026-11-12")
+    }
+  ],
+  limitations: [
+    "Does not check that the heating equipment is installed and operating to code.",
+    "Does not apply the rules for recreational vehicles or homes used for a business.",
+    "Relies on the screener answers to say what the primary heat is. Supplemental heat alone does not count.",
+    "A renter whose rent includes a designated heat portion counts as paying for heat, so the screener question has to cover that case."
+  ],
+  lastReviewed: date("2026-11-12")
+}</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmn:inputData id="_E3434D52-D38B-4773-A419-7ADD2D141AB4" name="situation">
+    <dmn:extensionElements/>
+    <dmn:variable id="_79CD80BF-6253-4FBB-80A2-1112ED82C554" name="situation" typeRef="tSituation"/>
+  </dmn:inputData>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_4B93C972-EAE4-4379-9320-068B66512E17" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_33347D3B-D2C6-4FFB-936B-B88783305EAA"><kie:width>917</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E308B887-E4FC-4C37-B99B-8A93F31CAB8C"><kie:width>800</kie:width></kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="dmnshape-drg-_0B318F9A-7D4C-4D3F-928C-FA1F4F4F1D62" dmnElementRef="_0B318F9A-7D4C-4D3F-928C-FA1F4F4F1D62" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="100" y="100" width="280" height="280"/>
+        <dmndi:DMNLabel/>
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="100" y="240"/>
+          <di:waypoint x="380" y="240"/>
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_C6E64FD2-AABE-4203-9B39-8CD44FBFE0FD" dmnElementRef="_C6E64FD2-AABE-4203-9B39-8CD44FBFE0FD" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="160" y="130" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_4E2192D8-DD10-4A84-BECD-E6A018999DE8" dmnElementRef="_4E2192D8-DD10-4A84-BECD-E6A018999DE8" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="440" y="130" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_E3434D52-D38B-4773-A419-7ADD2D141AB4" dmnElementRef="_E3434D52-D38B-4773-A419-7ADD2D141AB4" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="100" y="480" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="dmnedge-drg-_A58E89D7-0AAD-4734-A893-39F307297067" dmnElementRef="_A58E89D7-0AAD-4734-A893-39F307297067">
+        <di:waypoint x="180" y="480"/>
+        <di:waypoint x="220" y="210"/>
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>

@@ -1,0 +1,37 @@
+meta {
+  name: Heat in income-based rent
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/checks/residence/pays-primary-heating-costs
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "simpleChecks": {
+        "paysPrimaryHeatingCosts": true,
+        "heatInIncomeBasedRent": true
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq false
+}
+
+docs {
+  The household's heat is included in rent set as a share of its income, so the check fails even
+  though the household says it pays for heat.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

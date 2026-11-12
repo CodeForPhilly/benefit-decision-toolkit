@@ -1,0 +1,39 @@
+meta {
+  name: One person over 150 percent
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/checks/income/household-income-within-poverty-guidelines
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "householdSize": 1,
+      "householdIncome": 23940.01
+    },
+    "parameters": {
+      "percent": 150,
+      "guidelineYear": 2026
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq false
+}
+
+docs {
+  A one-person household with one cent more than $23,940 a year is over 150% of the 2026
+  guideline, so the check fails.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
