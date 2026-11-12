@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
+import { librarySidebar } from "./src/library/catalog.mjs";
 
 // https://astro.build/config
 export default defineConfig({
@@ -39,6 +40,8 @@ export default defineConfig({
             },
           ],
         },
+        // Generated from the library-api OpenAPI snapshot.
+        librarySidebar(),
       ],
     }),
   ],

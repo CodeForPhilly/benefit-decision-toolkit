@@ -72,6 +72,7 @@ public class LibraryBenefitResource {
             importedBenefit.getName(),
             importedBenefit.getDescription()
         );
+        detail.setReference(importedBenefit.getReference());
 
         try {
             screenerRepository.saveNewCustomBenefit(screenerId, importedBenefit);

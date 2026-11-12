@@ -38,6 +38,7 @@ class CheckRecord(TypedDict, total=False):
     parameterDefinitions: list[ParameterDefinition]
     inputDefinition: dict[str, Any]
     operationId: str
+    reference: dict[str, Any]
 
 
 # Type aliases for clarity
@@ -70,6 +71,9 @@ LIBRARY_API_BASE_URL = os.getenv("LIBRARY_API_BASE_URL", DEFAULT_LIBRARY_API_URL
 IS_PRODUCTION = not (
     "localhost" in LIBRARY_API_BASE_URL or "127.0.0.1" in LIBRARY_API_BASE_URL
 )
+
+# Base URL of the docs site, whose library pages mirror the API paths (see docs/adr/0001)
+DOCS_BASE_URL = os.getenv("DOCS_BASE_URL", "https://bdt-docs.web.app").rstrip("/")
 
 # Storage bucket defaults - use dev bucket by default
 DEFAULT_DEV_BUCKET = "demo-bdt-dev.appspot.com"
@@ -279,6 +283,9 @@ def extract_check_records(openapi: OpenAPIDocument, version: str) -> list[CheckR
                 "inputs": {},
                 "operationId": details.get("operationId", ""),
             }
+            reference = builder_reference(path, details)
+            if reference:
+                entry["reference"] = reference
 
             # ----------------------------------------
             # 1. Path or query parameters
@@ -303,6 +310,18 @@ def extract_check_records(openapi: OpenAPIDocument, version: str) -> list[CheckR
                     output.append(entry)
 
     return output
+
+
+def builder_reference(path: str, operation: dict[str, Any]) -> dict[str, Any] | None:
+    """The reference shown in the builder: every published field except contributor-only
+    implementation notes, plus a link to the docs page for this benefit or check."""
+    reference = operation.get("x-bdt-reference")
+    if not reference:
+        return None
+    copy = {key: deepcopy(value) for key, value in reference.items() if key != "implementationNotes"}
+    resource_path = path.split("/api/v1/", 1)[-1].strip("/")
+    copy["docsUrl"] = f"{DOCS_BASE_URL}/library/{resource_path}/"
+    return copy
 
 
 def transform_parameters(
@@ -405,6 +424,7 @@ def extract_benefit_records(
                     "description": operation.get("description", ""),
                     "checks": benefit_checks,
                     "nextSteps": deepcopy(operation["x-bdt-benefit"].get("nextSteps")),
+                    "reference": builder_reference(path, operation),
                 }
             )
 

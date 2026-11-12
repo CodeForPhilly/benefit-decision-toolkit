@@ -173,7 +173,9 @@ public class ScreenerTransferService {
                     }
                 }
                 benefits.add(benefit);
-                details.add(new BenefitDetail(benefit.getId(), benefit.getName(), benefit.getDescription()));
+                BenefitDetail detail = new BenefitDetail(benefit.getId(), benefit.getName(), benefit.getDescription());
+                detail.setReference(benefit.getReference());
+                details.add(detail);
             }
             Screener screener = Screener.create(owner, name, null);
             // Make the draft visible only once all its artifacts have been saved.
