@@ -26,6 +26,13 @@ public class BenefitDetail {
         this.description = description;
     }
 
+    /** The screener's summary of a stored benefit, keeping its library reference if it has one. */
+    public static BenefitDetail from(Benefit benefit) {
+        BenefitDetail detail = new BenefitDetail(benefit.getId(), benefit.getName(), benefit.getDescription());
+        detail.setReference(benefit.getReference());
+        return detail;
+    }
+
     public String getId() {
         return id;
     }
