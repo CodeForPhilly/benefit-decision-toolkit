@@ -46,7 +46,8 @@ export interface LibraryReference {
   limitations: string[];
   // ISO date
   lastReviewed: string;
-  docsUrl: string;
+  // Docs-site path of the full reference page, e.g. "library/benefits/pa/liheap-cash/"
+  docsPath: string;
 }
 
 export interface NextSteps {

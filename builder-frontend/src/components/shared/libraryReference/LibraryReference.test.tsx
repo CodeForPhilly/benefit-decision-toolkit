@@ -45,7 +45,7 @@ const benefitReference: Reference = {
   ],
   limitations: ["Household size is taken as given."],
   lastReviewed: "2026-11-12",
-  docsUrl: "https://bdt-docs.web.app/library/benefits/pa/liheap-cash/",
+  docsPath: "library/benefits/pa/liheap-cash/",
 };
 
 const text = () => document.body.textContent ?? "";
@@ -78,7 +78,8 @@ it("shows the summary, and every reference field in a collapsed panel", () => {
     expect(panel.textContent).toContain(expected);
   }
   const docsLink = Array.from(panel.querySelectorAll("a")).find(
-    (link) => link.href === benefitReference.docsUrl,
+    (link) =>
+      link.href === "https://bdt-docs.web.app/library/benefits/pa/liheap-cash/",
   );
   expect(docsLink?.target).toBe("_blank");
 });

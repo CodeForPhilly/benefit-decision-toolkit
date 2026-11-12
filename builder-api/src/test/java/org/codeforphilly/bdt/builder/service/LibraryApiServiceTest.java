@@ -120,10 +120,10 @@ public class LibraryApiServiceTest {
         service.loadMetadata("""
             {"checks":[{"id":"check-1","name":"lives-in-pennsylvania","reference":{
                 "summary":"Checks that the household lives in Pennsylvania.",
-                "docsUrl":"https://bdt-docs.web.app/library/checks/residence/lives-in-pennsylvania/"}}],
+                "docsPath":"library/checks/residence/lives-in-pennsylvania/"}}],
              "benefits":[{"id":"liheap","name":"Liheap cash","checks":[],"reference":{
                 "summary":"Helps with heating.","limitations":["Household size is taken as given."],
-                "docsUrl":"https://bdt-docs.web.app/library/benefits/pa/liheap-cash/"}}]}
+                "docsPath":"library/benefits/pa/liheap-cash/"}}]}
             """);
 
         assertEquals("Checks that the household lives in Pennsylvania.",
@@ -131,8 +131,8 @@ public class LibraryApiServiceTest {
         var imported = service.copyBenefitForOwner("liheap", "analyst-1").orElseThrow();
         assertEquals("Household size is taken as given.",
             imported.getReference().path("limitations").path(0).asText());
-        assertEquals("https://bdt-docs.web.app/library/benefits/pa/liheap-cash/",
-            imported.getReference().path("docsUrl").asText());
+        assertEquals("library/benefits/pa/liheap-cash/",
+            imported.getReference().path("docsPath").asText());
     }
 
     @Test
