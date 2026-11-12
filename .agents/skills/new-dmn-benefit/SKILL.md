@@ -319,9 +319,22 @@ Read [references/dmn-skeleton.md](references/dmn-skeleton.md) when generating th
 8. **Category base modules imported only when types referenced** — e.g. import `Enrollment.dmn` only if `Enrollment.tEnrollmentList` appears in `tSituation`.
 9. **Known namespace URIs** — Benefits.dmn: `https://kie.apache.org/dmn/_9514D95A-63FB-4345-911B-D83E1867F709`, BDT.dmn: `https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79`. Read check and category base module DMNs to get their namespace URIs — do not hardcode them.
 
+### Reference
+
+Every new benefit carries a benefit reference (see `GLOSSARY.md`). It is complete when each part below is present and every fact comes from an official source you actually read:
+
+- **Summary**: the model's `<dmn:description>`, one plain sentence.
+- **`reference` decision**: a constant decision named `reference`, `typeRef="BDT.tBenefitReference"`, with no information requirements and outside the Decision Service (unlike `nextSteps`, it is not a service output). Its literal expression is a FEEL context of `explanation`, `administeredBy: {name, url}`, optional `programYear: {label, startDate: date(...), endDate: date(...)}`, `sources` (`[{title, url, citation, checkedOn: date(...)}]`; `url` and `citation` may be `null`), `limitations` (list of strings) and `lastReviewed: date(...)`. Startup rejects unknown, missing or non-`https` fields. Give it its own 160×80 shape to the right of the service and a `ComponentWidths` entry (800px).
+- **Check rationale**: a `<dmn:description>` inside each `checks` context entry's `<dmn:variable>`, saying why the program applies that check, with its citation.
+- **Implementation notes** (optional, contributors only): a `<dmn:textAnnotation>` joined to the decision it explains by a `<dmn:association>` (`sourceRef` the decision, `targetRef` the annotation), each with its own DMNDI shape and edge.
+
+All text is plain, with no Markdown; lists carry the structure. Every limitation the program's rules impose that the checks do not test belongs in `limitations`.
+
 ## Step 5 — Generate Bruno Test Files
 
 **Directory**: `library-api/test/bdt/benefits/{state?}/{locality?}/{BenefitName}/`
+
+**Examples**: give the Eligible and Ineligible tests a `docs { }` block (after `assert`) of 1 to 2 plain sentences saying who the scenario is and why the result follows. Tests with a `docs` block become the reference's worked examples in OpenAPI, the docs site and Swagger UI; tests without one stay tests only.
 
 Create `folder.bru` files for any **new** intermediate directories that don't already have one. Check before creating — the `benefits/`, `benefits/pa/`, and `benefits/pa/phl/` folder.bru files likely already exist.
 
@@ -470,6 +483,9 @@ settings {
 ```bash
 devbox run test -- library-api
 ```
+
+A new model changes the published OpenAPI, so `OpenApiSnapshotTest` fails until you refresh the snapshot: run `(cd library-api && mvn test -Dtest=OpenApiSnapshotTest -Dopenapi.snapshot.update=true)`, then read the diff of `library-api/openapi.snapshot.json` to confirm the reference and examples came through.
+
 If tests fail, diagnose the error (most likely a malformed DMN, missing import, or namespace conflict) and fix the DMN file before proceeding.
 
 **3. Bruno tests** — run the full API test suite (requires the library-api dev server running at `http://localhost:8083`):

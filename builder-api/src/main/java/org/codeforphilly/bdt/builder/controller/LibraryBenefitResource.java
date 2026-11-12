@@ -67,12 +67,7 @@ public class LibraryBenefitResource {
         }
 
         Benefit importedBenefit = importedBenefitOpt.get();
-        BenefitDetail detail = new BenefitDetail(
-            importedBenefit.getId(),
-            importedBenefit.getName(),
-            importedBenefit.getDescription()
-        );
-        detail.setReference(importedBenefit.getReference());
+        BenefitDetail detail = BenefitDetail.from(importedBenefit);
 
         try {
             screenerRepository.saveNewCustomBenefit(screenerId, importedBenefit);

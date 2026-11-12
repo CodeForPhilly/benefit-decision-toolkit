@@ -3128,6 +3128,20 @@
           "content" : {
             "application/json" : {
               "examples" : {
+                "Fail" : {
+                  "description" : "No one in the household is a U.S. citizen or lawfully admitted non-citizen, so the check fails.",
+                  "summary" : "Fail",
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "householdHasCitizenOrEligibleNoncitizen" : false
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : false
+                  }
+                },
                 "Pass" : {
                   "description" : "Someone in the household is a U.S. citizen or lawfully admitted non-citizen, so the check passes.",
                   "summary" : "Pass",

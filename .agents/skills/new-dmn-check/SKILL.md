@@ -61,7 +61,7 @@ namespace as its fresh KIE UUID URI.
 - Generate fresh UUID v4 values for every `id` attribute (format: `_XXXXXXXX-XXXX-4XXX-XXXX-XXXXXXXXXXXX` using uppercase hex). Each UUID must be unique within the file.
 - The model's own `namespace` attribute is a fresh UUID URI: `https://kie.apache.org/dmn/_{UUID}`.
 - BDT namespace is always: `https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79`
-- BDT `locationURI`: use `../BDT.dmn` for checks directly in `checks/{category}/` (one level deep). Use `../../BDT.dmn` if nested deeper.
+- BDT `locationURI`: `../../BDT.dmn` for checks in `checks/{category}/` (BDT.dmn sits at the resources root). Kogito resolves imports by namespace, so some older files still say `../BDT.dmn`.
 - Category base module import is **mandatory** — always import `{Category}.dmn` (same directory) even if no types from it are referenced. This establishes the category association.
 - Decision Service name: exactly `{CheckName}Service`.
 - Decision Service output type: `BDT.tCheckResponse`.
@@ -302,9 +302,22 @@ The rest of the file structure (imports, itemDefinitions, inputData, decisionSer
 
 **BKM knowledge requirement note**: When calling a BKM from an imported module (e.g. `Age.as of date(...)`), the `<dmn:knowledgeRequirement>` href must reference the imported module's namespace URI followed by `#` and the BKM's `id` attribute in that file. Find the BKM id by reading the base module DMN. Use namespace-qualified calls in FEEL: `{ImportAlias}.{bkmName}(...)`.
 
+### Reference
+
+Every new check carries an eligibility check reference (see `GLOSSARY.md`). It is complete when each part below is present and every fact comes from an official source you actually read:
+
+- **Summary**: the model's `<dmn:description>`, one plain sentence.
+- **`reference` decision**: a constant decision named `reference`, `typeRef="BDT.tEligibilityCheckReference"`, with no information requirements and outside the Decision Service. Its literal expression is a FEEL context of `explanation`, `sources` (`[{title, url, citation, checkedOn: date(...)}]`; `url` and `citation` may be `null`), `limitations` (list of strings) and `lastReviewed: date(...)`. Startup rejects unknown, missing or non-`https` fields. Give it its own 160×80 shape to the right of the service and a `ComponentWidths` entry (800px).
+- **Parameter descriptions**: a `<dmn:description>` as the first child of each `tParameters` `<dmn:itemComponent>`.
+- **Implementation notes** (optional, contributors only): a `<dmn:textAnnotation>` joined to the decision it explains by a `<dmn:association>` (`sourceRef` the decision, `targetRef` the annotation), each with its own DMNDI shape and edge.
+
+All text is plain, with no Markdown; lists carry the structure.
+
 ## Step 4 — Generate Bruno Test Files
 
 **Directory**: `library-api/test/bdt/checks/{category}/{CheckName}/`
+
+**Examples**: give the Pass and Fail tests a `docs { }` block (after `assert`) of 1 to 2 plain sentences saying who the scenario is and why the result follows. Tests with a `docs` block become the reference's worked examples in OpenAPI, the docs site and Swagger UI; tests without one stay tests only.
 
 Create three files:
 
@@ -436,6 +449,9 @@ Run static validation and the full test suites to verify the new check integrate
 ```bash
 devbox run test -- library-api
 ```
+
+A new model changes the published OpenAPI, so `OpenApiSnapshotTest` fails until you refresh the snapshot: run `(cd library-api && mvn test -Dtest=OpenApiSnapshotTest -Dopenapi.snapshot.update=true)`, then read the diff of `library-api/openapi.snapshot.json` to confirm the reference and examples came through.
+
 If tests fail, diagnose the error (most likely a malformed DMN or namespace conflict) and fix the DMN file before proceeding.
 
 **3. Bruno tests** — run the full API test suite (requires the library-api dev server running at `http://localhost:8083`):
