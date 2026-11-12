@@ -9,6 +9,7 @@ import Loading from "../../../Loading";
 
 import type { BenefitDetail } from "@/types";
 import Tooltip from "@/components/shared/Tooltip";
+import LibraryReference from "@/components/shared/libraryReference/LibraryReference";
 
 const BenefitList = ({
   screenerId,
@@ -150,6 +151,12 @@ const BenefitCard = ({
           <div class="text-2xl mb-2 font-bold">{benefit.name}</div>
           <div>
             <span class="font-bold">Description:</span> {benefit.description}
+          </div>
+          <div class="mt-3">
+            <LibraryReference
+              reference={benefit.reference}
+              hideSummary={benefit.reference?.summary === benefit.description}
+            />
           </div>
         </div>
         <div

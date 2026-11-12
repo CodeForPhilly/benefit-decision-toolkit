@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "docs/**"
+      - "library-api/openapi.snapshot.json"
       - "README.md"
       - "**/README.md"
       - ".github/workflows/check-docs.yml"

@@ -1,0 +1,230 @@
+---
+// One page per library benefit or eligibility check, built from the library-api OpenAPI snapshot.
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("library");
+  return entries.map((entry) => ({
+    params: { slug: entry.data.slug.replace(/^library\//, "") },
+    props: { entry: entry.data },
+  }));
+}
+
+const { entry } = Astro.props;
+const reference = entry.reference;
+const isBenefit = entry.kind === "benefit";
+
+const formatDate = (iso) =>
+  new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+
+const outcome = (expected) => {
+  const value = expected.isEligible ?? expected.checkResult;
+  if (value === true) return isBenefit ? "Eligible" : "Passes";
+  if (value === false) return isBenefit ? "Not eligible" : "Fails";
+  if ("isEligible" in expected || "checkResult" in expected) return "No result";
+  return null;
+};
+
+const parameterValues = (check) => [
+  ...Object.entries(check.parameters).map(([name, value]) => `${name} = ${JSON.stringify(value)}`),
+  ...Object.entries(check.parameterBindings).map(([name, field]) => `${name} = situation.${field}`),
+];
+
+const headings = [
+  ...(isBenefit ? [{ depth: 2, slug: "checks", text: "Checks" }] : []),
+  ...(reference.parameters?.length ? [{ depth: 2, slug: "parameters", text: "Parameters" }] : []),
+  { depth: 2, slug: "inputs", text: "Inputs" },
+  ...(entry.examples.length ? [{ depth: 2, slug: "examples", text: "Examples" }] : []),
+  { depth: 2, slug: "limitations", text: "Limitations" },
+  { depth: 2, slug: "sources", text: "Sources" },
+  ...(reference.implementationNotes.length
+    ? [{ depth: 2, slug: "implementation-notes", text: "Implementation notes" }]
+    : []),
+];
+---
+
+<StarlightPage frontmatter={{ title: entry.title, description: entry.summary }} headings={headings}>
+  <p class="summary"><strong>{entry.summary}</strong></p>
+  <p>{reference.explanation}</p>
+
+  <dl class="facts">
+    {
+      isBenefit && (
+        <>
+          <dt>Administered by</dt>
+          <dd>
+            <a href={reference.administeredBy.url}>{reference.administeredBy.name}</a>
+          </dd>
+        </>
+      )
+    }
+    {
+      reference.programYear && (
+        <>
+          <dt>Program year</dt>
+          <dd>
+            {reference.programYear.label}: {formatDate(reference.programYear.startDate)} to{" "}
+            {formatDate(reference.programYear.endDate)}
+          </dd>
+        </>
+      )
+    }
+    <dt>API endpoint</dt>
+    <dd><code>POST {entry.endpoint}</code></dd>
+    <dt>Last reviewed</dt>
+    <dd>{formatDate(reference.lastReviewed)}</dd>
+  </dl>
+
+  {
+    isBenefit && (
+      <>
+        <h2 id="checks">Checks</h2>
+        <p>A household is eligible when every check passes.</p>
+        {entry.checks.map((check) => (
+          <section class="check">
+            <h3>{check.title}</h3>
+            {check.rationale && <p>{check.rationale}</p>}
+            <p class="meta">
+              Uses{" "}
+              {check.checkSlug ? (
+                <a href={`/${check.checkSlug}/`}>{check.checkTitle}</a>
+              ) : (
+                check.checkTitle
+              )}
+              {parameterValues(check).length > 0 && (
+                <>
+                  {" "}with <code>{parameterValues(check).join(", ")}</code>
+                </>
+              )}
+            </p>
+          </section>
+        ))}
+      </>
+    )
+  }
+
+  {
+    reference.parameters?.length > 0 && (
+      <>
+        <h2 id="parameters">Parameters</h2>
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            {reference.parameters.map((parameter) => (
+              <tr>
+                <td><code>{parameter.name}</code></td>
+                <td>{parameter.type}</td>
+                <td>{parameter.description}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </>
+    )
+  }
+
+  <h2 id="inputs">Inputs</h2>
+  <p>The screener answers this {isBenefit ? "benefit" : "check"} reads:</p>
+  <table>
+    <thead>
+      <tr><th>Field</th><th>Type</th></tr>
+    </thead>
+    <tbody>
+      {
+        entry.inputs.map((input) => (
+          <tr>
+            <td><code>{input.name}</code></td>
+            <td>{input.type}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+
+  {
+    entry.examples.length > 0 && (
+      <>
+        <h2 id="examples">Examples</h2>
+        {entry.examples.map((example) => (
+          <section class="example">
+            <h3>
+              {example.name}
+              {outcome(example.expected) && <span class="outcome">{outcome(example.expected)}</span>}
+            </h3>
+            <p>{example.description}</p>
+            <details>
+              <summary>Request</summary>
+              <pre><code>{JSON.stringify(example.request, null, 2)}</code></pre>
+            </details>
+          </section>
+        ))}
+      </>
+    )
+  }
+
+  <h2 id="limitations">Limitations</h2>
+  <ul>
+    {reference.limitations.map((limitation) => <li>{limitation}</li>)}
+  </ul>
+
+  <h2 id="sources">Sources</h2>
+  <ul>
+    {
+      reference.sources.map((source) => (
+        <li>
+          {source.url ? <a href={source.url}>{source.title}</a> : source.title}
+          {source.citation && <>: {source.citation}</>} (checked {formatDate(source.checkedOn)})
+        </li>
+      ))
+    }
+  </ul>
+
+  {
+    reference.implementationNotes.length > 0 && (
+      <>
+        <h2 id="implementation-notes">Implementation notes</h2>
+        <p>For contributors maintaining the DMN model.</p>
+        <ul>
+          {reference.implementationNotes.map((note) => (
+            <li>
+              <code>{note.decision}</code>: {note.text}
+            </li>
+          ))}
+        </ul>
+      </>
+    )
+  }
+</StarlightPage>
+
+<style>
+  .facts {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.25rem 1rem;
+  }
+  .facts dt {
+    font-weight: 600;
+  }
+  .facts dd {
+    margin: 0;
+  }
+  .meta {
+    color: var(--sl-color-gray-3);
+  }
+  .outcome {
+    margin-left: 0.5rem;
+    font-size: var(--sl-text-sm);
+    font-weight: 400;
+    padding: 0.1rem 0.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 999px;
+  }
+</style>
