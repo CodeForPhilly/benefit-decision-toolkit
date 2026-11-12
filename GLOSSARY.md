@@ -19,3 +19,11 @@ _Avoid_: Test mode, sandbox
 **Screening session**:
 One person's pass through a screener, in Preview or on a published screener: their answers, the evaluations of those answers, and the latest results.
 _Avoid_: Screening flow, form session, evaluation flow
+
+**Benefit reference**:
+The human-readable explanation of a library benefit: what it decides, the rules it applies, the policy sources behind them, its limitations, and worked examples. It is authored alongside the benefit and shown wherever the benefit appears.
+_Avoid_: Benefit docs, benefit metadata, description
+
+**Eligibility check reference**:
+The human-readable explanation of a library eligibility check: what it decides, its parameters, the policy sources behind it, its limitations, and worked examples. It is authored alongside the check and shown wherever the check appears.
+_Avoid_: Check docs, check metadata, description
