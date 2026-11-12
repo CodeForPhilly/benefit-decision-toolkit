@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmn:definitions xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns="https://kie.apache.org/dmn/_AEA67382-71F0-451D-BB86-7FFE399DDD15" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:kie="https://kie.org/dmn/extensions/1.0" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:included1="https://kie.apache.org/dmn/_9514D95A-63FB-4345-911B-D83E1867F709" xmlns:included2="https://kie.apache.org/dmn/_DAF4097B-8AF7-42D1-BAD4-A7133C22F4AE" xmlns:included3="https://kie.apache.org/dmn/_5FEF70BB-1C32-42D9-BDEF-A06FDBA542F5" xmlns:included4="https://kie.apache.org/dmn/_26EEA2C1-9A7D-43BD-8418-8FCF4D1785A7" xmlns:included5="https://kie.apache.org/dmn/_6825CDF7-5A9A-467E-8EA1-BA9E7B819B19" xmlns:included6="https://kie.apache.org/dmn/_3B9E68B5-63FA-437C-AF93-CC12DDD00BC5" xmlns:included7="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included8="https://kie.apache.org/dmn/_6E9D53A6-E99A-4060-9E3E-1AE12EAB5465" id="_8A2120D4-D5E5-4247-80C1-2C265E05AD98" name="PaLiheapCash" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_AEA67382-71F0-451D-BB86-7FFE399DDD15">
+  <dmn:description>Helps Pennsylvania households pay for home heating with a once-a-season grant (LIHEAP Cash, 2026-27 season).</dmn:description>
+  <dmn:extensionElements/>
+  <dmn:import id="_F8941A94-343E-4C81-A901-4916627616DC" name="Benefits" namespace="https://kie.apache.org/dmn/_9514D95A-63FB-4345-911B-D83E1867F709" locationURI="../Benefits.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
+  <dmn:import id="_73BFF47F-C034-4F57-80CF-D7C5FB0C27F3" name="LivesInPennsylvania" namespace="https://kie.apache.org/dmn/_DAF4097B-8AF7-42D1-BAD4-A7133C22F4AE" locationURI="../../checks/residence/lives-in-pennsylvania.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
+  <dmn:import id="_AABAACC8-3938-40F6-BE93-A0A8E2D3DCF2" name="HouseholdIncomeWithinPovertyGuidelines" namespace="https://kie.apache.org/dmn/_5FEF70BB-1C32-42D9-BDEF-A06FDBA542F5" locationURI="../../checks/income/household-income-within-poverty-guidelines.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
+  <dmn:import id="_C9D7E363-B741-4E23-9D80-CFEA934AF8E8" name="PaysPrimaryHeatingCosts" namespace="https://kie.apache.org/dmn/_26EEA2C1-9A7D-43BD-8418-8FCF4D1785A7" locationURI="../../checks/residence/pays-primary-heating-costs.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
+  <dmn:import id="_97842060-4081-4E8B-BBCF-A1E99A78DC64" name="HouseholdHasCitizenOrEligibleNoncitizen" namespace="https://kie.apache.org/dmn/_6825CDF7-5A9A-467E-8EA1-BA9E7B819B19" locationURI="../../checks/citizenship/household-has-citizen-or-eligible-noncitizen.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
+  <dmn:import id="_EC16A862-E9AC-4D58-8925-F16C72D2C982" name="PersonNotEnrolledInBenefit" namespace="https://kie.apache.org/dmn/_3B9E68B5-63FA-437C-AF93-CC12DDD00BC5" locationURI="../../checks/enrollment/person-not-enrolled-in-benefit.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
+  <dmn:import id="_DBAD1FB8-F037-4DC3-8EC9-F58331FDF9CE" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
+  <dmn:import id="_C283AF5A-2E92-4075-9838-7814D368C644" name="Enrollment" namespace="https://kie.apache.org/dmn/_6E9D53A6-E99A-4060-9E3E-1AE12EAB5465" locationURI="../../checks/enrollment/Enrollment.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
+  <dmn:itemDefinition id="_013021C4-BB81-4691-89B5-E1521DDF1141" name="tSimpleChecks" isCollection="false">
+    <dmn:itemComponent id="_DCDE5AF2-E148-4B1A-A3B6-85C65C00BFE9" name="livesInPennsylvania" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_60104329-7772-41AA-9F55-14A1773CBA19" name="paysPrimaryHeatingCosts" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_C7776B2D-44E2-46FF-A22E-67FABD799B62" name="heatInIncomeBasedRent" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_CB1EF28D-81C0-4CA6-80C2-6497BC51905C" name="householdHasCitizenOrEligibleNoncitizen" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_1EC1D726-9E3C-49B2-B95B-ECC146E6399A" name="tSituation" isCollection="false">
+    <dmn:itemComponent id="_54D3715A-09B1-4AB5-BA53-1C9A45D48E63" name="primaryPersonId" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_497EDF9D-E4FC-45D5-BAF1-556D856331AB" name="enrollments" isCollection="false">
+      <dmn:typeRef>Enrollment.tEnrollmentList</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_21F9A3A6-D4D0-437C-AB0A-8DAFECD00063" name="householdIncome" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_4A408CB6-5BBE-4E3D-957E-24C6300092FE" name="householdSize" isCollection="false">
+      <dmn:typeRef>number</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_8208B222-BBCC-4A95-B49E-AC42792F3EA4" name="simpleChecks" isCollection="false">
+      <dmn:typeRef>tSimpleChecks</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:decisionService id="_C64BA384-386A-476C-B47C-D01F3D1AEF62" name="PaLiheapCashService">
+    <dmn:extensionElements/>
+    <dmn:variable id="_26897C4E-CD03-4726-86E9-586A25F17018" name="PaLiheapCashService" typeRef="Benefits.tBenefitResponse"/>
+    <dmn:outputDecision href="#_09001E58-B338-46D2-BAC1-A07FE72E264B"/>
+    <dmn:outputDecision href="#_3461AD0F-7CAF-4772-9B04-D65462BA7E58"/>
+    <dmn:outputDecision href="#_49B4BAED-3365-4B56-B073-AFF1403FCC15"/>
+    <dmn:inputData href="#_B16EA3BE-C9D6-4A1E-9067-62CF726E4542"/>
+  </dmn:decisionService>
+  <dmn:decision id="_09001E58-B338-46D2-BAC1-A07FE72E264B" name="checks">
+    <dmn:extensionElements/>
+    <dmn:variable id="_A7865291-B5DC-4695-85F6-2845B2F66E13" name="checks" typeRef="context"/>
+    <dmn:informationRequirement id="_F82CBCD1-795D-4B05-8210-B1FBBF24EACB">
+      <dmn:requiredInput href="#_B16EA3BE-C9D6-4A1E-9067-62CF726E4542"/>
+    </dmn:informationRequirement>
+    <dmn:knowledgeRequirement id="_45072FE1-91D4-4CEA-9EDB-E05D03AFBB57">
+      <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_DAF4097B-8AF7-42D1-BAD4-A7133C22F4AE#_E7FE937B-6F8F-4CB3-BAD0-378F704616D5"/>
+    </dmn:knowledgeRequirement>
+    <dmn:knowledgeRequirement id="_2660159A-2B97-4305-B709-820DA94B8424">
+      <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_5FEF70BB-1C32-42D9-BDEF-A06FDBA542F5#_5A3C462F-4F29-4FBD-804C-726C9D99B4A4"/>
+    </dmn:knowledgeRequirement>
+    <dmn:knowledgeRequirement id="_750748DD-7EF8-4838-B09B-7D9930F24258">
+      <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_26EEA2C1-9A7D-43BD-8418-8FCF4D1785A7#_0B318F9A-7D4C-4D3F-928C-FA1F4F4F1D62"/>
+    </dmn:knowledgeRequirement>
+    <dmn:knowledgeRequirement id="_9F4CD144-F3CC-495F-9F3B-A6401110802F">
+      <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_6825CDF7-5A9A-467E-8EA1-BA9E7B819B19#_6BB2E7EE-D8A3-4ACE-8630-1C8A550E5CF0"/>
+    </dmn:knowledgeRequirement>
+    <dmn:knowledgeRequirement id="_0504EFAD-78C3-4B7D-AEF2-1BEA7B2E521F">
+      <dmn:requiredKnowledge href="https://kie.apache.org/dmn/_3B9E68B5-63FA-437C-AF93-CC12DDD00BC5#_513F29D9-6F29-4B8A-AD8D-F5C339B354DE"/>
+    </dmn:knowledgeRequirement>
+    <dmn:context id="_726097D6-D6B7-4C6C-845B-FB7256A0ADB0">
+      <dmn:contextEntry>
+        <dmn:variable id="_6A9869A6-B722-4411-ACB0-A2BF17C8B635" name="LivesInPennsylvania" typeRef="boolean">
+          <dmn:description>LIHEAP Cash is for households that permanently live in Pennsylvania (601.31(3)).</dmn:description>
+        </dmn:variable>
+        <dmn:invocation id="_CF3D6E94-54C0-4793-B70A-ABD4365CCA8B">
+          <dmn:literalExpression id="_5F44935E-237F-4D22-9956-E433C3DBCFF1">
+            <dmn:text>LivesInPennsylvania.LivesInPennsylvaniaService</dmn:text>
+          </dmn:literalExpression>
+          <dmn:binding>
+            <dmn:parameter id="_79C3A30C-62F6-42FE-930C-A768E32AF079" name="situation" typeRef="LivesInPennsylvania.tSituation"/>
+            <dmn:literalExpression id="_7A17D02E-D0F7-4393-AD0D-4E35C120858D">
+              <dmn:text>situation</dmn:text>
+            </dmn:literalExpression>
+          </dmn:binding>
+        </dmn:invocation>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_0466D240-64E2-43F4-8B79-1865E1462979" name="IncomeAtOrBelow150PercentFpl" typeRef="boolean">
+          <dmn:description>Household income must be equal to or less than 150% of the federal poverty guidelines (601.81 to 601.84).</dmn:description>
+        </dmn:variable>
+        <dmn:invocation id="_49578789-4F50-4DF9-831F-F200F08956CE">
+          <dmn:literalExpression id="_DE18A7E9-8321-427B-A2D2-310A5E60EA06">
+            <dmn:text>HouseholdIncomeWithinPovertyGuidelines.HouseholdIncomeWithinPovertyGuidelinesService</dmn:text>
+          </dmn:literalExpression>
+          <dmn:binding>
+            <dmn:parameter id="_22AD34E6-4B37-4C44-BCC5-72E7CAD8B4B5" name="situation" typeRef="HouseholdIncomeWithinPovertyGuidelines.tSituation"/>
+            <dmn:literalExpression id="_C07DD894-C876-4D68-9762-6D371D634922">
+              <dmn:text>situation</dmn:text>
+            </dmn:literalExpression>
+          </dmn:binding>
+          <dmn:binding>
+            <dmn:parameter id="_6718623A-D695-4CDD-BC38-866F2BE99CE9" name="parameters" typeRef="HouseholdIncomeWithinPovertyGuidelines.tParameters"/>
+            <dmn:context id="_D06B9974-AFBE-4AD0-9BDB-9B202EA632C0">
+              <dmn:contextEntry>
+                <dmn:variable id="_056E5460-DC27-4C9A-AF1E-35B36B45B868" name="percent" typeRef="number"/>
+                <dmn:literalExpression id="_3A6F2FC3-86F1-4ACD-AF09-C9592A31C33D">
+                  <dmn:text>150</dmn:text>
+                </dmn:literalExpression>
+              </dmn:contextEntry>
+              <dmn:contextEntry>
+                <dmn:variable id="_85326F8A-05AA-45A8-8E2C-8CF867AA5C9C" name="guidelineYear" typeRef="number"/>
+                <dmn:literalExpression id="_051175EB-D726-454A-AA81-EB9E0FCB584E">
+                  <dmn:text>2026</dmn:text>
+                </dmn:literalExpression>
+              </dmn:contextEntry>
+            </dmn:context>
+          </dmn:binding>
+        </dmn:invocation>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_3590A537-83D9-4A10-8BF2-51F9080EA8B5" name="PaysPrimaryHeatingCosts" typeRef="boolean">
+          <dmn:description>The household must be responsible for its primary heating costs. Households whose heat is included in rent based on their income are not eligible (601.31(2)).</dmn:description>
+        </dmn:variable>
+        <dmn:invocation id="_02111B93-C9D6-4E67-95F4-845FB00EA2EE">
+          <dmn:literalExpression id="_5FE05597-2D01-4D14-843B-8B3B959319B2">
+            <dmn:text>PaysPrimaryHeatingCosts.PaysPrimaryHeatingCostsService</dmn:text>
+          </dmn:literalExpression>
+          <dmn:binding>
+            <dmn:parameter id="_F99C4085-F562-4AE1-86AB-1A47CC9D16BB" name="situation" typeRef="PaysPrimaryHeatingCosts.tSituation"/>
+            <dmn:literalExpression id="_5682F3DD-F1C3-4E3C-B40E-5B241CB1AE62">
+              <dmn:text>situation</dmn:text>
+            </dmn:literalExpression>
+          </dmn:binding>
+        </dmn:invocation>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_6906C2D9-DAE4-4C48-8D3B-D978CDCCC11B" name="HasCitizenOrEligibleNoncitizen" typeRef="boolean">
+          <dmn:description>Someone in the household must be a U.S. citizen or a lawfully admitted non-citizen (601.31(4)).</dmn:description>
+        </dmn:variable>
+        <dmn:invocation id="_EED7B2A6-F72B-49F9-98B2-4D19854E1772">
+          <dmn:literalExpression id="_F9E18627-CBE9-4288-88E7-A062AC9C3FE4">
+            <dmn:text>HouseholdHasCitizenOrEligibleNoncitizen.HouseholdHasCitizenOrEligibleNoncitizenService</dmn:text>
+          </dmn:literalExpression>
+          <dmn:binding>
+            <dmn:parameter id="_0CF4DDA1-AA60-4218-84B1-01E0B9EA3D98" name="situation" typeRef="HouseholdHasCitizenOrEligibleNoncitizen.tSituation"/>
+            <dmn:literalExpression id="_48E6D0CA-67FD-466F-85AB-7F13D0E91F58">
+              <dmn:text>situation</dmn:text>
+            </dmn:literalExpression>
+          </dmn:binding>
+        </dmn:invocation>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_8C9B8F87-FABA-494C-9C56-F68BEC435179" name="NotAlreadyEnrolled" typeRef="boolean">
+          <dmn:description>A household can receive one Cash grant per season (601.43).</dmn:description>
+        </dmn:variable>
+        <dmn:invocation id="_4E6E2CF6-21B8-49CE-83F4-2ACF7635837F">
+          <dmn:literalExpression id="_09818432-3A05-4BFD-B88D-64E77AAEFE3C">
+            <dmn:text>PersonNotEnrolledInBenefit.PersonNotEnrolledInBenefitService</dmn:text>
+          </dmn:literalExpression>
+          <dmn:binding>
+            <dmn:parameter id="_537E5A6D-30F5-4FFF-B18C-FEF77FFEB946" name="situation" typeRef="PersonNotEnrolledInBenefit.tSituation"/>
+            <dmn:literalExpression id="_B487FD70-FA63-4503-9840-782CC37EB391">
+              <dmn:text>situation</dmn:text>
+            </dmn:literalExpression>
+          </dmn:binding>
+          <dmn:binding>
+            <dmn:parameter id="_B22D6E8A-023F-48A3-9200-96FCDBFA704D" name="parameters" typeRef="PersonNotEnrolledInBenefit.tParameters"/>
+            <dmn:context id="_63851ADF-DF9C-458A-AC1E-BB7761921AE8">
+              <dmn:contextEntry>
+                <dmn:variable id="_CB6CCBB7-0DBE-4B15-A35E-2E9B7B35C813" name="personId" typeRef="string"/>
+                <dmn:literalExpression id="_9EB1D1F3-2714-46EC-A64D-88FCAC3F7C47">
+                  <dmn:text>situation.primaryPersonId</dmn:text>
+                </dmn:literalExpression>
+              </dmn:contextEntry>
+              <dmn:contextEntry>
+                <dmn:variable id="_95477036-3B5F-451A-AE46-2DD4F1958E96" name="benefit" typeRef="string"/>
+                <dmn:literalExpression id="_4978D334-EDEC-492F-9457-CD332DE6560D">
+                  <dmn:text>"PaLiheapCash"</dmn:text>
+                </dmn:literalExpression>
+              </dmn:contextEntry>
+            </dmn:context>
+          </dmn:binding>
+        </dmn:invocation>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
+  <dmn:decision id="_3461AD0F-7CAF-4772-9B04-D65462BA7E58" name="isEligible">
+    <dmn:extensionElements/>
+    <dmn:variable id="_0CACA66F-0E3B-49FF-9259-1016EC8D52C3" name="isEligible" typeRef="boolean"/>
+    <dmn:informationRequirement id="_6C698CA4-5620-446D-B934-EAF172685499">
+      <dmn:requiredDecision href="#_09001E58-B338-46D2-BAC1-A07FE72E264B"/>
+    </dmn:informationRequirement>
+    <dmn:context id="_B4D41752-983F-479A-B79C-EAF692A9E493">
+      <dmn:contextEntry>
+        <dmn:variable id="_9524686B-B83A-4239-9FEB-ADF8CD758C8C" name="checksAsList" typeRef="BDT.tBooleanList"/>
+        <dmn:literalExpression id="_D12943CB-D2DF-44BF-B90E-521DF1F8401E">
+          <dmn:text>// e.g. [true, false, true, null, ...]
+for check in (get entries(checks))
+return
+  check.value</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_4364C7CD-9FD9-405A-8AA4-862FC9DCF3EF" name="result" typeRef="boolean"/>
+        <dmn:literalExpression id="_ACCDAD2F-808B-4A9D-914C-A7049F1DF09B">
+          <dmn:text>// true if all checks are true
+// null if there are any null checks
+// false if any check is false
+all(checksAsList)</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:literalExpression id="_1330A73E-5B0B-43D6-9DCC-808AFC709786">
+          <dmn:text>result</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
+  <dmn:decision id="_49B4BAED-3365-4B56-B073-AFF1403FCC15" name="nextSteps">
+    <dmn:description>Application instructions and help contacts. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_856D0880-BC94-4860-8695-86284BCF2EBF" name="nextSteps" typeRef="BDT.tNextSteps"/>
+    <dmn:literalExpression id="_7F89F253-B345-4603-ADD6-27F7EA4494BD">
+      <dmn:text>{
+  eligible: {
+    applyUrl: "https://www.compass.dhs.pa.gov/home/#/",
+    helpUrl: "https://www.pa.gov/agencies/dhs/resources/liheap",
+    helpPhone: "1-866-857-7095",
+    body: "Apply online through COMPASS during the season, which runs from November 2, 2026 to April 23, 2027. You can also apply at your County Assistance Office.\n\n- Have proof of income for everyone in the household, for the month before you apply or for the past 12 months.\n- Have a recent heating bill, or a statement from your landlord if heat is part of your rent.\n- Apply early. The season can close before April if the money runs out.\n\nFor help, call the LIHEAP hotline at 1-866-857-7095 (TTY 711)."
+  },
+  ineligible: {
+    note: "If you have a heating emergency, such as a shutoff notice or running out of fuel, you may still qualify for LIHEAP Crisis. Call the LIHEAP hotline at 1-866-857-7095."
+  }
+}</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmn:decision id="_5DD9BF44-3A4B-4B00-B92F-B47D4A0376BE" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_F4A2454D-212F-495A-9243-060EBF584B9F" name="reference" typeRef="BDT.tBenefitReference"/>
+    <dmn:literalExpression id="_64408FA8-CD0D-48AB-BA9B-AA261D86A85E">
+      <dmn:text>{
+  explanation: "LIHEAP Cash is a grant that helps households pay for home heating during the winter season. This benefit checks the main rules for the 2026-27 season: the household lives in Pennsylvania, its income is at or below 150% of the federal poverty guidelines, it is responsible for its primary heating costs, someone in it is a U.S. citizen or lawfully admitted non-citizen, and it has not already received a Cash grant this season.",
+  administeredBy: {
+    name: "Pennsylvania Department of Human Services, through the County Assistance Offices",
+    url: "https://www.pa.gov/agencies/dhs/resources/liheap"
+  },
+  programYear: {
+    label: "2026-27 season",
+    startDate: date("2026-11-02"),
+    endDate: date("2027-04-23")
+  },
+  sources: [
+    {
+      title: "Pennsylvania DHS: LIHEAP",
+      url: "https://www.pa.gov/agencies/dhs/resources/liheap",
+      citation: null,
+      checkedOn: date("2026-11-12")
+    },
+    {
+      title: "Pennsylvania LIHEAP FFY 2027 Final State Plan",
+      url: "https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf",
+      citation: "Appendix B, 601.x eligibility rules: income 601.81 to 601.84; household 601.3 and 601.41; heating responsibility 601.31(2); residency 601.31(3); citizenship 601.31(4); one grant per season 601.43",
+      checkedOn: date("2026-11-12")
+    },
+    {
+      title: "HSEA 1 LIHEAP application",
+      url: null,
+      citation: "Revised 6/26",
+      checkedOn: date("2026-11-12")
+    }
+  ],
+  limitations: [
+    "Living arrangements that make a household ineligible are not checked: temporary stays, institutions, dorms, fraternity or sorority houses, boarding homes, incarceration, and fleeing felons.",
+    "Heating equipment that is not installed or operating to code is not checked, and neither are the rules for recreational vehicles and home businesses.",
+    "Household size and income are taken as given. LIHEAP leaves ineligible non-citizens, and people who already got Cash in another household, out of household size but still counts their income.",
+    "The applicant may choose the prior month or the prior 12 months as the income period. The screener does not compare the two.",
+    "DHS may change the season dates, and the funds can run out before the season closes.",
+    "Income limits change each February, when DHS adopts the new federal poverty guidelines."
+  ],
+  lastReviewed: date("2026-11-12")
+}</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmn:inputData id="_B16EA3BE-C9D6-4A1E-9067-62CF726E4542" name="situation">
+    <dmn:extensionElements/>
+    <dmn:variable id="_D9600676-FE74-4026-B0ED-A711FC7AF277" name="situation" typeRef="tSituation"/>
+  </dmn:inputData>
+  <dmn:textAnnotation id="_EBBCAEAF-C9FB-4574-8A90-BC00DACDCD4A" textFormat="text/plain">
+    <dmn:text>Season dates are documentation only: the rules do not check the screening date. Dated parameters (https://github.com/CodeForPhilly/benefit-decision-toolkit/issues/568) and Periods (https://github.com/CodeForPhilly/benefit-decision-toolkit/issues/550) would let the season and the poverty guideline year follow the screening date.</dmn:text>
+  </dmn:textAnnotation>
+  <dmn:association id="_FCD2EFD9-13BC-4D1A-BAD6-F875E5B999B1" associationDirection="None">
+    <dmn:sourceRef href="#_09001E58-B338-46D2-BAC1-A07FE72E264B"/>
+    <dmn:targetRef href="#_EBBCAEAF-C9FB-4574-8A90-BC00DACDCD4A"/>
+  </dmn:association>
+  <dmn:textAnnotation id="_8DD48254-3CF5-4D15-807C-CFEE559F4CB5" textFormat="text/plain">
+    <dmn:text>householdSize and householdIncome are used as given. The screener has to apply LIHEAP's rules for whose income counts (601.81 to 601.84) and who is left out of household size (601.41(1)).</dmn:text>
+  </dmn:textAnnotation>
+  <dmn:association id="_F92B5069-65AF-4D32-A758-FD8B30824D5C" associationDirection="None">
+    <dmn:sourceRef href="#_09001E58-B338-46D2-BAC1-A07FE72E264B"/>
+    <dmn:targetRef href="#_8DD48254-3CF5-4D15-807C-CFEE559F4CB5"/>
+  </dmn:association>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_F8959F3C-A4F9-45F9-8816-7AD7FF23DF06" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_726097D6-D6B7-4C6C-845B-FB7256A0ADB0"><kie:width>50</kie:width><kie:width>376</kie:width><kie:width>599</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_CF3D6E94-54C0-4793-B70A-ABD4365CCA8B"><kie:width>50</kie:width><kie:width>239</kie:width><kie:width>290</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_5F44935E-237F-4D22-9956-E433C3DBCFF1"/>
+          <kie:ComponentWidths dmnElementRef="_7A17D02E-D0F7-4393-AD0D-4E35C120858D"><kie:width>290</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_49578789-4F50-4DF9-831F-F200F08956CE"><kie:width>50</kie:width><kie:width>239</kie:width><kie:width>290</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_DE18A7E9-8321-427B-A2D2-310A5E60EA06"/>
+          <kie:ComponentWidths dmnElementRef="_C07DD894-C876-4D68-9762-6D371D634922"><kie:width>290</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_D06B9974-AFBE-4AD0-9BDB-9B202EA632C0"><kie:width>50</kie:width><kie:width>120</kie:width><kie:width>100</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_3A6F2FC3-86F1-4ACD-AF09-C9592A31C33D"><kie:width>100</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_051175EB-D726-454A-AA81-EB9E0FCB584E"><kie:width>100</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_02111B93-C9D6-4E67-95F4-845FB00EA2EE"><kie:width>50</kie:width><kie:width>239</kie:width><kie:width>290</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_5FE05597-2D01-4D14-843B-8B3B959319B2"/>
+          <kie:ComponentWidths dmnElementRef="_5682F3DD-F1C3-4E3C-B40E-5B241CB1AE62"><kie:width>290</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_EED7B2A6-F72B-49F9-98B2-4D19854E1772"><kie:width>50</kie:width><kie:width>239</kie:width><kie:width>290</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_F9E18627-CBE9-4288-88E7-A062AC9C3FE4"/>
+          <kie:ComponentWidths dmnElementRef="_48E6D0CA-67FD-466F-85AB-7F13D0E91F58"><kie:width>290</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_4E6E2CF6-21B8-49CE-83F4-2ACF7635837F"><kie:width>50</kie:width><kie:width>239</kie:width><kie:width>290</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_09818432-3A05-4BFD-B88D-64E77AAEFE3C"/>
+          <kie:ComponentWidths dmnElementRef="_B487FD70-FA63-4503-9840-782CC37EB391"><kie:width>290</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_63851ADF-DF9C-458A-AC1E-BB7761921AE8"><kie:width>50</kie:width><kie:width>120</kie:width><kie:width>100</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_9EB1D1F3-2714-46EC-A64D-88FCAC3F7C47"><kie:width>100</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_4978D334-EDEC-492F-9457-CD332DE6560D"><kie:width>100</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_B4D41752-983F-479A-B79C-EAF692A9E493"><kie:width>50</kie:width><kie:width>222</kie:width><kie:width>504</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_D12943CB-D2DF-44BF-B90E-521DF1F8401E"><kie:width>504</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_ACCDAD2F-808B-4A9D-914C-A7049F1DF09B"><kie:width>504</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_1330A73E-5B0B-43D6-9DCC-808AFC709786"><kie:width>504</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_7F89F253-B345-4603-ADD6-27F7EA4494BD"><kie:width>600</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_64408FA8-CD0D-48AB-BA9B-AA261D86A85E"><kie:width>800</kie:width></kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="dmnshape-drg-_E7FE937B-6F8F-4CB3-BAD0-378F704616D5" dmnElementRef="included2:_E7FE937B-6F8F-4CB3-BAD0-378F704616D5" isCollapsed="true">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="60" y="40" width="300" height="100"/>
+        <dmndi:DMNLabel/>
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="60" y="90"/>
+          <di:waypoint x="360" y="90"/>
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_5A3C462F-4F29-4FBD-804C-726C9D99B4A4" dmnElementRef="included3:_5A3C462F-4F29-4FBD-804C-726C9D99B4A4" isCollapsed="true">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="420" y="40" width="300" height="100"/>
+        <dmndi:DMNLabel/>
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="420" y="90"/>
+          <di:waypoint x="720" y="90"/>
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_0B318F9A-7D4C-4D3F-928C-FA1F4F4F1D62" dmnElementRef="included4:_0B318F9A-7D4C-4D3F-928C-FA1F4F4F1D62" isCollapsed="true">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="780" y="40" width="300" height="100"/>
+        <dmndi:DMNLabel/>
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="780" y="90"/>
+          <di:waypoint x="1080" y="90"/>
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_6BB2E7EE-D8A3-4ACE-8630-1C8A550E5CF0" dmnElementRef="included5:_6BB2E7EE-D8A3-4ACE-8630-1C8A550E5CF0" isCollapsed="true">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="1140" y="40" width="300" height="100"/>
+        <dmndi:DMNLabel/>
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="1140" y="90"/>
+          <di:waypoint x="1440" y="90"/>
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_513F29D9-6F29-4B8A-AD8D-F5C339B354DE" dmnElementRef="included6:_513F29D9-6F29-4B8A-AD8D-F5C339B354DE" isCollapsed="true">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="1500" y="40" width="300" height="100"/>
+        <dmndi:DMNLabel/>
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="1500" y="90"/>
+          <di:waypoint x="1800" y="90"/>
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_C64BA384-386A-476C-B47C-D01F3D1AEF62" dmnElementRef="_C64BA384-386A-476C-B47C-D01F3D1AEF62" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="820" y="240" width="660" height="280"/>
+        <dmndi:DMNLabel/>
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="820" y="380"/>
+          <di:waypoint x="1480" y="380"/>
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_09001E58-B338-46D2-BAC1-A07FE72E264B" dmnElementRef="_09001E58-B338-46D2-BAC1-A07FE72E264B" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="850" y="270" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_3461AD0F-7CAF-4772-9B04-D65462BA7E58" dmnElementRef="_3461AD0F-7CAF-4772-9B04-D65462BA7E58" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="1070" y="270" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_49B4BAED-3365-4B56-B073-AFF1403FCC15" dmnElementRef="_49B4BAED-3365-4B56-B073-AFF1403FCC15" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="1290" y="270" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_B16EA3BE-C9D6-4A1E-9067-62CF726E4542" dmnElementRef="_B16EA3BE-C9D6-4A1E-9067-62CF726E4542" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="1070" y="620" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_5DD9BF44-3A4B-4B00-B92F-B47D4A0376BE" dmnElementRef="_5DD9BF44-3A4B-4B00-B92F-B47D4A0376BE" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="1580" y="270" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_EBBCAEAF-C9FB-4574-8A90-BC00DACDCD4A" dmnElementRef="_EBBCAEAF-C9FB-4574-8A90-BC00DACDCD4A" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="300" y="620" width="420" height="120"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_8DD48254-3CF5-4D15-807C-CFEE559F4CB5" dmnElementRef="_8DD48254-3CF5-4D15-807C-CFEE559F4CB5" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="300" y="760" width="420" height="120"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="dmnedge-drg-_45072FE1-91D4-4CEA-9EDB-E05D03AFBB57" dmnElementRef="_45072FE1-91D4-4CEA-9EDB-E05D03AFBB57">
+        <di:waypoint x="210.0" y="140"/>
+        <di:waypoint x="930" y="270"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_2660159A-2B97-4305-B709-820DA94B8424" dmnElementRef="_2660159A-2B97-4305-B709-820DA94B8424">
+        <di:waypoint x="570.0" y="140"/>
+        <di:waypoint x="930" y="270"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_750748DD-7EF8-4838-B09B-7D9930F24258" dmnElementRef="_750748DD-7EF8-4838-B09B-7D9930F24258">
+        <di:waypoint x="930.0" y="140"/>
+        <di:waypoint x="930" y="270"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_9F4CD144-F3CC-495F-9F3B-A6401110802F" dmnElementRef="_9F4CD144-F3CC-495F-9F3B-A6401110802F">
+        <di:waypoint x="1290.0" y="140"/>
+        <di:waypoint x="930" y="270"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_0504EFAD-78C3-4B7D-AEF2-1BEA7B2E521F" dmnElementRef="_0504EFAD-78C3-4B7D-AEF2-1BEA7B2E521F">
+        <di:waypoint x="1650.0" y="140"/>
+        <di:waypoint x="930" y="270"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_F82CBCD1-795D-4B05-8210-B1FBBF24EACB" dmnElementRef="_F82CBCD1-795D-4B05-8210-B1FBBF24EACB">
+        <di:waypoint x="1150" y="620"/>
+        <di:waypoint x="930" y="350"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_6C698CA4-5620-446D-B934-EAF172685499" dmnElementRef="_6C698CA4-5620-446D-B934-EAF172685499">
+        <di:waypoint x="1010" y="310"/>
+        <di:waypoint x="1070" y="310"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_FCD2EFD9-13BC-4D1A-BAD6-F875E5B999B1" dmnElementRef="_FCD2EFD9-13BC-4D1A-BAD6-F875E5B999B1">
+        <di:waypoint x="850" y="310"/>
+        <di:waypoint x="720" y="680"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_F92B5069-65AF-4D32-A758-FD8B30824D5C" dmnElementRef="_F92B5069-65AF-4D32-A758-FD8B30824D5C">
+        <di:waypoint x="850" y="310"/>
+        <di:waypoint x="720" y="820"/>
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>

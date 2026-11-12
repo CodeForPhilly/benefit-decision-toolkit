@@ -24,6 +24,70 @@
       </dmn:itemComponent>
     </dmn:itemComponent>
   </dmn:itemDefinition>
+  <dmn:itemDefinition id="_94ED66B5-7B7C-47D2-9EB3-35383473375B" name="tReferenceSource" isCollection="false">
+    <dmn:itemComponent id="_DB3800AC-1EAC-4ECE-B90D-085D5FFCE311" name="title" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_7401EB41-5023-48F8-9FBB-4CA61EA3FB2E" name="url" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_F7BBE930-3A72-40B3-8F57-5F340CDE72ED" name="citation" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_2C7836C9-C99D-4F51-A02D-81904FDA959E" name="checkedOn" isCollection="false">
+      <dmn:typeRef>date</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_162D0C12-BBE4-446B-8014-5605CCF70814" name="tReferenceSourceList" isCollection="true">
+    <dmn:typeRef>tReferenceSource</dmn:typeRef>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_D4EF1402-690A-4BB2-8E26-ED0FC4D36291" name="tBenefitReference" isCollection="false">
+    <dmn:itemComponent id="_497B916B-9A41-4D3C-816A-D78ECA604E90" name="explanation" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_459B42CE-52C4-4616-B09B-0E8251CB8896" name="administeredBy" isCollection="false">
+      <dmn:itemComponent id="_63F535A5-7216-4F5E-81FF-B21C049DB551" name="name" isCollection="false">
+        <dmn:typeRef>string</dmn:typeRef>
+      </dmn:itemComponent>
+      <dmn:itemComponent id="_78072F19-5EC9-4703-9FE3-D26DA1E82F24" name="url" isCollection="false">
+        <dmn:typeRef>string</dmn:typeRef>
+      </dmn:itemComponent>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_1EBB5A33-25ED-42E3-B183-6B3431C6121A" name="programYear" isCollection="false">
+      <dmn:itemComponent id="_F028BFD2-84B0-4421-90FF-CDCDE82985B3" name="label" isCollection="false">
+        <dmn:typeRef>string</dmn:typeRef>
+      </dmn:itemComponent>
+      <dmn:itemComponent id="_81CAFD46-4399-496B-AFDC-9E1DA831BF06" name="startDate" isCollection="false">
+        <dmn:typeRef>date</dmn:typeRef>
+      </dmn:itemComponent>
+      <dmn:itemComponent id="_74A79231-84FF-43A5-990D-BDE943EEA3E8" name="endDate" isCollection="false">
+        <dmn:typeRef>date</dmn:typeRef>
+      </dmn:itemComponent>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_BD45F5ED-A569-4C65-A0BC-04F043E99F95" name="sources" isCollection="false">
+      <dmn:typeRef>tReferenceSourceList</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_29642B8E-DBE5-4E2E-A99E-DA84769E2849" name="limitations" isCollection="false">
+      <dmn:typeRef>tStringList</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_64357994-E2C3-4CD5-965D-00EBC88AB387" name="lastReviewed" isCollection="false">
+      <dmn:typeRef>date</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_BDAE8146-DF01-40FE-83DB-F609EABCD8E7" name="tEligibilityCheckReference" isCollection="false">
+    <dmn:itemComponent id="_C1D8B3F8-CA02-402B-BFE5-4A8EA2B56F94" name="explanation" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_59ED8CF1-6A5B-4A93-965D-07F577FA518D" name="sources" isCollection="false">
+      <dmn:typeRef>tReferenceSourceList</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_77104B68-9085-47BF-B29F-610095A4ABFF" name="limitations" isCollection="false">
+      <dmn:typeRef>tStringList</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_3A89965A-7D0F-4614-8972-2D6B1F6BFE32" name="lastReviewed" isCollection="false">
+      <dmn:typeRef>date</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
   <dmn:itemDefinition id="_15B57F06-99F9-4AAD-9AC4-199D5DCC526E" name="tSituation" isCollection="false">
     <dmn:itemComponent id="_1E78ACB2-C44C-498E-8B2E-2429E5FC09EF" name="enrollments" isCollection="false">
       <dmn:typeRef>Enrollment.tEnrollmentList</dmn:typeRef>
@@ -147,6 +211,18 @@
       <dmn:typeRef>boolean</dmn:typeRef>
     </dmn:itemComponent>
     <dmn:itemComponent id="_D281E9C9-D457-4A01-B146-2E88794454BB" name="disqualifyingTaxAbatement" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_826C353A-04CC-4F02-B69C-DDD1332935D5" name="livesInPennsylvania" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_AEDE88FB-E775-4CE6-8B1F-2AA264E74B04" name="paysPrimaryHeatingCosts" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_302CCF21-33B2-468F-80EC-6306E1511E27" name="heatInIncomeBasedRent" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_9329DBEB-4020-4101-BBC5-D6D26192B8C0" name="householdHasCitizenOrEligibleNoncitizen" isCollection="false">
       <dmn:typeRef>boolean</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>

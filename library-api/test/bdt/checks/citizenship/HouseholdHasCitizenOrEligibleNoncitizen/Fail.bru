@@ -1,0 +1,31 @@
+meta {
+  name: Fail
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/checks/citizenship/household-has-citizen-or-eligible-noncitizen
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "simpleChecks": {
+        "householdHasCitizenOrEligibleNoncitizen": false
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq false
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

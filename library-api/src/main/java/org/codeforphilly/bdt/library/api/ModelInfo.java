@@ -16,10 +16,13 @@ public class ModelInfo {
     private final String dmnDescription;
     private final List<BenefitCheckInfo> benefitChecks;
     private final Map<String, Object> nextSteps;
+    private final Map<String, Object> reference;
+    private final List<BrunoExamples.Example> examples;
 
     public ModelInfo(String namespace, String modelName, List<String> decisionServices, List<String> decisions,
                      String path, String dmnDescription, List<BenefitCheckInfo> benefitChecks,
-                     Map<String, Object> nextSteps) {
+                     Map<String, Object> nextSteps, Map<String, Object> reference,
+                     List<BrunoExamples.Example> examples) {
         this.namespace = namespace;
         this.modelName = modelName;
         this.decisionServices = decisionServices;
@@ -28,6 +31,8 @@ public class ModelInfo {
         this.dmnDescription = dmnDescription;
         this.benefitChecks = benefitChecks;
         this.nextSteps = nextSteps;
+        this.reference = reference;
+        this.examples = examples;
     }
 
     public String getNamespace() {
@@ -96,6 +101,16 @@ public class ModelInfo {
 
     public Map<String, Object> getNextSteps() {
         return nextSteps;
+    }
+
+    /** The published reference (x-bdt-reference), or an empty map when the model has none. */
+    public Map<String, Object> getReference() {
+        return reference;
+    }
+
+    /** Worked examples from Bruno tests with a docs block, in Bruno order. */
+    List<BrunoExamples.Example> getExamples() {
+        return examples;
     }
 
     private String capitalize(String str) {
