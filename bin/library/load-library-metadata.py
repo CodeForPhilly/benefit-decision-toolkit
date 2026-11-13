@@ -275,7 +275,7 @@ def extract_check_records(openapi: OpenAPIDocument, version: str) -> list[CheckR
                 "evaluationUrl": path,
                 "method": method_upper,
                 "name": name,
-                "description": details.get("description", ""),
+                "description": builder_description(details),
                 "module": module,
                 "version": version,
                 "inputs": {},
@@ -308,6 +308,12 @@ def extract_check_records(openapi: OpenAPIDocument, version: str) -> list[CheckR
                     output.append(entry)
 
     return output
+
+
+def builder_description(operation: dict[str, Any]) -> str:
+    """Keep builder descriptions plain text; OpenAPI descriptions may contain Swagger Markdown."""
+    reference = operation.get("x-bdt-reference") or {}
+    return reference.get("summary") or operation.get("description", "")
 
 
 def builder_reference(path: str, operation: dict[str, Any]) -> dict[str, Any] | None:
@@ -420,7 +426,7 @@ def extract_benefit_records(
                 {
                     "id": f"L-benefit-{slug}-{version}",
                     "name": display_name(segments[-1]),
-                    "description": operation.get("description", ""),
+                    "description": builder_description(operation),
                     "checks": benefit_checks,
                     "nextSteps": deepcopy(operation["x-bdt-benefit"].get("nextSteps")),
                     "reference": builder_reference(path, operation),
