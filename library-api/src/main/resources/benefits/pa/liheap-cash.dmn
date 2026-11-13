@@ -225,8 +225,8 @@ all(checksAsList)</dmn:text>
     <dmn:variable id="_6640C28F-2427-4C5C-9F23-C2B94E7713EC" name="nextSteps" typeRef="BDT.tNextSteps"/>
     <dmn:context id="_61B507A3-8A0C-47BF-9A70-F777BB2DAB21" typeRef="BDT.tNextSteps">
       <dmn:contextEntry>
-        <dmn:variable id="_89096392-2605-4CD7-BEB5-F0AF6432CA7F" name="eligible" typeRef="context"/>
-        <dmn:context id="_CBCB4B01-1B13-4DC4-9C29-4AA9F3B25DFD">
+        <dmn:variable id="_89096392-2605-4CD7-BEB5-F0AF6432CA7F" name="eligible" typeRef="BDT.tEligibleNextSteps"/>
+        <dmn:context id="_CBCB4B01-1B13-4DC4-9C29-4AA9F3B25DFD" typeRef="BDT.tEligibleNextSteps">
           <dmn:contextEntry>
             <dmn:variable id="_E438F5D1-4F5D-4DAE-AFF6-93193BDA950B" name="applyUrl" typeRef="string"/>
             <dmn:literalExpression id="_0DD50589-E5D9-43AE-B3C4-B240027004E4" typeRef="string">
@@ -254,8 +254,8 @@ all(checksAsList)</dmn:text>
         </dmn:context>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_FB10BFEC-848B-4815-BFDF-3A9859F150D6" name="ineligible" typeRef="context"/>
-        <dmn:context id="_C73E4384-9780-4CFF-B288-DE02760E9086">
+        <dmn:variable id="_FB10BFEC-848B-4815-BFDF-3A9859F150D6" name="ineligible" typeRef="BDT.tIneligibleNextSteps"/>
+        <dmn:context id="_C73E4384-9780-4CFF-B288-DE02760E9086" typeRef="BDT.tIneligibleNextSteps">
           <dmn:contextEntry>
             <dmn:variable id="_98598780-814D-4D2F-9A09-620E2FCECB0D" name="note" typeRef="string"/>
             <dmn:literalExpression id="_9370DB48-A2DB-42E2-AFD8-CB854CD6A6A4" typeRef="string">
@@ -278,8 +278,8 @@ all(checksAsList)</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_1ADCEBB4-EFA5-4E5B-BE25-800091B36DEC" name="administeredBy" typeRef="context"/>
-        <dmn:context id="_9C2166BC-915F-480D-BB97-5BD041EC0F2B">
+        <dmn:variable id="_1ADCEBB4-EFA5-4E5B-BE25-800091B36DEC" name="administeredBy" typeRef="BDT.tAgency"/>
+        <dmn:context id="_9C2166BC-915F-480D-BB97-5BD041EC0F2B" typeRef="BDT.tAgency">
           <dmn:contextEntry>
             <dmn:variable id="_D234B808-C568-4241-B1FB-A318E554B12C" name="name" typeRef="string"/>
             <dmn:literalExpression id="_73759EE0-5228-439F-832B-AB1E7F5A463A" typeRef="string">
@@ -295,8 +295,8 @@ all(checksAsList)</dmn:text>
         </dmn:context>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_05F24557-0C84-4984-BE09-79B0A041F42F" name="programYear" typeRef="context"/>
-        <dmn:context id="_7EA0AC79-89D0-4551-B552-29BB4D8C9CD1">
+        <dmn:variable id="_05F24557-0C84-4984-BE09-79B0A041F42F" name="programYear" typeRef="BDT.tProgramYear"/>
+        <dmn:context id="_7EA0AC79-89D0-4551-B552-29BB4D8C9CD1" typeRef="BDT.tProgramYear">
           <dmn:contextEntry>
             <dmn:variable id="_1FEDEA09-893F-462E-AEF8-26A3484988F7" name="label" typeRef="string"/>
             <dmn:literalExpression id="_AE5291C2-E5F6-4267-94FE-263DF2DFF589" typeRef="string">

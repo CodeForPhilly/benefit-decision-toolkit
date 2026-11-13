@@ -37,24 +37,62 @@ else
     <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
     <dmn:extensionElements/>
     <dmn:variable id="_37BD6D21-64AC-4206-8B98-41B1CEF2FFC4" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
-    <dmn:literalExpression id="_74ADBED6-BBAE-422D-A224-AA1731CD9BD9">
-      <dmn:text>{
-  explanation: "Passes when the screener answer says the household lives in Pennsylvania, and fails when it says the household does not. Returns no result when the answer is missing.",
-  sources: [
-    {
-      title: "Pennsylvania LIHEAP FFY 2027 Final State Plan",
-      url: "https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf",
-      citation: "Appendix B, 601.31(3): residency",
-      checkedOn: date("2026-11-12")
-    }
-  ],
-  limitations: [
-    "Relies on the screener answer. It does not look up or verify an address.",
-    "Does not tell a permanent home in Pennsylvania apart from a temporary stay."
-  ],
-  lastReviewed: date("2026-11-12")
-}</dmn:text>
-    </dmn:literalExpression>
+    <dmn:context id="_C35E17DB-72A3-41D8-BF82-9802681827C4" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_90CD7F93-FBE5-41FC-8B5D-71A0E9B41B39" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_669BB440-B236-4180-B723-434C73A1FD7F" typeRef="string">
+          <dmn:text>"Passes when the screener answer says the household lives in Pennsylvania, and fails when it says the household does not. Returns no result when the answer is missing."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_22B97766-5D67-437A-B613-1873B96B8BB6" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_EA844681-35F1-4A30-A2D7-E0CB57138D31" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_F36D9A8C-C3D9-429A-80AD-2EAFD04760FD" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_A956EDC3-590A-443E-AFA8-E2080F490FAC" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_62659C73-C6F6-4754-817A-3C5B09C09300" typeRef="string">
+                <dmn:text>"Pennsylvania LIHEAP FFY 2027 Final State Plan"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_7093570F-B9BF-43DE-AD2E-B8DE898EE889" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_5D151E22-DCE9-4257-B1CE-1713A05AC33E" typeRef="string">
+                <dmn:text>"https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_2CB8F551-8FAB-4BA5-B0E5-A1B84D1CD5C4" name="citation" typeRef="string"/>
+              <dmn:literalExpression id="_20BEF13A-40BE-49FB-97E7-2CDC70BBF02A" typeRef="string">
+                <dmn:text>"Appendix B, 601.31(3): residency"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_8ABB823F-196A-4ECE-B14F-3370E2B124BF" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_86B6009A-3060-4A41-8BB4-D6954DA8DD9C" typeRef="date">
+                <dmn:text>date("2026-11-12")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_3B645C57-2D35-40E7-B384-7FA12DB61A1A" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_C9B5434E-B02D-495B-A7A3-8832B4BD5E12" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_29B95916-5553-444C-8074-17EF13741735" typeRef="string">
+            <dmn:text>"Relies on the screener answer. It does not look up or verify an address."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_E4A02337-68AA-4E60-A16B-17175B36BA7B" typeRef="string">
+            <dmn:text>"Does not tell a permanent home in Pennsylvania apart from a temporary stay."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_875F65CB-4BDA-41FC-BFF9-594FE8EF0C9A" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_312C97B3-7CD9-448D-B637-CC3024BF4BDC" typeRef="date">
+          <dmn:text>date("2026-11-12")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
   </dmn:decision>
   <dmn:inputData id="_B4D397D5-1AA1-474B-BAAA-547C3B5A6224" name="situation">
     <dmn:extensionElements/>
@@ -65,7 +103,18 @@ else
       <di:extension>
         <kie:ComponentsWidthsExtension>
           <kie:ComponentWidths dmnElementRef="_D8016795-E53D-4E18-8079-E26592CA0FFE"><kie:width>917</kie:width></kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_74ADBED6-BBAE-422D-A224-AA1731CD9BD9"><kie:width>800</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C35E17DB-72A3-41D8-BF82-9802681827C4"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_312C97B3-7CD9-448D-B637-CC3024BF4BDC"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C9B5434E-B02D-495B-A7A3-8832B4BD5E12"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E4A02337-68AA-4E60-A16B-17175B36BA7B"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_29B95916-5553-444C-8074-17EF13741735"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_EA844681-35F1-4A30-A2D7-E0CB57138D31"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_F36D9A8C-C3D9-429A-80AD-2EAFD04760FD"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_86B6009A-3060-4A41-8BB4-D6954DA8DD9C"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_20BEF13A-40BE-49FB-97E7-2CDC70BBF02A"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_5D151E22-DCE9-4257-B1CE-1713A05AC33E"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_62659C73-C6F6-4754-817A-3C5B09C09300"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_669BB440-B236-4180-B723-434C73A1FD7F"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="dmnshape-drg-_D40DD0B1-EFAF-491F-A3CD-E4BA579C5F93" dmnElementRef="_D40DD0B1-EFAF-491F-A3CD-E4BA579C5F93" isCollapsed="false">

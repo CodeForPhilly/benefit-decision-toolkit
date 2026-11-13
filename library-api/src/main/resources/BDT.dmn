@@ -3,25 +3,50 @@
   <dmn:extensionElements />
   <dmn:import id="_9FD0AC46-28F4-400B-9A14-C929C7B2DCED" name="Enrollment" namespace="https://kie.apache.org/dmn/_6E9D53A6-E99A-4060-9E3E-1AE12EAB5465" locationURI="checks/enrollment/Enrollment.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
   <dmn:import id="_A5B42F45-471F-438A-BEA6-9C4E7F0BB7B0" name="Age" namespace="https://kie.apache.org/dmn/_81D401A8-CA81-4F9A-ABCC-532C25768708" locationURI="checks/age/Age.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
+  <dmn:itemDefinition id="_789B8FFD-E56C-4174-89FF-E7F2E99C7A3F" name="tEligibleNextSteps" isCollection="false">
+    <dmn:itemComponent id="_16152548-0D6E-4C65-B987-3CD48D8F6040" name="applyUrl" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_726568EC-1E48-4369-AEF7-AC5414993125" name="helpUrl" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_3C9039C7-0E21-4B74-9132-90C103643128" name="helpPhone" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_B716F38D-FFEF-4DD3-BDA3-B5DBE8CEA848" name="body" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_FBD76384-31FC-42BF-AFE8-81246345C6DB" name="tIneligibleNextSteps" isCollection="false">
+    <dmn:itemComponent id="_547B97B2-502F-4565-9E27-0CC35460B1AC" name="note" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_69360726-D2C4-4652-89D8-7169EE2D4C54" name="tAgency" isCollection="false">
+    <dmn:itemComponent id="_ED655A5D-A423-468A-B552-4F24CA126995" name="name" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_9807FC6D-3F3B-4F75-BBC7-36448BC6BEAB" name="url" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_4241F4B2-CB0C-4713-B304-F9B23366B227" name="tProgramYear" isCollection="false">
+    <dmn:itemComponent id="_7ACEAA21-14C9-4CA3-B569-C9B3B6E555D7" name="label" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_DE3016D7-4DBC-477A-B2E0-9E2FE67561D7" name="startDate" isCollection="false">
+      <dmn:typeRef>date</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_C3B2236C-E635-4BCA-BB91-5A0BA331CB50" name="endDate" isCollection="false">
+      <dmn:typeRef>date</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
   <dmn:itemDefinition id="_BA780276-56EF-4DA4-8BEF-C57CF16DC045" name="tNextSteps" isCollection="false">
     <dmn:itemComponent id="_ABFEA406-60DA-458D-AD47-41791616C50B" name="eligible" isCollection="false">
-      <dmn:itemComponent id="_492B75C1-74BF-48E6-94E3-6E47027C4D6D" name="applyUrl" isCollection="false">
-        <dmn:typeRef>string</dmn:typeRef>
-      </dmn:itemComponent>
-      <dmn:itemComponent id="_D83BC119-1237-4380-81FA-02CA68902539" name="helpUrl" isCollection="false">
-        <dmn:typeRef>string</dmn:typeRef>
-      </dmn:itemComponent>
-      <dmn:itemComponent id="_4AA1E088-9F16-4760-86DD-3746AD689C6B" name="helpPhone" isCollection="false">
-        <dmn:typeRef>string</dmn:typeRef>
-      </dmn:itemComponent>
-      <dmn:itemComponent id="_5499DB8B-D68F-43C4-8576-C70AF1BA61DE" name="body" isCollection="false">
-        <dmn:typeRef>string</dmn:typeRef>
-      </dmn:itemComponent>
+      <dmn:typeRef>tEligibleNextSteps</dmn:typeRef>
     </dmn:itemComponent>
     <dmn:itemComponent id="_FF0526A8-CC80-434F-865E-26B23C22BD7F" name="ineligible" isCollection="false">
-      <dmn:itemComponent id="_52501188-84D3-40D7-A6B6-0D9258C93ED7" name="note" isCollection="false">
-        <dmn:typeRef>string</dmn:typeRef>
-      </dmn:itemComponent>
+      <dmn:typeRef>tIneligibleNextSteps</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
   <dmn:itemDefinition id="_94ED66B5-7B7C-47D2-9EB3-35383473375B" name="tReferenceSource" isCollection="false">
@@ -46,23 +71,10 @@
       <dmn:typeRef>string</dmn:typeRef>
     </dmn:itemComponent>
     <dmn:itemComponent id="_459B42CE-52C4-4616-B09B-0E8251CB8896" name="administeredBy" isCollection="false">
-      <dmn:itemComponent id="_63F535A5-7216-4F5E-81FF-B21C049DB551" name="name" isCollection="false">
-        <dmn:typeRef>string</dmn:typeRef>
-      </dmn:itemComponent>
-      <dmn:itemComponent id="_78072F19-5EC9-4703-9FE3-D26DA1E82F24" name="url" isCollection="false">
-        <dmn:typeRef>string</dmn:typeRef>
-      </dmn:itemComponent>
+      <dmn:typeRef>tAgency</dmn:typeRef>
     </dmn:itemComponent>
     <dmn:itemComponent id="_1EBB5A33-25ED-42E3-B183-6B3431C6121A" name="programYear" isCollection="false">
-      <dmn:itemComponent id="_F028BFD2-84B0-4421-90FF-CDCDE82985B3" name="label" isCollection="false">
-        <dmn:typeRef>string</dmn:typeRef>
-      </dmn:itemComponent>
-      <dmn:itemComponent id="_81CAFD46-4399-496B-AFDC-9E1DA831BF06" name="startDate" isCollection="false">
-        <dmn:typeRef>date</dmn:typeRef>
-      </dmn:itemComponent>
-      <dmn:itemComponent id="_74A79231-84FF-43A5-990D-BDE943EEA3E8" name="endDate" isCollection="false">
-        <dmn:typeRef>date</dmn:typeRef>
-      </dmn:itemComponent>
+      <dmn:typeRef>tProgramYear</dmn:typeRef>
     </dmn:itemComponent>
     <dmn:itemComponent id="_BD45F5ED-A569-4C65-A0BC-04F043E99F95" name="sources" isCollection="false">
       <dmn:typeRef>tReferenceSourceList</dmn:typeRef>
