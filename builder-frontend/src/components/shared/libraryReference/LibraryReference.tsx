@@ -2,6 +2,7 @@ import { For, Show } from "solid-js";
 
 import { env } from "@/config/environment";
 import type { LibraryReference as Reference } from "@/types";
+import { sentenceCase } from "@/utils/title_case";
 
 // ISO date (YYYY-MM-DD) -> "Nov 2, 2026", independent of the viewer's time zone.
 const formatDate = (iso: string) =>
@@ -11,15 +12,6 @@ const formatDate = (iso: string) =>
     day: "numeric",
     timeZone: "UTC",
   });
-
-// "NotAlreadyEnrolled" -> "Not already enrolled"
-const humanize = (name: string) => {
-  const words = name
-    .replace(/([a-z])([A-Z0-9])/g, "$1 $2")
-    .replace(/([0-9])([A-Z])/g, "$1 $2")
-    .toLowerCase();
-  return words.charAt(0).toUpperCase() + words.slice(1);
-};
 
 const Heading = (props: { children: string }) => (
   <div class="font-bold mt-3 mb-1">{props.children}</div>
@@ -79,7 +71,7 @@ const LibraryReference = (props: {
               <For each={reference().checks}>
                 {(check) => (
                   <li>
-                    <span class="font-semibold">{humanize(check.alias)}</span>
+                    <span class="font-semibold">{sentenceCase(check.alias)}</span>
                     <Show when={check.rationale}>: {check.rationale}</Show>
                   </li>
                 )}
