@@ -32,6 +32,10 @@ jobs:
         working-directory: docs
         run: npm ci
 
+      - name: Test library reference loader
+        working-directory: docs
+        run: npm test
+
       - name: Build documentation
         working-directory: docs
         run: npm run build
