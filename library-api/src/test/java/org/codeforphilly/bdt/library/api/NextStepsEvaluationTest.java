@@ -5,6 +5,9 @@ import org.kie.dmn.api.core.DMNRuntime;
 import org.kie.dmn.core.internal.utils.DMNRuntimeBuilder;
 import org.kie.internal.io.ResourceFactory;
 
+import org.w3c.dom.Element;
+
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.lang.reflect.Proxy;
@@ -77,7 +80,7 @@ class NextStepsEvaluationTest {
     }
 
     @Test
-    void decisionDescriptionsAreNotTheModelDescription() {
+    void decisionDescriptionsAreNotTheModelDescription() throws Exception {
         String xml = """
             <definitions xmlns="https://www.omg.org/spec/DMN/20240513/MODEL/" name="ContentTest">
               <decision id="nextSteps" name="nextSteps">
@@ -85,8 +88,11 @@ class NextStepsEvaluationTest {
               </decision>
             </definitions>
             """;
-        assertNull(new ModelRegistry().extractModelDescription(
-            new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8))));
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        Element root = factory.newDocumentBuilder()
+            .parse(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8))).getDocumentElement();
+        assertNull(new ModelRegistry().modelDescription(root));
     }
 
     private DMNRuntime runtime(String requirements, String expression) {

@@ -501,26 +501,10 @@ public class ModelRegistry {
     }
 
     /**
-     * Extract the model description from a DMN file by parsing its XML.
-     * Looks for the <dmn:description> element directly within the root <dmn:definitions> element,
-     * ignoring descriptions on decisions and other nested elements.
-     *
-     * @param inputStream InputStream of the DMN file
-     * @return the model description, or null if not present or parsing fails
+     * The model description: the {@code <description>} directly within the root {@code <definitions>},
+     * ignoring descriptions on decisions and other nested elements. Null when absent or blank.
      */
-    String extractModelDescription(InputStream inputStream) {
-        try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            return modelDescription(builder.parse(inputStream).getDocumentElement());
-        } catch (Exception e) {
-            log.debug("Failed to extract description: {}", e.getMessage());
-        }
-        return null;
-    }
-
-    private String modelDescription(Element root) {
+    String modelDescription(Element root) {
         Element descElement = directChild(root, "description");
         if (descElement != null) {
             String description = descElement.getTextContent();
