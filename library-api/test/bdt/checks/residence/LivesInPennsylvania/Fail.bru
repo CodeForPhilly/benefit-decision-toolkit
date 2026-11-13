@@ -1,0 +1,35 @@
+meta {
+  name: Fail
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/checks/residence/lives-in-pennsylvania
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "simpleChecks": {
+        "livesInPennsylvania": false
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq false
+}
+
+docs {
+  The household says it does not live in Pennsylvania, so the check fails.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

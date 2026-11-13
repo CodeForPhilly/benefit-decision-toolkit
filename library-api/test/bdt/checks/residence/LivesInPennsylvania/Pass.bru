@@ -1,0 +1,35 @@
+meta {
+  name: Pass
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/checks/residence/lives-in-pennsylvania
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "simpleChecks": {
+        "livesInPennsylvania": true
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq true
+}
+
+docs {
+  The household says it lives in Pennsylvania, so the check passes.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

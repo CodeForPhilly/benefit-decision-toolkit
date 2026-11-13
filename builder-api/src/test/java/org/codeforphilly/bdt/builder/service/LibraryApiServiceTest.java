@@ -115,6 +115,27 @@ public class LibraryApiServiceTest {
     }
 
     @Test
+    void referencesSurviveLoadingAndImport() throws Exception {
+        LibraryApiService service = new LibraryApiService();
+        service.loadMetadata("""
+            {"checks":[{"id":"check-1","name":"lives-in-pennsylvania","reference":{
+                "summary":"Checks that the household lives in Pennsylvania.",
+                "docsPath":"library/checks/residence/lives-in-pennsylvania/"}}],
+             "benefits":[{"id":"liheap","name":"Liheap cash","checks":[],"reference":{
+                "summary":"Helps with heating.","limitations":["Household size is taken as given."],
+                "docsPath":"library/benefits/pa/liheap-cash/"}}]}
+            """);
+
+        assertEquals("Checks that the household lives in Pennsylvania.",
+            service.getAll().getFirst().getReference().path("summary").asText());
+        var imported = service.copyBenefitForOwner("liheap", "analyst-1").orElseThrow();
+        assertEquals("Household size is taken as given.",
+            imported.getReference().path("limitations").path(0).asText());
+        assertEquals("library/benefits/pa/liheap-cash/",
+            imported.getReference().path("docsPath").asText());
+    }
+
+    @Test
     void copyBenefitForOwner_createsEditableSnapshotIds() throws Exception {
         LibraryApiService service = new LibraryApiService();
         service.loadMetadata("""

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmn:definitions xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns="https://kie.apache.org/dmn/_FD09AE6E-6A41-405C-8F8B-298554CFA4FE" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:kie="https://kie.org/dmn/extensions/1.0" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_5166221B-89EF-429E-9D56-C46FEC96B900" id="_D5A14C3C-8A56-4498-AF0D-C4F2FC8DEFFC" name="HouseholdHasCitizenOrEligibleNoncitizen" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_FD09AE6E-6A41-405C-8F8B-298554CFA4FE">
+  <dmn:description>Checks that at least one household member is a U.S. citizen or a lawfully admitted non-citizen.</dmn:description>
+  <dmn:extensionElements/>
+  <dmn:import id="_D36A864E-4C28-426C-A7E9-B2078CA9F884" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
+  <dmn:import id="_F6F36B72-5DD4-4F21-A86B-ACF00AFE9BE5" name="Citizenship" namespace="https://kie.apache.org/dmn/_5166221B-89EF-429E-9D56-C46FEC96B900" locationURI="Citizenship.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
+  <dmn:itemDefinition id="_445C8304-7DD9-4374-BC71-D25D4D584539" name="tSimpleChecks" isCollection="false">
+    <dmn:itemComponent id="_E2EDDAC8-A88F-428A-8E08-680BCFFBEC74" name="householdHasCitizenOrEligibleNoncitizen" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_30D8111D-3679-4C43-96DE-62E5A8B85C6C" name="tSituation" isCollection="false">
+    <dmn:itemComponent id="_663C4D3E-0502-41B7-82DD-9E56D4D6785B" name="simpleChecks" isCollection="false">
+      <dmn:typeRef>tSimpleChecks</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:decisionService id="_3606591A-A9F5-41A0-9081-3CBD58B196E3" name="HouseholdHasCitizenOrEligibleNoncitizenService">
+    <dmn:extensionElements/>
+    <dmn:variable id="_4660F1CB-5CEC-45EF-B5FA-58CF970C1CA7" name="HouseholdHasCitizenOrEligibleNoncitizenService" typeRef="BDT.tCheckResponse"/>
+    <dmn:outputDecision href="#_F244C779-74E1-4EA6-9744-D803AEE59CDC"/>
+    <dmn:inputData href="#_4DD7EA38-E157-4D8F-BCA9-E73D3EAEAE68"/>
+  </dmn:decisionService>
+  <dmn:decision id="_F244C779-74E1-4EA6-9744-D803AEE59CDC" name="checkResult">
+    <dmn:extensionElements/>
+    <dmn:variable id="_8F8EE755-5932-41A6-A7D7-9C5833DA8483" name="checkResult" typeRef="boolean"/>
+    <dmn:informationRequirement id="_FF4117C5-787A-4D59-8E84-747F6B176730">
+      <dmn:requiredInput href="#_4DD7EA38-E157-4D8F-BCA9-E73D3EAEAE68"/>
+    </dmn:informationRequirement>
+    <dmn:literalExpression id="_9D8AA5AF-311F-4186-8953-4568A17FEBB3">
+      <dmn:text>if situation.simpleChecks != null and situation.simpleChecks.householdHasCitizenOrEligibleNoncitizen != null then
+  situation.simpleChecks.householdHasCitizenOrEligibleNoncitizen = true
+else
+  null</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmn:decision id="_77D185B4-F024-403F-A919-2149479F356B" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_FC69586C-4212-435D-A6E2-63B392F5215E" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:context id="_D196559C-18EF-4868-9F66-999EAD60A1E6" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_A3CC19EC-4DD6-4733-ADFD-978446A68985" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_66D0A502-66EA-4400-A689-569239A77FA2" typeRef="string">
+          <dmn:text>"Passes when the screener answer says someone in the household is a U.S. citizen or a lawfully admitted non-citizen, such as a lawful permanent resident, refugee, asylee, or someone paroled for at least one year. Fails when the answer says no one is, and returns no result when the answer is missing."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_2D636AA3-83AA-4718-98C0-B1C03FC295E2" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_4E0C8ED5-72C3-4CBC-BF7E-7B102D0FCF05" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_2CC0B502-82D3-4F43-9EEF-75EB42C014B3" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_1B5AD6E7-B496-45BE-BFE4-AC2CBDDC876A" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_A6A36C43-1FED-4883-9E7C-08B6924A2962" typeRef="string">
+                <dmn:text>"Pennsylvania LIHEAP FFY 2027 Final State Plan"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_160D5336-630D-4F18-98F8-5FAADCAE6FDB" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_96B6F1C2-FEA1-4DCA-8A2F-E8E759AC95A6" typeRef="string">
+                <dmn:text>"https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_A5BB63AC-4E08-46A6-A811-7C7C38E9B8B3" name="citation" typeRef="string"/>
+              <dmn:literalExpression id="_1DE38462-5C7C-47F8-BE52-F3EE0D5AA22B" typeRef="string">
+                <dmn:text>"Appendix B, 601.31(4): citizenship and lawful admission"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_46CB646B-F606-485A-87BF-5DB1A48F6AF6" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_938DB70E-DF08-4BD0-8CEC-73D92B5A64B1" typeRef="date">
+                <dmn:text>date("2026-11-12")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_DF565C88-CF6C-445E-AB45-B7259B8E6720" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_7A4EAAF0-9A72-4E17-9D25-B07AA39903A8" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_DD419E2F-B0D3-47E2-8CFE-545421DC98E4" typeRef="string">
+            <dmn:text>"Relies on the screener answer. It does not check immigration documents."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_2E13AEFF-645F-4FF9-B309-B84B7C281149" typeRef="string">
+            <dmn:text>"The qualifying statuses come from PA LIHEAP, which has no five-year bar. Other programs may accept fewer statuses or apply a waiting period."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_C3BC45C8-90B5-4A7E-BBE3-ABFC337962B2" typeRef="string">
+            <dmn:text>"Does not adjust household size for members who are not lawfully admitted."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_72158D0F-C9E4-4234-849D-9D69F49EB1EC" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_CA6556CB-0684-4BC4-844D-64503B5F19B6" typeRef="date">
+          <dmn:text>date("2026-11-12")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
+  <dmn:inputData id="_4DD7EA38-E157-4D8F-BCA9-E73D3EAEAE68" name="situation">
+    <dmn:extensionElements/>
+    <dmn:variable id="_4E9D49D6-CA1C-4EEF-A552-28880A1D252A" name="situation" typeRef="tSituation"/>
+  </dmn:inputData>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_961100F9-A3D6-4475-A6E0-A72B49CA3CAF" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_9D8AA5AF-311F-4186-8953-4568A17FEBB3"><kie:width>917</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_D196559C-18EF-4868-9F66-999EAD60A1E6"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_CA6556CB-0684-4BC4-844D-64503B5F19B6"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_7A4EAAF0-9A72-4E17-9D25-B07AA39903A8"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C3BC45C8-90B5-4A7E-BBE3-ABFC337962B2"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_2E13AEFF-645F-4FF9-B309-B84B7C281149"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_DD419E2F-B0D3-47E2-8CFE-545421DC98E4"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_4E0C8ED5-72C3-4CBC-BF7E-7B102D0FCF05"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_2CC0B502-82D3-4F43-9EEF-75EB42C014B3"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_938DB70E-DF08-4BD0-8CEC-73D92B5A64B1"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_1DE38462-5C7C-47F8-BE52-F3EE0D5AA22B"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_96B6F1C2-FEA1-4DCA-8A2F-E8E759AC95A6"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_A6A36C43-1FED-4883-9E7C-08B6924A2962"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_66D0A502-66EA-4400-A689-569239A77FA2"><kie:width>560</kie:width></kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="dmnshape-drg-_3606591A-A9F5-41A0-9081-3CBD58B196E3" dmnElementRef="_3606591A-A9F5-41A0-9081-3CBD58B196E3" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="100" y="100" width="592" height="280"/>
+        <dmndi:DMNLabel/>
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="100" y="240"/>
+          <di:waypoint x="692" y="240"/>
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_F244C779-74E1-4EA6-9744-D803AEE59CDC" dmnElementRef="_F244C779-74E1-4EA6-9744-D803AEE59CDC" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="316" y="130" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_77D185B4-F024-403F-A919-2149479F356B" dmnElementRef="_77D185B4-F024-403F-A919-2149479F356B" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="752" y="130" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_4DD7EA38-E157-4D8F-BCA9-E73D3EAEAE68" dmnElementRef="_4DD7EA38-E157-4D8F-BCA9-E73D3EAEAE68" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="316" y="480" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="dmnedge-drg-_FF4117C5-787A-4D59-8E84-747F6B176730" dmnElementRef="_FF4117C5-787A-4D59-8E84-747F6B176730">
+        <di:waypoint x="396" y="480"/>
+        <di:waypoint x="396" y="210"/>
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>

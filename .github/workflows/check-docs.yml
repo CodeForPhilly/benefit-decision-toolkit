@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "docs/**"
+      - "library-api/openapi.snapshot.json"
       - "README.md"
       - "**/README.md"
       - ".github/workflows/check-docs.yml"
@@ -30,6 +31,10 @@ jobs:
       - name: Install dependencies
         working-directory: docs
         run: npm ci
+
+      - name: Test library reference loader
+        working-directory: docs
+        run: npm test
 
       - name: Build documentation
         working-directory: docs

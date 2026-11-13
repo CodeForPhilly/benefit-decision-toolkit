@@ -1,0 +1,34 @@
+meta {
+  name: Four people at 150 percent
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/checks/income/household-income-within-poverty-guidelines
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "householdSize": 4,
+      "householdIncome": 49500
+    },
+    "parameters": {
+      "percent": 150,
+      "guidelineYear": 2026
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq true
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

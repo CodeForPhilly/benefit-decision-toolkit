@@ -1,0 +1,44 @@
+meta {
+  name: No citizen or eligible non-citizen
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{host}}/benefits/pa/liheap-cash
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "enrollments": [
+        {
+          "personId": "p1",
+          "benefit": "OtherBenefit"
+        }
+      ],
+      "householdSize": 1,
+      "householdIncome": 23940,
+      "simpleChecks": {
+        "livesInPennsylvania": true,
+        "paysPrimaryHeatingCosts": true,
+        "heatInIncomeBasedRent": false,
+        "householdHasCitizenOrEligibleNoncitizen": false
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.isEligible: eq false
+  res.body.checks.HasCitizenOrEligibleNoncitizen: eq false
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -3,6 +3,7 @@ import toast from "solid-toast";
 
 import { titleCase } from "@/utils/title_case";
 import ConfigureCheckModal from "./modals/ConfigureCheckModal";
+import LibraryReference from "@/components/shared/libraryReference/LibraryReference";
 
 import type { CheckConfig, EligibilityCheck, ParameterValues } from "@/types";
 
@@ -191,7 +192,9 @@ const EligibilityCheckRow = ({
         {titleCase(check.name)}
       </td>
       <td class="eligibility-check-table-cell border-top">
-        {check.description}
+        <Show when={check.reference} fallback={check.description}>
+          <LibraryReference reference={check.reference} />
+        </Show>
       </td>
       <td class="eligibility-check-table-cell border-top">{check.version}</td>
     </tr>

@@ -1,0 +1,4920 @@
+{
+  "components" : {
+    "schemas" : {
+      "ns10InputSetTenYearTaxAbatementDSTenYearTaxAbatementService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns10tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns10OutputSetTenYearTaxAbatementDSTenYearTaxAbatementService" : {
+        "type" : "boolean"
+      },
+      "ns10tSimpleChecks" : {
+        "properties" : {
+          "tenYearTaxAbatement" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns10tSituation" : {
+        "properties" : {
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns10tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns11InputSetNoTenYearTaxAbatementDSNoTenYearTaxAbatementService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns11tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns11OutputSetNoTenYearTaxAbatementDSNoTenYearTaxAbatementService" : {
+        "type" : "boolean"
+      },
+      "ns11tSimpleChecks" : {
+        "properties" : {
+          "tenYearTaxAbatement" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns11tSituation" : {
+        "properties" : {
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns11tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns12InputSetPhlHomesteadExemptionDSPhlHomesteadExemptionService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns12tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns12OutputSetPhlHomesteadExemptionDSPhlHomesteadExemptionService" : {
+        "properties" : {
+          "checks" : { },
+          "isEligible" : {
+            "type" : "boolean"
+          },
+          "nextSteps" : {
+            "$ref" : "#/components/schemas/ns3tNextSteps"
+          }
+        },
+        "type" : "object"
+      },
+      "ns12tSimpleChecks" : {
+        "properties" : {
+          "livesInPhiladelphiaPa" : {
+            "type" : "boolean"
+          },
+          "ownerOccupant" : {
+            "type" : "boolean"
+          },
+          "tenYearTaxAbatement" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns12tSituation" : {
+        "properties" : {
+          "enrollments" : {
+            "$ref" : "#/components/schemas/ns12tSituation__enrollments"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns12tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns12tSituation__enrollments" : {
+        "$ref" : "#/components/schemas/ns1tEnrollmentList"
+      },
+      "ns13InputSetMinYearsOwnerOccupantDSMinYearsOwnerOccupantService" : {
+        "properties" : {
+          "parameters" : {
+            "$ref" : "#/components/schemas/ns13tParameters"
+          },
+          "situation" : {
+            "$ref" : "#/components/schemas/ns13tSituation"
+          }
+        },
+        "required" : [ "situation", "parameters" ],
+        "type" : "object"
+      },
+      "ns13OutputSetMinYearsOwnerOccupantDSMinYearsOwnerOccupantService" : {
+        "type" : "boolean"
+      },
+      "ns13tParameters" : {
+        "properties" : {
+          "minYears" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns13tSituation" : {
+        "properties" : {
+          "yearsOwnerOccupied" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns14InputSetPropertyAssessmentIncreaseDSPropertyAssessmentIncreaseService" : {
+        "properties" : {
+          "parameters" : {
+            "$ref" : "#/components/schemas/ns14tParameters"
+          },
+          "situation" : {
+            "$ref" : "#/components/schemas/ns14tSituation"
+          }
+        },
+        "required" : [ "situation", "parameters" ],
+        "type" : "object"
+      },
+      "ns14OutputSetPropertyAssessmentIncreaseDSPropertyAssessmentIncreaseService" : {
+        "type" : "boolean"
+      },
+      "ns14tParameters" : {
+        "properties" : {
+          "fiveYearPercent" : {
+            "type" : "number"
+          },
+          "oneYearPercent" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns14tSituation" : {
+        "properties" : {
+          "lowestPropertyAssessmentLastFiveYears" : {
+            "type" : "number"
+          },
+          "previousYearPropertyAssessment" : {
+            "type" : "number"
+          },
+          "propertyAssessment" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns15InputSetTaxDelinquentDSTaxDelinquentService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns15tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns15OutputSetTaxDelinquentDSTaxDelinquentService" : {
+        "type" : "boolean"
+      },
+      "ns15tSimpleChecks" : {
+        "properties" : {
+          "taxDelinquent" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns15tSituation" : {
+        "properties" : {
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns15tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns16InputSetPropertyTaxesCurrentOrPaymentPlanDSPropertyTaxesCurrentOrPaymentPlanService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns16tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns16OutputSetPropertyTaxesCurrentOrPaymentPlanDSPropertyTaxesCurrentOrPaymentPlanService" : {
+        "type" : "boolean"
+      },
+      "ns16tSimpleChecks" : {
+        "properties" : {
+          "propertyTaxPaymentPlan" : {
+            "type" : "boolean"
+          },
+          "taxDelinquent" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns16tSituation" : {
+        "properties" : {
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns16tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns18InputSetLoopIncomeDSLoopIncomeService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns18tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns18OutputSetLoopIncomeDSLoopIncomeService" : {
+        "type" : "boolean"
+      },
+      "ns18tSituation" : {
+        "properties" : {
+          "householdIncome" : {
+            "type" : "number"
+          },
+          "householdSize" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns19InputSetNoDisqualifyingTaxAbatementDSNoDisqualifyingTaxAbatementService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns19tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns19OutputSetNoDisqualifyingTaxAbatementDSNoDisqualifyingTaxAbatementService" : {
+        "type" : "boolean"
+      },
+      "ns19tSimpleChecks" : {
+        "properties" : {
+          "disqualifyingTaxAbatement" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns19tSituation" : {
+        "properties" : {
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns19tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns1tEnrollment" : {
+        "properties" : {
+          "benefit" : {
+            "type" : "string"
+          },
+          "personId" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns1tEnrollmentList" : {
+        "items" : {
+          "$ref" : "#/components/schemas/ns1tEnrollment"
+        },
+        "type" : "array"
+      },
+      "ns20InputSetPhlLoopDSPhlLoopService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns20tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns20OutputSetPhlLoopDSPhlLoopService" : {
+        "properties" : {
+          "checks" : { },
+          "isEligible" : {
+            "type" : "boolean"
+          },
+          "nextSteps" : {
+            "$ref" : "#/components/schemas/ns3tNextSteps"
+          }
+        },
+        "type" : "object"
+      },
+      "ns20tSimpleChecks" : {
+        "properties" : {
+          "disqualifyingTaxAbatement" : {
+            "type" : "boolean"
+          },
+          "livesInPhiladelphiaPa" : {
+            "type" : "boolean"
+          },
+          "ownerOccupant" : {
+            "type" : "boolean"
+          },
+          "propertyTaxPaymentPlan" : {
+            "type" : "boolean"
+          },
+          "taxDelinquent" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns20tSituation" : {
+        "properties" : {
+          "enrollments" : {
+            "$ref" : "#/components/schemas/ns20tSituation__enrollments"
+          },
+          "householdIncome" : {
+            "type" : "number"
+          },
+          "householdSize" : {
+            "type" : "number"
+          },
+          "lowestPropertyAssessmentLastFiveYears" : {
+            "type" : "number"
+          },
+          "previousYearPropertyAssessment" : {
+            "type" : "number"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "propertyAssessment" : {
+            "type" : "number"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns20tSimpleChecks"
+          },
+          "yearsOwnerOccupied" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns20tSituation__enrollments" : {
+        "$ref" : "#/components/schemas/ns1tEnrollmentList"
+      },
+      "ns21InputSetTaxFreezeIncomeDSTaxFreezeIncomeService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns21tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns21OutputSetTaxFreezeIncomeDSTaxFreezeIncomeService" : {
+        "type" : "boolean"
+      },
+      "ns21tSituation" : {
+        "properties" : {
+          "applicantAndSpouseIncome" : {
+            "type" : "number"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "relationships" : {
+            "$ref" : "#/components/schemas/ns21tSituation__relationships"
+          }
+        },
+        "type" : "object"
+      },
+      "ns21tSituation__relationships" : {
+        "$ref" : "#/components/schemas/ns3tRelationshipList"
+      },
+      "ns22InputSetPhlLowIncomeTaxFreezeDSPhlLowIncomeTaxFreezeService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns22tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns22OutputSetPhlLowIncomeTaxFreezeDSPhlLowIncomeTaxFreezeService" : {
+        "properties" : {
+          "checks" : { },
+          "isEligible" : {
+            "type" : "boolean"
+          },
+          "nextSteps" : {
+            "$ref" : "#/components/schemas/ns3tNextSteps"
+          }
+        },
+        "type" : "object"
+      },
+      "ns22tSimpleChecks" : {
+        "properties" : {
+          "livesInPhiladelphiaPa" : {
+            "type" : "boolean"
+          },
+          "ownerOccupant" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns22tSituation" : {
+        "properties" : {
+          "applicantAndSpouseIncome" : {
+            "type" : "number"
+          },
+          "enrollments" : {
+            "$ref" : "#/components/schemas/ns22tSituation__enrollments"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "relationships" : {
+            "$ref" : "#/components/schemas/ns22tSituation__relationships"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns22tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns22tSituation__enrollments" : {
+        "$ref" : "#/components/schemas/ns1tEnrollmentList"
+      },
+      "ns22tSituation__relationships" : {
+        "$ref" : "#/components/schemas/ns3tRelationshipList"
+      },
+      "ns23InputSetPhlOwnerOccupiedPaymentAgreementDSPhlOwnerOccupiedPaymentAgreementService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns23tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns23OutputSetPhlOwnerOccupiedPaymentAgreementDSPhlOwnerOccupiedPaymentAgreementService" : {
+        "properties" : {
+          "checks" : { },
+          "isEligible" : {
+            "type" : "boolean"
+          },
+          "nextSteps" : {
+            "$ref" : "#/components/schemas/ns3tNextSteps"
+          }
+        },
+        "type" : "object"
+      },
+      "ns23tSimpleChecks" : {
+        "properties" : {
+          "livesInPhiladelphiaPa" : {
+            "type" : "boolean"
+          },
+          "ownerOccupant" : {
+            "type" : "boolean"
+          },
+          "taxDelinquent" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns23tSituation" : {
+        "properties" : {
+          "enrollments" : {
+            "$ref" : "#/components/schemas/ns23tSituation__enrollments"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns23tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns23tSituation__enrollments" : {
+        "$ref" : "#/components/schemas/ns1tEnrollmentList"
+      },
+      "ns25InputSetPersonMinAgeDSPersonMinAgeService" : {
+        "properties" : {
+          "parameters" : {
+            "$ref" : "#/components/schemas/ns25tParameters"
+          },
+          "situation" : {
+            "$ref" : "#/components/schemas/ns25tSituation"
+          }
+        },
+        "required" : [ "parameters", "situation" ],
+        "type" : "object"
+      },
+      "ns25OutputSetPersonMinAgeDSPersonMinAgeService" : {
+        "type" : "boolean"
+      },
+      "ns25tParameters" : {
+        "properties" : {
+          "asOfDate" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "minAge" : {
+            "type" : "number"
+          },
+          "personId" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns25tPerson" : {
+        "properties" : {
+          "dateOfBirth" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns25tPersonList" : {
+        "items" : {
+          "$ref" : "#/components/schemas/ns25tPerson"
+        },
+        "type" : "array"
+      },
+      "ns25tSituation" : {
+        "properties" : {
+          "people" : {
+            "$ref" : "#/components/schemas/ns25tSituation__people"
+          }
+        },
+        "type" : "object"
+      },
+      "ns25tSituation__people" : {
+        "$ref" : "#/components/schemas/ns25tPersonList"
+      },
+      "ns26InputSetApplicantOrSpouseMinAgeDSApplicantOrSpouseMinAgeService" : {
+        "properties" : {
+          "parameters" : {
+            "$ref" : "#/components/schemas/ns26tParameters"
+          },
+          "situation" : {
+            "$ref" : "#/components/schemas/ns26tSituation"
+          }
+        },
+        "required" : [ "situation", "parameters" ],
+        "type" : "object"
+      },
+      "ns26OutputSetApplicantOrSpouseMinAgeDSApplicantOrSpouseMinAgeService" : {
+        "type" : "boolean"
+      },
+      "ns26tParameters" : {
+        "properties" : {
+          "minAge" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns26tPerson" : {
+        "properties" : {
+          "dateOfBirth" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns26tPersonList" : {
+        "items" : {
+          "$ref" : "#/components/schemas/ns26tPerson"
+        },
+        "type" : "array"
+      },
+      "ns26tSimpleChecks" : {
+        "properties" : {
+          "spouseLivesInHousehold" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns26tSituation" : {
+        "properties" : {
+          "people" : {
+            "$ref" : "#/components/schemas/ns26tSituation__people"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "relationships" : {
+            "$ref" : "#/components/schemas/ns26tSituation__relationships"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns26tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns26tSituation__people" : {
+        "$ref" : "#/components/schemas/ns26tPersonList"
+      },
+      "ns26tSituation__relationships" : {
+        "$ref" : "#/components/schemas/ns3tRelationshipList"
+      },
+      "ns27InputSetRetipIncomeDSRetipIncomeService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns27tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns27OutputSetRetipIncomeDSRetipIncomeService" : {
+        "type" : "boolean"
+      },
+      "ns27tSituation" : {
+        "properties" : {
+          "householdIncome" : {
+            "type" : "number"
+          },
+          "householdSize" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns28InputSetRetipAgeOrIncomeRequirementDSRetipAgeOrIncomeRequirementService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns28tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns28OutputSetRetipAgeOrIncomeRequirementDSRetipAgeOrIncomeRequirementService" : {
+        "type" : "boolean"
+      },
+      "ns28tPerson" : {
+        "properties" : {
+          "dateOfBirth" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns28tPersonList" : {
+        "items" : {
+          "$ref" : "#/components/schemas/ns28tPerson"
+        },
+        "type" : "array"
+      },
+      "ns28tSimpleChecks" : {
+        "properties" : {
+          "spouseLivesInHousehold" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns28tSituation" : {
+        "properties" : {
+          "householdIncome" : {
+            "type" : "number"
+          },
+          "householdSize" : {
+            "type" : "number"
+          },
+          "people" : {
+            "$ref" : "#/components/schemas/ns28tSituation__people"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "relationships" : {
+            "$ref" : "#/components/schemas/ns28tSituation__relationships"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns28tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns28tSituation__people" : {
+        "$ref" : "#/components/schemas/ns28tPersonList"
+      },
+      "ns28tSituation__relationships" : {
+        "$ref" : "#/components/schemas/ns3tRelationshipList"
+      },
+      "ns29InputSetPhlRetipDSPhlRetipService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns29tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns29OutputSetPhlRetipDSPhlRetipService" : {
+        "properties" : {
+          "checks" : { },
+          "isEligible" : {
+            "type" : "boolean"
+          },
+          "nextSteps" : {
+            "$ref" : "#/components/schemas/ns3tNextSteps"
+          }
+        },
+        "type" : "object"
+      },
+      "ns29tPerson" : {
+        "properties" : {
+          "dateOfBirth" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns29tPersonList" : {
+        "items" : {
+          "$ref" : "#/components/schemas/ns29tPerson"
+        },
+        "type" : "array"
+      },
+      "ns29tSimpleChecks" : {
+        "properties" : {
+          "livesInPhiladelphiaPa" : {
+            "type" : "boolean"
+          },
+          "ownerOccupant" : {
+            "type" : "boolean"
+          },
+          "spouseLivesInHousehold" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns29tSituation" : {
+        "properties" : {
+          "enrollments" : {
+            "$ref" : "#/components/schemas/ns29tSituation__enrollments"
+          },
+          "householdIncome" : {
+            "type" : "number"
+          },
+          "householdSize" : {
+            "type" : "number"
+          },
+          "people" : {
+            "$ref" : "#/components/schemas/ns29tSituation__people"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "relationships" : {
+            "$ref" : "#/components/schemas/ns29tSituation__relationships"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns29tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns29tSituation__enrollments" : {
+        "$ref" : "#/components/schemas/ns1tEnrollmentList"
+      },
+      "ns29tSituation__people" : {
+        "$ref" : "#/components/schemas/ns29tPersonList"
+      },
+      "ns29tSituation__relationships" : {
+        "$ref" : "#/components/schemas/ns3tRelationshipList"
+      },
+      "ns30InputSetSctfAgeRequirementDSSctfAgeRequirementService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns30tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns30OutputSetSctfAgeRequirementDSSctfAgeRequirementService" : {
+        "type" : "boolean"
+      },
+      "ns30tSimpleChecks" : {
+        "properties" : {
+          "lateSpouseWasAtLeast65" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns30tSituation" : {
+        "properties" : {
+          "people" : {
+            "$ref" : "#/components/schemas/ns30tSituation__people"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "relationships" : {
+            "$ref" : "#/components/schemas/ns30tSituation__relationships"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns30tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns30tSituation__people" : {
+        "$ref" : "#/components/schemas/ns3tPersonList"
+      },
+      "ns30tSituation__relationships" : {
+        "$ref" : "#/components/schemas/ns3tRelationshipList"
+      },
+      "ns31InputSetPhlSeniorCitizenTaxFreezeDSPhlSeniorCitizenTaxFreezeService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns31tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns31OutputSetPhlSeniorCitizenTaxFreezeDSPhlSeniorCitizenTaxFreezeService" : {
+        "properties" : {
+          "checks" : { },
+          "isEligible" : {
+            "type" : "boolean"
+          },
+          "nextSteps" : {
+            "$ref" : "#/components/schemas/ns3tNextSteps"
+          }
+        },
+        "type" : "object"
+      },
+      "ns31tPeople" : {
+        "items" : {
+          "$ref" : "#/components/schemas/ns31tPerson"
+        },
+        "type" : "array"
+      },
+      "ns31tPerson" : {
+        "properties" : {
+          "dateOfBirth" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns31tSimpleChecks" : {
+        "properties" : {
+          "lateSpouseWasAtLeast65" : {
+            "type" : "boolean"
+          },
+          "livesInPhiladelphiaPa" : {
+            "type" : "boolean"
+          },
+          "ownerOccupant" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns31tSituation" : {
+        "properties" : {
+          "enrollments" : {
+            "$ref" : "#/components/schemas/ns31tSituation__enrollments"
+          },
+          "people" : {
+            "$ref" : "#/components/schemas/ns31tSituation__people"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "relationships" : {
+            "$ref" : "#/components/schemas/ns31tSituation__relationships"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns31tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns31tSituation__enrollments" : {
+        "$ref" : "#/components/schemas/ns1tEnrollmentList"
+      },
+      "ns31tSituation__people" : {
+        "$ref" : "#/components/schemas/ns31tPeople"
+      },
+      "ns31tSituation__relationships" : {
+        "$ref" : "#/components/schemas/ns3tRelationshipList"
+      },
+      "ns32InputSetLivesInPennsylvaniaDSLivesInPennsylvaniaService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns32tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns32OutputSetLivesInPennsylvaniaDSLivesInPennsylvaniaService" : {
+        "type" : "boolean"
+      },
+      "ns32tSimpleChecks" : {
+        "properties" : {
+          "livesInPennsylvania" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns32tSituation" : {
+        "properties" : {
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns32tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns33InputSetHouseholdIncomeWithinPovertyGuidelinesDSHouseholdIncomeWithinPovertyGuidelinesService" : {
+        "properties" : {
+          "parameters" : {
+            "$ref" : "#/components/schemas/ns33tParameters"
+          },
+          "situation" : {
+            "$ref" : "#/components/schemas/ns33tSituation"
+          }
+        },
+        "required" : [ "situation", "parameters" ],
+        "type" : "object"
+      },
+      "ns33OutputSetHouseholdIncomeWithinPovertyGuidelinesDSHouseholdIncomeWithinPovertyGuidelinesService" : {
+        "type" : "boolean"
+      },
+      "ns33tParameters" : {
+        "properties" : {
+          "guidelineYear" : {
+            "description" : "Year of the HHS poverty guidelines to use, for example 2026.",
+            "type" : "number"
+          },
+          "percent" : {
+            "description" : "Percentage of the poverty guideline to use as the income limit, for example 150 for 150%.",
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns33tSituation" : {
+        "properties" : {
+          "householdIncome" : {
+            "type" : "number"
+          },
+          "householdSize" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns34InputSetPaysPrimaryHeatingCostsDSPaysPrimaryHeatingCostsService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns34tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns34OutputSetPaysPrimaryHeatingCostsDSPaysPrimaryHeatingCostsService" : {
+        "type" : "boolean"
+      },
+      "ns34tSimpleChecks" : {
+        "properties" : {
+          "heatInIncomeBasedRent" : {
+            "type" : "boolean"
+          },
+          "paysPrimaryHeatingCosts" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns34tSituation" : {
+        "properties" : {
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns34tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns36InputSetHouseholdHasCitizenOrEligibleNoncitizenDSHouseholdHasCitizenOrEligibleNoncitizenService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns36tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns36OutputSetHouseholdHasCitizenOrEligibleNoncitizenDSHouseholdHasCitizenOrEligibleNoncitizenService" : {
+        "type" : "boolean"
+      },
+      "ns36tSimpleChecks" : {
+        "properties" : {
+          "householdHasCitizenOrEligibleNoncitizen" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns36tSituation" : {
+        "properties" : {
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns36tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns37InputSetPaLiheapCashDSPaLiheapCashService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns37tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns37OutputSetPaLiheapCashDSPaLiheapCashService" : {
+        "properties" : {
+          "checks" : { },
+          "isEligible" : {
+            "type" : "boolean"
+          },
+          "nextSteps" : {
+            "$ref" : "#/components/schemas/ns3tNextSteps"
+          }
+        },
+        "type" : "object"
+      },
+      "ns37tSimpleChecks" : {
+        "properties" : {
+          "heatInIncomeBasedRent" : {
+            "type" : "boolean"
+          },
+          "householdHasCitizenOrEligibleNoncitizen" : {
+            "type" : "boolean"
+          },
+          "livesInPennsylvania" : {
+            "type" : "boolean"
+          },
+          "paysPrimaryHeatingCosts" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns37tSituation" : {
+        "properties" : {
+          "enrollments" : {
+            "$ref" : "#/components/schemas/ns37tSituation__enrollments"
+          },
+          "householdIncome" : {
+            "type" : "number"
+          },
+          "householdSize" : {
+            "type" : "number"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns37tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns37tSituation__enrollments" : {
+        "$ref" : "#/components/schemas/ns1tEnrollmentList"
+      },
+      "ns38InputSetPersonMaxAgeDSPersonMaxAgeService" : {
+        "properties" : {
+          "parameters" : {
+            "$ref" : "#/components/schemas/ns38tParameters"
+          },
+          "situation" : {
+            "$ref" : "#/components/schemas/ns38tSituation"
+          }
+        },
+        "required" : [ "parameters", "situation" ],
+        "type" : "object"
+      },
+      "ns38OutputSetPersonMaxAgeDSPersonMaxAgeService" : {
+        "type" : "boolean"
+      },
+      "ns38tParameters" : {
+        "properties" : {
+          "asOfDate" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "maxAge" : {
+            "type" : "number"
+          },
+          "personId" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns38tPerson" : {
+        "properties" : {
+          "dateOfBirth" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns38tPersonList" : {
+        "items" : {
+          "$ref" : "#/components/schemas/ns38tPerson"
+        },
+        "type" : "array"
+      },
+      "ns38tSituation" : {
+        "properties" : {
+          "people" : {
+            "$ref" : "#/components/schemas/ns38tSituation__people"
+          }
+        },
+        "type" : "object"
+      },
+      "ns38tSituation__people" : {
+        "$ref" : "#/components/schemas/ns38tPersonList"
+      },
+      "ns39InputSetSomeoneMinAgeDSSomeoneMinAgeService" : {
+        "properties" : {
+          "parameters" : {
+            "$ref" : "#/components/schemas/ns39tParameters"
+          },
+          "situation" : {
+            "$ref" : "#/components/schemas/ns39tSituation"
+          }
+        },
+        "required" : [ "parameters", "situation" ],
+        "type" : "object"
+      },
+      "ns39OutputSetSomeoneMinAgeDSSomeoneMinAgeService" : {
+        "type" : "boolean"
+      },
+      "ns39tParameters" : {
+        "properties" : {
+          "asOfDate" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "minAge" : {
+            "type" : "number"
+          },
+          "peopleIds" : {
+            "$ref" : "#/components/schemas/ns39tParameters__peopleIds"
+          }
+        },
+        "type" : "object"
+      },
+      "ns39tParameters__peopleIds" : {
+        "$ref" : "#/components/schemas/ns3tStringList"
+      },
+      "ns39tPerson" : {
+        "properties" : {
+          "dateOfBirth" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns39tPersonList" : {
+        "items" : {
+          "$ref" : "#/components/schemas/ns39tPerson"
+        },
+        "type" : "array"
+      },
+      "ns39tSituation" : {
+        "properties" : {
+          "people" : {
+            "$ref" : "#/components/schemas/ns39tSituation__people"
+          }
+        },
+        "type" : "object"
+      },
+      "ns39tSituation__people" : {
+        "$ref" : "#/components/schemas/ns39tPersonList"
+      },
+      "ns3tEligibleNextSteps" : {
+        "properties" : {
+          "applyUrl" : {
+            "type" : "string"
+          },
+          "body" : {
+            "type" : "string"
+          },
+          "helpPhone" : {
+            "type" : "string"
+          },
+          "helpUrl" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns3tIneligibleNextSteps" : {
+        "properties" : {
+          "note" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns3tNextSteps" : {
+        "properties" : {
+          "eligible" : {
+            "$ref" : "#/components/schemas/ns3tEligibleNextSteps"
+          },
+          "ineligible" : {
+            "$ref" : "#/components/schemas/ns3tIneligibleNextSteps"
+          }
+        },
+        "type" : "object"
+      },
+      "ns3tPerson" : {
+        "properties" : {
+          "dateOfBirth" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns3tPersonList" : {
+        "items" : {
+          "$ref" : "#/components/schemas/ns3tPerson"
+        },
+        "type" : "array"
+      },
+      "ns3tRelationship" : {
+        "properties" : {
+          "personId" : {
+            "type" : "string"
+          },
+          "relatedPersonId" : {
+            "type" : "string"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/ns3tRelationship__type"
+          }
+        },
+        "type" : "object"
+      },
+      "ns3tRelationshipList" : {
+        "items" : {
+          "$ref" : "#/components/schemas/ns3tRelationship"
+        },
+        "type" : "array"
+      },
+      "ns3tRelationship__type" : {
+        "enum" : [ "spouse" ],
+        "type" : "string"
+      },
+      "ns3tSimpleChecks" : {
+        "properties" : {
+          "disqualifyingTaxAbatement" : {
+            "type" : "boolean"
+          },
+          "heatInIncomeBasedRent" : {
+            "type" : "boolean"
+          },
+          "householdHasCitizenOrEligibleNoncitizen" : {
+            "type" : "boolean"
+          },
+          "lateSpouseWasAtLeast65" : {
+            "type" : "boolean"
+          },
+          "livesInPennsylvania" : {
+            "type" : "boolean"
+          },
+          "livesInPhiladelphiaPa" : {
+            "type" : "boolean"
+          },
+          "ownerOccupant" : {
+            "type" : "boolean"
+          },
+          "paysPrimaryHeatingCosts" : {
+            "type" : "boolean"
+          },
+          "propertyTaxPaymentPlan" : {
+            "type" : "boolean"
+          },
+          "spouseLivesInHousehold" : {
+            "type" : "boolean"
+          },
+          "taxDelinquent" : {
+            "type" : "boolean"
+          },
+          "tenYearTaxAbatement" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns3tSituation" : {
+        "properties" : {
+          "applicantAndSpouseIncome" : {
+            "type" : "number"
+          },
+          "enrollments" : {
+            "$ref" : "#/components/schemas/ns3tSituation__enrollments"
+          },
+          "householdIncome" : {
+            "type" : "number"
+          },
+          "householdSize" : {
+            "type" : "number"
+          },
+          "lowestPropertyAssessmentLastFiveYears" : {
+            "type" : "number"
+          },
+          "people" : {
+            "$ref" : "#/components/schemas/ns3tSituation__people"
+          },
+          "previousYearPropertyAssessment" : {
+            "type" : "number"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "propertyAssessment" : {
+            "type" : "number"
+          },
+          "relationships" : {
+            "$ref" : "#/components/schemas/ns3tSituation__relationships"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns3tSimpleChecks"
+          },
+          "yearsOwnerOccupied" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns3tSituation__enrollments" : {
+        "$ref" : "#/components/schemas/ns1tEnrollmentList"
+      },
+      "ns3tSituation__people" : {
+        "$ref" : "#/components/schemas/ns3tPersonList"
+      },
+      "ns3tSituation__relationships" : {
+        "$ref" : "#/components/schemas/ns3tRelationshipList"
+      },
+      "ns3tStringList" : {
+        "items" : {
+          "type" : "string"
+        },
+        "type" : "array"
+      },
+      "ns40InputSetDecisionServiceInvokerDSDecisionServiceInvokerService" : {
+        "properties" : {
+          "model" : {
+            "type" : "string"
+          },
+          "parameters" : { },
+          "service" : {
+            "type" : "string"
+          },
+          "situation" : {
+            "$ref" : "#/components/schemas/ns3tSituation"
+          }
+        },
+        "required" : [ "model", "parameters", "service", "situation" ],
+        "type" : "object"
+      },
+      "ns40OutputSetDecisionServiceInvokerDSDecisionServiceInvokerService" : { },
+      "ns5InputSetPersonEnrolledInBenefitDSPersonEnrolledInBenefitService" : {
+        "properties" : {
+          "parameters" : {
+            "$ref" : "#/components/schemas/ns5tParameters"
+          },
+          "situation" : {
+            "$ref" : "#/components/schemas/ns5tSituation"
+          }
+        },
+        "required" : [ "parameters", "situation" ],
+        "type" : "object"
+      },
+      "ns5OutputSetPersonEnrolledInBenefitDSPersonEnrolledInBenefitService" : {
+        "type" : "boolean"
+      },
+      "ns5tParameters" : {
+        "properties" : {
+          "benefit" : {
+            "type" : "string"
+          },
+          "personId" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns5tSituation" : {
+        "properties" : {
+          "enrollments" : {
+            "$ref" : "#/components/schemas/ns5tSituation__enrollments"
+          }
+        },
+        "type" : "object"
+      },
+      "ns5tSituation__enrollments" : {
+        "$ref" : "#/components/schemas/ns1tEnrollmentList"
+      },
+      "ns6InputSetPersonNotEnrolledInBenefitDSPersonNotEnrolledInBenefitService" : {
+        "properties" : {
+          "parameters" : {
+            "$ref" : "#/components/schemas/ns5tParameters"
+          },
+          "situation" : {
+            "$ref" : "#/components/schemas/ns6tSituation"
+          }
+        },
+        "required" : [ "parameters", "situation" ],
+        "type" : "object"
+      },
+      "ns6OutputSetPersonNotEnrolledInBenefitDSPersonNotEnrolledInBenefitService" : {
+        "type" : "boolean"
+      },
+      "ns6tSituation" : {
+        "properties" : {
+          "enrollments" : {
+            "$ref" : "#/components/schemas/ns6tSituation__enrollments"
+          }
+        },
+        "type" : "object"
+      },
+      "ns6tSituation__enrollments" : {
+        "$ref" : "#/components/schemas/ns1tEnrollmentList"
+      },
+      "ns8InputSetOwnerOccupantDSOwnerOccupantService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns8tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns8OutputSetOwnerOccupantDSOwnerOccupantService" : {
+        "type" : "boolean"
+      },
+      "ns8tSimpleChecks" : {
+        "properties" : {
+          "ownerOccupant" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns8tSituation" : {
+        "properties" : {
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns8tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns9InputSetLivesInPhiladelphiaPaDSLivesInPhiladelphiaPaService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns9tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns9OutputSetLivesInPhiladelphiaPaDSLivesInPhiladelphiaPaService" : {
+        "type" : "boolean"
+      },
+      "ns9tSimpleChecks" : {
+        "properties" : {
+          "livesInPhiladelphiaPa" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns9tSituation" : {
+        "properties" : {
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns9tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      }
+    }
+  },
+  "info" : {
+    "title" : "bdt-library-api API",
+    "version" : "0.10.0"
+  },
+  "openapi" : "3.1.0",
+  "paths" : {
+    "/api/v1/benefits/pa/liheap-cash" : {
+      "post" : {
+        "description" : "Helps Pennsylvania households pay for home heating with a once-a-season grant (LIHEAP Cash, 2026-27 season).\n\nLIHEAP Cash is a grant that helps households pay for home heating during the winter season. This benefit checks the main rules for the 2026-27 season: the household lives in Pennsylvania, its income is at or below 150% of the federal poverty guidelines, it is responsible for its primary heating costs, someone in it is a U.S. citizen or lawfully admitted non-citizen, and it has not already received a Cash grant this season.\n\n**Administered by:** [Pennsylvania Department of Human Services, through the County Assistance Offices](https://www.pa.gov/agencies/dhs/resources/liheap)\n\n**Program year:** 2026-27 season, November 2, 2026 to April 23, 2027\n\n## Checks\n\nEligible when every check passes.\n\n- **Lives in pennsylvania**: LIHEAP Cash is for households that permanently live in Pennsylvania (601.31(3)). (`LivesInPennsylvaniaService`)\n- **Income at or below 150 percent fpl**: Household income must be equal to or less than 150% of the federal poverty guidelines (601.81 to 601.84). (`HouseholdIncomeWithinPovertyGuidelinesService`)\n- **Pays primary heating costs**: The household must be responsible for its primary heating costs. Households whose heat is included in rent based on their income are not eligible (601.31(2)). (`PaysPrimaryHeatingCostsService`)\n- **Has citizen or eligible noncitizen**: Someone in the household must be a U.S. citizen or a lawfully admitted non-citizen (601.31(4)). (`HouseholdHasCitizenOrEligibleNoncitizenService`)\n- **Not already enrolled**: A household can receive one Cash grant per season (601.43). (`PersonNotEnrolledInBenefitService`)\n\n## Limitations\n\n- Living arrangements that make a household ineligible are not checked: temporary stays, institutions, dorms, fraternity or sorority houses, boarding homes, incarceration, and fleeing felons.\n- Heating equipment that is not installed or operating to code is not checked, and neither are the rules for recreational vehicles and home businesses.\n- Household size and income are taken as given. LIHEAP leaves ineligible non-citizens, and people who already got Cash in another household, out of household size but still counts their income.\n- The applicant may choose the prior month or the prior 12 months as the income period. The screener does not compare the two.\n- DHS may change the season dates, and the funds can run out before the season closes.\n- Income limits change each February, when DHS adopts the new federal poverty guidelines.\n\n## Sources\n\n- [Pennsylvania DHS: LIHEAP](https://www.pa.gov/agencies/dhs/resources/liheap) (checked November 12, 2026)\n- [Pennsylvania LIHEAP FFY 2027 Final State Plan](https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf): Appendix B, 601.x eligibility rules: income 601.81 to 601.84; household 601.3 and 601.41; heating responsibility 601.31(2); residency 601.31(3); citizenship 601.31(4); one grant per season 601.43 (checked November 12, 2026)\n- HSEA 1 LIHEAP application: Revised 6/26 (checked November 12, 2026)\n\nLast reviewed November 12, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/benefits/pa/liheap-cash/"
+        },
+        "operationId" : "PaLiheapCashService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Eligible" : {
+                  "description" : "A one-person household in Pennsylvania with $23,940 a year, exactly 150% of the 2026 poverty guideline. It pays its own heating bill, has a U.S. citizen, and has not received Cash this season, so it is eligible.",
+                  "summary" : "Eligible",
+                  "value" : {
+                    "situation" : {
+                      "enrollments" : [ {
+                        "benefit" : "OtherBenefit",
+                        "personId" : "p1"
+                      } ],
+                      "householdIncome" : 23940,
+                      "householdSize" : 1,
+                      "primaryPersonId" : "p1",
+                      "simpleChecks" : {
+                        "heatInIncomeBasedRent" : false,
+                        "householdHasCitizenOrEligibleNoncitizen" : true,
+                        "livesInPennsylvania" : true,
+                        "paysPrimaryHeatingCosts" : true
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "isEligible" : true
+                  }
+                },
+                "Heat in income-based rent" : {
+                  "description" : "A renter whose heat is included in rent set as a share of income. LIHEAP Cash does not cover heat paid through income-based rent, so the household is not eligible.",
+                  "summary" : "Heat in income-based rent",
+                  "value" : {
+                    "situation" : {
+                      "enrollments" : [ {
+                        "benefit" : "OtherBenefit",
+                        "personId" : "p1"
+                      } ],
+                      "householdIncome" : 23940,
+                      "householdSize" : 1,
+                      "primaryPersonId" : "p1",
+                      "simpleChecks" : {
+                        "heatInIncomeBasedRent" : true,
+                        "householdHasCitizenOrEligibleNoncitizen" : true,
+                        "livesInPennsylvania" : true,
+                        "paysPrimaryHeatingCosts" : true
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "isEligible" : false
+                  }
+                },
+                "Income over limit" : {
+                  "description" : "A household of four with $49,501 a year, $1 over the 150% limit of $49,500. The income check fails, so the household is not eligible.",
+                  "summary" : "Income over limit",
+                  "value" : {
+                    "situation" : {
+                      "enrollments" : [ {
+                        "benefit" : "OtherBenefit",
+                        "personId" : "p1"
+                      } ],
+                      "householdIncome" : 49501,
+                      "householdSize" : 4,
+                      "primaryPersonId" : "p1",
+                      "simpleChecks" : {
+                        "heatInIncomeBasedRent" : false,
+                        "householdHasCitizenOrEligibleNoncitizen" : true,
+                        "livesInPennsylvania" : true,
+                        "paysPrimaryHeatingCosts" : true
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "isEligible" : false
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns37InputSetPaLiheapCashDSPaLiheapCashService"
+              }
+            }
+          },
+          "description" : "Input data for PaLiheapCashService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checks" : {
+                        "example-check" : true
+                      },
+                      "isEligible" : true,
+                      "nextSteps" : {
+                        "eligible" : {
+                          "applyUrl" : "example-applyUrl",
+                          "body" : "example-body",
+                          "helpPhone" : "example-helpPhone",
+                          "helpUrl" : "example-helpUrl"
+                        },
+                        "ineligible" : {
+                          "note" : "example-note"
+                        }
+                      },
+                      "situation" : {
+                        "enrollments" : [ {
+                          "benefit" : "PhlHomesteadExemption",
+                          "personId" : "p1"
+                        } ],
+                        "householdIncome" : 42,
+                        "householdSize" : 1,
+                        "primaryPersonId" : "p1",
+                        "simpleChecks" : {
+                          "heatInIncomeBasedRent" : true,
+                          "householdHasCitizenOrEligibleNoncitizen" : true,
+                          "livesInPennsylvania" : true,
+                          "paysPrimaryHeatingCosts" : true
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checks" : { },
+                    "isEligible" : {
+                      "type" : "boolean"
+                    },
+                    "nextSteps" : {
+                      "$ref" : "#/components/schemas/ns3tNextSteps"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns37tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute PaLiheapCash decision",
+        "tags" : [ "Benefits" ],
+        "x-bdt-benefit" : {
+          "checks" : [ {
+            "alias" : "LivesInPennsylvania",
+            "operationId" : "LivesInPennsylvaniaService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          }, {
+            "alias" : "IncomeAtOrBelow150PercentFpl",
+            "operationId" : "HouseholdIncomeWithinPovertyGuidelinesService",
+            "parameterBindings" : { },
+            "parameters" : {
+              "guidelineYear" : 2026,
+              "percent" : 150
+            }
+          }, {
+            "alias" : "PaysPrimaryHeatingCosts",
+            "operationId" : "PaysPrimaryHeatingCostsService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          }, {
+            "alias" : "HasCitizenOrEligibleNoncitizen",
+            "operationId" : "HouseholdHasCitizenOrEligibleNoncitizenService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          }, {
+            "alias" : "NotAlreadyEnrolled",
+            "operationId" : "PersonNotEnrolledInBenefitService",
+            "parameterBindings" : {
+              "personId" : "primaryPersonId"
+            },
+            "parameters" : {
+              "benefit" : "PaLiheapCash"
+            }
+          } ],
+          "nextSteps" : {
+            "eligible" : {
+              "applyUrl" : "https://www.compass.dhs.pa.gov/home/#/",
+              "body" : "Apply online through COMPASS during the season, which runs from November 2, 2026 to April 23, 2027. You can also apply at your County Assistance Office.\n\n- Have proof of income for everyone in the household, for the month before you apply or for the past 12 months.\n- Have a recent heating bill, or a statement from your landlord if heat is part of your rent.\n- Apply early. The season can close before April if the money runs out.\n\nFor help, call the LIHEAP hotline at 1-866-857-7095 (TTY 711).",
+              "helpPhone" : "1-866-857-7095",
+              "helpUrl" : "https://www.pa.gov/agencies/dhs/resources/liheap"
+            },
+            "ineligible" : {
+              "note" : "If you have a heating emergency, such as a shutoff notice or running out of fuel, you may still qualify for LIHEAP Crisis. Call the LIHEAP hotline at 1-866-857-7095."
+            }
+          }
+        },
+        "x-bdt-reference" : {
+          "administeredBy" : {
+            "name" : "Pennsylvania Department of Human Services, through the County Assistance Offices",
+            "url" : "https://www.pa.gov/agencies/dhs/resources/liheap"
+          },
+          "checks" : [ {
+            "alias" : "LivesInPennsylvania",
+            "operationId" : "LivesInPennsylvaniaService",
+            "rationale" : "LIHEAP Cash is for households that permanently live in Pennsylvania (601.31(3))."
+          }, {
+            "alias" : "IncomeAtOrBelow150PercentFpl",
+            "operationId" : "HouseholdIncomeWithinPovertyGuidelinesService",
+            "rationale" : "Household income must be equal to or less than 150% of the federal poverty guidelines (601.81 to 601.84)."
+          }, {
+            "alias" : "PaysPrimaryHeatingCosts",
+            "operationId" : "PaysPrimaryHeatingCostsService",
+            "rationale" : "The household must be responsible for its primary heating costs. Households whose heat is included in rent based on their income are not eligible (601.31(2))."
+          }, {
+            "alias" : "HasCitizenOrEligibleNoncitizen",
+            "operationId" : "HouseholdHasCitizenOrEligibleNoncitizenService",
+            "rationale" : "Someone in the household must be a U.S. citizen or a lawfully admitted non-citizen (601.31(4))."
+          }, {
+            "alias" : "NotAlreadyEnrolled",
+            "operationId" : "PersonNotEnrolledInBenefitService",
+            "rationale" : "A household can receive one Cash grant per season (601.43)."
+          } ],
+          "explanation" : "LIHEAP Cash is a grant that helps households pay for home heating during the winter season. This benefit checks the main rules for the 2026-27 season: the household lives in Pennsylvania, its income is at or below 150% of the federal poverty guidelines, it is responsible for its primary heating costs, someone in it is a U.S. citizen or lawfully admitted non-citizen, and it has not already received a Cash grant this season.",
+          "implementationNotes" : [ {
+            "decision" : "checks",
+            "text" : "Season dates are documentation only: the rules do not check the screening date. Dated parameters (https://github.com/CodeForPhilly/benefit-decision-toolkit/issues/568) and Periods (https://github.com/CodeForPhilly/benefit-decision-toolkit/issues/550) would let the season and the poverty guideline year follow the screening date."
+          }, {
+            "decision" : "checks",
+            "text" : "householdSize and householdIncome are used as given. The screener has to apply LIHEAP's rules for whose income counts (601.81 to 601.84) and who is left out of household size (601.41(1))."
+          } ],
+          "lastReviewed" : "2026-11-12",
+          "limitations" : [ "Living arrangements that make a household ineligible are not checked: temporary stays, institutions, dorms, fraternity or sorority houses, boarding homes, incarceration, and fleeing felons.", "Heating equipment that is not installed or operating to code is not checked, and neither are the rules for recreational vehicles and home businesses.", "Household size and income are taken as given. LIHEAP leaves ineligible non-citizens, and people who already got Cash in another household, out of household size but still counts their income.", "The applicant may choose the prior month or the prior 12 months as the income period. The screener does not compare the two.", "DHS may change the season dates, and the funds can run out before the season closes.", "Income limits change each February, when DHS adopts the new federal poverty guidelines." ],
+          "programYear" : {
+            "endDate" : "2027-04-23",
+            "label" : "2026-27 season",
+            "startDate" : "2026-11-02"
+          },
+          "sources" : [ {
+            "checkedOn" : "2026-11-12",
+            "citation" : null,
+            "title" : "Pennsylvania DHS: LIHEAP",
+            "url" : "https://www.pa.gov/agencies/dhs/resources/liheap"
+          }, {
+            "checkedOn" : "2026-11-12",
+            "citation" : "Appendix B, 601.x eligibility rules: income 601.81 to 601.84; household 601.3 and 601.41; heating responsibility 601.31(2); residency 601.31(3); citizenship 601.31(4); one grant per season 601.43",
+            "title" : "Pennsylvania LIHEAP FFY 2027 Final State Plan",
+            "url" : "https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf"
+          }, {
+            "checkedOn" : "2026-11-12",
+            "citation" : "Revised 6/26",
+            "title" : "HSEA 1 LIHEAP application",
+            "url" : null
+          } ],
+          "summary" : "Helps Pennsylvania households pay for home heating with a once-a-season grant (LIHEAP Cash, 2026-27 season)."
+        }
+      }
+    },
+    "/api/v1/benefits/pa/phl/homestead-exemption" : {
+      "post" : {
+        "description" : "Reduces the taxable assessed value of an owner-occupied primary residence in Philadelphia.",
+        "operationId" : "PhlHomesteadExemptionService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "situation" : {
+                      "enrollments" : [ {
+                        "benefit" : "PhlHomesteadExemption",
+                        "personId" : "p1"
+                      } ],
+                      "primaryPersonId" : "p1",
+                      "simpleChecks" : {
+                        "livesInPhiladelphiaPa" : true,
+                        "ownerOccupant" : true,
+                        "tenYearTaxAbatement" : true
+                      }
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns12InputSetPhlHomesteadExemptionDSPhlHomesteadExemptionService"
+              }
+            }
+          },
+          "description" : "Input data for PhlHomesteadExemptionService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checks" : {
+                        "example-check" : true
+                      },
+                      "isEligible" : true,
+                      "nextSteps" : {
+                        "eligible" : {
+                          "applyUrl" : "example-applyUrl",
+                          "body" : "example-body",
+                          "helpPhone" : "example-helpPhone",
+                          "helpUrl" : "example-helpUrl"
+                        },
+                        "ineligible" : {
+                          "note" : "example-note"
+                        }
+                      },
+                      "situation" : {
+                        "enrollments" : [ {
+                          "benefit" : "PhlHomesteadExemption",
+                          "personId" : "p1"
+                        } ],
+                        "primaryPersonId" : "p1",
+                        "simpleChecks" : {
+                          "livesInPhiladelphiaPa" : true,
+                          "ownerOccupant" : true,
+                          "tenYearTaxAbatement" : true
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checks" : { },
+                    "isEligible" : {
+                      "type" : "boolean"
+                    },
+                    "nextSteps" : {
+                      "$ref" : "#/components/schemas/ns3tNextSteps"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns12tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute PhlHomesteadExemption decision",
+        "tags" : [ "Benefits" ],
+        "x-bdt-benefit" : {
+          "checks" : [ {
+            "alias" : "NotAlreadyOnHomestead",
+            "operationId" : "PersonNotEnrolledInBenefitService",
+            "parameterBindings" : {
+              "personId" : "primaryPersonId"
+            },
+            "parameters" : {
+              "benefit" : "PhlHomesteadExemption"
+            }
+          }, {
+            "alias" : "NoTenYearTaxAbatement",
+            "operationId" : "NoTenYearTaxAbatementService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          }, {
+            "alias" : "OwnerOccupant",
+            "operationId" : "OwnerOccupantService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          }, {
+            "alias" : "LivesInPhiladelphiaPa",
+            "operationId" : "LivesInPhiladelphiaPaService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          } ],
+          "nextSteps" : {
+            "eligible" : {
+              "applyUrl" : "https://tax-services.phila.gov/_/",
+              "body" : "Apply through the Philadelphia Tax Center. You do not need an online account. You can also apply by phone or use the paper application on the program page.\n\n- Apply by December 1. Applying by October 1 helps put the exemption on your next bill.\n- If a previous owner is still listed, call the hotline or use the paper application.\n- After approval, you usually do not need to apply again unless your deed changes.",
+              "helpPhone" : "(215) 686-9200",
+              "helpUrl" : "https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/"
+            },
+            "ineligible" : {
+              "note" : "If your name is not on the deed, you may still qualify for a conditional Homestead Exemption. Check the program page for the paper application and supporting documents."
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/benefits/pa/phl/loop" : {
+      "post" : {
+        "description" : "Philadelphia Longtime Owner Occupants Program (LOOP) for new applicants. Homestead recipients can qualify but must remove that exemption when they enroll; historical owner/close-relative abatements are excluded.",
+        "operationId" : "PhlLoopService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "situation" : {
+                      "enrollments" : [ {
+                        "benefit" : "PhlHomesteadExemption",
+                        "personId" : "p1"
+                      } ],
+                      "householdIncome" : 42,
+                      "householdSize" : 1,
+                      "lowestPropertyAssessmentLastFiveYears" : 42,
+                      "previousYearPropertyAssessment" : 42,
+                      "primaryPersonId" : "p1",
+                      "propertyAssessment" : 42,
+                      "simpleChecks" : {
+                        "disqualifyingTaxAbatement" : true,
+                        "livesInPhiladelphiaPa" : true,
+                        "ownerOccupant" : true,
+                        "propertyTaxPaymentPlan" : true,
+                        "taxDelinquent" : true
+                      },
+                      "yearsOwnerOccupied" : 42
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns20InputSetPhlLoopDSPhlLoopService"
+              }
+            }
+          },
+          "description" : "Input data for PhlLoopService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checks" : {
+                        "example-check" : true
+                      },
+                      "isEligible" : true,
+                      "nextSteps" : {
+                        "eligible" : {
+                          "applyUrl" : "example-applyUrl",
+                          "body" : "example-body",
+                          "helpPhone" : "example-helpPhone",
+                          "helpUrl" : "example-helpUrl"
+                        },
+                        "ineligible" : {
+                          "note" : "example-note"
+                        }
+                      },
+                      "situation" : {
+                        "enrollments" : [ {
+                          "benefit" : "PhlHomesteadExemption",
+                          "personId" : "p1"
+                        } ],
+                        "householdIncome" : 42,
+                        "householdSize" : 1,
+                        "lowestPropertyAssessmentLastFiveYears" : 42,
+                        "previousYearPropertyAssessment" : 42,
+                        "primaryPersonId" : "p1",
+                        "propertyAssessment" : 42,
+                        "simpleChecks" : {
+                          "disqualifyingTaxAbatement" : true,
+                          "livesInPhiladelphiaPa" : true,
+                          "ownerOccupant" : true,
+                          "propertyTaxPaymentPlan" : true,
+                          "taxDelinquent" : true
+                        },
+                        "yearsOwnerOccupied" : 42
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checks" : { },
+                    "isEligible" : {
+                      "type" : "boolean"
+                    },
+                    "nextSteps" : {
+                      "$ref" : "#/components/schemas/ns3tNextSteps"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns20tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute PhlLoop decision",
+        "tags" : [ "Benefits" ],
+        "x-bdt-benefit" : {
+          "checks" : [ {
+            "alias" : "NotAlreadyEnrolled",
+            "operationId" : "PersonNotEnrolledInBenefitService",
+            "parameterBindings" : {
+              "personId" : "primaryPersonId"
+            },
+            "parameters" : {
+              "benefit" : "PhlLoop"
+            }
+          }, {
+            "alias" : "OwnerOccupant",
+            "operationId" : "OwnerOccupantService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          }, {
+            "alias" : "LivesInPhiladelphiaPa",
+            "operationId" : "LivesInPhiladelphiaPaService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          }, {
+            "alias" : "TenYearsOwnerOccupant",
+            "operationId" : "MinYearsOwnerOccupantService",
+            "parameterBindings" : { },
+            "parameters" : {
+              "minYears" : 10
+            }
+          }, {
+            "alias" : "AssessmentIncrease",
+            "operationId" : "PropertyAssessmentIncreaseService",
+            "parameterBindings" : { },
+            "parameters" : {
+              "fiveYearPercent" : 75,
+              "oneYearPercent" : 50
+            }
+          }, {
+            "alias" : "TaxesCurrentOrPaymentPlan",
+            "operationId" : "PropertyTaxesCurrentOrPaymentPlanService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          }, {
+            "alias" : "MeetsIncomeRequirement",
+            "operationId" : "LoopIncomeService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          }, {
+            "alias" : "NoDisqualifyingTaxAbatement",
+            "operationId" : "NoDisqualifyingTaxAbatementService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          } ],
+          "nextSteps" : {
+            "eligible" : {
+              "applyUrl" : "https://tax-services.phila.gov/_/",
+              "body" : "Use the Philadelphia Tax Center to find your property, open its OPA number, and choose the real estate assistance application. The program page also has a paper application.\n\n- Include proof of income.\n- Compare LOOP and Homestead savings before switching: you cannot receive both at once. Request Homestead removal with your LOOP application if needed.\n- Applications are accepted throughout the year. Apply by September 30 for the benefit to apply to that year's bill.",
+              "helpPhone" : "(215) 686-9200",
+              "helpUrl" : "https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/"
+            },
+            "ineligible" : {
+              "note" : "Receiving the Homestead Exemption does not stop you from applying for LOOP, but you must request Homestead removal when applying. Use the City's property tax calculator to compare the programs first."
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/benefits/pa/phl/low-income-tax-freeze" : {
+      "post" : {
+        "description" : "Philadelphia Low-Income Real Estate Tax Freeze for owner-occupants whose income plus any spouse's income meets the single/married gross annual limits.",
+        "operationId" : "PhlLowIncomeTaxFreezeService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "situation" : {
+                      "applicantAndSpouseIncome" : 42,
+                      "enrollments" : [ {
+                        "benefit" : "PhlHomesteadExemption",
+                        "personId" : "p1"
+                      } ],
+                      "primaryPersonId" : "p1",
+                      "relationships" : [ {
+                        "personId" : "p1",
+                        "relatedPersonId" : "p1",
+                        "type" : "spouse"
+                      } ],
+                      "simpleChecks" : {
+                        "livesInPhiladelphiaPa" : true,
+                        "ownerOccupant" : true
+                      }
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns22InputSetPhlLowIncomeTaxFreezeDSPhlLowIncomeTaxFreezeService"
+              }
+            }
+          },
+          "description" : "Input data for PhlLowIncomeTaxFreezeService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checks" : {
+                        "example-check" : true
+                      },
+                      "isEligible" : true,
+                      "nextSteps" : {
+                        "eligible" : {
+                          "applyUrl" : "example-applyUrl",
+                          "body" : "example-body",
+                          "helpPhone" : "example-helpPhone",
+                          "helpUrl" : "example-helpUrl"
+                        },
+                        "ineligible" : {
+                          "note" : "example-note"
+                        }
+                      },
+                      "situation" : {
+                        "applicantAndSpouseIncome" : 42,
+                        "enrollments" : [ {
+                          "benefit" : "PhlHomesteadExemption",
+                          "personId" : "p1"
+                        } ],
+                        "primaryPersonId" : "p1",
+                        "relationships" : [ {
+                          "personId" : "p1",
+                          "relatedPersonId" : "p1",
+                          "type" : "spouse"
+                        } ],
+                        "simpleChecks" : {
+                          "livesInPhiladelphiaPa" : true,
+                          "ownerOccupant" : true
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checks" : { },
+                    "isEligible" : {
+                      "type" : "boolean"
+                    },
+                    "nextSteps" : {
+                      "$ref" : "#/components/schemas/ns3tNextSteps"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns22tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute PhlLowIncomeTaxFreeze decision",
+        "tags" : [ "Benefits" ],
+        "x-bdt-benefit" : {
+          "checks" : [ {
+            "alias" : "NotAlreadyEnrolled",
+            "operationId" : "PersonNotEnrolledInBenefitService",
+            "parameterBindings" : {
+              "personId" : "primaryPersonId"
+            },
+            "parameters" : {
+              "benefit" : "PhlLowIncomeTaxFreeze"
+            }
+          }, {
+            "alias" : "OwnerOccupant",
+            "operationId" : "OwnerOccupantService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          }, {
+            "alias" : "LivesInPhiladelphiaPa",
+            "operationId" : "LivesInPhiladelphiaPaService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          }, {
+            "alias" : "MeetsIncomeRequirement",
+            "operationId" : "TaxFreezeIncomeService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          } ],
+          "nextSteps" : {
+            "eligible" : {
+              "applyUrl" : "https://tax-services.phila.gov/_/",
+              "body" : "Apply through the Philadelphia Tax Center using the combined real estate assistance application. You do not need an online account. The program page also explains how to apply by mail or in person.\n\n- Apply by September 30 each year.\n- Include copies of proof of income, identity, and residence. Include your spouse's income documents if you are married.\n- You can receive this freeze together with the Homestead Exemption.",
+              "helpPhone" : "(215) 686-6442",
+              "helpUrl" : "https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/tax-freeze/apply-for-the-low-income-real-estate-tax-freeze/"
+            },
+            "ineligible" : {
+              "note" : "This tax freeze has no age requirement. Check the program page or contact the Department of Revenue if you need help documenting your income or residence."
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/benefits/pa/phl/owner-occupied-payment-agreement" : {
+      "post" : {
+        "description" : "A Philadelphia property-tax payment agreement for eligible owner occupants.",
+        "operationId" : "PhlOwnerOccupiedPaymentAgreementService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "situation" : {
+                      "enrollments" : [ {
+                        "benefit" : "PhlHomesteadExemption",
+                        "personId" : "p1"
+                      } ],
+                      "primaryPersonId" : "p1",
+                      "simpleChecks" : {
+                        "livesInPhiladelphiaPa" : true,
+                        "ownerOccupant" : true,
+                        "taxDelinquent" : true
+                      }
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns23InputSetPhlOwnerOccupiedPaymentAgreementDSPhlOwnerOccupiedPaymentAgreementService"
+              }
+            }
+          },
+          "description" : "Input data for PhlOwnerOccupiedPaymentAgreementService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checks" : {
+                        "example-check" : true
+                      },
+                      "isEligible" : true,
+                      "nextSteps" : {
+                        "eligible" : {
+                          "applyUrl" : "example-applyUrl",
+                          "body" : "example-body",
+                          "helpPhone" : "example-helpPhone",
+                          "helpUrl" : "example-helpUrl"
+                        },
+                        "ineligible" : {
+                          "note" : "example-note"
+                        }
+                      },
+                      "situation" : {
+                        "enrollments" : [ {
+                          "benefit" : "PhlHomesteadExemption",
+                          "personId" : "p1"
+                        } ],
+                        "primaryPersonId" : "p1",
+                        "simpleChecks" : {
+                          "livesInPhiladelphiaPa" : true,
+                          "ownerOccupant" : true,
+                          "taxDelinquent" : true
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checks" : { },
+                    "isEligible" : {
+                      "type" : "boolean"
+                    },
+                    "nextSteps" : {
+                      "$ref" : "#/components/schemas/ns3tNextSteps"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns23tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute PhlOwnerOccupiedPaymentAgreement decision",
+        "tags" : [ "Benefits" ],
+        "x-bdt-benefit" : {
+          "checks" : [ {
+            "alias" : "NotAlreadyOnOwnerOccupiedPaymentAgreement",
+            "operationId" : "PersonNotEnrolledInBenefitService",
+            "parameterBindings" : {
+              "personId" : "primaryPersonId"
+            },
+            "parameters" : {
+              "benefit" : "PhlOwnerOccupiedPaymentAgreement"
+            }
+          }, {
+            "alias" : "LivesInPhiladelphiaPa",
+            "operationId" : "LivesInPhiladelphiaPaService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          }, {
+            "alias" : "OwnerOccupant",
+            "operationId" : "OwnerOccupantService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          }, {
+            "alias" : "TaxDelinquent",
+            "operationId" : "TaxDelinquentService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          } ],
+          "nextSteps" : {
+            "eligible" : {
+              "applyUrl" : "https://tax-services.phila.gov/_/",
+              "body" : "Apply through the Philadelphia Tax Center or use the paper application on the program page. You do not need an online account or a down payment to enroll.\n\n- Include proof of income and two forms of proof that you live at the property, including government-issued photo ID.\n- Ask for a review of income and expenses if the proposed monthly payment is unaffordable.\n- New property taxes may still be due separately. Confirm what your agreement covers.",
+              "helpPhone" : "(215) 686-6442",
+              "helpUrl" : "https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/set-up-an-owner-occupied-real-estate-tax-payment-agreement-oopa/"
+            },
+            "ineligible" : {
+              "note" : "You may still qualify if your name is not on the deed but you have a legal ownership interest. Check the program page for the tangled title supplement and supporting documents."
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/benefits/pa/phl/retip" : {
+      "post" : {
+        "description" : "Philadelphia Real Estate Tax Installment Plan (RETIP) for owner-occupants qualifying by applicant/live-in spouse age or household income.",
+        "operationId" : "PhlRetipService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "situation" : {
+                      "enrollments" : [ {
+                        "benefit" : "PhlHomesteadExemption",
+                        "personId" : "p1"
+                      } ],
+                      "householdIncome" : 42,
+                      "householdSize" : 1,
+                      "people" : [ {
+                        "dateOfBirth" : "1960-05-15",
+                        "id" : "p1"
+                      } ],
+                      "primaryPersonId" : "p1",
+                      "relationships" : [ {
+                        "personId" : "p1",
+                        "relatedPersonId" : "p1",
+                        "type" : "spouse"
+                      } ],
+                      "simpleChecks" : {
+                        "livesInPhiladelphiaPa" : true,
+                        "ownerOccupant" : true,
+                        "spouseLivesInHousehold" : true
+                      }
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns29InputSetPhlRetipDSPhlRetipService"
+              }
+            }
+          },
+          "description" : "Input data for PhlRetipService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checks" : {
+                        "example-check" : true
+                      },
+                      "isEligible" : true,
+                      "nextSteps" : {
+                        "eligible" : {
+                          "applyUrl" : "example-applyUrl",
+                          "body" : "example-body",
+                          "helpPhone" : "example-helpPhone",
+                          "helpUrl" : "example-helpUrl"
+                        },
+                        "ineligible" : {
+                          "note" : "example-note"
+                        }
+                      },
+                      "situation" : {
+                        "enrollments" : [ {
+                          "benefit" : "PhlHomesteadExemption",
+                          "personId" : "p1"
+                        } ],
+                        "householdIncome" : 42,
+                        "householdSize" : 1,
+                        "people" : [ {
+                          "dateOfBirth" : "1960-05-15",
+                          "id" : "p1"
+                        } ],
+                        "primaryPersonId" : "p1",
+                        "relationships" : [ {
+                          "personId" : "p1",
+                          "relatedPersonId" : "p1",
+                          "type" : "spouse"
+                        } ],
+                        "simpleChecks" : {
+                          "livesInPhiladelphiaPa" : true,
+                          "ownerOccupant" : true,
+                          "spouseLivesInHousehold" : true
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checks" : { },
+                    "isEligible" : {
+                      "type" : "boolean"
+                    },
+                    "nextSteps" : {
+                      "$ref" : "#/components/schemas/ns3tNextSteps"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns29tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute PhlRetip decision",
+        "tags" : [ "Benefits" ],
+        "x-bdt-benefit" : {
+          "checks" : [ {
+            "alias" : "NotAlreadyEnrolled",
+            "operationId" : "PersonNotEnrolledInBenefitService",
+            "parameterBindings" : {
+              "personId" : "primaryPersonId"
+            },
+            "parameters" : {
+              "benefit" : "PhlRetip"
+            }
+          }, {
+            "alias" : "OwnerOccupant",
+            "operationId" : "OwnerOccupantService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          }, {
+            "alias" : "LivesInPhiladelphiaPa",
+            "operationId" : "LivesInPhiladelphiaPaService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          }, {
+            "alias" : "MeetsAgeOrIncomeRequirement",
+            "operationId" : "RetipAgeOrIncomeRequirementService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          } ],
+          "nextSteps" : {
+            "eligible" : {
+              "applyUrl" : "https://tax-services.phila.gov/_/",
+              "body" : "Apply through the Philadelphia Tax Center using the combined real estate assistance application, or mail the paper application from the program page.\n\n- Applications must be received by March 31 each year.\n- Provide proof of age if applying as a senior, or the income information required for a low-income application.\n- Make every required monthly payment. Missing payments can end the plan and make the remaining taxes, interest, and charges due.",
+              "helpPhone" : "(215) 686-6442",
+              "helpUrl" : "https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/set-up-real-estate-tax-installment-plan/"
+            },
+            "ineligible" : {
+              "note" : "If you are already enrolled and finish all required payments, the City automatically enrolls you for the following year. The application is for new applicants."
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/benefits/pa/phl/senior-citizen-tax-freeze" : {
+      "post" : {
+        "description" : "Freezes Philadelphia real estate taxes for qualifying older homeowners.",
+        "operationId" : "PhlSeniorCitizenTaxFreezeService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "situation" : {
+                      "enrollments" : [ {
+                        "benefit" : "PhlHomesteadExemption",
+                        "personId" : "p1"
+                      } ],
+                      "people" : [ {
+                        "dateOfBirth" : "1960-05-15",
+                        "id" : "p1"
+                      } ],
+                      "primaryPersonId" : "p1",
+                      "relationships" : [ {
+                        "personId" : "p1",
+                        "relatedPersonId" : "p1",
+                        "type" : "spouse"
+                      } ],
+                      "simpleChecks" : {
+                        "lateSpouseWasAtLeast65" : true,
+                        "livesInPhiladelphiaPa" : true,
+                        "ownerOccupant" : true
+                      }
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns31InputSetPhlSeniorCitizenTaxFreezeDSPhlSeniorCitizenTaxFreezeService"
+              }
+            }
+          },
+          "description" : "Input data for PhlSeniorCitizenTaxFreezeService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checks" : {
+                        "example-check" : true
+                      },
+                      "isEligible" : true,
+                      "nextSteps" : {
+                        "eligible" : {
+                          "applyUrl" : "example-applyUrl",
+                          "body" : "example-body",
+                          "helpPhone" : "example-helpPhone",
+                          "helpUrl" : "example-helpUrl"
+                        },
+                        "ineligible" : {
+                          "note" : "example-note"
+                        }
+                      },
+                      "situation" : {
+                        "enrollments" : [ {
+                          "benefit" : "PhlHomesteadExemption",
+                          "personId" : "p1"
+                        } ],
+                        "people" : [ {
+                          "dateOfBirth" : "1960-05-15",
+                          "id" : "p1"
+                        } ],
+                        "primaryPersonId" : "p1",
+                        "relationships" : [ {
+                          "personId" : "p1",
+                          "relatedPersonId" : "p1",
+                          "type" : "spouse"
+                        } ],
+                        "simpleChecks" : {
+                          "lateSpouseWasAtLeast65" : true,
+                          "livesInPhiladelphiaPa" : true,
+                          "ownerOccupant" : true
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checks" : { },
+                    "isEligible" : {
+                      "type" : "boolean"
+                    },
+                    "nextSteps" : {
+                      "$ref" : "#/components/schemas/ns3tNextSteps"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns31tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute PhlSeniorCitizenTaxFreeze decision",
+        "tags" : [ "Benefits" ],
+        "x-bdt-benefit" : {
+          "checks" : [ {
+            "alias" : "NotAlreadyOnSeniorCitizenTaxFreeze",
+            "operationId" : "PersonNotEnrolledInBenefitService",
+            "parameterBindings" : {
+              "personId" : "primaryPersonId"
+            },
+            "parameters" : {
+              "benefit" : "PhlSeniorCitizenTaxFreeze"
+            }
+          }, {
+            "alias" : "OwnerOccupant",
+            "operationId" : "OwnerOccupantService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          }, {
+            "alias" : "LivesInPhiladelphiaPa",
+            "operationId" : "LivesInPhiladelphiaPaService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          }, {
+            "alias" : "MeetsAgeRequirement",
+            "operationId" : "SctfAgeRequirementService",
+            "parameterBindings" : { },
+            "parameters" : { }
+          } ],
+          "nextSteps" : {
+            "eligible" : {
+              "applyUrl" : "https://tax-services.phila.gov/_/",
+              "body" : "Apply through the Philadelphia Tax Center or use the paper application on the program page. You do not need an online account.\n\n- Apply by September 30 each year. If you missed the deadline and are already 65 or older, ask Revenue about backdated enrollment.\n- Include copies of proof of age and income for yourself and your spouse, as applicable. Keep your original documents.\n- If you qualified in an earlier year, ask Revenue which year's income documents to provide.",
+              "helpPhone" : "(215) 686-6442",
+              "helpUrl" : "https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-low-income-senior-citizen-real-estate-tax-freeze/"
+            },
+            "ineligible" : {
+              "note" : "Eligible residents of cooperative buildings use a special co-op application. Check the program page or contact Revenue for help with your situation."
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/checks/age/applicant-or-spouse-min-age" : {
+      "post" : {
+        "description" : "Checks the applicant or live-in spouse against a minimum age as of today. An empty relationships list means no spouse; omitted relationships mean unknown.",
+        "operationId" : "ApplicantOrSpouseMinAgeService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "parameters" : {
+                      "minAge" : 65
+                    },
+                    "situation" : {
+                      "people" : [ {
+                        "dateOfBirth" : "1960-05-15",
+                        "id" : "p1"
+                      } ],
+                      "primaryPersonId" : "p1",
+                      "relationships" : [ {
+                        "personId" : "p1",
+                        "relatedPersonId" : "p1",
+                        "type" : "spouse"
+                      } ],
+                      "simpleChecks" : {
+                        "spouseLivesInHousehold" : true
+                      }
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns26InputSetApplicantOrSpouseMinAgeDSApplicantOrSpouseMinAgeService"
+              }
+            }
+          },
+          "description" : "Input data for ApplicantOrSpouseMinAgeService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "parameters" : {
+                        "minAge" : 65
+                      },
+                      "situation" : {
+                        "people" : [ {
+                          "dateOfBirth" : "1960-05-15",
+                          "id" : "p1"
+                        } ],
+                        "primaryPersonId" : "p1",
+                        "relationships" : [ {
+                          "personId" : "p1",
+                          "relatedPersonId" : "p1",
+                          "type" : "spouse"
+                        } ],
+                        "simpleChecks" : {
+                          "spouseLivesInHousehold" : true
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "parameters" : {
+                      "$ref" : "#/components/schemas/ns26tParameters"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns26tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute ApplicantOrSpouseMinAge decision",
+        "tags" : [ "Age Checks" ]
+      }
+    },
+    "/api/v1/checks/age/person-max-age" : {
+      "post" : {
+        "operationId" : "PersonMaxAgeService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "parameters" : {
+                      "asOfDate" : "1960-05-15",
+                      "maxAge" : 65,
+                      "personId" : "p1"
+                    },
+                    "situation" : {
+                      "people" : [ {
+                        "dateOfBirth" : "1960-05-15",
+                        "id" : "p1"
+                      } ]
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns38InputSetPersonMaxAgeDSPersonMaxAgeService"
+              }
+            }
+          },
+          "description" : "Input data for PersonMaxAgeService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "parameters" : {
+                        "asOfDate" : "1960-05-15",
+                        "maxAge" : 65,
+                        "personId" : "p1"
+                      },
+                      "situation" : {
+                        "people" : [ {
+                          "dateOfBirth" : "1960-05-15",
+                          "id" : "p1"
+                        } ]
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "parameters" : {
+                      "$ref" : "#/components/schemas/ns38tParameters"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns38tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute PersonMaxAge decision",
+        "tags" : [ "Age Checks" ]
+      }
+    },
+    "/api/v1/checks/age/person-min-age" : {
+      "post" : {
+        "description" : "Ensure a specified person's age meets a minimum number as of a specified date.",
+        "operationId" : "PersonMinAgeService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "parameters" : {
+                      "asOfDate" : "1960-05-15",
+                      "minAge" : 65,
+                      "personId" : "p1"
+                    },
+                    "situation" : {
+                      "people" : [ {
+                        "dateOfBirth" : "1960-05-15",
+                        "id" : "p1"
+                      } ]
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns25InputSetPersonMinAgeDSPersonMinAgeService"
+              }
+            }
+          },
+          "description" : "Input data for PersonMinAgeService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "parameters" : {
+                        "asOfDate" : "1960-05-15",
+                        "minAge" : 65,
+                        "personId" : "p1"
+                      },
+                      "situation" : {
+                        "people" : [ {
+                          "dateOfBirth" : "1960-05-15",
+                          "id" : "p1"
+                        } ]
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "parameters" : {
+                      "$ref" : "#/components/schemas/ns25tParameters"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns25tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute PersonMinAge decision",
+        "tags" : [ "Age Checks" ]
+      }
+    },
+    "/api/v1/checks/age/someone-min-age" : {
+      "post" : {
+        "description" : "Ensure at least one person from a specified list meets a minimum age requirement as of a specified date.",
+        "operationId" : "SomeoneMinAgeService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "parameters" : {
+                      "asOfDate" : "1960-05-15",
+                      "minAge" : 65,
+                      "peopleIds" : [ "p1" ]
+                    },
+                    "situation" : {
+                      "people" : [ {
+                        "dateOfBirth" : "1960-05-15",
+                        "id" : "p1"
+                      } ]
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns39InputSetSomeoneMinAgeDSSomeoneMinAgeService"
+              }
+            }
+          },
+          "description" : "Input data for SomeoneMinAgeService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "parameters" : {
+                        "asOfDate" : "1960-05-15",
+                        "minAge" : 65,
+                        "peopleIds" : [ "p1" ]
+                      },
+                      "situation" : {
+                        "people" : [ {
+                          "dateOfBirth" : "1960-05-15",
+                          "id" : "p1"
+                        } ]
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "parameters" : {
+                      "$ref" : "#/components/schemas/ns39tParameters"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns39tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute SomeoneMinAge decision",
+        "tags" : [ "Age Checks" ]
+      }
+    },
+    "/api/v1/checks/citizenship/household-has-citizen-or-eligible-noncitizen" : {
+      "post" : {
+        "description" : "Checks that at least one household member is a U.S. citizen or a lawfully admitted non-citizen.\n\nPasses when the screener answer says someone in the household is a U.S. citizen or a lawfully admitted non-citizen, such as a lawful permanent resident, refugee, asylee, or someone paroled for at least one year. Fails when the answer says no one is, and returns no result when the answer is missing.\n\n## Limitations\n\n- Relies on the screener answer. It does not check immigration documents.\n- The qualifying statuses come from PA LIHEAP, which has no five-year bar. Other programs may accept fewer statuses or apply a waiting period.\n- Does not adjust household size for members who are not lawfully admitted.\n\n## Sources\n\n- [Pennsylvania LIHEAP FFY 2027 Final State Plan](https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf): Appendix B, 601.31(4): citizenship and lawful admission (checked November 12, 2026)\n\nLast reviewed November 12, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/citizenship/household-has-citizen-or-eligible-noncitizen/"
+        },
+        "operationId" : "HouseholdHasCitizenOrEligibleNoncitizenService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Fail" : {
+                  "description" : "No one in the household is a U.S. citizen or lawfully admitted non-citizen, so the check fails.",
+                  "summary" : "Fail",
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "householdHasCitizenOrEligibleNoncitizen" : false
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : false
+                  }
+                },
+                "Pass" : {
+                  "description" : "Someone in the household is a U.S. citizen or lawfully admitted non-citizen, so the check passes.",
+                  "summary" : "Pass",
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "householdHasCitizenOrEligibleNoncitizen" : true
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns36InputSetHouseholdHasCitizenOrEligibleNoncitizenDSHouseholdHasCitizenOrEligibleNoncitizenService"
+              }
+            }
+          },
+          "description" : "Input data for HouseholdHasCitizenOrEligibleNoncitizenService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "situation" : {
+                        "simpleChecks" : {
+                          "householdHasCitizenOrEligibleNoncitizen" : true
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns36tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute HouseholdHasCitizenOrEligibleNoncitizen decision",
+        "tags" : [ "Citizenship Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Passes when the screener answer says someone in the household is a U.S. citizen or a lawfully admitted non-citizen, such as a lawful permanent resident, refugee, asylee, or someone paroled for at least one year. Fails when the answer says no one is, and returns no result when the answer is missing.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-12",
+          "limitations" : [ "Relies on the screener answer. It does not check immigration documents.", "The qualifying statuses come from PA LIHEAP, which has no five-year bar. Other programs may accept fewer statuses or apply a waiting period.", "Does not adjust household size for members who are not lawfully admitted." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-12",
+            "citation" : "Appendix B, 601.31(4): citizenship and lawful admission",
+            "title" : "Pennsylvania LIHEAP FFY 2027 Final State Plan",
+            "url" : "https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf"
+          } ],
+          "summary" : "Checks that at least one household member is a U.S. citizen or a lawfully admitted non-citizen."
+        }
+      }
+    },
+    "/api/v1/checks/enrollment/person-enrolled-in-benefit" : {
+      "post" : {
+        "description" : "Verify that a specified person is enrolled in a specified benefit program.",
+        "operationId" : "PersonEnrolledInBenefitService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "parameters" : {
+                      "benefit" : "PhlHomesteadExemption",
+                      "personId" : "p1"
+                    },
+                    "situation" : {
+                      "enrollments" : [ {
+                        "benefit" : "PhlHomesteadExemption",
+                        "personId" : "p1"
+                      } ]
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns5InputSetPersonEnrolledInBenefitDSPersonEnrolledInBenefitService"
+              }
+            }
+          },
+          "description" : "Input data for PersonEnrolledInBenefitService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "parameters" : {
+                        "benefit" : "PhlHomesteadExemption",
+                        "personId" : "p1"
+                      },
+                      "situation" : {
+                        "enrollments" : [ {
+                          "benefit" : "PhlHomesteadExemption",
+                          "personId" : "p1"
+                        } ]
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "parameters" : {
+                      "$ref" : "#/components/schemas/ns5tParameters"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns5tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute PersonEnrolledInBenefit decision",
+        "tags" : [ "Enrollment Checks" ]
+      }
+    },
+    "/api/v1/checks/enrollment/person-not-enrolled-in-benefit" : {
+      "post" : {
+        "description" : "Verify that a specified person is not currently enrolled in a specified benefit program.",
+        "operationId" : "PersonNotEnrolledInBenefitService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "parameters" : {
+                      "benefit" : "PhlHomesteadExemption",
+                      "personId" : "p1"
+                    },
+                    "situation" : {
+                      "enrollments" : [ {
+                        "benefit" : "PhlHomesteadExemption",
+                        "personId" : "p1"
+                      } ]
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns6InputSetPersonNotEnrolledInBenefitDSPersonNotEnrolledInBenefitService"
+              }
+            }
+          },
+          "description" : "Input data for PersonNotEnrolledInBenefitService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "parameters" : {
+                        "benefit" : "PhlHomesteadExemption",
+                        "personId" : "p1"
+                      },
+                      "situation" : {
+                        "enrollments" : [ {
+                          "benefit" : "PhlHomesteadExemption",
+                          "personId" : "p1"
+                        } ]
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "parameters" : {
+                      "$ref" : "#/components/schemas/ns5tParameters"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns6tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute PersonNotEnrolledInBenefit decision",
+        "tags" : [ "Enrollment Checks" ]
+      }
+    },
+    "/api/v1/checks/income/household-income-within-poverty-guidelines" : {
+      "post" : {
+        "description" : "Checks that annual household income is at or below a percentage of the HHS poverty guidelines for the household's size.\n\nFinds the HHS poverty guideline for the household's size, multiplies it by the given percent, and passes when annual household income is equal to or less than the result. For 2026 the guideline is $15,960 for one person plus $5,680 for each additional person, so 150% is $23,940 for one person plus $8,520 for each additional person. Returns no result when income or household size is missing or invalid, or when the guideline year is not available.\n\n## Parameters\n\n- `percent` (number): Percentage of the poverty guideline to use as the income limit, for example 150 for 150%.\n- `guidelineYear` (number): Year of the HHS poverty guidelines to use, for example 2026.\n\n## Limitations\n\n- Only the 2026 guidelines are available. Any other guideline year returns no result.\n- Uses the guidelines for the 48 contiguous states and DC, not those for Alaska or Hawaii.\n- Takes household income and size as given. It does not decide whose income counts, which income is excluded, or how pay is annualized.\n- Does not round the limit. A program that publishes rounded limits may differ by a few dollars.\n\n## Sources\n\n- [Pennsylvania LIHEAP FFY 2027 Final State Plan](https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf): Income eligibility: 150% of the 2026 federal poverty guidelines, by household size (checked November 12, 2026)\n- [Pennsylvania DHS: LIHEAP](https://www.pa.gov/agencies/dhs/resources/liheap): Income limits by household size (checked November 12, 2026)\n\nLast reviewed November 12, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/income/household-income-within-poverty-guidelines/"
+        },
+        "operationId" : "HouseholdIncomeWithinPovertyGuidelinesService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "One person at 150 percent" : {
+                  "description" : "A one-person household with $23,940 a year is exactly at 150% of the 2026 poverty guideline, which matches PA LIHEAP's published limit, so the check passes.",
+                  "summary" : "One person at 150 percent",
+                  "value" : {
+                    "parameters" : {
+                      "guidelineYear" : 2026,
+                      "percent" : 150
+                    },
+                    "situation" : {
+                      "householdIncome" : 23940,
+                      "householdSize" : 1
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
+                  }
+                },
+                "One person over 150 percent" : {
+                  "description" : "A one-person household with one cent more than $23,940 a year is over 150% of the 2026 guideline, so the check fails.",
+                  "summary" : "One person over 150 percent",
+                  "value" : {
+                    "parameters" : {
+                      "guidelineYear" : 2026,
+                      "percent" : 150
+                    },
+                    "situation" : {
+                      "householdIncome" : 23940.01,
+                      "householdSize" : 1
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : false
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns33InputSetHouseholdIncomeWithinPovertyGuidelinesDSHouseholdIncomeWithinPovertyGuidelinesService"
+              }
+            }
+          },
+          "description" : "Input data for HouseholdIncomeWithinPovertyGuidelinesService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "parameters" : {
+                        "guidelineYear" : 2026,
+                        "percent" : 42
+                      },
+                      "situation" : {
+                        "householdIncome" : 42,
+                        "householdSize" : 1
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "parameters" : {
+                      "$ref" : "#/components/schemas/ns33tParameters"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns33tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute HouseholdIncomeWithinPovertyGuidelines decision",
+        "tags" : [ "Income Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Finds the HHS poverty guideline for the household's size, multiplies it by the given percent, and passes when annual household income is equal to or less than the result. For 2026 the guideline is $15,960 for one person plus $5,680 for each additional person, so 150% is $23,940 for one person plus $8,520 for each additional person. Returns no result when income or household size is missing or invalid, or when the guideline year is not available.",
+          "implementationNotes" : [ {
+            "decision" : "checkResult",
+            "text" : "The 2026 values were derived from PA LIHEAP's published 150% table ($23,940 for one person, plus $8,520 for each additional person). Add each new year to the guidelines list when HHS publishes it in January."
+          } ],
+          "lastReviewed" : "2026-11-12",
+          "limitations" : [ "Only the 2026 guidelines are available. Any other guideline year returns no result.", "Uses the guidelines for the 48 contiguous states and DC, not those for Alaska or Hawaii.", "Takes household income and size as given. It does not decide whose income counts, which income is excluded, or how pay is annualized.", "Does not round the limit. A program that publishes rounded limits may differ by a few dollars." ],
+          "parameters" : [ {
+            "description" : "Percentage of the poverty guideline to use as the income limit, for example 150 for 150%.",
+            "name" : "percent",
+            "type" : "number"
+          }, {
+            "description" : "Year of the HHS poverty guidelines to use, for example 2026.",
+            "name" : "guidelineYear",
+            "type" : "number"
+          } ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-12",
+            "citation" : "Income eligibility: 150% of the 2026 federal poverty guidelines, by household size",
+            "title" : "Pennsylvania LIHEAP FFY 2027 Final State Plan",
+            "url" : "https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf"
+          }, {
+            "checkedOn" : "2026-11-12",
+            "citation" : "Income limits by household size",
+            "title" : "Pennsylvania DHS: LIHEAP",
+            "url" : "https://www.pa.gov/agencies/dhs/resources/liheap"
+          } ],
+          "summary" : "Checks that annual household income is at or below a percentage of the HHS poverty guidelines for the household's size."
+        }
+      }
+    },
+    "/api/v1/checks/income/loop-income" : {
+      "post" : {
+        "description" : "New LOOP applicants: household annual income below the 120% AMI cap; pre-2023 renewals use different limits. City income table verified 2026-10-05.",
+        "operationId" : "LoopIncomeService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "situation" : {
+                      "householdIncome" : 42,
+                      "householdSize" : 1
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns18InputSetLoopIncomeDSLoopIncomeService"
+              }
+            }
+          },
+          "description" : "Input data for LoopIncomeService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "situation" : {
+                        "householdIncome" : 42,
+                        "householdSize" : 1
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns18tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute LoopIncome decision",
+        "tags" : [ "Income Checks" ]
+      }
+    },
+    "/api/v1/checks/income/retip-income" : {
+      "post" : {
+        "description" : "RETIP non-senior applicants: household annual income below the family-size cap. City income table verified 2026-10-05.",
+        "operationId" : "RetipIncomeService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "situation" : {
+                      "householdIncome" : 42,
+                      "householdSize" : 1
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns27InputSetRetipIncomeDSRetipIncomeService"
+              }
+            }
+          },
+          "description" : "Input data for RetipIncomeService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "situation" : {
+                        "householdIncome" : 42,
+                        "householdSize" : 1
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns27tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute RetipIncome decision",
+        "tags" : [ "Income Checks" ]
+      }
+    },
+    "/api/v1/checks/income/tax-freeze-income" : {
+      "post" : {
+        "description" : "Philadelphia tax freeze gross annual income: at most $33,500 single or $41,500 married (city guidance verified 2026-10-05). Counts the applicant's income plus a spouse's; a spouse in relationships means the married limit applies. An empty relationships list means no spouse; omitted relationships mean unknown.",
+        "operationId" : "TaxFreezeIncomeService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "situation" : {
+                      "applicantAndSpouseIncome" : 42,
+                      "primaryPersonId" : "p1",
+                      "relationships" : [ {
+                        "personId" : "p1",
+                        "relatedPersonId" : "p1",
+                        "type" : "spouse"
+                      } ]
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns21InputSetTaxFreezeIncomeDSTaxFreezeIncomeService"
+              }
+            }
+          },
+          "description" : "Input data for TaxFreezeIncomeService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "situation" : {
+                        "applicantAndSpouseIncome" : 42,
+                        "primaryPersonId" : "p1",
+                        "relationships" : [ {
+                          "personId" : "p1",
+                          "relatedPersonId" : "p1",
+                          "type" : "spouse"
+                        } ]
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns21tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute TaxFreezeIncome decision",
+        "tags" : [ "Income Checks" ]
+      }
+    },
+    "/api/v1/checks/internal/retip-age-or-income-requirement" : {
+      "post" : {
+        "description" : "RETIP eligibility through applicant/live-in spouse age 65 or low household income. No late-spouse age pathway.",
+        "operationId" : "RetipAgeOrIncomeRequirementService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "situation" : {
+                      "householdIncome" : 42,
+                      "householdSize" : 1,
+                      "people" : [ {
+                        "dateOfBirth" : "1960-05-15",
+                        "id" : "p1"
+                      } ],
+                      "primaryPersonId" : "p1",
+                      "relationships" : [ {
+                        "personId" : "p1",
+                        "relatedPersonId" : "p1",
+                        "type" : "spouse"
+                      } ],
+                      "simpleChecks" : {
+                        "spouseLivesInHousehold" : true
+                      }
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns28InputSetRetipAgeOrIncomeRequirementDSRetipAgeOrIncomeRequirementService"
+              }
+            }
+          },
+          "description" : "Input data for RetipAgeOrIncomeRequirementService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "situation" : {
+                        "householdIncome" : 42,
+                        "householdSize" : 1,
+                        "people" : [ {
+                          "dateOfBirth" : "1960-05-15",
+                          "id" : "p1"
+                        } ],
+                        "primaryPersonId" : "p1",
+                        "relationships" : [ {
+                          "personId" : "p1",
+                          "relatedPersonId" : "p1",
+                          "type" : "spouse"
+                        } ],
+                        "simpleChecks" : {
+                          "spouseLivesInHousehold" : true
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns28tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute RetipAgeOrIncomeRequirement decision",
+        "tags" : [ "Internal Checks" ]
+      }
+    },
+    "/api/v1/checks/internal/sctf-age-requirement" : {
+      "post" : {
+        "description" : "Checks the age pathways for Philadelphia's Senior Citizen Tax Freeze.",
+        "operationId" : "SctfAgeRequirementService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "situation" : {
+                      "people" : [ {
+                        "dateOfBirth" : "1960-05-15",
+                        "id" : "p1"
+                      } ],
+                      "primaryPersonId" : "p1",
+                      "relationships" : [ {
+                        "personId" : "p1",
+                        "relatedPersonId" : "p1",
+                        "type" : "spouse"
+                      } ],
+                      "simpleChecks" : {
+                        "lateSpouseWasAtLeast65" : true
+                      }
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns30InputSetSctfAgeRequirementDSSctfAgeRequirementService"
+              }
+            }
+          },
+          "description" : "Input data for SctfAgeRequirementService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "situation" : {
+                        "people" : [ {
+                          "dateOfBirth" : "1960-05-15",
+                          "id" : "p1"
+                        } ],
+                        "primaryPersonId" : "p1",
+                        "relationships" : [ {
+                          "personId" : "p1",
+                          "relatedPersonId" : "p1",
+                          "type" : "spouse"
+                        } ],
+                        "simpleChecks" : {
+                          "lateSpouseWasAtLeast65" : true
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns30tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute SctfAgeRequirement decision",
+        "tags" : [ "Internal Checks" ]
+      }
+    },
+    "/api/v1/checks/residence/lives-in-pennsylvania" : {
+      "post" : {
+        "description" : "Checks that the household lives in Pennsylvania.\n\nPasses when the screener answer says the household lives in Pennsylvania, and fails when it says the household does not. Returns no result when the answer is missing.\n\n## Limitations\n\n- Relies on the screener answer. It does not look up or verify an address.\n- Does not tell a permanent home in Pennsylvania apart from a temporary stay.\n\n## Sources\n\n- [Pennsylvania LIHEAP FFY 2027 Final State Plan](https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf): Appendix B, 601.31(3): residency (checked November 12, 2026)\n\nLast reviewed November 12, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/residence/lives-in-pennsylvania/"
+        },
+        "operationId" : "LivesInPennsylvaniaService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Fail" : {
+                  "description" : "The household says it does not live in Pennsylvania, so the check fails.",
+                  "summary" : "Fail",
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "livesInPennsylvania" : false
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : false
+                  }
+                },
+                "Pass" : {
+                  "description" : "The household says it lives in Pennsylvania, so the check passes.",
+                  "summary" : "Pass",
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "livesInPennsylvania" : true
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns32InputSetLivesInPennsylvaniaDSLivesInPennsylvaniaService"
+              }
+            }
+          },
+          "description" : "Input data for LivesInPennsylvaniaService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "situation" : {
+                        "simpleChecks" : {
+                          "livesInPennsylvania" : true
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns32tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute LivesInPennsylvania decision",
+        "tags" : [ "Residence Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Passes when the screener answer says the household lives in Pennsylvania, and fails when it says the household does not. Returns no result when the answer is missing.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-12",
+          "limitations" : [ "Relies on the screener answer. It does not look up or verify an address.", "Does not tell a permanent home in Pennsylvania apart from a temporary stay." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-12",
+            "citation" : "Appendix B, 601.31(3): residency",
+            "title" : "Pennsylvania LIHEAP FFY 2027 Final State Plan",
+            "url" : "https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf"
+          } ],
+          "summary" : "Checks that the household lives in Pennsylvania."
+        }
+      }
+    },
+    "/api/v1/checks/residence/lives-in-philadelphia-pa" : {
+      "post" : {
+        "description" : "Checks that a person lives in Philadelphia, PA.",
+        "operationId" : "LivesInPhiladelphiaPaService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "livesInPhiladelphiaPa" : true
+                      }
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns9InputSetLivesInPhiladelphiaPaDSLivesInPhiladelphiaPaService"
+              }
+            }
+          },
+          "description" : "Input data for LivesInPhiladelphiaPaService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "situation" : {
+                        "simpleChecks" : {
+                          "livesInPhiladelphiaPa" : true
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns9tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute LivesInPhiladelphiaPa decision",
+        "tags" : [ "Residence Checks" ]
+      }
+    },
+    "/api/v1/checks/residence/min-years-owner-occupant" : {
+      "post" : {
+        "description" : "Checks that the applicant has owned and occupied the primary residence for at least the specified number of years.",
+        "operationId" : "MinYearsOwnerOccupantService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "parameters" : {
+                      "minYears" : 42
+                    },
+                    "situation" : {
+                      "yearsOwnerOccupied" : 42
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns13InputSetMinYearsOwnerOccupantDSMinYearsOwnerOccupantService"
+              }
+            }
+          },
+          "description" : "Input data for MinYearsOwnerOccupantService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "parameters" : {
+                        "minYears" : 42
+                      },
+                      "situation" : {
+                        "yearsOwnerOccupied" : 42
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "parameters" : {
+                      "$ref" : "#/components/schemas/ns13tParameters"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns13tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute MinYearsOwnerOccupant decision",
+        "tags" : [ "Residence Checks" ]
+      }
+    },
+    "/api/v1/checks/residence/no-disqualifying-tax-abatement" : {
+      "post" : {
+        "description" : "LOOP excludes an abatement received on this property by the current owner or a previous owner who is a close relative; includes historical abatements.",
+        "operationId" : "NoDisqualifyingTaxAbatementService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "disqualifyingTaxAbatement" : true
+                      }
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns19InputSetNoDisqualifyingTaxAbatementDSNoDisqualifyingTaxAbatementService"
+              }
+            }
+          },
+          "description" : "Input data for NoDisqualifyingTaxAbatementService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "situation" : {
+                        "simpleChecks" : {
+                          "disqualifyingTaxAbatement" : true
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns19tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute NoDisqualifyingTaxAbatement decision",
+        "tags" : [ "Residence Checks" ]
+      }
+    },
+    "/api/v1/checks/residence/no-ten-year-tax-abatement" : {
+      "post" : {
+        "description" : "Checks that a property does not have an active 10-year tax abatement.",
+        "operationId" : "NoTenYearTaxAbatementService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "tenYearTaxAbatement" : true
+                      }
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns11InputSetNoTenYearTaxAbatementDSNoTenYearTaxAbatementService"
+              }
+            }
+          },
+          "description" : "Input data for NoTenYearTaxAbatementService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "situation" : {
+                        "simpleChecks" : {
+                          "tenYearTaxAbatement" : true
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns11tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute NoTenYearTaxAbatement decision",
+        "tags" : [ "Residence Checks" ]
+      }
+    },
+    "/api/v1/checks/residence/owner-occupant" : {
+      "post" : {
+        "description" : "Checks that a person owns and occupies their primary residence.",
+        "operationId" : "OwnerOccupantService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "ownerOccupant" : true
+                      }
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns8InputSetOwnerOccupantDSOwnerOccupantService"
+              }
+            }
+          },
+          "description" : "Input data for OwnerOccupantService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "situation" : {
+                        "simpleChecks" : {
+                          "ownerOccupant" : true
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns8tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute OwnerOccupant decision",
+        "tags" : [ "Residence Checks" ]
+      }
+    },
+    "/api/v1/checks/residence/pays-primary-heating-costs" : {
+      "post" : {
+        "description" : "Checks that the household pays for its primary heat, and not through income-based rent that includes heat.\n\nPasses when the household is responsible for the cost of its primary heat, paid directly to a fuel or utility company or as an undesignated part of its rent, and its heat is not included in rent that is set as a share of its income or by its source of income. Fails when either answer rules the household out, and returns no result when an answer needed to decide is missing.\n\n## Limitations\n\n- Does not check that the heating equipment is installed and operating to code.\n- Does not apply the rules for recreational vehicles or homes used for a business.\n- Relies on the screener answers to say what the primary heat is. Supplemental heat alone does not count.\n- A renter whose rent includes a designated heat portion counts as paying for heat, so the screener question has to cover that case.\n\n## Sources\n\n- [Pennsylvania LIHEAP FFY 2027 Final State Plan](https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf): Appendix B, 601.31(2): responsibility for heating costs; 601.3: definitions (checked November 12, 2026)\n\nLast reviewed November 12, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/residence/pays-primary-heating-costs/"
+        },
+        "operationId" : "PaysPrimaryHeatingCostsService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Heat in income-based rent" : {
+                  "description" : "The household's heat is included in rent set as a share of its income, so the check fails even though the household says it pays for heat.",
+                  "summary" : "Heat in income-based rent",
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "heatInIncomeBasedRent" : true,
+                        "paysPrimaryHeatingCosts" : true
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : false
+                  }
+                },
+                "Pass" : {
+                  "description" : "The household pays its own heating bill and its heat is not part of income-based rent, so the check passes.",
+                  "summary" : "Pass",
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "heatInIncomeBasedRent" : false,
+                        "paysPrimaryHeatingCosts" : true
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns34InputSetPaysPrimaryHeatingCostsDSPaysPrimaryHeatingCostsService"
+              }
+            }
+          },
+          "description" : "Input data for PaysPrimaryHeatingCostsService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "situation" : {
+                        "simpleChecks" : {
+                          "heatInIncomeBasedRent" : true,
+                          "paysPrimaryHeatingCosts" : true
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns34tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute PaysPrimaryHeatingCosts decision",
+        "tags" : [ "Residence Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Passes when the household is responsible for the cost of its primary heat, paid directly to a fuel or utility company or as an undesignated part of its rent, and its heat is not included in rent that is set as a share of its income or by its source of income. Fails when either answer rules the household out, and returns no result when an answer needed to decide is missing.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-12",
+          "limitations" : [ "Does not check that the heating equipment is installed and operating to code.", "Does not apply the rules for recreational vehicles or homes used for a business.", "Relies on the screener answers to say what the primary heat is. Supplemental heat alone does not count.", "A renter whose rent includes a designated heat portion counts as paying for heat, so the screener question has to cover that case." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-12",
+            "citation" : "Appendix B, 601.31(2): responsibility for heating costs; 601.3: definitions",
+            "title" : "Pennsylvania LIHEAP FFY 2027 Final State Plan",
+            "url" : "https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf"
+          } ],
+          "summary" : "Checks that the household pays for its primary heat, and not through income-based rent that includes heat."
+        }
+      }
+    },
+    "/api/v1/checks/residence/property-assessment-increase" : {
+      "post" : {
+        "description" : "Checks either the one-year or five-year assessment increase; use assessments before Homestead reductions.",
+        "operationId" : "PropertyAssessmentIncreaseService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "parameters" : {
+                      "fiveYearPercent" : 42,
+                      "oneYearPercent" : 42
+                    },
+                    "situation" : {
+                      "lowestPropertyAssessmentLastFiveYears" : 42,
+                      "previousYearPropertyAssessment" : 42,
+                      "propertyAssessment" : 42
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns14InputSetPropertyAssessmentIncreaseDSPropertyAssessmentIncreaseService"
+              }
+            }
+          },
+          "description" : "Input data for PropertyAssessmentIncreaseService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "parameters" : {
+                        "fiveYearPercent" : 42,
+                        "oneYearPercent" : 42
+                      },
+                      "situation" : {
+                        "lowestPropertyAssessmentLastFiveYears" : 42,
+                        "previousYearPropertyAssessment" : 42,
+                        "propertyAssessment" : 42
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "parameters" : {
+                      "$ref" : "#/components/schemas/ns14tParameters"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns14tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute PropertyAssessmentIncrease decision",
+        "tags" : [ "Residence Checks" ]
+      }
+    },
+    "/api/v1/checks/residence/property-taxes-current-or-payment-plan" : {
+      "post" : {
+        "description" : "Checks whether property taxes are current or covered by an active OOPA or Real Estate Tax installment plan.",
+        "operationId" : "PropertyTaxesCurrentOrPaymentPlanService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "propertyTaxPaymentPlan" : true,
+                        "taxDelinquent" : true
+                      }
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns16InputSetPropertyTaxesCurrentOrPaymentPlanDSPropertyTaxesCurrentOrPaymentPlanService"
+              }
+            }
+          },
+          "description" : "Input data for PropertyTaxesCurrentOrPaymentPlanService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "situation" : {
+                        "simpleChecks" : {
+                          "propertyTaxPaymentPlan" : true,
+                          "taxDelinquent" : true
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns16tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute PropertyTaxesCurrentOrPaymentPlan decision",
+        "tags" : [ "Residence Checks" ]
+      }
+    },
+    "/api/v1/checks/residence/tax-delinquent" : {
+      "post" : {
+        "description" : "Checks whether the property owner has delinquent taxes.",
+        "operationId" : "TaxDelinquentService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "taxDelinquent" : true
+                      }
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns15InputSetTaxDelinquentDSTaxDelinquentService"
+              }
+            }
+          },
+          "description" : "Input data for TaxDelinquentService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "situation" : {
+                        "simpleChecks" : {
+                          "taxDelinquent" : true
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns15tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute TaxDelinquent decision",
+        "tags" : [ "Residence Checks" ]
+      }
+    },
+    "/api/v1/checks/residence/ten-year-tax-abatement" : {
+      "post" : {
+        "description" : "Checks that a property has an active 10-year tax abatement.",
+        "operationId" : "TenYearTaxAbatementService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "tenYearTaxAbatement" : true
+                      }
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns10InputSetTenYearTaxAbatementDSTenYearTaxAbatementService"
+              }
+            }
+          },
+          "description" : "Input data for TenYearTaxAbatementService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "checkResult" : true,
+                      "situation" : {
+                        "simpleChecks" : {
+                          "tenYearTaxAbatement" : true
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "checkResult" : {
+                      "type" : "boolean"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns10tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute TenYearTaxAbatement decision",
+        "tags" : [ "Residence Checks" ]
+      }
+    },
+    "/api/v1/decision-service-invoker" : {
+      "post" : {
+        "operationId" : "DecisionServiceInvokerService",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "examples" : {
+                "Example request" : {
+                  "value" : {
+                    "model" : "example-model",
+                    "parameters" : "example-parameters",
+                    "service" : "example-service",
+                    "situation" : {
+                      "applicantAndSpouseIncome" : 42,
+                      "enrollments" : [ {
+                        "benefit" : "PhlHomesteadExemption",
+                        "personId" : "p1"
+                      } ],
+                      "householdIncome" : 42,
+                      "householdSize" : 1,
+                      "lowestPropertyAssessmentLastFiveYears" : 42,
+                      "people" : [ {
+                        "dateOfBirth" : "1960-05-15",
+                        "id" : "p1"
+                      } ],
+                      "previousYearPropertyAssessment" : 42,
+                      "primaryPersonId" : "p1",
+                      "propertyAssessment" : 42,
+                      "relationships" : [ {
+                        "personId" : "p1",
+                        "relatedPersonId" : "p1",
+                        "type" : "spouse"
+                      } ],
+                      "simpleChecks" : {
+                        "disqualifyingTaxAbatement" : true,
+                        "heatInIncomeBasedRent" : true,
+                        "householdHasCitizenOrEligibleNoncitizen" : true,
+                        "lateSpouseWasAtLeast65" : true,
+                        "livesInPennsylvania" : true,
+                        "livesInPhiladelphiaPa" : true,
+                        "ownerOccupant" : true,
+                        "paysPrimaryHeatingCosts" : true,
+                        "propertyTaxPaymentPlan" : true,
+                        "spouseLivesInHousehold" : true,
+                        "taxDelinquent" : true,
+                        "tenYearTaxAbatement" : true
+                      },
+                      "yearsOwnerOccupied" : 42
+                    }
+                  }
+                }
+              },
+              "schema" : {
+                "$ref" : "#/components/schemas/ns40InputSetDecisionServiceInvokerDSDecisionServiceInvokerService"
+              }
+            }
+          },
+          "description" : "Input data for DecisionServiceInvokerService",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example response" : {
+                    "value" : {
+                      "model" : "example-model",
+                      "parameters" : "example-parameters",
+                      "service" : "example-service",
+                      "situation" : {
+                        "applicantAndSpouseIncome" : 42,
+                        "enrollments" : [ {
+                          "benefit" : "PhlHomesteadExemption",
+                          "personId" : "p1"
+                        } ],
+                        "householdIncome" : 42,
+                        "householdSize" : 1,
+                        "lowestPropertyAssessmentLastFiveYears" : 42,
+                        "people" : [ {
+                          "dateOfBirth" : "1960-05-15",
+                          "id" : "p1"
+                        } ],
+                        "previousYearPropertyAssessment" : 42,
+                        "primaryPersonId" : "p1",
+                        "propertyAssessment" : 42,
+                        "relationships" : [ {
+                          "personId" : "p1",
+                          "relatedPersonId" : "p1",
+                          "type" : "spouse"
+                        } ],
+                        "simpleChecks" : {
+                          "disqualifyingTaxAbatement" : true,
+                          "heatInIncomeBasedRent" : true,
+                          "householdHasCitizenOrEligibleNoncitizen" : true,
+                          "lateSpouseWasAtLeast65" : true,
+                          "livesInPennsylvania" : true,
+                          "livesInPhiladelphiaPa" : true,
+                          "ownerOccupant" : true,
+                          "paysPrimaryHeatingCosts" : true,
+                          "propertyTaxPaymentPlan" : true,
+                          "spouseLivesInHousehold" : true,
+                          "taxDelinquent" : true,
+                          "tenYearTaxAbatement" : true
+                        },
+                        "yearsOwnerOccupied" : 42
+                      }
+                    }
+                  }
+                },
+                "schema" : {
+                  "description" : "DMN evaluation context containing all input and output variables",
+                  "properties" : {
+                    "model" : {
+                      "type" : "string"
+                    },
+                    "parameters" : { },
+                    "result" : { },
+                    "service" : {
+                      "type" : "string"
+                    },
+                    "situation" : {
+                      "$ref" : "#/components/schemas/ns3tSituation"
+                    }
+                  },
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "Decision evaluated successfully - returns full DMN context including inputs and outputs"
+          },
+          "400" : {
+            "description" : "Invalid input or decision evaluation error"
+          },
+          "404" : {
+            "description" : "Model or decision service not found"
+          }
+        },
+        "summary" : "Execute DecisionServiceInvoker decision",
+        "tags" : [ "Decision-service-invoker" ]
+      }
+    }
+  }
+}

@@ -105,6 +105,22 @@
 
   <build>
     <finalName>${project.artifactId}</finalName>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <!-- Bruno tests with a docs block are published as reference examples (see BrunoExamples). -->
+      <resource>
+        <directory>test/bdt</directory>
+        <targetPath>bruno</targetPath>
+        <includes>
+          <include>**/*.bru</include>
+        </includes>
+        <excludes>
+          <exclude>environments/**</exclude>
+        </excludes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>${quarkus.platform.group-id}</groupId>

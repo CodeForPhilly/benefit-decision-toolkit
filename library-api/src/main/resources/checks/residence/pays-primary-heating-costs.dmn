@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmn:definitions xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns="https://kie.apache.org/dmn/_C2DF8A86-0FB0-4D44-B113-9DB65E233E01" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:kie="https://kie.org/dmn/extensions/1.0" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1" id="_6E570459-1671-4FD4-BDFE-E4655D3F3707" name="PaysPrimaryHeatingCosts" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_C2DF8A86-0FB0-4D44-B113-9DB65E233E01">
+  <dmn:description>Checks that the household pays for its primary heat, and not through income-based rent that includes heat.</dmn:description>
+  <dmn:extensionElements/>
+  <dmn:import id="_D1CA5EBE-47D6-4714-B5FE-27E1CA4ACE01" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
+  <dmn:import id="_BDB58337-C8AE-46CA-8289-B59CC5461CB2" name="Residence" namespace="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1" locationURI="Residence.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
+  <dmn:itemDefinition id="_CCCC0493-F11E-45E8-B792-A83026B4AF23" name="tSimpleChecks" isCollection="false">
+    <dmn:itemComponent id="_D0135CB8-F84B-4E86-B6E2-87BBE6651354" name="paysPrimaryHeatingCosts" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+    <dmn:itemComponent id="_36E3B61C-2199-4718-B5D4-F4F0526A403D" name="heatInIncomeBasedRent" isCollection="false">
+      <dmn:typeRef>boolean</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_F0226D43-83B5-406D-BE36-7B7A3C9FE349" name="tSituation" isCollection="false">
+    <dmn:itemComponent id="_8B1D88CB-8570-4BBC-90F3-12CD19E4A147" name="simpleChecks" isCollection="false">
+      <dmn:typeRef>tSimpleChecks</dmn:typeRef>
+    </dmn:itemComponent>
+  </dmn:itemDefinition>
+  <dmn:decisionService id="_BBB7A8D5-7EF5-4667-B71E-F97155F4C31A" name="PaysPrimaryHeatingCostsService">
+    <dmn:extensionElements/>
+    <dmn:variable id="_9B521141-D48D-4AD5-8BAD-53C5080488BB" name="PaysPrimaryHeatingCostsService" typeRef="BDT.tCheckResponse"/>
+    <dmn:outputDecision href="#_46745B91-F74B-47C8-8051-AD929FDB044D"/>
+    <dmn:inputData href="#_8211EA1C-477E-4D2A-8EAC-CE4B08594483"/>
+  </dmn:decisionService>
+  <dmn:decision id="_46745B91-F74B-47C8-8051-AD929FDB044D" name="checkResult">
+    <dmn:extensionElements/>
+    <dmn:variable id="_B598799F-F1B8-4A9B-BD04-CC6DC89784E2" name="checkResult" typeRef="boolean"/>
+    <dmn:informationRequirement id="_399C1EB2-88ED-4BF3-9ABA-FF0E11F0CFD4">
+      <dmn:requiredInput href="#_8211EA1C-477E-4D2A-8EAC-CE4B08594483"/>
+    </dmn:informationRequirement>
+    <dmn:literalExpression id="_3F18FAF1-EB0C-4DA7-9B06-B9BE3EA0B382">
+      <dmn:text>if situation.simpleChecks = null then null
+else if situation.simpleChecks.paysPrimaryHeatingCosts = false then false
+else if situation.simpleChecks.heatInIncomeBasedRent = true then false
+else if situation.simpleChecks.paysPrimaryHeatingCosts = true and situation.simpleChecks.heatInIncomeBasedRent = false then true
+else null</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+  <dmn:decision id="_F0E0EE5F-35C1-4692-943F-CAE93BE354DB" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_7933E0CA-950B-4FE5-B9D8-674108CFB433" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:context id="_BD1EE8D3-F255-4D45-A679-114B72D2A9CA" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_642097DB-E7C7-45E8-828B-6B2CB1006E44" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_9859FD9D-5536-4719-B146-8B4964F3162B" typeRef="string">
+          <dmn:text>"Passes when the household is responsible for the cost of its primary heat, paid directly to a fuel or utility company or as an undesignated part of its rent, and its heat is not included in rent that is set as a share of its income or by its source of income. Fails when either answer rules the household out, and returns no result when an answer needed to decide is missing."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_4CD8C985-E46C-4304-B2C2-D2FC4BB4EEEC" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_45E33592-F931-4605-89AA-9BDB445484ED" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_0F0ED0F9-470B-4BF9-9C33-05C95880117A" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_55D29BDD-CD98-4454-B4AC-435BAB3BF148" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_0B85A0FC-28E2-420E-8A2B-39494E81E996" typeRef="string">
+                <dmn:text>"Pennsylvania LIHEAP FFY 2027 Final State Plan"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_B9E95367-A4EF-4372-8296-E660322B56C2" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_94C72DB0-9151-4E50-80F9-163BBE014D0C" typeRef="string">
+                <dmn:text>"https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_3B4BBEC1-3DFC-4204-8C76-B69BC4389255" name="citation" typeRef="string"/>
+              <dmn:literalExpression id="_2501E156-953E-4DE0-9E57-3E6BDEBA06B2" typeRef="string">
+                <dmn:text>"Appendix B, 601.31(2): responsibility for heating costs; 601.3: definitions"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_28887EA4-1F1D-4E3D-8C43-8DD5DC45F1A3" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_BA62661A-A0CE-4192-9EC3-4A4D979F8AE1" typeRef="date">
+                <dmn:text>date("2026-11-12")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_2C580C1F-4D51-454B-92E7-3A5C26C03F33" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_B0B70B93-E2B6-4272-B172-4892388819B9" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_565A3800-5483-41A7-8E31-3A68EC762F23" typeRef="string">
+            <dmn:text>"Does not check that the heating equipment is installed and operating to code."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_06418844-4668-4399-83BC-40CBE5C75076" typeRef="string">
+            <dmn:text>"Does not apply the rules for recreational vehicles or homes used for a business."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_32409B66-6C70-49A5-BF17-B5756DD2C8CE" typeRef="string">
+            <dmn:text>"Relies on the screener answers to say what the primary heat is. Supplemental heat alone does not count."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_3F84581A-8DCA-42B3-A7A0-2A6B88B8D0F3" typeRef="string">
+            <dmn:text>"A renter whose rent includes a designated heat portion counts as paying for heat, so the screener question has to cover that case."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_F627C92E-D618-45CC-B199-11CAB00EFE02" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_39EBC508-0B98-4DA7-95FB-B73E55FB526C" typeRef="date">
+          <dmn:text>date("2026-11-12")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
+  <dmn:inputData id="_8211EA1C-477E-4D2A-8EAC-CE4B08594483" name="situation">
+    <dmn:extensionElements/>
+    <dmn:variable id="_C63B3811-CACF-4FB6-8272-2633F1B9294B" name="situation" typeRef="tSituation"/>
+  </dmn:inputData>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_04D06481-4F2D-4E5F-B3C3-C9D4F860D1E9" name="DRG">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_3F18FAF1-EB0C-4DA7-9B06-B9BE3EA0B382"><kie:width>917</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_BD1EE8D3-F255-4D45-A679-114B72D2A9CA"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_39EBC508-0B98-4DA7-95FB-B73E55FB526C"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_B0B70B93-E2B6-4272-B172-4892388819B9"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_3F84581A-8DCA-42B3-A7A0-2A6B88B8D0F3"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_32409B66-6C70-49A5-BF17-B5756DD2C8CE"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_06418844-4668-4399-83BC-40CBE5C75076"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_565A3800-5483-41A7-8E31-3A68EC762F23"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_45E33592-F931-4605-89AA-9BDB445484ED"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_0F0ED0F9-470B-4BF9-9C33-05C95880117A"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_BA62661A-A0CE-4192-9EC3-4A4D979F8AE1"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_2501E156-953E-4DE0-9E57-3E6BDEBA06B2"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_94C72DB0-9151-4E50-80F9-163BBE014D0C"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_0B85A0FC-28E2-420E-8A2B-39494E81E996"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_9859FD9D-5536-4719-B146-8B4964F3162B"><kie:width>560</kie:width></kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="dmnshape-drg-_BBB7A8D5-7EF5-4667-B71E-F97155F4C31A" dmnElementRef="_BBB7A8D5-7EF5-4667-B71E-F97155F4C31A" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="100" y="100" width="400" height="280"/>
+        <dmndi:DMNLabel/>
+        <dmndi:DMNDecisionServiceDividerLine>
+          <di:waypoint x="100" y="240"/>
+          <di:waypoint x="500" y="240"/>
+        </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_46745B91-F74B-47C8-8051-AD929FDB044D" dmnElementRef="_46745B91-F74B-47C8-8051-AD929FDB044D" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="220" y="130" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_F0E0EE5F-35C1-4692-943F-CAE93BE354DB" dmnElementRef="_F0E0EE5F-35C1-4692-943F-CAE93BE354DB" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="560" y="130" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_8211EA1C-477E-4D2A-8EAC-CE4B08594483" dmnElementRef="_8211EA1C-477E-4D2A-8EAC-CE4B08594483" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="220" y="480" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="dmnedge-drg-_399C1EB2-88ED-4BF3-9ABA-FF0E11F0CFD4" dmnElementRef="_399C1EB2-88ED-4BF3-9ABA-FF0E11F0CFD4">
+        <di:waypoint x="300" y="480"/>
+        <di:waypoint x="300" y="210"/>
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</dmn:definitions>

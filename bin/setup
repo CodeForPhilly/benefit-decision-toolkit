@@ -192,6 +192,10 @@ else
 fi
 cd ..
 
+print_status "Installing docs dependencies..."
+(cd docs && npm install)
+print_success "docs dependencies installed"
+
 print_status "Finished installing frontend dependencies."
 
 # The backends are packaged without their tests here; bin/run-all-tests runs

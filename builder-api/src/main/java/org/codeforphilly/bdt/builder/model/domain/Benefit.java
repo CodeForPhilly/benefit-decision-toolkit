@@ -1,12 +1,15 @@
 package org.codeforphilly.bdt.builder.model.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.Valid;
 
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Benefit {
+    /** Library reference (see GLOSSARY.md), copied from library metadata; null for custom items. */
+    private JsonNode reference;
     private String id;
     private String description;
     private String name;
@@ -73,5 +76,13 @@ public class Benefit {
 
     public void setNextSteps(NextSteps nextSteps) {
         this.nextSteps = nextSteps;
+    }
+
+    public JsonNode getReference() {
+        return reference;
+    }
+
+    public void setReference(JsonNode reference) {
+        this.reference = reference;
     }
 }

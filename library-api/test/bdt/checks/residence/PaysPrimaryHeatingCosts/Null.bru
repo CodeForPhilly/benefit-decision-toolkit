@@ -1,0 +1,32 @@
+meta {
+  name: Null
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{host}}/checks/residence/pays-primary-heating-costs
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "simpleChecks": {
+        "paysPrimaryHeatingCosts": null,
+        "heatInIncomeBasedRent": false
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq null
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

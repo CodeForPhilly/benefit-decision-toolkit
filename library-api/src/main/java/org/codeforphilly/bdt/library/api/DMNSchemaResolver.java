@@ -273,6 +273,9 @@ public class DMNSchemaResolver {
                 if (fieldName.contains("Size") || fieldName.contains("size")) {
                     return 1;  // Household sizes index income tables starting at 1
                 }
+                if (fieldName.endsWith("Year")) {
+                    return 2026;  // A year that dated tables (e.g. poverty guidelines) cover
+                }
                 return 42;
 
             case "boolean":

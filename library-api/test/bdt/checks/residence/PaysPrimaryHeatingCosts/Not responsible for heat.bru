@@ -1,0 +1,31 @@
+meta {
+  name: Not responsible for heat
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/checks/residence/pays-primary-heating-costs
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "simpleChecks": {
+        "paysPrimaryHeatingCosts": false
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq false
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

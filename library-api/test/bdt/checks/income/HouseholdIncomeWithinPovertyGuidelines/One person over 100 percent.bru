@@ -1,0 +1,34 @@
+meta {
+  name: One person over 100 percent
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{host}}/checks/income/household-income-within-poverty-guidelines
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "householdSize": 1,
+      "householdIncome": 15961
+    },
+    "parameters": {
+      "percent": 100,
+      "guidelineYear": 2026
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq false
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

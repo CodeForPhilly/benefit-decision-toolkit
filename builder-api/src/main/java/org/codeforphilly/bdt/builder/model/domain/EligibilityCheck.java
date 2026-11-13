@@ -7,6 +7,8 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EligibilityCheck {
+    /** Library reference (see GLOSSARY.md), copied from library metadata; null for custom items. */
+    private JsonNode reference;
     private String id;
     private String name;
     private String module;
@@ -150,5 +152,13 @@ public class EligibilityCheck {
 
     public void setDatePublished(Long datePublished) {
         this.datePublished = datePublished;
+    }
+
+    public JsonNode getReference() {
+        return reference;
+    }
+
+    public void setReference(JsonNode reference) {
+        this.reference = reference;
     }
 }
