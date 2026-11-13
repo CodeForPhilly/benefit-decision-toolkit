@@ -16,13 +16,19 @@ interface Env {
   docsBaseUrl: string;
 }
 
+// `new URL(path, base)` drops a base's last segment unless it ends in "/"
+function withTrailingSlash(url: string): string {
+  return url.endsWith("/") ? url : `${url}/`;
+}
+
 function resolveEnv(): Env {
   const fallback: Env = {
     apiUrl: import.meta.env.VITE_API_URL,
     authDomain: import.meta.env.VITE_AUTH_DOMAIN,
     screenerBaseUrl: import.meta.env.VITE_SCREENER_BASE_URL,
-    docsBaseUrl:
+    docsBaseUrl: withTrailingSlash(
       import.meta.env.VITE_DOCS_BASE_URL || "https://bdt-docs.web.app/",
+    ),
   };
 
   if (import.meta.env.MODE !== "development") {
