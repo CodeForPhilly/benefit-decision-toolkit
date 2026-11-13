@@ -1,15 +1,45 @@
-import { createResource, createSignal, For, Show } from "solid-js";
+import {
+  createMemo,
+  createResource,
+  createSignal,
+  For,
+  Match,
+  Show,
+  Switch,
+} from "solid-js";
 
 import { fetchLibraryBenefits } from "@/api/benefit";
 import type { Benefit } from "@/types";
 
+// Treat a missing name as an empty string
+const normalizeBenefitName = (name: string | null | undefined) =>
+  (name ?? "").trim().toLowerCase();
+
 const SelectExistingBenefitModal = (props: {
   importBenefit: (benefitId: string) => Promise<void>;
   closeModal: () => void;
+  existingBenefitNames: string[];
 }) => {
   const [availableBenefits] = createResource<Benefit[]>(fetchLibraryBenefits);
   const [importingId, setImportingId] = createSignal<string | null>(null);
   const [error, setError] = createSignal<string | null>(null);
+
+  // Library benefits with a matching name are hidden so the same benefit isn't added twice
+  const benefitsNotInScreener = createMemo(() => {
+    // Reading an errored resource throws, so show no benefits instead
+    if (availableBenefits.error) return [];
+    const existingNames = new Set(
+      // Ignore case and surrounding whitespace so small differences still match
+      props.existingBenefitNames.map(normalizeBenefitName),
+    );
+    return (availableBenefits() ?? []).filter(
+      // Keep the benefit being added in the list until the modal closes, since the
+      // screener refetches before importBenefit resolves
+      (benefit) =>
+        benefit.id === importingId() ||
+        !existingNames.has(normalizeBenefitName(benefit.name)),
+    );
+  });
 
   const importBenefit = async (benefitId: string) => {
     setImportingId(benefitId);
@@ -34,25 +64,32 @@ const SelectExistingBenefitModal = (props: {
           description, and eligibility checks.
         </p>
 
-        <Show when={availableBenefits.loading}>
-          <div>Loading library benefits...</div>
-        </Show>
-        <Show when={availableBenefits.error}>
-          <div class="text-red-600" role="alert">
-            Error loading benefits: {availableBenefits.error.message}
-          </div>
-        </Show>
         <Show when={error()}>
           <div class="text-red-600 mb-3" role="alert">
             {error()}
           </div>
         </Show>
-        <Show when={availableBenefits()?.length === 0}>
-          <div>No library benefits are currently available.</div>
-        </Show>
+        <Switch>
+          <Match when={availableBenefits.loading}>
+            <div>Loading library benefits...</div>
+          </Match>
+          <Match when={availableBenefits.error}>
+            <div class="text-red-600" role="alert">
+              Error loading benefits: {availableBenefits.error.message}
+            </div>
+          </Match>
+          <Match when={availableBenefits()?.length === 0}>
+            <div>No library benefits are currently available.</div>
+          </Match>
+          <Match when={benefitsNotInScreener().length === 0}>
+            <div>
+              All library benefits have already been added to this screener.
+            </div>
+          </Match>
+        </Switch>
 
         <div class="max-h-96 space-y-3 overflow-y-auto">
-          <For each={availableBenefits()}>
+          <For each={benefitsNotInScreener()}>
             {(benefit) => (
               <div class="border-2 border-gray-200 rounded p-4">
                 <div class="font-bold text-lg">{benefit.name}</div>

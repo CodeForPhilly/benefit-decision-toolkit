@@ -113,6 +113,11 @@ const BenefitList = ({
         <SelectExistingBenefitModal
           closeModal={() => setSelectExistingBenefitModal(false)}
           importBenefit={actions.importBenefit}
+          // Names are the only way the frontend can tell what's already in the screener
+          // Null for a new screener (Screener.create() doesn't set benefits), despite the type
+          existingBenefitNames={(screenerBenefits() ?? []).map(
+            (benefit) => benefit.name,
+          )}
         />
       )}
       {benefitIdToRemove() !== null && (
