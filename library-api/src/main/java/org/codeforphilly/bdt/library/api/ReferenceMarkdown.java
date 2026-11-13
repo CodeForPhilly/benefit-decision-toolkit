@@ -48,7 +48,10 @@ final class ReferenceMarkdown {
         if (parameters != null && !parameters.isEmpty()) {
             md.append("## Parameters\n\n");
             for (Map<String, Object> parameter : parameters) {
-                md.append("- `").append(parameter.get("name")).append("` (").append(parameter.get("type")).append(")");
+                md.append("- `").append(parameter.get("name")).append("`");
+                if (parameter.get("type") != null) {
+                    md.append(" (").append(parameter.get("type")).append(")");
+                }
                 if (parameter.get("description") != null) {
                     md.append(": ").append(parameter.get("description"));
                 }
