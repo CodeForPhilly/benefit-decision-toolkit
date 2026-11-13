@@ -116,9 +116,11 @@ public class ModelRegistry {
         Map<String, ModelInfo> modelMap = new HashMap<>();
         Map<String, ModelInfo> modelsByPath = new HashMap<>();
 
+        // Outside the try: a malformed Bruno example must fail startup, not publish an empty registry.
+        Map<String, List<BrunoExamples.Example>> examples = BrunoExamples.load();
+
         try {
             DmnScan scan = scanDMNFiles();
-            Map<String, List<BrunoExamples.Example>> examples = BrunoExamples.load();
 
             DecisionModels decisionModels = application.get(DecisionModels.class);
             DMNRuntime dmnRuntime = getDMNRuntime(decisionModels);
