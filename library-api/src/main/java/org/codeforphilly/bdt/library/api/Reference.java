@@ -56,6 +56,14 @@ final class Reference {
         if (!decision.getDecision().getInformationRequirement().isEmpty()) {
             throw new InvalidReferenceException(where + " must be constant (no information requirements)");
         }
+        String href = "#" + decision.getId();
+        model.getDecisionServices().stream()
+            .filter(service -> service.getDecisionService().getOutputDecision().stream()
+                .anyMatch(output -> href.equals(output.getHref())))
+            .findFirst()
+            .ifPresent(service -> {
+                throw new InvalidReferenceException(where + " must not be an output of " + service.getName());
+            });
         Object value;
         try {
             DMNResult result = runtime.evaluateByName(model, runtime.newContext(), DECISION);

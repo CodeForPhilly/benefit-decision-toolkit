@@ -84,6 +84,23 @@ class ReferenceEvaluationTest {
         assertTrue(error.getMessage().contains("no information requirements"), error.getMessage());
     }
 
+    @Test
+    void refusesAReferenceThatIsADecisionServiceOutput() {
+        DMNRuntime runtime = runtime("""
+            <decision id="reference" name="reference">
+              <variable name="reference" typeRef="Any"/>
+              <literalExpression><text>%s</text></literalExpression>
+            </decision>
+            <decisionService id="ReferenceTestService" name="ReferenceTestService">
+              <variable name="ReferenceTestService"/>
+              <outputDecision href="#reference"/>
+            </decisionService>
+            """.formatted(BENEFIT_REFERENCE));
+        var error = assertThrows(Reference.InvalidReferenceException.class,
+            () -> Reference.evaluate(runtime, runtime.getModels().getFirst(), Reference.Kind.BENEFIT));
+        assertTrue(error.getMessage().contains("ReferenceTestService"), error.getMessage());
+    }
+
     private Map<String, Object> evaluate(Reference.Kind kind, String requirements, String expression) {
         DMNRuntime runtime = runtime("""
             <decision id="reference" name="reference">
