@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -165,11 +166,9 @@ final class BrunoExamples {
                     }
                 }
             } else if ("jar".equals(anchor.getProtocol())) {
-                String jarPath = anchor.getPath().substring(0, anchor.getPath().indexOf('!'));
-                if (jarPath.startsWith("file:")) {
-                    jarPath = jarPath.substring(5);
-                }
-                try (JarFile jar = new JarFile(jarPath)) {
+                // The path is still URL-encoded (e.g. %20); resolve it as a URI so it decodes.
+                String jarUri = anchor.getPath().substring(0, anchor.getPath().indexOf('!'));
+                try (JarFile jar = new JarFile(Paths.get(URI.create(jarUri)).toFile())) {
                     Enumeration<JarEntry> entries = jar.entries();
                     while (entries.hasMoreElements()) {
                         JarEntry entry = entries.nextElement();
