@@ -1264,18 +1264,7 @@
       "ns39tSituation__people" : {
         "$ref" : "#/components/schemas/ns39tPersonList"
       },
-      "ns3tNextSteps" : {
-        "properties" : {
-          "eligible" : {
-            "$ref" : "#/components/schemas/ns3tNextSteps__eligible"
-          },
-          "ineligible" : {
-            "$ref" : "#/components/schemas/ns3tNextSteps__ineligible"
-          }
-        },
-        "type" : "object"
-      },
-      "ns3tNextSteps__eligible" : {
+      "ns3tEligibleNextSteps" : {
         "properties" : {
           "applyUrl" : {
             "type" : "string"
@@ -1292,10 +1281,21 @@
         },
         "type" : "object"
       },
-      "ns3tNextSteps__ineligible" : {
+      "ns3tIneligibleNextSteps" : {
         "properties" : {
           "note" : {
             "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns3tNextSteps" : {
+        "properties" : {
+          "eligible" : {
+            "$ref" : "#/components/schemas/ns3tEligibleNextSteps"
+          },
+          "ineligible" : {
+            "$ref" : "#/components/schemas/ns3tIneligibleNextSteps"
           }
         },
         "type" : "object"

@@ -100,32 +100,94 @@ else income &lt;= limit</dmn:text>
     <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
     <dmn:extensionElements/>
     <dmn:variable id="_41829559-DBB0-4511-87CA-68F244AD748E" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
-    <dmn:literalExpression id="_842DD49E-A143-4E82-B35D-1824935873F9">
-      <dmn:text>{
-  explanation: "Finds the HHS poverty guideline for the household's size, multiplies it by the given percent, and passes when annual household income is equal to or less than the result. For 2026 the guideline is $15,960 for one person plus $5,680 for each additional person, so 150% is $23,940 for one person plus $8,520 for each additional person. Returns no result when income or household size is missing or invalid, or when the guideline year is not available.",
-  sources: [
-    {
-      title: "Pennsylvania LIHEAP FFY 2027 Final State Plan",
-      url: "https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf",
-      citation: "Income eligibility: 150% of the 2026 federal poverty guidelines, by household size",
-      checkedOn: date("2026-11-12")
-    },
-    {
-      title: "Pennsylvania DHS: LIHEAP",
-      url: "https://www.pa.gov/agencies/dhs/resources/liheap",
-      citation: "Income limits by household size",
-      checkedOn: date("2026-11-12")
-    }
-  ],
-  limitations: [
-    "Only the 2026 guidelines are available. Any other guideline year returns no result.",
-    "Uses the guidelines for the 48 contiguous states and DC, not those for Alaska or Hawaii.",
-    "Takes household income and size as given. It does not decide whose income counts, which income is excluded, or how pay is annualized.",
-    "Does not round the limit. A program that publishes rounded limits may differ by a few dollars."
-  ],
-  lastReviewed: date("2026-11-12")
-}</dmn:text>
-    </dmn:literalExpression>
+    <dmn:context id="_7D7FA72C-66AE-48A1-A23A-FA50E9D4EC9E" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_FB0D3EDD-7C0E-4423-B842-BD124652AD32" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_BB1C8235-3BEC-4E20-AB6A-09DED0981E76" typeRef="string">
+          <dmn:text>"Finds the HHS poverty guideline for the household's size, multiplies it by the given percent, and passes when annual household income is equal to or less than the result. For 2026 the guideline is $15,960 for one person plus $5,680 for each additional person, so 150% is $23,940 for one person plus $8,520 for each additional person. Returns no result when income or household size is missing or invalid, or when the guideline year is not available."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_078A08A9-57FF-476B-8E95-590EBB02762C" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_A04486A5-1765-4771-8F9D-DB19FD92B79B" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_E515E497-B7AB-45DC-A23A-8A6253195BFA" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_82389EFE-6878-4D7A-9BEB-CB31E7F54DC8" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_504AE5E6-4276-4521-831B-6F13BE86E917" typeRef="string">
+                <dmn:text>"Pennsylvania LIHEAP FFY 2027 Final State Plan"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_53130064-D705-4B93-9372-5B70C87BCE4A" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_08D8103A-C63F-45C0-9812-EB1F6040CDF1" typeRef="string">
+                <dmn:text>"https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_A51A84B3-8151-427F-9334-7E65AA3CA318" name="citation" typeRef="string"/>
+              <dmn:literalExpression id="_BB7D71B2-E67F-46FC-9E9E-6EF12E79508E" typeRef="string">
+                <dmn:text>"Income eligibility: 150% of the 2026 federal poverty guidelines, by household size"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_FBDDF239-ACA9-4ADA-A22E-E056D60AE324" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_4CB04A2A-189F-4000-927F-6078D9524880" typeRef="date">
+                <dmn:text>date("2026-11-12")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+          <dmn:context id="_8B190BBF-A82A-4A22-AE42-AC646E3E2B24" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_91E322DF-CF23-4B81-93EB-3DA892FF8A68" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_9711E4B4-E4A7-434E-AFD6-05548C9F625C" typeRef="string">
+                <dmn:text>"Pennsylvania DHS: LIHEAP"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_3F713563-A84E-4C3D-89F1-B82256053CDF" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_E35A629E-00FF-4866-BB68-0F6710315C85" typeRef="string">
+                <dmn:text>"https://www.pa.gov/agencies/dhs/resources/liheap"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_8F99EAEF-B2C9-4074-9A0C-5E21A9C2348D" name="citation" typeRef="string"/>
+              <dmn:literalExpression id="_A1D8E7B8-BE31-4487-9B7A-CA5FBA86795A" typeRef="string">
+                <dmn:text>"Income limits by household size"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_0221F4D3-17F0-44CF-8F61-77D7A2B7E49C" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_D0FCFBD7-1D5A-4977-A897-D2CD17FD3C65" typeRef="date">
+                <dmn:text>date("2026-11-12")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_89E5251F-38D3-4A66-BE4F-A0A7B38B4ADD" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_DAEC03F1-6C4F-431C-985B-9B1D89E65B5B" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_CB2C8BBD-29E7-4E3D-B715-4E15C53EFA47" typeRef="string">
+            <dmn:text>"Only the 2026 guidelines are available. Any other guideline year returns no result."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_EE5E471C-ECF9-485E-8D21-37867EE10828" typeRef="string">
+            <dmn:text>"Uses the guidelines for the 48 contiguous states and DC, not those for Alaska or Hawaii."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_7E7E76E9-3D9F-4255-A911-2F8DA01B3AAC" typeRef="string">
+            <dmn:text>"Takes household income and size as given. It does not decide whose income counts, which income is excluded, or how pay is annualized."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_75F793CD-BC47-4429-B551-6D0912786076" typeRef="string">
+            <dmn:text>"Does not round the limit. A program that publishes rounded limits may differ by a few dollars."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_B7A32028-05BA-4E8A-808C-4227246D3614" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_59DD58D4-420B-40F8-974E-A6AA0B877050" typeRef="date">
+          <dmn:text>date("2026-11-12")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
   </dmn:decision>
   <dmn:inputData id="_F47CB506-9470-4576-B5E2-C3B8B7A855D5" name="situation">
     <dmn:extensionElements/>
@@ -153,7 +215,25 @@ else income &lt;= limit</dmn:text>
           <kie:ComponentWidths dmnElementRef="_30789DCC-242A-4080-BCE9-3C5A48F91EDA"><kie:width>800</kie:width></kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_2CA8EDD6-EF72-4679-BD71-D1CC6E9B99A2"><kie:width>800</kie:width></kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_04692AB6-FBDD-48B2-B8B7-EEA7319569C0"><kie:width>800</kie:width></kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_842DD49E-A143-4E82-B35D-1824935873F9"><kie:width>800</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_7D7FA72C-66AE-48A1-A23A-FA50E9D4EC9E"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_59DD58D4-420B-40F8-974E-A6AA0B877050"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_DAEC03F1-6C4F-431C-985B-9B1D89E65B5B"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_75F793CD-BC47-4429-B551-6D0912786076"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_7E7E76E9-3D9F-4255-A911-2F8DA01B3AAC"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_EE5E471C-ECF9-485E-8D21-37867EE10828"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_CB2C8BBD-29E7-4E3D-B715-4E15C53EFA47"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_A04486A5-1765-4771-8F9D-DB19FD92B79B"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_8B190BBF-A82A-4A22-AE42-AC646E3E2B24"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_D0FCFBD7-1D5A-4977-A897-D2CD17FD3C65"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_A1D8E7B8-BE31-4487-9B7A-CA5FBA86795A"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E35A629E-00FF-4866-BB68-0F6710315C85"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_9711E4B4-E4A7-434E-AFD6-05548C9F625C"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E515E497-B7AB-45DC-A23A-8A6253195BFA"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_4CB04A2A-189F-4000-927F-6078D9524880"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_BB7D71B2-E67F-46FC-9E9E-6EF12E79508E"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_08D8103A-C63F-45C0-9812-EB1F6040CDF1"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_504AE5E6-4276-4521-831B-6F13BE86E917"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_BB1C8235-3BEC-4E20-AB6A-09DED0981E76"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="dmnshape-drg-_D6B4B9F4-0FF3-47A7-8D59-20DF03D7FF60" dmnElementRef="_D6B4B9F4-0FF3-47A7-8D59-20DF03D7FF60" isCollapsed="false">

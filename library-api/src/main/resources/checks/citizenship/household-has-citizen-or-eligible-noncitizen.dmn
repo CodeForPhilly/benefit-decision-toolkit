@@ -37,25 +37,65 @@ else
     <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
     <dmn:extensionElements/>
     <dmn:variable id="_FC69586C-4212-435D-A6E2-63B392F5215E" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
-    <dmn:literalExpression id="_6FF59CAA-3049-4567-93D7-39FDA6B51BE9">
-      <dmn:text>{
-  explanation: "Passes when the screener answer says someone in the household is a U.S. citizen or a lawfully admitted non-citizen, such as a lawful permanent resident, refugee, asylee, or someone paroled for at least one year. Fails when the answer says no one is, and returns no result when the answer is missing.",
-  sources: [
-    {
-      title: "Pennsylvania LIHEAP FFY 2027 Final State Plan",
-      url: "https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf",
-      citation: "Appendix B, 601.31(4): citizenship and lawful admission",
-      checkedOn: date("2026-11-12")
-    }
-  ],
-  limitations: [
-    "Relies on the screener answer. It does not check immigration documents.",
-    "The qualifying statuses come from PA LIHEAP, which has no five-year bar. Other programs may accept fewer statuses or apply a waiting period.",
-    "Does not adjust household size for members who are not lawfully admitted."
-  ],
-  lastReviewed: date("2026-11-12")
-}</dmn:text>
-    </dmn:literalExpression>
+    <dmn:context id="_D196559C-18EF-4868-9F66-999EAD60A1E6" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_A3CC19EC-4DD6-4733-ADFD-978446A68985" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_66D0A502-66EA-4400-A689-569239A77FA2" typeRef="string">
+          <dmn:text>"Passes when the screener answer says someone in the household is a U.S. citizen or a lawfully admitted non-citizen, such as a lawful permanent resident, refugee, asylee, or someone paroled for at least one year. Fails when the answer says no one is, and returns no result when the answer is missing."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_2D636AA3-83AA-4718-98C0-B1C03FC295E2" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_4E0C8ED5-72C3-4CBC-BF7E-7B102D0FCF05" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_2CC0B502-82D3-4F43-9EEF-75EB42C014B3" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_1B5AD6E7-B496-45BE-BFE4-AC2CBDDC876A" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_A6A36C43-1FED-4883-9E7C-08B6924A2962" typeRef="string">
+                <dmn:text>"Pennsylvania LIHEAP FFY 2027 Final State Plan"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_160D5336-630D-4F18-98F8-5FAADCAE6FDB" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_96B6F1C2-FEA1-4DCA-8A2F-E8E759AC95A6" typeRef="string">
+                <dmn:text>"https://www.pa.gov/content/dam/copapwp-pagov/en/dhs/documents/services/assistance/documents/heating-assistance_liheap/2027-liheap-state-plan.pdf"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_A5BB63AC-4E08-46A6-A811-7C7C38E9B8B3" name="citation" typeRef="string"/>
+              <dmn:literalExpression id="_1DE38462-5C7C-47F8-BE52-F3EE0D5AA22B" typeRef="string">
+                <dmn:text>"Appendix B, 601.31(4): citizenship and lawful admission"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_46CB646B-F606-485A-87BF-5DB1A48F6AF6" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_938DB70E-DF08-4BD0-8CEC-73D92B5A64B1" typeRef="date">
+                <dmn:text>date("2026-11-12")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_DF565C88-CF6C-445E-AB45-B7259B8E6720" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_7A4EAAF0-9A72-4E17-9D25-B07AA39903A8" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_DD419E2F-B0D3-47E2-8CFE-545421DC98E4" typeRef="string">
+            <dmn:text>"Relies on the screener answer. It does not check immigration documents."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_2E13AEFF-645F-4FF9-B309-B84B7C281149" typeRef="string">
+            <dmn:text>"The qualifying statuses come from PA LIHEAP, which has no five-year bar. Other programs may accept fewer statuses or apply a waiting period."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_C3BC45C8-90B5-4A7E-BBE3-ABFC337962B2" typeRef="string">
+            <dmn:text>"Does not adjust household size for members who are not lawfully admitted."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_72158D0F-C9E4-4234-849D-9D69F49EB1EC" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_CA6556CB-0684-4BC4-844D-64503B5F19B6" typeRef="date">
+          <dmn:text>date("2026-11-12")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
   </dmn:decision>
   <dmn:inputData id="_4DD7EA38-E157-4D8F-BCA9-E73D3EAEAE68" name="situation">
     <dmn:extensionElements/>
@@ -66,7 +106,19 @@ else
       <di:extension>
         <kie:ComponentsWidthsExtension>
           <kie:ComponentWidths dmnElementRef="_9D8AA5AF-311F-4186-8953-4568A17FEBB3"><kie:width>917</kie:width></kie:ComponentWidths>
-          <kie:ComponentWidths dmnElementRef="_6FF59CAA-3049-4567-93D7-39FDA6B51BE9"><kie:width>800</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_D196559C-18EF-4868-9F66-999EAD60A1E6"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_CA6556CB-0684-4BC4-844D-64503B5F19B6"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_7A4EAAF0-9A72-4E17-9D25-B07AA39903A8"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C3BC45C8-90B5-4A7E-BBE3-ABFC337962B2"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_2E13AEFF-645F-4FF9-B309-B84B7C281149"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_DD419E2F-B0D3-47E2-8CFE-545421DC98E4"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_4E0C8ED5-72C3-4CBC-BF7E-7B102D0FCF05"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_2CC0B502-82D3-4F43-9EEF-75EB42C014B3"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_938DB70E-DF08-4BD0-8CEC-73D92B5A64B1"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_1DE38462-5C7C-47F8-BE52-F3EE0D5AA22B"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_96B6F1C2-FEA1-4DCA-8A2F-E8E759AC95A6"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_A6A36C43-1FED-4883-9E7C-08B6924A2962"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_66D0A502-66EA-4400-A689-569239A77FA2"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="dmnshape-drg-_3606591A-A9F5-41A0-9081-3CBD58B196E3" dmnElementRef="_3606591A-A9F5-41A0-9081-3CBD58B196E3" isCollapsed="false">
