@@ -71,7 +71,9 @@ const LibraryReference = (props: {
               <For each={reference().checks}>
                 {(check) => (
                   <li>
-                    <span class="font-semibold">{sentenceCase(check.alias)}</span>
+                    <span class="font-semibold">
+                      {sentenceCase(check.alias)}
+                    </span>
                     <Show when={check.rationale}>: {check.rationale}</Show>
                   </li>
                 )}
