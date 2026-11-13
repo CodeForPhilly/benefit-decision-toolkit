@@ -39,6 +39,8 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
 
     private ModelRegistry modelRegistry;
     private DMNSchemaResolver schemaResolver;
+    /** Base URL of the docs site that hosts the library reference pages, read once per filter pass. */
+    private String docsBaseUrl;
 
     @Override
     public void filterOpenAPI(OpenAPI openAPI) {
@@ -51,6 +53,9 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
         if (schemaResolver == null) {
             schemaResolver = CDI.current().select(DMNSchemaResolver.class).get();
         }
+
+        docsBaseUrl = ConfigProvider.getConfig().getOptionalValue("bdt.docs.base-url", String.class)
+            .orElse("https://bdt-docs.web.app").replaceAll("/+$", "");
 
         // Ensure components exist
         if (openAPI.getComponents() == null) {
@@ -87,7 +92,6 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
         // Add individual paths for each exposed model
         for (ModelInfo model : exposedModels.values()) {
             addPathForModel(openAPI, model);
-            describeParameters(openAPI, model);
         }
 
         LOG.info("OpenAPI spec filtering complete. Total paths: " +
@@ -248,20 +252,13 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
         return schema;
     }
 
-    /** Base URL of the docs site that hosts the library reference pages. */
-    private static String docsBaseUrl() {
-        return ConfigProvider.getConfig().getOptionalValue("bdt.docs.base-url", String.class)
-            .orElse("https://bdt-docs.web.app").replaceAll("/+$", "");
-    }
-
     /** Copy reference parameter descriptions onto the model's {@code parameters} schema properties. */
     @SuppressWarnings("unchecked")
-    private void describeParameters(OpenAPI openAPI, ModelInfo model) {
+    private void describeParameters(OpenAPI openAPI, ModelInfo model, String inputRef) {
         Object parameters = model.getReference().get("parameters");
         if (!(parameters instanceof List<?> list) || list.isEmpty()) {
             return;
         }
-        String inputRef = schemaResolver.findInputSchemaRef(model.getModelName(), model.getModelName() + "Service");
         Schema input = inputRef == null ? null : componentSchema(openAPI, inputRef);
         Schema parametersRef = input == null || input.getProperties() == null ? null : input.getProperties().get("parameters");
         Schema parametersSchema = parametersRef == null || parametersRef.getRef() == null
@@ -298,6 +295,7 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
 
         // Add to OpenAPI spec
         openAPI.getPaths().addPathItem(path, pathItem);
+        describeParameters(openAPI, model, inputRef);
 
         LOG.fine("Added path: " + path + " (service: " + serviceName + ")");
     }
@@ -333,7 +331,7 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
             operation.description(ReferenceMarkdown.render(model.getReference()));
             operation.externalDocs(OASFactory.createExternalDocumentation()
                 .description("Full reference on the docs site")
-                .url(docsBaseUrl() + "/library/" + model.getPath() + "/"));
+                .url(docsBaseUrl + "/library/" + model.getPath() + "/"));
             operation.addExtension("x-bdt-reference", model.getReference());
         }
 
