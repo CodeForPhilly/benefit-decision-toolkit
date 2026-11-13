@@ -1,10 +1,17 @@
-import { createMemo, createResource, createSignal, For, Show } from "solid-js";
+import {
+  createMemo,
+  createResource,
+  createSignal,
+  For,
+  Match,
+  Show,
+  Switch,
+} from "solid-js";
 
 import { fetchLibraryBenefits } from "@/api/benefit";
 import type { Benefit } from "@/types";
 
 // Treat a missing name as an empty string
-// TODO(Low): Skip empty names so blank screener names don't hide blank-named library benefits
 const normalizeBenefitName = (name: string | null | undefined) =>
   (name ?? "").trim().toLowerCase();
 
@@ -14,31 +21,30 @@ const SelectExistingBenefitModal = (props: {
   existingBenefitNames: string[];
 }) => {
   const [availableBenefits] = createResource<Benefit[]>(fetchLibraryBenefits);
+  const [importingId, setImportingId] = createSignal<string | null>(null);
+  const [error, setError] = createSignal<string | null>(null);
 
   // Library benefits with a matching name are hidden so the same benefit isn't added twice
-  // TODO(Medium): Renamed imports aren't detected, so the library benefit reappears and can be re-imported
-  // TODO(Low): A custom benefit with a library benefit's name hides that library benefit
-  // TODO(Medium): Check availableBenefits.error before reading, since an errored resource throws
   const benefitsNotInScreener = createMemo(() => {
+    // Reading an errored resource throws, so show no benefits instead
+    if (availableBenefits.error) return [];
     const existingNames = new Set(
-      // TODO(Low): Remove this and the duplicate comment below; normalizeBenefitName covers it
       // Ignore case and surrounding whitespace so small differences still match
       props.existingBenefitNames.map(normalizeBenefitName),
     );
     return (availableBenefits() ?? []).filter(
-      // Ignore case and surrounding whitespace so small differences still match
-      (benefit) => !existingNames.has(normalizeBenefitName(benefit.name)),
+      // Keep the benefit being added in the list until the modal closes, since the
+      // screener refetches before importBenefit resolves
+      (benefit) =>
+        benefit.id === importingId() ||
+        !existingNames.has(normalizeBenefitName(benefit.name)),
     );
   });
-
-  const [importingId, setImportingId] = createSignal<string | null>(null);
-  const [error, setError] = createSignal<string | null>(null);
 
   const importBenefit = async (benefitId: string) => {
     setImportingId(benefitId);
     setError(null);
     try {
-      // TODO(Low): The refetch filters out this benefit before the modal closes, so the list flashes
       await props.importBenefit(benefitId);
       props.closeModal();
     } catch (cause) {
@@ -58,34 +64,29 @@ const SelectExistingBenefitModal = (props: {
           description, and eligibility checks.
         </p>
 
-        <Show when={availableBenefits.loading}>
-          <div>Loading library benefits...</div>
-        </Show>
-        <Show when={availableBenefits.error}>
-          <div class="text-red-600" role="alert">
-            Error loading benefits: {availableBenefits.error.message}
-          </div>
-        </Show>
         <Show when={error()}>
           <div class="text-red-600 mb-3" role="alert">
             {error()}
           </div>
         </Show>
-        <Show when={availableBenefits()?.length === 0}>
-          <div>No library benefits are currently available.</div>
-        </Show>
-        {/* Separate from "No library benefits are currently available" */}
-        {/* TODO(Low): Use one Switch/Match over the states so only one message can show */}
-        <Show
-          when={
-            (availableBenefits()?.length ?? 0) > 0 &&
-            benefitsNotInScreener().length === 0
-          }
-        >
-          <div>
-            All library benefits have already been added to this screener.
-          </div>
-        </Show>
+        <Switch>
+          <Match when={availableBenefits.loading}>
+            <div>Loading library benefits...</div>
+          </Match>
+          <Match when={availableBenefits.error}>
+            <div class="text-red-600" role="alert">
+              Error loading benefits: {availableBenefits.error.message}
+            </div>
+          </Match>
+          <Match when={availableBenefits()?.length === 0}>
+            <div>No library benefits are currently available.</div>
+          </Match>
+          <Match when={benefitsNotInScreener().length === 0}>
+            <div>
+              All library benefits have already been added to this screener.
+            </div>
+          </Match>
+        </Switch>
 
         <div class="max-h-96 space-y-3 overflow-y-auto">
           <For each={benefitsNotInScreener()}>
