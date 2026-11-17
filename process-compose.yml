@@ -28,7 +28,9 @@ processes:
     log_location: ./logs/sync-library-metadata.log
   builder-api:
     description: This process runs the builder-api in dev mode on port ${QUARKUS_HTTP_PORT}.
-    command: quarkus dev -Ddebug=5005
+    # Use Devbox's Maven directly; Quarkus CLI prefers mvnw, whose ignored JAR
+    # otherwise needs a separate download on a clean checkout.
+    command: mvn quarkus:dev -Ddebug=5005
     working_dir: builder-api/
     environment:
       - "QUARKUS_CONSOLE_COLOR=true"
@@ -41,7 +43,8 @@ processes:
     log_location: ./logs/builder-api.log
   docs:
     description: This process runs the docs site (including library references linked from the builder) on port 4321.
-    command: npm run dev -- --host --port 4321
+    # Keep Astro in the foreground so process-compose owns its lifecycle.
+    command: npm run dev -- --host --port 4321 --ignore-lock
     working_dir: docs/
     ready_log_line: "watching for file changes"
     log_location: ./logs/docs.log
