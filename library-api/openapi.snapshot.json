@@ -1,1164 +1,48 @@
 {
   "components" : {
     "schemas" : {
-      "ns10InputSetTenYearTaxAbatementDSTenYearTaxAbatementService" : {
+      "ns10InputSetPersonNotEnrolledInBenefitDSPersonNotEnrolledInBenefitService" : {
         "properties" : {
+          "parameters" : {
+            "$ref" : "#/components/schemas/ns30tParameters"
+          },
           "situation" : {
             "$ref" : "#/components/schemas/ns10tSituation"
           }
         },
-        "required" : [ "situation" ],
+        "required" : [ "parameters", "situation" ],
         "type" : "object"
       },
-      "ns10OutputSetTenYearTaxAbatementDSTenYearTaxAbatementService" : {
+      "ns10OutputSetPersonNotEnrolledInBenefitDSPersonNotEnrolledInBenefitService" : {
         "type" : "boolean"
-      },
-      "ns10tSimpleChecks" : {
-        "properties" : {
-          "tenYearTaxAbatement" : {
-            "type" : "boolean"
-          }
-        },
-        "type" : "object"
       },
       "ns10tSituation" : {
         "properties" : {
-          "simpleChecks" : {
-            "$ref" : "#/components/schemas/ns10tSimpleChecks"
+          "enrollments" : {
+            "$ref" : "#/components/schemas/ns10tSituation__enrollments"
           }
         },
         "type" : "object"
       },
-      "ns11InputSetNoTenYearTaxAbatementDSNoTenYearTaxAbatementService" : {
+      "ns10tSituation__enrollments" : {
+        "$ref" : "#/components/schemas/ns19tEnrollmentList"
+      },
+      "ns11InputSetPersonMaxAgeDSPersonMaxAgeService" : {
         "properties" : {
+          "parameters" : {
+            "$ref" : "#/components/schemas/ns11tParameters"
+          },
           "situation" : {
             "$ref" : "#/components/schemas/ns11tSituation"
           }
         },
-        "required" : [ "situation" ],
-        "type" : "object"
-      },
-      "ns11OutputSetNoTenYearTaxAbatementDSNoTenYearTaxAbatementService" : {
-        "type" : "boolean"
-      },
-      "ns11tSimpleChecks" : {
-        "properties" : {
-          "tenYearTaxAbatement" : {
-            "type" : "boolean"
-          }
-        },
-        "type" : "object"
-      },
-      "ns11tSituation" : {
-        "properties" : {
-          "simpleChecks" : {
-            "$ref" : "#/components/schemas/ns11tSimpleChecks"
-          }
-        },
-        "type" : "object"
-      },
-      "ns12InputSetPhlHomesteadExemptionDSPhlHomesteadExemptionService" : {
-        "properties" : {
-          "situation" : {
-            "$ref" : "#/components/schemas/ns12tSituation"
-          }
-        },
-        "required" : [ "situation" ],
-        "type" : "object"
-      },
-      "ns12OutputSetPhlHomesteadExemptionDSPhlHomesteadExemptionService" : {
-        "properties" : {
-          "checks" : { },
-          "isEligible" : {
-            "type" : "boolean"
-          },
-          "nextSteps" : {
-            "$ref" : "#/components/schemas/ns3tNextSteps"
-          }
-        },
-        "type" : "object"
-      },
-      "ns12tSimpleChecks" : {
-        "properties" : {
-          "livesInPhiladelphiaPa" : {
-            "type" : "boolean"
-          },
-          "ownerOccupant" : {
-            "type" : "boolean"
-          },
-          "tenYearTaxAbatement" : {
-            "type" : "boolean"
-          }
-        },
-        "type" : "object"
-      },
-      "ns12tSituation" : {
-        "properties" : {
-          "enrollments" : {
-            "$ref" : "#/components/schemas/ns12tSituation__enrollments"
-          },
-          "primaryPersonId" : {
-            "type" : "string"
-          },
-          "simpleChecks" : {
-            "$ref" : "#/components/schemas/ns12tSimpleChecks"
-          }
-        },
-        "type" : "object"
-      },
-      "ns12tSituation__enrollments" : {
-        "$ref" : "#/components/schemas/ns1tEnrollmentList"
-      },
-      "ns13InputSetMinYearsOwnerOccupantDSMinYearsOwnerOccupantService" : {
-        "properties" : {
-          "parameters" : {
-            "$ref" : "#/components/schemas/ns13tParameters"
-          },
-          "situation" : {
-            "$ref" : "#/components/schemas/ns13tSituation"
-          }
-        },
-        "required" : [ "situation", "parameters" ],
-        "type" : "object"
-      },
-      "ns13OutputSetMinYearsOwnerOccupantDSMinYearsOwnerOccupantService" : {
-        "type" : "boolean"
-      },
-      "ns13tParameters" : {
-        "properties" : {
-          "minYears" : {
-            "type" : "number"
-          }
-        },
-        "type" : "object"
-      },
-      "ns13tSituation" : {
-        "properties" : {
-          "yearsOwnerOccupied" : {
-            "type" : "number"
-          }
-        },
-        "type" : "object"
-      },
-      "ns14InputSetPropertyAssessmentIncreaseDSPropertyAssessmentIncreaseService" : {
-        "properties" : {
-          "parameters" : {
-            "$ref" : "#/components/schemas/ns14tParameters"
-          },
-          "situation" : {
-            "$ref" : "#/components/schemas/ns14tSituation"
-          }
-        },
-        "required" : [ "situation", "parameters" ],
-        "type" : "object"
-      },
-      "ns14OutputSetPropertyAssessmentIncreaseDSPropertyAssessmentIncreaseService" : {
-        "type" : "boolean"
-      },
-      "ns14tParameters" : {
-        "properties" : {
-          "fiveYearPercent" : {
-            "type" : "number"
-          },
-          "oneYearPercent" : {
-            "type" : "number"
-          }
-        },
-        "type" : "object"
-      },
-      "ns14tSituation" : {
-        "properties" : {
-          "lowestPropertyAssessmentLastFiveYears" : {
-            "type" : "number"
-          },
-          "previousYearPropertyAssessment" : {
-            "type" : "number"
-          },
-          "propertyAssessment" : {
-            "type" : "number"
-          }
-        },
-        "type" : "object"
-      },
-      "ns15InputSetTaxDelinquentDSTaxDelinquentService" : {
-        "properties" : {
-          "situation" : {
-            "$ref" : "#/components/schemas/ns15tSituation"
-          }
-        },
-        "required" : [ "situation" ],
-        "type" : "object"
-      },
-      "ns15OutputSetTaxDelinquentDSTaxDelinquentService" : {
-        "type" : "boolean"
-      },
-      "ns15tSimpleChecks" : {
-        "properties" : {
-          "taxDelinquent" : {
-            "type" : "boolean"
-          }
-        },
-        "type" : "object"
-      },
-      "ns15tSituation" : {
-        "properties" : {
-          "simpleChecks" : {
-            "$ref" : "#/components/schemas/ns15tSimpleChecks"
-          }
-        },
-        "type" : "object"
-      },
-      "ns16InputSetPropertyTaxesCurrentOrPaymentPlanDSPropertyTaxesCurrentOrPaymentPlanService" : {
-        "properties" : {
-          "situation" : {
-            "$ref" : "#/components/schemas/ns16tSituation"
-          }
-        },
-        "required" : [ "situation" ],
-        "type" : "object"
-      },
-      "ns16OutputSetPropertyTaxesCurrentOrPaymentPlanDSPropertyTaxesCurrentOrPaymentPlanService" : {
-        "type" : "boolean"
-      },
-      "ns16tSimpleChecks" : {
-        "properties" : {
-          "propertyTaxPaymentPlan" : {
-            "type" : "boolean"
-          },
-          "taxDelinquent" : {
-            "type" : "boolean"
-          }
-        },
-        "type" : "object"
-      },
-      "ns16tSituation" : {
-        "properties" : {
-          "simpleChecks" : {
-            "$ref" : "#/components/schemas/ns16tSimpleChecks"
-          }
-        },
-        "type" : "object"
-      },
-      "ns18InputSetLoopIncomeDSLoopIncomeService" : {
-        "properties" : {
-          "situation" : {
-            "$ref" : "#/components/schemas/ns18tSituation"
-          }
-        },
-        "required" : [ "situation" ],
-        "type" : "object"
-      },
-      "ns18OutputSetLoopIncomeDSLoopIncomeService" : {
-        "type" : "boolean"
-      },
-      "ns18tSituation" : {
-        "properties" : {
-          "householdIncome" : {
-            "type" : "number"
-          },
-          "householdSize" : {
-            "type" : "number"
-          }
-        },
-        "type" : "object"
-      },
-      "ns19InputSetNoDisqualifyingTaxAbatementDSNoDisqualifyingTaxAbatementService" : {
-        "properties" : {
-          "situation" : {
-            "$ref" : "#/components/schemas/ns19tSituation"
-          }
-        },
-        "required" : [ "situation" ],
-        "type" : "object"
-      },
-      "ns19OutputSetNoDisqualifyingTaxAbatementDSNoDisqualifyingTaxAbatementService" : {
-        "type" : "boolean"
-      },
-      "ns19tSimpleChecks" : {
-        "properties" : {
-          "disqualifyingTaxAbatement" : {
-            "type" : "boolean"
-          }
-        },
-        "type" : "object"
-      },
-      "ns19tSituation" : {
-        "properties" : {
-          "simpleChecks" : {
-            "$ref" : "#/components/schemas/ns19tSimpleChecks"
-          }
-        },
-        "type" : "object"
-      },
-      "ns1tEnrollment" : {
-        "properties" : {
-          "benefit" : {
-            "type" : "string"
-          },
-          "personId" : {
-            "type" : "string"
-          }
-        },
-        "type" : "object"
-      },
-      "ns1tEnrollmentList" : {
-        "items" : {
-          "$ref" : "#/components/schemas/ns1tEnrollment"
-        },
-        "type" : "array"
-      },
-      "ns20InputSetPhlLoopDSPhlLoopService" : {
-        "properties" : {
-          "situation" : {
-            "$ref" : "#/components/schemas/ns20tSituation"
-          }
-        },
-        "required" : [ "situation" ],
-        "type" : "object"
-      },
-      "ns20OutputSetPhlLoopDSPhlLoopService" : {
-        "properties" : {
-          "checks" : { },
-          "isEligible" : {
-            "type" : "boolean"
-          },
-          "nextSteps" : {
-            "$ref" : "#/components/schemas/ns3tNextSteps"
-          }
-        },
-        "type" : "object"
-      },
-      "ns20tSimpleChecks" : {
-        "properties" : {
-          "disqualifyingTaxAbatement" : {
-            "type" : "boolean"
-          },
-          "livesInPhiladelphiaPa" : {
-            "type" : "boolean"
-          },
-          "ownerOccupant" : {
-            "type" : "boolean"
-          },
-          "propertyTaxPaymentPlan" : {
-            "type" : "boolean"
-          },
-          "taxDelinquent" : {
-            "type" : "boolean"
-          }
-        },
-        "type" : "object"
-      },
-      "ns20tSituation" : {
-        "properties" : {
-          "enrollments" : {
-            "$ref" : "#/components/schemas/ns20tSituation__enrollments"
-          },
-          "householdIncome" : {
-            "type" : "number"
-          },
-          "householdSize" : {
-            "type" : "number"
-          },
-          "lowestPropertyAssessmentLastFiveYears" : {
-            "type" : "number"
-          },
-          "previousYearPropertyAssessment" : {
-            "type" : "number"
-          },
-          "primaryPersonId" : {
-            "type" : "string"
-          },
-          "propertyAssessment" : {
-            "type" : "number"
-          },
-          "simpleChecks" : {
-            "$ref" : "#/components/schemas/ns20tSimpleChecks"
-          },
-          "yearsOwnerOccupied" : {
-            "type" : "number"
-          }
-        },
-        "type" : "object"
-      },
-      "ns20tSituation__enrollments" : {
-        "$ref" : "#/components/schemas/ns1tEnrollmentList"
-      },
-      "ns21InputSetTaxFreezeIncomeDSTaxFreezeIncomeService" : {
-        "properties" : {
-          "situation" : {
-            "$ref" : "#/components/schemas/ns21tSituation"
-          }
-        },
-        "required" : [ "situation" ],
-        "type" : "object"
-      },
-      "ns21OutputSetTaxFreezeIncomeDSTaxFreezeIncomeService" : {
-        "type" : "boolean"
-      },
-      "ns21tSituation" : {
-        "properties" : {
-          "applicantAndSpouseIncome" : {
-            "type" : "number"
-          },
-          "primaryPersonId" : {
-            "type" : "string"
-          },
-          "relationships" : {
-            "$ref" : "#/components/schemas/ns21tSituation__relationships"
-          }
-        },
-        "type" : "object"
-      },
-      "ns21tSituation__relationships" : {
-        "$ref" : "#/components/schemas/ns3tRelationshipList"
-      },
-      "ns22InputSetPhlLowIncomeTaxFreezeDSPhlLowIncomeTaxFreezeService" : {
-        "properties" : {
-          "situation" : {
-            "$ref" : "#/components/schemas/ns22tSituation"
-          }
-        },
-        "required" : [ "situation" ],
-        "type" : "object"
-      },
-      "ns22OutputSetPhlLowIncomeTaxFreezeDSPhlLowIncomeTaxFreezeService" : {
-        "properties" : {
-          "checks" : { },
-          "isEligible" : {
-            "type" : "boolean"
-          },
-          "nextSteps" : {
-            "$ref" : "#/components/schemas/ns3tNextSteps"
-          }
-        },
-        "type" : "object"
-      },
-      "ns22tSimpleChecks" : {
-        "properties" : {
-          "livesInPhiladelphiaPa" : {
-            "type" : "boolean"
-          },
-          "ownerOccupant" : {
-            "type" : "boolean"
-          }
-        },
-        "type" : "object"
-      },
-      "ns22tSituation" : {
-        "properties" : {
-          "applicantAndSpouseIncome" : {
-            "type" : "number"
-          },
-          "enrollments" : {
-            "$ref" : "#/components/schemas/ns22tSituation__enrollments"
-          },
-          "primaryPersonId" : {
-            "type" : "string"
-          },
-          "relationships" : {
-            "$ref" : "#/components/schemas/ns22tSituation__relationships"
-          },
-          "simpleChecks" : {
-            "$ref" : "#/components/schemas/ns22tSimpleChecks"
-          }
-        },
-        "type" : "object"
-      },
-      "ns22tSituation__enrollments" : {
-        "$ref" : "#/components/schemas/ns1tEnrollmentList"
-      },
-      "ns22tSituation__relationships" : {
-        "$ref" : "#/components/schemas/ns3tRelationshipList"
-      },
-      "ns23InputSetPhlOwnerOccupiedPaymentAgreementDSPhlOwnerOccupiedPaymentAgreementService" : {
-        "properties" : {
-          "situation" : {
-            "$ref" : "#/components/schemas/ns23tSituation"
-          }
-        },
-        "required" : [ "situation" ],
-        "type" : "object"
-      },
-      "ns23OutputSetPhlOwnerOccupiedPaymentAgreementDSPhlOwnerOccupiedPaymentAgreementService" : {
-        "properties" : {
-          "checks" : { },
-          "isEligible" : {
-            "type" : "boolean"
-          },
-          "nextSteps" : {
-            "$ref" : "#/components/schemas/ns3tNextSteps"
-          }
-        },
-        "type" : "object"
-      },
-      "ns23tSimpleChecks" : {
-        "properties" : {
-          "livesInPhiladelphiaPa" : {
-            "type" : "boolean"
-          },
-          "ownerOccupant" : {
-            "type" : "boolean"
-          },
-          "taxDelinquent" : {
-            "type" : "boolean"
-          }
-        },
-        "type" : "object"
-      },
-      "ns23tSituation" : {
-        "properties" : {
-          "enrollments" : {
-            "$ref" : "#/components/schemas/ns23tSituation__enrollments"
-          },
-          "primaryPersonId" : {
-            "type" : "string"
-          },
-          "simpleChecks" : {
-            "$ref" : "#/components/schemas/ns23tSimpleChecks"
-          }
-        },
-        "type" : "object"
-      },
-      "ns23tSituation__enrollments" : {
-        "$ref" : "#/components/schemas/ns1tEnrollmentList"
-      },
-      "ns25InputSetPersonMinAgeDSPersonMinAgeService" : {
-        "properties" : {
-          "parameters" : {
-            "$ref" : "#/components/schemas/ns25tParameters"
-          },
-          "situation" : {
-            "$ref" : "#/components/schemas/ns25tSituation"
-          }
-        },
         "required" : [ "parameters", "situation" ],
         "type" : "object"
       },
-      "ns25OutputSetPersonMinAgeDSPersonMinAgeService" : {
+      "ns11OutputSetPersonMaxAgeDSPersonMaxAgeService" : {
         "type" : "boolean"
       },
-      "ns25tParameters" : {
-        "properties" : {
-          "asOfDate" : {
-            "format" : "date",
-            "type" : "string"
-          },
-          "minAge" : {
-            "type" : "number"
-          },
-          "personId" : {
-            "type" : "string"
-          }
-        },
-        "type" : "object"
-      },
-      "ns25tPerson" : {
-        "properties" : {
-          "dateOfBirth" : {
-            "format" : "date",
-            "type" : "string"
-          },
-          "id" : {
-            "type" : "string"
-          }
-        },
-        "type" : "object"
-      },
-      "ns25tPersonList" : {
-        "items" : {
-          "$ref" : "#/components/schemas/ns25tPerson"
-        },
-        "type" : "array"
-      },
-      "ns25tSituation" : {
-        "properties" : {
-          "people" : {
-            "$ref" : "#/components/schemas/ns25tSituation__people"
-          }
-        },
-        "type" : "object"
-      },
-      "ns25tSituation__people" : {
-        "$ref" : "#/components/schemas/ns25tPersonList"
-      },
-      "ns26InputSetApplicantOrSpouseMinAgeDSApplicantOrSpouseMinAgeService" : {
-        "properties" : {
-          "parameters" : {
-            "$ref" : "#/components/schemas/ns26tParameters"
-          },
-          "situation" : {
-            "$ref" : "#/components/schemas/ns26tSituation"
-          }
-        },
-        "required" : [ "situation", "parameters" ],
-        "type" : "object"
-      },
-      "ns26OutputSetApplicantOrSpouseMinAgeDSApplicantOrSpouseMinAgeService" : {
-        "type" : "boolean"
-      },
-      "ns26tParameters" : {
-        "properties" : {
-          "minAge" : {
-            "type" : "number"
-          }
-        },
-        "type" : "object"
-      },
-      "ns26tPerson" : {
-        "properties" : {
-          "dateOfBirth" : {
-            "format" : "date",
-            "type" : "string"
-          },
-          "id" : {
-            "type" : "string"
-          }
-        },
-        "type" : "object"
-      },
-      "ns26tPersonList" : {
-        "items" : {
-          "$ref" : "#/components/schemas/ns26tPerson"
-        },
-        "type" : "array"
-      },
-      "ns26tSimpleChecks" : {
-        "properties" : {
-          "spouseLivesInHousehold" : {
-            "type" : "boolean"
-          }
-        },
-        "type" : "object"
-      },
-      "ns26tSituation" : {
-        "properties" : {
-          "people" : {
-            "$ref" : "#/components/schemas/ns26tSituation__people"
-          },
-          "primaryPersonId" : {
-            "type" : "string"
-          },
-          "relationships" : {
-            "$ref" : "#/components/schemas/ns26tSituation__relationships"
-          },
-          "simpleChecks" : {
-            "$ref" : "#/components/schemas/ns26tSimpleChecks"
-          }
-        },
-        "type" : "object"
-      },
-      "ns26tSituation__people" : {
-        "$ref" : "#/components/schemas/ns26tPersonList"
-      },
-      "ns26tSituation__relationships" : {
-        "$ref" : "#/components/schemas/ns3tRelationshipList"
-      },
-      "ns27InputSetRetipIncomeDSRetipIncomeService" : {
-        "properties" : {
-          "situation" : {
-            "$ref" : "#/components/schemas/ns27tSituation"
-          }
-        },
-        "required" : [ "situation" ],
-        "type" : "object"
-      },
-      "ns27OutputSetRetipIncomeDSRetipIncomeService" : {
-        "type" : "boolean"
-      },
-      "ns27tSituation" : {
-        "properties" : {
-          "householdIncome" : {
-            "type" : "number"
-          },
-          "householdSize" : {
-            "type" : "number"
-          }
-        },
-        "type" : "object"
-      },
-      "ns28InputSetRetipAgeOrIncomeRequirementDSRetipAgeOrIncomeRequirementService" : {
-        "properties" : {
-          "situation" : {
-            "$ref" : "#/components/schemas/ns28tSituation"
-          }
-        },
-        "required" : [ "situation" ],
-        "type" : "object"
-      },
-      "ns28OutputSetRetipAgeOrIncomeRequirementDSRetipAgeOrIncomeRequirementService" : {
-        "type" : "boolean"
-      },
-      "ns28tPerson" : {
-        "properties" : {
-          "dateOfBirth" : {
-            "format" : "date",
-            "type" : "string"
-          },
-          "id" : {
-            "type" : "string"
-          }
-        },
-        "type" : "object"
-      },
-      "ns28tPersonList" : {
-        "items" : {
-          "$ref" : "#/components/schemas/ns28tPerson"
-        },
-        "type" : "array"
-      },
-      "ns28tSimpleChecks" : {
-        "properties" : {
-          "spouseLivesInHousehold" : {
-            "type" : "boolean"
-          }
-        },
-        "type" : "object"
-      },
-      "ns28tSituation" : {
-        "properties" : {
-          "householdIncome" : {
-            "type" : "number"
-          },
-          "householdSize" : {
-            "type" : "number"
-          },
-          "people" : {
-            "$ref" : "#/components/schemas/ns28tSituation__people"
-          },
-          "primaryPersonId" : {
-            "type" : "string"
-          },
-          "relationships" : {
-            "$ref" : "#/components/schemas/ns28tSituation__relationships"
-          },
-          "simpleChecks" : {
-            "$ref" : "#/components/schemas/ns28tSimpleChecks"
-          }
-        },
-        "type" : "object"
-      },
-      "ns28tSituation__people" : {
-        "$ref" : "#/components/schemas/ns28tPersonList"
-      },
-      "ns28tSituation__relationships" : {
-        "$ref" : "#/components/schemas/ns3tRelationshipList"
-      },
-      "ns29InputSetPhlRetipDSPhlRetipService" : {
-        "properties" : {
-          "situation" : {
-            "$ref" : "#/components/schemas/ns29tSituation"
-          }
-        },
-        "required" : [ "situation" ],
-        "type" : "object"
-      },
-      "ns29OutputSetPhlRetipDSPhlRetipService" : {
-        "properties" : {
-          "checks" : { },
-          "isEligible" : {
-            "type" : "boolean"
-          },
-          "nextSteps" : {
-            "$ref" : "#/components/schemas/ns3tNextSteps"
-          }
-        },
-        "type" : "object"
-      },
-      "ns29tPerson" : {
-        "properties" : {
-          "dateOfBirth" : {
-            "format" : "date",
-            "type" : "string"
-          },
-          "id" : {
-            "type" : "string"
-          }
-        },
-        "type" : "object"
-      },
-      "ns29tPersonList" : {
-        "items" : {
-          "$ref" : "#/components/schemas/ns29tPerson"
-        },
-        "type" : "array"
-      },
-      "ns29tSimpleChecks" : {
-        "properties" : {
-          "livesInPhiladelphiaPa" : {
-            "type" : "boolean"
-          },
-          "ownerOccupant" : {
-            "type" : "boolean"
-          },
-          "spouseLivesInHousehold" : {
-            "type" : "boolean"
-          }
-        },
-        "type" : "object"
-      },
-      "ns29tSituation" : {
-        "properties" : {
-          "enrollments" : {
-            "$ref" : "#/components/schemas/ns29tSituation__enrollments"
-          },
-          "householdIncome" : {
-            "type" : "number"
-          },
-          "householdSize" : {
-            "type" : "number"
-          },
-          "people" : {
-            "$ref" : "#/components/schemas/ns29tSituation__people"
-          },
-          "primaryPersonId" : {
-            "type" : "string"
-          },
-          "relationships" : {
-            "$ref" : "#/components/schemas/ns29tSituation__relationships"
-          },
-          "simpleChecks" : {
-            "$ref" : "#/components/schemas/ns29tSimpleChecks"
-          }
-        },
-        "type" : "object"
-      },
-      "ns29tSituation__enrollments" : {
-        "$ref" : "#/components/schemas/ns1tEnrollmentList"
-      },
-      "ns29tSituation__people" : {
-        "$ref" : "#/components/schemas/ns29tPersonList"
-      },
-      "ns29tSituation__relationships" : {
-        "$ref" : "#/components/schemas/ns3tRelationshipList"
-      },
-      "ns30InputSetSctfAgeRequirementDSSctfAgeRequirementService" : {
-        "properties" : {
-          "situation" : {
-            "$ref" : "#/components/schemas/ns30tSituation"
-          }
-        },
-        "required" : [ "situation" ],
-        "type" : "object"
-      },
-      "ns30OutputSetSctfAgeRequirementDSSctfAgeRequirementService" : {
-        "type" : "boolean"
-      },
-      "ns30tSimpleChecks" : {
-        "properties" : {
-          "lateSpouseWasAtLeast65" : {
-            "type" : "boolean"
-          }
-        },
-        "type" : "object"
-      },
-      "ns30tSituation" : {
-        "properties" : {
-          "people" : {
-            "$ref" : "#/components/schemas/ns30tSituation__people"
-          },
-          "primaryPersonId" : {
-            "type" : "string"
-          },
-          "relationships" : {
-            "$ref" : "#/components/schemas/ns30tSituation__relationships"
-          },
-          "simpleChecks" : {
-            "$ref" : "#/components/schemas/ns30tSimpleChecks"
-          }
-        },
-        "type" : "object"
-      },
-      "ns30tSituation__people" : {
-        "$ref" : "#/components/schemas/ns3tPersonList"
-      },
-      "ns30tSituation__relationships" : {
-        "$ref" : "#/components/schemas/ns3tRelationshipList"
-      },
-      "ns31InputSetPhlSeniorCitizenTaxFreezeDSPhlSeniorCitizenTaxFreezeService" : {
-        "properties" : {
-          "situation" : {
-            "$ref" : "#/components/schemas/ns31tSituation"
-          }
-        },
-        "required" : [ "situation" ],
-        "type" : "object"
-      },
-      "ns31OutputSetPhlSeniorCitizenTaxFreezeDSPhlSeniorCitizenTaxFreezeService" : {
-        "properties" : {
-          "checks" : { },
-          "isEligible" : {
-            "type" : "boolean"
-          },
-          "nextSteps" : {
-            "$ref" : "#/components/schemas/ns3tNextSteps"
-          }
-        },
-        "type" : "object"
-      },
-      "ns31tPeople" : {
-        "items" : {
-          "$ref" : "#/components/schemas/ns31tPerson"
-        },
-        "type" : "array"
-      },
-      "ns31tPerson" : {
-        "properties" : {
-          "dateOfBirth" : {
-            "format" : "date",
-            "type" : "string"
-          },
-          "id" : {
-            "type" : "string"
-          }
-        },
-        "type" : "object"
-      },
-      "ns31tSimpleChecks" : {
-        "properties" : {
-          "lateSpouseWasAtLeast65" : {
-            "type" : "boolean"
-          },
-          "livesInPhiladelphiaPa" : {
-            "type" : "boolean"
-          },
-          "ownerOccupant" : {
-            "type" : "boolean"
-          }
-        },
-        "type" : "object"
-      },
-      "ns31tSituation" : {
-        "properties" : {
-          "enrollments" : {
-            "$ref" : "#/components/schemas/ns31tSituation__enrollments"
-          },
-          "people" : {
-            "$ref" : "#/components/schemas/ns31tSituation__people"
-          },
-          "primaryPersonId" : {
-            "type" : "string"
-          },
-          "relationships" : {
-            "$ref" : "#/components/schemas/ns31tSituation__relationships"
-          },
-          "simpleChecks" : {
-            "$ref" : "#/components/schemas/ns31tSimpleChecks"
-          }
-        },
-        "type" : "object"
-      },
-      "ns31tSituation__enrollments" : {
-        "$ref" : "#/components/schemas/ns1tEnrollmentList"
-      },
-      "ns31tSituation__people" : {
-        "$ref" : "#/components/schemas/ns31tPeople"
-      },
-      "ns31tSituation__relationships" : {
-        "$ref" : "#/components/schemas/ns3tRelationshipList"
-      },
-      "ns32InputSetLivesInPennsylvaniaDSLivesInPennsylvaniaService" : {
-        "properties" : {
-          "situation" : {
-            "$ref" : "#/components/schemas/ns32tSituation"
-          }
-        },
-        "required" : [ "situation" ],
-        "type" : "object"
-      },
-      "ns32OutputSetLivesInPennsylvaniaDSLivesInPennsylvaniaService" : {
-        "type" : "boolean"
-      },
-      "ns32tSimpleChecks" : {
-        "properties" : {
-          "livesInPennsylvania" : {
-            "type" : "boolean"
-          }
-        },
-        "type" : "object"
-      },
-      "ns32tSituation" : {
-        "properties" : {
-          "simpleChecks" : {
-            "$ref" : "#/components/schemas/ns32tSimpleChecks"
-          }
-        },
-        "type" : "object"
-      },
-      "ns33InputSetHouseholdIncomeWithinPovertyGuidelinesDSHouseholdIncomeWithinPovertyGuidelinesService" : {
-        "properties" : {
-          "parameters" : {
-            "$ref" : "#/components/schemas/ns33tParameters"
-          },
-          "situation" : {
-            "$ref" : "#/components/schemas/ns33tSituation"
-          }
-        },
-        "required" : [ "situation", "parameters" ],
-        "type" : "object"
-      },
-      "ns33OutputSetHouseholdIncomeWithinPovertyGuidelinesDSHouseholdIncomeWithinPovertyGuidelinesService" : {
-        "type" : "boolean"
-      },
-      "ns33tParameters" : {
-        "properties" : {
-          "guidelineYear" : {
-            "description" : "Year of the HHS poverty guidelines to use, for example 2026.",
-            "type" : "number"
-          },
-          "percent" : {
-            "description" : "Percentage of the poverty guideline to use as the income limit, for example 150 for 150%.",
-            "type" : "number"
-          }
-        },
-        "type" : "object"
-      },
-      "ns33tSituation" : {
-        "properties" : {
-          "householdIncome" : {
-            "type" : "number"
-          },
-          "householdSize" : {
-            "type" : "number"
-          }
-        },
-        "type" : "object"
-      },
-      "ns34InputSetPaysPrimaryHeatingCostsDSPaysPrimaryHeatingCostsService" : {
-        "properties" : {
-          "situation" : {
-            "$ref" : "#/components/schemas/ns34tSituation"
-          }
-        },
-        "required" : [ "situation" ],
-        "type" : "object"
-      },
-      "ns34OutputSetPaysPrimaryHeatingCostsDSPaysPrimaryHeatingCostsService" : {
-        "type" : "boolean"
-      },
-      "ns34tSimpleChecks" : {
-        "properties" : {
-          "heatInIncomeBasedRent" : {
-            "type" : "boolean"
-          },
-          "paysPrimaryHeatingCosts" : {
-            "type" : "boolean"
-          }
-        },
-        "type" : "object"
-      },
-      "ns34tSituation" : {
-        "properties" : {
-          "simpleChecks" : {
-            "$ref" : "#/components/schemas/ns34tSimpleChecks"
-          }
-        },
-        "type" : "object"
-      },
-      "ns36InputSetHouseholdHasCitizenOrEligibleNoncitizenDSHouseholdHasCitizenOrEligibleNoncitizenService" : {
-        "properties" : {
-          "situation" : {
-            "$ref" : "#/components/schemas/ns36tSituation"
-          }
-        },
-        "required" : [ "situation" ],
-        "type" : "object"
-      },
-      "ns36OutputSetHouseholdHasCitizenOrEligibleNoncitizenDSHouseholdHasCitizenOrEligibleNoncitizenService" : {
-        "type" : "boolean"
-      },
-      "ns36tSimpleChecks" : {
-        "properties" : {
-          "householdHasCitizenOrEligibleNoncitizen" : {
-            "type" : "boolean"
-          }
-        },
-        "type" : "object"
-      },
-      "ns36tSituation" : {
-        "properties" : {
-          "simpleChecks" : {
-            "$ref" : "#/components/schemas/ns36tSimpleChecks"
-          }
-        },
-        "type" : "object"
-      },
-      "ns37InputSetPaLiheapCashDSPaLiheapCashService" : {
-        "properties" : {
-          "situation" : {
-            "$ref" : "#/components/schemas/ns37tSituation"
-          }
-        },
-        "required" : [ "situation" ],
-        "type" : "object"
-      },
-      "ns37OutputSetPaLiheapCashDSPaLiheapCashService" : {
-        "properties" : {
-          "checks" : { },
-          "isEligible" : {
-            "type" : "boolean"
-          },
-          "nextSteps" : {
-            "$ref" : "#/components/schemas/ns3tNextSteps"
-          }
-        },
-        "type" : "object"
-      },
-      "ns37tSimpleChecks" : {
-        "properties" : {
-          "heatInIncomeBasedRent" : {
-            "type" : "boolean"
-          },
-          "householdHasCitizenOrEligibleNoncitizen" : {
-            "type" : "boolean"
-          },
-          "livesInPennsylvania" : {
-            "type" : "boolean"
-          },
-          "paysPrimaryHeatingCosts" : {
-            "type" : "boolean"
-          }
-        },
-        "type" : "object"
-      },
-      "ns37tSituation" : {
-        "properties" : {
-          "enrollments" : {
-            "$ref" : "#/components/schemas/ns37tSituation__enrollments"
-          },
-          "householdIncome" : {
-            "type" : "number"
-          },
-          "householdSize" : {
-            "type" : "number"
-          },
-          "primaryPersonId" : {
-            "type" : "string"
-          },
-          "simpleChecks" : {
-            "$ref" : "#/components/schemas/ns37tSimpleChecks"
-          }
-        },
-        "type" : "object"
-      },
-      "ns37tSituation__enrollments" : {
-        "$ref" : "#/components/schemas/ns1tEnrollmentList"
-      },
-      "ns38InputSetPersonMaxAgeDSPersonMaxAgeService" : {
-        "properties" : {
-          "parameters" : {
-            "$ref" : "#/components/schemas/ns38tParameters"
-          },
-          "situation" : {
-            "$ref" : "#/components/schemas/ns38tSituation"
-          }
-        },
-        "required" : [ "parameters", "situation" ],
-        "type" : "object"
-      },
-      "ns38OutputSetPersonMaxAgeDSPersonMaxAgeService" : {
-        "type" : "boolean"
-      },
-      "ns38tParameters" : {
+      "ns11tParameters" : {
         "properties" : {
           "asOfDate" : {
             "format" : "date",
@@ -1173,7 +57,7 @@
         },
         "type" : "object"
       },
-      "ns38tPerson" : {
+      "ns11tPerson" : {
         "properties" : {
           "dateOfBirth" : {
             "format" : "date",
@@ -1185,39 +69,211 @@
         },
         "type" : "object"
       },
-      "ns38tPersonList" : {
+      "ns11tPersonList" : {
         "items" : {
-          "$ref" : "#/components/schemas/ns38tPerson"
+          "$ref" : "#/components/schemas/ns11tPerson"
         },
         "type" : "array"
       },
-      "ns38tSituation" : {
+      "ns11tSituation" : {
         "properties" : {
           "people" : {
-            "$ref" : "#/components/schemas/ns38tSituation__people"
+            "$ref" : "#/components/schemas/ns11tSituation__people"
           }
         },
         "type" : "object"
       },
-      "ns38tSituation__people" : {
-        "$ref" : "#/components/schemas/ns38tPersonList"
+      "ns11tSituation__people" : {
+        "$ref" : "#/components/schemas/ns11tPersonList"
       },
-      "ns39InputSetSomeoneMinAgeDSSomeoneMinAgeService" : {
+      "ns12InputSetOwnerOccupantDSOwnerOccupantService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns12tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns12OutputSetOwnerOccupantDSOwnerOccupantService" : {
+        "type" : "boolean"
+      },
+      "ns12tSimpleChecks" : {
+        "properties" : {
+          "ownerOccupant" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns12tSituation" : {
+        "properties" : {
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns12tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns14InputSetNoDisqualifyingTaxAbatementDSNoDisqualifyingTaxAbatementService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns14tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns14OutputSetNoDisqualifyingTaxAbatementDSNoDisqualifyingTaxAbatementService" : {
+        "type" : "boolean"
+      },
+      "ns14tSimpleChecks" : {
+        "properties" : {
+          "disqualifyingTaxAbatement" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns14tSituation" : {
+        "properties" : {
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns14tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns15InputSetLivesInPhiladelphiaPaDSLivesInPhiladelphiaPaService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns15tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns15OutputSetLivesInPhiladelphiaPaDSLivesInPhiladelphiaPaService" : {
+        "type" : "boolean"
+      },
+      "ns15tSimpleChecks" : {
+        "properties" : {
+          "livesInPhiladelphiaPa" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns15tSituation" : {
+        "properties" : {
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns15tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns16InputSetPhlRetipDSPhlRetipService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns16tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns16OutputSetPhlRetipDSPhlRetipService" : {
+        "properties" : {
+          "checks" : { },
+          "isEligible" : {
+            "type" : "boolean"
+          },
+          "nextSteps" : {
+            "$ref" : "#/components/schemas/ns5tNextSteps"
+          }
+        },
+        "type" : "object"
+      },
+      "ns16tPerson" : {
+        "properties" : {
+          "dateOfBirth" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns16tPersonList" : {
+        "items" : {
+          "$ref" : "#/components/schemas/ns16tPerson"
+        },
+        "type" : "array"
+      },
+      "ns16tSimpleChecks" : {
+        "properties" : {
+          "livesInPhiladelphiaPa" : {
+            "type" : "boolean"
+          },
+          "ownerOccupant" : {
+            "type" : "boolean"
+          },
+          "spouseLivesInHousehold" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns16tSituation" : {
+        "properties" : {
+          "enrollments" : {
+            "$ref" : "#/components/schemas/ns16tSituation__enrollments"
+          },
+          "householdIncome" : {
+            "type" : "number"
+          },
+          "householdSize" : {
+            "type" : "number"
+          },
+          "people" : {
+            "$ref" : "#/components/schemas/ns16tSituation__people"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "relationships" : {
+            "$ref" : "#/components/schemas/ns16tSituation__relationships"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns16tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns16tSituation__enrollments" : {
+        "$ref" : "#/components/schemas/ns19tEnrollmentList"
+      },
+      "ns16tSituation__people" : {
+        "$ref" : "#/components/schemas/ns16tPersonList"
+      },
+      "ns16tSituation__relationships" : {
+        "$ref" : "#/components/schemas/ns5tRelationshipList"
+      },
+      "ns17InputSetSomeoneMinAgeDSSomeoneMinAgeService" : {
         "properties" : {
           "parameters" : {
-            "$ref" : "#/components/schemas/ns39tParameters"
+            "$ref" : "#/components/schemas/ns17tParameters"
           },
           "situation" : {
-            "$ref" : "#/components/schemas/ns39tSituation"
+            "$ref" : "#/components/schemas/ns17tSituation"
           }
         },
         "required" : [ "parameters", "situation" ],
         "type" : "object"
       },
-      "ns39OutputSetSomeoneMinAgeDSSomeoneMinAgeService" : {
+      "ns17OutputSetSomeoneMinAgeDSSomeoneMinAgeService" : {
         "type" : "boolean"
       },
-      "ns39tParameters" : {
+      "ns17tParameters" : {
         "properties" : {
           "asOfDate" : {
             "format" : "date",
@@ -1227,15 +283,15 @@
             "type" : "number"
           },
           "peopleIds" : {
-            "$ref" : "#/components/schemas/ns39tParameters__peopleIds"
+            "$ref" : "#/components/schemas/ns17tParameters__peopleIds"
           }
         },
         "type" : "object"
       },
-      "ns39tParameters__peopleIds" : {
-        "$ref" : "#/components/schemas/ns3tStringList"
+      "ns17tParameters__peopleIds" : {
+        "$ref" : "#/components/schemas/ns5tStringList"
       },
-      "ns39tPerson" : {
+      "ns17tPerson" : {
         "properties" : {
           "dateOfBirth" : {
             "format" : "date",
@@ -1247,24 +303,914 @@
         },
         "type" : "object"
       },
-      "ns39tPersonList" : {
+      "ns17tPersonList" : {
         "items" : {
-          "$ref" : "#/components/schemas/ns39tPerson"
+          "$ref" : "#/components/schemas/ns17tPerson"
         },
         "type" : "array"
       },
-      "ns39tSituation" : {
+      "ns17tSituation" : {
         "properties" : {
           "people" : {
-            "$ref" : "#/components/schemas/ns39tSituation__people"
+            "$ref" : "#/components/schemas/ns17tSituation__people"
           }
         },
         "type" : "object"
       },
-      "ns39tSituation__people" : {
-        "$ref" : "#/components/schemas/ns39tPersonList"
+      "ns17tSituation__people" : {
+        "$ref" : "#/components/schemas/ns17tPersonList"
       },
-      "ns3tEligibleNextSteps" : {
+      "ns18InputSetSctfAgeRequirementDSSctfAgeRequirementService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns18tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns18OutputSetSctfAgeRequirementDSSctfAgeRequirementService" : {
+        "type" : "boolean"
+      },
+      "ns18tSimpleChecks" : {
+        "properties" : {
+          "lateSpouseWasAtLeast65" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns18tSituation" : {
+        "properties" : {
+          "people" : {
+            "$ref" : "#/components/schemas/ns18tSituation__people"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "relationships" : {
+            "$ref" : "#/components/schemas/ns18tSituation__relationships"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns18tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns18tSituation__people" : {
+        "$ref" : "#/components/schemas/ns5tPersonList"
+      },
+      "ns18tSituation__relationships" : {
+        "$ref" : "#/components/schemas/ns5tRelationshipList"
+      },
+      "ns19tEnrollment" : {
+        "properties" : {
+          "benefit" : {
+            "type" : "string"
+          },
+          "personId" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns19tEnrollmentList" : {
+        "items" : {
+          "$ref" : "#/components/schemas/ns19tEnrollment"
+        },
+        "type" : "array"
+      },
+      "ns1InputSetRetipIncomeDSRetipIncomeService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns1tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns1OutputSetRetipIncomeDSRetipIncomeService" : {
+        "type" : "boolean"
+      },
+      "ns1tSituation" : {
+        "properties" : {
+          "householdIncome" : {
+            "type" : "number"
+          },
+          "householdSize" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns20InputSetPropertyTaxesCurrentOrPaymentPlanDSPropertyTaxesCurrentOrPaymentPlanService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns20tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns20OutputSetPropertyTaxesCurrentOrPaymentPlanDSPropertyTaxesCurrentOrPaymentPlanService" : {
+        "type" : "boolean"
+      },
+      "ns20tSimpleChecks" : {
+        "properties" : {
+          "propertyTaxPaymentPlan" : {
+            "type" : "boolean"
+          },
+          "taxDelinquent" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns20tSituation" : {
+        "properties" : {
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns20tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns21InputSetMinYearsOwnerOccupantDSMinYearsOwnerOccupantService" : {
+        "properties" : {
+          "parameters" : {
+            "$ref" : "#/components/schemas/ns21tParameters"
+          },
+          "situation" : {
+            "$ref" : "#/components/schemas/ns21tSituation"
+          }
+        },
+        "required" : [ "situation", "parameters" ],
+        "type" : "object"
+      },
+      "ns21OutputSetMinYearsOwnerOccupantDSMinYearsOwnerOccupantService" : {
+        "type" : "boolean"
+      },
+      "ns21tParameters" : {
+        "properties" : {
+          "minYears" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns21tSituation" : {
+        "properties" : {
+          "yearsOwnerOccupied" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns24InputSetLivesInPennsylvaniaDSLivesInPennsylvaniaService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns24tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns24OutputSetLivesInPennsylvaniaDSLivesInPennsylvaniaService" : {
+        "type" : "boolean"
+      },
+      "ns24tSimpleChecks" : {
+        "properties" : {
+          "livesInPennsylvania" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns24tSituation" : {
+        "properties" : {
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns24tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns25InputSetPhlSeniorCitizenTaxFreezeDSPhlSeniorCitizenTaxFreezeService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns25tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns25OutputSetPhlSeniorCitizenTaxFreezeDSPhlSeniorCitizenTaxFreezeService" : {
+        "properties" : {
+          "checks" : { },
+          "isEligible" : {
+            "type" : "boolean"
+          },
+          "nextSteps" : {
+            "$ref" : "#/components/schemas/ns5tNextSteps"
+          }
+        },
+        "type" : "object"
+      },
+      "ns25tPeople" : {
+        "items" : {
+          "$ref" : "#/components/schemas/ns25tPerson"
+        },
+        "type" : "array"
+      },
+      "ns25tPerson" : {
+        "properties" : {
+          "dateOfBirth" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns25tSimpleChecks" : {
+        "properties" : {
+          "lateSpouseWasAtLeast65" : {
+            "type" : "boolean"
+          },
+          "livesInPhiladelphiaPa" : {
+            "type" : "boolean"
+          },
+          "ownerOccupant" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns25tSituation" : {
+        "properties" : {
+          "enrollments" : {
+            "$ref" : "#/components/schemas/ns25tSituation__enrollments"
+          },
+          "people" : {
+            "$ref" : "#/components/schemas/ns25tSituation__people"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "relationships" : {
+            "$ref" : "#/components/schemas/ns25tSituation__relationships"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns25tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns25tSituation__enrollments" : {
+        "$ref" : "#/components/schemas/ns19tEnrollmentList"
+      },
+      "ns25tSituation__people" : {
+        "$ref" : "#/components/schemas/ns25tPeople"
+      },
+      "ns25tSituation__relationships" : {
+        "$ref" : "#/components/schemas/ns5tRelationshipList"
+      },
+      "ns26InputSetPhlLowIncomeTaxFreezeDSPhlLowIncomeTaxFreezeService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns26tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns26OutputSetPhlLowIncomeTaxFreezeDSPhlLowIncomeTaxFreezeService" : {
+        "properties" : {
+          "checks" : { },
+          "isEligible" : {
+            "type" : "boolean"
+          },
+          "nextSteps" : {
+            "$ref" : "#/components/schemas/ns5tNextSteps"
+          }
+        },
+        "type" : "object"
+      },
+      "ns26tSimpleChecks" : {
+        "properties" : {
+          "livesInPhiladelphiaPa" : {
+            "type" : "boolean"
+          },
+          "ownerOccupant" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns26tSituation" : {
+        "properties" : {
+          "applicantAndSpouseIncome" : {
+            "type" : "number"
+          },
+          "enrollments" : {
+            "$ref" : "#/components/schemas/ns26tSituation__enrollments"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "relationships" : {
+            "$ref" : "#/components/schemas/ns26tSituation__relationships"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns26tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns26tSituation__enrollments" : {
+        "$ref" : "#/components/schemas/ns19tEnrollmentList"
+      },
+      "ns26tSituation__relationships" : {
+        "$ref" : "#/components/schemas/ns5tRelationshipList"
+      },
+      "ns27InputSetPersonMinAgeDSPersonMinAgeService" : {
+        "properties" : {
+          "parameters" : {
+            "$ref" : "#/components/schemas/ns27tParameters"
+          },
+          "situation" : {
+            "$ref" : "#/components/schemas/ns27tSituation"
+          }
+        },
+        "required" : [ "parameters", "situation" ],
+        "type" : "object"
+      },
+      "ns27OutputSetPersonMinAgeDSPersonMinAgeService" : {
+        "type" : "boolean"
+      },
+      "ns27tParameters" : {
+        "properties" : {
+          "asOfDate" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "minAge" : {
+            "type" : "number"
+          },
+          "personId" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns27tPerson" : {
+        "properties" : {
+          "dateOfBirth" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns27tPersonList" : {
+        "items" : {
+          "$ref" : "#/components/schemas/ns27tPerson"
+        },
+        "type" : "array"
+      },
+      "ns27tSituation" : {
+        "properties" : {
+          "people" : {
+            "$ref" : "#/components/schemas/ns27tSituation__people"
+          }
+        },
+        "type" : "object"
+      },
+      "ns27tSituation__people" : {
+        "$ref" : "#/components/schemas/ns27tPersonList"
+      },
+      "ns28InputSetPaysPrimaryHeatingCostsDSPaysPrimaryHeatingCostsService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns28tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns28OutputSetPaysPrimaryHeatingCostsDSPaysPrimaryHeatingCostsService" : {
+        "type" : "boolean"
+      },
+      "ns28tSimpleChecks" : {
+        "properties" : {
+          "heatInIncomeBasedRent" : {
+            "type" : "boolean"
+          },
+          "paysPrimaryHeatingCosts" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns28tSituation" : {
+        "properties" : {
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns28tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns2InputSetPhlHomesteadExemptionDSPhlHomesteadExemptionService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns2tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns2OutputSetPhlHomesteadExemptionDSPhlHomesteadExemptionService" : {
+        "properties" : {
+          "checks" : { },
+          "isEligible" : {
+            "type" : "boolean"
+          },
+          "nextSteps" : {
+            "$ref" : "#/components/schemas/ns5tNextSteps"
+          }
+        },
+        "type" : "object"
+      },
+      "ns2tSimpleChecks" : {
+        "properties" : {
+          "livesInPhiladelphiaPa" : {
+            "type" : "boolean"
+          },
+          "ownerOccupant" : {
+            "type" : "boolean"
+          },
+          "tenYearTaxAbatement" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns2tSituation" : {
+        "properties" : {
+          "enrollments" : {
+            "$ref" : "#/components/schemas/ns2tSituation__enrollments"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns2tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns2tSituation__enrollments" : {
+        "$ref" : "#/components/schemas/ns19tEnrollmentList"
+      },
+      "ns30InputSetPersonEnrolledInBenefitDSPersonEnrolledInBenefitService" : {
+        "properties" : {
+          "parameters" : {
+            "$ref" : "#/components/schemas/ns30tParameters"
+          },
+          "situation" : {
+            "$ref" : "#/components/schemas/ns30tSituation"
+          }
+        },
+        "required" : [ "parameters", "situation" ],
+        "type" : "object"
+      },
+      "ns30OutputSetPersonEnrolledInBenefitDSPersonEnrolledInBenefitService" : {
+        "type" : "boolean"
+      },
+      "ns30tParameters" : {
+        "properties" : {
+          "benefit" : {
+            "type" : "string"
+          },
+          "personId" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns30tSituation" : {
+        "properties" : {
+          "enrollments" : {
+            "$ref" : "#/components/schemas/ns30tSituation__enrollments"
+          }
+        },
+        "type" : "object"
+      },
+      "ns30tSituation__enrollments" : {
+        "$ref" : "#/components/schemas/ns19tEnrollmentList"
+      },
+      "ns31InputSetPhlOwnerOccupiedPaymentAgreementDSPhlOwnerOccupiedPaymentAgreementService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns31tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns31OutputSetPhlOwnerOccupiedPaymentAgreementDSPhlOwnerOccupiedPaymentAgreementService" : {
+        "properties" : {
+          "checks" : { },
+          "isEligible" : {
+            "type" : "boolean"
+          },
+          "nextSteps" : {
+            "$ref" : "#/components/schemas/ns5tNextSteps"
+          }
+        },
+        "type" : "object"
+      },
+      "ns31tSimpleChecks" : {
+        "properties" : {
+          "livesInPhiladelphiaPa" : {
+            "type" : "boolean"
+          },
+          "ownerOccupant" : {
+            "type" : "boolean"
+          },
+          "taxDelinquent" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns31tSituation" : {
+        "properties" : {
+          "enrollments" : {
+            "$ref" : "#/components/schemas/ns31tSituation__enrollments"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns31tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns31tSituation__enrollments" : {
+        "$ref" : "#/components/schemas/ns19tEnrollmentList"
+      },
+      "ns32InputSetPropertyAssessmentIncreaseDSPropertyAssessmentIncreaseService" : {
+        "properties" : {
+          "parameters" : {
+            "$ref" : "#/components/schemas/ns32tParameters"
+          },
+          "situation" : {
+            "$ref" : "#/components/schemas/ns32tSituation"
+          }
+        },
+        "required" : [ "situation", "parameters" ],
+        "type" : "object"
+      },
+      "ns32OutputSetPropertyAssessmentIncreaseDSPropertyAssessmentIncreaseService" : {
+        "type" : "boolean"
+      },
+      "ns32tParameters" : {
+        "properties" : {
+          "fiveYearPercent" : {
+            "type" : "number"
+          },
+          "oneYearPercent" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns32tSituation" : {
+        "properties" : {
+          "lowestPropertyAssessmentLastFiveYears" : {
+            "type" : "number"
+          },
+          "previousYearPropertyAssessment" : {
+            "type" : "number"
+          },
+          "propertyAssessment" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns33InputSetLoopIncomeDSLoopIncomeService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns33tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns33OutputSetLoopIncomeDSLoopIncomeService" : {
+        "type" : "boolean"
+      },
+      "ns33tSituation" : {
+        "properties" : {
+          "householdIncome" : {
+            "type" : "number"
+          },
+          "householdSize" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns34InputSetRetipAgeOrIncomeRequirementDSRetipAgeOrIncomeRequirementService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns34tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns34OutputSetRetipAgeOrIncomeRequirementDSRetipAgeOrIncomeRequirementService" : {
+        "type" : "boolean"
+      },
+      "ns34tPerson" : {
+        "properties" : {
+          "dateOfBirth" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns34tPersonList" : {
+        "items" : {
+          "$ref" : "#/components/schemas/ns34tPerson"
+        },
+        "type" : "array"
+      },
+      "ns34tSimpleChecks" : {
+        "properties" : {
+          "spouseLivesInHousehold" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns34tSituation" : {
+        "properties" : {
+          "householdIncome" : {
+            "type" : "number"
+          },
+          "householdSize" : {
+            "type" : "number"
+          },
+          "people" : {
+            "$ref" : "#/components/schemas/ns34tSituation__people"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "relationships" : {
+            "$ref" : "#/components/schemas/ns34tSituation__relationships"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns34tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns34tSituation__people" : {
+        "$ref" : "#/components/schemas/ns34tPersonList"
+      },
+      "ns34tSituation__relationships" : {
+        "$ref" : "#/components/schemas/ns5tRelationshipList"
+      },
+      "ns35InputSetTaxDelinquentDSTaxDelinquentService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns35tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns35OutputSetTaxDelinquentDSTaxDelinquentService" : {
+        "type" : "boolean"
+      },
+      "ns35tSimpleChecks" : {
+        "properties" : {
+          "taxDelinquent" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns35tSituation" : {
+        "properties" : {
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns35tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns36InputSetNoTenYearTaxAbatementDSNoTenYearTaxAbatementService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns36tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns36OutputSetNoTenYearTaxAbatementDSNoTenYearTaxAbatementService" : {
+        "type" : "boolean"
+      },
+      "ns36tSimpleChecks" : {
+        "properties" : {
+          "tenYearTaxAbatement" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns36tSituation" : {
+        "properties" : {
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns36tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns38InputSetDecisionServiceInvokerDSDecisionServiceInvokerService" : {
+        "properties" : {
+          "model" : {
+            "type" : "string"
+          },
+          "parameters" : { },
+          "service" : {
+            "type" : "string"
+          },
+          "situation" : {
+            "$ref" : "#/components/schemas/ns5tSituation"
+          }
+        },
+        "required" : [ "model", "parameters", "service", "situation" ],
+        "type" : "object"
+      },
+      "ns38OutputSetDecisionServiceInvokerDSDecisionServiceInvokerService" : { },
+      "ns39InputSetPhlLoopDSPhlLoopService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns39tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns39OutputSetPhlLoopDSPhlLoopService" : {
+        "properties" : {
+          "checks" : { },
+          "isEligible" : {
+            "type" : "boolean"
+          },
+          "nextSteps" : {
+            "$ref" : "#/components/schemas/ns5tNextSteps"
+          }
+        },
+        "type" : "object"
+      },
+      "ns39tSimpleChecks" : {
+        "properties" : {
+          "disqualifyingTaxAbatement" : {
+            "type" : "boolean"
+          },
+          "livesInPhiladelphiaPa" : {
+            "type" : "boolean"
+          },
+          "ownerOccupant" : {
+            "type" : "boolean"
+          },
+          "propertyTaxPaymentPlan" : {
+            "type" : "boolean"
+          },
+          "taxDelinquent" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns39tSituation" : {
+        "properties" : {
+          "enrollments" : {
+            "$ref" : "#/components/schemas/ns39tSituation__enrollments"
+          },
+          "householdIncome" : {
+            "type" : "number"
+          },
+          "householdSize" : {
+            "type" : "number"
+          },
+          "lowestPropertyAssessmentLastFiveYears" : {
+            "type" : "number"
+          },
+          "previousYearPropertyAssessment" : {
+            "type" : "number"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "propertyAssessment" : {
+            "type" : "number"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns39tSimpleChecks"
+          },
+          "yearsOwnerOccupied" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns39tSituation__enrollments" : {
+        "$ref" : "#/components/schemas/ns19tEnrollmentList"
+      },
+      "ns40InputSetHouseholdHasCitizenOrEligibleNoncitizenDSHouseholdHasCitizenOrEligibleNoncitizenService" : {
+        "properties" : {
+          "situation" : {
+            "$ref" : "#/components/schemas/ns40tSituation"
+          }
+        },
+        "required" : [ "situation" ],
+        "type" : "object"
+      },
+      "ns40OutputSetHouseholdHasCitizenOrEligibleNoncitizenDSHouseholdHasCitizenOrEligibleNoncitizenService" : {
+        "type" : "boolean"
+      },
+      "ns40tSimpleChecks" : {
+        "properties" : {
+          "householdHasCitizenOrEligibleNoncitizen" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns40tSituation" : {
+        "properties" : {
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns40tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns4InputSetHouseholdIncomeWithinPovertyGuidelinesDSHouseholdIncomeWithinPovertyGuidelinesService" : {
+        "properties" : {
+          "parameters" : {
+            "$ref" : "#/components/schemas/ns4tParameters"
+          },
+          "situation" : {
+            "$ref" : "#/components/schemas/ns4tSituation"
+          }
+        },
+        "required" : [ "situation", "parameters" ],
+        "type" : "object"
+      },
+      "ns4OutputSetHouseholdIncomeWithinPovertyGuidelinesDSHouseholdIncomeWithinPovertyGuidelinesService" : {
+        "type" : "boolean"
+      },
+      "ns4tParameters" : {
+        "properties" : {
+          "guidelineYear" : {
+            "description" : "Year of the HHS poverty guidelines to use, for example 2026.",
+            "type" : "number"
+          },
+          "percent" : {
+            "description" : "Percentage of the poverty guideline to use as the income limit, for example 150 for 150%.",
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns4tSituation" : {
+        "properties" : {
+          "householdIncome" : {
+            "type" : "number"
+          },
+          "householdSize" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns5tEligibleNextSteps" : {
         "properties" : {
           "applyUrl" : {
             "type" : "string"
@@ -1281,7 +1227,7 @@
         },
         "type" : "object"
       },
-      "ns3tIneligibleNextSteps" : {
+      "ns5tIneligibleNextSteps" : {
         "properties" : {
           "note" : {
             "type" : "string"
@@ -1289,18 +1235,18 @@
         },
         "type" : "object"
       },
-      "ns3tNextSteps" : {
+      "ns5tNextSteps" : {
         "properties" : {
           "eligible" : {
-            "$ref" : "#/components/schemas/ns3tEligibleNextSteps"
+            "$ref" : "#/components/schemas/ns5tEligibleNextSteps"
           },
           "ineligible" : {
-            "$ref" : "#/components/schemas/ns3tIneligibleNextSteps"
+            "$ref" : "#/components/schemas/ns5tIneligibleNextSteps"
           }
         },
         "type" : "object"
       },
-      "ns3tPerson" : {
+      "ns5tPerson" : {
         "properties" : {
           "dateOfBirth" : {
             "format" : "date",
@@ -1312,13 +1258,13 @@
         },
         "type" : "object"
       },
-      "ns3tPersonList" : {
+      "ns5tPersonList" : {
         "items" : {
-          "$ref" : "#/components/schemas/ns3tPerson"
+          "$ref" : "#/components/schemas/ns5tPerson"
         },
         "type" : "array"
       },
-      "ns3tRelationship" : {
+      "ns5tRelationship" : {
         "properties" : {
           "personId" : {
             "type" : "string"
@@ -1327,22 +1273,22 @@
             "type" : "string"
           },
           "type" : {
-            "$ref" : "#/components/schemas/ns3tRelationship__type"
+            "$ref" : "#/components/schemas/ns5tRelationship__type"
           }
         },
         "type" : "object"
       },
-      "ns3tRelationshipList" : {
+      "ns5tRelationshipList" : {
         "items" : {
-          "$ref" : "#/components/schemas/ns3tRelationship"
+          "$ref" : "#/components/schemas/ns5tRelationship"
         },
         "type" : "array"
       },
-      "ns3tRelationship__type" : {
+      "ns5tRelationship__type" : {
         "enum" : [ "spouse" ],
         "type" : "string"
       },
-      "ns3tSimpleChecks" : {
+      "ns5tSimpleChecks" : {
         "properties" : {
           "disqualifyingTaxAbatement" : {
             "type" : "boolean"
@@ -1383,13 +1329,13 @@
         },
         "type" : "object"
       },
-      "ns3tSituation" : {
+      "ns5tSituation" : {
         "properties" : {
           "applicantAndSpouseIncome" : {
             "type" : "number"
           },
           "enrollments" : {
-            "$ref" : "#/components/schemas/ns3tSituation__enrollments"
+            "$ref" : "#/components/schemas/ns5tSituation__enrollments"
           },
           "householdIncome" : {
             "type" : "number"
@@ -1401,7 +1347,7 @@
             "type" : "number"
           },
           "people" : {
-            "$ref" : "#/components/schemas/ns3tSituation__people"
+            "$ref" : "#/components/schemas/ns5tSituation__people"
           },
           "previousYearPropertyAssessment" : {
             "type" : "number"
@@ -1413,10 +1359,10 @@
             "type" : "number"
           },
           "relationships" : {
-            "$ref" : "#/components/schemas/ns3tSituation__relationships"
+            "$ref" : "#/components/schemas/ns5tSituation__relationships"
           },
           "simpleChecks" : {
-            "$ref" : "#/components/schemas/ns3tSimpleChecks"
+            "$ref" : "#/components/schemas/ns5tSimpleChecks"
           },
           "yearsOwnerOccupied" : {
             "type" : "number"
@@ -1424,102 +1370,155 @@
         },
         "type" : "object"
       },
-      "ns3tSituation__enrollments" : {
-        "$ref" : "#/components/schemas/ns1tEnrollmentList"
+      "ns5tSituation__enrollments" : {
+        "$ref" : "#/components/schemas/ns19tEnrollmentList"
       },
-      "ns3tSituation__people" : {
-        "$ref" : "#/components/schemas/ns3tPersonList"
+      "ns5tSituation__people" : {
+        "$ref" : "#/components/schemas/ns5tPersonList"
       },
-      "ns3tSituation__relationships" : {
-        "$ref" : "#/components/schemas/ns3tRelationshipList"
+      "ns5tSituation__relationships" : {
+        "$ref" : "#/components/schemas/ns5tRelationshipList"
       },
-      "ns3tStringList" : {
+      "ns5tStringList" : {
         "items" : {
           "type" : "string"
         },
         "type" : "array"
       },
-      "ns40InputSetDecisionServiceInvokerDSDecisionServiceInvokerService" : {
+      "ns6InputSetPaLiheapCashDSPaLiheapCashService" : {
         "properties" : {
-          "model" : {
-            "type" : "string"
-          },
-          "parameters" : { },
-          "service" : {
-            "type" : "string"
-          },
-          "situation" : {
-            "$ref" : "#/components/schemas/ns3tSituation"
-          }
-        },
-        "required" : [ "model", "parameters", "service", "situation" ],
-        "type" : "object"
-      },
-      "ns40OutputSetDecisionServiceInvokerDSDecisionServiceInvokerService" : { },
-      "ns5InputSetPersonEnrolledInBenefitDSPersonEnrolledInBenefitService" : {
-        "properties" : {
-          "parameters" : {
-            "$ref" : "#/components/schemas/ns5tParameters"
-          },
-          "situation" : {
-            "$ref" : "#/components/schemas/ns5tSituation"
-          }
-        },
-        "required" : [ "parameters", "situation" ],
-        "type" : "object"
-      },
-      "ns5OutputSetPersonEnrolledInBenefitDSPersonEnrolledInBenefitService" : {
-        "type" : "boolean"
-      },
-      "ns5tParameters" : {
-        "properties" : {
-          "benefit" : {
-            "type" : "string"
-          },
-          "personId" : {
-            "type" : "string"
-          }
-        },
-        "type" : "object"
-      },
-      "ns5tSituation" : {
-        "properties" : {
-          "enrollments" : {
-            "$ref" : "#/components/schemas/ns5tSituation__enrollments"
-          }
-        },
-        "type" : "object"
-      },
-      "ns5tSituation__enrollments" : {
-        "$ref" : "#/components/schemas/ns1tEnrollmentList"
-      },
-      "ns6InputSetPersonNotEnrolledInBenefitDSPersonNotEnrolledInBenefitService" : {
-        "properties" : {
-          "parameters" : {
-            "$ref" : "#/components/schemas/ns5tParameters"
-          },
           "situation" : {
             "$ref" : "#/components/schemas/ns6tSituation"
           }
         },
-        "required" : [ "parameters", "situation" ],
+        "required" : [ "situation" ],
         "type" : "object"
       },
-      "ns6OutputSetPersonNotEnrolledInBenefitDSPersonNotEnrolledInBenefitService" : {
-        "type" : "boolean"
+      "ns6OutputSetPaLiheapCashDSPaLiheapCashService" : {
+        "properties" : {
+          "checks" : { },
+          "isEligible" : {
+            "type" : "boolean"
+          },
+          "nextSteps" : {
+            "$ref" : "#/components/schemas/ns5tNextSteps"
+          }
+        },
+        "type" : "object"
+      },
+      "ns6tSimpleChecks" : {
+        "properties" : {
+          "heatInIncomeBasedRent" : {
+            "type" : "boolean"
+          },
+          "householdHasCitizenOrEligibleNoncitizen" : {
+            "type" : "boolean"
+          },
+          "livesInPennsylvania" : {
+            "type" : "boolean"
+          },
+          "paysPrimaryHeatingCosts" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
       },
       "ns6tSituation" : {
         "properties" : {
           "enrollments" : {
             "$ref" : "#/components/schemas/ns6tSituation__enrollments"
+          },
+          "householdIncome" : {
+            "type" : "number"
+          },
+          "householdSize" : {
+            "type" : "number"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns6tSimpleChecks"
           }
         },
         "type" : "object"
       },
       "ns6tSituation__enrollments" : {
-        "$ref" : "#/components/schemas/ns1tEnrollmentList"
+        "$ref" : "#/components/schemas/ns19tEnrollmentList"
       },
-      "ns8InputSetOwnerOccupantDSOwnerOccupantService" : {
+      "ns7InputSetApplicantOrSpouseMinAgeDSApplicantOrSpouseMinAgeService" : {
+        "properties" : {
+          "parameters" : {
+            "$ref" : "#/components/schemas/ns7tParameters"
+          },
+          "situation" : {
+            "$ref" : "#/components/schemas/ns7tSituation"
+          }
+        },
+        "required" : [ "situation", "parameters" ],
+        "type" : "object"
+      },
+      "ns7OutputSetApplicantOrSpouseMinAgeDSApplicantOrSpouseMinAgeService" : {
+        "type" : "boolean"
+      },
+      "ns7tParameters" : {
+        "properties" : {
+          "minAge" : {
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "ns7tPerson" : {
+        "properties" : {
+          "dateOfBirth" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ns7tPersonList" : {
+        "items" : {
+          "$ref" : "#/components/schemas/ns7tPerson"
+        },
+        "type" : "array"
+      },
+      "ns7tSimpleChecks" : {
+        "properties" : {
+          "spouseLivesInHousehold" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "ns7tSituation" : {
+        "properties" : {
+          "people" : {
+            "$ref" : "#/components/schemas/ns7tSituation__people"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "relationships" : {
+            "$ref" : "#/components/schemas/ns7tSituation__relationships"
+          },
+          "simpleChecks" : {
+            "$ref" : "#/components/schemas/ns7tSimpleChecks"
+          }
+        },
+        "type" : "object"
+      },
+      "ns7tSituation__people" : {
+        "$ref" : "#/components/schemas/ns7tPersonList"
+      },
+      "ns7tSituation__relationships" : {
+        "$ref" : "#/components/schemas/ns5tRelationshipList"
+      },
+      "ns8InputSetTaxFreezeIncomeDSTaxFreezeIncomeService" : {
         "properties" : {
           "situation" : {
             "$ref" : "#/components/schemas/ns8tSituation"
@@ -1528,26 +1527,27 @@
         "required" : [ "situation" ],
         "type" : "object"
       },
-      "ns8OutputSetOwnerOccupantDSOwnerOccupantService" : {
+      "ns8OutputSetTaxFreezeIncomeDSTaxFreezeIncomeService" : {
         "type" : "boolean"
-      },
-      "ns8tSimpleChecks" : {
-        "properties" : {
-          "ownerOccupant" : {
-            "type" : "boolean"
-          }
-        },
-        "type" : "object"
       },
       "ns8tSituation" : {
         "properties" : {
-          "simpleChecks" : {
-            "$ref" : "#/components/schemas/ns8tSimpleChecks"
+          "applicantAndSpouseIncome" : {
+            "type" : "number"
+          },
+          "primaryPersonId" : {
+            "type" : "string"
+          },
+          "relationships" : {
+            "$ref" : "#/components/schemas/ns8tSituation__relationships"
           }
         },
         "type" : "object"
       },
-      "ns9InputSetLivesInPhiladelphiaPaDSLivesInPhiladelphiaPaService" : {
+      "ns8tSituation__relationships" : {
+        "$ref" : "#/components/schemas/ns5tRelationshipList"
+      },
+      "ns9InputSetTenYearTaxAbatementDSTenYearTaxAbatementService" : {
         "properties" : {
           "situation" : {
             "$ref" : "#/components/schemas/ns9tSituation"
@@ -1556,12 +1556,12 @@
         "required" : [ "situation" ],
         "type" : "object"
       },
-      "ns9OutputSetLivesInPhiladelphiaPaDSLivesInPhiladelphiaPaService" : {
+      "ns9OutputSetTenYearTaxAbatementDSTenYearTaxAbatementService" : {
         "type" : "boolean"
       },
       "ns9tSimpleChecks" : {
         "properties" : {
-          "livesInPhiladelphiaPa" : {
+          "tenYearTaxAbatement" : {
             "type" : "boolean"
           }
         },
@@ -1669,7 +1669,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns37InputSetPaLiheapCashDSPaLiheapCashService"
+                "$ref" : "#/components/schemas/ns6InputSetPaLiheapCashDSPaLiheapCashService"
               }
             }
           },
@@ -1724,10 +1724,10 @@
                       "type" : "boolean"
                     },
                     "nextSteps" : {
-                      "$ref" : "#/components/schemas/ns3tNextSteps"
+                      "$ref" : "#/components/schemas/ns5tNextSteps"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns37tSituation"
+                      "$ref" : "#/components/schemas/ns6tSituation"
                     }
                   },
                   "type" : "object"
@@ -1878,7 +1878,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns12InputSetPhlHomesteadExemptionDSPhlHomesteadExemptionService"
+                "$ref" : "#/components/schemas/ns2InputSetPhlHomesteadExemptionDSPhlHomesteadExemptionService"
               }
             }
           },
@@ -1930,10 +1930,10 @@
                       "type" : "boolean"
                     },
                     "nextSteps" : {
-                      "$ref" : "#/components/schemas/ns3tNextSteps"
+                      "$ref" : "#/components/schemas/ns5tNextSteps"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns12tSituation"
+                      "$ref" : "#/components/schemas/ns2tSituation"
                     }
                   },
                   "type" : "object"
@@ -2025,7 +2025,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns20InputSetPhlLoopDSPhlLoopService"
+                "$ref" : "#/components/schemas/ns39InputSetPhlLoopDSPhlLoopService"
               }
             }
           },
@@ -2085,10 +2085,10 @@
                       "type" : "boolean"
                     },
                     "nextSteps" : {
-                      "$ref" : "#/components/schemas/ns3tNextSteps"
+                      "$ref" : "#/components/schemas/ns5tNextSteps"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns20tSituation"
+                      "$ref" : "#/components/schemas/ns39tSituation"
                     }
                   },
                   "type" : "object"
@@ -2202,7 +2202,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns22InputSetPhlLowIncomeTaxFreezeDSPhlLowIncomeTaxFreezeService"
+                "$ref" : "#/components/schemas/ns26InputSetPhlLowIncomeTaxFreezeDSPhlLowIncomeTaxFreezeService"
               }
             }
           },
@@ -2259,10 +2259,10 @@
                       "type" : "boolean"
                     },
                     "nextSteps" : {
-                      "$ref" : "#/components/schemas/ns3tNextSteps"
+                      "$ref" : "#/components/schemas/ns5tNextSteps"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns22tSituation"
+                      "$ref" : "#/components/schemas/ns26tSituation"
                     }
                   },
                   "type" : "object"
@@ -2346,7 +2346,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns23InputSetPhlOwnerOccupiedPaymentAgreementDSPhlOwnerOccupiedPaymentAgreementService"
+                "$ref" : "#/components/schemas/ns31InputSetPhlOwnerOccupiedPaymentAgreementDSPhlOwnerOccupiedPaymentAgreementService"
               }
             }
           },
@@ -2398,10 +2398,10 @@
                       "type" : "boolean"
                     },
                     "nextSteps" : {
-                      "$ref" : "#/components/schemas/ns3tNextSteps"
+                      "$ref" : "#/components/schemas/ns5tNextSteps"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns23tSituation"
+                      "$ref" : "#/components/schemas/ns31tSituation"
                     }
                   },
                   "type" : "object"
@@ -2496,7 +2496,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns29InputSetPhlRetipDSPhlRetipService"
+                "$ref" : "#/components/schemas/ns16InputSetPhlRetipDSPhlRetipService"
               }
             }
           },
@@ -2559,10 +2559,10 @@
                       "type" : "boolean"
                     },
                     "nextSteps" : {
-                      "$ref" : "#/components/schemas/ns3tNextSteps"
+                      "$ref" : "#/components/schemas/ns5tNextSteps"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns29tSituation"
+                      "$ref" : "#/components/schemas/ns16tSituation"
                     }
                   },
                   "type" : "object"
@@ -2655,7 +2655,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns31InputSetPhlSeniorCitizenTaxFreezeDSPhlSeniorCitizenTaxFreezeService"
+                "$ref" : "#/components/schemas/ns25InputSetPhlSeniorCitizenTaxFreezeDSPhlSeniorCitizenTaxFreezeService"
               }
             }
           },
@@ -2716,10 +2716,10 @@
                       "type" : "boolean"
                     },
                     "nextSteps" : {
-                      "$ref" : "#/components/schemas/ns3tNextSteps"
+                      "$ref" : "#/components/schemas/ns5tNextSteps"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns31tSituation"
+                      "$ref" : "#/components/schemas/ns25tSituation"
                     }
                   },
                   "type" : "object"
@@ -2809,7 +2809,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns26InputSetApplicantOrSpouseMinAgeDSApplicantOrSpouseMinAgeService"
+                "$ref" : "#/components/schemas/ns7InputSetApplicantOrSpouseMinAgeDSApplicantOrSpouseMinAgeService"
               }
             }
           },
@@ -2852,10 +2852,10 @@
                       "type" : "boolean"
                     },
                     "parameters" : {
-                      "$ref" : "#/components/schemas/ns26tParameters"
+                      "$ref" : "#/components/schemas/ns7tParameters"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns26tSituation"
+                      "$ref" : "#/components/schemas/ns7tSituation"
                     }
                   },
                   "type" : "object"
@@ -2899,7 +2899,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns38InputSetPersonMaxAgeDSPersonMaxAgeService"
+                "$ref" : "#/components/schemas/ns11InputSetPersonMaxAgeDSPersonMaxAgeService"
               }
             }
           },
@@ -2935,10 +2935,10 @@
                       "type" : "boolean"
                     },
                     "parameters" : {
-                      "$ref" : "#/components/schemas/ns38tParameters"
+                      "$ref" : "#/components/schemas/ns11tParameters"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns38tSituation"
+                      "$ref" : "#/components/schemas/ns11tSituation"
                     }
                   },
                   "type" : "object"
@@ -2983,7 +2983,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns25InputSetPersonMinAgeDSPersonMinAgeService"
+                "$ref" : "#/components/schemas/ns27InputSetPersonMinAgeDSPersonMinAgeService"
               }
             }
           },
@@ -3019,10 +3019,10 @@
                       "type" : "boolean"
                     },
                     "parameters" : {
-                      "$ref" : "#/components/schemas/ns25tParameters"
+                      "$ref" : "#/components/schemas/ns27tParameters"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns25tSituation"
+                      "$ref" : "#/components/schemas/ns27tSituation"
                     }
                   },
                   "type" : "object"
@@ -3067,7 +3067,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns39InputSetSomeoneMinAgeDSSomeoneMinAgeService"
+                "$ref" : "#/components/schemas/ns17InputSetSomeoneMinAgeDSSomeoneMinAgeService"
               }
             }
           },
@@ -3103,10 +3103,10 @@
                       "type" : "boolean"
                     },
                     "parameters" : {
-                      "$ref" : "#/components/schemas/ns39tParameters"
+                      "$ref" : "#/components/schemas/ns17tParameters"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns39tSituation"
+                      "$ref" : "#/components/schemas/ns17tSituation"
                     }
                   },
                   "type" : "object"
@@ -3168,7 +3168,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns36InputSetHouseholdHasCitizenOrEligibleNoncitizenDSHouseholdHasCitizenOrEligibleNoncitizenService"
+                "$ref" : "#/components/schemas/ns40InputSetHouseholdHasCitizenOrEligibleNoncitizenDSHouseholdHasCitizenOrEligibleNoncitizenService"
               }
             }
           },
@@ -3198,7 +3198,7 @@
                       "type" : "boolean"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns36tSituation"
+                      "$ref" : "#/components/schemas/ns40tSituation"
                     }
                   },
                   "type" : "object"
@@ -3255,7 +3255,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns5InputSetPersonEnrolledInBenefitDSPersonEnrolledInBenefitService"
+                "$ref" : "#/components/schemas/ns30InputSetPersonEnrolledInBenefitDSPersonEnrolledInBenefitService"
               }
             }
           },
@@ -3290,10 +3290,10 @@
                       "type" : "boolean"
                     },
                     "parameters" : {
-                      "$ref" : "#/components/schemas/ns5tParameters"
+                      "$ref" : "#/components/schemas/ns30tParameters"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns5tSituation"
+                      "$ref" : "#/components/schemas/ns30tSituation"
                     }
                   },
                   "type" : "object"
@@ -3337,7 +3337,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns6InputSetPersonNotEnrolledInBenefitDSPersonNotEnrolledInBenefitService"
+                "$ref" : "#/components/schemas/ns10InputSetPersonNotEnrolledInBenefitDSPersonNotEnrolledInBenefitService"
               }
             }
           },
@@ -3372,10 +3372,10 @@
                       "type" : "boolean"
                     },
                     "parameters" : {
-                      "$ref" : "#/components/schemas/ns5tParameters"
+                      "$ref" : "#/components/schemas/ns30tParameters"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns6tSituation"
+                      "$ref" : "#/components/schemas/ns10tSituation"
                     }
                   },
                   "type" : "object"
@@ -3443,7 +3443,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns33InputSetHouseholdIncomeWithinPovertyGuidelinesDSHouseholdIncomeWithinPovertyGuidelinesService"
+                "$ref" : "#/components/schemas/ns4InputSetHouseholdIncomeWithinPovertyGuidelinesDSHouseholdIncomeWithinPovertyGuidelinesService"
               }
             }
           },
@@ -3476,10 +3476,10 @@
                       "type" : "boolean"
                     },
                     "parameters" : {
-                      "$ref" : "#/components/schemas/ns33tParameters"
+                      "$ref" : "#/components/schemas/ns4tParameters"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns33tSituation"
+                      "$ref" : "#/components/schemas/ns4tSituation"
                     }
                   },
                   "type" : "object"
@@ -3547,7 +3547,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns18InputSetLoopIncomeDSLoopIncomeService"
+                "$ref" : "#/components/schemas/ns33InputSetLoopIncomeDSLoopIncomeService"
               }
             }
           },
@@ -3576,7 +3576,7 @@
                       "type" : "boolean"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns18tSituation"
+                      "$ref" : "#/components/schemas/ns33tSituation"
                     }
                   },
                   "type" : "object"
@@ -3614,7 +3614,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns27InputSetRetipIncomeDSRetipIncomeService"
+                "$ref" : "#/components/schemas/ns1InputSetRetipIncomeDSRetipIncomeService"
               }
             }
           },
@@ -3643,7 +3643,7 @@
                       "type" : "boolean"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns27tSituation"
+                      "$ref" : "#/components/schemas/ns1tSituation"
                     }
                   },
                   "type" : "object"
@@ -3686,7 +3686,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns21InputSetTaxFreezeIncomeDSTaxFreezeIncomeService"
+                "$ref" : "#/components/schemas/ns8InputSetTaxFreezeIncomeDSTaxFreezeIncomeService"
               }
             }
           },
@@ -3720,7 +3720,7 @@
                       "type" : "boolean"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns21tSituation"
+                      "$ref" : "#/components/schemas/ns8tSituation"
                     }
                   },
                   "type" : "object"
@@ -3771,7 +3771,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns28InputSetRetipAgeOrIncomeRequirementDSRetipAgeOrIncomeRequirementService"
+                "$ref" : "#/components/schemas/ns34InputSetRetipAgeOrIncomeRequirementDSRetipAgeOrIncomeRequirementService"
               }
             }
           },
@@ -3813,7 +3813,7 @@
                       "type" : "boolean"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns28tSituation"
+                      "$ref" : "#/components/schemas/ns34tSituation"
                     }
                   },
                   "type" : "object"
@@ -3862,7 +3862,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns30InputSetSctfAgeRequirementDSSctfAgeRequirementService"
+                "$ref" : "#/components/schemas/ns18InputSetSctfAgeRequirementDSSctfAgeRequirementService"
               }
             }
           },
@@ -3902,7 +3902,7 @@
                       "type" : "boolean"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns30tSituation"
+                      "$ref" : "#/components/schemas/ns18tSituation"
                     }
                   },
                   "type" : "object"
@@ -3964,7 +3964,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns32InputSetLivesInPennsylvaniaDSLivesInPennsylvaniaService"
+                "$ref" : "#/components/schemas/ns24InputSetLivesInPennsylvaniaDSLivesInPennsylvaniaService"
               }
             }
           },
@@ -3994,7 +3994,7 @@
                       "type" : "boolean"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns32tSituation"
+                      "$ref" : "#/components/schemas/ns24tSituation"
                     }
                   },
                   "type" : "object"
@@ -4046,7 +4046,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns9InputSetLivesInPhiladelphiaPaDSLivesInPhiladelphiaPaService"
+                "$ref" : "#/components/schemas/ns15InputSetLivesInPhiladelphiaPaDSLivesInPhiladelphiaPaService"
               }
             }
           },
@@ -4076,7 +4076,7 @@
                       "type" : "boolean"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns9tSituation"
+                      "$ref" : "#/components/schemas/ns15tSituation"
                     }
                   },
                   "type" : "object"
@@ -4116,7 +4116,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns13InputSetMinYearsOwnerOccupantDSMinYearsOwnerOccupantService"
+                "$ref" : "#/components/schemas/ns21InputSetMinYearsOwnerOccupantDSMinYearsOwnerOccupantService"
               }
             }
           },
@@ -4147,10 +4147,10 @@
                       "type" : "boolean"
                     },
                     "parameters" : {
-                      "$ref" : "#/components/schemas/ns13tParameters"
+                      "$ref" : "#/components/schemas/ns21tParameters"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns13tSituation"
+                      "$ref" : "#/components/schemas/ns21tSituation"
                     }
                   },
                   "type" : "object"
@@ -4189,7 +4189,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns19InputSetNoDisqualifyingTaxAbatementDSNoDisqualifyingTaxAbatementService"
+                "$ref" : "#/components/schemas/ns14InputSetNoDisqualifyingTaxAbatementDSNoDisqualifyingTaxAbatementService"
               }
             }
           },
@@ -4219,7 +4219,7 @@
                       "type" : "boolean"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns19tSituation"
+                      "$ref" : "#/components/schemas/ns14tSituation"
                     }
                   },
                   "type" : "object"
@@ -4258,7 +4258,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns11InputSetNoTenYearTaxAbatementDSNoTenYearTaxAbatementService"
+                "$ref" : "#/components/schemas/ns36InputSetNoTenYearTaxAbatementDSNoTenYearTaxAbatementService"
               }
             }
           },
@@ -4288,7 +4288,7 @@
                       "type" : "boolean"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns11tSituation"
+                      "$ref" : "#/components/schemas/ns36tSituation"
                     }
                   },
                   "type" : "object"
@@ -4327,7 +4327,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns8InputSetOwnerOccupantDSOwnerOccupantService"
+                "$ref" : "#/components/schemas/ns12InputSetOwnerOccupantDSOwnerOccupantService"
               }
             }
           },
@@ -4357,7 +4357,7 @@
                       "type" : "boolean"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns8tSituation"
+                      "$ref" : "#/components/schemas/ns12tSituation"
                     }
                   },
                   "type" : "object"
@@ -4421,7 +4421,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns34InputSetPaysPrimaryHeatingCostsDSPaysPrimaryHeatingCostsService"
+                "$ref" : "#/components/schemas/ns28InputSetPaysPrimaryHeatingCostsDSPaysPrimaryHeatingCostsService"
               }
             }
           },
@@ -4452,7 +4452,7 @@
                       "type" : "boolean"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns34tSituation"
+                      "$ref" : "#/components/schemas/ns28tSituation"
                     }
                   },
                   "type" : "object"
@@ -4508,7 +4508,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns14InputSetPropertyAssessmentIncreaseDSPropertyAssessmentIncreaseService"
+                "$ref" : "#/components/schemas/ns32InputSetPropertyAssessmentIncreaseDSPropertyAssessmentIncreaseService"
               }
             }
           },
@@ -4542,10 +4542,10 @@
                       "type" : "boolean"
                     },
                     "parameters" : {
-                      "$ref" : "#/components/schemas/ns14tParameters"
+                      "$ref" : "#/components/schemas/ns32tParameters"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns14tSituation"
+                      "$ref" : "#/components/schemas/ns32tSituation"
                     }
                   },
                   "type" : "object"
@@ -4585,7 +4585,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns16InputSetPropertyTaxesCurrentOrPaymentPlanDSPropertyTaxesCurrentOrPaymentPlanService"
+                "$ref" : "#/components/schemas/ns20InputSetPropertyTaxesCurrentOrPaymentPlanDSPropertyTaxesCurrentOrPaymentPlanService"
               }
             }
           },
@@ -4616,7 +4616,7 @@
                       "type" : "boolean"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns16tSituation"
+                      "$ref" : "#/components/schemas/ns20tSituation"
                     }
                   },
                   "type" : "object"
@@ -4655,7 +4655,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns15InputSetTaxDelinquentDSTaxDelinquentService"
+                "$ref" : "#/components/schemas/ns35InputSetTaxDelinquentDSTaxDelinquentService"
               }
             }
           },
@@ -4685,7 +4685,7 @@
                       "type" : "boolean"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns15tSituation"
+                      "$ref" : "#/components/schemas/ns35tSituation"
                     }
                   },
                   "type" : "object"
@@ -4724,7 +4724,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns10InputSetTenYearTaxAbatementDSTenYearTaxAbatementService"
+                "$ref" : "#/components/schemas/ns9InputSetTenYearTaxAbatementDSTenYearTaxAbatementService"
               }
             }
           },
@@ -4754,7 +4754,7 @@
                       "type" : "boolean"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns10tSituation"
+                      "$ref" : "#/components/schemas/ns9tSituation"
                     }
                   },
                   "type" : "object"
@@ -4827,7 +4827,7 @@
                 }
               },
               "schema" : {
-                "$ref" : "#/components/schemas/ns40InputSetDecisionServiceInvokerDSDecisionServiceInvokerService"
+                "$ref" : "#/components/schemas/ns38InputSetDecisionServiceInvokerDSDecisionServiceInvokerService"
               }
             }
           },
@@ -4896,7 +4896,7 @@
                       "type" : "string"
                     },
                     "situation" : {
-                      "$ref" : "#/components/schemas/ns3tSituation"
+                      "$ref" : "#/components/schemas/ns5tSituation"
                     }
                   },
                   "type" : "object"

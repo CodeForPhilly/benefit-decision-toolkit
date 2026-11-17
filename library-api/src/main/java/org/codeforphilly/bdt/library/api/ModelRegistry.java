@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -101,10 +102,17 @@ public class ModelRegistry {
      * Kogito 10 generates JSON schemas from these runtime models rather than
      * emitting the legacy aggregate dmnDefinitions.json resource.
      */
+    /**
+     * The compiled models in a fixed order (namespace, then name). The OpenAPI schema generator numbers
+     * schema prefixes ({@code ns1}, {@code ns2}, ...) in list order, and the runtime's own order follows
+     * file discovery, which differs between machines; a fixed order keeps {@code openapi.snapshot.json} stable.
+     */
     List<DMNModel> getDmnModels() {
         DecisionModels decisionModels = application.get(DecisionModels.class);
         DMNRuntime dmnRuntime = getDMNRuntime(decisionModels);
-        return dmnRuntime == null ? List.of() : List.copyOf(dmnRuntime.getModels());
+        return dmnRuntime == null ? List.of() : dmnRuntime.getModels().stream()
+            .sorted(Comparator.comparing(DMNModel::getNamespace).thenComparing(DMNModel::getName))
+            .toList();
     }
 
     /**
