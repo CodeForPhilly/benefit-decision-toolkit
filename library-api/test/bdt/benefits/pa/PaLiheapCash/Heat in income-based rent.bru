@@ -1,0 +1,49 @@
+meta {
+  name: Heat in income-based rent
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/benefits/pa/liheap-cash
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "enrollments": [
+        {
+          "personId": "p1",
+          "benefit": "OtherBenefit"
+        }
+      ],
+      "householdSize": 1,
+      "householdIncome": 23940,
+      "simpleChecks": {
+        "livesInPennsylvania": true,
+        "paysPrimaryHeatingCosts": true,
+        "heatInIncomeBasedRent": true,
+        "householdHasCitizenOrEligibleNoncitizen": true
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.isEligible: eq false
+  res.body.checks.PaysPrimaryHeatingCosts: eq false
+}
+
+docs {
+  A renter whose heat is included in rent set as a share of income. LIHEAP Cash does not cover
+  heat paid through income-based rent, so the household is not eligible.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

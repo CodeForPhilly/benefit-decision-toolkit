@@ -3,8 +3,10 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
+    "test": "node --test",
     "dev": "astro dev",
     "start": "astro dev",
+    "stop": "astro dev stop",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"

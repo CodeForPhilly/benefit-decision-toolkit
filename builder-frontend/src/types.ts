@@ -8,6 +8,8 @@ export interface BenefitDetail {
   id: string;
   name: string;
   description: string;
+  // Present on benefits imported from the library
+  reference?: LibraryReference | null;
 }
 
 export interface Benefit {
@@ -16,6 +18,36 @@ export interface Benefit {
   description: string;
   checks: CheckConfig[];
   nextSteps?: NextSteps | null;
+  // Present on library benefits and benefits imported from the library
+  reference?: LibraryReference | null;
+}
+
+// The human-readable explanation of a library benefit or eligibility check (see GLOSSARY.md).
+// Every field is plain text. Copied from the library-api OpenAPI by the metadata loader.
+export interface LibraryReference {
+  summary: string;
+  explanation: string;
+  // Benefits only
+  administeredBy?: { name: string; url: string };
+  programYear?: { label: string; startDate: string; endDate: string } | null;
+  checks?: { alias: string; operationId: string; rationale: string | null }[];
+  // Checks with parameters only
+  parameters?: {
+    name: string;
+    type: string | null;
+    description: string | null;
+  }[];
+  sources: {
+    title: string;
+    url: string | null;
+    citation: string | null;
+    checkedOn: string;
+  }[];
+  limitations: string[];
+  // ISO date
+  lastReviewed: string;
+  // Docs-site path of the full reference page, e.g. "library/benefits/pa/liheap-cash/"
+  docsPath: string;
 }
 
 export interface NextSteps {
@@ -65,6 +97,8 @@ export interface EligibilityCheck {
   evaluationUrl?: string;
   // Milliseconds since the epoch; null on working checks
   datePublished?: number | null;
+  // Library checks only
+  reference?: LibraryReference | null;
 }
 export interface CustomCheckWithDmn extends EligibilityCheck {
   dmnModel: string;

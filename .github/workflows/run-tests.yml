@@ -39,7 +39,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ matrix.suite }}-${{ hashFiles('builder-frontend/package-lock.json', 'e2e/package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ matrix.suite }}-${{ hashFiles('builder-frontend/package-lock.json', 'docs/package-lock.json', 'e2e/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-npm-${{ matrix.suite }}-
 

@@ -76,10 +76,7 @@ public class ExampleScreenerImportService {
                         importedCustomCheckIds);
                 importedBenefits.add(importedBenefit);
                 benefitIds.put(seedBenefit.getId(), importedBenefit.getId());
-                importedBenefitDetails.add(
-                        new BenefitDetail(importedBenefit.getId(),
-                                importedBenefit.getName(),
-                                importedBenefit.getDescription()));
+                importedBenefitDetails.add(BenefitDetail.from(importedBenefit));
             }
 
             Screener importedScreener = new Screener();

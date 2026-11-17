@@ -12,6 +12,13 @@ interface Env {
   apiUrl: string;
   authDomain: string;
   screenerBaseUrl: string;
+  // Docs site hosting library benefit and check references
+  docsBaseUrl: string;
+}
+
+// `new URL(path, base)` drops a base's last segment unless it ends in "/"
+function withTrailingSlash(url: string): string {
+  return url.endsWith("/") ? url : `${url}/`;
 }
 
 function resolveEnv(): Env {
@@ -19,6 +26,9 @@ function resolveEnv(): Env {
     apiUrl: import.meta.env.VITE_API_URL,
     authDomain: import.meta.env.VITE_AUTH_DOMAIN,
     screenerBaseUrl: import.meta.env.VITE_SCREENER_BASE_URL,
+    docsBaseUrl: withTrailingSlash(
+      import.meta.env.VITE_DOCS_BASE_URL || "https://bdt-docs.web.app/",
+    ),
   };
 
   if (import.meta.env.MODE !== "development") {
@@ -33,6 +43,7 @@ function resolveEnv(): Env {
       apiUrl: "http://localhost:8081/api",
       authDomain: "localhost:9099",
       screenerBaseUrl: "http://localhost:5174/",
+      docsBaseUrl: "http://localhost:4321/",
     };
   }
 
@@ -45,6 +56,7 @@ function resolveEnv(): Env {
       apiUrl: `/api`,
       authDomain: window.location.host,
       screenerBaseUrl: `https://${codespaceName}-5174.${domain}/`,
+      docsBaseUrl: `https://${codespaceName}-4321.${domain}/`,
     };
   }
 

@@ -1,0 +1,37 @@
+meta {
+  name: Pass
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/checks/residence/pays-primary-heating-costs
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "simpleChecks": {
+        "paysPrimaryHeatingCosts": true,
+        "heatInIncomeBasedRent": false
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq true
+}
+
+docs {
+  The household pays its own heating bill and its heat is not part of income-based rent, so the
+  check passes.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

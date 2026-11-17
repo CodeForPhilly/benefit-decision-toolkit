@@ -1,5 +1,6 @@
 package org.codeforphilly.bdt.builder.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.ws.rs.core.Response;
 import org.codeforphilly.bdt.builder.model.domain.Benefit;
@@ -57,6 +58,7 @@ class LibraryBenefitResourceTest {
         check.setSourceCheckId("library-check-id");
         check.setParameters(Map.of());
         Benefit imported = new Benefit("new-benefit-id", "Library Benefit", "Description", USER_ID, List.of(check));
+        imported.setReference(new ObjectMapper().readTree("{\"summary\":\"Library summary\"}"));
         when(libraryApiService.copyBenefitForOwner("library-benefit-id", USER_ID))
             .thenReturn(Optional.of(imported));
 
@@ -72,6 +74,7 @@ class LibraryBenefitResourceTest {
         verify(screenerRepository).addBenefitDetailToWorkingScreener(eq(SCREENER_ID), detailCaptor.capture());
         assertEquals("new-benefit-id", detailCaptor.getValue().getId());
         assertEquals("Library Benefit", detailCaptor.getValue().getName());
+        assertEquals("Library summary", detailCaptor.getValue().getReference().path("summary").asText());
     }
 
     @Test
