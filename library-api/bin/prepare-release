@@ -22,5 +22,5 @@ mvn test -Dtest=OpenApiSnapshotTest -Dopenapi.snapshot.update=true
 python3 "$SCRIPT_DIR/check-release-consistency.py" --sync-example
 python3 "$SCRIPT_DIR/check-release-consistency.py"
 mvn test
-(cd "$REPO_ROOT/builder-api" && mvn test -Dtest=ExampleScreenerImportServiceTest,ExampleScreenerSeedTest)
+(cd "$REPO_ROOT/builder-api" && mvn test -Dtest=ExampleScreenerImportServiceTest,ExampleScreenerSeedTest,ScreenerTransferServiceTest)
 echo "Release $1 prepared and validated. Review git diff before committing or tagging."

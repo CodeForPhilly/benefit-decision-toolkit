@@ -210,7 +210,7 @@ git push origin library-api-v0.4.0
 To prepare files for review without committing or tagging, run
 `./bin/prepare-release X.Y.Z` from `library-api/`. It updates the Maven version,
 regenerates the OpenAPI snapshot, synchronizes bundled library check IDs and
-versions, validates their endpoints, and runs the library and example seed/import
+versions, validates their endpoints, and runs the library and example seed/import/transfer
 tests. Review check definitions and parameters when releasing changed rules;
 version synchronization does not migrate rule configuration.
 

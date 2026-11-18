@@ -618,7 +618,10 @@ class ScreenerTransferServiceTest {
         }
         LibraryApiService actualLibrary = new LibraryApiService();
         actualLibrary.loadBenefitsMetadata(mapper.writeValueAsString(exampleBenefits));
-        String internalId = "L-internal-sctf-age-requirement-0.10.0";
+        String internalId = exampleBenefits.stream().flatMap(benefit -> benefit.getChecks().stream())
+                .filter(config -> "internal".equals(config.getCheckModule())
+                        && "sctf-age-requirement".equals(config.getCheckName()))
+                .map(CheckConfig::getSourceCheckId).findFirst().orElseThrow();
         assertTrue(actualLibrary.getById(internalId).isEmpty());
         ScreenerTransferService transferService = new ScreenerTransferService(screeners, checks, storage, actualLibrary, dmn);
         var exported = transferService.exportScreener("sender", example.getId());
