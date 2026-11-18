@@ -9,7 +9,19 @@ permissions:
   contents: read
 
 jobs:
+  release-consistency:
+    name: Check library release consistency
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Test release consistency checker
+        run: python3 -m unittest discover -s library-api/bin/tests
+      - name: Validate release artifacts
+        run: python3 library-api/bin/check-release-consistency.py
+
   tests:
+    needs: release-consistency
     name: Test ${{ matrix.suite }}
     runs-on: ubuntu-latest
     timeout-minutes: 45

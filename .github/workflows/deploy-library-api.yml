@@ -27,6 +27,9 @@ jobs:
       - name: 'Checkout'
         uses: 'actions/checkout@v4'
 
+      - name: 'Validate release artifacts'
+        run: python3 library-api/bin/check-release-consistency.py
+
       - name: 'Setup devbox'
         uses: ./.github/actions/devbox-setup
 
