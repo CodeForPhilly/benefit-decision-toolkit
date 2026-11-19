@@ -77,7 +77,9 @@
     </dmn:knowledgeRequirement>
     <dmn:context id="_C480749B-8802-49B1-BD0F-9A7690C75C6A">
       <dmn:contextEntry>
-        <dmn:variable id="_BDF053E4-A268-46EF-A240-E0B88FE48922" name="NotAlreadyOnHomestead" typeRef="boolean"/>
+        <dmn:variable id="_BDF053E4-A268-46EF-A240-E0B88FE48922" name="NotAlreadyOnHomestead" typeRef="boolean">
+          <dmn:description>A home gets the exemption once; people who already have it do not need to apply.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_B005A993-AB91-41AB-8F4E-CCCBB7F85499">
           <dmn:literalExpression id="_4932AA87-8913-48E2-A33D-E4C0D5A9EDE3">
             <dmn:text>PersonNotEnrolledInBenefit.PersonNotEnrolledInBenefitService</dmn:text>
@@ -108,7 +110,9 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_B1E25D3A-CA05-4F98-8799-7FC0FB449690" name="NoTenYearTaxAbatement" typeRef="boolean"/>
+        <dmn:variable id="_B1E25D3A-CA05-4F98-8799-7FC0FB449690" name="NoTenYearTaxAbatement" typeRef="boolean">
+          <dmn:description>Properties with a 10-year residential tax abatement are not eligible until the abatement expires or is cancelled.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_E7F8A9B0-C1D2-3456-FA12-345678901256">
           <dmn:literalExpression id="_F8A9B0C1-D2E3-4567-A123-456789012367">
             <dmn:text>NoTenYearTaxAbatement.NoTenYearTaxAbatementService</dmn:text>
@@ -122,7 +126,9 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_4B90B7D6-9E92-4712-B592-6A919939322D" name="OwnerOccupant" typeRef="boolean"/>
+        <dmn:variable id="_4B90B7D6-9E92-4712-B592-6A919939322D" name="OwnerOccupant" typeRef="boolean">
+          <dmn:description>The applicant must own the home and live in it as their primary residence.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_085D4683-3951-40F5-B01C-0770FCE4348D">
           <dmn:literalExpression id="_8D048B37-1A8A-4110-AD7E-D6711EF7DA9D">
             <dmn:text>OwnerOccupant.OwnerOccupantService</dmn:text>
@@ -136,7 +142,9 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_DB6BE4C2-7BF5-4182-9445-0706F36923E0" name="LivesInPhiladelphiaPa" typeRef="boolean"/>
+        <dmn:variable id="_DB6BE4C2-7BF5-4182-9445-0706F36923E0" name="LivesInPhiladelphiaPa" typeRef="boolean">
+          <dmn:description>The exemption applies to Philadelphia Real Estate Tax, so the home must be in Philadelphia.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_C3D4E5F6-A7B8-9012-CDEF-123456789012">
           <dmn:literalExpression id="_D4E5F6A7-B8C9-0123-DEFA-234567890123">
             <dmn:text>LivesInPhiladelphiaPa.LivesInPhiladelphiaPaService</dmn:text>
@@ -183,6 +191,84 @@ all(checksAsList)</dmn:text>
       <dmn:contextEntry>
         <dmn:literalExpression id="_4095B536-1A2E-43DE-8468-4C5E2F98237D">
           <dmn:text>result</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
+  <dmn:decision id="_D9B4177C-3089-4DBF-A719-EC544082E06F" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_5EAA6468-2D86-4F92-A474-541AD9018F06" name="reference" typeRef="BDT.tBenefitReference"/>
+    <dmn:context id="_FC17DCB0-6F3D-45E8-8947-A578E32963A5" typeRef="BDT.tBenefitReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_2D8195CB-6C2C-43D7-B171-D74023F7F7EE" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_DE95CF67-413E-4DDE-8A1C-2E5758FFBE4D" typeRef="string">
+          <dmn:text>"The Homestead Exemption lowers the assessed value of a Philadelphia home by $100,000 before Real Estate Tax is calculated, which saves most homeowners up to $1,399 a year. It is for people who own the home and live in it as their primary residence. Having a mortgage, being a new owner or owing back taxes does not stop someone from qualifying, but a home with a 10-year residential tax abatement cannot get the exemption until the abatement ends or is cancelled."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_28DB95AC-7842-4CAC-A5D4-DAA9CE6E2367" name="administeredBy" typeRef="BDT.tAgency"/>
+        <dmn:context id="_27F4DCF8-3C25-4ECA-9BD1-155A817AB10E" typeRef="BDT.tAgency">
+          <dmn:contextEntry>
+            <dmn:variable id="_80BC17A0-96BE-4935-9E07-7FF1C944691C" name="name" typeRef="string"/>
+            <dmn:literalExpression id="_E1493DB5-B5E4-4739-9CF1-0931A527221F" typeRef="string">
+              <dmn:text>"City of Philadelphia Department of Revenue"</dmn:text>
+            </dmn:literalExpression>
+          </dmn:contextEntry>
+          <dmn:contextEntry>
+            <dmn:variable id="_F25D2BAB-EB7A-4F20-94B8-0F0A05C8E03E" name="url" typeRef="string"/>
+            <dmn:literalExpression id="_B304A2F7-6717-46C0-A384-CAE0AB7B6E39" typeRef="string">
+              <dmn:text>"https://www.phila.gov/departments/department-of-revenue/"</dmn:text>
+            </dmn:literalExpression>
+          </dmn:contextEntry>
+        </dmn:context>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_EB56063A-A0D7-4A5C-A113-A0F64DBA0117" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_AC651A76-B2DA-42D1-AA53-BF5A0E532FD1" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_F5897C7D-C3BF-4FE3-90B2-0E5006BFD415" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_91043C3B-F34F-4E63-80DD-054ACC79059A" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_3CFB87E7-2078-42A0-A56E-05835A86DB0C" typeRef="string">
+                <dmn:text>"Get the Homestead Exemption (City of Philadelphia)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_188C4976-4A30-4CEC-BADD-DC8124BC78AA" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_F270C8BA-5A31-4FA3-81E5-E55726E9F999" typeRef="string">
+                <dmn:text>"https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_2DF621BB-5B94-4AC3-800B-5C9FEA54B9A4" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_1607AFA2-18F0-4BCD-8420-61725FD4F251" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_3EA7A958-0F9B-470C-8DC4-6CCA1DFEDD2D" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_11DAC8FF-93FE-4573-BBE9-789E56D2666D" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_DE779E1A-EEF2-4B6D-A5E0-347605CE137D" typeRef="string">
+            <dmn:text>"Does not check the conditional exemption for people whose name is not on the deed, such as heirs, victims of deed fraud or rent-to-own buyers."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_2BDA24B0-94ED-4ECB-BEE7-3DD69463F475" typeRef="string">
+            <dmn:text>"A home with an active 10-year abatement fails, even though the owner could cancel the abatement and then qualify. A cancelled abatement cannot be restored."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_9822CD20-9B73-47AE-AEB0-5BF9B64B241F" typeRef="string">
+            <dmn:text>"Does not check whether the person is enrolled in LOOP. LOOP and the Homestead Exemption cannot be held at the same time."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_74C80F53-23D6-4CB3-AAAD-D47CED86FBBE" typeRef="string">
+            <dmn:text>"Ownership, residence and abatement status are taken from the screener answers and are not looked up in City records."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_89DBCE33-1CED-405D-9044-EEA3D1B597E6" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_B03BA89D-601C-4FDF-885C-F16B842D0051" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
     </dmn:context>
@@ -352,6 +438,15 @@ all(checksAsList)</dmn:text>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
         <dc:Bounds x="930" y="130" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_D9B4177C-3089-4DBF-A719-EC544082E06F" dmnElementRef="_D9B4177C-3089-4DBF-A719-EC544082E06F" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="1540" y="0" width="160" height="80"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_5580529E-A7FF-4D74-9235-BBC68818ABBD-AUTO-TARGET" dmnElementRef="_5580529E-A7FF-4D74-9235-BBC68818ABBD">

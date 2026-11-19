@@ -56,6 +56,54 @@ class ReferenceEvaluationTest {
         assertTrue(Reference.evaluate(runtime, runtime.getModels().getFirst(), Reference.Kind.CHECK).isEmpty());
     }
 
+    private static final String EXPOSED_WITHOUT_REFERENCE = """
+        <decision id="checkResult" name="checkResult">
+          <variable name="checkResult" typeRef="boolean"/>
+          <literalExpression><text>true</text></literalExpression>
+        </decision>
+        <decisionService id="ReferenceTestService" name="ReferenceTestService">
+          <variable name="ReferenceTestService"/>
+          <outputDecision href="#checkResult"/>
+        </decisionService>
+        """;
+
+    @Test
+    void anExposedCheckWithoutAReferenceFailsStartup() {
+        DMNRuntime runtime = runtime(EXPOSED_WITHOUT_REFERENCE);
+        var error = assertThrows(Reference.InvalidReferenceException.class, () -> ModelRegistry.publishedReference(
+            runtime, runtime.getModels().getFirst(), "checks/test/reference-test", "Summary.", List.of(),
+            ReferenceDocs.NONE));
+        assertTrue(error.getMessage().contains("ReferenceTest"), error.getMessage());
+        assertTrue(error.getMessage().contains("reference"), error.getMessage());
+    }
+
+    @Test
+    void anExposedBenefitWithoutAReferenceFailsStartup() {
+        DMNRuntime runtime = runtime(EXPOSED_WITHOUT_REFERENCE);
+        assertThrows(Reference.InvalidReferenceException.class, () -> ModelRegistry.publishedReference(
+            runtime, runtime.getModels().getFirst(), "benefits/test/reference-test", "Summary.", List.of(),
+            ReferenceDocs.NONE));
+    }
+
+    @Test
+    void anExposedUtilityOutsideBenefitsAndChecksNeedsNoReference() {
+        DMNRuntime runtime = runtime(EXPOSED_WITHOUT_REFERENCE);
+        assertTrue(ModelRegistry.publishedReference(runtime, runtime.getModels().getFirst(), "reference-test", null,
+            List.of(), ReferenceDocs.NONE).isEmpty());
+    }
+
+    @Test
+    void aBaseModuleWithoutAServiceNeedsNoReference() {
+        DMNRuntime runtime = runtime("""
+            <decision id="helper" name="helper">
+              <variable name="helper" typeRef="boolean"/>
+              <literalExpression><text>true</text></literalExpression>
+            </decision>
+            """);
+        assertTrue(ModelRegistry.publishedReference(runtime, runtime.getModels().getFirst(), "checks/test/helpers", null,
+            List.of(), ReferenceDocs.NONE).isEmpty());
+    }
+
     @Test
     void refusesAReferenceMissingARequiredField() {
         var error = assertThrows(Reference.InvalidReferenceException.class, () -> evaluate(Reference.Kind.BENEFIT, "",

@@ -37,6 +37,7 @@
   </dmn:itemDefinition>
   <dmn:itemDefinition id="_57BFCDE6-E0DE-4AC9-8B96-3C122B32F3CC" name="tParameters" isCollection="false">
     <dmn:itemComponent id="_5E0F246C-0606-4FFE-85A9-33C43C853119" name="minAge" isCollection="false">
+      <dmn:description>Minimum age, in whole years, that the applicant or live-in spouse must have reached on the screening date.</dmn:description>
       <dmn:typeRef>number</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
@@ -98,6 +99,87 @@ else situation.simpleChecks.spouseLivesInHousehold and PersonMinAge.PersonMinAge
     <dmn:extensionElements />
     <dmn:variable id="_33E6723C-E79B-4C7D-9934-1EDB243BBCD8" name="parameters" typeRef="tParameters" />
   </dmn:inputData>
+  <dmn:decision id="_F52A2428-2977-40E6-B095-E7980CC52637" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_D7492279-0F3A-4660-9D4A-7D6CD8B65409" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:context id="_C3EE4993-6B29-46E6-BEDC-73149ED59651" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_8C653461-436A-4A66-9779-595551F7AD17" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_038E39A9-A022-4056-8CDD-F25A813ADC68" typeRef="string">
+          <dmn:text>"Passes when the applicant, or a spouse who lives in the same household, has reached the minimum age on the screening date. A spouse who lives elsewhere does not count. Returns no result when the applicant's date of birth is missing, or when the relationships list is missing so it is unknown whether there is a spouse; an empty relationships list means there is no spouse."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_52F4821B-1874-4E93-B552-161B05ED0D25" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_6C6793D4-EDAC-4F83-B6AE-E20BBBEB049E" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_7CAF355E-49D4-4953-95DC-A38B6968D9CF" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_B7F4F13C-DF73-4CDF-9378-10FCAA5EA97D" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_1F91C91C-2A54-4E81-9315-2387105DFFBC" typeRef="string">
+                <dmn:text>"Set up a Real Estate Tax Installment Plan (City of Philadelphia)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_AE15DC01-F056-4B73-AF49-1D779A96AEE5" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_84237B5E-CDA3-4B45-8E97-2748C01A0772" typeRef="string">
+                <dmn:text>"https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/set-up-real-estate-tax-installment-plan/"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_A0B74861-5633-481E-B640-111722C1DA02" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_CAC9FBF8-7819-41B7-B524-883C8B77322C" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+          <dmn:context id="_46F209DC-5476-436D-B36B-9130AC926B68" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_8BB7C8BE-4039-470D-979A-C2F7EE361696" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_DA10AD10-9B8A-4A0A-8EC1-ABFFA036B672" typeRef="string">
+                <dmn:text>"Benefit Decision Toolkit situation data model (BDT.dmn)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_BCB61AB3-143D-47A8-B8B6-C0B7402251E6" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_C6831332-AE4B-4E5B-9646-6EEA9E71D865" typeRef="string">
+                <dmn:text>"https://github.com/CodeForPhilly/benefit-decision-toolkit/blob/main/library-api/src/main/resources/BDT.dmn"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_A1B6EEC5-B8B3-4D29-A802-03BF271F4BA5" name="citation" typeRef="string"/>
+              <dmn:literalExpression id="_1B4E0146-6112-492D-BFF7-B24BB2565862" typeRef="string">
+                <dmn:text>"tSituation: primaryPersonId, people, relationships, simpleChecks.spouseLivesInHousehold"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_14388A45-EDD7-45CE-A34F-49DBBE94D97E" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_2CB37DE5-4253-4B18-BDDE-831005B8CBE7" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_05C2DF94-7B35-4FED-AC2A-7AC00FC69174" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_CBEBF58F-7180-479C-8202-E636572182B6" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_39C4B134-1F13-495F-B5A4-9FC2486B473A" typeRef="string">
+            <dmn:text>"Age is measured on the screening date, not on a date the program chooses."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_5DF8F1D7-3FBC-4210-844A-2DCCE5643467" typeRef="string">
+            <dmn:text>"Whether the spouse lives in the household is taken from the screener answer."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_285A22AA-05C3-4BE0-90CE-DA9732933B0B" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_263FB794-1C6B-4900-B2CD-173F83B3D271" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_CDC6BEA0-EEC1-40FB-A82D-38F85CCB341D" name="DRG">
       <di:extension>
@@ -152,6 +234,15 @@ else situation.simpleChecks.spouseLivesInHousehold and PersonMinAge.PersonMinAge
       <dmndi:DMNShape id="_3BF00550-CCAC-42C7-9A98-61C981DBB072" dmnElementRef="included1:_14EAB512-0E33-419C-9630-BA0265476B6E" isCollapsed="false">
         <dc:Bounds x="440" y="20" width="160" height="80" />
         <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_F52A2428-2977-40E6-B095-E7980CC52637" dmnElementRef="_F52A2428-2977-40E6-B095-E7980CC52637" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="660" y="0" width="160" height="80"/>
+        <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="_B7C8A9BA-698B-4C35-8D05-9C92E42A4614" dmnElementRef="_FB3A2EE1-93FE-4D39-98AA-5B41355DBE15" sourceElement="_BDC7C04F-0F64-4553-B5BF-11AB6BADB703" targetElement="_CCA4FA7F-5BE8-4513-9622-04628B2AEBF7">
         <di:waypoint x="190.0" y="520" />

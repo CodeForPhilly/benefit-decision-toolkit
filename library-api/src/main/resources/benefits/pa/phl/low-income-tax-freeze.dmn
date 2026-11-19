@@ -80,7 +80,9 @@
     </dmn:knowledgeRequirement>
     <dmn:context id="_5E1567F2-0D92-4B5B-88BA-139D21F08DDB">
       <dmn:contextEntry>
-        <dmn:variable id="_0AA0597D-8705-447B-B7BE-0DC4C8ECB09D" name="NotAlreadyEnrolled" typeRef="boolean" />
+        <dmn:variable id="_0AA0597D-8705-447B-B7BE-0DC4C8ECB09D" name="NotAlreadyEnrolled" typeRef="boolean">
+          <dmn:description>People who already have the freeze do not need to apply again.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_065E4CDA-8FC3-4657-AC79-F85E34C29F4E">
           <dmn:literalExpression id="_FF6D1AC3-3A68-4B9A-A682-4F8749D7FBC1">
             <dmn:text>PersonNotEnrolledInBenefit.PersonNotEnrolledInBenefitService</dmn:text>
@@ -111,7 +113,9 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_70E9767D-EEDE-4075-B737-7529B9646731" name="OwnerOccupant" typeRef="boolean" />
+        <dmn:variable id="_70E9767D-EEDE-4075-B737-7529B9646731" name="OwnerOccupant" typeRef="boolean">
+          <dmn:description>The applicant must own the home and live in it as their primary residence.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_3671348F-566D-4355-AC58-8F405E3BAA17">
           <dmn:literalExpression id="_DF75B63F-992B-40CE-8F05-5FDABC7FF417">
             <dmn:text>OwnerOccupant.OwnerOccupantService</dmn:text>
@@ -125,7 +129,9 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_AE229F9F-E646-420B-8112-04FC69D0A3DA" name="LivesInPhiladelphiaPa" typeRef="boolean" />
+        <dmn:variable id="_AE229F9F-E646-420B-8112-04FC69D0A3DA" name="LivesInPhiladelphiaPa" typeRef="boolean">
+          <dmn:description>The freeze applies to Philadelphia Real Estate Tax, so the home must be in Philadelphia.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_2F1A43A1-6422-4BCC-8EC5-19499FC21FAF">
           <dmn:literalExpression id="_E11458E1-0820-49E3-9672-716E62C7C745">
             <dmn:text>LivesInPhiladelphiaPa.LivesInPhiladelphiaPaService</dmn:text>
@@ -139,7 +145,9 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_615EF7D4-B09B-4ECF-B04F-EA22467A8829" name="MeetsIncomeRequirement" typeRef="boolean" />
+        <dmn:variable id="_615EF7D4-B09B-4ECF-B04F-EA22467A8829" name="MeetsIncomeRequirement" typeRef="boolean">
+          <dmn:description>Total yearly gross income must be no more than $33,500 for a single person or $41,500 for a married couple.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_961EAD0C-1139-42BE-92DA-98FB064440CD">
           <dmn:literalExpression id="_42952570-78D4-417D-90BF-1E9E4715422B">
             <dmn:text>TaxFreezeIncome.TaxFreezeIncomeService</dmn:text>
@@ -178,6 +186,84 @@
     <dmn:extensionElements />
     <dmn:variable id="_72D5B76F-A910-4A4F-8D4C-AB95BEEA4438" name="situation" typeRef="tSituation" />
   </dmn:inputData>
+  <dmn:decision id="_63FA33A1-6CD8-445B-B349-4CD5AD221C8B" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_DDBB1BB4-F4BF-4249-9E4D-65A7FA179DAA" name="reference" typeRef="BDT.tBenefitReference"/>
+    <dmn:context id="_B8BB6671-7058-43CA-926C-327EDFDEA182" typeRef="BDT.tBenefitReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_729B2F42-4572-4291-8A64-0DC59A9F9F0E" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_6A72584C-0F48-47A3-8626-1F66CD03992E" typeRef="string">
+          <dmn:text>"The Low-Income Real Estate Tax Freeze keeps a Philadelphia homeowner's Real Estate Tax from going up, even if the property assessment or tax rate rises. It is for people who own and live in their home as their primary residence and whose total yearly gross income is no more than $33,500 for a single person or $41,500 for a married couple. There is no age requirement."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_EB481FEC-275D-4F0E-96C5-D43AE9CE50D8" name="administeredBy" typeRef="BDT.tAgency"/>
+        <dmn:context id="_BBDD5F97-6A2C-462B-BCA3-A4F3C505EF82" typeRef="BDT.tAgency">
+          <dmn:contextEntry>
+            <dmn:variable id="_3F6496AE-2DC0-4867-85B8-FF243F1BC1EA" name="name" typeRef="string"/>
+            <dmn:literalExpression id="_2316942F-34A9-4A90-B204-91191A7BDCEE" typeRef="string">
+              <dmn:text>"City of Philadelphia Department of Revenue"</dmn:text>
+            </dmn:literalExpression>
+          </dmn:contextEntry>
+          <dmn:contextEntry>
+            <dmn:variable id="_F45DDB03-E48A-4CAD-B4B3-09B75E281D1A" name="url" typeRef="string"/>
+            <dmn:literalExpression id="_D91168F0-37C7-44A2-A853-96EC0DE0AA88" typeRef="string">
+              <dmn:text>"https://www.phila.gov/departments/department-of-revenue/"</dmn:text>
+            </dmn:literalExpression>
+          </dmn:contextEntry>
+        </dmn:context>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_CB998AE3-471C-4875-B850-2ADE16059E33" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_B4FE1D48-5844-4B3E-AA52-1496494B2CC4" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_A537EFBC-2A25-42F4-90EB-38CE50EDD4EB" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_FE5C54A1-B79A-4BEA-85FD-829433442C88" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_347FA86C-435C-42CF-9E33-9B0F444AE0B0" typeRef="string">
+                <dmn:text>"Apply for the Low-Income Real Estate Tax Freeze (City of Philadelphia)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_6025F405-C8DB-4730-BC7D-853B22C24119" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_FF5B3167-EEE2-42A6-AB6F-D6D5FD8DD7C7" typeRef="string">
+                <dmn:text>"https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/tax-freeze/apply-for-the-low-income-real-estate-tax-freeze/"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_8C03BCB4-3640-4F96-9018-9DAEE5EA5287" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_22A15C2E-89F6-48AD-8ABF-4DECDA236AA5" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_C3DDF6E0-01E8-4A82-B41B-0BBEB3CE04CF" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_FE46BC2C-B7F8-4E2F-9347-BD0F53F2DFB5" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_74A77165-2296-493B-98C6-C3A32083649C" typeRef="string">
+            <dmn:text>"The combined gross income of the applicant and spouse is taken as given. The City decides which income counts from the documents submitted."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_F8407520-4A51-477A-8C76-D3C5C7F60DF4" typeRef="string">
+            <dmn:text>"The married limit applies whenever the screener lists a spouse for the applicant, wherever the spouse lives."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_668999C7-40EB-40FA-9A77-848C4B403ECD" typeRef="string">
+            <dmn:text>"The income limits are those on the City page when it was checked; the City may change them."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_EFD6A5E3-853B-4715-B9A8-523C21B93880" typeRef="string">
+            <dmn:text>"Ownership and residence are taken from the screener answers and are not looked up in City records."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_96B8FAB7-893B-4532-899A-E741A28F80F4" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_3194A88C-3FBE-4316-8F0D-16DB52AB2E1F" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_00BCAEEA-D659-4ECD-B38B-73502E072F50" name="DRG">
       <di:extension>
@@ -305,6 +391,15 @@
           <di:waypoint x="1160" y="50" />
           <di:waypoint x="1460" y="50" />
         </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_63FA33A1-6CD8-445B-B349-4CD5AD221C8B" dmnElementRef="_63FA33A1-6CD8-445B-B349-4CD5AD221C8B" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="1520" y="0" width="160" height="80"/>
+        <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="_A99F5D6E-A254-4481-A307-A3310DBA19F1" dmnElementRef="_A9150312-B2F7-498D-BBFB-65B279EBA8F3" sourceElement="_32A1CF79-C4DF-41BB-91EE-3AABB53B18DB" targetElement="_7E5F32B0-5B46-4EB2-ABDA-357A50B46CF5">
         <di:waypoint x="770.0" y="520" />

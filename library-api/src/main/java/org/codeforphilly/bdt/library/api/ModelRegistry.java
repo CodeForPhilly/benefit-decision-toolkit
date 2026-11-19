@@ -164,7 +164,7 @@ public class ModelRegistry {
                 ModelInfo info = new ModelInfo(namespace, modelName, decisionServices, decisions, path, description,
                     checks,
                     benefit ? evaluateNextSteps(dmnRuntime, model) : Map.of(),
-                    publishedReference(dmnRuntime, model, benefit, description, checks,
+                    publishedReference(dmnRuntime, model, path, description, checks,
                         scan.referenceDocs.getOrDefault(modelName, ReferenceDocs.NONE)),
                     examples.getOrDefault(path, List.of()));
                 modelMap.put(modelName, info);
@@ -191,13 +191,21 @@ public class ModelRegistry {
     /**
      * The reference as published in OpenAPI ({@code x-bdt-reference}): the model description as its summary,
      * the constant {@code reference} decision, and the documentation written on the DMN itself.
-     * Empty when the model has no {@code reference} decision.
+     * Every exposed benefit and check (one with a {@code {ModelName}Service} under {@code benefits/} or
+     * {@code checks/}) must have one. Base modules and utilities outside those folders need none.
      */
-    static Map<String, Object> publishedReference(DMNRuntime runtime, DMNModel model, boolean benefit,
+    static Map<String, Object> publishedReference(DMNRuntime runtime, DMNModel model, String path,
                                                   String summary, List<BenefitCheckInfo> checks, ReferenceDocs docs) {
+        boolean benefit = path.startsWith("benefits/");
         Map<String, Object> evaluated = Reference.evaluate(runtime, model,
             benefit ? Reference.Kind.BENEFIT : Reference.Kind.CHECK);
         if (evaluated.isEmpty()) {
+            String service = model.getName() + "Service";
+            boolean library = benefit || path.startsWith("checks/");
+            if (library && model.getDecisionServices().stream().anyMatch(ds -> service.equals(ds.getName()))) {
+                throw new Reference.InvalidReferenceException(model.getName()
+                    + " is exposed through " + service + " but has no '" + Reference.DECISION + "' decision");
+            }
             return Map.of();
         }
         if (summary == null) {

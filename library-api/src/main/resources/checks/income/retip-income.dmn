@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <dmn:definitions xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:kie="https://kie.org/dmn/extensions/1.0" id="_6669A3AF-250A-42D6-B30A-C03CAF5AB81E" name="RetipIncome" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_0F40186A-672E-4BF8-8481-957F70A70DF4" xmlns="https://kie.apache.org/dmn/_0F40186A-672E-4BF8-8481-957F70A70DF4" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5">
-  <dmn:description>RETIP non-senior applicants: household annual income below the family-size cap. City income table verified 2026-10-05.</dmn:description>
+  <dmn:description>Checks that household income is below the Real Estate Tax Installment Plan limit for the household size.</dmn:description>
   <dmn:extensionElements />
   <dmn:import id="_1B7B0927-7EAD-428F-8A67-09A89CBB6A3B" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
   <dmn:import id="_F46B736B-24F8-4098-ADBA-3D2C4DDCD9B1" name="Income" namespace="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5" locationURI="Income.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
@@ -35,6 +35,61 @@
     <dmn:extensionElements />
     <dmn:variable id="_87C82B49-72A3-4B8B-80ED-91F1584F0300" name="situation" typeRef="tSituation" />
   </dmn:inputData>
+  <dmn:decision id="_9AA07FD4-880A-427F-915F-A7C040EBE106" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_83A5D171-441E-4859-AC40-BAC95BB1DF0B" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:context id="_EE510D24-531C-4C3C-AFCC-94587412476F" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_F907DF4C-003E-4810-A624-84088AE18BEA" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_08B4ACC5-A314-4F7C-819A-33C557761CF4" typeRef="string">
+          <dmn:text>"Passes when yearly household income is below the RETIP limit for the household size, which runs from $42,950 for one person to $81,000 for eight. Income equal to the limit fails. Returns no result when income or household size is missing or invalid, or the household has more than 8 people."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_61942007-6B03-4CBD-8FA4-3FAC4A3D81D9" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_2DA80C05-481E-45BB-881E-07F6F97ACD7C" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_463744E7-98CF-4B33-AE78-F7494136AE22" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_15FE2A16-2DAB-4B11-BFBD-5979DAC145B1" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_83527279-6A32-46D0-BAA3-C18581B1038F" typeRef="string">
+                <dmn:text>"Set up a Real Estate Tax Installment Plan (City of Philadelphia)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_A03EA172-6B38-4570-95F3-5A5217BF4310" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_A908580A-F3B8-4FC2-BE3D-E142A7658A30" typeRef="string">
+                <dmn:text>"https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/set-up-real-estate-tax-installment-plan/"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_43D5C695-72A1-4198-90BA-02DA474DEA89" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_EDA28E75-65DD-41E9-B763-9A6CBDCD4DDE" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_A064C3EF-63A2-4D45-97B4-C64CA70B35FB" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_80965DF5-480E-4B81-9EF8-A9502B2E7A74" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_BDB4064B-43DA-46BE-943C-2023339B23CE" typeRef="string">
+            <dmn:text>"Household income and size are taken as given."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_94D5D8E7-8246-4BB3-9A02-2F8B4F17F52C" typeRef="string">
+            <dmn:text>"The limits are those on the City page when it was checked; the City updates them."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_74961C14-2663-40D5-9A57-185AD361569A" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_C3B9B7C9-E201-48F2-A000-F262F6D867AC" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_A209A358-A29D-46E1-972E-34E9B9922793" name="DRG">
       <di:extension>
@@ -63,6 +118,15 @@
       <dmndi:DMNShape id="_7700F6AE-6ED0-4325-AA34-6989DB073582" dmnElementRef="included2:_2C8F5A13-94D6-4E7B-B1A0-6F3E8D2C7B95" isCollapsed="false">
         <dc:Bounds x="160" y="20" width="160" height="80" />
         <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_9AA07FD4-880A-427F-915F-A7C040EBE106" dmnElementRef="_9AA07FD4-880A-427F-915F-A7C040EBE106" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="440" y="20" width="160" height="80"/>
+        <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="_D9FF5EA5-90A7-4D7F-BAC8-613D87A8E107" dmnElementRef="_DE314296-4599-42F6-BD7D-7206B445A409" sourceElement="_D5182EEE-A9A5-488B-9BC3-1AAE723CF6A4" targetElement="_3B01288A-0B9A-4F65-83A6-60B7F90929DB">
         <di:waypoint x="240.0" y="520" />

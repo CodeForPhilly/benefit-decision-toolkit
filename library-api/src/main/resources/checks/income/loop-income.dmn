@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <dmn:definitions xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:kie="https://kie.org/dmn/extensions/1.0" id="_9BA070E9-D072-4278-92F2-D928A423ADC2" name="LoopIncome" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_E6D4D573-2C2C-4EE3-BC52-4351F39E5E06" xmlns="https://kie.apache.org/dmn/_E6D4D573-2C2C-4EE3-BC52-4351F39E5E06" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5">
-  <dmn:description>New LOOP applicants: household annual income below the 120% AMI cap; pre-2023 renewals use different limits. City income table verified 2026-10-05.</dmn:description>
+  <dmn:description>Checks that household income is below LOOP's limit for new applicants: 120% of area median income for the household size.</dmn:description>
   <dmn:extensionElements />
   <dmn:import id="_37A3A7B5-3977-439C-AB99-F028623998A6" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
   <dmn:import id="_294E49EF-533A-41AA-906B-A4C1BE010574" name="Income" namespace="https://kie.apache.org/dmn/_F930BB06-CFFE-48AB-B56B-9555274FA2B5" locationURI="Income.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
@@ -35,6 +35,64 @@
     <dmn:extensionElements />
     <dmn:variable id="_B3AB25AF-8194-4BA9-962E-E301D11EE4BD" name="situation" typeRef="tSituation" />
   </dmn:inputData>
+  <dmn:decision id="_9CAC9957-9E0A-46A2-BB3F-F0E5FEF17267" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_6DC69DDB-BD7E-4448-9EE6-334945C215DD" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:context id="_7EB3D8BE-FEE7-4629-A67E-4CFD43050715" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_C8430845-58AB-4FA1-94FE-BA4E36D221B9" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_4AE5A2B8-DD92-449F-988A-1828CB77E963" typeRef="string">
+          <dmn:text>"Passes when yearly household income is below the LOOP limit for the household size, which runs from $103,050 for one person to $217,900 for ten. Income equal to the limit fails. Returns no result when income or household size is missing or invalid, or the household has more than 10 people."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_10AA6B4C-B8EE-40D0-9BCC-F73F734097BF" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_D8E9F284-A7FB-4FA0-B81C-A8ABD405DEFF" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_B8FEC697-91D5-41A5-8F45-54A74721EC9A" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_2BCA2295-15DD-458B-BFA3-9D8744CC5A86" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_AC4328CA-CC93-4D65-AA78-9B1EDB214702" typeRef="string">
+                <dmn:text>"Apply for the Longtime Owner Occupants Program (LOOP) (City of Philadelphia)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_96F2E9F6-F308-4093-BF25-C6124C799B28" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_80D7EBD2-69C3-40D1-A1EE-207D3C18DF0E" typeRef="string">
+                <dmn:text>"https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_76E92EE3-0086-4DD0-8BD6-D379C163B455" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_3530D573-24DC-4BA7-A55D-C10B6F23A0D1" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_0F1A3B3A-9779-4748-965E-E7BC31DDB494" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_E27C1596-57D1-4203-B45A-1D0B6BC33212" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_47F6D601-CFCA-49B9-84E3-035AF472C7B0" typeRef="string">
+            <dmn:text>"Uses only the 120% limit for new applicants. Households enrolled before 2023 may renew under the 150% limit, which is not checked."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_DBE2698E-08F5-4D98-B164-1C6FC990D4B0" typeRef="string">
+            <dmn:text>"Household income and size are taken as given."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_3FBDB967-4175-4FF6-8F98-0D4F3B4E07B0" typeRef="string">
+            <dmn:text>"The limits are those on the City page when it was checked; the City updates them."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_00D770C4-255C-48F9-AEAC-D06889018F8D" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_9D45FF17-7B65-403D-877D-8C48CB66556F" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_8EB23DFD-DF4F-45FA-9C00-88DADD0BFDAA" name="DRG">
       <di:extension>
@@ -63,6 +121,15 @@
       <dmndi:DMNShape id="_38C0DD38-6F2B-473A-BDE9-E7C2FE769036" dmnElementRef="included2:_2C8F5A13-94D6-4E7B-B1A0-6F3E8D2C7B95" isCollapsed="false">
         <dc:Bounds x="160" y="20" width="160" height="80" />
         <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_9CAC9957-9E0A-46A2-BB3F-F0E5FEF17267" dmnElementRef="_9CAC9957-9E0A-46A2-BB3F-F0E5FEF17267" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="440" y="20" width="160" height="80"/>
+        <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="_6C89EC14-A677-4879-96BA-23FF368C74FF" dmnElementRef="_0E9CC6C5-07AB-4EC9-8985-6EA4230EDC30" sourceElement="_720D272E-59AA-4A33-B571-C558F641645D" targetElement="_148BEE2D-BFEA-45CA-BBDA-1DEB5C2E0BA5">
         <di:waypoint x="240.0" y="520" />

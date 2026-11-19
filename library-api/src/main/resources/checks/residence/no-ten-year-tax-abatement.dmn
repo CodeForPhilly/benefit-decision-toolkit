@@ -61,6 +61,61 @@
     <dmn:extensionElements/>
     <dmn:variable id="_7B3C9F2E-4A1D-4C6F-B3C8-5D9A2F7B1E4C" name="situation" typeRef="tSituation"/>
   </dmn:inputData>
+  <dmn:decision id="_2A1FF2E0-233C-4B03-91CE-E0D32DF12DF7" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_4F1E3FBA-E3FD-4477-BC70-33A8AD02809A" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:context id="_E8D0113E-2C68-4780-9026-151EE7712F6A" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_23240937-F888-476F-81FB-7AAC05DF895C" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_70F952AD-4C5F-45C2-9246-CA6C4AEF11B4" typeRef="string">
+          <dmn:text>"The opposite of TenYearTaxAbatement: passes when the screener answer says the property does not have an active 10-year residential tax abatement, and fails when it does. Returns no result when the answer is missing."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_EA50B7AC-2ED6-46A4-B3D6-EBB100B32435" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_9FD1328D-8828-4E61-A07A-9A7635180D36" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_D607BD06-F650-49BC-ADB9-E755CB1474C2" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_12BAD5F9-2447-4F40-992C-B7FBE3D9E76B" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_F5B055D9-2504-4390-830B-F0F42C2ECAD1" typeRef="string">
+                <dmn:text>"Get the Homestead Exemption (City of Philadelphia)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_5B8FD5FF-379D-497F-88FD-2167EE7D57AF" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_0A3E94DD-89DC-419A-9F5D-349C399B72C9" typeRef="string">
+                <dmn:text>"https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_38E34083-41CC-4BDB-B441-E9E3BE8E3483" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_70F0A89D-F397-4716-93A6-594C3F58AE63" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_B1854A6B-4CCA-4C8F-8752-479B71DE2CD1" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_BD7DEA59-0893-4499-A63A-F200752684B7" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_E7D323B1-FB13-4CD1-A659-58560C9EDEB0" typeRef="string">
+            <dmn:text>"Relies on the screener answer. It does not look up or verify records."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_8D64C4CA-6B70-4660-AA34-DB248E8BBE80" typeRef="string">
+            <dmn:text>"Only active abatements count. Past abatements that have ended do not."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_BAC44BEA-77CD-4D6F-B4C4-558AB63EAE49" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_D9E4EB71-02AB-48A8-8B62-3DA73141E6FA" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_5A9D4E7C-2B8F-4A7D-BABC-8F3C6A1D5B9E" name="DRG">
       <di:extension>
@@ -119,6 +174,15 @@
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <!-- Edge: from center of situation to bottom-center of checkResult -->
+      <dmndi:DMNShape id="dmnshape-drg-_2A1FF2E0-233C-4B03-91CE-E0D32DF12DF7" dmnElementRef="_2A1FF2E0-233C-4B03-91CE-E0D32DF12DF7" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="680" y="0" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_4A7D3F1C-9B5E-4B4C-DCCD-8C1D4A7F2B9E-AUTO-TARGET" dmnElementRef="_4A7D3F1C-9B5E-4B4C-DCCD-8C1D4A7F2B9E">
         <di:waypoint x="519.428571" y="480"/>
         <di:waypoint x="380.571429" y="210"/>

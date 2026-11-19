@@ -56,6 +56,61 @@ else
     <dmn:extensionElements/>
     <dmn:variable id="_0C7450FD-92FB-4B23-AE1E-8561C0E0CD4F" name="situation" typeRef="tSituation"/>
   </dmn:inputData>
+  <dmn:decision id="_5F79127A-4CEE-4107-951F-392B99859422" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_88A1EE93-3980-443C-B220-B5CA7007EAE0" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:context id="_F91D91C7-B911-489C-8B07-151B070491C5" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_7CEF0252-90BB-4957-A738-86984D142DA1" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_C3A990F2-2374-4BC5-ADE4-358C71D0CA08" typeRef="string">
+          <dmn:text>"Passes when the screener answer says the property owner has past-due Real Estate Tax, and fails when it says they do not. Programs for owners who are behind on taxes use it directly; others use it through PropertyTaxesCurrentOrPaymentPlan. Returns no result when the answer is missing."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_24A5948B-5228-4F08-A5C9-C9F1AFDA2186" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_D748A351-9792-4009-941A-F88BA2C9536E" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_725F05F5-37D5-4EB8-8794-5E7215B0D8ED" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_DF11B55A-79CE-458B-81E4-8A3EF4F5DF27" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_3D06E47C-25D4-4516-82D2-F6693A9ECA86" typeRef="string">
+                <dmn:text>"Set up an Owner-Occupied Real Estate Tax Payment Agreement (OOPA) (City of Philadelphia)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_5BEAA9DC-AD3B-44A5-AE88-F3114FA7C3B0" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_1F4EF794-9BC8-476D-A470-CF09B4F3725C" typeRef="string">
+                <dmn:text>"https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/set-up-an-owner-occupied-real-estate-tax-payment-agreement-oopa/"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_8627617F-A9B3-4152-AD94-5F56B0FB7BB6" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_2A0F4EC3-C956-4247-AD1C-4C160735F912" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_41ECD6AE-32E5-4760-8427-6E638608105F" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_95491BBB-D414-435E-A588-FE3E045C809F" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_4D2124C2-B664-4310-901B-90FDB61BADC2" typeRef="string">
+            <dmn:text>"Relies on the screener answer. It does not look up or verify records."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_732AAA86-CF85-44DE-BC2C-AE4FB53749D0" typeRef="string">
+            <dmn:text>"Does not check how much is owed or for how long."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_BA0B5610-895E-4ECF-8076-6A4E164EB30B" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_5120AF72-CBF8-4E11-8986-148FF424CA77" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_78DD76C8-4DE4-4BEA-8B95-3ED0760FF2F6" name="DRG">
       <di:extension>
@@ -94,6 +149,15 @@ else
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
         <dc:Bounds x="100" y="480" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_5F79127A-4CEE-4107-951F-392B99859422" dmnElementRef="_5F79127A-4CEE-4107-951F-392B99859422" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="440" y="100" width="160" height="80"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_07BEBD90-1E94-4896-BD69-9777D3F2A582-AUTO-TARGET" dmnElementRef="_07BEBD90-1E94-4896-BD69-9777D3F2A582">

@@ -77,7 +77,9 @@
     </dmn:knowledgeRequirement>
     <dmn:context id="_654D2F6F-F440-4861-8CBA-623FDAD433FE">
       <dmn:contextEntry>
-        <dmn:variable id="_F8158272-4D3F-4077-BAF6-84361AA345E1" name="NotAlreadyOnOwnerOccupiedPaymentAgreement" typeRef="boolean"/>
+        <dmn:variable id="_F8158272-4D3F-4077-BAF6-84361AA345E1" name="NotAlreadyOnOwnerOccupiedPaymentAgreement" typeRef="boolean">
+          <dmn:description>People who already have an OOPA do not need to apply again.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_A8BCF466-4F89-465B-A3B5-F865486A50AA">
           <dmn:literalExpression id="_6856C02C-0B9B-4786-B0C6-C49858106F76">
             <dmn:text>PersonNotEnrolledInBenefit.PersonNotEnrolledInBenefitService</dmn:text>
@@ -108,7 +110,9 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_9AA7654F-F9E4-4030-9EB7-0BE02CEA8ECD" name="LivesInPhiladelphiaPa" typeRef="boolean"/>
+        <dmn:variable id="_9AA7654F-F9E4-4030-9EB7-0BE02CEA8ECD" name="LivesInPhiladelphiaPa" typeRef="boolean">
+          <dmn:description>The agreement covers Philadelphia Real Estate Tax, so the home must be in Philadelphia.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_FD426C1D-5175-4A87-9324-8E417EA4EEEF">
           <dmn:literalExpression id="_C4C9D1A6-0711-4438-A4EB-E7588A72A84E">
             <dmn:text>LivesInPhiladelphiaPa.LivesInPhiladelphiaPaService</dmn:text>
@@ -122,7 +126,9 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_B6C9765E-25AD-41E1-9DF2-7FA53937B977" name="OwnerOccupant" typeRef="boolean"/>
+        <dmn:variable id="_B6C9765E-25AD-41E1-9DF2-7FA53937B977" name="OwnerOccupant" typeRef="boolean">
+          <dmn:description>The applicant must live in the home they own.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_26A154B8-CC3A-4607-A40E-CE4922C3ABA8">
           <dmn:literalExpression id="_1DF69A73-625C-42A7-84F5-391A8B282D1A">
             <dmn:text>OwnerOccupant.OwnerOccupantService</dmn:text>
@@ -136,7 +142,9 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_87B3D805-EE3C-4540-8A81-D49E394E5598" name="TaxDelinquent" typeRef="boolean"/>
+        <dmn:variable id="_87B3D805-EE3C-4540-8A81-D49E394E5598" name="TaxDelinquent" typeRef="boolean">
+          <dmn:description>The agreement is a way to pay Real Estate Tax that is past due, so there must be a past-due balance.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_93A07FC9-D6AA-4C39-821E-D1EA9068138F">
           <dmn:literalExpression id="_0C22D745-8538-4A90-ACAD-71A5F5A3FA2B">
             <dmn:text>TaxDelinquent.TaxDelinquentService</dmn:text>
@@ -187,6 +195,84 @@ all(checksAsList)</dmn:text>
     <dmn:extensionElements/>
     <dmn:variable id="_22AE58D2-EAE7-4BB1-A64A-45B72F2E0E4D" name="situation" typeRef="tSituation"/>
   </dmn:inputData>
+  <dmn:decision id="_8C8AE528-DF50-4E21-B903-CDD5D38C642C" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_C1B16A4C-2A1A-4C8C-AE52-F802BC08881D" name="reference" typeRef="BDT.tBenefitReference"/>
+    <dmn:context id="_3F0C87AD-4E08-4781-90FA-816B2D45B748" typeRef="BDT.tBenefitReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_E990B288-A69B-4E4B-9DD5-965FC7C27AA1" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_4507E23C-FA6D-4DE2-9BAE-F3D64D79862F" typeRef="string">
+          <dmn:text>"An Owner-Occupied Real Estate Tax Payment Agreement (OOPA) lets a Philadelphia homeowner who is behind on Real Estate Tax pay the past-due balance in monthly installments based on household income, with no down payment. It is for people who live in the home they own and owe past-due property tax."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_A6A2363C-4468-49AA-9F7D-591D29313396" name="administeredBy" typeRef="BDT.tAgency"/>
+        <dmn:context id="_4CA30CED-BB72-4907-93A2-EEB5CBBBE803" typeRef="BDT.tAgency">
+          <dmn:contextEntry>
+            <dmn:variable id="_4FCF4801-1D9E-47B3-8E97-3DFFB54556FA" name="name" typeRef="string"/>
+            <dmn:literalExpression id="_34A291C1-CC56-4D01-8F58-EC4429CE8889" typeRef="string">
+              <dmn:text>"City of Philadelphia Department of Revenue"</dmn:text>
+            </dmn:literalExpression>
+          </dmn:contextEntry>
+          <dmn:contextEntry>
+            <dmn:variable id="_5722A0A9-38E1-4CC5-B9A4-714054A2A5F0" name="url" typeRef="string"/>
+            <dmn:literalExpression id="_5FA6AE78-D83E-4680-975A-BAC3B29CA3C2" typeRef="string">
+              <dmn:text>"https://www.phila.gov/departments/department-of-revenue/"</dmn:text>
+            </dmn:literalExpression>
+          </dmn:contextEntry>
+        </dmn:context>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_1EB2358A-52DB-4689-BD43-D97C57055C83" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_B8FC7B26-7907-450C-B872-F88833DFA525" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_9C79EA8F-55E4-43A4-A16A-3EF5B0554A88" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_BEE5501A-E829-4F02-941D-1E3C44831695" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_B5A8863B-5175-4A75-888C-486D7CF4192B" typeRef="string">
+                <dmn:text>"Set up an Owner-Occupied Real Estate Tax Payment Agreement (OOPA) (City of Philadelphia)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_56E6365E-1179-456E-8911-305BB6C3089D" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_3EFBCBC5-F4D5-4EC2-A1CB-63698CA9BB3A" typeRef="string">
+                <dmn:text>"https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/set-up-an-owner-occupied-real-estate-tax-payment-agreement-oopa/"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_9922CB8D-6E36-45F0-952C-251F1AB9ABDD" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_9B653FA0-6ED1-4DBC-B85C-255FB2207912" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_333C758F-7E62-45FF-972E-B5A83629CE8C" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_882468C2-E295-41FA-88EE-5561878A8754" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_D21C4410-D3B1-4338-AE26-23FB96C88226" typeRef="string">
+            <dmn:text>"Does not work out the monthly payment, which depends on household income and size."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_5F10295E-4C69-4B7A-A62F-88851F30B86A" typeRef="string">
+            <dmn:text>"Does not check whether a trust or a person with a legal interest but not on the deed can qualify; the City reviews those cases."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_CD146CBA-5E97-4822-B728-35EA5A934BC2" typeRef="string">
+            <dmn:text>"Whether taxes are past due is taken from the screener answer, not from City records."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_CB7E9164-2AD6-4606-9961-F3639234B132" typeRef="string">
+            <dmn:text>"Ownership and residence are taken from the screener answers and are not looked up in City records."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_43D716C5-14E2-4747-9625-F47E868DA0C4" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_FA0E2D93-F7E4-4D4D-8C2A-49FC4408DEBB" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_97713F4C-7293-4A0F-898C-BDCE529E2DBC" name="DRG">
       <di:extension>
@@ -352,6 +438,15 @@ all(checksAsList)</dmn:text>
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
         <dc:Bounds x="710" y="480" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_8C8AE528-DF50-4E21-B903-CDD5D38C642C" dmnElementRef="_8C8AE528-DF50-4E21-B903-CDD5D38C642C" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="1540" y="0" width="160" height="80"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_F9913976-92D4-4FA2-969B-BFEE84B155ED" dmnElementRef="_F9913976-92D4-4FA2-969B-BFEE84B155ED">

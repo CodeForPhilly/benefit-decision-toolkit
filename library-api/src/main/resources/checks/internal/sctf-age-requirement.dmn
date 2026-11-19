@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <dmn:definitions xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns="https://kie.apache.org/dmn/_6DD53443-571F-4F35-9881-5F7091F9CE59" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:kie="https://kie.org/dmn/extensions/1.0" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_15EDFFFA-F0BA-433C-9CFF-2A86EEA4F439" xmlns:included3="https://kie.apache.org/dmn/_C189BB80-C23E-476E-B0BB-DDF4FF7D305A" id="_5000ABCB-167A-4001-96AD-1EAC1D266FD6" name="SctfAgeRequirement" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_6DD53443-571F-4F35-9881-5F7091F9CE59">
-  <dmn:description>Checks the age pathways for Philadelphia&apos;s Senior Citizen Tax Freeze.</dmn:description>
+  <dmn:description>Checks the age requirement for Philadelphia's Senior Citizen Tax Freeze: the applicant or spouse is 65 or older, or the applicant is 50 or older and widowed from someone who reached 65.</dmn:description>
   <dmn:extensionElements />
   <dmn:import id="_1C14F6F4-3BA7-4818-B667-95B447E799B4" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
   <dmn:import id="_996E205D-A3FF-447D-A436-F0206E6784BE" name="Internal" namespace="https://kie.apache.org/dmn/_15EDFFFA-F0BA-433C-9CFF-2A86EEA4F439" locationURI="Internal.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
@@ -94,6 +94,68 @@ or (PrimaryPerson50PlusThisYear and LateSpouseWasAtLeast65)</dmn:text>
     <dmn:outputDecision href="#_06629809-CF42-44BB-A240-C72F27A8071A" />
     <dmn:inputData href="#_1D0174F9-A149-4A00-A032-76094B64E886" />
   </dmn:decisionService>
+  <dmn:decision id="_9AFEE741-2CA7-4F3C-8E21-B45D05061A9F" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_631AA6A9-2641-4199-AF79-E0B05E7D15FB" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:context id="_6F6D57C9-5123-4292-8D9D-0253DAAA7771" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_0E66E524-72EC-48E2-A8C6-F18F7A04DCBD" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_C05A15ED-F412-44C7-9C11-FB5F375ED8F7" typeRef="string">
+          <dmn:text>"Passes when the applicant reaches 65 by December 31 of the current year, when a spouse listed in relationships does, or when the applicant reaches 50 by December 31 and the screener says their late spouse reached 65. Returns no result when a needed date of birth or answer is missing."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_A22F6ECC-B3B0-4A29-B6FE-F290E9FE8E47" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_330E02C7-51CB-491C-B775-DF64916295B1" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_4C5E24A6-F89F-4CCA-859D-A15EEFEE6007" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_635A5405-A7BF-4080-B625-6EACD652B7F7" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_1CCEF84E-0046-4E56-91B7-8F7788EE93A6" typeRef="string">
+                <dmn:text>"Apply for the Low-Income Senior Citizen Real Estate Tax Freeze (City of Philadelphia)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_0EA3F0D8-6A0E-4E6A-9382-802E43D4FC5B" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_C05FA0CF-1EBF-4219-A71D-52E420DACF43" typeRef="string">
+                <dmn:text>"https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-low-income-senior-citizen-real-estate-tax-freeze/"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_29AAA576-B099-4D0A-8A4E-C27FF683649E" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_632C6114-6FCE-49D7-BF95-ED7388BFBAFE" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_3E839A5D-AD69-4266-954D-2A84E10C0943" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_2734F7CF-E0DB-4EDD-9A9B-EACDE1C69D21" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_C504506A-ADFE-47DB-9CDA-CEDB3791E0D6" typeRef="string">
+            <dmn:text>"Does not check that a spouse aged 65 or older lives in the same household."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_05302FFD-4494-4169-9C86-03744747CC02" typeRef="string">
+            <dmn:text>"Whether a late spouse reached 65 is taken from the screener answer."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_E5B785AA-F3A9-4D7F-B977-8D22D22055D0" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_A0866A67-BEAD-4FE1-9220-BC548454B57A" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
+  <dmn:textAnnotation id="_A737C234-07A2-4570-B4CE-336EFFAD3A0A" textFormat="text/plain">
+    <dmn:text>Ages are measured on December 31 of the current year, so someone who turns 65 (or 50) later this year already passes. The City page says only 65 or older.</dmn:text>
+  </dmn:textAnnotation>
+  <dmn:association id="_9419250F-498D-4CCE-828B-C3F778532540" associationDirection="None">
+    <dmn:sourceRef href="#_06629809-CF42-44BB-A240-C72F27A8071A"/>
+    <dmn:targetRef href="#_A737C234-07A2-4570-B4CE-336EFFAD3A0A"/>
+  </dmn:association>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_D1D48FAE-A80B-4DFD-A84C-FF4F13059773" name="DRG" useAlternativeInputDataShape="false">
       <di:extension>
@@ -179,6 +241,24 @@ or (PrimaryPerson50PlusThisYear and LateSpouseWasAtLeast65)</dmn:text>
         <dc:Bounds x="360" y="520" width="160" height="80" />
         <dmndi:DMNLabel id="_B3309AB3-9E85-46A1-AE43-AEA7AA600E1B" />
       </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_9AFEE741-2CA7-4F3C-8E21-B45D05061A9F" dmnElementRef="_9AFEE741-2CA7-4F3C-8E21-B45D05061A9F" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="660" y="0" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_A737C234-07A2-4570-B4CE-336EFFAD3A0A" dmnElementRef="_A737C234-07A2-4570-B4CE-336EFFAD3A0A" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="660" y="140" width="420" height="120"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_A15A2DFD-488D-4AFE-A935-0A8142DF7514" dmnElementRef="_A15A2DFD-488D-4AFE-A935-0A8142DF7514">
         <di:waypoint x="440" y="520" />
         <di:waypoint x="440" y="260" />
@@ -190,6 +270,10 @@ or (PrimaryPerson50PlusThisYear and LateSpouseWasAtLeast65)</dmn:text>
       <dmndi:DMNEdge id="dmnedge-drg-_48662DD9-D639-4D6C-9CDA-668F8DB032B8" dmnElementRef="_48662DD9-D639-4D6C-9CDA-668F8DB032B8">
         <di:waypoint x="500" y="100" />
         <di:waypoint x="485" y="180" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="dmnedge-drg-_9419250F-498D-4CCE-828B-C3F778532540" dmnElementRef="_9419250F-498D-4CCE-828B-C3F778532540">
+        <di:waypoint x="520" y="220"/>
+        <di:waypoint x="660" y="200"/>
       </dmndi:DMNEdge>
     </dmndi:DMNDiagram>
   </dmndi:DMNDI>

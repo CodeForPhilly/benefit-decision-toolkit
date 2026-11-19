@@ -6,12 +6,15 @@
   <dmn:import id="_6DD043FB-D304-4B57-BBAA-880D467FA1E6" name="Age" namespace="https://kie.apache.org/dmn/_81D401A8-CA81-4F9A-ABCC-532C25768708" locationURI="Age.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
   <dmn:itemDefinition id="_A6252498-B6DA-4011-9C0F-1A45D18DFAC3" name="tParameters" isCollection="false">
     <dmn:itemComponent id="_E6E5B081-1550-4DD6-B94E-F2462DDD4F78" name="personId" isCollection="false">
+      <dmn:description>Id of the person in situation.people to check.</dmn:description>
       <dmn:typeRef>string</dmn:typeRef>
     </dmn:itemComponent>
     <dmn:itemComponent id="_2A437A62-0A26-43A4-B488-DE3696C94A1A" name="asOfDate" isCollection="false">
+      <dmn:description>Date on which to measure the person's age.</dmn:description>
       <dmn:typeRef>date</dmn:typeRef>
     </dmn:itemComponent>
     <dmn:itemComponent id="_19A724F5-6A93-4316-91D6-EFCEC1CA8BC0" name="minAge" isCollection="false">
+      <dmn:description>Minimum age in whole years. A person exactly this age passes.</dmn:description>
       <dmn:typeRef>number</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
@@ -87,6 +90,64 @@ else
     <dmn:extensionElements/>
     <dmn:variable id="_908E9DB1-2894-4743-950C-19A78CA16473" name="parameters" typeRef="tParameters"/>
   </dmn:inputData>
+  <dmn:decision id="_768E5683-30D6-4FE5-9E3B-DC019F95CFD4" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_0B8379C6-1955-4C9F-B541-544AA632CE51" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:context id="_39EA3249-0E44-422A-87C6-98E125A96C2B" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_54CA7A2F-8B4E-41DC-BCE4-AC4D8DCA8430" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_5BAAC48C-1FF1-4A97-B2A8-0F98C2DFCFA3" typeRef="string">
+          <dmn:text>"Passes when the person's age in whole years on the given date is at least the minimum age. Returns no result when the person or their date of birth is missing."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_62EA1A5E-2628-46E1-89C7-06FC2EB5111C" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_49D7A4F8-21AB-47D2-9DE7-60C93A3C07BD" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_A2968CD8-DB45-416A-A179-DF5415AFDD24" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_4331895E-A99B-40C6-AFC9-A54A7B4E5A49" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_D11A6EE5-C648-4A9F-A619-4BC8783A95FE" typeRef="string">
+                <dmn:text>"Benefit Decision Toolkit situation data model (BDT.dmn)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_915940AE-D34F-4FD4-9B11-1158F8BB3B72" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_B7D8E605-3838-4D09-B78C-4F2A27F18CA6" typeRef="string">
+                <dmn:text>"https://github.com/CodeForPhilly/benefit-decision-toolkit/blob/main/library-api/src/main/resources/BDT.dmn"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_736788A6-9A9F-4E35-BC59-5BC945042ACB" name="citation" typeRef="string"/>
+              <dmn:literalExpression id="_ABD74558-98DE-42A5-A3D0-F99689B20764" typeRef="string">
+                <dmn:text>"tSituation: people[].id, people[].dateOfBirth"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_9B09A005-E66B-4B44-85C8-4FB1395FB4E6" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_4642885B-7B20-4249-819C-AD2DC5085F5C" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_D8699EBC-7947-44A5-8ECB-9A500AC2059D" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_D794A8C3-D40F-46A2-B492-897E14D860F8" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_B52BB7AC-82A5-43D5-8A76-D8F53078B6EA" typeRef="string">
+            <dmn:text>"Uses the date of birth as given; it is not verified."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_737F374B-53F7-4EE2-8F33-8C4A80F1A64B" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_9AC58C94-94BE-4E5D-94FA-248AFC2142DC" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_621B5FFE-295D-41D7-8080-71E4CA60A241" name="DRG">
       <di:extension>
@@ -157,6 +218,15 @@ else
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
         <dc:Bounds x="540" y="20" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_768E5683-30D6-4FE5-9E3B-DC019F95CFD4" dmnElementRef="_768E5683-30D6-4FE5-9E3B-DC019F95CFD4" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="760" y="20" width="160" height="80"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_C3219D7A-ABD5-4FCC-B63F-0511B93B9BAE-AUTO-TARGET" dmnElementRef="_C3219D7A-ABD5-4FCC-B63F-0511B93B9BAE">

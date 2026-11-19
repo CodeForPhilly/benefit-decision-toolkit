@@ -100,7 +100,9 @@
     </dmn:knowledgeRequirement>
     <dmn:context id="_9683090D-4016-4D58-B5DC-6695ADA9D008">
       <dmn:contextEntry>
-        <dmn:variable id="_7A5D721E-173D-404F-86FC-7F63B6362DDF" name="NotAlreadyEnrolled" typeRef="boolean" />
+        <dmn:variable id="_7A5D721E-173D-404F-86FC-7F63B6362DDF" name="NotAlreadyEnrolled" typeRef="boolean">
+          <dmn:description>People already in RETIP do not need to apply again.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_27D0FE1F-56E8-4A6C-95F4-1FD277720500">
           <dmn:literalExpression id="_E12D0D56-B194-4F6C-BAE0-3D4613E12788">
             <dmn:text>PersonNotEnrolledInBenefit.PersonNotEnrolledInBenefitService</dmn:text>
@@ -131,7 +133,9 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_EDCA1ADC-D99E-468E-B0E1-9A2E6FAA3FA4" name="OwnerOccupant" typeRef="boolean" />
+        <dmn:variable id="_EDCA1ADC-D99E-468E-B0E1-9A2E6FAA3FA4" name="OwnerOccupant" typeRef="boolean">
+          <dmn:description>The plan is for taxpayers who own and live in their home.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_E6686279-4118-4409-9B78-40401B3E84C7">
           <dmn:literalExpression id="_75A0461B-74FA-4B40-ACB3-6334E1C733BF">
             <dmn:text>OwnerOccupant.OwnerOccupantService</dmn:text>
@@ -145,7 +149,9 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_D14F8B2A-92D9-477A-8953-79D407497E69" name="LivesInPhiladelphiaPa" typeRef="boolean" />
+        <dmn:variable id="_D14F8B2A-92D9-477A-8953-79D407497E69" name="LivesInPhiladelphiaPa" typeRef="boolean">
+          <dmn:description>The plan covers Philadelphia Real Estate Tax, so the home must be in Philadelphia.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_C89629D9-03D5-4C17-9E43-ED15F568ECAB">
           <dmn:literalExpression id="_AEF631B2-D12B-4CA7-818A-EE7EA4AC2C42">
             <dmn:text>LivesInPhiladelphiaPa.LivesInPhiladelphiaPaService</dmn:text>
@@ -159,7 +165,9 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_35DA1E89-F163-4B12-AADD-A56263024477" name="MeetsAgeOrIncomeRequirement" typeRef="boolean" />
+        <dmn:variable id="_35DA1E89-F163-4B12-AADD-A56263024477" name="MeetsAgeOrIncomeRequirement" typeRef="boolean">
+          <dmn:description>The applicant or a spouse living in the same household must be 65 or older, or household income must be below the limit for the family size.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_CE2B6CB4-A0E1-4CF5-9920-0872C4B1D2D3">
           <dmn:literalExpression id="_3D34874B-D0D8-4AFD-B047-E216813B21A4">
             <dmn:text>RetipAgeOrIncomeRequirement.RetipAgeOrIncomeRequirementService</dmn:text>
@@ -198,6 +206,84 @@
     <dmn:extensionElements />
     <dmn:variable id="_1A69D8D2-1FEB-4E81-BFC8-D8A4B2838464" name="situation" typeRef="tSituation" />
   </dmn:inputData>
+  <dmn:decision id="_65410908-302A-4558-919F-B75273C1875D" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_78D29866-90F2-459A-8F36-B176AD57FB5B" name="reference" typeRef="BDT.tBenefitReference"/>
+    <dmn:context id="_7DD9F4FB-22B6-4CB1-849B-0C1C291D8B29" typeRef="BDT.tBenefitReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_C3BAE814-9B77-4B49-ABA5-9CF503FCC894" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_6462BC9A-B575-47F5-9FDE-A0A855741B39" typeRef="string">
+          <dmn:text>"The Real Estate Tax Installment Plan (RETIP) lets a Philadelphia homeowner pay the current year's Real Estate Tax in monthly installments. It is for people who own and live in their home and who are 65 or older, live with a spouse who is 65 or older, or have household income below the limit for their family size."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_7F2AA17C-CE26-4B4D-A7FC-6D62227815FE" name="administeredBy" typeRef="BDT.tAgency"/>
+        <dmn:context id="_80675EE9-35C2-4403-8F91-890606D7B91F" typeRef="BDT.tAgency">
+          <dmn:contextEntry>
+            <dmn:variable id="_43250617-D31E-495F-80B7-868690E851C8" name="name" typeRef="string"/>
+            <dmn:literalExpression id="_2557E299-73B8-49F8-A76E-282C5DB5385A" typeRef="string">
+              <dmn:text>"City of Philadelphia Department of Revenue"</dmn:text>
+            </dmn:literalExpression>
+          </dmn:contextEntry>
+          <dmn:contextEntry>
+            <dmn:variable id="_68CEAB5E-8F8A-4923-BACA-71D49FE0D464" name="url" typeRef="string"/>
+            <dmn:literalExpression id="_E4B17220-0284-48D0-9BA7-9674C06EC6D0" typeRef="string">
+              <dmn:text>"https://www.phila.gov/departments/department-of-revenue/"</dmn:text>
+            </dmn:literalExpression>
+          </dmn:contextEntry>
+        </dmn:context>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_CF6AB71A-512E-448C-8846-84B038513502" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_A0248B49-848B-45C4-A747-6BDB669E9D67" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_0A609A1D-4565-47E0-BA91-263E2C9A1298" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_01F3023D-F3EA-430D-B4E1-C6B246CE5460" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_83618FDF-3E7B-4A59-9328-FA1A20217890" typeRef="string">
+                <dmn:text>"Set up a Real Estate Tax Installment Plan (City of Philadelphia)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_B39D4B68-4F7A-404F-951B-8F7169D83BE9" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_C5BEC0BF-ADD3-4D02-B7C3-CA9BDCAB0C01" typeRef="string">
+                <dmn:text>"https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/set-up-real-estate-tax-installment-plan/"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_D0F1C635-BADF-4A74-B075-227F4C366DA6" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_FAC846D5-E0E2-4C77-A06B-51AAF23A8801" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_D901B33B-9E5A-4395-8C8E-ACAA9A0AC256" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_CCE66C89-6B3B-49BC-93E6-8353B579191A" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_D1B886F0-A51F-4C23-A406-EF5FED73E026" typeRef="string">
+            <dmn:text>"Age is measured on the screening date."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_AD54501A-F08F-4D03-8DB0-CC6A9232D6AF" typeRef="string">
+            <dmn:text>"The income table covers households of 1 to 8 people. Larger households get no result on the income path."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_FE9E7B46-6E8B-4895-8857-496B70E3C96B" typeRef="string">
+            <dmn:text>"Does not check deed changes or a past default, either of which can end a plan."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_36C93B8A-66A9-406D-B8F1-4EC25595D660" typeRef="string">
+            <dmn:text>"Ownership and residence are taken from the screener answers and are not looked up in City records."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_573E96A2-64CE-44F5-9051-4AEAAA740F82" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_5F513CCD-A857-4550-926F-6680224A547E" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_555DFC3D-5971-4341-9268-5B046C2BF135" name="DRG">
       <di:extension>
@@ -325,6 +411,15 @@
           <di:waypoint x="1160" y="50" />
           <di:waypoint x="1460" y="50" />
         </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_65410908-302A-4558-919F-B75273C1875D" dmnElementRef="_65410908-302A-4558-919F-B75273C1875D" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="1520" y="0" width="160" height="80"/>
+        <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="_7F9FA889-6BB4-49BD-A6DF-8A8FF30DBDB9" dmnElementRef="_05AC7A3E-A51B-4757-B5EB-05E08A6A468C" sourceElement="_46997DF3-B2FA-4562-8CD3-7824512A7054" targetElement="_C38F0C80-4587-4B69-91C6-E2DEF8E8F3BA">
         <di:waypoint x="770.0" y="520" />

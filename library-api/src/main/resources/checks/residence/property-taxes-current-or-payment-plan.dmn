@@ -41,6 +41,61 @@
     <dmn:extensionElements />
     <dmn:variable id="_3ADC4713-896A-4FCE-8F21-5A65992BB260" name="situation" typeRef="tSituation" />
   </dmn:inputData>
+  <dmn:decision id="_98C920BF-C1A2-49B6-8481-50DAF8F44EC9" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_E52BC3F3-6264-4D3E-8D5A-F01A42FF7974" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:context id="_3EABE1FC-0462-4BA3-86E7-CDCC97418C14" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_652F6A9B-B6C4-42A7-A456-4AD3212C0A17" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_FF6AF5D2-4DED-49EC-A9F2-BEB6F67F8C95" typeRef="string">
+          <dmn:text>"Passes when property taxes are not past due, or when they are past due but covered by an active Owner-Occupied Payment Agreement or Real Estate Tax installment plan. Fails when taxes are past due and there is no plan. Returns no result when the answers needed to decide are missing."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_5FBFB8A8-AACF-42BB-8494-2CB6B128C393" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_313C834A-1786-4055-941F-2AEF7591140E" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_170848A8-ACC9-4A37-A88C-F0E7839D8546" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_8D7CB712-671F-4EBA-95B7-6F9140D35CBD" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_4758C3F2-CAC1-48E8-89BA-21DE7F138872" typeRef="string">
+                <dmn:text>"Apply for the Longtime Owner Occupants Program (LOOP) (City of Philadelphia)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_21D38AFE-71EA-4518-A235-F120B95397EC" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_6382549F-EA88-4D7D-A0CF-0BD5DF6D4D03" typeRef="string">
+                <dmn:text>"https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_22877FB4-3749-4B3C-8BA4-720B9D51472C" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_E433E0AA-DDC4-4487-B6E8-3A9054F9E64C" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_B75CCEF0-3CCB-4D68-ABE1-25601BD916BF" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_2920D1FF-5D3C-4D66-B134-C5F5AE3A6D34" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_3A3A9F9F-1052-4498-881F-8762907E33D2" typeRef="string">
+            <dmn:text>"Relies on the screener answer. It does not look up or verify records."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_8E6C4E5A-2E7A-4C58-A071-A9FE6E82C7F2" typeRef="string">
+            <dmn:text>"Does not check whether payments under the plan are up to date."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_2A381BCE-EF4B-441C-83C2-E7EB750617ED" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_E4228DE8-E484-49BB-9B9B-65B72FD8D0EB" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_576D9E31-D628-4E00-812A-C7F99A47A90F" name="DRG">
       <di:extension>
@@ -73,6 +128,15 @@
           <di:waypoint x="80" y="50" />
           <di:waypoint x="380" y="50" />
         </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_98C920BF-C1A2-49B6-8481-50DAF8F44EC9" dmnElementRef="_98C920BF-C1A2-49B6-8481-50DAF8F44EC9" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="680" y="0" width="160" height="80"/>
+        <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="_AA6B39C7-533C-4268-9D09-EC6359C2578A" dmnElementRef="_B234BFD9-C4A0-40BD-A822-BD5EA5C311E5" sourceElement="_351305FA-B247-49D8-AA71-9E9E6CF20312" targetElement="_A1C1F9D8-B6B0-4ABF-A46A-5D2A488FEF62">
         <di:waypoint x="360.0" y="520" />

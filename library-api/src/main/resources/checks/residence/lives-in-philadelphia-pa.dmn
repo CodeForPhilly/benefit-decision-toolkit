@@ -37,6 +37,58 @@ else
     <dmn:extensionElements/>
     <dmn:variable id="_A618B149-AF6B-4F3F-93BA-4E22FE5AFB0C" name="situation" typeRef="tSituation"/>
   </dmn:inputData>
+  <dmn:decision id="_7DF79A7F-C8AD-4107-B6C2-55D4A5BC0325" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_079F97A9-7DC0-45CA-88AB-F1AB933F8595" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:context id="_6AC09CD9-7593-45CF-B6CF-EC73F967912C" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_D36178C1-3DCC-4C34-B61D-81D028E1B249" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_04B3677A-696C-4B74-9C4D-FB5D925DE471" typeRef="string">
+          <dmn:text>"Passes when the screener answer says the person lives in Philadelphia, Pennsylvania, and fails when it says they do not. Returns no result when the answer is missing."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_D69EFF56-076E-4DE0-A34B-7D440305FDAB" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_9D2D4C51-F42D-4FD5-B9F1-4392F651C84D" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_40386EB1-BCD5-4B7A-92DF-C228FE1754F1" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_2668728F-FA82-4510-AE30-901E06979BFD" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_2E8A7F53-0826-4BE8-BECE-5EBA0C22C31D" typeRef="string">
+                <dmn:text>"Get the Homestead Exemption (City of Philadelphia)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_499AE495-1809-477C-8A5A-9DCEB33D1D26" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_A3F970F6-2BC4-49CB-A69E-E793C69AFB17" typeRef="string">
+                <dmn:text>"https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_5786C133-5077-4A8F-8E06-9C6805B19CEF" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_2DF21380-E934-4CFA-8D06-37FDDA80E7B9" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_B9C3F224-E501-45EC-BFAF-B8ECB775DA73" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_12D27CD3-A068-4B4A-9844-04CB6997A0E3" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_C7E236C2-4BA5-4811-8840-DCC5F5CCF5C6" typeRef="string">
+            <dmn:text>"Relies on the screener answer. It does not look up or verify an address."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_EBDCB4F5-E921-41D9-ADCF-75CDA27B845D" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_03699E80-9725-44BE-8FD3-83BBFDD6042D" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_19B53DE3-CDF6-47BB-B67D-31DADD153431" name="DRG">
       <di:extension>
@@ -81,6 +133,15 @@ else
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <!-- Edge: from situation center to bottom-center of checkResult -->
+      <dmndi:DMNShape id="dmnshape-drg-_7DF79A7F-C8AD-4107-B6C2-55D4A5BC0325" dmnElementRef="_7DF79A7F-C8AD-4107-B6C2-55D4A5BC0325" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="440" y="100" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_83D9FE3D-8880-4908-B95B-B7ED92FDF52F-AUTO-TARGET" dmnElementRef="_83D9FE3D-8880-4908-B95B-B7ED92FDF52F">
         <di:waypoint x="180" y="520"/>
         <di:waypoint x="233.142857" y="210"/>

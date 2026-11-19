@@ -139,7 +139,10 @@ Each entry uses `<dmn:invocation>` to call the check's Decision Service:
 
 ```xml
 <dmn:contextEntry>
-  <dmn:variable id="_{UUID}" name="{VariableName}" typeRef="boolean"/>
+  <dmn:variable id="_{UUID}" name="{VariableName}" typeRef="boolean">
+    <!-- Required check rationale: why the program applies this check, with its citation -->
+    <dmn:description>{Rationale}</dmn:description>
+  </dmn:variable>
   <dmn:invocation id="_{UUID}">
     <dmn:literalExpression id="_{UUID}">
       <dmn:text>{CheckAlias}.{CheckName}Service</dmn:text>
@@ -323,7 +326,7 @@ Read [references/dmn-skeleton.md](references/dmn-skeleton.md) when generating th
 
 ### Reference
 
-Every new benefit carries a benefit reference (see `GLOSSARY.md`). It is complete when each part below is present and every fact comes from an official source you actually read:
+Every benefit must carry a benefit reference (see `GLOSSARY.md`). Startup fails when a benefit under `benefits/` has no valid `reference` decision, and `LibraryReferenceCoverageTest` fails when a check has no rationale or the benefit has no Bruno example. The reference is complete when each part below is present and every fact comes from an official source you actually read:
 
 - **Summary**: the model's `<dmn:description>`, one plain sentence.
 - **`reference` decision**: a constant decision named `reference`, `typeRef="BDT.tBenefitReference"`, with no information requirements and outside the Decision Service (unlike `nextSteps`, it is not a service output). Write it as a boxed context (`<dmn:context typeRef="BDT.tBenefitReference">`), not a FEEL literal, so it reads as a table in a DMN editor: one `contextEntry` per field, its `<dmn:variable>` typed (`explanation`: `string`; `administeredBy`: `BDT.tAgency` {name, url}; optional `programYear`: `BDT.tProgramYear` {label, startDate, endDate}; `sources`: `BDT.tReferenceSourceList` of {title, url, citation, checkedOn}; `limitations`: `BDT.tStringList`; `lastReviewed`: `date`). Each scalar is a `literalExpression` typed `string` or `date` (`"..."`, `date("2026-11-12")`, or `null` for an optional `url` or `citation`); `sources` and `limitations` are boxed lists (`<dmn:list typeRef="BDT.tReferenceSourceList">` of `BDT.tReferenceSource` contexts, `<dmn:list typeRef="BDT.tStringList">` of string literals). Startup rejects unknown, missing or non-`https` fields. Give it its own 160×80 shape to the right of the service and `ComponentWidths` for every context (`50`, `180`, value width), list (one width) and literal (`560`); `benefits/pa/liheap-cash.dmn` is the worked example.

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <dmn:definitions xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:kie="https://kie.org/dmn/extensions/1.0" id="_65ED10DA-1CAC-41CC-9649-1B10AFF5A97B" name="NoDisqualifyingTaxAbatement" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_5B6F0640-F1FF-4AFF-9D7A-A58FCA052672" xmlns="https://kie.apache.org/dmn/_5B6F0640-F1FF-4AFF-9D7A-A58FCA052672" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1">
-  <dmn:description>LOOP excludes an abatement received on this property by the current owner or a previous owner who is a close relative; includes historical abatements.</dmn:description>
+  <dmn:description>Checks LOOP's abatement rule: no tax abatement was received on this property by the current owner or by a previous owner who is a close relative.</dmn:description>
   <dmn:extensionElements />
   <dmn:import id="_566F90C8-0157-490B-84EF-82F935EFD230" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
   <dmn:import id="_7E40F7A4-112E-4CBE-B6F2-09F9E6E93B51" name="Residence" namespace="https://kie.apache.org/dmn/_C9F91EE8-9F17-4867-9638-912AC7DB68F1" locationURI="Residence.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
@@ -35,6 +35,61 @@ else not(situation.simpleChecks.disqualifyingTaxAbatement)</dmn:text>
     <dmn:extensionElements />
     <dmn:variable id="_647F77FD-8986-48C2-894A-A4B5E5D7D125" name="situation" typeRef="tSituation" />
   </dmn:inputData>
+  <dmn:decision id="_1B716939-35E9-4739-B70B-622B6154B0DA" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_DAC5C99A-CB0C-478D-9801-F45A4B835D21" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:context id="_62DEC782-45A6-49A0-9099-316FE82E6BE5" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_B316F739-5A0D-4481-BD05-F2036DD12EAA" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_C34A732F-C431-4CB7-A455-94E0B9B2716B" typeRef="string">
+          <dmn:text>"Passes when the screener answer says no disqualifying abatement was received on the property, and fails when it says one was. An abatement counts if the current owner received it, or if a previous owner who is a close relative (spouse, life partner, parent, stepparent, child, sibling, aunt, uncle, grandparent or step-grandparent) received it, including past abatements that have ended. Returns no result when the answer is missing."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_1C5D7563-88D7-4AC0-8660-26C4AA3A4BBE" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_5BCD8B3C-8DC1-4BF6-9C3A-9207525DE631" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_056512CD-DD06-49F2-B1B9-2D678ADFFA0A" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_ECD06231-CDDC-4D7E-9698-8D7B09389BAC" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_8FFC4B01-5D12-4024-948C-11BAE6DA3448" typeRef="string">
+                <dmn:text>"Apply for the Longtime Owner Occupants Program (LOOP) (City of Philadelphia)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_C4BC7FA4-38D7-48BF-B75A-30D53B72BF37" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_EA4354A0-4C52-41AF-93B4-AE519C7BF5C2" typeRef="string">
+                <dmn:text>"https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_78774E9C-B740-4C1B-BFFE-2A48DFD0B724" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_94081E94-2887-41CB-B47F-58C898B4D89F" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_3CD5E712-D008-483E-B3B4-A4ADCCB78286" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_D8A11EFF-1C51-4AC9-ABD2-76E2BB6B93BA" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_039F1085-5752-4317-B62B-18C0E8E9551D" typeRef="string">
+            <dmn:text>"Relies on the screener answer. It does not look up or verify records."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_38EE27DF-D901-498F-902A-9C0DD53F94B5" typeRef="string">
+            <dmn:text>"The screener question has to explain who counts as a close relative."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_E89F11A6-C1DA-4A96-8B13-0A34A2B124DE" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_55D01A91-98EC-4905-92DB-0A409F5AA2A3" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_F7A2E301-DD6B-4F37-8FA5-B3C133E869D0" name="DRG">
       <di:extension>
@@ -59,6 +114,15 @@ else not(situation.simpleChecks.disqualifyingTaxAbatement)</dmn:text>
       <dmndi:DMNShape id="_BD493573-928E-4BA6-99F9-30DE18F29A25" dmnElementRef="_0A59467B-A86E-4014-9CA9-C39219EA7E0E" isCollapsed="false">
         <dc:Bounds x="244.0" y="520" width="160" height="80" />
         <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_1B716939-35E9-4739-B70B-622B6154B0DA" dmnElementRef="_1B716939-35E9-4739-B70B-622B6154B0DA" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="608" y="140" width="160" height="80"/>
+        <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="_1D31D194-8F00-40E4-B51F-A1CA6B621ADA" dmnElementRef="_A37311CF-CC4B-47DD-8F68-AEA82CF9CD33" sourceElement="_BD493573-928E-4BA6-99F9-30DE18F29A25" targetElement="_731DD395-47C7-4768-9EF5-62B0A70F0FEC">
         <di:waypoint x="324.0" y="520" />

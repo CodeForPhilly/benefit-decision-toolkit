@@ -6,9 +6,11 @@
   <dmn:import id="_FFA4D8BE-A021-4476-8526-7D8E448C5203" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
   <dmn:itemDefinition id="_8567E466-E20E-4F59-9334-E330CBCA5D6C" name="tParameters" isCollection="false">
     <dmn:itemComponent id="_B3CDA42A-A38B-49B5-9739-ACC6D59C3A67" name="personId" isCollection="false">
+      <dmn:description>Id of the person to look for in situation.enrollments.</dmn:description>
       <dmn:typeRef>string</dmn:typeRef>
     </dmn:itemComponent>
     <dmn:itemComponent id="_4C0F9068-CC20-4E20-BAFF-7C3689428892" name="benefit" isCollection="false">
+      <dmn:description>Name of the benefit as recorded in situation.enrollments, for example PhlHomesteadExemption.</dmn:description>
       <dmn:typeRef>string</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
@@ -48,6 +50,67 @@ else
     <dmn:extensionElements/>
     <dmn:variable id="_9DFB57D8-83D9-4AB9-B59D-D3EEAA143902" name="parameters" typeRef="tParameters"/>
   </dmn:inputData>
+  <dmn:decision id="_8ADE437C-95B1-43CE-8ECC-2191340E0E74" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_5F748F53-47E2-4220-8DC2-3F59DB70D99E" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:context id="_4764C4D8-E06E-4A45-A4B3-A41DFD51F9AF" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_0974D147-87EE-41B2-901E-283886E96738" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_561F5A2A-4956-462D-B65D-1683200F69F7" typeRef="string">
+          <dmn:text>"Passes when situation.enrollments lists the person as enrolled in the named benefit, and fails when it does not. Returns no result when the enrollments list is missing."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_87E343DC-D7CF-4C4F-B639-08F01A6915AC" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_5C01372F-E3EA-4CD3-A934-335BE0D9DB0C" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_F51F59EC-EC27-454C-8A63-3868ED211FD9" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_73539B71-E879-4728-80EB-AB0C4337AD5C" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_EC4598F6-8B11-43AF-B350-644B6A44D721" typeRef="string">
+                <dmn:text>"Benefit Decision Toolkit situation data model (BDT.dmn)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_3A5AABF1-2120-49D3-84A0-4C4BC186798B" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_497442AA-355C-439E-BAE1-5D0BB1271ABB" typeRef="string">
+                <dmn:text>"https://github.com/CodeForPhilly/benefit-decision-toolkit/blob/main/library-api/src/main/resources/BDT.dmn"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_E3039BAD-71A8-4E63-A595-EE03AB39F23B" name="citation" typeRef="string"/>
+              <dmn:literalExpression id="_F45B7B4B-AE7D-4FCE-A681-5E2B02086D4B" typeRef="string">
+                <dmn:text>"tSituation: enrollments[].personId, enrollments[].benefit"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_47AFB725-EBA2-4848-BD4B-C685414F919A" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_42DBEB4E-2126-4FF4-87C0-DA3885467815" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_9F2097F2-CA36-4FA1-B84B-D1F051253E90" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_97815CA7-FBEF-48E1-8969-A31CC352BF4E" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_D37CBE40-8F7A-4672-A847-ACB9FBCE601B" typeRef="string">
+            <dmn:text>"Relies on the enrollments the screener reports. It does not look up enrollment with the agency."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_B78DFDF5-7B05-41E0-A328-F59652CAE6AC" typeRef="string">
+            <dmn:text>"Benefit names must match exactly."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_93FF6410-4BE8-4CD3-A4C0-C04898F6FAC9" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_58ACC168-E454-4F88-BFCA-C071E81A1063" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_B6C8D218-1F05-4E60-BF1A-7D0A246D6046" name="DRG">
       <di:extension>
@@ -95,6 +158,15 @@ else
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
         <dc:Bounds x="320" y="480" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_8ADE437C-95B1-43CE-8ECC-2191340E0E74" dmnElementRef="_8ADE437C-95B1-43CE-8ECC-2191340E0E74" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="540" y="100" width="160" height="80"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_669BFE51-E50C-444C-853C-D6F45C4869F3-AUTO-TARGET" dmnElementRef="_669BFE51-E50C-444C-853C-D6F45C4869F3">
