@@ -84,9 +84,11 @@ describe("ScreenerEditor", () => {
     document.body.replaceChildren();
   });
 
-  function mount() {
-    const history = createMemoryHistory();
-    history.set({ value: "/screeners/example", replace: true });
+  let history: ReturnType<typeof createMemoryHistory>;
+
+  function mount(path = "/screeners/example") {
+    history = createMemoryHistory();
+    history.set({ value: path, replace: true });
     const container = document.body.appendChild(document.createElement("div"));
     dispose = render(
       () => (
@@ -124,6 +126,26 @@ describe("ScreenerEditor", () => {
     );
     resolveScreener({ screenerName: "", formSchema: {} });
     await vi.waitFor(() => expect(currentCrumb(container)).toBe(""));
+  });
+
+  it("keeps the open tab in the URL", async () => {
+    const container = mount("/screeners/example?tab=preview");
+    const isCurrent = (key: string) =>
+      container
+        .querySelector(`[data-testid="editor-section-${key}"]`)
+        ?.getAttribute("aria-current") === "true";
+
+    await vi.waitFor(() => expect(isCurrent("preview")).toBe(true));
+
+    button(container, "Form Editor").click();
+    await vi.waitFor(() =>
+      expect(history.get()).toBe("/screeners/example?tab=formEditor"),
+    );
+    expect(isCurrent("formEditor")).toBe(true);
+
+    button(container, "Manage Benefits").click();
+    await vi.waitFor(() => expect(history.get()).toBe("/screeners/example"));
+    expect(isCurrent("manageBenefits")).toBe(true);
   });
 
   it("returns from Configure Benefit when Manage Benefits is selected", async () => {
@@ -225,12 +247,18 @@ describe("ScreenerEditor", () => {
       expect(button(container, "Form Editor")).toBeDefined(),
     );
     button(container, "Form Editor").click();
+    await vi.waitFor(() =>
+      expect(button(container, "Edit form")).toBeDefined(),
+    );
     button(container, "Edit form").click();
     const formSchema = () =>
       container.querySelector('[data-testid="form-schema"]')?.textContent;
     expect(formSchema()).toBe('{"edited":true}');
 
     button(container, "Publish").click();
+    await vi.waitFor(() =>
+      expect(button(container, "Refetch screener")).toBeDefined(),
+    );
     vi.mocked(fetchScreener).mockRejectedValueOnce(new Error("Fetch failed"));
     button(container, "Refetch screener").click();
     await vi.waitFor(() =>
@@ -248,7 +276,7 @@ describe("ScreenerEditor", () => {
       expect(currentCrumb(container)).toBe("Renamed screener"),
     );
     button(container, "Form Editor").click();
-    expect(formSchema()).toBe('{"edited":true}');
+    await vi.waitFor(() => expect(formSchema()).toBe('{"edited":true}'));
   });
 
   it("gives the form editor the benefits changed in Manage Benefits", async () => {
@@ -259,9 +287,11 @@ describe("ScreenerEditor", () => {
     const fetches = vi.mocked(fetchScreener).mock.calls.length;
     button(container, "Add benefit").click();
     button(container, "Form Editor").click();
-    expect(
-      container.querySelector('[data-testid="editor-benefits"]')?.textContent,
-    ).toBe("New housing benefit");
+    await vi.waitFor(() =>
+      expect(
+        container.querySelector('[data-testid="editor-benefits"]')?.textContent,
+      ).toBe("New housing benefit"),
+    );
     expect(fetchScreener).toHaveBeenCalledTimes(fetches);
   });
 });
