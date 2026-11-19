@@ -49,7 +49,7 @@
       <dmn:contextEntry>
         <dmn:variable id="_652F6A9B-B6C4-42A7-A456-4AD3212C0A17" name="explanation" typeRef="string"/>
         <dmn:literalExpression id="_FF6AF5D2-4DED-49EC-A9F2-BEB6F67F8C95" typeRef="string">
-          <dmn:text>"Passes when property taxes are not past due, or when they are past due but covered by an active Owner-Occupied Payment Agreement or Real Estate Tax installment plan. Fails when taxes are past due and there is no plan. Returns no result when the answers needed to decide are missing."</dmn:text>
+          <dmn:text>"Passes when property taxes are not past due, or when they are past due but covered by an active Owner-Occupied Payment Agreement or Real Estate Tax installment plan. Fails when taxes are past due and there is no plan. Passes whenever the payment-plan answer is yes, even if the past-due answer is missing. Returns no result when taxes are past due or unknown and the payment-plan answer is missing."</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>
@@ -103,6 +103,17 @@
           <kie:ComponentWidths dmnElementRef="_45D4E118-051E-418D-AB1B-7EA840305C72">
             <kie:width>917</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_3EABE1FC-0462-4BA3-86E7-CDCC97418C14"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_FF6AF5D2-4DED-49EC-A9F2-BEB6F67F8C95"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_313C834A-1786-4055-941F-2AEF7591140E"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_170848A8-ACC9-4A37-A88C-F0E7839D8546"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_4758C3F2-CAC1-48E8-89BA-21DE7F138872"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_6382549F-EA88-4D7D-A0CF-0BD5DF6D4D03"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E433E0AA-DDC4-4487-B6E8-3A9054F9E64C"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_2920D1FF-5D3C-4D66-B134-C5F5AE3A6D34"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_3A3A9F9F-1052-4498-881F-8762907E33D2"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_8E6C4E5A-2E7A-4C58-A071-A9FE6E82C7F2"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E4228DE8-E484-49BB-9B9B-65B72FD8D0EB"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="_54F797F4-1C92-406B-A1AF-F0B62C43CD9A" dmnElementRef="_3DB44F95-F290-47A3-890C-686F02A3B861" isCollapsed="false">

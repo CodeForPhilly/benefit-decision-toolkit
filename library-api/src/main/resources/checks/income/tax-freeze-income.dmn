@@ -47,7 +47,7 @@ else situation.applicantAndSpouseIncome &lt;= (if BDT.spouse id(situation.relati
       <dmn:contextEntry>
         <dmn:variable id="_1B8EE58E-490F-44FD-9CD6-0826134614DE" name="explanation" typeRef="string"/>
         <dmn:literalExpression id="_F80C43DD-1945-4DB5-A0DB-7F980ACCEC84" typeRef="string">
-          <dmn:text>"Adds the applicant's income to a spouse's and passes when the total is at or below $33,500 for a single person or $41,500 for a married couple. The married limit applies when the relationships list includes a spouse for the applicant. Returns no result when income is missing or negative, or when the relationships list is missing so it is unknown whether there is a spouse; an empty relationships list means there is no spouse."</dmn:text>
+          <dmn:text>"Reads the combined gross yearly income of the applicant and any spouse (applicantAndSpouseIncome) and passes when it is at or below $33,500 for a single person or $41,500 for a married couple. The married limit applies when the relationships list includes a spouse for the applicant. Returns no result when income is missing or negative, or when the relationships list is missing so it is unknown whether there is a spouse; an empty relationships list means there is no spouse."</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>
@@ -124,6 +124,22 @@ else situation.applicantAndSpouseIncome &lt;= (if BDT.spouse id(situation.relati
           <kie:ComponentWidths dmnElementRef="_0387D68E-9425-46B8-A8F3-3FBE526872D0">
             <kie:width>917</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_87DD3241-C42E-4B55-B55A-5E4EA8600A94"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_F80C43DD-1945-4DB5-A0DB-7F980ACCEC84"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_19D89E41-364B-4289-B748-464D2797099D"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_667A14EB-39E4-4C02-9C96-BCCAF7702CFC"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_DED6961B-35AE-4575-B8D3-D278BD8A9E8E"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E0072EFE-6D56-4138-A9F7-8317FA59443C"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_0C78EE47-F392-415A-AE26-83935CDC1A2D"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_3B65B0A7-01E2-4A27-9C37-83B4A6D114F3"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_F449F136-F849-4A14-BF5C-7CDA985EB43E"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_95F3FE0A-81BE-41F8-9C7F-5E9A865632A7"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_021533E4-6EC0-4A34-88AD-0FEF67F00E5A"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E420ADB8-EB59-4E90-9346-DE0994FA3306"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_B9493B8C-D5A8-4095-8697-3CFE0B346B21"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_8A14795B-FEB1-45E9-BD11-56C93CCE9A5A"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_CA4A3127-DCF2-4A52-91AB-2C99798D4F9B"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_A55330D7-39B5-43E3-9D8D-EBA28772D7A0"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="_CCF172C9-84B1-4231-953A-6748E8C9914E" dmnElementRef="_8FCBEB34-FBA5-4684-AA73-8FC6B9C7E86F" isCollapsed="false">

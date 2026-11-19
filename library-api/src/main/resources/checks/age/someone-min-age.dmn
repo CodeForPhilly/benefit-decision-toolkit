@@ -172,6 +172,18 @@
           <kie:ComponentWidths dmnElementRef="_0B4421B2-AC72-4276-A5BA-60B889ADE2B9">
             <kie:width>630</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_EF25E9EE-97FE-4AA1-A637-2DF779093DB4"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_8FA4B397-6654-47F5-9ABA-1D15C80CECF3"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_4EEDD12F-CD57-4409-8CA6-B64F42B6E48D"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_53271967-26D6-4579-ADE5-CB922F8CCD07"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_FD221DFE-7FB6-48FE-9C61-1F0CA7E5BA9B"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_AFD1C9A5-7C70-407D-8AB2-B862A9CD7259"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_9CB364E6-B5FA-42A5-94EC-BBB7625C6EC4"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_6D7DB78B-A4DC-4F49-B086-B2CF846E30E6"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_88F00715-8A71-4D00-805B-2161681E80B3"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_D10FFE0D-FC2E-41D9-A2EA-D2AF7656232C"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_52C8A7A3-B2A7-40CE-93A0-14C105269E17"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_469F6C52-AF84-4B99-BDE6-3D0E8BE782D1"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="dmnshape-drg-_115363CB-5A44-450E-A973-2718F10C793A" dmnElementRef="_115363CB-5A44-450E-A973-2718F10C793A" isCollapsed="false">

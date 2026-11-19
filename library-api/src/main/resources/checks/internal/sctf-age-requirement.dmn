@@ -186,6 +186,17 @@ or (PrimaryPerson50PlusThisYear and LateSpouseWasAtLeast65)</dmn:text>
           <kie:ComponentWidths dmnElementRef="_C22E7B6B-9364-43C4-A3E5-8C53EF8CAAAD">
             <kie:width>190</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_6F6D57C9-5123-4292-8D9D-0253DAAA7771"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C05A15ED-F412-44C7-9C11-FB5F375ED8F7"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_330E02C7-51CB-491C-B775-DF64916295B1"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_4C5E24A6-F89F-4CCA-859D-A15EEFEE6007"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_1CCEF84E-0046-4E56-91B7-8F7788EE93A6"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C05FA0CF-1EBF-4219-A71D-52E420DACF43"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_632C6114-6FCE-49D7-BF95-ED7388BFBAFE"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_2734F7CF-E0DB-4EDD-9A9B-EACDE1C69D21"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C504506A-ADFE-47DB-9CDA-CEDB3791E0D6"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_05302FFD-4494-4169-9C86-03744747CC02"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_A0866A67-BEAD-4FE1-9220-BC548454B57A"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="dmnshape-drg-_10269E8B-27ED-4548-B9DA-A796F35218F2" dmnElementRef="_59B1D987-60C3-4653-A582-539CFF1C3612" isCollapsed="false">

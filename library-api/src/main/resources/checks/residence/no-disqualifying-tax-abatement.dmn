@@ -97,6 +97,17 @@ else not(situation.simpleChecks.disqualifyingTaxAbatement)</dmn:text>
           <kie:ComponentWidths dmnElementRef="_E702ADB9-DD38-4336-B070-CBC6ADF8A693">
             <kie:width>917</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_62DEC782-45A6-49A0-9099-316FE82E6BE5"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C34A732F-C431-4CB7-A455-94E0B9B2716B"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_5BCD8B3C-8DC1-4BF6-9C3A-9207525DE631"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_056512CD-DD06-49F2-B1B9-2D678ADFFA0A"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_8FFC4B01-5D12-4024-948C-11BAE6DA3448"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_EA4354A0-4C52-41AF-93B4-AE519C7BF5C2"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_94081E94-2887-41CB-B47F-58C898B4D89F"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_D8A11EFF-1C51-4AC9-ABD2-76E2BB6B93BA"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_039F1085-5752-4317-B62B-18C0E8E9551D"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_38EE27DF-D901-498F-902A-9C0DD53F94B5"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_55D01A91-98EC-4905-92DB-0A409F5AA2A3"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="_E87936CA-A731-42DF-8160-708917038649" dmnElementRef="_3B748852-FBA3-428F-9C75-1D024EEE30A9" isCollapsed="false">

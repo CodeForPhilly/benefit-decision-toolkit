@@ -141,6 +141,16 @@ else situation.propertyAssessment &gt;= situation.lowestPropertyAssessmentLastFi
           <kie:ComponentWidths dmnElementRef="_D1AEC135-88AE-47DA-A03D-F4399DEC3AE5">
             <kie:width>917</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_96756486-652D-4936-ACB5-B485A60CF2F4"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_98637DDE-EA71-495D-B10D-BEA647958407"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E891F51C-D98A-4F07-9E4C-6C686B2BDAA6"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_1F1670B4-6A99-4AE6-9CFE-71DC636392EC"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_B15D0414-EC2E-4BDC-B3D7-B9B93290CA42"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_80729356-811A-44A9-A33B-8E40858C8F2D"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_F30BA914-85A3-4475-BB97-42F4AEA15B3F"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_1510C7CB-7E59-48F2-9031-A282E00F716C"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_CC4E6DB0-4130-48E6-816B-BEAD8B2B0A5A"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C5921644-D586-4C16-B0B1-58A59DA1F2C2"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="_1375FF24-DFE4-41F4-90DC-5CBAD56036AD" dmnElementRef="_7C64C2FC-2361-4EE3-8790-4B918618BD2F" isCollapsed="false">

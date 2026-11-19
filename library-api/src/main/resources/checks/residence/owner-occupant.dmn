@@ -99,6 +99,17 @@ else
           <kie:ComponentWidths dmnElementRef="_A522A373-A288-432D-8440-0B26E350AA3E">
             <kie:width>917</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_1CAA73EE-4B67-4684-A3D3-E2C772331223"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_5F09AB77-B916-49AA-8183-437F77D06D75"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_AD6D1ADA-C602-4195-BA68-0596E0E95B26"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_D0491D07-5AF3-4871-A5D6-387D6A4F1435"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_02BAF365-6FED-4DFA-9990-7C0752236CBC"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_AA4A1B27-2E0D-4FDB-A273-1839824A190D"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_16ACD202-3BC1-4FDC-BE9B-FF54D68A47C8"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C553098B-4C65-4A0C-8AFA-28A9BF423227"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_6CF6C475-E8B7-4087-A178-4B6D12DB83EC"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_8B433E97-3616-4FBA-B5F4-02F22F4E88A8"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_8C5F98A2-0DD8-4BB8-9462-E3384BF9CBF7"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <!-- Decision service: centered, upper section holds checkResult output decision -->

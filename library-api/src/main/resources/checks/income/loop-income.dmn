@@ -100,6 +100,18 @@
           <kie:ComponentWidths dmnElementRef="_BA464CDF-932F-42BB-9D23-EE8B90076A3C">
             <kie:width>917</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_7EB3D8BE-FEE7-4629-A67E-4CFD43050715"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_4AE5A2B8-DD92-449F-988A-1828CB77E963"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_D8E9F284-A7FB-4FA0-B81C-A8ABD405DEFF"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_B8FEC697-91D5-41A5-8F45-54A74721EC9A"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_AC4328CA-CC93-4D65-AA78-9B1EDB214702"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_80D7EBD2-69C3-40D1-A1EE-207D3C18DF0E"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_3530D573-24DC-4BA7-A55D-C10B6F23A0D1"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E27C1596-57D1-4203-B45A-1D0B6BC33212"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_47F6D601-CFCA-49B9-84E3-035AF472C7B0"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_DBE2698E-08F5-4D98-B164-1C6FC990D4B0"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_3FBDB967-4175-4FF6-8F98-0D4F3B4E07B0"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_9D45FF17-7B65-403D-877D-8C48CB66556F"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="_DC19F198-0006-415B-81C6-65AE4705DF3A" dmnElementRef="_17B4DC5A-D23D-4116-9163-BE57C068D80E" isCollapsed="false">

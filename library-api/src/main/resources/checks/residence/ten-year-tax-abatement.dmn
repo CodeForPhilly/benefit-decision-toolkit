@@ -118,6 +118,17 @@ else
           <kie:ComponentWidths dmnElementRef="_AF5D9F2A-3AC3-4B3F-EDDE-7EC3CA5F9A8D">
             <kie:width>917</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_51818827-3577-403D-8C56-463F8B8B6AF6"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_4FB8E826-0B67-4FEE-8BAB-B5DD249CF630"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_B1270681-FFE0-477C-8431-5F712F18DE73"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_7A866ADA-EF5F-4D27-9190-8CA95645E372"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E4E49E67-875D-472F-8CB3-5B148530CE30"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_8C07AEBF-6968-4E14-A742-D00F79F4D2DF"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_1A43619A-44F6-4690-8C93-C64DA82E1F75"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_11853848-092D-4082-9218-BA548167905C"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_6DB12D1A-A37D-4DA2-8530-54BDA1C9BE32"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_389FC58E-1051-49B8-9BF4-A12E70B87D1A"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_8804F02A-C03E-47A1-A45C-A9B6793B33E0"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <!-- Decision service: centered around x=310, width=360 to fit "TenYearTaxAbatementService" label -->

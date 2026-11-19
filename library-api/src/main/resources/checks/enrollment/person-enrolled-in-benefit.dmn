@@ -118,6 +118,18 @@ else
           <kie:ComponentWidths dmnElementRef="_EC3D9380-90FD-4FE1-9640-F713DE0BD846">
             <kie:width>917</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_4764C4D8-E06E-4A45-A4B3-A41DFD51F9AF"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_561F5A2A-4956-462D-B65D-1683200F69F7"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_5C01372F-E3EA-4CD3-A934-335BE0D9DB0C"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_F51F59EC-EC27-454C-8A63-3868ED211FD9"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_EC4598F6-8B11-43AF-B350-644B6A44D721"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_497442AA-355C-439E-BAE1-5D0BB1271ABB"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_F45B7B4B-AE7D-4FCE-A681-5E2B02086D4B"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_42DBEB4E-2126-4FF4-87C0-DA3885467815"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_97815CA7-FBEF-48E1-8969-A31CC352BF4E"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_D37CBE40-8F7A-4672-A847-ACB9FBCE601B"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_B78DFDF5-7B05-41E0-A328-F59652CAE6AC"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_58ACC168-E454-4F88-BFCA-C071E81A1063"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="dmnshape-drg-_5E85B343-11FA-4C1C-A08E-26402F99720E" dmnElementRef="_5E85B343-11FA-4C1C-A08E-26402F99720E" isCollapsed="false">

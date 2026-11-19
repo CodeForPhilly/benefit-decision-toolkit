@@ -106,6 +106,17 @@ else situation.yearsOwnerOccupied &gt;= parameters.minYears</dmn:text>
           <kie:ComponentWidths dmnElementRef="_ECB73134-B879-4A00-91C6-8DFC0030823D">
             <kie:width>917</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C54F546E-4BC4-48F6-8974-D75FB96CADA5"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_6CBC950F-42AE-4CDE-AC83-36122FD0F792"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_27B5F2EA-5E40-4575-BC66-EB167E4C7379"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_76D7B669-645B-4D85-91F3-852B328CF124"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_41662473-7D63-449D-9AB3-9F409C4BF94B"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_BCC975A5-1092-4E25-ABB9-A11985326759"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_DBB4A924-F47A-4174-AF90-4464C6A0ED2E"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_9E17EF5C-A29F-43CB-8F06-F7DA17C4F6D2"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_8C561458-327C-4B7F-92C3-7BBE100C8D01"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E2DEEFE7-4869-4061-873A-000496779170"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_ECFC8309-4A0E-43B1-9FAC-D5FB7337D04F"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="_4C86E058-7883-4532-A602-072EDEF08559" dmnElementRef="_D22362E8-8207-40A8-A967-044DE8693E4E" isCollapsed="false">

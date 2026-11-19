@@ -107,7 +107,7 @@ else situation.simpleChecks.spouseLivesInHousehold and PersonMinAge.PersonMinAge
       <dmn:contextEntry>
         <dmn:variable id="_8C653461-436A-4A66-9779-595551F7AD17" name="explanation" typeRef="string"/>
         <dmn:literalExpression id="_038E39A9-A022-4056-8CDD-F25A813ADC68" typeRef="string">
-          <dmn:text>"Passes when the applicant, or a spouse who lives in the same household, has reached the minimum age on the screening date. A spouse who lives elsewhere does not count. Returns no result when the applicant's date of birth is missing, or when the relationships list is missing so it is unknown whether there is a spouse; an empty relationships list means there is no spouse."</dmn:text>
+          <dmn:text>"Passes when the applicant, or a spouse who lives in the same household, has reached the minimum age on the screening date. A spouse who lives elsewhere does not count. When one path cannot be decided (the applicant's date of birth is missing, or the relationships list is missing so it is unknown whether there is a spouse), the check still passes if the other path passes, and otherwise returns no result. An empty relationships list means there is no spouse."</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>
@@ -201,6 +201,22 @@ else situation.simpleChecks.spouseLivesInHousehold and PersonMinAge.PersonMinAge
           <kie:ComponentWidths dmnElementRef="_7B06421E-934F-46A6-A487-5D55D1C05748">
             <kie:width>917</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C3EE4993-6B29-46E6-BEDC-73149ED59651"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_038E39A9-A022-4056-8CDD-F25A813ADC68"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_6C6793D4-EDAC-4F83-B6AE-E20BBBEB049E"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_7CAF355E-49D4-4953-95DC-A38B6968D9CF"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_1F91C91C-2A54-4E81-9315-2387105DFFBC"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_84237B5E-CDA3-4B45-8E97-2748C01A0772"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_CAC9FBF8-7819-41B7-B524-883C8B77322C"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_46F209DC-5476-436D-B36B-9130AC926B68"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_DA10AD10-9B8A-4A0A-8EC1-ABFFA036B672"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C6831332-AE4B-4E5B-9646-6EEA9E71D865"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_1B4E0146-6112-492D-BFF7-B24BB2565862"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_2CB37DE5-4253-4B18-BDDE-831005B8CBE7"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_CBEBF58F-7180-479C-8202-E636572182B6"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_39C4B134-1F13-495F-B5A4-9FC2486B473A"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_5DF8F1D7-3FBC-4210-844A-2DCCE5643467"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_263FB794-1C6B-4900-B2CD-173F83B3D271"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="_6D2E4F86-400C-4ADC-BFD2-07EE0956915F" dmnElementRef="_6A22FC6F-9E65-48FF-A538-7A886D125EDA" isCollapsed="false">

@@ -169,6 +169,17 @@ else
           <kie:ComponentWidths dmnElementRef="_535A5CCD-B352-4D82-82EE-F344E5BD9279">
             <kie:width>523</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C79AA6E3-8B1B-4DDB-897C-49F850B5DD66"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_BDA3EA8F-1F64-43E6-AFDB-5B3DF9ED5BCB"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_2460295B-D93E-43F6-A95F-030A2151E107"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_D8F336AC-BC37-4CE8-8561-CE5BB77D6A55"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_F3064048-01DA-4551-A532-47619F5CC281"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_D059A423-1024-4C62-BE68-F2E8999B17DD"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E461D04C-DE54-4DB8-A485-3EDAA3EECBEA"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_DD18B682-2156-4E56-BF61-D97CFBEE0528"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_46CC5531-A47C-4C6B-84E6-6A0C031A9F35"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C27D396B-00E2-4B00-BB58-3ED607EAFF4D"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_8B0F657D-D05E-49D7-9702-9CAB44827DEA"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="dmnshape-drg-_50AFC26A-F5B6-498A-B58F-BDC38F8BE4C9" dmnElementRef="_50AFC26A-F5B6-498A-B58F-BDC38F8BE4C9" isCollapsed="false">
