@@ -47,7 +47,7 @@ else situation.applicantAndSpouseIncome &lt;= (if BDT.spouse id(situation.relati
       <dmn:contextEntry>
         <dmn:variable id="_1B8EE58E-490F-44FD-9CD6-0826134614DE" name="explanation" typeRef="string"/>
         <dmn:literalExpression id="_F80C43DD-1945-4DB5-A0DB-7F980ACCEC84" typeRef="string">
-          <dmn:text>"Reads the combined gross yearly income of the applicant and any spouse (applicantAndSpouseIncome) and passes when it is at or below $33,500 for a single person or $41,500 for a married couple. The married limit applies when the relationships list includes a spouse for the applicant. Returns no result when income is missing or negative, or when the relationships list is missing so it is unknown whether there is a spouse; an empty relationships list means there is no spouse."</dmn:text>
+          <dmn:text>"Reads the combined gross yearly income of the applicant and any spouse (applicantAndSpouseIncome) and passes when it is at or below $33,500 for a single person or $41,500 for a married couple. The married limit applies when the relationships list includes a spouse for the applicant. Returns no result when income is missing or negative, or when the relationships list or primaryPersonId is missing so it is unknown whether the applicant has a spouse; an empty relationships list means there is no spouse."</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>

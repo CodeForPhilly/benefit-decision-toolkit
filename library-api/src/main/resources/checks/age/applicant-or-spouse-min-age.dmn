@@ -107,7 +107,7 @@ else situation.simpleChecks.spouseLivesInHousehold and PersonMinAge.PersonMinAge
       <dmn:contextEntry>
         <dmn:variable id="_8C653461-436A-4A66-9779-595551F7AD17" name="explanation" typeRef="string"/>
         <dmn:literalExpression id="_038E39A9-A022-4056-8CDD-F25A813ADC68" typeRef="string">
-          <dmn:text>"Passes when the applicant, or a spouse who lives in the same household, has reached the minimum age on the screening date. A spouse who lives elsewhere does not count. When one path cannot be decided (the applicant's date of birth is missing, or the relationships list is missing so it is unknown whether there is a spouse), the check still passes if the other path passes, and otherwise returns no result. An empty relationships list means there is no spouse."</dmn:text>
+          <dmn:text>"Passes when the applicant, or a spouse who lives in the same household, has reached the minimum age on the screening date. A spouse who lives elsewhere does not count. When one path cannot be decided, the check still passes if the other path passes, and otherwise returns no result. The applicant's path cannot be decided when their date of birth is missing. The spouse's path cannot be decided when the relationships list is missing, so it is unknown whether there is a spouse; when the spouse is old enough but whether they live in the household is not answered; or when they live in the household (or that is not answered) and their date of birth is missing. A spouse who lives elsewhere fails the spouse's path whatever their date of birth. Neither path can be decided when primaryPersonId is missing. An empty relationships list means there is no spouse."</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>

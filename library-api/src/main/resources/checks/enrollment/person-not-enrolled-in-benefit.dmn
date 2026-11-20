@@ -59,7 +59,7 @@
       <dmn:contextEntry>
         <dmn:variable id="_DB9D0F3A-27C3-4235-BDD4-F11E222C3213" name="explanation" typeRef="string"/>
         <dmn:literalExpression id="_E767C297-6AAD-4135-818B-4633A03AD5A1" typeRef="string">
-          <dmn:text>"The opposite of PersonEnrolledInBenefit: passes when situation.enrollments does not list the person as enrolled in the named benefit, and fails when it does. Returns no result when the enrollments list is missing. Benefits use it to leave out people who already receive them."</dmn:text>
+          <dmn:text>"The opposite of PersonEnrolledInBenefit: passes when situation.enrollments does not list the person as enrolled in the named benefit, and fails when it does. Returns no result when the enrollments list is missing, or when the personId or benefit parameter is missing. Benefits use it to leave out people who already receive them."</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>

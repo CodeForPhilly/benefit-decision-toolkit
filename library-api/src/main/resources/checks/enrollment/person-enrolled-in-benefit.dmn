@@ -58,7 +58,7 @@ else
       <dmn:contextEntry>
         <dmn:variable id="_0974D147-87EE-41B2-901E-283886E96738" name="explanation" typeRef="string"/>
         <dmn:literalExpression id="_561F5A2A-4956-462D-B65D-1683200F69F7" typeRef="string">
-          <dmn:text>"Passes when situation.enrollments lists the person as enrolled in the named benefit, and fails when it does not. Returns no result when the enrollments list is missing."</dmn:text>
+          <dmn:text>"Passes when situation.enrollments lists the person as enrolled in the named benefit, and fails when it does not. Returns no result when the enrollments list is missing, or when the personId or benefit parameter is missing."</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>
