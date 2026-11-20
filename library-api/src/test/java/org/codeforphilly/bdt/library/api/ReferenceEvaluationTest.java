@@ -121,6 +121,19 @@ class ReferenceEvaluationTest {
     }
 
     @Test
+    void aReferenceOutsideBenefitsAndChecksFailsStartupClearly() {
+        DMNRuntime runtime = runtime("""
+            <decision id="reference" name="reference">
+              <variable name="reference" typeRef="Any"/>
+              <literalExpression><text>%s</text></literalExpression>
+            </decision>
+            """.formatted(BENEFIT_REFERENCE));
+        var error = assertThrows(Reference.InvalidReferenceException.class, () -> ModelRegistry.publishedReference(
+            runtime, runtime.getModels().getFirst(), "ReferenceTest", "Summary.", List.of(), ReferenceDocs.NONE));
+        assertTrue(error.getMessage().contains("not under benefits/ or checks/"), error.getMessage());
+    }
+
+    @Test
     void aBaseModuleWithoutAServiceNeedsNoReference() {
         DMNRuntime runtime = runtime("""
             <decision id="helper" name="helper">

@@ -211,11 +211,20 @@ public class ModelRegistry {
      * The reference as published in OpenAPI ({@code x-bdt-reference}): the model description as its summary,
      * the constant {@code reference} decision, and the documentation written on the DMN itself.
      * Every exposed benefit and check ({@link ModelInfo#isLibraryExposed}) must have one. Base modules and
-     * utilities outside {@code benefits/} and {@code checks/} need none.
+     * utilities outside {@code benefits/} and {@code checks/} need none, and may not have one: the path decides
+     * whether a reference is a benefit or check reference, and outside those folders it is neither.
      */
     static Map<String, Object> publishedReference(DMNRuntime runtime, DMNModel model, String path,
                                                   String summary, List<BenefitCheckInfo> checks, ReferenceDocs docs) {
         boolean benefit = path.startsWith("benefits/");
+        if (!benefit && !path.startsWith("checks/")) {
+            if (model.getDecisionByName(Reference.DECISION) != null) {
+                throw new Reference.InvalidReferenceException(model.getName() + " has a '" + Reference.DECISION
+                    + "' decision but its file (" + path + ") is not under benefits/ or checks/,"
+                    + " so it is neither a benefit nor a check reference");
+            }
+            return Map.of();
+        }
         Map<String, Object> evaluated = Reference.evaluate(runtime, model,
             benefit ? Reference.Kind.BENEFIT : Reference.Kind.CHECK);
         if (evaluated.isEmpty()) {
