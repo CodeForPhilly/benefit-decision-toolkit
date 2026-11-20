@@ -24,8 +24,7 @@ class LibraryReferenceCoverageTest {
     void everyExposedBenefitAndCheckIsFullyDocumented() {
         List<String> gaps = new ArrayList<>();
         for (ModelInfo model : registry.getAllModels().values()) {
-            boolean library = model.getPath().startsWith("benefits/") || model.getPath().startsWith("checks/");
-            if (!library || !model.getDecisionServices().contains(model.getModelName() + "Service")) {
+            if (!model.isLibraryExposed()) {
                 continue;
             }
             String name = model.getModelName();

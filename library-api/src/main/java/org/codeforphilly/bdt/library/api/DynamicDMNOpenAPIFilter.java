@@ -69,12 +69,11 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
         // Filter to only models that expose {ModelName}Service
         Map<String, ModelInfo> exposedModels = new java.util.LinkedHashMap<>();
         for (ModelInfo model : allModels.values()) {
-            String expectedServiceName = model.getModelName() + "Service";
-            if (model.getDecisionServices().contains(expectedServiceName)) {
+            if (model.isExposed()) {
                 exposedModels.put(model.getModelName(), model);
             } else {
                 LOG.fine("Skipping model " + model.getModelName() +
-                        " - does not have expected service: " + expectedServiceName +
+                        " - does not have expected service: " + model.getModelName() + "Service" +
                         " (has: " + model.getDecisionServices() + ")");
             }
         }

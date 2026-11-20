@@ -198,9 +198,8 @@ public class ModelRegistry {
         if (path != null) {
             return path;
         }
-        String service = model.getName() + "Service";
-        if (model.getDecisionServices().stream().anyMatch(ds -> service.equals(ds.getName()))) {
-            throw new Reference.InvalidReferenceException(model.getName() + " is exposed through " + service
+        if (ModelInfo.isExposed(model.getName(), serviceNames(model))) {
+            throw new Reference.InvalidReferenceException(model.getName() + " is exposed through " + model.getName() + "Service"
                 + " but the classpath scan did not find its DMN file, so its reference cannot be checked");
         }
         return model.getName();
@@ -209,8 +208,8 @@ public class ModelRegistry {
     /**
      * The reference as published in OpenAPI ({@code x-bdt-reference}): the model description as its summary,
      * the constant {@code reference} decision, and the documentation written on the DMN itself.
-     * Every exposed benefit and check (one with a {@code {ModelName}Service} under {@code benefits/} or
-     * {@code checks/}) must have one. Base modules and utilities outside those folders need none.
+     * Every exposed benefit and check ({@link ModelInfo#isLibraryExposed}) must have one. Base modules and
+     * utilities outside {@code benefits/} and {@code checks/} need none.
      */
     static Map<String, Object> publishedReference(DMNRuntime runtime, DMNModel model, String path,
                                                   String summary, List<BenefitCheckInfo> checks, ReferenceDocs docs) {
@@ -218,11 +217,9 @@ public class ModelRegistry {
         Map<String, Object> evaluated = Reference.evaluate(runtime, model,
             benefit ? Reference.Kind.BENEFIT : Reference.Kind.CHECK);
         if (evaluated.isEmpty()) {
-            String service = model.getName() + "Service";
-            boolean library = benefit || path.startsWith("checks/");
-            if (library && model.getDecisionServices().stream().anyMatch(ds -> service.equals(ds.getName()))) {
+            if (ModelInfo.isLibraryExposed(path, model.getName(), serviceNames(model))) {
                 throw new Reference.InvalidReferenceException(model.getName()
-                    + " is exposed through " + service + " but has no '" + Reference.DECISION + "' decision");
+                    + " is exposed through " + model.getName() + "Service but has no '" + Reference.DECISION + "' decision");
             }
             return Map.of();
         }
@@ -248,6 +245,10 @@ public class ModelRegistry {
         }
         reference.put("implementationNotes", docs.implementationNotes());
         return Collections.unmodifiableMap(reference);
+    }
+
+    private static List<String> serviceNames(DMNModel model) {
+        return model.getDecisionServices().stream().map(ds -> ds.getName()).toList();
     }
 
     /** Thrown for any invalid benefit nextSteps so startup fails instead of publishing a partial registry. */
