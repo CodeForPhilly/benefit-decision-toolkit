@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * Every library benefit and check is documented: a reference, a rationale for each check a benefit runs,
@@ -22,11 +23,11 @@ class LibraryReferenceCoverageTest {
 
     @Test
     void everyExposedBenefitAndCheckIsFullyDocumented() {
+        List<ModelInfo> library = registry.getAllModels().values().stream().filter(ModelInfo::isLibraryExposed).toList();
+        // An empty registry (a failed scan or runtime lookup) would otherwise pass with nothing checked.
+        assertFalse(library.isEmpty(), "No library benefits or checks were registered");
         List<String> gaps = new ArrayList<>();
-        for (ModelInfo model : registry.getAllModels().values()) {
-            if (!model.isLibraryExposed()) {
-                continue;
-            }
+        for (ModelInfo model : library) {
             String name = model.getModelName();
             Map<String, Object> reference = model.getReference();
             if (reference.isEmpty()) {
