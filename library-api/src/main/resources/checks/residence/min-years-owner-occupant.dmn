@@ -52,7 +52,7 @@ else situation.yearsOwnerOccupied &gt;= parameters.minYears</dmn:text>
       <dmn:contextEntry>
         <dmn:variable id="_8316417E-7823-46FF-BA7E-8AC934789D1D" name="explanation" typeRef="string"/>
         <dmn:literalExpression id="_6CBC950F-42AE-4CDE-AC83-36122FD0F792" typeRef="string">
-          <dmn:text>"Passes when the applicant has owned and lived in their primary residence for at least the minimum number of years. Returns no result when the number of years is missing or negative."</dmn:text>
+          <dmn:text>"Passes when the applicant has owned and lived in their primary residence for at least the minimum number of years. Returns no result when the number of years or the minYears parameter is missing or negative."</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>

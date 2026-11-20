@@ -5077,7 +5077,7 @@
     },
     "/api/v1/checks/residence/min-years-owner-occupant" : {
       "post" : {
-        "description" : "Checks that the applicant has owned and occupied the primary residence for at least the specified number of years.\n\nPasses when the applicant has owned and lived in their primary residence for at least the minimum number of years. Returns no result when the number of years is missing or negative.\n\n## Parameters\n\n- `minYears` (number): Minimum number of years the applicant must have owned and lived in the home. Exactly this many years passes.\n\n## Limitations\n\n- The number of years is taken from the screener answer, not from deed records.\n- Does not check whether time in the home was continuous.\n\n## Sources\n\n- [Apply for the Longtime Owner Occupants Program (LOOP) (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "description" : "Checks that the applicant has owned and occupied the primary residence for at least the specified number of years.\n\nPasses when the applicant has owned and lived in their primary residence for at least the minimum number of years. Returns no result when the number of years or the minYears parameter is missing or negative.\n\n## Parameters\n\n- `minYears` (number): Minimum number of years the applicant must have owned and lived in the home. Exactly this many years passes.\n\n## Limitations\n\n- The number of years is taken from the screener answer, not from deed records.\n- Does not check whether time in the home was continuous.\n\n## Sources\n\n- [Apply for the Longtime Owner Occupants Program (LOOP) (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
         "externalDocs" : {
           "description" : "Full reference on the docs site",
           "url" : "https://bdt-docs.web.app/library/checks/residence/min-years-owner-occupant/"
@@ -5172,7 +5172,7 @@
         "summary" : "Execute MinYearsOwnerOccupant decision",
         "tags" : [ "Residence Checks" ],
         "x-bdt-reference" : {
-          "explanation" : "Passes when the applicant has owned and lived in their primary residence for at least the minimum number of years. Returns no result when the number of years is missing or negative.",
+          "explanation" : "Passes when the applicant has owned and lived in their primary residence for at least the minimum number of years. Returns no result when the number of years or the minYears parameter is missing or negative.",
           "implementationNotes" : [ ],
           "lastReviewed" : "2026-11-19",
           "limitations" : [ "The number of years is taken from the screener answer, not from deed records.", "Does not check whether time in the home was continuous." ],
