@@ -33,7 +33,7 @@
   </dmn:inputData>
   <dmn:inputData id="_380ACD7B-0D9B-47E6-A601-474E38C1EBCF" name="parameters">
     <dmn:extensionElements/>
-    <dmn:variable id="_DE16DBA5-D8D2-48E3-BF92-4DF037BF0D00" name="parameters" typeRef="PersonEnrolledInBenefit.tParameters"/>
+    <dmn:variable id="_DE16DBA5-D8D2-48E3-BF92-4DF037BF0D00" name="parameters" typeRef="tParameters"/>
   </dmn:inputData>
   <dmn:decision id="_D047F2EA-124C-4CC4-9EA0-5CF496ED9E5C" name="checkResult">
     <dmn:extensionElements/>

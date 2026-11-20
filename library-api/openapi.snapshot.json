@@ -4,7 +4,7 @@
       "ns10InputSetPersonNotEnrolledInBenefitDSPersonNotEnrolledInBenefitService" : {
         "properties" : {
           "parameters" : {
-            "$ref" : "#/components/schemas/ns30tParameters"
+            "$ref" : "#/components/schemas/ns10tParameters"
           },
           "situation" : {
             "$ref" : "#/components/schemas/ns10tSituation"
@@ -15,6 +15,19 @@
       },
       "ns10OutputSetPersonNotEnrolledInBenefitDSPersonNotEnrolledInBenefitService" : {
         "type" : "boolean"
+      },
+      "ns10tParameters" : {
+        "properties" : {
+          "benefit" : {
+            "description" : "Name of the benefit as recorded in situation.enrollments, for example PhlHomesteadExemption.",
+            "type" : "string"
+          },
+          "personId" : {
+            "description" : "Id of the person to look for in situation.enrollments.",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
       },
       "ns10tSituation" : {
         "properties" : {
@@ -4101,7 +4114,7 @@
                       "type" : "boolean"
                     },
                     "parameters" : {
-                      "$ref" : "#/components/schemas/ns30tParameters"
+                      "$ref" : "#/components/schemas/ns10tParameters"
                     },
                     "situation" : {
                       "$ref" : "#/components/schemas/ns10tSituation"
