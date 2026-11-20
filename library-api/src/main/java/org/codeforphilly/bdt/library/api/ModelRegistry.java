@@ -313,16 +313,18 @@ public class ModelRegistry {
     /**
      * Initializes the model registry and validates that all DMN model names are unique.
      * This runs at application startup and on every hot reload.
-     * Builds the model cache FIRST, then validates for duplicate model names.
+     * Validates model names FIRST: the classpath scan is keyed by model name, so a duplicate would
+     * otherwise mix up two files' paths and references and fail with a misleading reference error.
      *
      * @throws IllegalStateException if duplicate model names are detected
      */
     @PostConstruct
     public void initialize() {
-        // Build the cache first
+        validateUniqueModelNames();
         buildModelCache();
+    }
 
-        // Then validate model names
+    private void validateUniqueModelNames() {
         try {
             // Get models directly from DMNRuntime BEFORE deduplication
             DecisionModels decisionModels = application.get(DecisionModels.class);
