@@ -454,6 +454,9 @@ public class ModelRegistry {
                     } catch (Exception e) {
                         log.error("Error scanning JAR from resource URL", e);
                     }
+                } else {
+                    log.error("Cannot scan DMN files: BDT.dmn was found at {}, but only file: and jar: URLs can be scanned",
+                        resourceUrl);
                 }
             } else {
                 log.warn("Could not locate BDT.dmn resource, falling back to target/classes scan");
@@ -467,7 +470,11 @@ public class ModelRegistry {
                 }
             }
 
-            log.info("DMN classpath scan complete: found {} models", scan.paths.size());
+            if (scan.paths.isEmpty()) {
+                log.error("DMN classpath scan found no DMN files");
+            } else {
+                log.info("DMN classpath scan complete: found {} models", scan.paths.size());
+            }
 
         } catch (Exception e) {
             log.error("Error scanning DMN files from classpath", e);
