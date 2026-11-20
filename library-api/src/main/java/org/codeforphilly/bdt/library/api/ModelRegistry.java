@@ -191,18 +191,24 @@ public class ModelRegistry {
 
     /**
      * The model's file path from the classpath scan, or its bare name when the scan did not record it.
-     * An exposed model the scan missed fails startup: without its path, nothing can tell whether it is a
-     * library benefit or check that must have a reference.
+     * An exposed model, or one with a {@code reference} decision, that the scan missed fails startup: without
+     * its path, nothing can tell whether it is a library benefit or check, so its reference cannot be checked.
      */
     static String scannedPath(DMNModel model, Map<String, String> scannedPaths) {
         String path = scannedPaths.get(model.getName());
         if (path != null) {
             return path;
         }
+        String why = null;
         if (ModelInfo.isExposed(model.getName(), serviceNames(model))) {
-            throw new Reference.InvalidReferenceException(model.getName() + " is exposed through " + model.getName() + "Service"
+            why = " is exposed through " + model.getName() + "Service";
+        } else if (model.getDecisionByName(Reference.DECISION) != null) {
+            why = " has a '" + Reference.DECISION + "' decision";
+        }
+        if (why != null) {
+            throw new Reference.InvalidReferenceException(model.getName() + why
                 + " but the classpath scan did not find its DMN file, so its reference cannot be checked."
-            + " The scan probably failed: see the earlier DMN classpath scan errors or warnings in the log.");
+                + " The scan probably failed: see the earlier DMN classpath scan errors or warnings in the log.");
         }
         return model.getName();
     }

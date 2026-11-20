@@ -97,6 +97,19 @@ class ReferenceEvaluationTest {
     }
 
     @Test
+    void aModelWithAReferenceTheScanMissedFailsStartup() {
+        DMNRuntime runtime = runtime("""
+            <decision id="reference" name="reference">
+              <variable name="reference" typeRef="Any"/>
+              <literalExpression><text>%s</text></literalExpression>
+            </decision>
+            """.formatted(BENEFIT_REFERENCE));
+        var error = assertThrows(Reference.InvalidReferenceException.class,
+            () -> ModelRegistry.scannedPath(runtime.getModels().getFirst(), Map.of()));
+        assertTrue(error.getMessage().contains("scan probably failed"), error.getMessage());
+    }
+
+    @Test
     void theJarPathIsDecodedSoADirectoryWithASpaceIsScanned() throws Exception {
         URL resource = new URL("jar:file:/opt/my%20app/quarkus-app/app/library.jar!/BDT.dmn");
         assertEquals(Path.of("/opt/my app/quarkus-app/app/library.jar"), ModelRegistry.jarFilePath(resource));
