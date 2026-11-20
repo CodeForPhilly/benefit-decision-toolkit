@@ -102,7 +102,7 @@ or (PrimaryPerson50PlusThisYear and LateSpouseWasAtLeast65)</dmn:text>
       <dmn:contextEntry>
         <dmn:variable id="_0E66E524-72EC-48E2-A8C6-F18F7A04DCBD" name="explanation" typeRef="string"/>
         <dmn:literalExpression id="_C05A15ED-F412-44C7-9C11-FB5F375ED8F7" typeRef="string">
-          <dmn:text>"Passes when the applicant reaches 65 by December 31 of the current year, when a spouse listed in relationships does, or when the applicant reaches 50 by December 31 and the screener says their late spouse reached 65. Returns no result when a needed date of birth or answer is missing."</dmn:text>
+          <dmn:text>"Passes when the applicant reaches 65 by December 31 of the current year, when a spouse listed in relationships does, or when the applicant reaches 50 by December 31 and the screener says their late spouse reached 65. Passes as soon as any one of these holds, even if information for the others is missing. Fails when none of them holds, and returns no result when none passes but at least one cannot be decided because a date of birth, primaryPersonId, relationships or the late-spouse answer is missing."</dmn:text>
         </dmn:literalExpression>
       </dmn:contextEntry>
       <dmn:contextEntry>
