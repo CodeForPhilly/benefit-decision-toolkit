@@ -6,6 +6,8 @@ import org.kie.dmn.core.internal.utils.DMNRuntimeBuilder;
 import org.kie.internal.io.ResourceFactory;
 
 import java.io.StringReader;
+import java.net.URL;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -91,6 +93,13 @@ class ReferenceEvaluationTest {
         var error = assertThrows(Reference.InvalidReferenceException.class,
             () -> ModelRegistry.scannedPath(runtime.getModels().getFirst(), Map.of()));
         assertTrue(error.getMessage().contains("ReferenceTest"), error.getMessage());
+        assertTrue(error.getMessage().contains("scan probably failed"), error.getMessage());
+    }
+
+    @Test
+    void theJarPathIsDecodedSoADirectoryWithASpaceIsScanned() throws Exception {
+        URL resource = new URL("jar:file:/opt/my%20app/quarkus-app/app/library.jar!/BDT.dmn");
+        assertEquals(Path.of("/opt/my app/quarkus-app/app/library.jar"), ModelRegistry.jarFilePath(resource));
     }
 
     @Test

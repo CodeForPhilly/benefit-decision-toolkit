@@ -21,6 +21,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -200,7 +201,8 @@ public class ModelRegistry {
         }
         if (ModelInfo.isExposed(model.getName(), serviceNames(model))) {
             throw new Reference.InvalidReferenceException(model.getName() + " is exposed through " + model.getName() + "Service"
-                + " but the classpath scan did not find its DMN file, so its reference cannot be checked");
+                + " but the classpath scan did not find its DMN file, so its reference cannot be checked."
+            + " The scan probably failed: see the earlier DMN classpath scan errors or warnings in the log.");
         }
         return model.getName();
     }
@@ -435,15 +437,9 @@ public class ModelRegistry {
                 } else if ("jar".equals(protocol)) {
                     // Production mode - extract JAR path
                     try {
-                        String jarPath = resourceUrl.getPath();
-                        if (jarPath.contains("!")) {
-                            jarPath = jarPath.substring(0, jarPath.indexOf("!"));
-                            if (jarPath.startsWith("file:")) {
-                                jarPath = jarPath.substring(5);
-                            }
-                            log.debug("Scanning JAR for DMN files: {}", jarPath);
-                            scanJarForDMN(jarPath, scan);
-                        }
+                        Path jarPath = jarFilePath(resourceUrl);
+                        log.debug("Scanning JAR for DMN files: {}", jarPath);
+                        scanJarForDMN(jarPath, scan);
                     } catch (Exception e) {
                         log.error("Error scanning JAR from resource URL", e);
                     }
@@ -489,10 +485,23 @@ public class ModelRegistry {
     }
 
     /**
+     * The JAR file holding a {@code jar:file:...!/entry} resource. The file URL is percent-encoded, so it is
+     * decoded as a URI: a JAR under a directory with a space in its name would otherwise not be found.
+     */
+    static Path jarFilePath(URL resourceUrl) {
+        String spec = resourceUrl.toString();
+        int separator = spec.indexOf("!/");
+        if (!spec.startsWith("jar:") || separator < 0) {
+            throw new IllegalArgumentException("Not a JAR resource URL: " + spec);
+        }
+        return Paths.get(URI.create(spec.substring("jar:".length(), separator)));
+    }
+
+    /**
      * Scan a JAR file for DMN files.
      */
-    private void scanJarForDMN(String jarPath, DmnScan scan) {
-        try (JarFile jarFile = new JarFile(jarPath)) {
+    private void scanJarForDMN(Path jarPath, DmnScan scan) {
+        try (JarFile jarFile = new JarFile(jarPath.toFile())) {
             Enumeration<JarEntry> entries = jarFile.entries();
 
             while (entries.hasMoreElements()) {
@@ -693,14 +702,7 @@ public class ModelRegistry {
                     scanFilesystemForNamespaces(rootPath, rootPath, namespaceToPath);
                 } else if ("jar".equals(protocol)) {
                     // Production mode - scan JAR file
-                    String jarPath = resourceUrl.getPath();
-                    if (jarPath.contains("!")) {
-                        jarPath = jarPath.substring(0, jarPath.indexOf("!"));
-                        if (jarPath.startsWith("file:")) {
-                            jarPath = jarPath.substring(5);
-                        }
-                        scanJarForNamespaces(jarPath, namespaceToPath);
-                    }
+                    scanJarForNamespaces(jarFilePath(resourceUrl), namespaceToPath);
                 }
             } else {
                 // Fallback for dev mode
@@ -749,8 +751,8 @@ public class ModelRegistry {
     /**
      * Scan a JAR file for DMN namespaces.
      */
-    private void scanJarForNamespaces(String jarPath, Map<String, String> namespaceToPath) {
-        try (JarFile jarFile = new JarFile(jarPath)) {
+    private void scanJarForNamespaces(Path jarPath, Map<String, String> namespaceToPath) {
+        try (JarFile jarFile = new JarFile(jarPath.toFile())) {
             Enumeration<JarEntry> entries = jarFile.entries();
 
             while (entries.hasMoreElements()) {
