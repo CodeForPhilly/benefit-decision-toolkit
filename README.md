@@ -78,6 +78,8 @@ From here, you have 3 options:
 
 We use [Jetify Devbox](https://www.jetify.com/docs/devbox/) to declare and manage project development dependencies. This makes it easy to setup the project and reduces _"works on my machine"_ issues. It uses the Nix Package Manager under the hood, which results in higher performance compared to container-based solutions.
 
+> **macOS:** The Nix installer needs to write system files. Before running the command below, grant your terminal app Full Disk Access (System Settings → Privacy & Security → Full Disk Access), then fully quit and reopen it (Cmd+Q). You can revoke the permission once setup finishes.
+
 To install devbox (and Nix) and configure your machine for development:
 
 ```bash
@@ -96,6 +98,8 @@ Then, to startup all the services/apps with the default configuration, run:
 # uses process-compose under the hood
 devbox services up
 ```
+
+Access the local app (builder-frontend) at `http://localhost:5173`. To sign in locally, you don't use a real account; the Firebase Auth emulator stands in for Google. You can type any name and email to create a fake Google account. Fake accounts and screeners live only in the local emulators, which you can inspect at `http://localhost:4000`.
 
 You can also run a shell in the context of Devbox with:
 
