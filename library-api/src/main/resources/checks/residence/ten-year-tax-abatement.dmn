@@ -56,6 +56,61 @@ else
     <dmn:extensionElements/>
     <dmn:variable id="_CF7FB4C5-5CE5-4D5B-AF1A-9AE5EC7BBC1F" name="situation" typeRef="tSituation"/>
   </dmn:inputData>
+  <dmn:decision id="_318B663A-C5D9-4B0D-B0A2-F34BD2AFA123" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_BE4601BD-B99A-497C-8B1D-F93B781F6B68" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:context id="_51818827-3577-403D-8C56-463F8B8B6AF6" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_032CF19E-0A67-4510-866B-AE7A7AF20674" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_4FB8E826-0B67-4FEE-8BAB-B5DD249CF630" typeRef="string">
+          <dmn:text>"Passes when the screener answer says the property has an active 10-year residential tax abatement, and fails when it says it does not. Returns no result when the answer is missing."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_98CE58B9-469D-4DEF-AEDC-0B3E4959DC92" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_B1270681-FFE0-477C-8431-5F712F18DE73" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_7A866ADA-EF5F-4D27-9190-8CA95645E372" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_754E3B52-8232-4CB1-AB83-1F5632855733" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_E4E49E67-875D-472F-8CB3-5B148530CE30" typeRef="string">
+                <dmn:text>"Get the Homestead Exemption (City of Philadelphia)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_6F38DB9A-A186-492D-9BE4-93BD56297A26" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_8C07AEBF-6968-4E14-A742-D00F79F4D2DF" typeRef="string">
+                <dmn:text>"https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_6EB7E3A3-8724-4B83-897F-E7DD3F872881" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_1A43619A-44F6-4690-8C93-C64DA82E1F75" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_D07A7597-18D1-4541-B2E1-55496EB7C3ED" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_11853848-092D-4082-9218-BA548167905C" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_6DB12D1A-A37D-4DA2-8530-54BDA1C9BE32" typeRef="string">
+            <dmn:text>"Relies on the screener answer. It does not look up or verify records."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_389FC58E-1051-49B8-9BF4-A12E70B87D1A" typeRef="string">
+            <dmn:text>"Only active abatements count. Past abatements that have ended do not."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_E075969F-7910-4837-951B-7BA749C71B20" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_8804F02A-C03E-47A1-A45C-A9B6793B33E0" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_D181C5D6-6DF6-4E6C-BA2B-ABF6FD8CCD2A" name="DRG">
       <di:extension>
@@ -63,6 +118,17 @@ else
           <kie:ComponentWidths dmnElementRef="_AF5D9F2A-3AC3-4B3F-EDDE-7EC3CA5F9A8D">
             <kie:width>917</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_51818827-3577-403D-8C56-463F8B8B6AF6"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_4FB8E826-0B67-4FEE-8BAB-B5DD249CF630"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_B1270681-FFE0-477C-8431-5F712F18DE73"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_7A866ADA-EF5F-4D27-9190-8CA95645E372"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E4E49E67-875D-472F-8CB3-5B148530CE30"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_8C07AEBF-6968-4E14-A742-D00F79F4D2DF"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_1A43619A-44F6-4690-8C93-C64DA82E1F75"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_11853848-092D-4082-9218-BA548167905C"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_6DB12D1A-A37D-4DA2-8530-54BDA1C9BE32"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_389FC58E-1051-49B8-9BF4-A12E70B87D1A"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_8804F02A-C03E-47A1-A45C-A9B6793B33E0"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <!-- Decision service: centered around x=310, width=360 to fit "TenYearTaxAbatementService" label -->
@@ -100,6 +166,15 @@ else
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <!-- Edge: from center of situation to bottom-center of checkResult -->
+      <dmndi:DMNShape id="dmnshape-drg-_318B663A-C5D9-4B0D-B0A2-F34BD2AFA123" dmnElementRef="_318B663A-C5D9-4B0D-B0A2-F34BD2AFA123" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="440" y="100" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_7A4C8E1F-2FB2-4A2E-DCCD-6DB2BF4E8F7C-AUTO-TARGET" dmnElementRef="_7A4C8E1F-2FB2-4A2E-DCCD-6DB2BF4E8F7C">
         <di:waypoint x="180" y="520"/>
         <di:waypoint x="233.142857" y="210"/>

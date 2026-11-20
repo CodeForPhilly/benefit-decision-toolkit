@@ -50,7 +50,7 @@
 
   <!-- Decision Service -->
   ...
-  <!-- checks decision with context entries -->
+  <!-- checks decision with context entries; each entry's dmn:variable carries the check rationale as its dmn:description -->
   ...
   <!-- isEligible decision -->
   ...
@@ -70,10 +70,21 @@
 }</dmn:text>
     </dmn:literalExpression>
   </dmn:decision>
+  <!-- Required constant reference: no information requirements and NOT a service output.
+       See "Reference" in SKILL.md for the full boxed context and its ComponentWidths. -->
+  <dmn:decision id="_{REFERENCE_UUID}" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_{REFERENCE_VAR_UUID}" name="reference" typeRef="BDT.tBenefitReference"/>
+    <dmn:context id="_{REFERENCE_CONTEXT_UUID}" typeRef="BDT.tBenefitReference">
+      <!-- One contextEntry each for explanation, administeredBy, optional programYear, sources, limitations, lastReviewed -->
+    </dmn:context>
+  </dmn:decision>
   <!-- situation inputData -->
   ...
   <!-- DMNDI: three output shapes inside a service at least 660px wide;
-       nextSteps has no information edges. Include ComponentWidths for its expression. -->
+       nextSteps has no information edges. Include ComponentWidths for its expression.
+       reference gets its own 160x80 shape outside the service, with no edges. -->
   ...
 </dmn:definitions>
 ```

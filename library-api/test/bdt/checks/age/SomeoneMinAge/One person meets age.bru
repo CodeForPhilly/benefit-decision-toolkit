@@ -1,0 +1,47 @@
+meta {
+  name: One person meets age
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/checks/age/someone-min-age
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "people": [
+        {
+          "id": "p1",
+          "dateOfBirth": "1990-06-15"
+        },
+        {
+          "id": "p2",
+          "dateOfBirth": "1960-03-01"
+        }
+      ]
+    },
+    "parameters": {
+      "peopleIds": ["p1", "p2"],
+      "asOfDate": "2026-01-01",
+      "minAge": 60
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq true
+}
+
+docs {
+  One of the two people is 65 on January 1, 2026, which meets a minimum age of 60, so the check passes.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

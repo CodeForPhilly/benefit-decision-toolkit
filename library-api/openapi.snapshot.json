@@ -4,7 +4,7 @@
       "ns10InputSetPersonNotEnrolledInBenefitDSPersonNotEnrolledInBenefitService" : {
         "properties" : {
           "parameters" : {
-            "$ref" : "#/components/schemas/ns30tParameters"
+            "$ref" : "#/components/schemas/ns10tParameters"
           },
           "situation" : {
             "$ref" : "#/components/schemas/ns10tSituation"
@@ -15,6 +15,19 @@
       },
       "ns10OutputSetPersonNotEnrolledInBenefitDSPersonNotEnrolledInBenefitService" : {
         "type" : "boolean"
+      },
+      "ns10tParameters" : {
+        "properties" : {
+          "benefit" : {
+            "description" : "Name of the benefit as recorded in situation.enrollments, for example PhlHomesteadExemption.",
+            "type" : "string"
+          },
+          "personId" : {
+            "description" : "Id of the person to look for in situation.enrollments.",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
       },
       "ns10tSituation" : {
         "properties" : {
@@ -45,13 +58,16 @@
       "ns11tParameters" : {
         "properties" : {
           "asOfDate" : {
+            "description" : "Date on which to measure the person's age.",
             "format" : "date",
             "type" : "string"
           },
           "maxAge" : {
+            "description" : "Maximum age in whole years. A person exactly this age passes.",
             "type" : "number"
           },
           "personId" : {
+            "description" : "Id of the person in situation.people to check.",
             "type" : "string"
           }
         },
@@ -276,14 +292,17 @@
       "ns17tParameters" : {
         "properties" : {
           "asOfDate" : {
+            "description" : "Date on which to measure ages.",
             "format" : "date",
             "type" : "string"
           },
           "minAge" : {
+            "description" : "Minimum age in whole years. A person exactly this age counts.",
             "type" : "number"
           },
           "peopleIds" : {
-            "$ref" : "#/components/schemas/ns17tParameters__peopleIds"
+            "$ref" : "#/components/schemas/ns17tParameters__peopleIds",
+            "description" : "Ids of the people in situation.people to consider. One of them meeting the age is enough."
           }
         },
         "type" : "object"
@@ -452,6 +471,7 @@
       "ns21tParameters" : {
         "properties" : {
           "minYears" : {
+            "description" : "Minimum number of years the applicant must have owned and lived in the home. Exactly this many years passes.",
             "type" : "number"
           }
         },
@@ -651,13 +671,16 @@
       "ns27tParameters" : {
         "properties" : {
           "asOfDate" : {
+            "description" : "Date on which to measure the person's age.",
             "format" : "date",
             "type" : "string"
           },
           "minAge" : {
+            "description" : "Minimum age in whole years. A person exactly this age passes.",
             "type" : "number"
           },
           "personId" : {
+            "description" : "Id of the person in situation.people to check.",
             "type" : "string"
           }
         },
@@ -793,9 +816,11 @@
       "ns30tParameters" : {
         "properties" : {
           "benefit" : {
+            "description" : "Name of the benefit as recorded in situation.enrollments, for example PhlHomesteadExemption.",
             "type" : "string"
           },
           "personId" : {
+            "description" : "Id of the person to look for in situation.enrollments.",
             "type" : "string"
           }
         },
@@ -882,9 +907,11 @@
       "ns32tParameters" : {
         "properties" : {
           "fiveYearPercent" : {
+            "description" : "Minimum increase over the lowest assessment of the past five years, as a percentage, for example 75 for 75%.",
             "type" : "number"
           },
           "oneYearPercent" : {
+            "description" : "Minimum increase over last year's assessment, as a percentage, for example 50 for 50%.",
             "type" : "number"
           }
         },
@@ -1464,6 +1491,7 @@
       "ns7tParameters" : {
         "properties" : {
           "minAge" : {
+            "description" : "Minimum age, in whole years, that the applicant or live-in spouse must have reached on the screening date.",
             "type" : "number"
           }
         },
@@ -1854,18 +1882,45 @@
     },
     "/api/v1/benefits/pa/phl/homestead-exemption" : {
       "post" : {
-        "description" : "Reduces the taxable assessed value of an owner-occupied primary residence in Philadelphia.",
+        "description" : "Reduces the taxable assessed value of an owner-occupied primary residence in Philadelphia.\n\nThe Homestead Exemption lowers the assessed value of a Philadelphia home by $100,000 before Real Estate Tax is calculated, which saves most homeowners up to $1,399 a year. It is for people who own the home and live in it as their primary residence. Having a mortgage, being a new owner or owing back taxes does not stop someone from qualifying, but a home with a 10-year residential tax abatement cannot get the exemption until the abatement ends or is cancelled.\n\n**Administered by:** [City of Philadelphia Department of Revenue](https://www.phila.gov/departments/department-of-revenue/)\n\n## Checks\n\nEligible when every check passes.\n\n- **Not already on homestead**: A home gets the exemption once; people who already have it do not need to apply. (`PersonNotEnrolledInBenefitService`)\n- **No ten year tax abatement**: Properties with a 10-year residential tax abatement are not eligible until the abatement expires or is cancelled. (`NoTenYearTaxAbatementService`)\n- **Owner occupant**: The applicant must own the home and live in it as their primary residence. (`OwnerOccupantService`)\n- **Lives in philadelphia pa**: The exemption applies to Philadelphia Real Estate Tax, so the home must be in Philadelphia. (`LivesInPhiladelphiaPaService`)\n\n## Limitations\n\n- Does not check the conditional exemption for people whose name is not on the deed, such as heirs, victims of deed fraud or rent-to-own buyers.\n- A home with an active 10-year abatement fails, even though the owner could cancel the abatement and then qualify. A cancelled abatement cannot be restored.\n- Does not check whether the person is enrolled in LOOP. LOOP and the Homestead Exemption cannot be held at the same time.\n- Ownership, residence and abatement status are taken from the screener answers and are not looked up in City records.\n\n## Sources\n\n- [Get the Homestead Exemption (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/benefits/pa/phl/homestead-exemption/"
+        },
         "operationId" : "PhlHomesteadExemptionService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Eligible" : {
+                  "description" : "A Philadelphia owner-occupant whose home has no 10-year abatement and who does not have the exemption yet is eligible.",
+                  "summary" : "Eligible",
                   "value" : {
                     "situation" : {
                       "enrollments" : [ {
                         "benefit" : "PhlHomesteadExemption",
-                        "personId" : "p1"
+                        "personId" : "p2"
+                      } ],
+                      "primaryPersonId" : "p1",
+                      "simpleChecks" : {
+                        "livesInPhiladelphiaPa" : true,
+                        "ownerOccupant" : true,
+                        "tenYearTaxAbatement" : false
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "isEligible" : true
+                  }
+                },
+                "Ineligible" : {
+                  "description" : "The same homeowner is not eligible while the home has an active 10-year tax abatement.",
+                  "summary" : "Ineligible",
+                  "value" : {
+                    "situation" : {
+                      "enrollments" : [ {
+                        "benefit" : "PhlHomesteadExemption",
+                        "personId" : "p2"
                       } ],
                       "primaryPersonId" : "p1",
                       "simpleChecks" : {
@@ -1874,6 +1929,9 @@
                         "tenYearTaxAbatement" : true
                       }
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "isEligible" : false
                   }
                 }
               },
@@ -1988,39 +2046,109 @@
               "note" : "If your name is not on the deed, you may still qualify for a conditional Homestead Exemption. Check the program page for the paper application and supporting documents."
             }
           }
+        },
+        "x-bdt-reference" : {
+          "administeredBy" : {
+            "name" : "City of Philadelphia Department of Revenue",
+            "url" : "https://www.phila.gov/departments/department-of-revenue/"
+          },
+          "checks" : [ {
+            "alias" : "NotAlreadyOnHomestead",
+            "operationId" : "PersonNotEnrolledInBenefitService",
+            "rationale" : "A home gets the exemption once; people who already have it do not need to apply."
+          }, {
+            "alias" : "NoTenYearTaxAbatement",
+            "operationId" : "NoTenYearTaxAbatementService",
+            "rationale" : "Properties with a 10-year residential tax abatement are not eligible until the abatement expires or is cancelled."
+          }, {
+            "alias" : "OwnerOccupant",
+            "operationId" : "OwnerOccupantService",
+            "rationale" : "The applicant must own the home and live in it as their primary residence."
+          }, {
+            "alias" : "LivesInPhiladelphiaPa",
+            "operationId" : "LivesInPhiladelphiaPaService",
+            "rationale" : "The exemption applies to Philadelphia Real Estate Tax, so the home must be in Philadelphia."
+          } ],
+          "explanation" : "The Homestead Exemption lowers the assessed value of a Philadelphia home by $100,000 before Real Estate Tax is calculated, which saves most homeowners up to $1,399 a year. It is for people who own the home and live in it as their primary residence. Having a mortgage, being a new owner or owing back taxes does not stop someone from qualifying, but a home with a 10-year residential tax abatement cannot get the exemption until the abatement ends or is cancelled.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Does not check the conditional exemption for people whose name is not on the deed, such as heirs, victims of deed fraud or rent-to-own buyers.", "A home with an active 10-year abatement fails, even though the owner could cancel the abatement and then qualify. A cancelled abatement cannot be restored.", "Does not check whether the person is enrolled in LOOP. LOOP and the Homestead Exemption cannot be held at the same time.", "Ownership, residence and abatement status are taken from the screener answers and are not looked up in City records." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Get the Homestead Exemption (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/"
+          } ],
+          "summary" : "Reduces the taxable assessed value of an owner-occupied primary residence in Philadelphia."
         }
       }
     },
     "/api/v1/benefits/pa/phl/loop" : {
       "post" : {
-        "description" : "Philadelphia Longtime Owner Occupants Program (LOOP) for new applicants. Homestead recipients can qualify but must remove that exemption when they enroll; historical owner/close-relative abatements are excluded.",
+        "description" : "Philadelphia Longtime Owner Occupants Program (LOOP) for new applicants. Homestead recipients can qualify but must remove that exemption when they enroll; historical owner/close-relative abatements are excluded.\n\nThe Longtime Owner Occupants Program (LOOP) limits how much the assessed value of a long-held Philadelphia home can rise for Real Estate Tax. It is for people who have owned and lived in their home for at least 10 years, whose assessment rose at least 50% in one year or 75% over five years, whose taxes are current or in a payment plan, and whose household income is below 120% of area median income for their family size. Someone who received a tax abatement on the property, or whose close relative received one as a previous owner, cannot enroll. A homeowner with the Homestead Exemption can enroll but must have the Homestead Exemption removed.\n\n**Administered by:** [City of Philadelphia Department of Revenue](https://www.phila.gov/departments/department-of-revenue/)\n\n## Checks\n\nEligible when every check passes.\n\n- **Not already enrolled**: People already in LOOP do not need to apply again. (`PersonNotEnrolledInBenefitService`)\n- **Owner occupant**: The applicant must own the home and live in it as their primary residence. (`OwnerOccupantService`)\n- **Lives in philadelphia pa**: LOOP applies to Philadelphia Real Estate Tax, so the home must be in Philadelphia. (`LivesInPhiladelphiaPaService`)\n- **Ten years owner occupant**: The applicant must have lived in the home for at least 10 years. (`MinYearsOwnerOccupantService`)\n- **Assessment increase**: The assessment must have risen at least 50% from last year or at least 75% over the past five years. (`PropertyAssessmentIncreaseService`)\n- **Taxes current or payment plan**: Property taxes must be current, or covered by an Owner-Occupied Payment Agreement or an installment plan. (`PropertyTaxesCurrentOrPaymentPlanService`)\n- **Meets income requirement**: Household income must be below 120% of area median income for the family size. (`LoopIncomeService`)\n- **No disqualifying tax abatement**: No one can enroll who received a tax abatement on the property as its current owner, or whose close relative received one as a previous owner. (`NoDisqualifyingTaxAbatementService`)\n\n## Limitations\n\n- Applies only the 120% of area median income limit for new applicants. Households enrolled before 2023 may stay in the program under the 150% limit, which is not checked.\n- The income table covers households of 1 to 10 people. Larger households get no result.\n- Assessment values are taken as given and should be the values before any Homestead reduction.\n- Whether a past abatement was received by the owner or a close relative is taken from the screener answer.\n- Does not remove or check the Homestead Exemption. A Homestead recipient who enrolls in LOOP must ask to have the exemption removed.\n- The program has a yearly savings cap ($35 million as of 2023). Enrollment stays open after the cap is reached.\n\n## Sources\n\n- [Apply for the Longtime Owner Occupants Program (LOOP) (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/benefits/pa/phl/loop/"
+        },
         "operationId" : "PhlLoopService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Eligible" : {
+                  "description" : "A one-person household with $100,000 income, 10 years in the home, taxes current and a 50% assessment increase in one year is eligible.",
+                  "summary" : "Eligible",
                   "value" : {
                     "situation" : {
                       "enrollments" : [ {
-                        "benefit" : "PhlHomesteadExemption",
+                        "benefit" : "OtherBenefit",
                         "personId" : "p1"
                       } ],
-                      "householdIncome" : 42,
+                      "householdIncome" : 100000,
                       "householdSize" : 1,
-                      "lowestPropertyAssessmentLastFiveYears" : 42,
-                      "previousYearPropertyAssessment" : 42,
+                      "lowestPropertyAssessmentLastFiveYears" : 100000,
+                      "previousYearPropertyAssessment" : 100000,
                       "primaryPersonId" : "p1",
-                      "propertyAssessment" : 42,
+                      "propertyAssessment" : 150000,
                       "simpleChecks" : {
-                        "disqualifyingTaxAbatement" : true,
+                        "disqualifyingTaxAbatement" : false,
                         "livesInPhiladelphiaPa" : true,
                         "ownerOccupant" : true,
-                        "propertyTaxPaymentPlan" : true,
-                        "taxDelinquent" : true
+                        "taxDelinquent" : false
                       },
-                      "yearsOwnerOccupied" : 42
+                      "yearsOwnerOccupied" : 10
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "isEligible" : true
+                  }
+                },
+                "Fails AssessmentIncrease" : {
+                  "description" : "The same household is not eligible when the assessment rose just under 50% in one year and under 75% over five years.",
+                  "summary" : "Fails AssessmentIncrease",
+                  "value" : {
+                    "situation" : {
+                      "enrollments" : [ {
+                        "benefit" : "OtherBenefit",
+                        "personId" : "p1"
+                      } ],
+                      "householdIncome" : 100000,
+                      "householdSize" : 1,
+                      "lowestPropertyAssessmentLastFiveYears" : 100000,
+                      "previousYearPropertyAssessment" : 100000,
+                      "primaryPersonId" : "p1",
+                      "propertyAssessment" : 149999,
+                      "simpleChecks" : {
+                        "disqualifyingTaxAbatement" : false,
+                        "livesInPhiladelphiaPa" : true,
+                        "ownerOccupant" : true,
+                        "taxDelinquent" : false
+                      },
+                      "yearsOwnerOccupied" : 10
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "isEligible" : false
                   }
                 }
               },
@@ -2168,29 +2296,107 @@
               "note" : "Receiving the Homestead Exemption does not stop you from applying for LOOP, but you must request Homestead removal when applying. Use the City's property tax calculator to compare the programs first."
             }
           }
+        },
+        "x-bdt-reference" : {
+          "administeredBy" : {
+            "name" : "City of Philadelphia Department of Revenue",
+            "url" : "https://www.phila.gov/departments/department-of-revenue/"
+          },
+          "checks" : [ {
+            "alias" : "NotAlreadyEnrolled",
+            "operationId" : "PersonNotEnrolledInBenefitService",
+            "rationale" : "People already in LOOP do not need to apply again."
+          }, {
+            "alias" : "OwnerOccupant",
+            "operationId" : "OwnerOccupantService",
+            "rationale" : "The applicant must own the home and live in it as their primary residence."
+          }, {
+            "alias" : "LivesInPhiladelphiaPa",
+            "operationId" : "LivesInPhiladelphiaPaService",
+            "rationale" : "LOOP applies to Philadelphia Real Estate Tax, so the home must be in Philadelphia."
+          }, {
+            "alias" : "TenYearsOwnerOccupant",
+            "operationId" : "MinYearsOwnerOccupantService",
+            "rationale" : "The applicant must have lived in the home for at least 10 years."
+          }, {
+            "alias" : "AssessmentIncrease",
+            "operationId" : "PropertyAssessmentIncreaseService",
+            "rationale" : "The assessment must have risen at least 50% from last year or at least 75% over the past five years."
+          }, {
+            "alias" : "TaxesCurrentOrPaymentPlan",
+            "operationId" : "PropertyTaxesCurrentOrPaymentPlanService",
+            "rationale" : "Property taxes must be current, or covered by an Owner-Occupied Payment Agreement or an installment plan."
+          }, {
+            "alias" : "MeetsIncomeRequirement",
+            "operationId" : "LoopIncomeService",
+            "rationale" : "Household income must be below 120% of area median income for the family size."
+          }, {
+            "alias" : "NoDisqualifyingTaxAbatement",
+            "operationId" : "NoDisqualifyingTaxAbatementService",
+            "rationale" : "No one can enroll who received a tax abatement on the property as its current owner, or whose close relative received one as a previous owner."
+          } ],
+          "explanation" : "The Longtime Owner Occupants Program (LOOP) limits how much the assessed value of a long-held Philadelphia home can rise for Real Estate Tax. It is for people who have owned and lived in their home for at least 10 years, whose assessment rose at least 50% in one year or 75% over five years, whose taxes are current or in a payment plan, and whose household income is below 120% of area median income for their family size. Someone who received a tax abatement on the property, or whose close relative received one as a previous owner, cannot enroll. A homeowner with the Homestead Exemption can enroll but must have the Homestead Exemption removed.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Applies only the 120% of area median income limit for new applicants. Households enrolled before 2023 may stay in the program under the 150% limit, which is not checked.", "The income table covers households of 1 to 10 people. Larger households get no result.", "Assessment values are taken as given and should be the values before any Homestead reduction.", "Whether a past abatement was received by the owner or a close relative is taken from the screener answer.", "Does not remove or check the Homestead Exemption. A Homestead recipient who enrolls in LOOP must ask to have the exemption removed.", "The program has a yearly savings cap ($35 million as of 2023). Enrollment stays open after the cap is reached." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Apply for the Longtime Owner Occupants Program (LOOP) (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/"
+          } ],
+          "summary" : "Philadelphia Longtime Owner Occupants Program (LOOP) for new applicants. Homestead recipients can qualify but must remove that exemption when they enroll; historical owner/close-relative abatements are excluded."
         }
       }
     },
     "/api/v1/benefits/pa/phl/low-income-tax-freeze" : {
       "post" : {
-        "description" : "Philadelphia Low-Income Real Estate Tax Freeze for owner-occupants whose income plus any spouse's income meets the single/married gross annual limits.",
+        "description" : "Philadelphia Low-Income Real Estate Tax Freeze for owner-occupants whose income plus any spouse's income meets the single/married gross annual limits.\n\nThe Low-Income Real Estate Tax Freeze keeps a Philadelphia homeowner's Real Estate Tax from going up, even if the property assessment or tax rate rises. It is for people who own and live in their home as their primary residence and whose total yearly gross income is no more than $33,500 for a single person or $41,500 for a married couple. There is no age requirement.\n\n**Administered by:** [City of Philadelphia Department of Revenue](https://www.phila.gov/departments/department-of-revenue/)\n\n## Checks\n\nEligible when every check passes.\n\n- **Not already enrolled**: People who already have the freeze do not need to apply again. (`PersonNotEnrolledInBenefitService`)\n- **Owner occupant**: The applicant must own the home and live in it as their primary residence. (`OwnerOccupantService`)\n- **Lives in philadelphia pa**: The freeze applies to Philadelphia Real Estate Tax, so the home must be in Philadelphia. (`LivesInPhiladelphiaPaService`)\n- **Meets income requirement**: Total yearly gross income must be no more than $33,500 for a single person or $41,500 for a married couple. (`TaxFreezeIncomeService`)\n\n## Limitations\n\n- The combined gross income of the applicant and spouse is taken as given. The City decides which income counts from the documents submitted.\n- The married limit applies whenever the screener lists a spouse for the applicant, wherever the spouse lives.\n- The income limits are those on the City page when it was checked; the City may change them.\n- Ownership and residence are taken from the screener answers and are not looked up in City records.\n\n## Sources\n\n- [Apply for the Low-Income Real Estate Tax Freeze (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/tax-freeze/apply-for-the-low-income-real-estate-tax-freeze/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/benefits/pa/phl/low-income-tax-freeze/"
+        },
         "operationId" : "PhlLowIncomeTaxFreezeService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Eligible" : {
+                  "description" : "A single Philadelphia homeowner with exactly $33,500 in yearly income is eligible.",
+                  "summary" : "Eligible",
                   "value" : {
                     "situation" : {
-                      "applicantAndSpouseIncome" : 42,
+                      "applicantAndSpouseIncome" : 33500,
                       "enrollments" : [ {
-                        "benefit" : "PhlHomesteadExemption",
+                        "benefit" : "OtherBenefit",
+                        "personId" : "p1"
+                      } ],
+                      "primaryPersonId" : "p1",
+                      "relationships" : [ ],
+                      "simpleChecks" : {
+                        "livesInPhiladelphiaPa" : true,
+                        "ownerOccupant" : true
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "isEligible" : true
+                  }
+                },
+                "Married at limit" : {
+                  "description" : "A married homeowner whose income plus their spouse's is exactly $41,500 is eligible.",
+                  "summary" : "Married at limit",
+                  "value" : {
+                    "situation" : {
+                      "applicantAndSpouseIncome" : 41500,
+                      "enrollments" : [ {
+                        "benefit" : "OtherBenefit",
                         "personId" : "p1"
                       } ],
                       "primaryPersonId" : "p1",
                       "relationships" : [ {
                         "personId" : "p1",
-                        "relatedPersonId" : "p1",
+                        "relatedPersonId" : "p2",
                         "type" : "spouse"
                       } ],
                       "simpleChecks" : {
@@ -2198,6 +2404,9 @@
                         "ownerOccupant" : true
                       }
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "isEligible" : true
                   }
                 }
               },
@@ -2317,18 +2526,58 @@
               "note" : "This tax freeze has no age requirement. Check the program page or contact the Department of Revenue if you need help documenting your income or residence."
             }
           }
+        },
+        "x-bdt-reference" : {
+          "administeredBy" : {
+            "name" : "City of Philadelphia Department of Revenue",
+            "url" : "https://www.phila.gov/departments/department-of-revenue/"
+          },
+          "checks" : [ {
+            "alias" : "NotAlreadyEnrolled",
+            "operationId" : "PersonNotEnrolledInBenefitService",
+            "rationale" : "People who already have the freeze do not need to apply again."
+          }, {
+            "alias" : "OwnerOccupant",
+            "operationId" : "OwnerOccupantService",
+            "rationale" : "The applicant must own the home and live in it as their primary residence."
+          }, {
+            "alias" : "LivesInPhiladelphiaPa",
+            "operationId" : "LivesInPhiladelphiaPaService",
+            "rationale" : "The freeze applies to Philadelphia Real Estate Tax, so the home must be in Philadelphia."
+          }, {
+            "alias" : "MeetsIncomeRequirement",
+            "operationId" : "TaxFreezeIncomeService",
+            "rationale" : "Total yearly gross income must be no more than $33,500 for a single person or $41,500 for a married couple."
+          } ],
+          "explanation" : "The Low-Income Real Estate Tax Freeze keeps a Philadelphia homeowner's Real Estate Tax from going up, even if the property assessment or tax rate rises. It is for people who own and live in their home as their primary residence and whose total yearly gross income is no more than $33,500 for a single person or $41,500 for a married couple. There is no age requirement.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "The combined gross income of the applicant and spouse is taken as given. The City decides which income counts from the documents submitted.", "The married limit applies whenever the screener lists a spouse for the applicant, wherever the spouse lives.", "The income limits are those on the City page when it was checked; the City may change them.", "Ownership and residence are taken from the screener answers and are not looked up in City records." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Apply for the Low-Income Real Estate Tax Freeze (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/tax-freeze/apply-for-the-low-income-real-estate-tax-freeze/"
+          } ],
+          "summary" : "Philadelphia Low-Income Real Estate Tax Freeze for owner-occupants whose income plus any spouse's income meets the single/married gross annual limits."
         }
       }
     },
     "/api/v1/benefits/pa/phl/owner-occupied-payment-agreement" : {
       "post" : {
-        "description" : "A Philadelphia property-tax payment agreement for eligible owner occupants.",
+        "description" : "A Philadelphia property-tax payment agreement for eligible owner occupants.\n\nAn Owner-Occupied Real Estate Tax Payment Agreement (OOPA) lets a Philadelphia homeowner who is behind on Real Estate Tax pay the past-due balance in monthly installments based on household income, with no down payment. It is for people who live in the home they own and owe past-due property tax.\n\n**Administered by:** [City of Philadelphia Department of Revenue](https://www.phila.gov/departments/department-of-revenue/)\n\n## Checks\n\nEligible when every check passes.\n\n- **Not already on owner occupied payment agreement**: People who already have an OOPA do not need to apply again. (`PersonNotEnrolledInBenefitService`)\n- **Lives in philadelphia pa**: The agreement covers Philadelphia Real Estate Tax, so the home must be in Philadelphia. (`LivesInPhiladelphiaPaService`)\n- **Owner occupant**: The applicant must live in the home they own. (`OwnerOccupantService`)\n- **Tax delinquent**: The agreement is a way to pay Real Estate Tax that is past due, so there must be a past-due balance. (`TaxDelinquentService`)\n\n## Limitations\n\n- Does not work out the monthly payment, which depends on household income and size.\n- Does not check whether a trust or a person with a legal interest but not on the deed can qualify; the City reviews those cases.\n- Whether taxes are past due is taken from the screener answer, not from City records.\n- Ownership and residence are taken from the screener answers and are not looked up in City records.\n\n## Sources\n\n- [Set up an Owner-Occupied Real Estate Tax Payment Agreement (OOPA) (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/set-up-an-owner-occupied-real-estate-tax-payment-agreement-oopa/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/benefits/pa/phl/owner-occupied-payment-agreement/"
+        },
         "operationId" : "PhlOwnerOccupiedPaymentAgreementService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Eligible" : {
+                  "description" : "A Philadelphia owner-occupant who is behind on property taxes and has no OOPA is eligible.",
+                  "summary" : "Eligible",
                   "value" : {
                     "situation" : {
                       "enrollments" : [ {
@@ -2342,6 +2591,30 @@
                         "taxDelinquent" : true
                       }
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "isEligible" : true
+                  }
+                },
+                "Ineligible" : {
+                  "description" : "The same homeowner is not eligible because they already have an OOPA.",
+                  "summary" : "Ineligible",
+                  "value" : {
+                    "situation" : {
+                      "enrollments" : [ {
+                        "benefit" : "PhlOwnerOccupiedPaymentAgreement",
+                        "personId" : "p1"
+                      } ],
+                      "primaryPersonId" : "p1",
+                      "simpleChecks" : {
+                        "livesInPhiladelphiaPa" : true,
+                        "ownerOccupant" : true,
+                        "taxDelinquent" : true
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "isEligible" : false
                   }
                 }
               },
@@ -2456,34 +2729,104 @@
               "note" : "You may still qualify if your name is not on the deed but you have a legal ownership interest. Check the program page for the tangled title supplement and supporting documents."
             }
           }
+        },
+        "x-bdt-reference" : {
+          "administeredBy" : {
+            "name" : "City of Philadelphia Department of Revenue",
+            "url" : "https://www.phila.gov/departments/department-of-revenue/"
+          },
+          "checks" : [ {
+            "alias" : "NotAlreadyOnOwnerOccupiedPaymentAgreement",
+            "operationId" : "PersonNotEnrolledInBenefitService",
+            "rationale" : "People who already have an OOPA do not need to apply again."
+          }, {
+            "alias" : "LivesInPhiladelphiaPa",
+            "operationId" : "LivesInPhiladelphiaPaService",
+            "rationale" : "The agreement covers Philadelphia Real Estate Tax, so the home must be in Philadelphia."
+          }, {
+            "alias" : "OwnerOccupant",
+            "operationId" : "OwnerOccupantService",
+            "rationale" : "The applicant must live in the home they own."
+          }, {
+            "alias" : "TaxDelinquent",
+            "operationId" : "TaxDelinquentService",
+            "rationale" : "The agreement is a way to pay Real Estate Tax that is past due, so there must be a past-due balance."
+          } ],
+          "explanation" : "An Owner-Occupied Real Estate Tax Payment Agreement (OOPA) lets a Philadelphia homeowner who is behind on Real Estate Tax pay the past-due balance in monthly installments based on household income, with no down payment. It is for people who live in the home they own and owe past-due property tax.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Does not work out the monthly payment, which depends on household income and size.", "Does not check whether a trust or a person with a legal interest but not on the deed can qualify; the City reviews those cases.", "Whether taxes are past due is taken from the screener answer, not from City records.", "Ownership and residence are taken from the screener answers and are not looked up in City records." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Set up an Owner-Occupied Real Estate Tax Payment Agreement (OOPA) (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/set-up-an-owner-occupied-real-estate-tax-payment-agreement-oopa/"
+          } ],
+          "summary" : "A Philadelphia property-tax payment agreement for eligible owner occupants."
         }
       }
     },
     "/api/v1/benefits/pa/phl/retip" : {
       "post" : {
-        "description" : "Philadelphia Real Estate Tax Installment Plan (RETIP) for owner-occupants qualifying by applicant/live-in spouse age or household income.",
+        "description" : "Philadelphia Real Estate Tax Installment Plan (RETIP) for owner-occupants qualifying by applicant/live-in spouse age or household income.\n\nThe Real Estate Tax Installment Plan (RETIP) lets a Philadelphia homeowner pay the current year's Real Estate Tax in monthly installments. It is for people who own and live in their home and who are 65 or older, live with a spouse who is 65 or older, or have household income below the limit for their family size.\n\n**Administered by:** [City of Philadelphia Department of Revenue](https://www.phila.gov/departments/department-of-revenue/)\n\n## Checks\n\nEligible when every check passes.\n\n- **Not already enrolled**: People already in RETIP do not need to apply again. (`PersonNotEnrolledInBenefitService`)\n- **Owner occupant**: The plan is for taxpayers who own and live in their home. (`OwnerOccupantService`)\n- **Lives in philadelphia pa**: The plan covers Philadelphia Real Estate Tax, so the home must be in Philadelphia. (`LivesInPhiladelphiaPaService`)\n- **Meets age or income requirement**: The applicant or a spouse living in the same household must be 65 or older, or household income must be below the limit for the family size. (`RetipAgeOrIncomeRequirementService`)\n\n## Limitations\n\n- Age is measured on the screening date.\n- The income table covers households of 1 to 8 people. Larger households get no result on the income path.\n- Does not check deed changes or a past default, either of which can end a plan.\n- Ownership and residence are taken from the screener answers and are not looked up in City records.\n\n## Sources\n\n- [Set up a Real Estate Tax Installment Plan (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/set-up-real-estate-tax-installment-plan/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/benefits/pa/phl/retip/"
+        },
         "operationId" : "PhlRetipService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Eligible by income" : {
+                  "description" : "A young applicant living alone with $30,000 in yearly income is eligible through the income path.",
+                  "summary" : "Eligible by income",
                   "value" : {
                     "situation" : {
                       "enrollments" : [ {
-                        "benefit" : "PhlHomesteadExemption",
+                        "benefit" : "OtherBenefit",
                         "personId" : "p1"
                       } ],
-                      "householdIncome" : 42,
+                      "householdIncome" : 30000,
                       "householdSize" : 1,
                       "people" : [ {
-                        "dateOfBirth" : "1960-05-15",
+                        "dateOfBirth" : "2000-01-01",
                         "id" : "p1"
+                      } ],
+                      "primaryPersonId" : "p1",
+                      "relationships" : [ ],
+                      "simpleChecks" : {
+                        "livesInPhiladelphiaPa" : true,
+                        "ownerOccupant" : true
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "isEligible" : true
+                  }
+                },
+                "Eligible by live in spouse age" : {
+                  "description" : "A younger applicant with high income is eligible because their spouse, who lives with them, is over 65.",
+                  "summary" : "Eligible by live in spouse age",
+                  "value" : {
+                    "situation" : {
+                      "enrollments" : [ {
+                        "benefit" : "OtherBenefit",
+                        "personId" : "p1"
+                      } ],
+                      "householdIncome" : 1000000,
+                      "householdSize" : 2,
+                      "people" : [ {
+                        "dateOfBirth" : "2000-01-01",
+                        "id" : "p1"
+                      }, {
+                        "dateOfBirth" : "1940-01-01",
+                        "id" : "p2"
                       } ],
                       "primaryPersonId" : "p1",
                       "relationships" : [ {
                         "personId" : "p1",
-                        "relatedPersonId" : "p1",
+                        "relatedPersonId" : "p2",
                         "type" : "spouse"
                       } ],
                       "simpleChecks" : {
@@ -2492,6 +2835,9 @@
                         "spouseLivesInHousehold" : true
                       }
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "isEligible" : true
                   }
                 }
               },
@@ -2617,18 +2963,94 @@
               "note" : "If you are already enrolled and finish all required payments, the City automatically enrolls you for the following year. The application is for new applicants."
             }
           }
+        },
+        "x-bdt-reference" : {
+          "administeredBy" : {
+            "name" : "City of Philadelphia Department of Revenue",
+            "url" : "https://www.phila.gov/departments/department-of-revenue/"
+          },
+          "checks" : [ {
+            "alias" : "NotAlreadyEnrolled",
+            "operationId" : "PersonNotEnrolledInBenefitService",
+            "rationale" : "People already in RETIP do not need to apply again."
+          }, {
+            "alias" : "OwnerOccupant",
+            "operationId" : "OwnerOccupantService",
+            "rationale" : "The plan is for taxpayers who own and live in their home."
+          }, {
+            "alias" : "LivesInPhiladelphiaPa",
+            "operationId" : "LivesInPhiladelphiaPaService",
+            "rationale" : "The plan covers Philadelphia Real Estate Tax, so the home must be in Philadelphia."
+          }, {
+            "alias" : "MeetsAgeOrIncomeRequirement",
+            "operationId" : "RetipAgeOrIncomeRequirementService",
+            "rationale" : "The applicant or a spouse living in the same household must be 65 or older, or household income must be below the limit for the family size."
+          } ],
+          "explanation" : "The Real Estate Tax Installment Plan (RETIP) lets a Philadelphia homeowner pay the current year's Real Estate Tax in monthly installments. It is for people who own and live in their home and who are 65 or older, live with a spouse who is 65 or older, or have household income below the limit for their family size.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Age is measured on the screening date.", "The income table covers households of 1 to 8 people. Larger households get no result on the income path.", "Does not check deed changes or a past default, either of which can end a plan.", "Ownership and residence are taken from the screener answers and are not looked up in City records." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Set up a Real Estate Tax Installment Plan (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/set-up-real-estate-tax-installment-plan/"
+          } ],
+          "summary" : "Philadelphia Real Estate Tax Installment Plan (RETIP) for owner-occupants qualifying by applicant/live-in spouse age or household income."
         }
       }
     },
     "/api/v1/benefits/pa/phl/senior-citizen-tax-freeze" : {
       "post" : {
-        "description" : "Freezes Philadelphia real estate taxes for qualifying older homeowners.",
+        "description" : "Freezes Philadelphia real estate taxes for qualifying older homeowners.\n\nThe Low-Income Senior Citizen Real Estate Tax Freeze keeps an older Philadelphia homeowner's Real Estate Tax from going up, even if the property assessment or tax rate rises. It is for people who own and live in their home and who are 65 or older, live with a spouse who is 65 or older, or are 50 or older and the widow or widower of someone who reached 65. The City also sets an income limit: $33,500 for a single person or $41,500 for a married couple.\n\n**Administered by:** [City of Philadelphia Department of Revenue](https://www.phila.gov/departments/department-of-revenue/)\n\n## Checks\n\nEligible when every check passes.\n\n- **Not already on senior citizen tax freeze**: People who already have the freeze do not need to apply again. (`PersonNotEnrolledInBenefitService`)\n- **Owner occupant**: The applicant must own the home and live in it as their primary residence. (`OwnerOccupantService`)\n- **Lives in philadelphia pa**: The freeze applies to Philadelphia Real Estate Tax, so the home must be in Philadelphia. (`LivesInPhiladelphiaPaService`)\n- **Meets age requirement**: The applicant must be 65 or older, have a spouse who is 65 or older, or be 50 or older and widowed from someone who reached 65. (`SctfAgeRequirementService`)\n\n## Limitations\n\n- Does not check the income limit of $33,500 for a single person or $41,500 for a married couple. A household over the limit can show as eligible.\n- Ages are measured on December 31 of the current year, so someone who turns 65 (or 50) later this year already shows as eligible.\n- Does not check that a spouse aged 65 or older lives in the same household.\n- Whether a late spouse reached 65 is taken from the screener answer.\n- Ownership and residence are taken from the screener answers and are not looked up in City records.\n\n## Sources\n\n- [Apply for the Low-Income Senior Citizen Real Estate Tax Freeze (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-low-income-senior-citizen-real-estate-tax-freeze/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/benefits/pa/phl/senior-citizen-tax-freeze/"
+        },
         "operationId" : "PhlSeniorCitizenTaxFreezeService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Eligible" : {
+                  "description" : "A homeowner in their 50s is eligible because their spouse is over 65.",
+                  "summary" : "Eligible",
+                  "value" : {
+                    "situation" : {
+                      "enrollments" : [ {
+                        "benefit" : "PhlHomesteadExemption",
+                        "personId" : "p2"
+                      } ],
+                      "people" : [ {
+                        "dateOfBirth" : "1970-08-01",
+                        "id" : "p1"
+                      }, {
+                        "dateOfBirth" : "1960-12-30",
+                        "id" : "p2"
+                      } ],
+                      "primaryPersonId" : "p1",
+                      "relationships" : [ {
+                        "personId" : "p1",
+                        "relatedPersonId" : "p2",
+                        "type" : "spouse"
+                      }, {
+                        "personId" : "p2",
+                        "relatedPersonId" : "p1",
+                        "type" : "spouse"
+                      } ],
+                      "simpleChecks" : {
+                        "livesInPhiladelphiaPa" : true,
+                        "ownerOccupant" : true
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "isEligible" : true
+                  }
+                },
+                "Eligible (late spouse was 65+)" : {
+                  "description" : "A homeowner aged 50 or older whose late spouse reached 65 is eligible.",
+                  "summary" : "Eligible (late spouse was 65+)",
                   "value" : {
                     "situation" : {
                       "enrollments" : [ {
@@ -2636,21 +3058,20 @@
                         "personId" : "p1"
                       } ],
                       "people" : [ {
-                        "dateOfBirth" : "1960-05-15",
+                        "dateOfBirth" : "1970-10-01",
                         "id" : "p1"
                       } ],
                       "primaryPersonId" : "p1",
-                      "relationships" : [ {
-                        "personId" : "p1",
-                        "relatedPersonId" : "p1",
-                        "type" : "spouse"
-                      } ],
+                      "relationships" : [ ],
                       "simpleChecks" : {
                         "lateSpouseWasAtLeast65" : true,
                         "livesInPhiladelphiaPa" : true,
                         "ownerOccupant" : true
                       }
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "isEligible" : true
                   }
                 }
               },
@@ -2774,37 +3195,135 @@
               "note" : "Eligible residents of cooperative buildings use a special co-op application. Check the program page or contact Revenue for help with your situation."
             }
           }
+        },
+        "x-bdt-reference" : {
+          "administeredBy" : {
+            "name" : "City of Philadelphia Department of Revenue",
+            "url" : "https://www.phila.gov/departments/department-of-revenue/"
+          },
+          "checks" : [ {
+            "alias" : "NotAlreadyOnSeniorCitizenTaxFreeze",
+            "operationId" : "PersonNotEnrolledInBenefitService",
+            "rationale" : "People who already have the freeze do not need to apply again."
+          }, {
+            "alias" : "OwnerOccupant",
+            "operationId" : "OwnerOccupantService",
+            "rationale" : "The applicant must own the home and live in it as their primary residence."
+          }, {
+            "alias" : "LivesInPhiladelphiaPa",
+            "operationId" : "LivesInPhiladelphiaPaService",
+            "rationale" : "The freeze applies to Philadelphia Real Estate Tax, so the home must be in Philadelphia."
+          }, {
+            "alias" : "MeetsAgeRequirement",
+            "operationId" : "SctfAgeRequirementService",
+            "rationale" : "The applicant must be 65 or older, have a spouse who is 65 or older, or be 50 or older and widowed from someone who reached 65."
+          } ],
+          "explanation" : "The Low-Income Senior Citizen Real Estate Tax Freeze keeps an older Philadelphia homeowner's Real Estate Tax from going up, even if the property assessment or tax rate rises. It is for people who own and live in their home and who are 65 or older, live with a spouse who is 65 or older, or are 50 or older and the widow or widower of someone who reached 65. The City also sets an income limit: $33,500 for a single person or $41,500 for a married couple.",
+          "implementationNotes" : [ {
+            "decision" : "checks",
+            "text" : "The income limit on the City page is not checked. Adding TaxFreezeIncome as a check would close the gap, but would change results for existing screeners."
+          } ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Does not check the income limit of $33,500 for a single person or $41,500 for a married couple. A household over the limit can show as eligible.", "Ages are measured on December 31 of the current year, so someone who turns 65 (or 50) later this year already shows as eligible.", "Does not check that a spouse aged 65 or older lives in the same household.", "Whether a late spouse reached 65 is taken from the screener answer.", "Ownership and residence are taken from the screener answers and are not looked up in City records." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Apply for the Low-Income Senior Citizen Real Estate Tax Freeze (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-low-income-senior-citizen-real-estate-tax-freeze/"
+          } ],
+          "summary" : "Freezes Philadelphia real estate taxes for qualifying older homeowners."
         }
       }
     },
     "/api/v1/checks/age/applicant-or-spouse-min-age" : {
       "post" : {
-        "description" : "Checks the applicant or live-in spouse against a minimum age as of today. An empty relationships list means no spouse; omitted relationships mean unknown.",
+        "description" : "Checks the applicant or live-in spouse against a minimum age as of today. An empty relationships list means no spouse; omitted relationships mean unknown.\n\nPasses when the applicant, or a spouse who lives in the same household, has reached the minimum age on the screening date. A spouse who lives elsewhere does not count. When one path cannot be decided, the check still passes if the other path passes, and otherwise returns no result. The applicant's path cannot be decided when their date of birth is missing. The spouse's path cannot be decided when the relationships list is missing, so it is unknown whether there is a spouse; when the spouse is old enough but whether they live in the household is not answered; or when they live in the household (or that is not answered) and their date of birth is missing. A spouse who lives elsewhere fails the spouse's path whatever their date of birth. Neither path can be decided when primaryPersonId is missing. An empty relationships list means there is no spouse.\n\n## Parameters\n\n- `minAge` (number): Minimum age, in whole years, that the applicant or live-in spouse must have reached on the screening date.\n\n## Limitations\n\n- Age is measured on the screening date, not on a date the program chooses.\n- Whether the spouse lives in the household is taken from the screener answer.\n\n## Sources\n\n- [Set up a Real Estate Tax Installment Plan (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/set-up-real-estate-tax-installment-plan/) (checked November 19, 2026)\n- [Benefit Decision Toolkit situation data model (BDT.dmn)](https://github.com/CodeForPhilly/benefit-decision-toolkit/blob/main/library-api/src/main/resources/BDT.dmn): tSituation: primaryPersonId, people, relationships, simpleChecks.spouseLivesInHousehold (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/age/applicant-or-spouse-min-age/"
+        },
         "operationId" : "ApplicantOrSpouseMinAgeService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Live in spouse" : {
+                  "description" : "A younger applicant passes because their spouse, who lives with them, is over 65.",
+                  "summary" : "Live in spouse",
                   "value" : {
                     "parameters" : {
                       "minAge" : 65
                     },
                     "situation" : {
                       "people" : [ {
-                        "dateOfBirth" : "1960-05-15",
+                        "dateOfBirth" : "2000-01-01",
                         "id" : "p1"
+                      }, {
+                        "dateOfBirth" : "1940-01-01",
+                        "id" : "p2"
                       } ],
                       "primaryPersonId" : "p1",
                       "relationships" : [ {
                         "personId" : "p1",
-                        "relatedPersonId" : "p1",
+                        "relatedPersonId" : "p2",
                         "type" : "spouse"
                       } ],
                       "simpleChecks" : {
                         "spouseLivesInHousehold" : true
                       }
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
+                  }
+                },
+                "Pass" : {
+                  "description" : "An applicant born in 1940 meets a minimum age of 65.",
+                  "summary" : "Pass",
+                  "value" : {
+                    "parameters" : {
+                      "minAge" : 65
+                    },
+                    "situation" : {
+                      "people" : [ {
+                        "dateOfBirth" : "1940-01-01",
+                        "id" : "p1"
+                      } ],
+                      "primaryPersonId" : "p1"
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
+                  }
+                },
+                "Spouse lives elsewhere" : {
+                  "description" : "The same applicant fails when the spouse over 65 does not live in the household.",
+                  "summary" : "Spouse lives elsewhere",
+                  "value" : {
+                    "parameters" : {
+                      "minAge" : 65
+                    },
+                    "situation" : {
+                      "people" : [ {
+                        "dateOfBirth" : "2000-01-01",
+                        "id" : "p1"
+                      }, {
+                        "dateOfBirth" : "1940-01-01",
+                        "id" : "p2"
+                      } ],
+                      "primaryPersonId" : "p1",
+                      "relationships" : [ {
+                        "personId" : "p1",
+                        "relatedPersonId" : "p2",
+                        "type" : "spouse"
+                      } ],
+                      "simpleChecks" : {
+                        "spouseLivesInHousehold" : false
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : false
                   }
                 }
               },
@@ -2872,29 +3391,62 @@
           }
         },
         "summary" : "Execute ApplicantOrSpouseMinAge decision",
-        "tags" : [ "Age Checks" ]
+        "tags" : [ "Age Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Passes when the applicant, or a spouse who lives in the same household, has reached the minimum age on the screening date. A spouse who lives elsewhere does not count. When one path cannot be decided, the check still passes if the other path passes, and otherwise returns no result. The applicant's path cannot be decided when their date of birth is missing. The spouse's path cannot be decided when the relationships list is missing, so it is unknown whether there is a spouse; when the spouse is old enough but whether they live in the household is not answered; or when they live in the household (or that is not answered) and their date of birth is missing. A spouse who lives elsewhere fails the spouse's path whatever their date of birth. Neither path can be decided when primaryPersonId is missing. An empty relationships list means there is no spouse.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Age is measured on the screening date, not on a date the program chooses.", "Whether the spouse lives in the household is taken from the screener answer." ],
+          "parameters" : [ {
+            "description" : "Minimum age, in whole years, that the applicant or live-in spouse must have reached on the screening date.",
+            "name" : "minAge",
+            "type" : "number"
+          } ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Set up a Real Estate Tax Installment Plan (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/set-up-real-estate-tax-installment-plan/"
+          }, {
+            "checkedOn" : "2026-11-19",
+            "citation" : "tSituation: primaryPersonId, people, relationships, simpleChecks.spouseLivesInHousehold",
+            "title" : "Benefit Decision Toolkit situation data model (BDT.dmn)",
+            "url" : "https://github.com/CodeForPhilly/benefit-decision-toolkit/blob/main/library-api/src/main/resources/BDT.dmn"
+          } ],
+          "summary" : "Checks the applicant or live-in spouse against a minimum age as of today. An empty relationships list means no spouse; omitted relationships mean unknown."
+        }
       }
     },
     "/api/v1/checks/age/person-max-age" : {
       "post" : {
+        "description" : "Checks that a specified person is no older than a maximum age on a specified date.\n\nPasses when the person's age in whole years on the given date is at most the maximum age. Returns no result when the person or their date of birth is missing.\n\n## Parameters\n\n- `personId` (string): Id of the person in situation.people to check.\n- `asOfDate` (date): Date on which to measure the person's age.\n- `maxAge` (number): Maximum age in whole years. A person exactly this age passes.\n\n## Limitations\n\n- Uses the date of birth as given; it is not verified.\n\n## Sources\n\n- [Benefit Decision Toolkit situation data model (BDT.dmn)](https://github.com/CodeForPhilly/benefit-decision-toolkit/blob/main/library-api/src/main/resources/BDT.dmn): tSituation: people[].id, people[].dateOfBirth (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/age/person-max-age/"
+        },
         "operationId" : "PersonMaxAgeService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "age is below max age" : {
+                  "description" : "A child born on January 1, 2025 is under the maximum age of 5 on December 31, 2025.",
+                  "summary" : "age is below max age",
                   "value" : {
                     "parameters" : {
-                      "asOfDate" : "1960-05-15",
-                      "maxAge" : 65,
+                      "asOfDate" : "2025-12-31",
+                      "maxAge" : 5,
                       "personId" : "p1"
                     },
                     "situation" : {
                       "people" : [ {
-                        "dateOfBirth" : "1960-05-15",
+                        "dateOfBirth" : "2025-01-01",
                         "id" : "p1"
                       } ]
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
                   }
                 }
               },
@@ -2955,30 +3507,65 @@
           }
         },
         "summary" : "Execute PersonMaxAge decision",
-        "tags" : [ "Age Checks" ]
+        "tags" : [ "Age Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Passes when the person's age in whole years on the given date is at most the maximum age. Returns no result when the person or their date of birth is missing.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Uses the date of birth as given; it is not verified." ],
+          "parameters" : [ {
+            "description" : "Id of the person in situation.people to check.",
+            "name" : "personId",
+            "type" : "string"
+          }, {
+            "description" : "Date on which to measure the person's age.",
+            "name" : "asOfDate",
+            "type" : "date"
+          }, {
+            "description" : "Maximum age in whole years. A person exactly this age passes.",
+            "name" : "maxAge",
+            "type" : "number"
+          } ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : "tSituation: people[].id, people[].dateOfBirth",
+            "title" : "Benefit Decision Toolkit situation data model (BDT.dmn)",
+            "url" : "https://github.com/CodeForPhilly/benefit-decision-toolkit/blob/main/library-api/src/main/resources/BDT.dmn"
+          } ],
+          "summary" : "Checks that a specified person is no older than a maximum age on a specified date."
+        }
       }
     },
     "/api/v1/checks/age/person-min-age" : {
       "post" : {
-        "description" : "Ensure a specified person's age meets a minimum number as of a specified date.",
+        "description" : "Ensure a specified person's age meets a minimum number as of a specified date.\n\nPasses when the person's age in whole years on the given date is at least the minimum age. Returns no result when the person or their date of birth is missing.\n\n## Parameters\n\n- `personId` (string): Id of the person in situation.people to check.\n- `asOfDate` (date): Date on which to measure the person's age.\n- `minAge` (number): Minimum age in whole years. A person exactly this age passes.\n\n## Limitations\n\n- Uses the date of birth as given; it is not verified.\n\n## Sources\n\n- [Benefit Decision Toolkit situation data model (BDT.dmn)](https://github.com/CodeForPhilly/benefit-decision-toolkit/blob/main/library-api/src/main/resources/BDT.dmn): tSituation: people[].id, people[].dateOfBirth (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/age/person-min-age/"
+        },
         "operationId" : "PersonMinAgeService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Person At Min Age" : {
+                  "description" : "A person born on January 1, 2020 turns 4 on January 1, 2024, so they meet a minimum age of 4 on that date.",
+                  "summary" : "Person At Min Age",
                   "value" : {
                     "parameters" : {
-                      "asOfDate" : "1960-05-15",
-                      "minAge" : 65,
+                      "asOfDate" : "2024-01-01",
+                      "minAge" : 4,
                       "personId" : "p1"
                     },
                     "situation" : {
                       "people" : [ {
-                        "dateOfBirth" : "1960-05-15",
+                        "dateOfBirth" : "2020-01-01",
                         "id" : "p1"
                       } ]
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
                   }
                 }
               },
@@ -3039,30 +3626,91 @@
           }
         },
         "summary" : "Execute PersonMinAge decision",
-        "tags" : [ "Age Checks" ]
+        "tags" : [ "Age Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Passes when the person's age in whole years on the given date is at least the minimum age. Returns no result when the person or their date of birth is missing.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Uses the date of birth as given; it is not verified." ],
+          "parameters" : [ {
+            "description" : "Id of the person in situation.people to check.",
+            "name" : "personId",
+            "type" : "string"
+          }, {
+            "description" : "Date on which to measure the person's age.",
+            "name" : "asOfDate",
+            "type" : "date"
+          }, {
+            "description" : "Minimum age in whole years. A person exactly this age passes.",
+            "name" : "minAge",
+            "type" : "number"
+          } ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : "tSituation: people[].id, people[].dateOfBirth",
+            "title" : "Benefit Decision Toolkit situation data model (BDT.dmn)",
+            "url" : "https://github.com/CodeForPhilly/benefit-decision-toolkit/blob/main/library-api/src/main/resources/BDT.dmn"
+          } ],
+          "summary" : "Ensure a specified person's age meets a minimum number as of a specified date."
+        }
       }
     },
     "/api/v1/checks/age/someone-min-age" : {
       "post" : {
-        "description" : "Ensure at least one person from a specified list meets a minimum age requirement as of a specified date.",
+        "description" : "Ensure at least one person from a specified list meets a minimum age requirement as of a specified date.\n\nPasses when at least one of the listed people has reached the minimum age on the given date. Fails when none of them has. Returns no result when none of the listed people is in situation.people.\n\n## Parameters\n\n- `peopleIds` (BDT.tStringList): Ids of the people in situation.people to consider. One of them meeting the age is enough.\n- `asOfDate` (date): Date on which to measure ages.\n- `minAge` (number): Minimum age in whole years. A person exactly this age counts.\n\n## Limitations\n\n- Uses dates of birth as given; they are not verified.\n- A listed person without a date of birth is treated as not meeting the age, so the check can fail when a date of birth is missing.\n\n## Sources\n\n- [Benefit Decision Toolkit situation data model (BDT.dmn)](https://github.com/CodeForPhilly/benefit-decision-toolkit/blob/main/library-api/src/main/resources/BDT.dmn): tSituation: people[].id, people[].dateOfBirth (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/age/someone-min-age/"
+        },
         "operationId" : "SomeoneMinAgeService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "No one meets age" : {
+                  "description" : "Neither person is 60 or older on January 1, 2026, so the check fails.",
+                  "summary" : "No one meets age",
                   "value" : {
                     "parameters" : {
-                      "asOfDate" : "1960-05-15",
-                      "minAge" : 65,
-                      "peopleIds" : [ "p1" ]
+                      "asOfDate" : "2026-01-01",
+                      "minAge" : 60,
+                      "peopleIds" : [ "p1", "p2" ]
                     },
                     "situation" : {
                       "people" : [ {
-                        "dateOfBirth" : "1960-05-15",
+                        "dateOfBirth" : "1990-06-15",
                         "id" : "p1"
+                      }, {
+                        "dateOfBirth" : "1970-03-01",
+                        "id" : "p2"
                       } ]
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : false
+                  }
+                },
+                "One person meets age" : {
+                  "description" : "One of the two people is 65 on January 1, 2026, which meets a minimum age of 60, so the check passes.",
+                  "summary" : "One person meets age",
+                  "value" : {
+                    "parameters" : {
+                      "asOfDate" : "2026-01-01",
+                      "minAge" : 60,
+                      "peopleIds" : [ "p1", "p2" ]
+                    },
+                    "situation" : {
+                      "people" : [ {
+                        "dateOfBirth" : "1990-06-15",
+                        "id" : "p1"
+                      }, {
+                        "dateOfBirth" : "1960-03-01",
+                        "id" : "p2"
+                      } ]
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
                   }
                 }
               },
@@ -3123,7 +3771,33 @@
           }
         },
         "summary" : "Execute SomeoneMinAge decision",
-        "tags" : [ "Age Checks" ]
+        "tags" : [ "Age Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Passes when at least one of the listed people has reached the minimum age on the given date. Fails when none of them has. Returns no result when none of the listed people is in situation.people.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Uses dates of birth as given; they are not verified.", "A listed person without a date of birth is treated as not meeting the age, so the check can fail when a date of birth is missing." ],
+          "parameters" : [ {
+            "description" : "Ids of the people in situation.people to consider. One of them meeting the age is enough.",
+            "name" : "peopleIds",
+            "type" : "BDT.tStringList"
+          }, {
+            "description" : "Date on which to measure ages.",
+            "name" : "asOfDate",
+            "type" : "date"
+          }, {
+            "description" : "Minimum age in whole years. A person exactly this age counts.",
+            "name" : "minAge",
+            "type" : "number"
+          } ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : "tSituation: people[].id, people[].dateOfBirth",
+            "title" : "Benefit Decision Toolkit situation data model (BDT.dmn)",
+            "url" : "https://github.com/CodeForPhilly/benefit-decision-toolkit/blob/main/library-api/src/main/resources/BDT.dmn"
+          } ],
+          "summary" : "Ensure at least one person from a specified list meets a minimum age requirement as of a specified date."
+        }
       }
     },
     "/api/v1/checks/citizenship/household-has-citizen-or-eligible-noncitizen" : {
@@ -3233,24 +3907,36 @@
     },
     "/api/v1/checks/enrollment/person-enrolled-in-benefit" : {
       "post" : {
-        "description" : "Verify that a specified person is enrolled in a specified benefit program.",
+        "description" : "Verify that a specified person is enrolled in a specified benefit program.\n\nPasses when situation.enrollments lists the person as enrolled in the named benefit, and fails when it does not. Returns no result when the enrollments list is missing, or when the personId or benefit parameter is missing.\n\n## Parameters\n\n- `personId` (string): Id of the person to look for in situation.enrollments.\n- `benefit` (string): Name of the benefit as recorded in situation.enrollments, for example PhlHomesteadExemption.\n\n## Limitations\n\n- Relies on the enrollments the screener reports. It does not look up enrollment with the agency.\n- Benefit names must match exactly.\n\n## Sources\n\n- [Benefit Decision Toolkit situation data model (BDT.dmn)](https://github.com/CodeForPhilly/benefit-decision-toolkit/blob/main/library-api/src/main/resources/BDT.dmn): tSituation: enrollments[].personId, enrollments[].benefit (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/enrollment/person-enrolled-in-benefit/"
+        },
         "operationId" : "PersonEnrolledInBenefitService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Enrolled in Bogus Benefit" : {
+                  "description" : "The enrollments list shows person p1 in the named benefit, so the check passes.",
+                  "summary" : "Enrolled in Bogus Benefit",
                   "value" : {
                     "parameters" : {
-                      "benefit" : "PhlHomesteadExemption",
+                      "benefit" : "bogus",
                       "personId" : "p1"
                     },
                     "situation" : {
                       "enrollments" : [ {
-                        "benefit" : "PhlHomesteadExemption",
+                        "benefit" : "bogus",
                         "personId" : "p1"
+                      } ],
+                      "people" : [ {
+                        "id" : "p1"
                       } ]
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
                   }
                 }
               },
@@ -3310,29 +3996,85 @@
           }
         },
         "summary" : "Execute PersonEnrolledInBenefit decision",
-        "tags" : [ "Enrollment Checks" ]
+        "tags" : [ "Enrollment Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Passes when situation.enrollments lists the person as enrolled in the named benefit, and fails when it does not. Returns no result when the enrollments list is missing, or when the personId or benefit parameter is missing.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Relies on the enrollments the screener reports. It does not look up enrollment with the agency.", "Benefit names must match exactly." ],
+          "parameters" : [ {
+            "description" : "Id of the person to look for in situation.enrollments.",
+            "name" : "personId",
+            "type" : "string"
+          }, {
+            "description" : "Name of the benefit as recorded in situation.enrollments, for example PhlHomesteadExemption.",
+            "name" : "benefit",
+            "type" : "string"
+          } ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : "tSituation: enrollments[].personId, enrollments[].benefit",
+            "title" : "Benefit Decision Toolkit situation data model (BDT.dmn)",
+            "url" : "https://github.com/CodeForPhilly/benefit-decision-toolkit/blob/main/library-api/src/main/resources/BDT.dmn"
+          } ],
+          "summary" : "Verify that a specified person is enrolled in a specified benefit program."
+        }
       }
     },
     "/api/v1/checks/enrollment/person-not-enrolled-in-benefit" : {
       "post" : {
-        "description" : "Verify that a specified person is not currently enrolled in a specified benefit program.",
+        "description" : "Verify that a specified person is not currently enrolled in a specified benefit program.\n\nThe opposite of PersonEnrolledInBenefit: passes when situation.enrollments does not list the person as enrolled in the named benefit, and fails when it does. Returns no result when the enrollments list is missing, or when the personId or benefit parameter is missing. Benefits use it to leave out people who already receive them.\n\n## Parameters\n\n- `personId` (string): Id of the person to look for in situation.enrollments.\n- `benefit` (string): Name of the benefit as recorded in situation.enrollments, for example PhlHomesteadExemption.\n\n## Limitations\n\n- Relies on the enrollments the screener reports. It does not look up enrollment with the agency.\n- Benefit names must match exactly.\n\n## Sources\n\n- [Benefit Decision Toolkit situation data model (BDT.dmn)](https://github.com/CodeForPhilly/benefit-decision-toolkit/blob/main/library-api/src/main/resources/BDT.dmn): tSituation: enrollments[].personId, enrollments[].benefit (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/enrollment/person-not-enrolled-in-benefit/"
+        },
         "operationId" : "PersonNotEnrolledInBenefitService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Enrolled" : {
+                  "description" : "Person p1 is enrolled in the named benefit, so the check fails.",
+                  "summary" : "Enrolled",
                   "value" : {
                     "parameters" : {
-                      "benefit" : "PhlHomesteadExemption",
+                      "benefit" : "bogus",
                       "personId" : "p1"
                     },
                     "situation" : {
                       "enrollments" : [ {
-                        "benefit" : "PhlHomesteadExemption",
+                        "benefit" : "bogus",
                         "personId" : "p1"
+                      } ],
+                      "people" : [ {
+                        "id" : "p1"
                       } ]
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : false
+                  }
+                },
+                "NOT Enrolled in Bogus Benefit" : {
+                  "description" : "Only a different person is enrolled in the named benefit, so the check passes for person p1.",
+                  "summary" : "NOT Enrolled in Bogus Benefit",
+                  "value" : {
+                    "parameters" : {
+                      "benefit" : "bogus",
+                      "personId" : "p1"
+                    },
+                    "situation" : {
+                      "enrollments" : [ {
+                        "benefit" : "bogus",
+                        "personId" : "p2"
+                      } ],
+                      "people" : [ {
+                        "id" : "p1"
+                      } ]
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
                   }
                 }
               },
@@ -3372,7 +4114,7 @@
                       "type" : "boolean"
                     },
                     "parameters" : {
-                      "$ref" : "#/components/schemas/ns30tParameters"
+                      "$ref" : "#/components/schemas/ns10tParameters"
                     },
                     "situation" : {
                       "$ref" : "#/components/schemas/ns10tSituation"
@@ -3392,7 +4134,29 @@
           }
         },
         "summary" : "Execute PersonNotEnrolledInBenefit decision",
-        "tags" : [ "Enrollment Checks" ]
+        "tags" : [ "Enrollment Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "The opposite of PersonEnrolledInBenefit: passes when situation.enrollments does not list the person as enrolled in the named benefit, and fails when it does. Returns no result when the enrollments list is missing, or when the personId or benefit parameter is missing. Benefits use it to leave out people who already receive them.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Relies on the enrollments the screener reports. It does not look up enrollment with the agency.", "Benefit names must match exactly." ],
+          "parameters" : [ {
+            "description" : "Id of the person to look for in situation.enrollments.",
+            "name" : "personId",
+            "type" : "string"
+          }, {
+            "description" : "Name of the benefit as recorded in situation.enrollments, for example PhlHomesteadExemption.",
+            "name" : "benefit",
+            "type" : "string"
+          } ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : "tSituation: enrollments[].personId, enrollments[].benefit",
+            "title" : "Benefit Decision Toolkit situation data model (BDT.dmn)",
+            "url" : "https://github.com/CodeForPhilly/benefit-decision-toolkit/blob/main/library-api/src/main/resources/BDT.dmn"
+          } ],
+          "summary" : "Verify that a specified person is not currently enrolled in a specified benefit program."
+        }
       }
     },
     "/api/v1/checks/income/household-income-within-poverty-guidelines" : {
@@ -3531,18 +4295,40 @@
     },
     "/api/v1/checks/income/loop-income" : {
       "post" : {
-        "description" : "New LOOP applicants: household annual income below the 120% AMI cap; pre-2023 renewals use different limits. City income table verified 2026-10-05.",
+        "description" : "Checks that household income is below LOOP's limit for new applicants: 120% of area median income for the household size.\n\nPasses when yearly household income is below the LOOP limit for the household size, which runs from $103,050 for one person to $217,900 for ten. Income equal to the limit fails. Returns no result when income or household size is missing or invalid, or the household has more than 10 people.\n\n## Limitations\n\n- Uses only the 120% limit for new applicants. Households enrolled before 2023 may renew under the 150% limit, which is not checked.\n- Household income and size are taken as given.\n- The limits are those on the City page when it was checked; the City updates them.\n\n## Sources\n\n- [Apply for the Longtime Owner Occupants Program (LOOP) (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/income/loop-income/"
+        },
         "operationId" : "LoopIncomeService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Size 1 at cap" : {
+                  "description" : "One person with exactly $103,050 is not below the limit, so the check fails.",
+                  "summary" : "Size 1 at cap",
                   "value" : {
                     "situation" : {
-                      "householdIncome" : 42,
+                      "householdIncome" : 103050,
                       "householdSize" : 1
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : false
+                  }
+                },
+                "Size 1 below cap" : {
+                  "description" : "One person with $103,049.99 in yearly income is just below the limit, so the check passes.",
+                  "summary" : "Size 1 below cap",
+                  "value" : {
+                    "situation" : {
+                      "householdIncome" : 103049.99,
+                      "householdSize" : 1
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
                   }
                 }
               },
@@ -3593,23 +4379,58 @@
           }
         },
         "summary" : "Execute LoopIncome decision",
-        "tags" : [ "Income Checks" ]
+        "tags" : [ "Income Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Passes when yearly household income is below the LOOP limit for the household size, which runs from $103,050 for one person to $217,900 for ten. Income equal to the limit fails. Returns no result when income or household size is missing or invalid, or the household has more than 10 people.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Uses only the 120% limit for new applicants. Households enrolled before 2023 may renew under the 150% limit, which is not checked.", "Household income and size are taken as given.", "The limits are those on the City page when it was checked; the City updates them." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Apply for the Longtime Owner Occupants Program (LOOP) (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/"
+          } ],
+          "summary" : "Checks that household income is below LOOP's limit for new applicants: 120% of area median income for the household size."
+        }
       }
     },
     "/api/v1/checks/income/retip-income" : {
       "post" : {
-        "description" : "RETIP non-senior applicants: household annual income below the family-size cap. City income table verified 2026-10-05.",
+        "description" : "Checks that household income is below the Real Estate Tax Installment Plan limit for the household size.\n\nPasses when yearly household income is below the RETIP limit for the household size, which runs from $42,950 for one person to $81,000 for eight. Income equal to the limit fails. Returns no result when income or household size is missing or invalid, or the household has more than 8 people.\n\n## Limitations\n\n- Household income and size are taken as given.\n- The limits are those on the City page when it was checked; the City updates them.\n\n## Sources\n\n- [Set up a Real Estate Tax Installment Plan (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/set-up-real-estate-tax-installment-plan/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/income/retip-income/"
+        },
         "operationId" : "RetipIncomeService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Size 1 at cap" : {
+                  "description" : "One person with exactly $42,950 is not below the limit, so the check fails.",
+                  "summary" : "Size 1 at cap",
                   "value" : {
                     "situation" : {
-                      "householdIncome" : 42,
+                      "householdIncome" : 42950,
                       "householdSize" : 1
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : false
+                  }
+                },
+                "Size 1 below cap" : {
+                  "description" : "One person with $42,949.99 in yearly income is just below the limit, so the check passes.",
+                  "summary" : "Size 1 below cap",
+                  "value" : {
+                    "situation" : {
+                      "householdIncome" : 42949.99,
+                      "householdSize" : 1
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
                   }
                 }
               },
@@ -3660,28 +4481,64 @@
           }
         },
         "summary" : "Execute RetipIncome decision",
-        "tags" : [ "Income Checks" ]
+        "tags" : [ "Income Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Passes when yearly household income is below the RETIP limit for the household size, which runs from $42,950 for one person to $81,000 for eight. Income equal to the limit fails. Returns no result when income or household size is missing or invalid, or the household has more than 8 people.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Household income and size are taken as given.", "The limits are those on the City page when it was checked; the City updates them." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Set up a Real Estate Tax Installment Plan (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/set-up-real-estate-tax-installment-plan/"
+          } ],
+          "summary" : "Checks that household income is below the Real Estate Tax Installment Plan limit for the household size."
+        }
       }
     },
     "/api/v1/checks/income/tax-freeze-income" : {
       "post" : {
-        "description" : "Philadelphia tax freeze gross annual income: at most $33,500 single or $41,500 married (city guidance verified 2026-10-05). Counts the applicant's income plus a spouse's; a spouse in relationships means the married limit applies. An empty relationships list means no spouse; omitted relationships mean unknown.",
+        "description" : "Checks that the applicant's and spouse's gross yearly income is within Philadelphia's tax freeze limit: $33,500 for a single person or $41,500 for a married couple.\n\nReads the combined gross yearly income of the applicant and any spouse (applicantAndSpouseIncome) and passes when it is at or below $33,500 for a single person or $41,500 for a married couple. The married limit applies when the relationships list includes a spouse for the applicant. Returns no result when income is missing or negative, or when the relationships list or primaryPersonId is missing so it is unknown whether the applicant has a spouse; an empty relationships list means there is no spouse.\n\n## Limitations\n\n- Combined gross income is taken as given. The City decides which income counts from the documents submitted.\n- The married limit applies whenever a spouse is listed, wherever the spouse lives.\n- The limits are those on the City pages when they were checked; the City may change them.\n\n## Sources\n\n- [Apply for the Low-Income Real Estate Tax Freeze (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/tax-freeze/apply-for-the-low-income-real-estate-tax-freeze/) (checked November 19, 2026)\n- [Apply for the Low-Income Senior Citizen Real Estate Tax Freeze (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-low-income-senior-citizen-real-estate-tax-freeze/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/income/tax-freeze-income/"
+        },
         "operationId" : "TaxFreezeIncomeService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Married over limit" : {
+                  "description" : "A married couple with $41,500.01 is just over the married limit, so the check fails.",
+                  "summary" : "Married over limit",
                   "value" : {
                     "situation" : {
-                      "applicantAndSpouseIncome" : 42,
+                      "applicantAndSpouseIncome" : 41500.01,
                       "primaryPersonId" : "p1",
                       "relationships" : [ {
                         "personId" : "p1",
-                        "relatedPersonId" : "p1",
+                        "relatedPersonId" : "p2",
                         "type" : "spouse"
                       } ]
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : false
+                  }
+                },
+                "Pass" : {
+                  "description" : "A single applicant with exactly $33,500 in yearly income is within the limit.",
+                  "summary" : "Pass",
+                  "value" : {
+                    "situation" : {
+                      "applicantAndSpouseIncome" : 33500,
+                      "primaryPersonId" : "p1",
+                      "relationships" : [ ]
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
                   }
                 }
               },
@@ -3737,36 +4594,68 @@
           }
         },
         "summary" : "Execute TaxFreezeIncome decision",
-        "tags" : [ "Income Checks" ]
+        "tags" : [ "Income Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Reads the combined gross yearly income of the applicant and any spouse (applicantAndSpouseIncome) and passes when it is at or below $33,500 for a single person or $41,500 for a married couple. The married limit applies when the relationships list includes a spouse for the applicant. Returns no result when income is missing or negative, or when the relationships list or primaryPersonId is missing so it is unknown whether the applicant has a spouse; an empty relationships list means there is no spouse.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Combined gross income is taken as given. The City decides which income counts from the documents submitted.", "The married limit applies whenever a spouse is listed, wherever the spouse lives.", "The limits are those on the City pages when they were checked; the City may change them." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Apply for the Low-Income Real Estate Tax Freeze (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/tax-freeze/apply-for-the-low-income-real-estate-tax-freeze/"
+          }, {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Apply for the Low-Income Senior Citizen Real Estate Tax Freeze (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-low-income-senior-citizen-real-estate-tax-freeze/"
+          } ],
+          "summary" : "Checks that the applicant's and spouse's gross yearly income is within Philadelphia's tax freeze limit: $33,500 for a single person or $41,500 for a married couple."
+        }
       }
     },
     "/api/v1/checks/internal/retip-age-or-income-requirement" : {
       "post" : {
-        "description" : "RETIP eligibility through applicant/live-in spouse age 65 or low household income. No late-spouse age pathway.",
+        "description" : "Checks RETIP's age or income requirement: the applicant or a live-in spouse is 65 or older, or household income is below the RETIP limit.\n\nPasses when ApplicantOrSpouseMinAge passes with a minimum age of 65, or when RetipIncome passes. Seniors qualify whatever their income. Fails only when both paths fail, and returns no result when neither path passes and one of them has no result.\n\n## Limitations\n\n- Age is measured on the screening date.\n- Unlike the Senior Citizen Tax Freeze, there is no path for a widow or widower of someone who reached 65.\n\n## Sources\n\n- [Set up a Real Estate Tax Installment Plan (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/set-up-real-estate-tax-installment-plan/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/internal/retip-age-or-income-requirement/"
+        },
         "operationId" : "RetipAgeOrIncomeRequirementService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Low income without age" : {
+                  "description" : "A one-person household with $30,000 in yearly income passes on income alone.",
+                  "summary" : "Low income without age",
                   "value" : {
                     "situation" : {
-                      "householdIncome" : 42,
+                      "householdIncome" : 30000,
+                      "householdSize" : 1
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
+                  }
+                },
+                "Senior above income limit" : {
+                  "description" : "An applicant over 65 passes even with $1,000,000 in household income.",
+                  "summary" : "Senior above income limit",
+                  "value" : {
+                    "situation" : {
+                      "householdIncome" : 1000000,
                       "householdSize" : 1,
                       "people" : [ {
-                        "dateOfBirth" : "1960-05-15",
+                        "dateOfBirth" : "1940-01-01",
                         "id" : "p1"
                       } ],
-                      "primaryPersonId" : "p1",
-                      "relationships" : [ {
-                        "personId" : "p1",
-                        "relatedPersonId" : "p1",
-                        "type" : "spouse"
-                      } ],
-                      "simpleChecks" : {
-                        "spouseLivesInHousehold" : true
-                      }
+                      "primaryPersonId" : "p1"
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
                   }
                 }
               },
@@ -3830,34 +4719,72 @@
           }
         },
         "summary" : "Execute RetipAgeOrIncomeRequirement decision",
-        "tags" : [ "Internal Checks" ]
+        "tags" : [ "Internal Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Passes when ApplicantOrSpouseMinAge passes with a minimum age of 65, or when RetipIncome passes. Seniors qualify whatever their income. Fails only when both paths fail, and returns no result when neither path passes and one of them has no result.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Age is measured on the screening date.", "Unlike the Senior Citizen Tax Freeze, there is no path for a widow or widower of someone who reached 65." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Set up a Real Estate Tax Installment Plan (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/set-up-real-estate-tax-installment-plan/"
+          } ],
+          "summary" : "Checks RETIP's age or income requirement: the applicant or a live-in spouse is 65 or older, or household income is below the RETIP limit."
+        }
       }
     },
     "/api/v1/checks/internal/sctf-age-requirement" : {
       "post" : {
-        "description" : "Checks the age pathways for Philadelphia's Senior Citizen Tax Freeze.",
+        "description" : "Checks the age requirement for Philadelphia's Senior Citizen Tax Freeze: the applicant or spouse is 65 or older, or the applicant is 50 or older and widowed from someone who reached 65.\n\nPasses when the applicant reaches 65 by December 31 of the current year, when a spouse listed in relationships does, or when the applicant reaches 50 by December 31 and the screener says their late spouse reached 65. Passes as soon as any one of these holds, even if information for the others is missing. Fails when none of them holds, and returns no result when none passes but at least one cannot be decided because a date of birth, primaryPersonId, relationships or the late-spouse answer is missing.\n\n## Limitations\n\n- Does not check that a spouse aged 65 or older lives in the same household.\n- Whether a late spouse reached 65 is taken from the screener answer.\n\n## Sources\n\n- [Apply for the Low-Income Senior Citizen Real Estate Tax Freeze (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-low-income-senior-citizen-real-estate-tax-freeze/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/internal/sctf-age-requirement/"
+        },
         "operationId" : "SctfAgeRequirementService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Pass" : {
+                  "description" : "An applicant born in 1950 is over 65 and passes.",
+                  "summary" : "Pass",
                   "value" : {
                     "situation" : {
                       "people" : [ {
-                        "dateOfBirth" : "1960-05-15",
+                        "dateOfBirth" : "1950-01-01",
                         "id" : "p1"
                       } ],
                       "primaryPersonId" : "p1",
-                      "relationships" : [ {
-                        "personId" : "p1",
-                        "relatedPersonId" : "p1",
-                        "type" : "spouse"
+                      "relationships" : [ ],
+                      "simpleChecks" : {
+                        "lateSpouseWasAtLeast65" : false
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
+                  }
+                },
+                "Pass with late spouse 65+" : {
+                  "description" : "An applicant born in 1970 passes because they are over 50 and their late spouse reached 65.",
+                  "summary" : "Pass with late spouse 65+",
+                  "value" : {
+                    "situation" : {
+                      "people" : [ {
+                        "dateOfBirth" : "1970-01-01",
+                        "id" : "p1"
                       } ],
+                      "primaryPersonId" : "p1",
+                      "relationships" : [ ],
                       "simpleChecks" : {
                         "lateSpouseWasAtLeast65" : true
                       }
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
                   }
                 }
               },
@@ -3919,7 +4846,23 @@
           }
         },
         "summary" : "Execute SctfAgeRequirement decision",
-        "tags" : [ "Internal Checks" ]
+        "tags" : [ "Internal Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Passes when the applicant reaches 65 by December 31 of the current year, when a spouse listed in relationships does, or when the applicant reaches 50 by December 31 and the screener says their late spouse reached 65. Passes as soon as any one of these holds, even if information for the others is missing. Fails when none of them holds, and returns no result when none passes but at least one cannot be decided because a date of birth, primaryPersonId, relationships or the late-spouse answer is missing.",
+          "implementationNotes" : [ {
+            "decision" : "checkResult",
+            "text" : "Ages are measured on December 31 of the current year, so someone who turns 65 (or 50) later this year already passes. The City page says only 65 or older."
+          } ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Does not check that a spouse aged 65 or older lives in the same household.", "Whether a late spouse reached 65 is taken from the screener answer." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Apply for the Low-Income Senior Citizen Real Estate Tax Freeze (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-low-income-senior-citizen-real-estate-tax-freeze/"
+          } ],
+          "summary" : "Checks the age requirement for Philadelphia's Senior Citizen Tax Freeze: the applicant or spouse is 65 or older, or the applicant is 50 or older and widowed from someone who reached 65."
+        }
       }
     },
     "/api/v1/checks/residence/lives-in-pennsylvania" : {
@@ -4029,19 +4972,42 @@
     },
     "/api/v1/checks/residence/lives-in-philadelphia-pa" : {
       "post" : {
-        "description" : "Checks that a person lives in Philadelphia, PA.",
+        "description" : "Checks that a person lives in Philadelphia, PA.\n\nPasses when the screener answer says the person lives in Philadelphia, Pennsylvania, and fails when it says they do not. Returns no result when the answer is missing.\n\n## Limitations\n\n- Relies on the screener answer. It does not look up or verify an address.\n\n## Sources\n\n- [Get the Homestead Exemption (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/residence/lives-in-philadelphia-pa/"
+        },
         "operationId" : "LivesInPhiladelphiaPaService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Fail" : {
+                  "description" : "The person says they do not live in Philadelphia, so the check fails.",
+                  "summary" : "Fail",
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "livesInPhiladelphiaPa" : false
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : false
+                  }
+                },
+                "Pass" : {
+                  "description" : "The person says they live in Philadelphia, so the check passes.",
+                  "summary" : "Pass",
                   "value" : {
                     "situation" : {
                       "simpleChecks" : {
                         "livesInPhiladelphiaPa" : true
                       }
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
                   }
                 }
               },
@@ -4093,25 +5059,62 @@
           }
         },
         "summary" : "Execute LivesInPhiladelphiaPa decision",
-        "tags" : [ "Residence Checks" ]
+        "tags" : [ "Residence Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Passes when the screener answer says the person lives in Philadelphia, Pennsylvania, and fails when it says they do not. Returns no result when the answer is missing.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Relies on the screener answer. It does not look up or verify an address." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Get the Homestead Exemption (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/"
+          } ],
+          "summary" : "Checks that a person lives in Philadelphia, PA."
+        }
       }
     },
     "/api/v1/checks/residence/min-years-owner-occupant" : {
       "post" : {
-        "description" : "Checks that the applicant has owned and occupied the primary residence for at least the specified number of years.",
+        "description" : "Checks that the applicant has owned and occupied the primary residence for at least the specified number of years.\n\nPasses when the applicant has owned and lived in their primary residence for at least the minimum number of years. Returns no result when the number of years or the minYears parameter is missing or negative.\n\n## Parameters\n\n- `minYears` (number): Minimum number of years the applicant must have owned and lived in the home. Exactly this many years passes.\n\n## Limitations\n\n- The number of years is taken from the screener answer, not from deed records.\n- Does not check whether time in the home was continuous.\n\n## Sources\n\n- [Apply for the Longtime Owner Occupants Program (LOOP) (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/residence/min-years-owner-occupant/"
+        },
         "operationId" : "MinYearsOwnerOccupantService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Fail" : {
+                  "description" : "An applicant with 9.99 years in the home falls short of a 10-year minimum.",
+                  "summary" : "Fail",
                   "value" : {
                     "parameters" : {
-                      "minYears" : 42
+                      "minYears" : 10
                     },
                     "situation" : {
-                      "yearsOwnerOccupied" : 42
+                      "yearsOwnerOccupied" : 9.99
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : false
+                  }
+                },
+                "Pass" : {
+                  "description" : "An applicant with exactly 10 years in the home meets a 10-year minimum.",
+                  "summary" : "Pass",
+                  "value" : {
+                    "parameters" : {
+                      "minYears" : 10
+                    },
+                    "situation" : {
+                      "yearsOwnerOccupied" : 10
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
                   }
                 }
               },
@@ -4167,24 +5170,65 @@
           }
         },
         "summary" : "Execute MinYearsOwnerOccupant decision",
-        "tags" : [ "Residence Checks" ]
+        "tags" : [ "Residence Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Passes when the applicant has owned and lived in their primary residence for at least the minimum number of years. Returns no result when the number of years or the minYears parameter is missing or negative.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "The number of years is taken from the screener answer, not from deed records.", "Does not check whether time in the home was continuous." ],
+          "parameters" : [ {
+            "description" : "Minimum number of years the applicant must have owned and lived in the home. Exactly this many years passes.",
+            "name" : "minYears",
+            "type" : "number"
+          } ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Apply for the Longtime Owner Occupants Program (LOOP) (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/"
+          } ],
+          "summary" : "Checks that the applicant has owned and occupied the primary residence for at least the specified number of years."
+        }
       }
     },
     "/api/v1/checks/residence/no-disqualifying-tax-abatement" : {
       "post" : {
-        "description" : "LOOP excludes an abatement received on this property by the current owner or a previous owner who is a close relative; includes historical abatements.",
+        "description" : "Checks LOOP's abatement rule: no tax abatement was received on this property by the current owner or by a previous owner who is a close relative.\n\nPasses when the screener answer says no disqualifying abatement was received on the property, and fails when it says one was. An abatement counts if the current owner received it, or if a previous owner who is a close relative (spouse, life partner, parent, stepparent, child, sibling, aunt, uncle, grandparent or step-grandparent) received it, including past abatements that have ended. Returns no result when the answer is missing.\n\n## Limitations\n\n- Relies on the screener answer. It does not look up or verify records.\n- The screener question has to explain who counts as a close relative.\n\n## Sources\n\n- [Apply for the Longtime Owner Occupants Program (LOOP) (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/residence/no-disqualifying-tax-abatement/"
+        },
         "operationId" : "NoDisqualifyingTaxAbatementService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Fail" : {
+                  "description" : "A disqualifying abatement was received on the property, so the check fails.",
+                  "summary" : "Fail",
                   "value" : {
                     "situation" : {
                       "simpleChecks" : {
                         "disqualifyingTaxAbatement" : true
                       }
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : false
+                  }
+                },
+                "Pass" : {
+                  "description" : "No disqualifying abatement was received on the property, so the check passes.",
+                  "summary" : "Pass",
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "disqualifyingTaxAbatement" : false
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
                   }
                 }
               },
@@ -4236,24 +5280,60 @@
           }
         },
         "summary" : "Execute NoDisqualifyingTaxAbatement decision",
-        "tags" : [ "Residence Checks" ]
+        "tags" : [ "Residence Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Passes when the screener answer says no disqualifying abatement was received on the property, and fails when it says one was. An abatement counts if the current owner received it, or if a previous owner who is a close relative (spouse, life partner, parent, stepparent, child, sibling, aunt, uncle, grandparent or step-grandparent) received it, including past abatements that have ended. Returns no result when the answer is missing.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Relies on the screener answer. It does not look up or verify records.", "The screener question has to explain who counts as a close relative." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Apply for the Longtime Owner Occupants Program (LOOP) (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/"
+          } ],
+          "summary" : "Checks LOOP's abatement rule: no tax abatement was received on this property by the current owner or by a previous owner who is a close relative."
+        }
       }
     },
     "/api/v1/checks/residence/no-ten-year-tax-abatement" : {
       "post" : {
-        "description" : "Checks that a property does not have an active 10-year tax abatement.",
+        "description" : "Checks that a property does not have an active 10-year tax abatement.\n\nThe opposite of TenYearTaxAbatement: passes when the screener answer says the property does not have an active 10-year residential tax abatement, and fails when it does. Returns no result when the answer is missing.\n\n## Limitations\n\n- Relies on the screener answer. It does not look up or verify records.\n- Only active abatements count. Past abatements that have ended do not.\n\n## Sources\n\n- [Get the Homestead Exemption (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/residence/no-ten-year-tax-abatement/"
+        },
         "operationId" : "NoTenYearTaxAbatementService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Fail" : {
+                  "description" : "The property has an active 10-year abatement, so the check fails.",
+                  "summary" : "Fail",
                   "value" : {
                     "situation" : {
                       "simpleChecks" : {
                         "tenYearTaxAbatement" : true
                       }
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : false
+                  }
+                },
+                "Pass" : {
+                  "description" : "The property has no active 10-year abatement, so the check passes.",
+                  "summary" : "Pass",
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "tenYearTaxAbatement" : false
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
                   }
                 }
               },
@@ -4305,24 +5385,60 @@
           }
         },
         "summary" : "Execute NoTenYearTaxAbatement decision",
-        "tags" : [ "Residence Checks" ]
+        "tags" : [ "Residence Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "The opposite of TenYearTaxAbatement: passes when the screener answer says the property does not have an active 10-year residential tax abatement, and fails when it does. Returns no result when the answer is missing.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Relies on the screener answer. It does not look up or verify records.", "Only active abatements count. Past abatements that have ended do not." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Get the Homestead Exemption (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/"
+          } ],
+          "summary" : "Checks that a property does not have an active 10-year tax abatement."
+        }
       }
     },
     "/api/v1/checks/residence/owner-occupant" : {
       "post" : {
-        "description" : "Checks that a person owns and occupies their primary residence.",
+        "description" : "Checks that a person owns and occupies their primary residence.\n\nPasses when the screener answer says the person owns the home and lives in it as their primary residence, and fails when it says they do not. Returns no result when the answer is missing.\n\n## Limitations\n\n- Relies on the screener answer. It does not look up or verify records.\n- Does not cover people with a legal interest in the home whose name is not on the deed; some programs accept them.\n\n## Sources\n\n- [Get the Homestead Exemption (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/residence/owner-occupant/"
+        },
         "operationId" : "OwnerOccupantService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Fail" : {
+                  "description" : "The person does not own and live in the home, so the check fails.",
+                  "summary" : "Fail",
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "ownerOccupant" : false
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : false
+                  }
+                },
+                "Pass" : {
+                  "description" : "The person owns and lives in the home, so the check passes.",
+                  "summary" : "Pass",
                   "value" : {
                     "situation" : {
                       "simpleChecks" : {
                         "ownerOccupant" : true
                       }
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
                   }
                 }
               },
@@ -4374,7 +5490,20 @@
           }
         },
         "summary" : "Execute OwnerOccupant decision",
-        "tags" : [ "Residence Checks" ]
+        "tags" : [ "Residence Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Passes when the screener answer says the person owns the home and lives in it as their primary residence, and fails when it says they do not. Returns no result when the answer is missing.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Relies on the screener answer. It does not look up or verify records.", "Does not cover people with a legal interest in the home whose name is not on the deed; some programs accept them." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Get the Homestead Exemption (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/"
+          } ],
+          "summary" : "Checks that a person owns and occupies their primary residence."
+        }
       }
     },
     "/api/v1/checks/residence/pays-primary-heating-costs" : {
@@ -4487,23 +5616,49 @@
     },
     "/api/v1/checks/residence/property-assessment-increase" : {
       "post" : {
-        "description" : "Checks either the one-year or five-year assessment increase; use assessments before Homestead reductions.",
+        "description" : "Checks either the one-year or five-year assessment increase; use assessments before Homestead reductions.\n\nPasses when this year's property assessment is at least the one-year percentage above last year's assessment, or at least the five-year percentage above the lowest assessment of the past five years. Equal to the threshold passes. A path whose values are missing, or whose earlier assessment is zero, gives no result; the check passes if the other path passes.\n\n## Parameters\n\n- `oneYearPercent` (number): Minimum increase over last year's assessment, as a percentage, for example 50 for 50%.\n- `fiveYearPercent` (number): Minimum increase over the lowest assessment of the past five years, as a percentage, for example 75 for 75%.\n\n## Limitations\n\n- Assessment values are taken as given. They should be the values before any Homestead reduction.\n\n## Sources\n\n- [Apply for the Longtime Owner Occupants Program (LOOP) (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/residence/property-assessment-increase/"
+        },
         "operationId" : "PropertyAssessmentIncreaseService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Five year path" : {
+                  "description" : "An assessment that did not change this year passes because it is 75% above the lowest assessment of the past five years.",
+                  "summary" : "Five year path",
                   "value" : {
                     "parameters" : {
-                      "fiveYearPercent" : 42,
-                      "oneYearPercent" : 42
+                      "fiveYearPercent" : 75,
+                      "oneYearPercent" : 50
                     },
                     "situation" : {
-                      "lowestPropertyAssessmentLastFiveYears" : 42,
-                      "previousYearPropertyAssessment" : 42,
-                      "propertyAssessment" : 42
+                      "lowestPropertyAssessmentLastFiveYears" : 100000,
+                      "previousYearPropertyAssessment" : 175000,
+                      "propertyAssessment" : 175000
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
+                  }
+                },
+                "Pass" : {
+                  "description" : "An assessment that rose from $100,000 to $150,000 meets a 50% one-year increase.",
+                  "summary" : "Pass",
+                  "value" : {
+                    "parameters" : {
+                      "fiveYearPercent" : 75,
+                      "oneYearPercent" : 50
+                    },
+                    "situation" : {
+                      "previousYearPropertyAssessment" : 100000,
+                      "propertyAssessment" : 150000
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
                   }
                 }
               },
@@ -4562,18 +5717,60 @@
           }
         },
         "summary" : "Execute PropertyAssessmentIncrease decision",
-        "tags" : [ "Residence Checks" ]
+        "tags" : [ "Residence Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Passes when this year's property assessment is at least the one-year percentage above last year's assessment, or at least the five-year percentage above the lowest assessment of the past five years. Equal to the threshold passes. A path whose values are missing, or whose earlier assessment is zero, gives no result; the check passes if the other path passes.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Assessment values are taken as given. They should be the values before any Homestead reduction." ],
+          "parameters" : [ {
+            "description" : "Minimum increase over last year's assessment, as a percentage, for example 50 for 50%.",
+            "name" : "oneYearPercent",
+            "type" : "number"
+          }, {
+            "description" : "Minimum increase over the lowest assessment of the past five years, as a percentage, for example 75 for 75%.",
+            "name" : "fiveYearPercent",
+            "type" : "number"
+          } ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Apply for the Longtime Owner Occupants Program (LOOP) (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/"
+          } ],
+          "summary" : "Checks either the one-year or five-year assessment increase; use assessments before Homestead reductions."
+        }
       }
     },
     "/api/v1/checks/residence/property-taxes-current-or-payment-plan" : {
       "post" : {
-        "description" : "Checks whether property taxes are current or covered by an active OOPA or Real Estate Tax installment plan.",
+        "description" : "Checks whether property taxes are current or covered by an active OOPA or Real Estate Tax installment plan.\n\nPasses when property taxes are not past due, or when they are past due but covered by an active Owner-Occupied Payment Agreement or Real Estate Tax installment plan. Fails when taxes are past due and there is no plan. Passes whenever the payment-plan answer is yes, even if the past-due answer is missing. Returns no result when taxes are past due or unknown and the payment-plan answer is missing.\n\n## Limitations\n\n- Relies on the screener answer. It does not look up or verify records.\n- Does not check whether payments under the plan are up to date.\n\n## Sources\n\n- [Apply for the Longtime Owner Occupants Program (LOOP) (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/residence/property-taxes-current-or-payment-plan/"
+        },
         "operationId" : "PropertyTaxesCurrentOrPaymentPlanService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Pass" : {
+                  "description" : "Property taxes are current, so the check passes.",
+                  "summary" : "Pass",
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "taxDelinquent" : false
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
+                  }
+                },
+                "Payment plan" : {
+                  "description" : "Property taxes are past due but covered by a payment plan, so the check passes.",
+                  "summary" : "Payment plan",
                   "value" : {
                     "situation" : {
                       "simpleChecks" : {
@@ -4581,6 +5778,9 @@
                         "taxDelinquent" : true
                       }
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
                   }
                 }
               },
@@ -4633,24 +5833,60 @@
           }
         },
         "summary" : "Execute PropertyTaxesCurrentOrPaymentPlan decision",
-        "tags" : [ "Residence Checks" ]
+        "tags" : [ "Residence Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Passes when property taxes are not past due, or when they are past due but covered by an active Owner-Occupied Payment Agreement or Real Estate Tax installment plan. Fails when taxes are past due and there is no plan. Passes whenever the payment-plan answer is yes, even if the past-due answer is missing. Returns no result when taxes are past due or unknown and the payment-plan answer is missing.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Relies on the screener answer. It does not look up or verify records.", "Does not check whether payments under the plan are up to date." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Apply for the Longtime Owner Occupants Program (LOOP) (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/"
+          } ],
+          "summary" : "Checks whether property taxes are current or covered by an active OOPA or Real Estate Tax installment plan."
+        }
       }
     },
     "/api/v1/checks/residence/tax-delinquent" : {
       "post" : {
-        "description" : "Checks whether the property owner has delinquent taxes.",
+        "description" : "Checks whether the property owner has delinquent taxes.\n\nPasses when the screener answer says the property owner has past-due Real Estate Tax, and fails when it says they do not. Programs for owners who are behind on taxes use it directly; others use it through PropertyTaxesCurrentOrPaymentPlan. Returns no result when the answer is missing.\n\n## Limitations\n\n- Relies on the screener answer. It does not look up or verify records.\n- Does not check how much is owed or for how long.\n\n## Sources\n\n- [Set up an Owner-Occupied Real Estate Tax Payment Agreement (OOPA) (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/set-up-an-owner-occupied-real-estate-tax-payment-agreement-oopa/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/residence/tax-delinquent/"
+        },
         "operationId" : "TaxDelinquentService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Fail" : {
+                  "description" : "The owner's taxes are current, so the check fails.",
+                  "summary" : "Fail",
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "taxDelinquent" : false
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : false
+                  }
+                },
+                "Pass" : {
+                  "description" : "The owner has past-due taxes, so the check passes.",
+                  "summary" : "Pass",
                   "value" : {
                     "situation" : {
                       "simpleChecks" : {
                         "taxDelinquent" : true
                       }
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
                   }
                 }
               },
@@ -4702,24 +5938,60 @@
           }
         },
         "summary" : "Execute TaxDelinquent decision",
-        "tags" : [ "Residence Checks" ]
+        "tags" : [ "Residence Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Passes when the screener answer says the property owner has past-due Real Estate Tax, and fails when it says they do not. Programs for owners who are behind on taxes use it directly; others use it through PropertyTaxesCurrentOrPaymentPlan. Returns no result when the answer is missing.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Relies on the screener answer. It does not look up or verify records.", "Does not check how much is owed or for how long." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Set up an Owner-Occupied Real Estate Tax Payment Agreement (OOPA) (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/set-up-an-owner-occupied-real-estate-tax-payment-agreement-oopa/"
+          } ],
+          "summary" : "Checks whether the property owner has delinquent taxes."
+        }
       }
     },
     "/api/v1/checks/residence/ten-year-tax-abatement" : {
       "post" : {
-        "description" : "Checks that a property has an active 10-year tax abatement.",
+        "description" : "Checks that a property has an active 10-year tax abatement.\n\nPasses when the screener answer says the property has an active 10-year residential tax abatement, and fails when it says it does not. Returns no result when the answer is missing.\n\n## Limitations\n\n- Relies on the screener answer. It does not look up or verify records.\n- Only active abatements count. Past abatements that have ended do not.\n\n## Sources\n\n- [Get the Homestead Exemption (City of Philadelphia)](https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/) (checked November 19, 2026)\n\nLast reviewed November 19, 2026.\n",
+        "externalDocs" : {
+          "description" : "Full reference on the docs site",
+          "url" : "https://bdt-docs.web.app/library/checks/residence/ten-year-tax-abatement/"
+        },
         "operationId" : "TenYearTaxAbatementService",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "examples" : {
-                "Example request" : {
+                "Fail" : {
+                  "description" : "The property has no active 10-year abatement, so the check fails.",
+                  "summary" : "Fail",
+                  "value" : {
+                    "situation" : {
+                      "simpleChecks" : {
+                        "tenYearTaxAbatement" : false
+                      }
+                    }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : false
+                  }
+                },
+                "Pass" : {
+                  "description" : "The property has an active 10-year abatement, so the check passes.",
+                  "summary" : "Pass",
                   "value" : {
                     "situation" : {
                       "simpleChecks" : {
                         "tenYearTaxAbatement" : true
                       }
                     }
+                  },
+                  "x-bdt-expected" : {
+                    "checkResult" : true
                   }
                 }
               },
@@ -4771,7 +6043,20 @@
           }
         },
         "summary" : "Execute TenYearTaxAbatement decision",
-        "tags" : [ "Residence Checks" ]
+        "tags" : [ "Residence Checks" ],
+        "x-bdt-reference" : {
+          "explanation" : "Passes when the screener answer says the property has an active 10-year residential tax abatement, and fails when it says it does not. Returns no result when the answer is missing.",
+          "implementationNotes" : [ ],
+          "lastReviewed" : "2026-11-19",
+          "limitations" : [ "Relies on the screener answer. It does not look up or verify records.", "Only active abatements count. Past abatements that have ended do not." ],
+          "sources" : [ {
+            "checkedOn" : "2026-11-19",
+            "citation" : null,
+            "title" : "Get the Homestead Exemption (City of Philadelphia)",
+            "url" : "https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/"
+          } ],
+          "summary" : "Checks that a property has an active 10-year tax abatement."
+        }
       }
     },
     "/api/v1/decision-service-invoker" : {

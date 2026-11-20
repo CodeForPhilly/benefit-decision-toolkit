@@ -6,6 +6,8 @@ import org.kie.dmn.core.internal.utils.DMNRuntimeBuilder;
 import org.kie.internal.io.ResourceFactory;
 
 import java.io.StringReader;
+import java.net.URL;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -54,6 +56,106 @@ class ReferenceEvaluationTest {
             </decision>
             """);
         assertTrue(Reference.evaluate(runtime, runtime.getModels().getFirst(), Reference.Kind.CHECK).isEmpty());
+    }
+
+    private static final String EXPOSED_WITHOUT_REFERENCE = """
+        <decision id="checkResult" name="checkResult">
+          <variable name="checkResult" typeRef="boolean"/>
+          <literalExpression><text>true</text></literalExpression>
+        </decision>
+        <decisionService id="ReferenceTestService" name="ReferenceTestService">
+          <variable name="ReferenceTestService"/>
+          <outputDecision href="#checkResult"/>
+        </decisionService>
+        """;
+
+    @Test
+    void anExposedCheckWithoutAReferenceFailsStartup() {
+        DMNRuntime runtime = runtime(EXPOSED_WITHOUT_REFERENCE);
+        var error = assertThrows(Reference.InvalidReferenceException.class, () -> ModelRegistry.publishedReference(
+            runtime, runtime.getModels().getFirst(), "checks/test/reference-test", "Summary.", List.of(),
+            ReferenceDocs.NONE));
+        assertTrue(error.getMessage().contains("ReferenceTest"), error.getMessage());
+        assertTrue(error.getMessage().contains("reference"), error.getMessage());
+    }
+
+    @Test
+    void anExposedBenefitWithoutAReferenceFailsStartup() {
+        DMNRuntime runtime = runtime(EXPOSED_WITHOUT_REFERENCE);
+        assertThrows(Reference.InvalidReferenceException.class, () -> ModelRegistry.publishedReference(
+            runtime, runtime.getModels().getFirst(), "benefits/test/reference-test", "Summary.", List.of(),
+            ReferenceDocs.NONE));
+    }
+
+    @Test
+    void anExposedModelTheScanMissedFailsStartup() {
+        DMNRuntime runtime = runtime(EXPOSED_WITHOUT_REFERENCE);
+        var error = assertThrows(Reference.InvalidReferenceException.class,
+            () -> ModelRegistry.scannedPath(runtime.getModels().getFirst(), Map.of()));
+        assertTrue(error.getMessage().contains("ReferenceTest"), error.getMessage());
+        assertTrue(error.getMessage().contains("scan probably failed"), error.getMessage());
+    }
+
+    @Test
+    void aModelWithAReferenceTheScanMissedFailsStartup() {
+        DMNRuntime runtime = runtime("""
+            <decision id="reference" name="reference">
+              <variable name="reference" typeRef="Any"/>
+              <literalExpression><text>%s</text></literalExpression>
+            </decision>
+            """.formatted(BENEFIT_REFERENCE));
+        var error = assertThrows(Reference.InvalidReferenceException.class,
+            () -> ModelRegistry.scannedPath(runtime.getModels().getFirst(), Map.of()));
+        assertTrue(error.getMessage().contains("scan probably failed"), error.getMessage());
+    }
+
+    @Test
+    void theJarPathIsDecodedSoADirectoryWithASpaceIsScanned() throws Exception {
+        URL resource = new URL("jar:file:/opt/my%20app/quarkus-app/app/library.jar!/BDT.dmn");
+        assertEquals(Path.of("/opt/my app/quarkus-app/app/library.jar"), ModelRegistry.jarFilePath(resource));
+    }
+
+    @Test
+    void aBaseModuleTheScanMissedKeepsItsName() {
+        DMNRuntime runtime = runtime("""
+            <decision id="helper" name="helper">
+              <variable name="helper" typeRef="boolean"/>
+              <literalExpression><text>true</text></literalExpression>
+            </decision>
+            """);
+        assertEquals("ReferenceTest", ModelRegistry.scannedPath(runtime.getModels().getFirst(), Map.of()));
+    }
+
+    @Test
+    void anExposedUtilityOutsideBenefitsAndChecksNeedsNoReference() {
+        DMNRuntime runtime = runtime(EXPOSED_WITHOUT_REFERENCE);
+        assertTrue(ModelRegistry.publishedReference(runtime, runtime.getModels().getFirst(), "reference-test", null,
+            List.of(), ReferenceDocs.NONE).isEmpty());
+    }
+
+    @Test
+    void aReferenceOutsideBenefitsAndChecksFailsStartupClearly() {
+        DMNRuntime runtime = runtime("""
+            <decision id="reference" name="reference">
+              <variable name="reference" typeRef="Any"/>
+              <literalExpression><text>%s</text></literalExpression>
+            </decision>
+            """.formatted(BENEFIT_REFERENCE));
+        var error = assertThrows(Reference.InvalidReferenceException.class, () -> ModelRegistry.publishedReference(
+            runtime, runtime.getModels().getFirst(), "ReferenceTest", "Summary.", List.of(), ReferenceDocs.NONE));
+        assertTrue(error.getMessage().contains("not under benefits/ or checks/"), error.getMessage());
+    }
+
+    @Test
+    void aBaseModuleWithoutAServiceNeedsNoReference() {
+        DMNRuntime runtime = runtime("""
+            <decision id="helper" name="helper">
+              <variable name="helper" typeRef="boolean"/>
+              <literalExpression><text>true</text></literalExpression>
+            </decision>
+            """);
+        assertTrue(ModelRegistry.publishedReference(runtime, runtime.getModels().getFirst(), "checks/test/helpers", null,
+            List.of(), ReferenceDocs.NONE).isEmpty());
     }
 
     @Test

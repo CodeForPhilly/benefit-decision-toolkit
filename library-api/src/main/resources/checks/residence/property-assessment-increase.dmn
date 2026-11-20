@@ -17,9 +17,11 @@
   </dmn:itemDefinition>
   <dmn:itemDefinition id="_0812EABA-5609-443D-AB9E-FA3BEFE5F843" name="tParameters" isCollection="false">
     <dmn:itemComponent id="_BD16126A-F1F7-4DC5-A204-18FA589FB919" name="oneYearPercent" isCollection="false">
+      <dmn:description>Minimum increase over last year's assessment, as a percentage, for example 50 for 50%.</dmn:description>
       <dmn:typeRef>number</dmn:typeRef>
     </dmn:itemComponent>
     <dmn:itemComponent id="_BD4DDFAD-F7B1-4E3C-85B3-1B5CEAC0A494" name="fiveYearPercent" isCollection="false">
+      <dmn:description>Minimum increase over the lowest assessment of the past five years, as a percentage, for example 75 for 75%.</dmn:description>
       <dmn:typeRef>number</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
@@ -69,6 +71,58 @@ else situation.propertyAssessment &gt;= situation.lowestPropertyAssessmentLastFi
     <dmn:extensionElements />
     <dmn:variable id="_1EF99516-A885-40A1-AA2D-6273B7FA5470" name="parameters" typeRef="tParameters" />
   </dmn:inputData>
+  <dmn:decision id="_D726D675-D2B9-4ED7-8500-5799C1A3E249" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_E3AB20C2-D1B4-48E5-B8F1-C73F9B2B6BC6" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:context id="_96756486-652D-4936-ACB5-B485A60CF2F4" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_DFC82ED3-7D91-4B70-BD36-5BE881294282" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_98637DDE-EA71-495D-B10D-BEA647958407" typeRef="string">
+          <dmn:text>"Passes when this year's property assessment is at least the one-year percentage above last year's assessment, or at least the five-year percentage above the lowest assessment of the past five years. Equal to the threshold passes. A path whose values are missing, or whose earlier assessment is zero, gives no result; the check passes if the other path passes."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_DE78DDEC-D97A-4B00-BD08-3E171DEC455A" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_E891F51C-D98A-4F07-9E4C-6C686B2BDAA6" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_1F1670B4-6A99-4AE6-9CFE-71DC636392EC" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_A4EA94FF-C744-42FC-A7B9-CE5A21CF2DAB" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_B15D0414-EC2E-4BDC-B3D7-B9B93290CA42" typeRef="string">
+                <dmn:text>"Apply for the Longtime Owner Occupants Program (LOOP) (City of Philadelphia)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_5B4FF621-7483-4DE1-A011-82DB4DE004DD" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_80729356-811A-44A9-A33B-8E40858C8F2D" typeRef="string">
+                <dmn:text>"https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_88454D6E-04E4-4F21-ADE3-CD9D95A090FE" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_F30BA914-85A3-4475-BB97-42F4AEA15B3F" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_F96D50D6-E6B1-485C-ABB8-2C6E5E86A3EB" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_1510C7CB-7E59-48F2-9031-A282E00F716C" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_CC4E6DB0-4130-48E6-816B-BEAD8B2B0A5A" typeRef="string">
+            <dmn:text>"Assessment values are taken as given. They should be the values before any Homestead reduction."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_3157E606-DB37-44D9-BD56-3B67E050BD98" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_C5921644-D586-4C16-B0B1-58A59DA1F2C2" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_E8F0D610-818D-42CD-9590-DF5670BC6A5B" name="DRG">
       <di:extension>
@@ -87,6 +141,16 @@ else situation.propertyAssessment &gt;= situation.lowestPropertyAssessmentLastFi
           <kie:ComponentWidths dmnElementRef="_D1AEC135-88AE-47DA-A03D-F4399DEC3AE5">
             <kie:width>917</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_96756486-652D-4936-ACB5-B485A60CF2F4"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_98637DDE-EA71-495D-B10D-BEA647958407"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E891F51C-D98A-4F07-9E4C-6C686B2BDAA6"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_1F1670B4-6A99-4AE6-9CFE-71DC636392EC"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_B15D0414-EC2E-4BDC-B3D7-B9B93290CA42"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_80729356-811A-44A9-A33B-8E40858C8F2D"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_F30BA914-85A3-4475-BB97-42F4AEA15B3F"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_1510C7CB-7E59-48F2-9031-A282E00F716C"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_CC4E6DB0-4130-48E6-816B-BEAD8B2B0A5A"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C5921644-D586-4C16-B0B1-58A59DA1F2C2"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="_1375FF24-DFE4-41F4-90DC-5CBAD56036AD" dmnElementRef="_7C64C2FC-2361-4EE3-8790-4B918618BD2F" isCollapsed="false">
@@ -108,6 +172,15 @@ else situation.propertyAssessment &gt;= situation.lowestPropertyAssessmentLastFi
       <dmndi:DMNShape id="_A07D5E36-95C9-41B4-9C54-D6445CCB537F" dmnElementRef="_A0E81103-7450-4290-AA82-95A84CD3329A" isCollapsed="false">
         <dc:Bounds x="348.0" y="520" width="160" height="80" />
         <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_D726D675-D2B9-4ED7-8500-5799C1A3E249" dmnElementRef="_D726D675-D2B9-4ED7-8500-5799C1A3E249" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="596" y="140" width="160" height="80"/>
+        <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="_0D900BED-3826-4B19-A69E-E8698C0A70EA" dmnElementRef="_0D918836-AEAF-43BA-B5D0-AFD209A876CA" sourceElement="_709F0C30-ACF3-4A34-827F-6A4D6D49C8CF" targetElement="_ADE17FB2-BC7A-4553-890E-F7E7512CD5B5">
         <di:waypoint x="208.0" y="520" />

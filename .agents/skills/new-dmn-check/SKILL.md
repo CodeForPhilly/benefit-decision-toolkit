@@ -14,8 +14,8 @@ Parse `$ARGUMENTS` if provided:
 If either is missing, ask the user for:
 1. **Check name** — PascalCase, globally unique (e.g. `PersonMinIncome`). Derive the file name by converting to kebab-case (e.g. `person-min-income.dmn`) and the service name by appending `Service` (e.g. `PersonMinIncomeService`).
 2. **Category** — existing (`age`, `enrollment`) or a new category name.
-3. **Description** — one sentence describing what eligibility condition is checked.
-4. **Parameters** beyond `situation` — for each: name, FEEL type (`string`, `number`, `date`, `boolean`), and purpose. If there are none, the `parameters` input will be omitted entirely from the DMN model.
+3. **Description** — one sentence describing what eligibility condition is checked. It becomes the reference summary.
+4. **Parameters** beyond `situation` — for each: name, FEEL type (`string`, `number`, `date`, `boolean`), and purpose (it becomes the parameter description). If there are none, the `parameters` input will be omitted entirely from the DMN model.
 5. **FEEL logic** — either a FEEL expression or a plain-English description. Describe which `situation` fields are used (e.g. `situation.people`, `situation.enrollments`, `situation.simpleChecks.*`).
 6. **Does the logic need intermediate values?** — Yes → context-chain pattern; No → simple literal expression pattern.
 
@@ -124,6 +124,7 @@ Based on `person-enrolled-in-benefit.dmn`:
   <dmn:itemDefinition id="_{TPARAMS_UUID}" name="tParameters" isCollection="false">
     <!-- One dmn:itemComponent per parameter -->
     <dmn:itemComponent id="_{PARAM1_UUID}" name="{paramName}" isCollection="false">
+      <dmn:description>{What the caller passes and how the check uses it, for example: Minimum age in whole years.}</dmn:description>
       <dmn:typeRef>{feelType}</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
@@ -158,6 +159,17 @@ Based on `person-enrolled-in-benefit.dmn`:
     <dmn:literalExpression id="_{EXPR_UUID}">
       <dmn:text>{FEEL expression}</dmn:text>
     </dmn:literalExpression>
+  </dmn:decision>
+
+  <!-- Required constant reference: no information requirements, not a service output. See "Reference" below for the
+       full boxed context (explanation, sources, limitations, lastReviewed) and its ComponentWidths. -->
+  <dmn:decision id="_{REFERENCE_UUID}" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_{REFERENCE_VAR_UUID}" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:context id="_{REFERENCE_CONTEXT_UUID}" typeRef="BDT.tEligibilityCheckReference">
+      <!-- One contextEntry each for explanation, sources, limitations and lastReviewed -->
+    </dmn:context>
   </dmn:decision>
 
   <dmn:inputData id="_{SITUATION_INPUT_UUID}" name="situation">
@@ -304,7 +316,7 @@ The rest of the file structure (imports, itemDefinitions, inputData, decisionSer
 
 ### Reference
 
-Every new check carries an eligibility check reference (see `GLOSSARY.md`). It is complete when each part below is present and every fact comes from an official source you actually read:
+Every check must carry an eligibility check reference (see `GLOSSARY.md`). Startup fails when a check under `checks/` exposes `{CheckName}Service` without a valid `reference` decision, and `LibraryReferenceCoverageTest` fails when a parameter has no description or the check has no Bruno example. The reference is complete when each part below is present and every fact comes from an official source you actually read:
 
 - **Summary**: the model's `<dmn:description>`, one plain sentence.
 - **`reference` decision**: a constant decision named `reference`, `typeRef="BDT.tEligibilityCheckReference"`, with no information requirements and outside the Decision Service. Write it as a boxed context (`<dmn:context typeRef="BDT.tEligibilityCheckReference">`), not a FEEL literal, so it reads as a table in a DMN editor: one `contextEntry` per field, its `<dmn:variable>` typed (`explanation`: `string`; `sources`: `BDT.tReferenceSourceList` of {title, url, citation, checkedOn}; `limitations`: `BDT.tStringList`; `lastReviewed`: `date`). Each scalar is a `literalExpression` typed `string` or `date` (`"..."`, `date("2026-11-12")`, or `null` for an optional `url` or `citation`); `sources` and `limitations` are boxed lists (`<dmn:list typeRef="BDT.tReferenceSourceList">` of `BDT.tReferenceSource` contexts, `<dmn:list typeRef="BDT.tStringList">` of string literals). Startup rejects unknown, missing or non-`https` fields. Give it its own 160×80 shape to the right of the service and `ComponentWidths` for every context (`50`, `180`, value width), list (one width) and literal (`560`); `checks/residence/lives-in-pennsylvania.dmn` is the worked example.

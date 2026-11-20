@@ -1,5 +1,6 @@
 package org.codeforphilly.bdt.library.api;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -33,6 +34,27 @@ public class ModelInfo {
         this.nextSteps = nextSteps;
         this.reference = reference;
         this.examples = examples;
+    }
+
+    /** Whether a model is served over the API: it has a decision service named {@code {ModelName}Service}. */
+    static boolean isExposed(String modelName, Collection<String> decisionServices) {
+        return decisionServices.contains(modelName + "Service");
+    }
+
+    /**
+     * Whether an exposed model is a library benefit or check (under {@code benefits/} or {@code checks/}),
+     * which must have a reference. Exposed utilities elsewhere need none.
+     */
+    static boolean isLibraryExposed(String path, String modelName, Collection<String> decisionServices) {
+        return (path.startsWith("benefits/") || path.startsWith("checks/")) && isExposed(modelName, decisionServices);
+    }
+
+    public boolean isExposed() {
+        return isExposed(modelName, decisionServices);
+    }
+
+    public boolean isLibraryExposed() {
+        return isLibraryExposed(path, modelName, decisionServices);
     }
 
     public String getNamespace() {

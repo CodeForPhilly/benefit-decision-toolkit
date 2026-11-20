@@ -85,11 +85,6 @@ class ReferenceOpenApiTest {
     }
 
     @Test
-    void modelsWithoutAReferenceDecisionPublishNone() {
-        assertNull(openApi.get("paths.'/api/v1/benefits/pa/phl/homestead-exemption'.post.'x-bdt-reference'"));
-    }
-
-    @Test
     void brunoTestsWithADocsBlockBecomeExamples() {
         String examples = LIHEAP + ".requestBody.content.'application/json'.examples";
         Map<String, Map<String, Object>> byName = openApi.getMap(examples);

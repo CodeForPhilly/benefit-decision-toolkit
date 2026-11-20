@@ -14,8 +14,8 @@ import java.util.Map;
 /**
  * The parts of a reference written as DMN documentation rather than in the {@code reference} decision:
  * check rationale (descriptions on the {@code checks} context entries of a benefit), parameter descriptions
- * (descriptions on a check's {@code tParameters} components) and implementation notes (text annotations
- * associated with a decision).
+ * (descriptions on the components of the type of a check's {@code parameters} input) and implementation notes
+ * (text annotations associated with a decision).
  */
 record ReferenceDocs(
     Map<String, String> checkRationale,
@@ -50,21 +50,50 @@ record ReferenceDocs(
     }
 
     private static List<Map<String, Object>> parameters(Element definitions) {
+        String type = parametersType(definitions);
+        Element item = type == null ? null : itemDefinition(definitions, type);
         List<Map<String, Object>> parameters = new ArrayList<>();
-        for (Element item : children(definitions, "itemDefinition")) {
-            if (!"tParameters".equals(item.getAttribute("name"))) {
-                continue;
-            }
-            for (Element component : children(item, "itemComponent")) {
-                Map<String, Object> parameter = new LinkedHashMap<>();
-                parameter.put("name", component.getAttribute("name"));
-                Element typeRef = child(component, "typeRef");
-                parameter.put("type", typeRef == null ? null : typeRef.getTextContent().trim());
-                parameter.put("description", description(component));
-                parameters.add(Collections.unmodifiableMap(parameter));
-            }
+        for (Element component : children(item, "itemComponent")) {
+            Map<String, Object> parameter = new LinkedHashMap<>();
+            parameter.put("name", component.getAttribute("name"));
+            Element typeRef = child(component, "typeRef");
+            parameter.put("type", typeRef == null ? null : typeRef.getTextContent().trim());
+            parameter.put("description", description(component));
+            parameters.add(Collections.unmodifiableMap(parameter));
         }
         return List.copyOf(parameters);
+    }
+
+    /**
+     * The type of the {@code parameters} input when this file does not define it, so its parameters cannot be
+     * documented from this file (for example a type imported from another model); null when it is defined here
+     * or there is no {@code parameters} input.
+     */
+    static String undocumentedParametersType(Document doc) {
+        Element definitions = doc.getDocumentElement();
+        String type = parametersType(definitions);
+        return type == null || itemDefinition(definitions, type) != null ? null : type;
+    }
+
+    /** The typeRef of the {@code parameters} input data, or null when there is none. */
+    private static String parametersType(Element definitions) {
+        for (Element input : children(definitions, "inputData")) {
+            if ("parameters".equals(input.getAttribute("name"))) {
+                Element variable = child(input, "variable");
+                String type = variable == null ? "" : variable.getAttribute("typeRef");
+                return type.isBlank() ? null : type;
+            }
+        }
+        return null;
+    }
+
+    private static Element itemDefinition(Element definitions, String name) {
+        for (Element item : children(definitions, "itemDefinition")) {
+            if (name.equals(item.getAttribute("name"))) {
+                return item;
+            }
+        }
+        return null;
     }
 
     private static List<Map<String, Object>> implementationNotes(Element definitions) {

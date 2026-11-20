@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <dmn:definitions xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:kie="https://kie.org/dmn/extensions/1.0" id="_3EB1B963-A44D-461C-B630-17ABEA96BF01" name="RetipAgeOrIncomeRequirement" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_F215D4C4-6D59-4557-88FA-9ADEFD5CA3D6" xmlns="https://kie.apache.org/dmn/_F215D4C4-6D59-4557-88FA-9ADEFD5CA3D6" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_15EDFFFA-F0BA-433C-9CFF-2A86EEA4F439" xmlns:included3="https://kie.apache.org/dmn/_32004365-F30E-4E68-B7EF-6E87FC2EA724" xmlns:included4="https://kie.apache.org/dmn/_0F40186A-672E-4BF8-8481-957F70A70DF4">
-  <dmn:description>RETIP eligibility through applicant/live-in spouse age 65 or low household income. No late-spouse age pathway.</dmn:description>
+  <dmn:description>Checks RETIP's age or income requirement: the applicant or a live-in spouse is 65 or older, or household income is below the RETIP limit.</dmn:description>
   <dmn:extensionElements />
   <dmn:import id="_EA2E6E9C-F2D4-4AC8-B853-1DDE9D03F407" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
   <dmn:import id="_811CDAB8-1963-45A5-9F79-C9526B8834CD" name="Internal" namespace="https://kie.apache.org/dmn/_15EDFFFA-F0BA-433C-9CFF-2A86EEA4F439" locationURI="Internal.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/" />
@@ -68,6 +68,61 @@
     <dmn:extensionElements />
     <dmn:variable id="_4E683D91-1BE0-4065-B340-0F3374C990CD" name="situation" typeRef="tSituation" />
   </dmn:inputData>
+  <dmn:decision id="_5E645CFC-6ACD-4E9F-B60E-2336035CDC27" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_307E949D-C68C-4DDA-B2FF-0238C0557EB2" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:context id="_9BE70A52-05E7-4FED-996E-D6399211CB38" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_D941D73B-69E5-461A-BB13-B765C060F485" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_31413295-41FC-4195-9966-7D1CA06EBB4F" typeRef="string">
+          <dmn:text>"Passes when ApplicantOrSpouseMinAge passes with a minimum age of 65, or when RetipIncome passes. Seniors qualify whatever their income. Fails only when both paths fail, and returns no result when neither path passes and one of them has no result."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_DD3FCC7E-AED5-435D-82A7-41F7F7A3D9D2" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_96AA6E5D-F2F4-48DE-8455-F317EC1E4C3F" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_89344F1A-946D-456B-84C1-6EA98EEFD5EF" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_6DA1B3A5-348B-4D85-AC9E-81D44349D6EA" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_6B7A3387-318B-4A93-BECC-384299342D4D" typeRef="string">
+                <dmn:text>"Set up a Real Estate Tax Installment Plan (City of Philadelphia)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_883FE8D9-F365-427C-9FB5-7482AEC20A62" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_5AD53EA7-B425-4A11-AA94-511BB9092238" typeRef="string">
+                <dmn:text>"https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/set-up-real-estate-tax-installment-plan/"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_7A47C7F5-D29E-4824-A2A5-143EB027285E" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_94B90666-A4C2-4C9C-9035-C3F560BB7C51" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_BE436487-5659-46A1-AE3D-758629AC8BE4" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_31A08A22-6689-4AEE-8BEE-073A07080703" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_4596A42F-DF51-4323-AAEE-90E10B4FC35E" typeRef="string">
+            <dmn:text>"Age is measured on the screening date."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_F848AC9B-4AD6-43B2-ACF7-FBE6441BD6CC" typeRef="string">
+            <dmn:text>"Unlike the Senior Citizen Tax Freeze, there is no path for a widow or widower of someone who reached 65."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_582AC3EA-1B0C-4065-B418-9FAEF6D2B5FC" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_F268D020-3471-450A-B8E1-9FE8F6B0B0BA" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_4DC889EA-FE0E-410F-A250-40257B2E66FC" name="DRG">
       <di:extension>
@@ -75,6 +130,17 @@
           <kie:ComponentWidths dmnElementRef="_C0020626-4DD0-47C3-A4B3-736935708EF7">
             <kie:width>917</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_9BE70A52-05E7-4FED-996E-D6399211CB38"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_31413295-41FC-4195-9966-7D1CA06EBB4F"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_96AA6E5D-F2F4-48DE-8455-F317EC1E4C3F"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_89344F1A-946D-456B-84C1-6EA98EEFD5EF"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_6B7A3387-318B-4A93-BECC-384299342D4D"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_5AD53EA7-B425-4A11-AA94-511BB9092238"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_94B90666-A4C2-4C9C-9035-C3F560BB7C51"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_31A08A22-6689-4AEE-8BEE-073A07080703"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_4596A42F-DF51-4323-AAEE-90E10B4FC35E"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_F848AC9B-4AD6-43B2-ACF7-FBE6441BD6CC"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_F268D020-3471-450A-B8E1-9FE8F6B0B0BA"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="_384023E2-14CF-4AE8-8BD1-BE8D0E2847E1" dmnElementRef="_BA58546D-4E8A-4FCE-8A39-42A1F5A69762" isCollapsed="false">
@@ -108,6 +174,15 @@
           <di:waypoint x="440" y="50" />
           <di:waypoint x="740" y="50" />
         </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_5E645CFC-6ACD-4E9F-B60E-2336035CDC27" dmnElementRef="_5E645CFC-6ACD-4E9F-B60E-2336035CDC27" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="800" y="0" width="160" height="80"/>
+        <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="_16D8B058-1602-415A-B551-ACF45126CCBB" dmnElementRef="_98A808D7-0074-4031-B5B7-1B7B304EFFC4" sourceElement="_AE3E2BDA-A1A6-488F-9284-DFC05247D370" targetElement="_F151397B-8A68-4273-BA0E-075151030D25">
         <di:waypoint x="410.0" y="520" />
