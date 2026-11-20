@@ -86,6 +86,25 @@ class ReferenceEvaluationTest {
     }
 
     @Test
+    void anExposedModelTheScanMissedFailsStartup() {
+        DMNRuntime runtime = runtime(EXPOSED_WITHOUT_REFERENCE);
+        var error = assertThrows(Reference.InvalidReferenceException.class,
+            () -> ModelRegistry.scannedPath(runtime.getModels().getFirst(), Map.of()));
+        assertTrue(error.getMessage().contains("ReferenceTest"), error.getMessage());
+    }
+
+    @Test
+    void aBaseModuleTheScanMissedKeepsItsName() {
+        DMNRuntime runtime = runtime("""
+            <decision id="helper" name="helper">
+              <variable name="helper" typeRef="boolean"/>
+              <literalExpression><text>true</text></literalExpression>
+            </decision>
+            """);
+        assertEquals("ReferenceTest", ModelRegistry.scannedPath(runtime.getModels().getFirst(), Map.of()));
+    }
+
+    @Test
     void anExposedUtilityOutsideBenefitsAndChecksNeedsNoReference() {
         DMNRuntime runtime = runtime(EXPOSED_WITHOUT_REFERENCE);
         assertTrue(ModelRegistry.publishedReference(runtime, runtime.getModels().getFirst(), "reference-test", null,

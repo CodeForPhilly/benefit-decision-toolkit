@@ -156,7 +156,7 @@ public class ModelRegistry {
                     .collect(Collectors.toList());
 
                 // Get the file path and description for this model
-                String path = scan.paths.getOrDefault(modelName, modelName);
+                String path = scannedPath(model, scan.paths);
                 String description = scan.descriptions.get(modelName);
                 boolean benefit = path.startsWith("benefits/");
                 List<BenefitCheckInfo> checks = scan.benefitChecks.getOrDefault(modelName, List.of());
@@ -186,6 +186,24 @@ public class ModelRegistry {
         // Assign to volatile fields for thread-safe publication
         this.cachedModels = modelMap;
         this.cachedModelsByPath = modelsByPath;
+    }
+
+    /**
+     * The model's file path from the classpath scan, or its bare name when the scan did not record it.
+     * An exposed model the scan missed fails startup: without its path, nothing can tell whether it is a
+     * library benefit or check that must have a reference.
+     */
+    static String scannedPath(DMNModel model, Map<String, String> scannedPaths) {
+        String path = scannedPaths.get(model.getName());
+        if (path != null) {
+            return path;
+        }
+        String service = model.getName() + "Service";
+        if (model.getDecisionServices().stream().anyMatch(ds -> service.equals(ds.getName()))) {
+            throw new Reference.InvalidReferenceException(model.getName() + " is exposed through " + service
+                + " but the classpath scan did not find its DMN file, so its reference cannot be checked");
+        }
+        return model.getName();
     }
 
     /**
