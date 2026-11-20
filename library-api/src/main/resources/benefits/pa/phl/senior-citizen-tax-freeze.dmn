@@ -271,6 +271,9 @@ all(checksAsList)</dmn:text>
           <dmn:literalExpression id="_00D09EBC-13F6-4083-BD5D-3D3B97BF225B" typeRef="string">
             <dmn:text>"Does not check the income limit of $33,500 for a single person or $41,500 for a married couple. A household over the limit can show as eligible."</dmn:text>
           </dmn:literalExpression>
+          <dmn:literalExpression id="_7A2E4C91-3B5D-4F6E-8A1C-9D0B2E3F4A5B" typeRef="string">
+            <dmn:text>"Ages are measured on December 31 of the current year, so someone who turns 65 (or 50) later this year already shows as eligible."</dmn:text>
+          </dmn:literalExpression>
           <dmn:literalExpression id="_59332294-43FB-4590-B7AE-9FCDAB718ED1" typeRef="string">
             <dmn:text>"Does not check that a spouse aged 65 or older lives in the same household."</dmn:text>
           </dmn:literalExpression>
@@ -382,6 +385,7 @@ all(checksAsList)</dmn:text>
           <kie:ComponentWidths dmnElementRef="_26018194-29B8-4FCD-AC50-08307A0662FF"><kie:width>560</kie:width></kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_8E49DFF3-885E-4C85-944D-FCA9AC7657B4"><kie:width>790</kie:width></kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_00D09EBC-13F6-4083-BD5D-3D3B97BF225B"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_7A2E4C91-3B5D-4F6E-8A1C-9D0B2E3F4A5B"><kie:width>560</kie:width></kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_59332294-43FB-4590-B7AE-9FCDAB718ED1"><kie:width>560</kie:width></kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_D561BDC3-FFDF-4703-93C1-7EDE52893E09"><kie:width>560</kie:width></kie:ComponentWidths>
           <kie:ComponentWidths dmnElementRef="_C1BE6518-1C93-414B-AAE4-C32A02F24A74"><kie:width>560</kie:width></kie:ComponentWidths>
