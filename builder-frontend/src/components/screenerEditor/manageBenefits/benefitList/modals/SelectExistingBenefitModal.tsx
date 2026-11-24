@@ -11,10 +11,7 @@ import {
 import { fetchLibraryBenefits } from "@/api/benefit";
 import type { Benefit } from "@/types";
 import LibraryReference from "@/components/shared/libraryReference/LibraryReference";
-
-// Treat a missing name as an empty string
-const normalizeBenefitName = (name: string | null | undefined) =>
-  (name ?? "").trim().toLowerCase();
+import { normalizeForComparison } from "@/utils/normalizeForComparison";
 
 const SelectExistingBenefitModal = (props: {
   importBenefit: (benefitId: string) => Promise<void>;
@@ -31,14 +28,14 @@ const SelectExistingBenefitModal = (props: {
     if (availableBenefits.error) return [];
     const existingNames = new Set(
       // Ignore case and surrounding whitespace so small differences still match
-      props.existingBenefitNames.map(normalizeBenefitName),
+      props.existingBenefitNames.map(normalizeForComparison),
     );
     return (availableBenefits() ?? []).filter(
       // Keep the benefit being added in the list until the modal closes, since the
       // screener refetches before importBenefit resolves
       (benefit) =>
         benefit.id === importingId() ||
-        !existingNames.has(normalizeBenefitName(benefit.name)),
+        !existingNames.has(normalizeForComparison(benefit.name)),
     );
   });
 

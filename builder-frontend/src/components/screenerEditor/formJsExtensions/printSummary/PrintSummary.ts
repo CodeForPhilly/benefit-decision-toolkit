@@ -7,6 +7,7 @@ import { isDecided, webLink } from "../nextSteps/content";
 import { firstVisibleNextSteps } from "../nextSteps/selection";
 import type { ScreeningResultsService } from "../screeningResults/screeningResults";
 import { useScreeningResults } from "../screeningResults/useScreeningResults";
+import { normalizeForComparison } from "@/utils/normalizeForComparison";
 import "./printSummary.css";
 
 export const PRINT_SUMMARY_TYPE = "print_summary";
@@ -35,7 +36,7 @@ function printedDestination(link: HTMLAnchorElement): string | undefined {
   const shown =
     link.protocol === "tel:"
       ? (value: string) => value.replace(/[^+\d]/g, "")
-      : (value: string) => value.trim().toLowerCase();
+      : normalizeForComparison;
   return shown(link.textContent ?? "") === shown(contact) ? undefined : contact;
 }
 
