@@ -3,7 +3,9 @@ import { env } from "@/config/environment";
 
 const apiUrl = env.apiUrl;
 
-export const fetchPublishedScreener = async (publishedScreenerId: string): Promise<PublishedScreener> => {
+export const fetchPublishedScreener = async (
+  publishedScreenerId: string,
+): Promise<PublishedScreener> => {
   const url = apiUrl + "/published/screener/" + publishedScreenerId;
   try {
     const response = await fetch(url, {
@@ -24,8 +26,10 @@ export const fetchPublishedScreener = async (publishedScreenerId: string): Promi
   }
 };
 
-
-export const evaluatePublishedScreener = async (publishedScreenerId: string, inputData: any): Promise<ScreenerResult> => {
+export const evaluatePublishedScreener = async (
+  publishedScreenerId: string,
+  inputData: any,
+): Promise<ScreenerResult> => {
   const url = apiUrl + "/published/" + publishedScreenerId + "/evaluate";
   try {
     const response = await fetch(url, {

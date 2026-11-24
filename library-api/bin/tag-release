@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 # library-api Release Tagging Script
-# This script ensures pom.xml version and git tag stay in sync
+# Prepare and validate release artifacts before committing and tagging.
 
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LIBRARY_API_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -82,33 +82,18 @@ if [ ! -f "$POM_FILE" ]; then
     exit 1
 fi
 
-# Update pom.xml version using Maven
-print_info "Updating pom.xml version to $VERSION..."
-
-cd "$LIBRARY_API_DIR"
-
-# Use Maven versions plugin to update project version
-if ! mvn -q versions:set -DnewVersion="$VERSION" -DgenerateBackupPoms=false; then
-    print_error "Failed to update pom.xml version using Maven"
+# Refuse to include unrelated staged changes in a release commit.
+if [ -n "$(git -C "$REPO_ROOT" status --porcelain)" ]; then
+    print_error "Release tagging requires a clean working tree. Commit or stash existing changes first."
     exit 1
 fi
 
-# Verify the update by extracting the project version
-CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout 2>/dev/null || echo "")
+"$SCRIPT_DIR/prepare-release" "$VERSION"
 
-if [ "$CURRENT_VERSION" != "$VERSION" ]; then
-    print_error "Failed to update pom.xml version"
-    echo "Current version in pom.xml: $CURRENT_VERSION"
-    echo "Expected version: $VERSION"
-    exit 1
-fi
-
-print_success "Updated pom.xml to version $VERSION"
-
-# Stage pom.xml
-print_info "Staging pom.xml..."
-git add "$POM_FILE"
-print_success "Staged pom.xml"
+print_info "Staging validated release artifacts..."
+git -C "$REPO_ROOT" add -- library-api/pom.xml library-api/openapi.snapshot.json \
+    builder-api/src/main/resources/seed-data/example-screener
+cd "$REPO_ROOT"
 
 # Create commit
 print_info "Creating commit..."

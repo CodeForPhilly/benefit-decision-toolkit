@@ -32,6 +32,15 @@ body:json {
   }
 }
 
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq true
+}
+
+docs {
+  The enrollments list shows person p1 in the named benefit, so the check passes.
+}
+
 settings {
   encodeUrl: true
   timeout: 0

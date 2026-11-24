@@ -24,7 +24,9 @@
     "allowSyntheticDefaultImports": true,
 
     /* Type Checking */
-    "strict": true
+    "strict": true,
+    // Library type definitions are their authors' to fix; check only our code.
+    "skipLibCheck": true
   },
   "include": ["src/**/*"]
 }

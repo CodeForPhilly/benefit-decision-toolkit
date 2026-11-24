@@ -1,5 +1,6 @@
 package org.codeforphilly.bdt.library.api;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -16,10 +17,13 @@ public class ModelInfo {
     private final String dmnDescription;
     private final List<BenefitCheckInfo> benefitChecks;
     private final Map<String, Object> nextSteps;
+    private final Map<String, Object> reference;
+    private final List<BrunoExamples.Example> examples;
 
     public ModelInfo(String namespace, String modelName, List<String> decisionServices, List<String> decisions,
                      String path, String dmnDescription, List<BenefitCheckInfo> benefitChecks,
-                     Map<String, Object> nextSteps) {
+                     Map<String, Object> nextSteps, Map<String, Object> reference,
+                     List<BrunoExamples.Example> examples) {
         this.namespace = namespace;
         this.modelName = modelName;
         this.decisionServices = decisionServices;
@@ -28,6 +32,29 @@ public class ModelInfo {
         this.dmnDescription = dmnDescription;
         this.benefitChecks = benefitChecks;
         this.nextSteps = nextSteps;
+        this.reference = reference;
+        this.examples = examples;
+    }
+
+    /** Whether a model is served over the API: it has a decision service named {@code {ModelName}Service}. */
+    static boolean isExposed(String modelName, Collection<String> decisionServices) {
+        return decisionServices.contains(modelName + "Service");
+    }
+
+    /**
+     * Whether an exposed model is a library benefit or check (under {@code benefits/} or {@code checks/}),
+     * which must have a reference. Exposed utilities elsewhere need none.
+     */
+    static boolean isLibraryExposed(String path, String modelName, Collection<String> decisionServices) {
+        return (path.startsWith("benefits/") || path.startsWith("checks/")) && isExposed(modelName, decisionServices);
+    }
+
+    public boolean isExposed() {
+        return isExposed(modelName, decisionServices);
+    }
+
+    public boolean isLibraryExposed() {
+        return isLibraryExposed(path, modelName, decisionServices);
     }
 
     public String getNamespace() {
@@ -96,6 +123,16 @@ public class ModelInfo {
 
     public Map<String, Object> getNextSteps() {
         return nextSteps;
+    }
+
+    /** The published reference (x-bdt-reference), or an empty map when the model has none. */
+    public Map<String, Object> getReference() {
+        return reference;
+    }
+
+    /** Worked examples from Bruno tests with a docs block, in Bruno order. */
+    List<BrunoExamples.Example> getExamples() {
+        return examples;
     }
 
     private String capitalize(String str) {

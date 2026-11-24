@@ -75,7 +75,7 @@ The **Manage Benefits** tab displays all benefits configured for your screener a
 From this view, you can:
 
 - **Create a custom benefit** by selecting **Create custom benefit** and providing a name and description
-- **Add a library benefit** by selecting **Add library benefit**, choosing a pre-built benefit, and selecting **Add to screener**. The imported copy can then be edited without changing the library source.
+- **Add a library benefit** by selecting **Add library benefit**, choosing a pre-built benefit, and selecting **Add to screener**. The imported copy can then be edited without changing the library source. Library benefits already in your screener aren't listed. A benefit counts as added when your screener has a benefit with the same name, ignoring capitals and extra spaces. So if you rename an added benefit, the library benefit is listed again, and if you create a custom benefit with the same name as a library benefit, that library benefit isn't listed.
 - **Edit** a benefit by selecting **Edit** on its card, which opens the **Configure Benefit** page
 - **Remove** a benefit by selecting **Remove** on its card
 

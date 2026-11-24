@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "format": "prettier --write src",
+    "format:check": "prettier --check src",
+    "typecheck": "node scripts/typecheck.mjs"
   },
   "dependencies": {
     "@bpmn-io/feel-editor": "^2.7.1",
@@ -35,6 +38,8 @@
     "@tailwindcss/postcss": "^4.1.8",
     "@tailwindcss/vite": "^4.1.18",
     "@types/json-schema": "^7.0.15",
+    "@types/lodash": "^4.17.27",
+    "@types/lodash.debounce": "^4.0.9",
     "autoprefixer": "^10.4.21",
     "jsdom": "^30.0.1",
     "postcss": "^8.5.4",

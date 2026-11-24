@@ -2,6 +2,7 @@ package org.codeforphilly.bdt.library.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.openapi.OASFactory;
 import org.eclipse.microprofile.openapi.OASFilter;
 import org.eclipse.microprofile.openapi.models.OpenAPI;
@@ -38,6 +39,8 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
 
     private ModelRegistry modelRegistry;
     private DMNSchemaResolver schemaResolver;
+    /** Base URL of the docs site that hosts the library reference pages, read once per filter pass. */
+    private String docsBaseUrl;
 
     @Override
     public void filterOpenAPI(OpenAPI openAPI) {
@@ -51,6 +54,9 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
             schemaResolver = CDI.current().select(DMNSchemaResolver.class).get();
         }
 
+        docsBaseUrl = ConfigProvider.getConfig().getOptionalValue("bdt.docs.base-url", String.class)
+            .orElse("https://bdt-docs.web.app").replaceAll("/+$", "");
+
         // Ensure components exist
         if (openAPI.getComponents() == null) {
             openAPI.setComponents(OASFactory.createComponents());
@@ -63,12 +69,11 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
         // Filter to only models that expose {ModelName}Service
         Map<String, ModelInfo> exposedModels = new java.util.LinkedHashMap<>();
         for (ModelInfo model : allModels.values()) {
-            String expectedServiceName = model.getModelName() + "Service";
-            if (model.getDecisionServices().contains(expectedServiceName)) {
+            if (model.isExposed()) {
                 exposedModels.put(model.getModelName(), model);
             } else {
                 LOG.fine("Skipping model " + model.getModelName() +
-                        " - does not have expected service: " + expectedServiceName +
+                        " - does not have expected service: " + model.getModelName() + "Service" +
                         " (has: " + model.getDecisionServices() + ")");
             }
         }
@@ -246,6 +251,33 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
         return schema;
     }
 
+    /** Copy reference parameter descriptions onto the model's {@code parameters} schema properties. */
+    @SuppressWarnings("unchecked")
+    private void describeParameters(OpenAPI openAPI, ModelInfo model, String inputRef) {
+        Object parameters = model.getReference().get("parameters");
+        if (!(parameters instanceof List<?> list) || list.isEmpty()) {
+            return;
+        }
+        Schema input = inputRef == null ? null : componentSchema(openAPI, inputRef);
+        Schema parametersRef = input == null || input.getProperties() == null ? null : input.getProperties().get("parameters");
+        Schema parametersSchema = parametersRef == null || parametersRef.getRef() == null
+            ? parametersRef : componentSchema(openAPI, parametersRef.getRef());
+        if (parametersSchema == null || parametersSchema.getProperties() == null) {
+            return;
+        }
+        for (Map<String, Object> parameter : (List<Map<String, Object>>) list) {
+            Schema property = parametersSchema.getProperties().get((String) parameter.get("name"));
+            if (property != null && parameter.get("description") != null) {
+                property.description((String) parameter.get("description"));
+            }
+        }
+    }
+
+    private static Schema componentSchema(OpenAPI openAPI, String ref) {
+        String key = ref.substring(ref.lastIndexOf('/') + 1);
+        return openAPI.getComponents().getSchemas() == null ? null : openAPI.getComponents().getSchemas().get(key);
+    }
+
     private void addPathForModel(OpenAPI openAPI, ModelInfo model) {
         String path = "/api/v1/" + model.getPath();
 
@@ -262,6 +294,7 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
 
         // Add to OpenAPI spec
         openAPI.getPaths().addPathItem(path, pathItem);
+        describeParameters(openAPI, model, inputRef);
 
         LOG.fine("Added path: " + path + " (service: " + serviceName + ")");
     }
@@ -293,6 +326,14 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
             operation.addExtension("x-bdt-benefit", benefit);
         }
 
+        if (!model.getReference().isEmpty()) {
+            operation.description(ReferenceMarkdown.render(model.getReference()));
+            operation.externalDocs(OASFactory.createExternalDocumentation()
+                .description("Full reference on the docs site")
+                .url(docsBaseUrl + "/library/" + model.getPath() + "/"));
+            operation.addExtension("x-bdt-reference", model.getReference());
+        }
+
         // Request body
         operation.requestBody(createRequestBody(model, serviceName, inputRef));
 
@@ -316,12 +357,24 @@ public class DynamicDMNOpenAPIFilter implements OASFilter {
             schema.ref(inputRef);
             mediaType.schema(schema);
 
-            // Generate example from schema
-            Map<String, Object> exampleData = schemaResolver.generateExample(inputRef);
-            if (!exampleData.isEmpty()) {
-                Example example = OASFactory.createExample();
-                example.value(convertToOpenAPIValue(exampleData));
-                mediaType.addExample("Example request", example);
+            if (!model.getExamples().isEmpty()) {
+                // Bruno tests with a docs block are the worked examples of a reference
+                for (BrunoExamples.Example brunoExample : model.getExamples()) {
+                    Example example = OASFactory.createExample();
+                    example.summary(brunoExample.name());
+                    example.description(brunoExample.description());
+                    example.value(convertToOpenAPIValue(brunoExample.request()));
+                    example.addExtension("x-bdt-expected", brunoExample.expected());
+                    mediaType.addExample(brunoExample.name(), example);
+                }
+            } else {
+                // Generate example from schema
+                Map<String, Object> exampleData = schemaResolver.generateExample(inputRef);
+                if (!exampleData.isEmpty()) {
+                    Example example = OASFactory.createExample();
+                    example.value(convertToOpenAPIValue(exampleData));
+                    mediaType.addExample("Example request", example);
+                }
             }
         } else {
             // Fallback to generic schema

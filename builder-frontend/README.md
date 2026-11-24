@@ -23,13 +23,27 @@ It correctly bundles Solid in production mode and optimizes the build for the be
 The build is minified and the filenames include the hashes.<br>
 Your app is ready to be deployed!
 
+### `npm run format` and `npm run format:check`
+
+Formats `src` with Prettier's defaults, or checks that it is formatted.
+
+### `npm run typecheck`
+
+Type-checks `src`, failing only when a file has more errors than
+`typecheck-baseline.json` records for it. After fixing type errors, run
+`npm run typecheck -- --update` to lower the baseline.
+
+`devbox run test -- builder-frontend` runs the tests, the format check and the
+type check, as CI does.
+
 ## Deployment
 
 Learn more about deploying your application with the [documentations](https://vite.dev/guide/static-deploy.html)
 
 ## Screening results in custom form fields
 
-Both live form renderers and the editor register `screeningResultsModule` from
+The screening session (`src/components/shared/screeningSession/screeningSession.tsx`)
+and the editor register `screeningResultsModule` from
 `src/components/screenerEditor/formJsExtensions/screeningResults/screeningResults.ts`.
 Each form has its own service. Preact custom fields can read its reactive snapshot
 with `useScreeningResults()` from the adjacent `useScreeningResults.ts`:
@@ -44,7 +58,7 @@ arrive, including the debounce interval and failed requests. `failed` is true wh
 the latest evaluation failed, until one succeeds, so a field can show an error
 instead of waiting indefinitely. Previous results remain available while pending.
 Snapshots and their results are frozen copies; copy them before sorting or annotating.
-The parents handle stale responses before updating the service.
+The screening session drops outdated responses before updating the service.
 
 `mode` is `live` for published screeners and preview, and `editor` for sample
 results in the editing canvas. Editor samples use the configured benefit IDs and
@@ -57,6 +71,15 @@ The hook uses the viewer's `FormContext`, shared by both field renderers. The
 viewer fields. Consumers outside Preact can use `getSnapshot()` and `subscribe()`
 on the service; `subscribe()` returns an unsubscribe function and updates fire
 `screeningResults.changed` on the form's event bus.
+
+## Testing with a real form-js form
+
+Tests that type into a rendered form-js form use `answer()` from
+`src/testing/formJs.ts`. form-js passes typed text on only after a 300ms pause or
+when the field loses focus (`focusout`, which Preact uses for `onBlur`), and it
+redraws a form about 60ms after an import, resetting any field whose text it
+hasn't received yet. `answer()` sends `focusout`, so each answer reaches the form
+at once and survives the redraw.
 
 ## Print summary
 

@@ -109,9 +109,8 @@ describe("EditAliasModal", () => {
       container,
     );
 
-    const input = container.querySelector<HTMLInputElement>(
-      'input[type="text"]',
-    )!;
+    const input =
+      container.querySelector<HTMLInputElement>('input[type="text"]')!;
     input.value = "My own alias";
     input.dispatchEvent(new InputEvent("input", { bubbles: true }));
     clickButton(container, "Save");

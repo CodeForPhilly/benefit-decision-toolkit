@@ -195,7 +195,7 @@ Purpose: Validate DMN logic and API behavior
 ### Creating a Release
 
 ```bash
-# Update version in pom.xml and create git tag atomically
+# Synchronize release files, run validation, then commit and tag (clean tree required)
 cd library-api
 ./bin/tag-release 0.4.0
 
@@ -206,6 +206,19 @@ git show
 git push origin your-branch
 git push origin library-api-v0.4.0
 ```
+
+To prepare files for review without committing or tagging, run
+`./bin/prepare-release X.Y.Z` from `library-api/`. It updates the Maven version,
+regenerates the OpenAPI snapshot, synchronizes bundled library check IDs and
+versions, validates their endpoints, and runs the library and example seed/import/transfer
+tests. Review check definitions and parameters when releasing changed rules;
+version synchronization does not migrate rule configuration.
+
+From the repository root, run the fast check
+`python3 library-api/bin/check-release-consistency.py`. CI also requires this
+check before the test matrix starts. It uses
+only the Python standard library. Its regression tests run with
+`python3 -m unittest discover -s library-api/bin/tests` from the repository root.
 
 Pushing the tag triggers GitHub Actions → Docker build → Google Cloud Run deployment.
 

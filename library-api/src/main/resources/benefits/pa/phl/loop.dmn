@@ -117,7 +117,9 @@
     </dmn:knowledgeRequirement>
     <dmn:context id="_93F1401F-2AD7-4561-BCA5-1F8465599C13">
       <dmn:contextEntry>
-        <dmn:variable id="_BE072CC4-4CC3-40FE-B033-30FD0C5511D2" name="NotAlreadyEnrolled" typeRef="boolean" />
+        <dmn:variable id="_BE072CC4-4CC3-40FE-B033-30FD0C5511D2" name="NotAlreadyEnrolled" typeRef="boolean">
+          <dmn:description>People already in LOOP do not need to apply again.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_F77F174F-0B80-436B-8771-1D612C7CCC0B">
           <dmn:literalExpression id="_6F67452D-32CA-4375-9D68-0745CEB1F62C">
             <dmn:text>PersonNotEnrolledInBenefit.PersonNotEnrolledInBenefitService</dmn:text>
@@ -148,7 +150,9 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_A01926FC-F626-4C92-93D7-864ED5024237" name="OwnerOccupant" typeRef="boolean" />
+        <dmn:variable id="_A01926FC-F626-4C92-93D7-864ED5024237" name="OwnerOccupant" typeRef="boolean">
+          <dmn:description>The applicant must own the home and live in it as their primary residence.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_5B4F857E-67CE-43E4-AE92-7319DBAC8B43">
           <dmn:literalExpression id="_B128F605-7E65-4770-BE5C-5B4EBA60CA15">
             <dmn:text>OwnerOccupant.OwnerOccupantService</dmn:text>
@@ -162,7 +166,9 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_0921656C-9258-46A1-9FBB-456124F81C2C" name="LivesInPhiladelphiaPa" typeRef="boolean" />
+        <dmn:variable id="_0921656C-9258-46A1-9FBB-456124F81C2C" name="LivesInPhiladelphiaPa" typeRef="boolean">
+          <dmn:description>LOOP applies to Philadelphia Real Estate Tax, so the home must be in Philadelphia.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_55D2AF9B-1228-406C-93D5-1D5D107EE791">
           <dmn:literalExpression id="_BC7B506D-1BE0-405E-9BCD-2CE61602F6B8">
             <dmn:text>LivesInPhiladelphiaPa.LivesInPhiladelphiaPaService</dmn:text>
@@ -176,7 +182,9 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_161B871B-6414-4B2A-959A-641D2E8BFC25" name="TenYearsOwnerOccupant" typeRef="boolean" />
+        <dmn:variable id="_161B871B-6414-4B2A-959A-641D2E8BFC25" name="TenYearsOwnerOccupant" typeRef="boolean">
+          <dmn:description>The applicant must have lived in the home for at least 10 years.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_81AAFF34-A3F3-4D8C-882E-1CE21F072892">
           <dmn:literalExpression id="_619E5531-690D-49C4-8B8D-B83B2EB6E403">
             <dmn:text>MinYearsOwnerOccupant.MinYearsOwnerOccupantService</dmn:text>
@@ -201,7 +209,9 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_DBC53DD1-12CF-4E2D-9DC9-FD3B8D618D00" name="AssessmentIncrease" typeRef="boolean" />
+        <dmn:variable id="_DBC53DD1-12CF-4E2D-9DC9-FD3B8D618D00" name="AssessmentIncrease" typeRef="boolean">
+          <dmn:description>The assessment must have risen at least 50% from last year or at least 75% over the past five years.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_D71C7A1C-4673-4FCA-9D53-298F048D4DB4">
           <dmn:literalExpression id="_A02F0A20-11DC-4D0E-9BA3-75B706B9CAF5">
             <dmn:text>PropertyAssessmentIncrease.PropertyAssessmentIncreaseService</dmn:text>
@@ -232,7 +242,9 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_77123292-15BE-45E0-97BE-00E5896AA73C" name="TaxesCurrentOrPaymentPlan" typeRef="boolean" />
+        <dmn:variable id="_77123292-15BE-45E0-97BE-00E5896AA73C" name="TaxesCurrentOrPaymentPlan" typeRef="boolean">
+          <dmn:description>Property taxes must be current, or covered by an Owner-Occupied Payment Agreement or an installment plan.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_3D746678-5B04-4016-BC59-9AB2775BBCB7">
           <dmn:literalExpression id="_586C2114-6E70-4238-B47D-B1F5655057F1">
             <dmn:text>PropertyTaxesCurrentOrPaymentPlan.PropertyTaxesCurrentOrPaymentPlanService</dmn:text>
@@ -246,7 +258,9 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_2DAA88D6-A3FF-4384-A3D5-CDBBD6C6ABD7" name="MeetsIncomeRequirement" typeRef="boolean" />
+        <dmn:variable id="_2DAA88D6-A3FF-4384-A3D5-CDBBD6C6ABD7" name="MeetsIncomeRequirement" typeRef="boolean">
+          <dmn:description>Household income must be below 120% of area median income for the family size.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_6F16C946-EE22-45D2-BE79-ECBC05C49C49">
           <dmn:literalExpression id="_DB24D2C4-873E-4DA1-929B-EFE7768373EC">
             <dmn:text>LoopIncome.LoopIncomeService</dmn:text>
@@ -260,7 +274,9 @@
         </dmn:invocation>
       </dmn:contextEntry>
       <dmn:contextEntry>
-        <dmn:variable id="_7369BCA9-1F4C-45B5-970E-B3DBF8AD8878" name="NoDisqualifyingTaxAbatement" typeRef="boolean" />
+        <dmn:variable id="_7369BCA9-1F4C-45B5-970E-B3DBF8AD8878" name="NoDisqualifyingTaxAbatement" typeRef="boolean">
+          <dmn:description>No one can enroll who received a tax abatement on the property as its current owner, or whose close relative received one as a previous owner.</dmn:description>
+        </dmn:variable>
         <dmn:invocation id="_0FEEAD23-6567-41C5-8B96-4893C7E0A64B">
           <dmn:literalExpression id="_7A8B5B8D-9B6D-4DBD-A4AF-D2650CD7BA35">
             <dmn:text>NoDisqualifyingTaxAbatement.NoDisqualifyingTaxAbatementService</dmn:text>
@@ -299,6 +315,90 @@
     <dmn:extensionElements />
     <dmn:variable id="_64EECC68-D800-4CCC-8480-2575D4C3A9B6" name="situation" typeRef="tSituation" />
   </dmn:inputData>
+  <dmn:decision id="_F5BA3C9E-9C93-4C97-9DFC-6CAA15011870" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_E4F26312-AEB8-4446-B2C4-840596C5F81D" name="reference" typeRef="BDT.tBenefitReference"/>
+    <dmn:context id="_DA8F6174-825E-4D27-B205-293BC411664D" typeRef="BDT.tBenefitReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_7E990A56-E490-487B-B339-12B67E3243AB" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_CD13C5E7-1861-4CAC-8FBD-17768E647764" typeRef="string">
+          <dmn:text>"The Longtime Owner Occupants Program (LOOP) limits how much the assessed value of a long-held Philadelphia home can rise for Real Estate Tax. It is for people who have owned and lived in their home for at least 10 years, whose assessment rose at least 50% in one year or 75% over five years, whose taxes are current or in a payment plan, and whose household income is below 120% of area median income for their family size. Someone who received a tax abatement on the property, or whose close relative received one as a previous owner, cannot enroll. A homeowner with the Homestead Exemption can enroll but must have the Homestead Exemption removed."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_D9905F94-215D-447F-BE92-F09A73EE68B4" name="administeredBy" typeRef="BDT.tAgency"/>
+        <dmn:context id="_9656D951-D90E-463F-9244-9598534D0E8A" typeRef="BDT.tAgency">
+          <dmn:contextEntry>
+            <dmn:variable id="_B85ACE0E-131A-4A4A-9ED7-84428164BE02" name="name" typeRef="string"/>
+            <dmn:literalExpression id="_A2F5991B-9575-4BEC-BDBE-B3129CF95E5C" typeRef="string">
+              <dmn:text>"City of Philadelphia Department of Revenue"</dmn:text>
+            </dmn:literalExpression>
+          </dmn:contextEntry>
+          <dmn:contextEntry>
+            <dmn:variable id="_B0DF877F-A9D2-40A5-A9DD-DDCA0B620FF4" name="url" typeRef="string"/>
+            <dmn:literalExpression id="_4141930F-EFDA-4E4C-9FB3-06442CF0D5CD" typeRef="string">
+              <dmn:text>"https://www.phila.gov/departments/department-of-revenue/"</dmn:text>
+            </dmn:literalExpression>
+          </dmn:contextEntry>
+        </dmn:context>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_B02883BE-BFD5-4A25-8BA2-D9846FAEFFB8" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_408791FE-FDAD-4B2F-AE13-0CDFDE97C6D0" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_284D1556-1751-447D-A78E-A519FA23C7C1" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_41A89BE2-404B-4344-A6D2-CEF540203B7B" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_B757E864-4868-470D-BDAA-DC0BD9829E76" typeRef="string">
+                <dmn:text>"Apply for the Longtime Owner Occupants Program (LOOP) (City of Philadelphia)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_D965F32D-C37E-4E60-BCA9-B697D65ACAEA" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_FB309A33-392C-435B-A955-F5C6BABC975A" typeRef="string">
+                <dmn:text>"https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_1AB4A667-14A8-4208-BAC0-216F923352FB" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_CB43BF2C-8A22-4324-ACFA-1CB944419B71" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_04ED2720-38F6-45BE-8D1B-E1481AF822D7" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_1AF541F5-E3AB-42A4-BD7D-7614BCC548F8" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_73AD758A-3044-41B7-BBAD-C6082123CD4C" typeRef="string">
+            <dmn:text>"Applies only the 120% of area median income limit for new applicants. Households enrolled before 2023 may stay in the program under the 150% limit, which is not checked."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_6A40ADCE-7451-4510-ACA4-0CFF91B1F955" typeRef="string">
+            <dmn:text>"The income table covers households of 1 to 10 people. Larger households get no result."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_B55A2FC1-F6F0-4D77-90EE-614488865933" typeRef="string">
+            <dmn:text>"Assessment values are taken as given and should be the values before any Homestead reduction."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_947A9624-9478-4AD0-8A03-0DA3C22B18AC" typeRef="string">
+            <dmn:text>"Whether a past abatement was received by the owner or a close relative is taken from the screener answer."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_7A748656-707C-4EF4-A5B4-C7C7FD171D6F" typeRef="string">
+            <dmn:text>"Does not remove or check the Homestead Exemption. A Homestead recipient who enrolls in LOOP must ask to have the exemption removed."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_EE6978E6-204C-41F5-82E1-17931494B4CB" typeRef="string">
+            <dmn:text>"The program has a yearly savings cap ($35 million as of 2023). Enrollment stays open after the cap is reached."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_9D44AEE2-BCB4-44BB-9E9E-B7017B87CC83" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_67E46FC3-346D-4CF9-B035-0781F566C3B9" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_EF3DB956-F884-4C9D-BD03-5CC6FD548FC5" name="DRG">
       <di:extension>
@@ -432,6 +532,24 @@
           <kie:ComponentWidths dmnElementRef="_99328643-9DFE-4B5E-BDD7-BE5CAF399CCF">
             <kie:width>600</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_DA8F6174-825E-4D27-B205-293BC411664D"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_CD13C5E7-1861-4CAC-8FBD-17768E647764"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_9656D951-D90E-463F-9244-9598534D0E8A"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_A2F5991B-9575-4BEC-BDBE-B3129CF95E5C"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_4141930F-EFDA-4E4C-9FB3-06442CF0D5CD"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_408791FE-FDAD-4B2F-AE13-0CDFDE97C6D0"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_284D1556-1751-447D-A78E-A519FA23C7C1"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_B757E864-4868-470D-BDAA-DC0BD9829E76"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_FB309A33-392C-435B-A955-F5C6BABC975A"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_CB43BF2C-8A22-4324-ACFA-1CB944419B71"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_1AF541F5-E3AB-42A4-BD7D-7614BCC548F8"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_73AD758A-3044-41B7-BBAD-C6082123CD4C"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_6A40ADCE-7451-4510-ACA4-0CFF91B1F955"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_B55A2FC1-F6F0-4D77-90EE-614488865933"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_947A9624-9478-4AD0-8A03-0DA3C22B18AC"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_7A748656-707C-4EF4-A5B4-C7C7FD171D6F"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_EE6978E6-204C-41F5-82E1-17931494B4CB"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_67E46FC3-346D-4CF9-B035-0781F566C3B9"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="_C8065460-CA0F-4C6F-9AA9-2DC4BEF54402" dmnElementRef="_46E35232-8CA7-4BE4-9983-D498BF649E9B" isCollapsed="false">
@@ -517,6 +635,15 @@
           <di:waypoint x="2600" y="50" />
           <di:waypoint x="2900" y="50" />
         </dmndi:DMNDecisionServiceDividerLine>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_F5BA3C9E-9C93-4C97-9DFC-6CAA15011870" dmnElementRef="_F5BA3C9E-9C93-4C97-9DFC-6CAA15011870" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="2960" y="0" width="160" height="80"/>
+        <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="_B018738E-9A45-4865-B01E-F3C2476652AD" dmnElementRef="_13C151D3-7AB4-4782-82F5-7772A07C2B4E" sourceElement="_B232E519-24D8-4B94-AD2F-00FD85A0BC53" targetElement="_3732CF50-BCF8-40A6-BD46-0FD200FFA6AA">
         <di:waypoint x="1490.0" y="520" />

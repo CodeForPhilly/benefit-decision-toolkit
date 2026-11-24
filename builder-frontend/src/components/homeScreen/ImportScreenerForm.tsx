@@ -2,6 +2,7 @@ import { createSignal, Show } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { Button } from "@/components/shared/Button";
 import { importScreener, readScreenerFile } from "@/api/screenerTransfer";
+import { normalizeForComparison } from "@/utils/normalizeForComparison";
 
 export default function ImportScreenerForm(props: {
   existingNames?: string[];
@@ -16,7 +17,7 @@ export default function ImportScreenerForm(props: {
   const duplicate = () =>
     props.existingNames?.some(
       (existing) =>
-        existing.trim().toLowerCase() === name().trim().toLowerCase(),
+        normalizeForComparison(existing) === normalizeForComparison(name()),
     );
   let fileInput!: HTMLInputElement;
 

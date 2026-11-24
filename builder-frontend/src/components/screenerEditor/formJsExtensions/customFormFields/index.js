@@ -1,7 +1,7 @@
-import { YesNoQuestion } from './YesNoQuestion';
-import { ChecklistWithNone } from './ChecklistWithNone';
-import { NextSteps } from '../nextSteps/NextSteps';
-import { PrintSummary } from '../printSummary/PrintSummary';
+import { YesNoQuestion } from "./YesNoQuestion";
+import { ChecklistWithNone } from "./ChecklistWithNone";
+import { NextSteps } from "../nextSteps/NextSteps";
+import { PrintSummary } from "../printSummary/PrintSummary";
 
 /*
  * This is a module definition to register custom
@@ -16,9 +16,9 @@ class CustomFormFieldsModule {
   }
 }
 
-CustomFormFieldsModule.$inject = ["formFields"]
+CustomFormFieldsModule.$inject = ["formFields"];
 
 export default {
-  __init__: [ 'customFields' ],
-  customFields: [ 'type', CustomFormFieldsModule ]
+  __init__: ["customFields"],
+  customFields: ["type", CustomFormFieldsModule],
 };

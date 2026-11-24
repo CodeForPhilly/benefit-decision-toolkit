@@ -37,6 +37,61 @@ else
     <dmn:extensionElements/>
     <dmn:variable id="_33352692-AD3C-4F38-BC19-A9F48DA7982C" name="situation" typeRef="tSituation"/>
   </dmn:inputData>
+  <dmn:decision id="_9D2FBDCC-42DD-4EB7-8744-2E845E030DB4" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_F3FE00CC-CAD9-4ADD-A6FE-02584A68E7C3" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:context id="_1CAA73EE-4B67-4684-A3D3-E2C772331223" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_7EC80572-2A02-43E1-BDB6-5B9ED2FBEE11" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_5F09AB77-B916-49AA-8183-437F77D06D75" typeRef="string">
+          <dmn:text>"Passes when the screener answer says the person owns the home and lives in it as their primary residence, and fails when it says they do not. Returns no result when the answer is missing."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_7CD7D81E-D33F-4B3B-BD77-9461F184AA4B" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_AD6D1ADA-C602-4195-BA68-0596E0E95B26" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_D0491D07-5AF3-4871-A5D6-387D6A4F1435" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_39CA6448-AE45-46C4-A697-E0414499AEF6" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_02BAF365-6FED-4DFA-9990-7C0752236CBC" typeRef="string">
+                <dmn:text>"Get the Homestead Exemption (City of Philadelphia)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_26802677-2E09-4317-9016-A4BC133CD810" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_AA4A1B27-2E0D-4FDB-A273-1839824A190D" typeRef="string">
+                <dmn:text>"https://www.phila.gov/services/payments-assistance-taxes/taxes/property-and-real-estate-taxes/get-real-estate-tax-relief/get-the-homestead-exemption/"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_A5B66461-8D40-46C8-A539-F1CFA04FAAAB" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_16ACD202-3BC1-4FDC-BE9B-FF54D68A47C8" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_8EA187F9-A2DF-4B20-8359-913F711449A6" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_C553098B-4C65-4A0C-8AFA-28A9BF423227" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_6CF6C475-E8B7-4087-A178-4B6D12DB83EC" typeRef="string">
+            <dmn:text>"Relies on the screener answer. It does not look up or verify records."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_8B433E97-3616-4FBA-B5F4-02F22F4E88A8" typeRef="string">
+            <dmn:text>"Does not cover people with a legal interest in the home whose name is not on the deed; some programs accept them."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_A53696B0-0B71-4CC7-92B1-ED4C3A946F94" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_8C5F98A2-0DD8-4BB8-9462-E3384BF9CBF7" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_8242937D-A8D6-4739-891A-80679C6737BF" name="DRG">
       <di:extension>
@@ -44,6 +99,17 @@ else
           <kie:ComponentWidths dmnElementRef="_A522A373-A288-432D-8440-0B26E350AA3E">
             <kie:width>917</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_1CAA73EE-4B67-4684-A3D3-E2C772331223"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_5F09AB77-B916-49AA-8183-437F77D06D75"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_AD6D1ADA-C602-4195-BA68-0596E0E95B26"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_D0491D07-5AF3-4871-A5D6-387D6A4F1435"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_02BAF365-6FED-4DFA-9990-7C0752236CBC"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_AA4A1B27-2E0D-4FDB-A273-1839824A190D"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_16ACD202-3BC1-4FDC-BE9B-FF54D68A47C8"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C553098B-4C65-4A0C-8AFA-28A9BF423227"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_6CF6C475-E8B7-4087-A178-4B6D12DB83EC"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_8B433E97-3616-4FBA-B5F4-02F22F4E88A8"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_8C5F98A2-0DD8-4BB8-9462-E3384BF9CBF7"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <!-- Decision service: centered, upper section holds checkResult output decision -->
@@ -81,6 +147,15 @@ else
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <!-- Edge: from situation center to bottom-center of checkResult -->
+      <dmndi:DMNShape id="dmnshape-drg-_9D2FBDCC-42DD-4EB7-8744-2E845E030DB4" dmnElementRef="_9D2FBDCC-42DD-4EB7-8744-2E845E030DB4" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="440" y="100" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_8063E944-343C-43A7-81E9-128E2BCE2A71-AUTO-TARGET" dmnElementRef="_8063E944-343C-43A7-81E9-128E2BCE2A71">
         <di:waypoint x="180" y="520"/>
         <di:waypoint x="233.142857" y="210"/>
