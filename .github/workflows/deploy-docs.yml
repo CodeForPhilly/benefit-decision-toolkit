@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "docs/**"
+      - "library-api/openapi.snapshot.json"
       - ".github/workflows/deploy-docs.yml"
   workflow_dispatch:
 

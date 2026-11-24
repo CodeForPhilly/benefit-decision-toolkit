@@ -1,5 +1,12 @@
-import { Accessor, createEffect, onCleanup } from 'solid-js'
-import { Content, createJSONEditor, JSONContent, JSONEditorPropsOptional, Mode, OnChange } from 'vanilla-jsoneditor'
+import { Accessor, createEffect, onCleanup } from "solid-js";
+import {
+  Content,
+  createJSONEditor,
+  JSONContent,
+  JSONEditorPropsOptional,
+  Mode,
+  OnChange,
+} from "vanilla-jsoneditor";
 
 const JSONEditorSolid = (props: JSONEditorPropsOptional) => {
   let refContainer;
@@ -9,16 +16,16 @@ const JSONEditorSolid = (props: JSONEditorPropsOptional) => {
     // create editor
     refEditor = createJSONEditor({
       target: refContainer,
-      props: {}
+      props: {},
     });
 
     onCleanup(() => {
       // destroy editor
       if (refEditor) {
-        refEditor.destroy()
-        refEditor = null
+        refEditor.destroy();
+        refEditor = null;
       }
-    })
+    });
   });
 
   // update props
@@ -28,15 +35,21 @@ const JSONEditorSolid = (props: JSONEditorPropsOptional) => {
     }
   });
 
-  return <div ref={refContainer}/>;
-}
+  return <div ref={refContainer} />;
+};
 
-
-const CheckJsonEditor = (
-  { jsonContent, onValidJsonChange }:
-  { jsonContent?: Accessor<Content>, onValidJsonChange: (json: JSONContent) => void }
-) => {
-  const onChange = (updatedContent: Content, previousContent: Content, { contentErrors, patchResult }) => {
+const CheckJsonEditor = ({
+  jsonContent,
+  onValidJsonChange,
+}: {
+  jsonContent?: Accessor<Content>;
+  onValidJsonChange: (json: JSONContent) => void;
+}) => {
+  const onChange = (
+    updatedContent: Content,
+    previousContent: Content,
+    { contentErrors, patchResult },
+  ) => {
     if (contentErrors) {
       return;
     }
@@ -49,7 +62,7 @@ const CheckJsonEditor = (
       jsonContent = { json: JSON.parse(updatedContent.text) };
     }
     onValidJsonChange(jsonContent);
-  }
+  };
 
   return (
     <div class="h-full">
@@ -61,5 +74,5 @@ const CheckJsonEditor = (
       />
     </div>
   );
-}
+};
 export default CheckJsonEditor;

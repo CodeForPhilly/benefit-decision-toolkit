@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dmn:definitions xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/" xmlns="https://kie.apache.org/dmn/_45AEA6C4-45ED-45F6-A18F-C534ADDEB602" xmlns:feel="https://www.omg.org/spec/DMN/20240513/FEEL/" xmlns:kie="https://kie.org/dmn/extensions/1.0" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:included1="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" xmlns:included2="https://kie.apache.org/dmn/_81D401A8-CA81-4F9A-ABCC-532C25768708" id="_ACF018D7-A3FB-49CE-AF6E-0E58AF85A0E0" name="PersonMaxAge" typeLanguage="https://www.omg.org/spec/DMN/20240513/FEEL/" namespace="https://kie.apache.org/dmn/_45AEA6C4-45ED-45F6-A18F-C534ADDEB602">
+  <dmn:description>Checks that a specified person is no older than a maximum age on a specified date.</dmn:description>
   <dmn:extensionElements/>
   <dmn:import id="_17C24D7E-8925-485C-ACD9-E20E3BEEDB86" name="BDT" namespace="https://kie.apache.org/dmn/_1B91A885-130A-4E0B-A762-E12AA6DD5C79" locationURI="../../BDT.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
   <dmn:import id="_8C23053A-4DF3-4662-8FF1-67869BCE5AAE" name="Age" namespace="https://kie.apache.org/dmn/_81D401A8-CA81-4F9A-ABCC-532C25768708" locationURI="Age.dmn" importType="https://www.omg.org/spec/DMN/20240513/MODEL/"/>
   <dmn:itemDefinition id="_A5566AE8-C4BC-4021-A0F1-EE81B42FE4DA" name="tParameters" isCollection="false">
     <dmn:itemComponent id="_4D83F9CB-C7B7-4815-B666-99E81ED80640" name="personId" isCollection="false">
+      <dmn:description>Id of the person in situation.people to check.</dmn:description>
       <dmn:typeRef>string</dmn:typeRef>
     </dmn:itemComponent>
     <dmn:itemComponent id="_AFC0A325-9DE8-4FC9-9100-A002D5EA104F" name="asOfDate" isCollection="false">
+      <dmn:description>Date on which to measure the person's age.</dmn:description>
       <dmn:typeRef>date</dmn:typeRef>
     </dmn:itemComponent>
     <dmn:itemComponent id="_3EACAE92-B42D-414F-8B34-89764C4CD811" name="maxAge" isCollection="false">
+      <dmn:description>Maximum age in whole years. A person exactly this age passes.</dmn:description>
       <dmn:typeRef>number</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
@@ -86,6 +90,64 @@ else
     <dmn:extensionElements/>
     <dmn:variable id="_8D7739A5-25DF-4C0A-8E3E-E8B9B51711FB" name="parameters" typeRef="tParameters"/>
   </dmn:inputData>
+  <dmn:decision id="_5BB2DB62-320C-4F42-A933-D65A8724BBD0" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_EEEA71B8-071A-4B95-83DA-3009690F821D" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:context id="_C79AA6E3-8B1B-4DDB-897C-49F850B5DD66" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_788F449C-FFBB-4226-8B34-123562528ADD" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_BDA3EA8F-1F64-43E6-AFDB-5B3DF9ED5BCB" typeRef="string">
+          <dmn:text>"Passes when the person's age in whole years on the given date is at most the maximum age. Returns no result when the person or their date of birth is missing."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_710807F4-DD87-45DD-83A9-4A70A24A03A2" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_2460295B-D93E-43F6-A95F-030A2151E107" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_D8F336AC-BC37-4CE8-8561-CE5BB77D6A55" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_E4C814FF-28DE-4285-A0B9-8383E3CDC8C9" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_F3064048-01DA-4551-A532-47619F5CC281" typeRef="string">
+                <dmn:text>"Benefit Decision Toolkit situation data model (BDT.dmn)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_D2113480-182B-4956-AF2F-8E2CCCFEE1C3" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_D059A423-1024-4C62-BE68-F2E8999B17DD" typeRef="string">
+                <dmn:text>"https://github.com/CodeForPhilly/benefit-decision-toolkit/blob/main/library-api/src/main/resources/BDT.dmn"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_2C26A155-F460-4D43-8307-20D8DD315CA6" name="citation" typeRef="string"/>
+              <dmn:literalExpression id="_E461D04C-DE54-4DB8-A485-3EDAA3EECBEA" typeRef="string">
+                <dmn:text>"tSituation: people[].id, people[].dateOfBirth"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_D7A0DD43-9FF5-4997-9991-00E514312FEE" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_DD18B682-2156-4E56-BF61-D97CFBEE0528" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_3D515372-CE83-4912-B87F-AB943F80EA7C" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_46CC5531-A47C-4C6B-84E6-6A0C031A9F35" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_C27D396B-00E2-4B00-BB58-3ED607EAFF4D" typeRef="string">
+            <dmn:text>"Uses the date of birth as given; it is not verified."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_EC825CF3-7A79-4DF0-9D85-5355264662E2" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_8B0F657D-D05E-49D7-9702-9CAB44827DEA" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_91EE0ED0-F2A9-488E-A8DA-F54F4ED93805" name="DRG">
       <di:extension>
@@ -107,6 +169,17 @@ else
           <kie:ComponentWidths dmnElementRef="_535A5CCD-B352-4D82-82EE-F344E5BD9279">
             <kie:width>523</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C79AA6E3-8B1B-4DDB-897C-49F850B5DD66"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_BDA3EA8F-1F64-43E6-AFDB-5B3DF9ED5BCB"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_2460295B-D93E-43F6-A95F-030A2151E107"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_D8F336AC-BC37-4CE8-8561-CE5BB77D6A55"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_F3064048-01DA-4551-A532-47619F5CC281"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_D059A423-1024-4C62-BE68-F2E8999B17DD"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E461D04C-DE54-4DB8-A485-3EDAA3EECBEA"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_DD18B682-2156-4E56-BF61-D97CFBEE0528"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_46CC5531-A47C-4C6B-84E6-6A0C031A9F35"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C27D396B-00E2-4B00-BB58-3ED607EAFF4D"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_8B0F657D-D05E-49D7-9702-9CAB44827DEA"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="dmnshape-drg-_50AFC26A-F5B6-498A-B58F-BDC38F8BE4C9" dmnElementRef="_50AFC26A-F5B6-498A-B58F-BDC38F8BE4C9" isCollapsed="false">
@@ -156,6 +229,15 @@ else
           <dmndi:FontColor red="0" green="0" blue="0"/>
         </dmndi:DMNStyle>
         <dc:Bounds x="540" y="20" width="160" height="80"/>
+        <dmndi:DMNLabel/>
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_5BB2DB62-320C-4F42-A933-D65A8724BBD0" dmnElementRef="_5BB2DB62-320C-4F42-A933-D65A8724BBD0" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="760" y="20" width="160" height="80"/>
         <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="dmnedge-drg-_AA093E8F-6D25-46E9-8EF3-F20052C8D666-AUTO-TARGET" dmnElementRef="_AA093E8F-6D25-46E9-8EF3-F20052C8D666">

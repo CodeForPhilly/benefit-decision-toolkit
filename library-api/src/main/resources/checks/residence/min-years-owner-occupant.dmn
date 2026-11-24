@@ -11,6 +11,7 @@
   </dmn:itemDefinition>
   <dmn:itemDefinition id="_91B23658-E28E-4EAF-84B6-A7FE691AEF63" name="tParameters" isCollection="false">
     <dmn:itemComponent id="_33825710-C2CB-4A22-86FD-E832D8BD74D1" name="minYears" isCollection="false">
+      <dmn:description>Minimum number of years the applicant must have owned and lived in the home. Exactly this many years passes.</dmn:description>
       <dmn:typeRef>number</dmn:typeRef>
     </dmn:itemComponent>
   </dmn:itemDefinition>
@@ -43,6 +44,61 @@ else situation.yearsOwnerOccupied &gt;= parameters.minYears</dmn:text>
     <dmn:extensionElements />
     <dmn:variable id="_3AB3D7C0-3813-4D74-960F-A1E7E89D1FCE" name="parameters" typeRef="tParameters" />
   </dmn:inputData>
+  <dmn:decision id="_B4942FE6-A7FF-475E-B3B9-7BE72DA3865D" name="reference">
+    <dmn:description>Reference shown in the builder, the docs site and the OpenAPI spec. Constant content, independent of screening answers.</dmn:description>
+    <dmn:extensionElements/>
+    <dmn:variable id="_731B6F33-9D90-4066-8E13-D67A303E384D" name="reference" typeRef="BDT.tEligibilityCheckReference"/>
+    <dmn:context id="_C54F546E-4BC4-48F6-8974-D75FB96CADA5" typeRef="BDT.tEligibilityCheckReference">
+      <dmn:contextEntry>
+        <dmn:variable id="_8316417E-7823-46FF-BA7E-8AC934789D1D" name="explanation" typeRef="string"/>
+        <dmn:literalExpression id="_6CBC950F-42AE-4CDE-AC83-36122FD0F792" typeRef="string">
+          <dmn:text>"Passes when the applicant has owned and lived in their primary residence for at least the minimum number of years. Returns no result when the number of years or the minYears parameter is missing or negative."</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_6240D534-BFEA-4810-8FC8-22EECA6C66FA" name="sources" typeRef="BDT.tReferenceSourceList"/>
+        <dmn:list id="_27B5F2EA-5E40-4575-BC66-EB167E4C7379" typeRef="BDT.tReferenceSourceList">
+          <dmn:context id="_76D7B669-645B-4D85-91F3-852B328CF124" typeRef="BDT.tReferenceSource">
+            <dmn:contextEntry>
+              <dmn:variable id="_83660683-7DF1-4DAB-8562-C273A41EE896" name="title" typeRef="string"/>
+              <dmn:literalExpression id="_41662473-7D63-449D-9AB3-9F409C4BF94B" typeRef="string">
+                <dmn:text>"Apply for the Longtime Owner Occupants Program (LOOP) (City of Philadelphia)"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_BF7F530B-598D-431E-BA2F-CE3BADB9AFE5" name="url" typeRef="string"/>
+              <dmn:literalExpression id="_BCC975A5-1092-4E25-ABB9-A11985326759" typeRef="string">
+                <dmn:text>"https://www.phila.gov/services/payments-assistance-taxes/payment-plans-and-assistance-programs/income-based-programs-for-residents/apply-for-the-longtime-owner-occupants-program-loop/"</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+            <dmn:contextEntry>
+              <dmn:variable id="_DF2B0058-3BE3-4CD7-9ACC-8994FBD7B7FE" name="checkedOn" typeRef="date"/>
+              <dmn:literalExpression id="_DBB4A924-F47A-4174-AF90-4464C6A0ED2E" typeRef="date">
+                <dmn:text>date("2026-11-19")</dmn:text>
+              </dmn:literalExpression>
+            </dmn:contextEntry>
+          </dmn:context>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_EA556A14-3432-448D-993D-EED2E1A5A586" name="limitations" typeRef="BDT.tStringList"/>
+        <dmn:list id="_9E17EF5C-A29F-43CB-8F06-F7DA17C4F6D2" typeRef="BDT.tStringList">
+          <dmn:literalExpression id="_8C561458-327C-4B7F-92C3-7BBE100C8D01" typeRef="string">
+            <dmn:text>"The number of years is taken from the screener answer, not from deed records."</dmn:text>
+          </dmn:literalExpression>
+          <dmn:literalExpression id="_E2DEEFE7-4869-4061-873A-000496779170" typeRef="string">
+            <dmn:text>"Does not check whether time in the home was continuous."</dmn:text>
+          </dmn:literalExpression>
+        </dmn:list>
+      </dmn:contextEntry>
+      <dmn:contextEntry>
+        <dmn:variable id="_4472E41B-0661-4FAC-BD83-1530B365A2C4" name="lastReviewed" typeRef="date"/>
+        <dmn:literalExpression id="_ECFC8309-4A0E-43B1-9FAC-D5FB7337D04F" typeRef="date">
+          <dmn:text>date("2026-11-19")</dmn:text>
+        </dmn:literalExpression>
+      </dmn:contextEntry>
+    </dmn:context>
+  </dmn:decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="_12EA081B-6722-4DB4-8984-C538C1D010B3" name="DRG">
       <di:extension>
@@ -50,6 +106,17 @@ else situation.yearsOwnerOccupied &gt;= parameters.minYears</dmn:text>
           <kie:ComponentWidths dmnElementRef="_ECB73134-B879-4A00-91C6-8DFC0030823D">
             <kie:width>917</kie:width>
           </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_C54F546E-4BC4-48F6-8974-D75FB96CADA5"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>850</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_6CBC950F-42AE-4CDE-AC83-36122FD0F792"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_27B5F2EA-5E40-4575-BC66-EB167E4C7379"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_76D7B669-645B-4D85-91F3-852B328CF124"><kie:width>50</kie:width><kie:width>180</kie:width><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_41662473-7D63-449D-9AB3-9F409C4BF94B"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_BCC975A5-1092-4E25-ABB9-A11985326759"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_DBB4A924-F47A-4174-AF90-4464C6A0ED2E"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_9E17EF5C-A29F-43CB-8F06-F7DA17C4F6D2"><kie:width>790</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_8C561458-327C-4B7F-92C3-7BBE100C8D01"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E2DEEFE7-4869-4061-873A-000496779170"><kie:width>560</kie:width></kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_ECFC8309-4A0E-43B1-9FAC-D5FB7337D04F"><kie:width>560</kie:width></kie:ComponentWidths>
         </kie:ComponentsWidthsExtension>
       </di:extension>
       <dmndi:DMNShape id="_4C86E058-7883-4532-A602-072EDEF08559" dmnElementRef="_D22362E8-8207-40A8-A967-044DE8693E4E" isCollapsed="false">
@@ -71,6 +138,15 @@ else situation.yearsOwnerOccupied &gt;= parameters.minYears</dmn:text>
       <dmndi:DMNShape id="_E408E733-2107-4E51-9BAC-0BFABEFCE934" dmnElementRef="_5C32E232-D785-45B7-89F3-64D672E38A43" isCollapsed="false">
         <dc:Bounds x="318.0" y="520" width="160" height="80" />
         <dmndi:DMNLabel />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="dmnshape-drg-_B4942FE6-A7FF-475E-B3B9-7BE72DA3865D" dmnElementRef="_B4942FE6-A7FF-475E-B3B9-7BE72DA3865D" isCollapsed="false">
+        <dmndi:DMNStyle>
+          <dmndi:FillColor red="255" green="255" blue="255"/>
+          <dmndi:StrokeColor red="0" green="0" blue="0"/>
+          <dmndi:FontColor red="0" green="0" blue="0"/>
+        </dmndi:DMNStyle>
+        <dc:Bounds x="538" y="140" width="160" height="80"/>
+        <dmndi:DMNLabel/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="_4F79459D-7A6C-400B-B27D-DCD528CE2937" dmnElementRef="_8FE9925D-1A27-440D-885D-AE4034D2690B" sourceElement="_FAF0C685-5A25-459D-AEC8-6D43385D339D" targetElement="_614401CB-E125-4C66-808D-29243521E104">
         <di:waypoint x="178.0" y="520" />

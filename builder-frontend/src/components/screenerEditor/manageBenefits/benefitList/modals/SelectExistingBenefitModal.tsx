@@ -10,6 +10,7 @@ import {
 
 import { fetchLibraryBenefits } from "@/api/benefit";
 import type { Benefit } from "@/types";
+import LibraryReference from "@/components/shared/libraryReference/LibraryReference";
 
 // Treat a missing name as an empty string
 const normalizeBenefitName = (name: string | null | undefined) =>
@@ -93,7 +94,14 @@ const SelectExistingBenefitModal = (props: {
             {(benefit) => (
               <div class="border-2 border-gray-200 rounded p-4">
                 <div class="font-bold text-lg">{benefit.name}</div>
-                <div class="mb-2">{benefit.description}</div>
+                <Show
+                  when={benefit.reference}
+                  fallback={<div class="mb-2">{benefit.description}</div>}
+                >
+                  <div class="mb-2">
+                    <LibraryReference reference={benefit.reference} />
+                  </div>
+                </Show>
                 <div class="text-sm text-gray-600 mb-3">
                   {benefit.checks.length} eligibility checks
                 </div>

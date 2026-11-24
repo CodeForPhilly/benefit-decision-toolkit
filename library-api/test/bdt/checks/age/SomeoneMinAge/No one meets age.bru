@@ -1,0 +1,47 @@
+meta {
+  name: No one meets age
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/checks/age/someone-min-age
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "people": [
+        {
+          "id": "p1",
+          "dateOfBirth": "1990-06-15"
+        },
+        {
+          "id": "p2",
+          "dateOfBirth": "1970-03-01"
+        }
+      ]
+    },
+    "parameters": {
+      "peopleIds": ["p1", "p2"],
+      "asOfDate": "2026-01-01",
+      "minAge": 60
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq false
+}
+
+docs {
+  Neither person is 60 or older on January 1, 2026, so the check fails.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

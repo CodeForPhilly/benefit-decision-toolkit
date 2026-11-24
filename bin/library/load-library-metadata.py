@@ -38,6 +38,7 @@ class CheckRecord(TypedDict, total=False):
     parameterDefinitions: list[ParameterDefinition]
     inputDefinition: dict[str, Any]
     operationId: str
+    reference: dict[str, Any]
 
 
 # Type aliases for clarity
@@ -70,6 +71,7 @@ LIBRARY_API_BASE_URL = os.getenv("LIBRARY_API_BASE_URL", DEFAULT_LIBRARY_API_URL
 IS_PRODUCTION = not (
     "localhost" in LIBRARY_API_BASE_URL or "127.0.0.1" in LIBRARY_API_BASE_URL
 )
+
 
 # Storage bucket defaults - use dev bucket by default
 DEFAULT_DEV_BUCKET = "demo-bdt-dev.appspot.com"
@@ -273,12 +275,15 @@ def extract_check_records(openapi: OpenAPIDocument, version: str) -> list[CheckR
                 "evaluationUrl": path,
                 "method": method_upper,
                 "name": name,
-                "description": details.get("description", ""),
+                "description": builder_description(details),
                 "module": module,
                 "version": version,
                 "inputs": {},
                 "operationId": details.get("operationId", ""),
             }
+            reference = builder_reference(path, details)
+            if reference:
+                entry["reference"] = reference
 
             # ----------------------------------------
             # 1. Path or query parameters
@@ -303,6 +308,25 @@ def extract_check_records(openapi: OpenAPIDocument, version: str) -> list[CheckR
                     output.append(entry)
 
     return output
+
+
+def builder_description(operation: dict[str, Any]) -> str:
+    """Keep builder descriptions plain text; OpenAPI descriptions may contain Swagger Markdown."""
+    reference = operation.get("x-bdt-reference") or {}
+    return reference.get("summary") or operation.get("description", "")
+
+
+def builder_reference(path: str, operation: dict[str, Any]) -> dict[str, Any] | None:
+    """The reference shown in the builder: every published field except contributor-only
+    implementation notes, plus the docs-site path of this benefit or check's page. The builder
+    prefixes the path with its docs base URL, so stored metadata does not depend on a docs host."""
+    reference = operation.get("x-bdt-reference")
+    if not reference:
+        return None
+    copy = {key: deepcopy(value) for key, value in reference.items() if key != "implementationNotes"}
+    resource_path = path.split("/api/v1/", 1)[-1].strip("/")
+    copy["docsPath"] = f"library/{resource_path}/"
+    return copy
 
 
 def transform_parameters(
@@ -402,9 +426,10 @@ def extract_benefit_records(
                 {
                     "id": f"L-benefit-{slug}-{version}",
                     "name": display_name(segments[-1]),
-                    "description": operation.get("description", ""),
+                    "description": builder_description(operation),
                     "checks": benefit_checks,
                     "nextSteps": deepcopy(operation["x-bdt-benefit"].get("nextSteps")),
+                    "reference": builder_reference(path, operation),
                 }
             )
 

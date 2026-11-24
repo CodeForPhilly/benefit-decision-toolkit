@@ -22,7 +22,10 @@ it("warns about new benefits, saves only the screener copy, and resets a benefit
     nextSteps: { eligible: { body: "Benefit instructions" } },
   };
   const field = {
-    benefitContent: { food: {}, removed: { eligible: { body: "Ignore removed" } } },
+    benefitContent: {
+      food: {},
+      removed: { eligible: { body: "Ignore removed" } },
+    },
   };
   const save = vi.fn();
   const container = document.body.appendChild(document.createElement("div"));

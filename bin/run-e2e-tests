@@ -13,7 +13,7 @@ BACKUP_DIR=""
 BACKUP_EXPECTED=0
 TEST_DATA_INSTALLED=0
 SERVICES_MAY_BE_RUNNING=0
-MANAGED_APPLICATION_PORTS=(5173 8080 8081 8083 9099 9199)
+MANAGED_APPLICATION_PORTS=(4321 5173 8080 8081 8083 9099 9199)
 PRE_EXISTING_FIREBASE_EXPORTS=()
 
 cd "$PROJECT_ROOT"
@@ -482,6 +482,11 @@ else
 fi
 
 (
+  cd docs
+  npm ci
+)
+
+(
   cd e2e
   npm ci
 
@@ -595,6 +600,7 @@ wait_for_url "Library API" "http://localhost:8083/"
 # On a cold CI runner, builder-api may still need to download and compile its
 # Maven dependencies before the dependent frontend process can start.
 wait_for_url "builder frontend" "http://localhost:5173/" 300
+wait_for_url "docs" "http://localhost:4321/"
 
 (
   cd e2e

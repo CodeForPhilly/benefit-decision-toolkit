@@ -1,25 +1,34 @@
-import { createStore } from "solid-js/store"
+import { createStore } from "solid-js/store";
 
 import type { CreateCustomBenefitRequest } from "@/types";
-
 
 type NewBenefitValues = {
   name: string;
   description: string;
-}
-const AddNewBenefitModal = (
-  { addNewBenefit, closeModal }:
-  { addNewBenefit: (benefit: CreateCustomBenefitRequest) => Promise<void>; closeModal: () => void }
-) => {
-  const [newBenefit, setNewBenefit] = createStore<NewBenefitValues>({ name: "", description: "" });
+};
+const AddNewBenefitModal = ({
+  addNewBenefit,
+  closeModal,
+}: {
+  addNewBenefit: (benefit: CreateCustomBenefitRequest) => Promise<void>;
+  closeModal: () => void;
+}) => {
+  const [newBenefit, setNewBenefit] = createStore<NewBenefitValues>({
+    name: "",
+    description: "",
+  });
 
   // Styling for the Add button based on whether fields are filled
   const isAddDisabled = () => {
-    return newBenefit.name.trim() === "" || newBenefit.description.trim() === "";
-  }
+    return (
+      newBenefit.name.trim() === "" || newBenefit.description.trim() === ""
+    );
+  };
   const addButtonClasses = () => {
-    return isAddDisabled() ? "opacity-50 cursor-not-allowed" : "hover:bg-sky-700";
-  }
+    return isAddDisabled()
+      ? "opacity-50 cursor-not-allowed"
+      : "hover:bg-sky-700";
+  };
 
   return (
     <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
@@ -79,5 +88,5 @@ const AddNewBenefitModal = (
       </div>
     </div>
   );
-}
+};
 export default AddNewBenefitModal;

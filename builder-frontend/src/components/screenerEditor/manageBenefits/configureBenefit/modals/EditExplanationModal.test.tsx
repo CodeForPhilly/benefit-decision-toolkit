@@ -100,8 +100,14 @@ it("keeps unsaved edits from a backdrop click, but Cancel still discards them", 
 });
 
 it.each([
-  [new ApiError("Check not found in benefit", 404), "Check not found in benefit"],
-  [new ApiError("Could not update check explanation", 500), "Please try again."],
+  [
+    new ApiError("Check not found in benefit", 404),
+    "Check not found in benefit",
+  ],
+  [
+    new ApiError("Could not update check explanation", 500),
+    "Please try again.",
+  ],
   [new TypeError("Failed to fetch"), "Please try again."],
 ])("explains a failed save: %s", async (failure, message) => {
   dispose = render(

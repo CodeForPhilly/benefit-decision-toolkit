@@ -1,0 +1,39 @@
+meta {
+  name: One person at 150 percent
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/checks/income/household-income-within-poverty-guidelines
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "householdSize": 1,
+      "householdIncome": 23940
+    },
+    "parameters": {
+      "percent": 150,
+      "guidelineYear": 2026
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.checkResult: eq true
+}
+
+docs {
+  A one-person household with $23,940 a year is exactly at 150% of the 2026 poverty guideline,
+  which matches PA LIHEAP's published limit, so the check passes.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

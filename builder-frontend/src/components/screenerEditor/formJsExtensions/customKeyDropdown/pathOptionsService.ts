@@ -7,23 +7,35 @@ interface PathOption {
 
 const TYPE_COMPATIBILITY: Record<string, string[]> = {
   // String types
-  'string': ['textfield', 'textarea', 'select', 'radio', 'checklist', 'taglist'],
+  string: ["textfield", "textarea", "select", "radio", "checklist", "taglist"],
   // Number types
-  'number': ['number'],
-  'integer': ['number'],
+  number: ["number"],
+  integer: ["number"],
   // Boolean types: only components that submit real booleans. Other components
   // submit "true"/"false" strings; builders can still type a boolean key into them.
-  'boolean': ['checkbox', 'yes_no'],
+  boolean: ["checkbox", "yes_no"],
   // Date/time types
-  'date': ['datetime'],
-  'date-time': ['datetime'],
-  'time': ['datetime'],
+  date: ["datetime"],
+  "date-time": ["datetime"],
+  time: ["datetime"],
   // Array types (arrays of primitives)
-  'array:string': ['checklist', 'checklist_none', 'taglist', 'select'],
-  'array:number': ['checklist', 'checklist_none', 'taglist', 'select'],
-  'array:boolean': ['checklist', 'checklist_none'],
+  "array:string": ["checklist", "checklist_none", "taglist", "select"],
+  "array:number": ["checklist", "checklist_none", "taglist", "select"],
+  "array:boolean": ["checklist", "checklist_none"],
   // Fallback for any/unknown types - compatible with all
-  'any': ['textfield', 'textarea', 'number', 'checkbox', 'select', 'radio', 'checklist', 'checklist_none', 'taglist', 'datetime', 'yes_no'],
+  any: [
+    "textfield",
+    "textarea",
+    "number",
+    "checkbox",
+    "select",
+    "radio",
+    "checklist",
+    "checklist_none",
+    "taglist",
+    "datetime",
+    "yes_no",
+  ],
 };
 
 interface EventBus {
@@ -33,7 +45,10 @@ interface EventBus {
 /**
  * Checks if a Form-JS component type is compatible with a JSON Schema type.
  */
-export function isTypeCompatible(schemaType: string | undefined, componentType: string): boolean {
+export function isTypeCompatible(
+  schemaType: string | undefined,
+  componentType: string,
+): boolean {
   if (!schemaType) {
     return true; // If no schema type, allow all
   }
@@ -48,7 +63,7 @@ export function isTypeCompatible(schemaType: string | undefined, componentType: 
 }
 
 export default class PathOptionsService {
-  static $inject = ['eventBus', 'formFieldRegistry'];
+  static $inject = ["eventBus", "formFieldRegistry"];
 
   private pathOptions: PathOption[] = [];
   private eventBus: EventBus;
@@ -64,7 +79,7 @@ export default class PathOptionsService {
 
   setOptions(options: PathOption[]): void {
     this.pathOptions = options;
-    this.eventBus.fire('pathOptions.changed', { options });
+    this.eventBus.fire("pathOptions.changed", { options });
   }
 
   /**
@@ -96,19 +111,18 @@ export default class PathOptionsService {
    */
   getOptions(currentFieldKey?: string, componentType?: string): PathOption[] {
     const usedKeys = this.getUsedKeys();
-    return this.pathOptions
-      .filter(option => {
-        if (option.value !== currentFieldKey && usedKeys.has(option.value)) {
-          return false;
-        }
+    return this.pathOptions.filter((option) => {
+      if (option.value !== currentFieldKey && usedKeys.has(option.value)) {
+        return false;
+      }
 
-        // If no component type filter, show all options
-        if (!componentType) {
-          return true;
-        }
-        // Filter by type compatibility
-        return isTypeCompatible(option.type, componentType);
-      });
+      // If no component type filter, show all options
+      if (!componentType) {
+        return true;
+      }
+      // Filter by type compatibility
+      return isTypeCompatible(option.type, componentType);
+    });
   }
 
   /**
@@ -120,6 +134,6 @@ export default class PathOptionsService {
 }
 
 export const pathOptionsModule = {
-  __init__: ['pathOptionsService'],
-  pathOptionsService: ['type', PathOptionsService]
+  __init__: ["pathOptionsService"],
+  pathOptionsService: ["type", PathOptionsService],
 };

@@ -21,12 +21,14 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -101,10 +103,17 @@ public class ModelRegistry {
      * Kogito 10 generates JSON schemas from these runtime models rather than
      * emitting the legacy aggregate dmnDefinitions.json resource.
      */
+    /**
+     * The compiled models in a fixed order (namespace, then name). The OpenAPI schema generator numbers
+     * schema prefixes ({@code ns1}, {@code ns2}, ...) in list order, and the runtime's own order follows
+     * file discovery, which differs between machines; a fixed order keeps {@code openapi.snapshot.json} stable.
+     */
     List<DMNModel> getDmnModels() {
         DecisionModels decisionModels = application.get(DecisionModels.class);
         DMNRuntime dmnRuntime = getDMNRuntime(decisionModels);
-        return dmnRuntime == null ? List.of() : List.copyOf(dmnRuntime.getModels());
+        return dmnRuntime == null ? List.of() : dmnRuntime.getModels().stream()
+            .sorted(Comparator.comparing(DMNModel::getNamespace).thenComparing(DMNModel::getName))
+            .toList();
     }
 
     /**
@@ -116,11 +125,11 @@ public class ModelRegistry {
         Map<String, ModelInfo> modelMap = new HashMap<>();
         Map<String, ModelInfo> modelsByPath = new HashMap<>();
 
+        // Outside the try: a malformed Bruno example must fail startup, not publish an empty registry.
+        Map<String, List<BrunoExamples.Example>> examples = BrunoExamples.load();
+
         try {
-            // Build mappings of model name -> file path and model name -> description
-            Map<String, String> modelDescriptions = new HashMap<>();
-            Map<String, List<BenefitCheckInfo>> benefitChecks = new HashMap<>();
-            Map<String, String> modelNameToPath = scanDMNFiles(modelDescriptions, benefitChecks);
+            DmnScan scan = scanDMNFiles();
 
             DecisionModels decisionModels = application.get(DecisionModels.class);
             DMNRuntime dmnRuntime = getDMNRuntime(decisionModels);
@@ -148,12 +157,17 @@ public class ModelRegistry {
                     .collect(Collectors.toList());
 
                 // Get the file path and description for this model
-                String path = modelNameToPath.getOrDefault(modelName, modelName);
-                String description = modelDescriptions.get(modelName);
+                String path = scannedPath(model, scan.paths);
+                String description = scan.descriptions.get(modelName);
+                boolean benefit = path.startsWith("benefits/");
+                List<BenefitCheckInfo> checks = scan.benefitChecks.getOrDefault(modelName, List.of());
 
                 ModelInfo info = new ModelInfo(namespace, modelName, decisionServices, decisions, path, description,
-                    benefitChecks.getOrDefault(modelName, List.of()),
-                    path.startsWith("benefits/") ? evaluateNextSteps(dmnRuntime, model) : Map.of());
+                    checks,
+                    benefit ? evaluateNextSteps(dmnRuntime, model) : Map.of(),
+                    publishedReference(dmnRuntime, model, path, description, checks,
+                        scan.referenceDocs.getOrDefault(modelName, ReferenceDocs.NONE)),
+                    examples.getOrDefault(path, List.of()));
                 modelMap.put(modelName, info);
                 modelsByPath.put(path, info);
 
@@ -164,7 +178,7 @@ public class ModelRegistry {
 
             log.info("Model registry cache built: {} models registered", modelMap.size());
 
-        } catch (InvalidNextStepsException e) {
+        } catch (InvalidNextStepsException | Reference.InvalidReferenceException e) {
             throw e;
         } catch (Exception e) {
             log.error("Error building DMN model cache", e);
@@ -173,6 +187,85 @@ public class ModelRegistry {
         // Assign to volatile fields for thread-safe publication
         this.cachedModels = modelMap;
         this.cachedModelsByPath = modelsByPath;
+    }
+
+    /**
+     * The model's file path from the classpath scan, or its bare name when the scan did not record it.
+     * An exposed model, or one with a {@code reference} decision, that the scan missed fails startup: without
+     * its path, nothing can tell whether it is a library benefit or check, so its reference cannot be checked.
+     */
+    static String scannedPath(DMNModel model, Map<String, String> scannedPaths) {
+        String path = scannedPaths.get(model.getName());
+        if (path != null) {
+            return path;
+        }
+        String why = null;
+        if (ModelInfo.isExposed(model.getName(), serviceNames(model))) {
+            why = " is exposed through " + model.getName() + "Service";
+        } else if (model.getDecisionByName(Reference.DECISION) != null) {
+            why = " has a '" + Reference.DECISION + "' decision";
+        }
+        if (why != null) {
+            throw new Reference.InvalidReferenceException(model.getName() + why
+                + " but the classpath scan did not find its DMN file, so its reference cannot be checked."
+                + " The scan probably failed: see the earlier DMN classpath scan errors or warnings in the log.");
+        }
+        return model.getName();
+    }
+
+    /**
+     * The reference as published in OpenAPI ({@code x-bdt-reference}): the model description as its summary,
+     * the constant {@code reference} decision, and the documentation written on the DMN itself.
+     * Every exposed benefit and check ({@link ModelInfo#isLibraryExposed}) must have one. Base modules and
+     * utilities outside {@code benefits/} and {@code checks/} need none, and may not have one: the path decides
+     * whether a reference is a benefit or check reference, and outside those folders it is neither.
+     */
+    static Map<String, Object> publishedReference(DMNRuntime runtime, DMNModel model, String path,
+                                                  String summary, List<BenefitCheckInfo> checks, ReferenceDocs docs) {
+        boolean benefit = path.startsWith("benefits/");
+        if (!benefit && !path.startsWith("checks/")) {
+            if (model.getDecisionByName(Reference.DECISION) != null) {
+                throw new Reference.InvalidReferenceException(model.getName() + " has a '" + Reference.DECISION
+                    + "' decision but its file (" + path + ") is not under benefits/ or checks/,"
+                    + " so it is neither a benefit nor a check reference");
+            }
+            return Map.of();
+        }
+        Map<String, Object> evaluated = Reference.evaluate(runtime, model,
+            benefit ? Reference.Kind.BENEFIT : Reference.Kind.CHECK);
+        if (evaluated.isEmpty()) {
+            if (ModelInfo.isLibraryExposed(path, model.getName(), serviceNames(model))) {
+                throw new Reference.InvalidReferenceException(model.getName()
+                    + " is exposed through " + model.getName() + "Service but has no '" + Reference.DECISION + "' decision");
+            }
+            return Map.of();
+        }
+        if (summary == null) {
+            throw new Reference.InvalidReferenceException(model.getName()
+                + " has a reference but no model description to use as its summary");
+        }
+        Map<String, Object> reference = new LinkedHashMap<>();
+        reference.put("summary", summary);
+        reference.putAll(evaluated);
+        if (benefit) {
+            List<Map<String, Object>> rationale = new ArrayList<>();
+            for (BenefitCheckInfo check : checks) {
+                Map<String, Object> entry = new LinkedHashMap<>();
+                entry.put("alias", check.alias());
+                entry.put("operationId", check.operationId());
+                entry.put("rationale", docs.checkRationale().get(check.alias()));
+                rationale.add(Collections.unmodifiableMap(entry));
+            }
+            reference.put("checks", List.copyOf(rationale));
+        } else if (!docs.parameters().isEmpty()) {
+            reference.put("parameters", docs.parameters());
+        }
+        reference.put("implementationNotes", docs.implementationNotes());
+        return Collections.unmodifiableMap(reference);
+    }
+
+    private static List<String> serviceNames(DMNModel model) {
+        return model.getDecisionServices().stream().map(ds -> ds.getName()).toList();
     }
 
     /** Thrown for any invalid benefit nextSteps so startup fails instead of publishing a partial registry. */
@@ -235,16 +328,18 @@ public class ModelRegistry {
     /**
      * Initializes the model registry and validates that all DMN model names are unique.
      * This runs at application startup and on every hot reload.
-     * Builds the model cache FIRST, then validates for duplicate model names.
+     * Validates model names FIRST: the classpath scan is keyed by model name, so a duplicate would
+     * otherwise mix up two files' paths and references and fail with a misleading reference error.
      *
      * @throws IllegalStateException if duplicate model names are detected
      */
     @PostConstruct
     public void initialize() {
-        // Build the cache first
+        validateUniqueModelNames();
         buildModelCache();
+    }
 
-        // Then validate model names
+    private void validateUniqueModelNames() {
         try {
             // Get models directly from DMNRuntime BEFORE deduplication
             DecisionModels decisionModels = application.get(DecisionModels.class);
@@ -320,17 +415,21 @@ public class ModelRegistry {
         }
     }
 
+    /** What the classpath scan reads from each DMN file, keyed by model name. */
+    private static final class DmnScan {
+        final Map<String, String> paths = new HashMap<>();
+        final Map<String, String> descriptions = new HashMap<>();
+        final Map<String, List<BenefitCheckInfo>> benefitChecks = new HashMap<>();
+        final Map<String, ReferenceDocs> referenceDocs = new HashMap<>();
+    }
+
     /**
-     * Scan the classpath for .dmn files and build mappings of model name to relative path and description.
+     * Scan the classpath for .dmn files and read each model's path, description, benefit checks and reference docs.
      * Uses ClassLoader-based scanning that works in both dev mode and production (JAR).
      * Paths are relative to the classpath root, excluding the .dmn extension.
-     *
-     * @param modelDescriptions if not null, will be populated with model name to description mappings
-     * @return map of model name to relative path
      */
-    private Map<String, String> scanDMNFiles(Map<String, String> modelDescriptions,
-                                             Map<String, List<BenefitCheckInfo>> benefitChecks) {
-        Map<String, String> modelNameToPath = new HashMap<>();
+    private DmnScan scanDMNFiles() {
+        DmnScan scan = new DmnScan();
 
         try {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -348,25 +447,22 @@ public class ModelRegistry {
                         Path dmnPath = Paths.get(resourceUrl.toURI());
                         Path rootPath = dmnPath.getParent(); // This should be target/classes or similar
                         log.debug("Scanning filesystem for DMN files from root: {}", rootPath);
-                        scanFilesystemForDMN(rootPath, rootPath, modelNameToPath, modelDescriptions, benefitChecks);
+                        scanFilesystemForDMN(rootPath, scan);
                     } catch (Exception e) {
                         log.error("Error scanning filesystem from resource URL", e);
                     }
                 } else if ("jar".equals(protocol)) {
                     // Production mode - extract JAR path
                     try {
-                        String jarPath = resourceUrl.getPath();
-                        if (jarPath.contains("!")) {
-                            jarPath = jarPath.substring(0, jarPath.indexOf("!"));
-                            if (jarPath.startsWith("file:")) {
-                                jarPath = jarPath.substring(5);
-                            }
-                            log.debug("Scanning JAR for DMN files: {}", jarPath);
-                            scanJarForDMN(jarPath, modelNameToPath, modelDescriptions, benefitChecks);
-                        }
+                        Path jarPath = jarFilePath(resourceUrl);
+                        log.debug("Scanning JAR for DMN files: {}", jarPath);
+                        scanJarForDMN(jarPath, scan);
                     } catch (Exception e) {
                         log.error("Error scanning JAR from resource URL", e);
                     }
+                } else {
+                    log.error("Cannot scan DMN files: BDT.dmn was found at {}, but only file: and jar: URLs can be scanned",
+                        resourceUrl);
                 }
             } else {
                 log.warn("Could not locate BDT.dmn resource, falling back to target/classes scan");
@@ -374,58 +470,37 @@ public class ModelRegistry {
                 Path targetClasses = Paths.get("target/classes");
                 if (Files.exists(targetClasses)) {
                     log.debug("Scanning fallback directory: {}", targetClasses);
-                    scanFilesystemForDMN(targetClasses, targetClasses, modelNameToPath, modelDescriptions, benefitChecks);
+                    scanFilesystemForDMN(targetClasses, scan);
                 } else {
                     log.error("Could not find DMN files - neither BDT.dmn resource nor target/classes directory found");
                 }
             }
 
-            log.info("DMN classpath scan complete: found {} models", modelNameToPath.size());
+            if (scan.paths.isEmpty()) {
+                log.error("DMN classpath scan found no DMN files");
+            } else {
+                log.info("DMN classpath scan complete: found {} models", scan.paths.size());
+            }
 
         } catch (Exception e) {
             log.error("Error scanning DMN files from classpath", e);
         }
 
-        return modelNameToPath;
+        return scan;
     }
 
     /**
      * Scan a filesystem directory for DMN files.
      */
-    private void scanFilesystemForDMN(Path rootPath, Path currentPath,
-                                       Map<String, String> modelNameToPath,
-                                       Map<String, String> modelDescriptions,
-                                       Map<String, List<BenefitCheckInfo>> benefitChecks) throws Exception {
-        log.debug("Walking filesystem from {} (root: {})", currentPath, rootPath);
-        try (Stream<Path> paths = Files.walk(currentPath)) {
+    private void scanFilesystemForDMN(Path rootPath, DmnScan scan) throws Exception {
+        log.debug("Walking filesystem from {}", rootPath);
+        try (Stream<Path> paths = Files.walk(rootPath)) {
             paths.filter(path -> path.toString().endsWith(".dmn"))
                  .forEach(path -> {
+                     // Use '/' on every OS: paths become API routes and are matched against "benefits/"
+                     String relativePath = rootPath.relativize(path).toString().replace('\\', '/');
                      try (InputStream is = Files.newInputStream(path)) {
-                         String modelName = extractModelName(is);
-                         if (modelName != null) {
-                             // Use '/' on every OS: paths become API routes and are matched against "benefits/"
-                             String relativePath = rootPath.relativize(path).toString().replace('\\', '/');
-                             relativePath = relativePath.substring(0, relativePath.length() - 4); // remove .dmn
-                             modelNameToPath.put(modelName, relativePath);
-                             log.debug("Mapped DMN file: {} -> {}", modelName, relativePath);
-
-                             if (modelDescriptions != null) {
-                                 try (InputStream is2 = Files.newInputStream(path)) {
-                                     String description = extractModelDescription(is2);
-                                     modelDescriptions.put(modelName, description);
-                                     log.debug("Extracted description for {}: {}", modelName,
-                                               description != null ? description.substring(0, Math.min(50, description.length())) + "..." : "null");
-                                 }
-                             }
-                             if (relativePath.startsWith("benefits/")) {
-                                 try (InputStream is3 = Files.newInputStream(path)) {
-                                     List<BenefitCheckInfo> checks = extractBenefitChecks(is3);
-                                     if (!checks.isEmpty()) {
-                                         benefitChecks.put(modelName, checks);
-                                     }
-                                 }
-                             }
-                         }
+                         readDMN(relativePath, is, scan);
                      } catch (Exception e) {
                          log.warn("Failed to parse DMN file: {}", path, e);
                      }
@@ -434,12 +509,23 @@ public class ModelRegistry {
     }
 
     /**
+     * The JAR file holding a {@code jar:file:...!/entry} resource. The file URL is percent-encoded, so it is
+     * decoded as a URI: a JAR under a directory with a space in its name would otherwise not be found.
+     */
+    static Path jarFilePath(URL resourceUrl) {
+        String spec = resourceUrl.toString();
+        int separator = spec.indexOf("!/");
+        if (!spec.startsWith("jar:") || separator < 0) {
+            throw new IllegalArgumentException("Not a JAR resource URL: " + spec);
+        }
+        return Paths.get(URI.create(spec.substring("jar:".length(), separator)));
+    }
+
+    /**
      * Scan a JAR file for DMN files.
      */
-    private void scanJarForDMN(String jarPath, Map<String, String> modelNameToPath,
-                               Map<String, String> modelDescriptions,
-                               Map<String, List<BenefitCheckInfo>> benefitChecks) {
-        try (JarFile jarFile = new JarFile(jarPath)) {
+    private void scanJarForDMN(Path jarPath, DmnScan scan) {
+        try (JarFile jarFile = new JarFile(jarPath.toFile())) {
             Enumeration<JarEntry> entries = jarFile.entries();
 
             while (entries.hasMoreElements()) {
@@ -448,29 +534,7 @@ public class ModelRegistry {
 
                 if (name.endsWith(".dmn") && !entry.isDirectory()) {
                     try (InputStream is = jarFile.getInputStream(entry)) {
-                        String modelName = extractModelName(is);
-                        if (modelName != null) {
-                            String relativePath = name.substring(0, name.length() - 4); // remove .dmn
-                            modelNameToPath.put(modelName, relativePath);
-                            log.debug("Mapped DMN file from JAR: {} -> {}", modelName, relativePath);
-
-                            if (modelDescriptions != null) {
-                                try (InputStream is2 = jarFile.getInputStream(entry)) {
-                                    String description = extractModelDescription(is2);
-                                    modelDescriptions.put(modelName, description);
-                                    log.debug("Extracted description for {}: {}", modelName,
-                                              description != null ? description.substring(0, Math.min(50, description.length())) + "..." : "null");
-                                }
-                            }
-                            if (relativePath.startsWith("benefits/")) {
-                                try (InputStream is3 = jarFile.getInputStream(entry)) {
-                                    List<BenefitCheckInfo> checks = extractBenefitChecks(is3);
-                                    if (!checks.isEmpty()) {
-                                        benefitChecks.put(modelName, checks);
-                                    }
-                                }
-                            }
-                        }
+                        readDMN(name, is, scan);
                     } catch (Exception e) {
                         log.warn("Failed to parse DMN file from JAR: {}", name, e);
                     }
@@ -481,55 +545,39 @@ public class ModelRegistry {
         }
     }
 
-    /**
-     * Extract the model name from a DMN file by parsing its XML.
-     *
-     * @param inputStream InputStream of the DMN file
-     * @return the model name, or null if parsing fails
-     */
-    private String extractModelName(InputStream inputStream) {
-        try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(inputStream);
-
-            Element root = doc.getDocumentElement();
-            if (root != null && root.hasAttribute("name")) {
-                return root.getAttribute("name");
-            }
-        } catch (Exception e) {
-            log.debug("Failed to extract model name: {}", e.getMessage());
+    /** Parse one DMN file (relative path including {@code .dmn}) and record what the registry needs from it. */
+    private void readDMN(String relativeFile, InputStream inputStream, DmnScan scan) throws Exception {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        Document doc = factory.newDocumentBuilder().parse(inputStream);
+        Element root = doc.getDocumentElement();
+        if (root == null || !root.hasAttribute("name")) {
+            return;
         }
-        return null;
+        String modelName = root.getAttribute("name");
+        String relativePath = relativeFile.substring(0, relativeFile.length() - 4); // remove .dmn
+        scan.paths.put(modelName, relativePath);
+        scan.descriptions.put(modelName, modelDescription(root));
+        scan.referenceDocs.put(modelName, ReferenceDocs.extract(doc));
+        if (relativePath.startsWith("benefits/")) {
+            List<BenefitCheckInfo> checks = extractBenefitChecks(doc);
+            if (!checks.isEmpty()) {
+                scan.benefitChecks.put(modelName, checks);
+            }
+        }
+        log.debug("Mapped DMN file: {} -> {}", modelName, relativePath);
     }
 
     /**
-     * Extract the model description from a DMN file by parsing its XML.
-     * Looks for the <dmn:description> element directly within the root <dmn:definitions> element,
-     * ignoring descriptions on decisions and other nested elements.
-     *
-     * @param inputStream InputStream of the DMN file
-     * @return the model description, or null if not present or parsing fails
+     * The model description: the {@code <description>} directly within the root {@code <definitions>},
+     * ignoring descriptions on decisions and other nested elements. Null when absent or blank.
      */
-    String extractModelDescription(InputStream inputStream) {
-        try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(inputStream);
-
-            Element root = doc.getDocumentElement();
-            if (root != null) {
-                Element descElement = directChild(root, "description");
-                if (descElement != null) {
-                    String description = descElement.getTextContent();
-                    // Return null if description is just whitespace
-                    return (description != null && !description.trim().isEmpty()) ? description.trim() : null;
-                }
-            }
-        } catch (Exception e) {
-            log.debug("Failed to extract description: {}", e.getMessage());
+    String modelDescription(Element root) {
+        Element descElement = directChild(root, "description");
+        if (descElement != null) {
+            String description = descElement.getTextContent();
+            // Return null if description is just whitespace
+            return (description != null && !description.trim().isEmpty()) ? description.trim() : null;
         }
         return null;
     }
@@ -538,11 +586,8 @@ public class ModelRegistry {
      * Extract benefit composition from the conventional top-level decision named {@code checks}.
      * The DMN remains the source of truth; this representation is published in OpenAPI for clients.
      */
-    private List<BenefitCheckInfo> extractBenefitChecks(InputStream inputStream) {
+    private List<BenefitCheckInfo> extractBenefitChecks(Document doc) {
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            Document doc = factory.newDocumentBuilder().parse(inputStream);
             Element definitions = doc.getDocumentElement();
             Element checksDecision = null;
             for (Node node = definitions.getFirstChild(); node != null; node = node.getNextSibling()) {
@@ -681,14 +726,7 @@ public class ModelRegistry {
                     scanFilesystemForNamespaces(rootPath, rootPath, namespaceToPath);
                 } else if ("jar".equals(protocol)) {
                     // Production mode - scan JAR file
-                    String jarPath = resourceUrl.getPath();
-                    if (jarPath.contains("!")) {
-                        jarPath = jarPath.substring(0, jarPath.indexOf("!"));
-                        if (jarPath.startsWith("file:")) {
-                            jarPath = jarPath.substring(5);
-                        }
-                        scanJarForNamespaces(jarPath, namespaceToPath);
-                    }
+                    scanJarForNamespaces(jarFilePath(resourceUrl), namespaceToPath);
                 }
             } else {
                 // Fallback for dev mode
@@ -737,8 +775,8 @@ public class ModelRegistry {
     /**
      * Scan a JAR file for DMN namespaces.
      */
-    private void scanJarForNamespaces(String jarPath, Map<String, String> namespaceToPath) {
-        try (JarFile jarFile = new JarFile(jarPath)) {
+    private void scanJarForNamespaces(Path jarPath, Map<String, String> namespaceToPath) {
+        try (JarFile jarFile = new JarFile(jarPath.toFile())) {
             Enumeration<JarEntry> entries = jarFile.entries();
 
             while (entries.hasMoreElements()) {

@@ -7,9 +7,6 @@ import {
 } from "@/components/screenerEditor/formJsExtensions/nextSteps/content";
 
 export type CrmNextSteps = Record<string, BenefitNextSteps>;
-export type NextStepsProvider = (
-  results: ScreenerResult,
-) => CrmNextSteps | undefined;
 
 /** Project the saved screener copy, never evaluation-provider content or generated HTML. */
 export function projectNextSteps(

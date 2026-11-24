@@ -1,0 +1,49 @@
+meta {
+  name: Income over limit
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/benefits/pa/liheap-cash
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "situation": {
+      "primaryPersonId": "p1",
+      "enrollments": [
+        {
+          "personId": "p1",
+          "benefit": "OtherBenefit"
+        }
+      ],
+      "householdSize": 4,
+      "householdIncome": 49501,
+      "simpleChecks": {
+        "livesInPennsylvania": true,
+        "paysPrimaryHeatingCosts": true,
+        "heatInIncomeBasedRent": false,
+        "householdHasCitizenOrEligibleNoncitizen": true
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.isEligible: eq false
+  res.body.checks.IncomeAtOrBelow150PercentFpl: eq false
+}
+
+docs {
+  A household of four with $49,501 a year, $1 over the 150% limit of $49,500. The income check
+  fails, so the household is not eligible.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -53,3 +53,7 @@ assert {
   res.body.isEligible: eq true
   res.body.checks.MeetsAgeOrIncomeRequirement: eq true
 }
+docs {
+  A younger applicant with high income is eligible because their spouse, who lives with them, is over 65.
+}
+
