@@ -1,6 +1,6 @@
 import EditorNavigation from "@/components/shared/EditorNavigation";
 import { createSignal, createResource, Accessor } from "solid-js";
-import { A, useParams } from "@solidjs/router";
+import { A, useParams, useSearchParams } from "@solidjs/router";
 
 import FormEditorView from "./FormEditorView";
 import Loading from "../Loading";
@@ -13,12 +13,33 @@ import { NavbarProps } from "@/components/shared/BdtNavbar";
 import { Title } from "@solidjs/meta";
 import type { BenefitDetail } from "@/types";
 
-type TabOption = "manageBenefits" | "formEditor" | "preview" | "publish";
+const tabOptions = [
+  "manageBenefits",
+  "formEditor",
+  "preview",
+  "publish",
+] as const;
+// Derived from tabOptions so the runtime list used to check ?tab= and the
+// type used to catch tab-name typos at compile time stay in sync
+type TabOption = (typeof tabOptions)[number];
 
 function ScreenerEditor() {
   const params = useParams();
 
-  const [activeTab, setActiveTab] = createSignal<TabOption>("manageBenefits");
+  // The URL holds the open tab so reloads and links keep it.
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const activeTab = (): TabOption => {
+    const tab = searchParams.tab as TabOption;
+    // Fall back to the default for any value that isn't a known tab.
+    return tabOptions.includes(tab) ? tab : "manageBenefits";
+  };
+  const setActiveTab = (tab: TabOption) =>
+    setSearchParams(
+      { tab: tab === "manageBenefits" ? undefined : tab },
+      { replace: true },
+    );
+
   // Kept here rather than in ManageBenefits so that selecting the Manage
   // Benefits section also returns from Configure Benefit to the list.
   const [benefitIdToConfigure, setBenefitIdToConfigure] = createSignal<
