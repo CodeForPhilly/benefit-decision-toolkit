@@ -10,6 +10,7 @@ Use the `gh` CLI from this checkout.
 - Create: `gh issue create --title "..." --body-file <file>`.
 - Comment: `gh issue comment <number> --body-file <file>`.
 - Label: `gh issue edit <number> --add-label "..."` or `--remove-label "..."`.
+- Type: `gh issue edit <number> --type Bug` (or `Feature`, `Task`); `--remove-type` clears it. Read it with `gh issue view <number> --json issueType`.
 - Close: post the explanation as a comment, then run `gh issue close <number>`.
 
 Use files with actual newlines for multiline bodies and comments.
